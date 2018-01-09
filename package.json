@@ -1,0 +1,20 @@
+{
+  "name": "parse",
+  "version": "1.0.0",
+  "description": "",
+  "main": "parse.js",
+  "dependencies": {
+    "circular-json": "^0.5.1",
+    "xml2js": "^0.4.19",
+    "xml2json": "^0.11.0",
+    "xmlbuilder": "^9.0.4"
+  },
+  "devDependencies": {
+    "eslint-plugin-promise": "^3.6.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "AGPL"
+}
