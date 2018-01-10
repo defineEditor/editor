@@ -68,13 +68,14 @@ class GlobalVariables {
 
 class MetaDataVersion {
     constructor ({
-        oid, name, description, defineVersion, comment,
+        oid, name, defineVersion, comment,
         standards, annotatedCrf, supplementalDoc, valueLists, whereClauses,
-        itemGroups, itemDefs, codeLists, methods, comments, leafs
+        itemGroups, itemDefs, codeLists, methods, comments, leafs,
+        descriptions = []
     } = {}) {
         this.oid = oid || getOid(this.constructor.name);
         this.name = name;
-        this.description = description;
+        this.descriptions = descriptions;
         this.defineVersion = defineVersion;
         this.comment = comment;
         this.standards = standards;
@@ -94,6 +95,16 @@ class MetaDataVersion {
     }
     addItemGroup (itemGroup) {
         this.itemGroups.push(itemGroup);
+    }
+    addDescription (description) {
+        this.descriptions.push(description);
+    }
+    getDescription (language) {
+        if (this.descriptions.length === 1) {
+            return this.descriptions[0];
+        } else {
+            return undefined;
+        }
     }
 }
 
@@ -146,6 +157,13 @@ class ItemGroup {
     addDescription (description) {
         this.descriptions.push(description);
     }
+    getDescription (language) {
+        if (this.descriptions.length === 1) {
+            return this.descriptions[0];
+        } else {
+            return undefined;
+        }
+    }
 }
 
 class ItemDef {
@@ -173,6 +191,13 @@ class ItemDef {
     }
     addDescription (description) {
         this.descriptions.push(description);
+    }
+    getDescription (language) {
+        if (this.descriptions.length === 1) {
+            return this.descriptions[0];
+        } else {
+            return undefined;
+        }
     }
     addOrigin (origin) {
         this.origins.push(origin);
@@ -219,6 +244,13 @@ class ValueList {
     addDescription (description) {
         this.descriptions.push(description);
     }
+    getDescription (language) {
+        if (this.descriptions.length === 1) {
+            return this.descriptions[0];
+        } else {
+            return undefined;
+        }
+    }
     getVlm () {
         return this.vlm;
     }
@@ -235,6 +267,13 @@ class Origin {
     }
     addDescription (description) {
         this.descriptions.push(description);
+    }
+    getDescription (language) {
+        if (this.descriptions.length === 1) {
+            return this.descriptions[0];
+        } else {
+            return undefined;
+        }
     }
     addDocument (document) {
         this.documents.push(document);
@@ -295,6 +334,13 @@ class CodeList {
     }
     addDescription (description) {
         this.descriptions.push(description);
+    }
+    getDescription (language) {
+        if (this.descriptions.length === 1) {
+            return this.descriptions[0];
+        } else {
+            return undefined;
+        }
     }
     setExternalCodelist (item) {
         this.externalCodelist = item;
@@ -371,6 +417,13 @@ class Comment {
     }
     addDescription (description) {
         this.descriptions.push(description);
+    }
+    getDescription (language) {
+        if (this.descriptions.length === 1) {
+            return this.descriptions[0];
+        } else {
+            return undefined;
+        }
     }
     addDocument (document) {
         this.documents.push(document);

@@ -2,6 +2,7 @@
 const fs = require('fs');
 const xml2js = require('xml2js');
 const parseDefine = require('./parseDefine.js');
+const createDefine = require('./createDefine.js');
 const path = require('path');
 
 /*
@@ -38,7 +39,7 @@ function createStructure (xmlData) {
 
 function createXmlFromOdm (odm) {
     return new Promise(function (resolve, reject) {
-        resolve(odm);
+        resolve(createDefine(odm,'2.0.0'));
     });
 }
 

@@ -483,7 +483,7 @@ function parseMetaDataVersion (metadataRaw) {
 
     if (metadataRaw.hasOwnProperty('description')) {
         metadataRaw['description'].forEach(function (item) {
-            metadataRaw.addDescription(parseTranslatedText(item));
+            metaDataVersion.addDescription(parseTranslatedText(item));
         });
     }
 
