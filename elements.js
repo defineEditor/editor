@@ -458,6 +458,9 @@ class Document {
         this.firstPage = firstPage;
         this.lastPage = lastPage;
         this.title = title;
+        if (type||pageRefs||lastPage||title) {
+            pdfPageRefExists = 1;
+        }
     }
 }
 

@@ -58,7 +58,7 @@ function createOdm (data, version) {
 /*
 
 function create (data, version) {
-    let xmlRoot = xmlBuilder.begin('');
+    let xmlRoot = xmlBuilder.create('');
     if (version === '2.0.0') {
         let attributes = {
         };
@@ -127,7 +127,7 @@ function createMetaDataVersion (data, version) {
         }
         if (data.valueLists !== {}) {
             xmlRoot.importDocument(createValueListDef(data.valueLists, version);
-        xmlRoot.importDocument(createWhereClauseDef(data.whereClauses, version);
+            xmlRoot.importDocument(createWhereClauseDef(data.whereClauses, version);
         }
         xmlRoot.importDocument(createItemGroupDef(data., version);
         xmlRoot.importDocument(createItemDef(dataItemDef., version);
@@ -136,6 +136,48 @@ function createMetaDataVersion (data, version) {
         xmlRoot.importDocument(createCommentDef(data., version);
         xmlRoot.importDocument(createLeaf(data., version);
         */
+    }
+
+    return xmlRoot;
+}
+
+function createAnnotatedCrf (data, version) {
+    let xmlRoot = xmlBuilder.create('def:AnnotatedCRF');
+    if (version === '2.0.0') {
+        data.forEach(function (documentRef) {
+            xmlRoot.importDocument(createDocumentRef(documentRef));
+        });
+    }
+
+    return xmlRoot;
+}
+
+function createDocumentRef (data, version) {
+    let xmlRoot = xmlBuilder.create('def:DocumentRef');
+    if (version === '2.0.0') {
+        let attributes = {
+            leafId : documentRef.leafId
+        };
+        for (let attr in attributes) {
+            if (attributes[attr] !== undefined) {
+                xmlRoot.att(attr, attributes[attr]);
+            }
+        }
+        // Create PDFPageDef element
+        if (data.pdfPageRefExists === 1) {
+            let pdfAttributes = {
+                'Type'      : data.type,
+                'PageRefs'  : data.pageRefs,
+                'FirstPage' : data.firstPage,
+                'LastPage'  : data.lastPage
+            };
+            var ppr = xmlRoot.ele('def:PDFPageRef');
+            for (let attr in pdfAttributes) {
+                if (pdfAttributes[attr] !== undefined) {
+                    ppr.att(attr, pdfAttributes[attr]);
+                }
+            }
+        }
     }
 
     return xmlRoot;
