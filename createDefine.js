@@ -121,11 +121,19 @@ function createMetaDataVersion (data, version) {
         }
         // AnnotatedCRF
         if (data.annotatedCrf.length !== 0) {
-            xmlRoot.importDocument(createAnnotatedCrf(data.annotatedCrf, version));
+            let annotatedCrf = {'def:AnnotatedCRF': {'def:DocumentRef': []}};
+            data.annotatedCrf.forEach(function (document) {
+                annotatedCrf['def:AnnotatedCRF']['def:DocumentRef'].push(createDocumentRef(document, version));
+            });
+            xmlRoot.ele(annotatedCrf);
         }
         // SupplementalDoc
         if (data.supplementalDoc.length !== 0) {
-            xmlRoot.importDocument(createSupplementalDoc(data.supplementalDoc, version));
+            let supplementalDoc = {'SupplementalDoc': {'def:DocumentRef': []}};
+            data.supplementalDoc.forEach(function (document) {
+                supplementalDoc['SupplementalDoc']['def:DocumentRef'].push(createDocumentRef(document, version));
+            });
+            xmlRoot.ele(supplementalDoc);
         }
         if (data.valueLists !== {}) {
             // ValueListDef
@@ -142,14 +150,18 @@ function createMetaDataVersion (data, version) {
             xmlRoot.ele(whereClauseDefs);
         }
         // ItemGroupDef
-        let itemGroupDefs = {'def:ItemGroupDef': []};
+        let itemGroupDefs = {'ItemGroupDef': []};
         Object.keys(data.itemGroups).forEach(function (itemGroupOid) {
-            itemGroupDefs['def:ItemGroupDef'].push(createItemGroupDef(data.itemGroups[itemGroupOid], version));
+            itemGroupDefs['ItemGroupDef'].push(createItemGroupDef(data.itemGroups[itemGroupOid], version));
         });
         xmlRoot.ele(itemGroupDefs);
+        // ItemDef
+        let itemDefs = {'ItemDef': []};
+        Object.keys(data.itemDefs).forEach(function (itemOid) {
+            itemDefs['ItemDef'].push(createItemDef(data.itemDefs[itemOid], version));
+        });
+        xmlRoot.ele(itemDefs);
         /*
-        xmlRoot.importDocument(createItemGroupDef(data., version);
-        xmlRoot.importDocument(createItemDef(dataItemDef., version);
         xmlRoot.importDocument(createCodeList(data., version);
         xmlRoot.importDocument(createMethodDef(data., version);
         xmlRoot.importDocument(createCommentDef(data., version);
@@ -161,57 +173,33 @@ function createMetaDataVersion (data, version) {
 }
 
 function createDocumentRef (data, version) {
-    let xmlRoot = xmlBuilder.create('def:DocumentRef');
+    let result = {};
     if (version === '2.0.0') {
         let attributes = {
             leafId: data.leaf.id
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
-                xmlRoot.att(attr, attributes[attr]);
+                result['@' + attr] = attributes[attr];
             }
         }
-        // Create PDFPageDef element
-        data.pdfPageRefs.forEach(function (pdfPageRef) {
-            let pdfAttributes = {
-                'Type'      : pdfPageRef.type,
-                'PageRefs'  : pdfPageRef.pageRefs,
-                'FirstPage' : pdfPageRef.firstPage,
-                'LastPage'  : pdfPageRef.lastPage,
-                'Title'     : pdfPageRef.title
-            };
-            var ppr = xmlRoot.ele('def:PDFPageRef');
-            for (let attr in pdfAttributes) {
-                if (pdfAttributes[attr] !== undefined) {
-                    ppr.att(attr, pdfAttributes[attr]);
-                }
-            }
-        });
+        if (data.pdfPageRefs.length !== 0) {
+            // Create PDFPageDef element
+            result['def:PDFPageRef'] = [];
+            data.pdfPageRefs.forEach(function (pdfPageRef) {
+                let pdfPageRefObj = {
+                    '@Type'      : pdfPageRef.type,
+                    '@PageRefs'  : pdfPageRef.pageRefs,
+                    '@FirstPage' : pdfPageRef.firstPage,
+                    '@LastPage'  : pdfPageRef.lastPage,
+                    '@Title'     : pdfPageRef.title
+                };
+                result['def:PDFPageRef'].push(pdfPageRefObj);
+            });
+        }
     }
 
-    return xmlRoot;
-}
-
-function createAnnotatedCrf (data, version) {
-    let xmlRoot = xmlBuilder.create('def:AnnotatedCRF');
-    if (version === '2.0.0') {
-        data.forEach(function (documentRef) {
-            xmlRoot.importDocument(createDocumentRef(documentRef, version));
-        });
-    }
-
-    return xmlRoot;
-}
-
-function createSupplementalDoc (data, version) {
-    let xmlRoot = xmlBuilder.create('def:SupplementalDoc');
-    if (version === '2.0.0') {
-        data.forEach(function (documentRef) {
-            xmlRoot.importDocument(createDocumentRef(documentRef, version));
-        });
-    }
-
-    return xmlRoot;
+    return result;
 }
 
 function createValueListDef (data, version) {
@@ -324,7 +312,10 @@ function createItemGroupDef (data, version) {
         }
         // Add description
         if (data.descriptions.length !== 0) {
-            result['Description'] = createDescription(data.descriptions, version);
+            result['Description'] = [];
+            data.descriptions.forEach(function (description) {
+                result['Description'].push(createDescription(description, version));
+            });
         }
         // Add ItemRefs
         result['ItemRef'] = [];
@@ -345,15 +336,12 @@ function createItemGroupDef (data, version) {
 }
 
 function createDescription (data, version) {
-    let result = {'Description': []};
+    let result = {};
     if (version === '2.0.0') {
-        data.forEach(function (translatedText) {
-            let translatedTextObj = {'TranslatedText': {'#text': translatedText.value}};
-            if (translatedText.lang !== undefined) {
-                translatedTextObj['TranslatedText']['@xml:lang'] = translatedText.lang;
-            }
-            result['Description'].push(translatedTextObj);
-        });
+        result = {'TranslatedText': {'#text': data.value}};
+        if (data.lang !== undefined) {
+            result['TranslatedText']['@xml:lang'] = data.lang;
+        }
     }
 
     return result;
@@ -397,4 +385,78 @@ function createLeaf (data, version) {
     return result;
 }
 
+function createItemDef (data, version) {
+    let result = {};
+    if (version === '2.0.0') {
+        let attributes = {
+            'OID'               : data.oid,
+            'Name'              : data.name,
+            'DataType'          : data.dataType,
+            'Length'            : data.length,
+            'SignificantDigits' : data.fractionDigits,
+            'SASFieldName'      : data.fieldName,
+            'def:DisplayFormat' : data.displayFormat
+        };
+        if (data.comment !== undefined) {
+            Object.assign(attributes, {'def:CommentOID': data.comment.oid});
+        }
+        for (let attr in attributes) {
+            if (attributes[attr] !== undefined) {
+                result['@' + attr] = attributes[attr];
+            }
+        }
+        // Add Description
+        if (data.descriptions.length !== 0) {
+            result['Description'] = [];
+            data.descriptions.forEach(function (description) {
+                result['Description'].push(createDescription(description, version));
+            });
+        }
+        // Add CodelistRef
+        if (data.codeList !== undefined) {
+            result['CodeListRef'] = {'@CodeListOID': data.codeList.oid};
+        }
+        // Add Origin
+        // 2.0.0 allows only one origin
+        if (data.origins.length !== 0) {
+            result['def:Origin'] = createOrigin(data.origins[0], version);
+        }
+        // Add ValueListRef
+        if (data.valueList !== undefined) {
+            result['ValueListRef'] = {'@ValueListOID': data.valueList.oid};
+        }
+    }
+
+    return result;
+}
+
+function createOrigin (data, version) {
+    let result = {};
+    if (version === '2.0.0') {
+        let attributes = {
+            'Type': data.type
+        };
+        for (let attr in attributes) {
+            if (attributes[attr] !== undefined) {
+                result['@' + attr] = attributes[attr];
+            }
+        }
+        // Add description
+        if (data.descriptions.length !== 0) {
+            result['Description'] = [];
+            data.descriptions.forEach(function (description) {
+                result['Description'].push(createDescription(description, version));
+            });
+        }
+        // Add DocumentRef
+        if (data.documents.length !== 0) {
+            result['def:DocumentRef'] = [];
+            data.documents.forEach(function (document) {
+                result['def:DocumentRef'].push(createDescription(document, version));
+            });
+        }
+    }
+
+    return result;
+}
 module.exports = createDefine;

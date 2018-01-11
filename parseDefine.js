@@ -73,6 +73,7 @@ function parseLeafs (leafsRaw) {
         });
         leafs[leaf.id] = leaf;
     });
+
     return leafs;
 }
 
@@ -99,6 +100,7 @@ function parseDocument (doc, mdv) {
             }));
         });
     }
+
     return new def.Document(args);
 }
 
@@ -107,6 +109,7 @@ function parseDocumentCollection (documentsRaw, mdv) {
     documentsRaw.forEach(function (documentRaw) {
         documents.push(parseDocument(documentRaw['documentRef'][0], mdv));
     });
+
     return documents;
 }
 
@@ -123,6 +126,7 @@ function parseTranslatedText (item) {
             value : item['translatedText'][0]['_']
         };
     }
+
     return new def.TranslatedText(args);
 }
 
@@ -140,6 +144,7 @@ function parseComments (commentsRaw, mdv) {
         }
         comments[comment.oid] = comment;
     });
+
     return comments;
 }
 
@@ -159,6 +164,7 @@ function parseStandards (standardsRaw, defineVersion) {
 
         standards[standard.oid] = standard;
     }
+
     return standards;
 }
 
@@ -192,6 +198,7 @@ function parseMethods (methodsRaw, mdv) {
         }
         methods[method.oid] = method;
     });
+
     return methods;
 }
 
@@ -245,6 +252,7 @@ function parseCodelists (codelistsRaw, mdv) {
         }
         codelists[codelist.oid] = codelist;
     });
+
     return codelists;
 }
 
@@ -280,10 +288,11 @@ function parseWhereClauses (whereClausesRaw, mdv) {
         }
         whereClauses[whereClause.oid] = whereClause;
     });
+
     return whereClauses;
 }
 function parseOrigins (originsRaw, mdv) {
-    let origins = {};
+    let origins = [];
     originsRaw.forEach(function (originRaw) {
         let origin = new def.Origin({
             type   : originRaw['$']['type'],
@@ -299,8 +308,9 @@ function parseOrigins (originsRaw, mdv) {
                 origin.addDocument(parseDocument(item, mdv.leafs));
             });
         }
-        origins[origin.oid] = origin;
+        origins.push(origin);
     });
+
     return origins;
 }
 
@@ -325,9 +335,9 @@ function parseItemDefs (itemDefsRaw, mdv) {
             args.valueListOid = itemDefRaw['valueListRef'][0]['$']['valueListOid'];
         }
         // Rename some of the properties to match class definitions
-        args['sASFieldName'] = args['fieldName'];
+        args['fieldName'] = args['sASFieldName'];
         delete args['sASFieldName'];
-        args['significantDigits'] = args['fractionDigits'];
+        args['fractionDigits'] = args['significantDigits'];
         delete args['significantDigits'];
 
         // Create the itemDef
@@ -339,6 +349,7 @@ function parseItemDefs (itemDefsRaw, mdv) {
 
         itemDefs[itemDef.oid] = itemDef;
     });
+
     return itemDefs;
 }
 
@@ -359,6 +370,7 @@ function parseItemRef (itemRefRaw, mdv) {
     if (itemRefRaw.hasOwnProperty('whereClauseRef')) {
         args.whereClause = mdv.whereClauses[itemRefRaw['whereClauseRef'][0]['$']['whereClauseOid']];
     }
+
     return new def.ItemRef(args);
 }
 
@@ -407,6 +419,7 @@ function parseItemGroups (itemGroupsRaw, mdv) {
 
         itemGroups[itemGroup.oid] = itemGroup;
     });
+
     return itemGroups;
 }
 
@@ -427,6 +440,7 @@ function parseValueLists (valueListsRaw, mdv) {
         });
         valueLists[valueList.oid] = valueList;
     });
+
     return valueLists;
 }
 
