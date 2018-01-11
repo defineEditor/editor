@@ -105,6 +105,7 @@ function createGlobalVariables (data, version) {
 function createMetaDataVersion (data, version) {
     let xmlRoot = xmlBuilder.create('MetaDataVersion');
     if (version === '2.0.0') {
+        // MetaDataVersion
         let attributes = {
             'OID'                 : data.oid,
             'Name'                : data.name,
@@ -118,17 +119,35 @@ function createMetaDataVersion (data, version) {
                 xmlRoot.att(attr, attributes[attr]);
             }
         }
-        /*
-        if (data.annotatedCrf.length > 0) {
-            xmlRoot.importDocument(createAnnotatedCRF(data.annotatedCrf, version);
+        // AnnotatedCRF
+        if (data.annotatedCrf.length !== 0) {
+            xmlRoot.importDocument(createAnnotatedCrf(data.annotatedCrf, version));
         }
-        if (data.supplementalDoc.length > 0) {
-            xmlRoot.importDocument(createSupplementalDoc(data.supplementalDoc, version);
+        // SupplementalDoc
+        if (data.supplementalDoc.length !== 0) {
+            xmlRoot.importDocument(createSupplementalDoc(data.supplementalDoc, version));
         }
         if (data.valueLists !== {}) {
-            xmlRoot.importDocument(createValueListDef(data.valueLists, version);
-            xmlRoot.importDocument(createWhereClauseDef(data.whereClauses, version);
+            // ValueListDef
+            let valueListDefs = {'def:ValueListDef': []};
+            Object.keys(data.valueLists).forEach(function (valueListOid) {
+                valueListDefs['def:ValueListDef'].push(createValueListDef(data.valueLists[valueListOid], version));
+            });
+            xmlRoot.ele(valueListDefs);
+            // WhereClauseDef
+            let whereClauseDefs = {'def:WhereClauseDef': []};
+            Object.keys(data.whereClauses).forEach(function (whereClauseOid) {
+                whereClauseDefs['def:WhereClauseDef'].push(createWhereClauseDef(data.whereClauses[whereClauseOid], version));
+            });
+            xmlRoot.ele(whereClauseDefs);
         }
+        // ItemGroupDef
+        let itemGroupDefs = {'def:ItemGroupDef': []};
+        Object.keys(data.itemGroups).forEach(function (itemGroupOid) {
+            itemGroupDefs['def:ItemGroupDef'].push(createItemGroupDef(data.itemGroups[itemGroupOid], version));
+        });
+        xmlRoot.ele(itemGroupDefs);
+        /*
         xmlRoot.importDocument(createItemGroupDef(data., version);
         xmlRoot.importDocument(createItemDef(dataItemDef., version);
         xmlRoot.importDocument(createCodeList(data., version);
@@ -141,22 +160,11 @@ function createMetaDataVersion (data, version) {
     return xmlRoot;
 }
 
-function createAnnotatedCrf (data, version) {
-    let xmlRoot = xmlBuilder.create('def:AnnotatedCRF');
-    if (version === '2.0.0') {
-        data.forEach(function (documentRef) {
-            xmlRoot.importDocument(createDocumentRef(documentRef));
-        });
-    }
-
-    return xmlRoot;
-}
-
 function createDocumentRef (data, version) {
     let xmlRoot = xmlBuilder.create('def:DocumentRef');
     if (version === '2.0.0') {
         let attributes = {
-            leafId : documentRef.leafId
+            leafId: data.leaf.id
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -164,12 +172,13 @@ function createDocumentRef (data, version) {
             }
         }
         // Create PDFPageDef element
-        if (data.pdfPageRefExists === 1) {
+        data.pdfPageRefs.forEach(function (pdfPageRef) {
             let pdfAttributes = {
-                'Type'      : data.type,
-                'PageRefs'  : data.pageRefs,
-                'FirstPage' : data.firstPage,
-                'LastPage'  : data.lastPage
+                'Type'      : pdfPageRef.type,
+                'PageRefs'  : pdfPageRef.pageRefs,
+                'FirstPage' : pdfPageRef.firstPage,
+                'LastPage'  : pdfPageRef.lastPage,
+                'Title'     : pdfPageRef.title
             };
             var ppr = xmlRoot.ele('def:PDFPageRef');
             for (let attr in pdfAttributes) {
@@ -177,10 +186,215 @@ function createDocumentRef (data, version) {
                     ppr.att(attr, pdfAttributes[attr]);
                 }
             }
-        }
+        });
     }
 
     return xmlRoot;
+}
+
+function createAnnotatedCrf (data, version) {
+    let xmlRoot = xmlBuilder.create('def:AnnotatedCRF');
+    if (version === '2.0.0') {
+        data.forEach(function (documentRef) {
+            xmlRoot.importDocument(createDocumentRef(documentRef, version));
+        });
+    }
+
+    return xmlRoot;
+}
+
+function createSupplementalDoc (data, version) {
+    let xmlRoot = xmlBuilder.create('def:SupplementalDoc');
+    if (version === '2.0.0') {
+        data.forEach(function (documentRef) {
+            xmlRoot.importDocument(createDocumentRef(documentRef, version));
+        });
+    }
+
+    return xmlRoot;
+}
+
+function createValueListDef (data, version) {
+    let result = {};
+    if (version === '2.0.0') {
+        let attributes = {
+            'OID': data.oid
+        };
+        for (let attr in attributes) {
+            if (attributes[attr] !== undefined) {
+                result['@' + attr] = attributes[attr];
+            }
+        }
+        // Add ItemRefs
+        result['ItemRef'] = [];
+        data.itemRefs.forEach(function (itemRef) {
+            result['ItemRef'].push(createItemRef(itemRef, version));
+        });
+    }
+
+    return result;
+}
+
+function createItemRef (data, version) {
+    let result = {};
+    if (version === '2.0.0') {
+        let attributes = {
+            'ItemOID'         : data.itemOid,
+            'OrderNumber'     : data.orderNumber,
+            'Mandatory'       : data.mandatory,
+            'KeySequence'     : data.keySequence,
+            'Role'            : data.role,
+            'RoleCodeListOID' : data.roleCodeList
+        };
+        if (data.method !== undefined) {
+            attributes['MethodOID'] = data.method.oid;
+        }
+        for (let attr in attributes) {
+            if (attributes[attr] !== undefined) {
+                result['@' + attr] = attributes[attr];
+            }
+        }
+        // Add WhereClauseRef
+        if (data.whereClause !== undefined) {
+            result['def:WhereClauseRef'] = {'@WhereClauseOID': data.whereClause.oid};
+        }
+    }
+
+    return result;
+}
+
+function createWhereClauseDef (data, version) {
+    let result = {};
+    if (version === '2.0.0') {
+        let attributes = {
+            'OID': data.oid
+        };
+        if (data.comment !== undefined) {
+            Object.assign(attributes, {'def:CommentOID': data.comment.oid});
+        }
+        for (let attr in attributes) {
+            if (attributes[attr] !== undefined) {
+                result['@' + attr] = attributes[attr];
+            }
+        }
+        // Add RangeChecks
+        result['RangeCheck'] = [];
+        data.rangeChecks.forEach(function (rangeCheck) {
+            let rangeCheckObj = {
+                '@Comparator' : rangeCheck.comparator,
+                '@SoftHard'   : rangeCheck.softHard,
+                '@ItemOID'    : rangeCheck.itemOid,
+                'CheckValue'  : []
+            };
+            // Add check values
+            rangeCheck.checkValues.forEach(function (checkValue) {
+                rangeCheckObj['CheckValue'].push(checkValue);
+            });
+            result['RangeCheck'].push(rangeCheckObj);
+        });
+    }
+
+    return result;
+}
+
+function createItemGroupDef (data, version) {
+    let result = {};
+    if (version === '2.0.0') {
+        let attributes = {
+            'OID'             : data.oid,
+            'Name'            : data.name,
+            'Repeating'       : data.repeating,
+            'IsReferenceData' : data.isReferenceData,
+            'SASDatasetName'  : data.datasetName,
+            'Domain'          : data.domain,
+            'Purpose'         : data.purpose,
+            'def:Structure'   : data.structure,
+            'def:Class'       : data.class
+        };
+        if (data.comment !== undefined) {
+            Object.assign(attributes, {'def:CommentOID': data.comment.oid});
+        }
+        if (data.archiveLocation !== undefined) {
+            Object.assign(attributes, {'def:ArchiveLocationID': data.archiveLocation.id});
+        }
+        for (let attr in attributes) {
+            if (attributes[attr] !== undefined) {
+                result['@' + attr] = attributes[attr];
+            }
+        }
+        // Add description
+        if (data.descriptions.length !== 0) {
+            result['Description'] = createDescription(data.descriptions, version);
+        }
+        // Add ItemRefs
+        result['ItemRef'] = [];
+        data.itemRefs.forEach(function (itemRef) {
+            result['ItemRef'].push(createItemRef(itemRef, version));
+        });
+        // Add alias
+        if (data.alias !== undefined) {
+            result['Alias'] = createAlias(data.alias, version);
+        }
+        // Add leaf
+        if (data.leaf !== undefined) {
+            result['def:leaf'] = createLeaf(data.leaf, version);
+        }
+    }
+
+    return result;
+}
+
+function createDescription (data, version) {
+    let result = {'Description': []};
+    if (version === '2.0.0') {
+        data.forEach(function (translatedText) {
+            let translatedTextObj = {'TranslatedText': {'#text': translatedText.value}};
+            if (translatedText.lang !== undefined) {
+                translatedTextObj['TranslatedText']['@xml:lang'] = translatedText.lang;
+            }
+            result['Description'].push(translatedTextObj);
+        });
+    }
+
+    return result;
+}
+
+function createAlias (data, version) {
+    let result = {};
+    if (version === '2.0.0') {
+        let attributes = {
+            'Context' : data.context,
+            'Name'    : data.name
+        };
+        for (let attr in attributes) {
+            if (attributes[attr] !== undefined) {
+                result['@' + attr] = attributes[attr];
+            }
+        }
+    }
+
+    return result;
+}
+
+function createLeaf (data, version) {
+    let result = {};
+    if (version === '2.0.0') {
+        let attributes = {
+            'ID'         : data.id,
+            'xlink:href' : data.href
+        };
+        for (let attr in attributes) {
+            if (attributes[attr] !== undefined) {
+                result['@' + attr] = attributes[attr];
+            }
+        }
+        // Add Title
+        if (data.title !== undefined) {
+            result['def:title'] = data.title;
+        }
+    }
+
+    return result;
 }
 
 module.exports = createDefine;

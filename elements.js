@@ -69,8 +69,10 @@ class GlobalVariables {
 class MetaDataVersion {
     constructor ({
         oid, name, defineVersion, comment,
-        standards, annotatedCrf, supplementalDoc, valueLists, whereClauses,
+        standards, valueLists, whereClauses,
         itemGroups, itemDefs, codeLists, methods, comments, leafs,
+        annotatedCrf = [],
+        supplementalDoc = [],
         descriptions = []
     } = {}) {
         this.oid = oid || getOid(this.constructor.name);
@@ -94,7 +96,7 @@ class MetaDataVersion {
         this.standards.push(standard);
     }
     addItemGroup (itemGroup) {
-        this.itemGroups.push(itemGroup);
+        this.itemGroups[itemGroup.oid] = itemGroup;
     }
     addDescription (description) {
         this.descriptions.push(description);
@@ -205,7 +207,7 @@ class ItemDef {
     setValueList (valueList) {
         this.valueList = valueList;
         var self = this;
-        this.valueList.getVlm().forEach(function (itemRef) {
+        this.valueList.getItemRefs().forEach(function (itemRef) {
             itemRef.itemDef.setParent(self);
         });
     }
@@ -232,14 +234,14 @@ class ItemRef {
 
 class ValueList {
     constructor ({
-        oid, vlm = [], descriptions = []
+        oid, itemRefs = [], descriptions = []
     } = {}) {
         this.oid = oid || getOid(this.constructor.name);
-        this.vlm = vlm;
+        this.itemRefs = itemRefs;
         this.descriptions = descriptions;
     }
-    addVlm (vlmItem) {
-        this.vlm.push(vlmItem);
+    addItemRef (itemRef) {
+        this.itemRefs.push(itemRef);
     }
     addDescription (description) {
         this.descriptions.push(description);
@@ -251,8 +253,8 @@ class ValueList {
             return undefined;
         }
     }
-    getVlm () {
-        return this.vlm;
+    getItemRefs () {
+        return this.itemRefs;
     }
 }
 
@@ -450,17 +452,25 @@ class Method extends Comment {
 
 class Document {
     constructor ({
-        leaf, type, pageRefs, firstPage, lastPage, title
+        leaf, pdfPageRefs = []
     } = {}) {
         this.leaf = leaf;
+        this.pdfPageRefs = pdfPageRefs;
+    }
+    addPdfPageRef (pdfPageRef) {
+        this.pdfPageRefs.push(pdfPageRef);
+    }
+}
+
+class PdfPageRef {
+    constructor ({
+        type, pageRefs, firstPage, lastPage, title
+    } = {}) {
         this.type = type;
         this.pageRefs = pageRefs;
         this.firstPage = firstPage;
         this.lastPage = lastPage;
         this.title = title;
-        if (type||pageRefs||lastPage||title) {
-            pdfPageRefExists = 1;
-        }
     }
 }
 
@@ -496,5 +506,6 @@ module.exports = {
     Origin           : Origin,
     Comment          : Comment,
     Document         : Document,
+    PdfPageRef       : PdfPageRef,
     Leaf             : Leaf
 };

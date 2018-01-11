@@ -87,13 +87,16 @@ function parseDocument (doc, mdv) {
     let args = {
         leaf: mdv.leafs[doc['$']['leafId']]
     };
+    let document = new def.Document(args);
     if (doc.hasOwnProperty('pDFPageRef')) {
-        args = Object.assign(args, {
-            type      : doc['pDFPageRef'][0]['$']['type'],
-            pageRefs  : doc['pDFPageRef'][0]['$']['pageRefs'],
-            firstPage : doc['pDFPageRef'][0]['$']['firstPage'],
-            lastPage  : doc['pDFPageRef'][0]['$']['lastPage'],
-            title     : doc['pDFPageRef'][0]['$']['title']
+        doc['pDFPageRef'].forEach(function (pdfPageRef) {
+            document.addPdfPageRef(new def.PdfPageRef({
+                type      : doc['pDFPageRef'][0]['$']['type'],
+                pageRefs  : doc['pDFPageRef'][0]['$']['pageRefs'],
+                firstPage : doc['pDFPageRef'][0]['$']['firstPage'],
+                lastPage  : doc['pDFPageRef'][0]['$']['lastPage'],
+                title     : doc['pDFPageRef'][0]['$']['title']
+            }));
         });
     }
     return new def.Document(args);
@@ -420,7 +423,7 @@ function parseValueLists (valueListsRaw, mdv) {
         }
 
         valueListRaw['itemRef'].forEach(function (item) {
-            valueList.addVlm(parseItemRef(item, mdv));
+            valueList.addItemRef(parseItemRef(item, mdv));
         });
         valueLists[valueList.oid] = valueList;
     });
