@@ -190,8 +190,8 @@ function parseMethods (methodsRaw, mdv) {
             methodRaw['formalExpression'].forEach(function (item) {
                 method.addFormalExpression(
                     {
-                        context    : item['$'].context,
-                        expression : item['_']
+                        context : item['$'].context,
+                        value   : item['_']
                     }
                 );
             });
@@ -246,8 +246,8 @@ function parseCodelists (codelistsRaw, mdv) {
             }
 
             // Parse external codelists
-            if (codelistRaw.hasOwnProperty('externalCodelist')) {
-                codelist.setExternalCodelist(new def.ExternalCodelist(codelistRaw['externalCodelist']['$']));
+            if (codelistRaw.hasOwnProperty('externalCodeList')) {
+                codelist.setExternalCodeList(new def.ExternalCodeList(codelistRaw['externalCodeList'][0]['$']));
             }
         }
         codelists[codelist.oid] = codelist;
@@ -305,7 +305,7 @@ function parseOrigins (originsRaw, mdv) {
         }
         if (originRaw.hasOwnProperty('documentRef')) {
             originRaw['documentRef'].forEach(function (item) {
-                origin.addDocument(parseDocument(item, mdv.leafs));
+                origin.addDocument(parseDocument(item, mdv));
             });
         }
         origins.push(origin);
@@ -329,7 +329,7 @@ function parseItemDefs (itemDefsRaw, mdv) {
             args.alias = parseAlias(itemDefRaw['alias']);
         }
         if (itemDefRaw.hasOwnProperty('origin')) {
-            args.origins = parseOrigins(itemDefRaw['origin']);
+            args.origins = parseOrigins(itemDefRaw['origin'], mdv);
         }
         if (itemDefRaw.hasOwnProperty('valueListRef')) {
             args.valueListOid = itemDefRaw['valueListRef'][0]['$']['valueListOid'];
@@ -343,9 +343,11 @@ function parseItemDefs (itemDefsRaw, mdv) {
         // Create the itemDef
         let itemDef = new def.ItemDef(args);
 
-        itemDefRaw['description'].forEach(function (item) {
-            itemDef.addDescription(parseTranslatedText(item));
-        });
+        if (itemDefRaw['description'] !== undefined) {
+            itemDefRaw['description'].forEach(function (item) {
+                itemDef.addDescription(parseTranslatedText(item));
+            });
+        }
 
         itemDefs[itemDef.oid] = itemDef;
     });

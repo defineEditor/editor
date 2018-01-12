@@ -311,7 +311,7 @@ class RangeCheck {
 
 class CodeList {
     constructor ({
-        oid, name, dataType, standard, sasFormatName, comment, externalCodelist, alias,
+        oid, name, dataType, standard, sasFormatName, comment, externalCodeList, alias,
         descriptions = [],
         enumeratedItems = [],
         codeListItems = []
@@ -322,7 +322,7 @@ class CodeList {
         this.standard = standard;
         this.sasFormatName = sasFormatName;
         this.comment = comment;
-        this.externalCodelist = externalCodelist;
+        this.externalCodeList = externalCodeList;
         this.alias = alias;
         this.descriptions = descriptions;
         this.enumeratedItems = enumeratedItems;
@@ -344,8 +344,8 @@ class CodeList {
             return undefined;
         }
     }
-    setExternalCodelist (item) {
-        this.externalCodelist = item;
+    setExternalCodeList (item) {
+        this.externalCodeList = item;
     }
 }
 
@@ -380,7 +380,7 @@ class CodeListItem extends EnumeratedItem {
     }
 }
 
-class ExternalCodelist {
+class ExternalCodeList {
     constructor ({
         dictionary, version, ref, href
     } = {}) {
@@ -499,7 +499,7 @@ module.exports = {
     CodeList         : CodeList,
     Method           : Method,
     TranslatedText   : TranslatedText,
-    ExternalCodelist : ExternalCodelist,
+    ExternalCodeList : ExternalCodeList,
     CodeListItem     : CodeListItem,
     EnumeratedItem   : EnumeratedItem,
     Alias            : Alias,

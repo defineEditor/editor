@@ -55,25 +55,6 @@ function createOdm (data, version) {
     return xmlRoot;
 }
 
-/*
-
-function create (data, version) {
-    let xmlRoot = xmlBuilder.create('');
-    if (version === '2.0.0') {
-        let attributes = {
-        };
-        for (let attr in attributes) {
-            if (attributes[attr] !== undefined) {
-                xmlRoot.att(attr, attributes[attr]);
-            }
-        }
-    }
-
-    return xmlRoot;
-}
-
-*/
-
 function createStudy (data, version) {
     let xmlRoot = xmlBuilder.create('Study');
     if (version === '2.0.0') {
@@ -161,12 +142,65 @@ function createMetaDataVersion (data, version) {
             itemDefs['ItemDef'].push(createItemDef(data.itemDefs[itemOid], version));
         });
         xmlRoot.ele(itemDefs);
-        /*
-        xmlRoot.importDocument(createCodeList(data., version);
-        xmlRoot.importDocument(createMethodDef(data., version);
-        xmlRoot.importDocument(createCommentDef(data., version);
-        xmlRoot.importDocument(createLeaf(data., version);
-        */
+        // CodeList
+        if (Object.keys(data.codeLists).length !== 0) {
+            let codeLists = {'CodeList': []};
+            // Codelists with EnumeratedItems
+            Object.keys(data.codeLists).filter(function (codeListOid) {
+                if (data.codeLists[codeListOid].enumeratedItems.length !== 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }).forEach(function (codeListOid) {
+                codeLists['CodeList'].push(createCodeList(data.codeLists[codeListOid], version));
+            });
+            // Codelists with CodeListItem
+            Object.keys(data.codeLists).filter(function (codeListOid) {
+                if (data.codeLists[codeListOid].codeListItems.length !== 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }).forEach(function (codeListOid) {
+                codeLists['CodeList'].push(createCodeList(data.codeLists[codeListOid], version));
+            });
+            // Codelists with ExternalCodeList
+            Object.keys(data.codeLists).filter(function (codeListOid) {
+                if (data.codeLists[codeListOid].externalCodeList !== undefined) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }).forEach(function (codeListOid) {
+                codeLists['CodeList'].push(createCodeList(data.codeLists[codeListOid], version));
+            });
+            xmlRoot.ele(codeLists);
+        }
+        // MethodDef
+        if (Object.keys(data.methods).length !== 0) {
+            let methodDefs = {'MethodDef': []};
+            Object.keys(data.methods).forEach(function (methodOid) {
+                methodDefs['MethodDef'].push(createMethodDef(data.methods[methodOid], version));
+            });
+            xmlRoot.ele(methodDefs);
+        }
+        // CommentDef
+        if (Object.keys(data.comments).length !== 0) {
+            let commentDefs = {'def:CommentDef': []};
+            Object.keys(data.comments).forEach(function (commentOid) {
+                commentDefs['def:CommentDef'].push(createCommentDef(data.comments[commentOid], version));
+            });
+            xmlRoot.ele(commentDefs);
+        }
+        // leaf
+        if (Object.keys(data.leafs).length !== 0) {
+            let leaf = {'def:leaf': []};
+            Object.keys(data.leafs).forEach(function (leafOid) {
+                leaf['def:leaf'].push(createLeaf(data.leafs[leafOid], version));
+            });
+            xmlRoot.ele(leaf);
+        }
     }
 
     return xmlRoot;
@@ -314,7 +348,7 @@ function createItemGroupDef (data, version) {
         if (data.descriptions.length !== 0) {
             result['Description'] = [];
             data.descriptions.forEach(function (description) {
-                result['Description'].push(createDescription(description, version));
+                result['Description'].push(createTranslatedText(description, version));
             });
         }
         // Add ItemRefs
@@ -335,7 +369,7 @@ function createItemGroupDef (data, version) {
     return result;
 }
 
-function createDescription (data, version) {
+function createTranslatedText (data, version) {
     let result = {};
     if (version === '2.0.0') {
         result = {'TranslatedText': {'#text': data.value}};
@@ -409,7 +443,7 @@ function createItemDef (data, version) {
         if (data.descriptions.length !== 0) {
             result['Description'] = [];
             data.descriptions.forEach(function (description) {
-                result['Description'].push(createDescription(description, version));
+                result['Description'].push(createTranslatedText(description, version));
             });
         }
         // Add CodelistRef
@@ -445,18 +479,206 @@ function createOrigin (data, version) {
         if (data.descriptions.length !== 0) {
             result['Description'] = [];
             data.descriptions.forEach(function (description) {
-                result['Description'].push(createDescription(description, version));
+                result['Description'].push(createTranslatedText(description, version));
             });
         }
         // Add DocumentRef
         if (data.documents.length !== 0) {
             result['def:DocumentRef'] = [];
             data.documents.forEach(function (document) {
-                result['def:DocumentRef'].push(createDescription(document, version));
+                result['def:DocumentRef'].push(createDocumentRef(document, version));
             });
         }
     }
 
     return result;
 }
+
+function createCodeList (data, version) {
+    let result = {};
+    if (version === '2.0.0') {
+        let attributes = {
+            'OID'           : data.oid,
+            'Name'          : data.name,
+            'DataType'      : data.dataType,
+            'SASFormatName' : data.formatName
+        };
+        for (let attr in attributes) {
+            if (attributes[attr] !== undefined) {
+                result['@' + attr] = attributes[attr];
+            }
+        }
+        // Add EnumeratedItem
+        if (data.enumeratedItems.length !== 0) {
+            result['EnumeratedItem'] = [];
+            data.enumeratedItems.forEach(function (enumeratedItem) {
+                result['EnumeratedItem'].push(createEnumeratedItem(enumeratedItem, version));
+            });
+        }
+        // Add CodeListItem
+        if (data.codeListItems.length !== 0) {
+            result['CodeListItem'] = [];
+            data.codeListItems.forEach(function (codeListItem) {
+                result['CodeListItem'].push(createCodeListItem(codeListItem, version));
+            });
+        }
+        // Add ExternalCodeList
+        if (data.externalCodeList !== undefined) {
+            result['ExternalCodeList'] = createExternalCodeList(data.externalCodeList, version);
+        }
+        // Add Alias
+        if (data.alias !== undefined) {
+            result['Alias'] = createAlias(data.alias, version);
+        }
+    }
+
+    return result;
+}
+
+function createEnumeratedItem (data, version) {
+    let result = {};
+    if (version === '2.0.0') {
+        let attributes = {
+            'CodedValue'        : data.codedValue,
+            'Rank'              : data.rank,
+            'OrderNumber'       : data.orderNumber,
+            'def:ExtendedValue' : data.extendedValue
+        };
+        for (let attr in attributes) {
+            if (attributes[attr] !== undefined) {
+                result['@' + attr] = attributes[attr];
+            }
+        }
+        // Add Alias
+        if (data.alias !== undefined) {
+            result['Alias'] = createAlias(data.alias, version);
+        }
+    }
+
+    return result;
+}
+
+function createCodeListItem (data, version) {
+    let result = {};
+    if (version === '2.0.0') {
+        let attributes = {
+            'CodedValue'        : data.codedValue,
+            'Rank'              : data.rank,
+            'OrderNumber'       : data.orderNumber,
+            'def:ExtendedValue' : data.extendedValue
+        };
+        for (let attr in attributes) {
+            if (attributes[attr] !== undefined) {
+                result['@' + attr] = attributes[attr];
+            }
+        }
+        // Add Decode
+        if (data.decodes.length !== 0) {
+            result['Decode'] = [];
+            data.decodes.forEach(function (decode) {
+                result['Decode'].push(createTranslatedText(decode, version));
+            });
+        }
+
+        // Add Alias
+        if (data.alias !== undefined) {
+            result['Alias'] = createAlias(data.alias, version);
+        }
+    }
+
+    return result;
+}
+
+function createExternalCodeList (data, version) {
+    let result = {};
+    if (version === '2.0.0') {
+        let attributes = {
+            'Dictionary' : data.dictionary,
+            'Version'    : data.version,
+            'ref'        : data.ref,
+            'href'       : data.href
+        };
+        for (let attr in attributes) {
+            if (attributes[attr] !== undefined) {
+                result['@' + attr] = attributes[attr];
+            }
+        }
+    }
+
+    return result;
+}
+
+function createMethodDef (data, version) {
+    let result = {};
+    if (version === '2.0.0') {
+        let attributes = {
+            'OID'  : data.oid,
+            'Name' : data.name,
+            'Type' : data.type
+        };
+        for (let attr in attributes) {
+            if (attributes[attr] !== undefined) {
+                result['@' + attr] = attributes[attr];
+            }
+        }
+        // Add description
+        if (data.descriptions.length !== 0) {
+            result['Description'] = [];
+            data.descriptions.forEach(function (description) {
+                result['Description'].push(createTranslatedText(description, version));
+            });
+        }
+        // Add DocumentRef
+        if (data.documents.length !== 0) {
+            result['def:DocumentRef'] = [];
+            data.documents.forEach(function (document) {
+                result['def:DocumentRef'].push(createDocumentRef(document, version));
+            });
+        }
+        // Add FormalExpression
+        if (data.formalExpressions.length !== 0) {
+            result['FormalExpression'] = [];
+            data.formalExpressions.forEach(function (formalExpression) {
+                // Context is required, so if the define is wrong, set it to blank
+                result['FormalExpression'].push({
+                    '#text'    : formalExpression.value,
+                    '@context' : formalExpression.context || ''
+                });
+            });
+        }
+    }
+
+    return result;
+}
+
+function createCommentDef (data, version) {
+    let result = {};
+    if (version === '2.0.0') {
+        let attributes = {
+            'OID': data.oid
+        };
+        for (let attr in attributes) {
+            if (attributes[attr] !== undefined) {
+                result['@' + attr] = attributes[attr];
+            }
+        }
+        // Add description
+        if (data.descriptions.length !== 0) {
+            result['Description'] = [];
+            data.descriptions.forEach(function (description) {
+                result['Description'].push(createTranslatedText(description, version));
+            });
+        }
+        // Add DocumentRef
+        if (data.documents.length !== 0) {
+            result['def:DocumentRef'] = [];
+            data.documents.forEach(function (document) {
+                result['def:DocumentRef'].push(createDocumentRef(document, version));
+            });
+        }
+    }
+
+    return result;
+}
+
 module.exports = createDefine;

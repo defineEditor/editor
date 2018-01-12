@@ -39,12 +39,12 @@ function createStructure (xmlData) {
 
 function createXmlFromOdm (odm) {
     return new Promise(function (resolve, reject) {
-        resolve(createDefine(odm,'2.0.0'));
+        resolve(createDefine(odm, '2.0.0'));
     });
 }
 
 var odm = Promise.resolve(
-    readDefine('/data/define.xml')
+    readDefine('/data/define.test.xml')
         .then(createStructure)
         .then(createXmlFromOdm)
 );
