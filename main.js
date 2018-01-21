@@ -1,52 +1,79 @@
-'use strict';
-const fs = require('fs');
-const xml2js = require('xml2js');
-const parseDefine = require('./parseDefine.js');
-const createDefine = require('./createDefine.js');
+const electron = require('electron');
 const path = require('path');
+const url = require('url');
+const menu = require('./menu.js');
 
-/*
-fs.readFile(path.join(__dirname, '/data/define.xml'), function (err, data) {
-    if (err) {
-        console.log(err);
-    }
-    parser.parseString(data, parseDefine);
+// SET ENV
+process.env.NODE_ENV = 'development';
+
+const {app, BrowserWindow, Menu} = electron;
+
+let mainWindow;
+
+// Listen for app to be ready
+app.on('ready', function () {
+    // Create new window
+    mainWindow = new BrowserWindow({});
+    // Load html in window
+    mainWindow.loadURL(url.format({
+        pathname : path.join(__dirname, 'index.html'),
+        protocol : 'file:',
+        slashes  : true
+    }));
+    // Quit app when closed
+    mainWindow.on('closed', function () {
+        app.quit();
+    });
+
+    // Build menu from template
+    const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
+    // Insert menu
+    Menu.setApplicationMenu(mainMenu);
 });
-*/
 
-function readDefine (pathToDefine) {
-    return new Promise(function (resolve, reject) {
-        fs.readFile(path.join(__dirname, pathToDefine), function (err, data) {
-            if (err !== null) {
-                return reject(err);
+// Create menu template
+const mainMenuTemplate = [
+    // Each object is a dropdown
+    {
+        label   : 'File',
+        submenu : [
+            {
+                label: 'Open',
+                click () {
+                    menu.openFile();
+                }
+            },
+            {
+                label       : 'Quit',
+                accelerator : 'CmdOrCtrl+Q',
+                click () {
+                    app.quit();
+                }
             }
-            resolve(data);
-        });
-    });
+        ]
+    }
+];
+
+// If OSX, add empty object to menu
+if (process.platform === 'darwin') {
+    mainMenuTemplate.unshift({});
 }
 
-function createStructure (xmlData) {
-    return new Promise(function (resolve, reject) {
-        let parser = new xml2js.Parser();
-        parser.parseString(xmlData, function (err, data) {
-            if (err !== null) {
-                return reject(err);
+// Add developer tools option if in dev
+if (process.env.NODE_ENV !== 'production') {
+    mainMenuTemplate.push({
+        label   : 'Developer Tools',
+        submenu : [
+            {
+                role: 'reload'
+            },
+            {
+                label       : 'Toggle DevTools',
+                accelerator : 'CmdOrCtrl+I',
+                click (item, focusedWindow) {
+                    focusedWindow.toggleDevTools();
+                }
             }
-            resolve(parseDefine(data));
-        });
+        ]
     });
 }
-
-function createXmlFromOdm (odm) {
-    return new Promise(function (resolve, reject) {
-        resolve(createDefine(odm, '2.0.0'));
-    });
-}
-
-var odm = Promise.resolve(
-    readDefine('/data/define.test.xml')
-        .then(createStructure)
-        .then(createXmlFromOdm)
-);
-
-odm.then(console.log);
