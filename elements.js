@@ -70,7 +70,7 @@ class MetaDataVersion {
     constructor ({
         oid, name, defineVersion, comment,
         standards, valueLists, whereClauses,
-        itemGroups, itemDefs, codeLists, methods, comments, leafs,
+        itemGroups, itemDefs, codeLists, methods, comments, leafs, model,
         annotatedCrf = [],
         supplementalDoc = [],
         descriptions = []
@@ -91,6 +91,7 @@ class MetaDataVersion {
         this.methods = methods;
         this.comments = comments;
         this.leafs = leafs;
+        this.model = model;
     }
     addStandard (standard) {
         this.standards.push(standard);
@@ -121,9 +122,6 @@ class Standard {
         this.version = version;
         this.isDefault = isDefault;
         this.comment = comment;
-    }
-    toString () {
-        return this.name + ',' + this.type;
     }
 }
 

@@ -498,6 +498,22 @@ function parseMetaDataVersion (metadataRaw) {
         args.comment = mdv.comments[metadataRaw['$']['commentOid']];
     }
 
+    // Obtain CDISC model of the study from the default standard
+    Object.keys(args.standards).forEach((standardOid) => {
+        if (args.standards[standardOid].isDefault === 'Yes') {
+            let name = args.standards[standardOid].name;
+            if (/adam/i.test(name)) {
+                args.model = 'ADaM';
+            } else if (/sdtm/i.test(name)) {
+                args.model = 'SDTM';
+            } else if (/send/i.test(name)) {
+                args.model = 'SEND';
+            } else {
+                // TODO: Throw an exception if the model is not determined
+            }
+        }
+    });
+
     let metaDataVersion = new def.MetaDataVersion(args);
 
     if (metadataRaw.hasOwnProperty('description')) {

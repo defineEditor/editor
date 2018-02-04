@@ -1,7 +1,9 @@
+'use strict';
 const electron = require('electron');
 const path = require('path');
 const url = require('url');
 const menu = require('./menu.js');
+const readDefine = require('./readDefine.js');
 
 // SET ENV
 process.env.NODE_ENV = 'development';
@@ -13,7 +15,7 @@ let mainWindow;
 // Listen for app to be ready
 app.on('ready', function () {
     // Create new window
-    mainWindow = new BrowserWindow({});
+    mainWindow = new BrowserWindow({fullscreen: true});
     // Load html in window
     mainWindow.loadURL(url.format({
         pathname : path.join(__dirname, 'index.html'),
@@ -29,6 +31,17 @@ app.on('ready', function () {
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
     // Insert menu
     Menu.setApplicationMenu(mainMenu);
+
+    // Read and Send the define.xml to the renderer process
+    var odm = Promise.resolve(readDefine('/data/define.adam.xml'));
+
+    function sendToRender (data) {
+        mainWindow.webContents.on('did-finish-load', () => {
+            mainWindow.webContents.send('define', data);
+        });
+    }
+
+    odm.then(sendToRender);
 });
 
 // Create menu template
