@@ -1,0 +1,31 @@
+{
+  "name": "definexml-editor",
+  "version": "0.1.0",
+  "private": true,
+  "devDependencies": {
+    "electron": "^1.7.9",
+    "electron-react-devtools": "^0.5.3",
+    "foreman": "^2.0.0",
+    "react-scripts": "0.8.5"
+  },
+  "dependencies": {
+    "bootstrap": "^4.0.0",
+    "jquery": "^3.3.1",
+    "material-ui": "^1.0.0-beta.30",
+    "prop-types": "^15.6.0",
+    "react": "^16.1.1",
+    "react-bootstrap-table": "^4.3.1",
+    "react-dom": "^16.1.1",
+    "xml2js": "^0.4.19"
+  },
+  "homepage": "./",
+  "main": "src/electron-starter.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "electron": "electron --inspect=9229 .",
+    "dev": "killall -9 nodejs; killall -9 node; killall -9 electron; nf start -p 3000"
+  }
+}
