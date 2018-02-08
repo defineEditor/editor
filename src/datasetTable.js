@@ -2,9 +2,12 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import '../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
+import { FormControl, FormHelperText } from 'material-ui/Form';
 import ItemSelect from './itemSelect.js';
-import PdfPageRef from './pdfPageRef.js';
+import PdfPageRef from './document.js';
 import Divider from 'material-ui/Divider';
+import DeleteIcon from 'material-ui-icons/Delete';
+import Grid from 'material-ui/Grid';
 import React from 'react';
 
 // Selector constants
@@ -13,26 +16,34 @@ const classTypes = ['BASIC DATA STRUCTURE', 'SUBJECT LEVEL ANALYSIS DATASET'];
 class CommentEditor extends React.Component {
     constructor (props) {
         super(props);
-        this.close = this.close.bind(this);
+        this.handleChange = this.handleChange.bind(this);
         let comment = props.defaultValue;
         let text = comment.getDescription().value;
-        let documents = comment.documents;
         this.state = {
             text      : text,
-            documents : documents,
             comment   : props.defaultValue,
         };
     }
 
-    handleChange = name => event => {
-        let value = null;
+    handleChange = (name,id) => event => {
+        let newComment = Object.assign(Object.create(Object.getPrototypeOf(this.state.comment)),this.state.comment);
         if (name === 'text') {
-            value = event.currentTarget.value;
+            newComment.getDescription().value = event.currentTarget.value;
         }
-        if (name === 'docName') {
-            value = event.target.value;
+        if (name === 'updateDocument') {
+            let newDocuments = newComment.documents.slice();
+            newDocuments[id].leaf = this.props.leafs[event.target.value];
+            newComment.documents = newDocuments;
         }
-        this.setState({[name]: value});
+        if (name === 'deleteDocument') {
+            let newDocuments = newComment.documents.slice();
+            newDocuments.splice(id,1);
+            newComment.documents = newDocuments;
+        }
+        if (name === 'newDocument') {
+            newComment.addDocument();
+        }
+        this.setState({comment: newComment});
     };
 
     updateData = () => {
@@ -41,8 +52,39 @@ class CommentEditor extends React.Component {
         this.props.onUpdate(updatedComment);
     }
 
-    close () {
+    close = () => {
         this.props.onUpdate(this.props.defaultValue);
+    }
+
+    getDocuments = (documentList) => {
+        return this.state.comment.documents.map( (document, index) => {
+            return (
+                <div key={index}>
+                    <Grid container>
+                        <Grid item>
+                            <Button
+                                mini
+                                color='default'
+                                onClick={this.handleChange('deleteDocument',index)}
+                                variant='fab'
+                                style={{margin: '5pt'}}
+                            >
+                                <DeleteIcon />
+                            </Button>
+                        </Grid>
+                        <Grid item>
+                            <ItemSelect
+                                options={documentList}
+                                value={document.leaf.id}
+                                handleChange={this.handleChange('updateDocument',index)}
+                                label='Document'
+                            />
+                        </Grid>
+                    </Grid>
+                    <Divider/>
+                </div>
+            );
+        });
     }
 
     render () {
@@ -61,11 +103,25 @@ class CommentEditor extends React.Component {
                     fullWidth
                     rowsMax="10"
                     autoFocus
-                    value={this.state.text}
+                    value={this.state.comment.getDescription().value}
                     onChange={this.handleChange('text')}
                     margin="normal"
                 />
                 <Divider/>
+                {this.getDocuments(documentList)}
+                <Divider/>
+                <div>
+                    <Button size='small' color='default' onClick={this.handleChange('newDocument')} variant='raised' style={{margin: '5pt'}}>
+                        Add Document
+                    </Button>
+                </div>
+                <Divider/>
+                <div>
+                    <br/><br/>
+                    <Button color='primary' onClick={this.updateData} variant='raised' style={{margin: '5pt'}}>Save</Button>
+                    <Button color='secondary' onClick={this.close} variant='raised' style={{margin: '5pt'}}>Cancel</Button>
+                </div>
+                {/*
                 <ItemSelect
                     options={documentList}
                     value={this.state.docName}
@@ -80,6 +136,7 @@ class CommentEditor extends React.Component {
                     <Button color='primary' onClick={this.updateData} variant='raised' style={{margin: '5pt'}}>Save</Button>
                     <Button color='secondary' onClick={this.close} variant='raised' style={{margin: '5pt'}}>Cancel</Button>
                 </div>
+                */}
             </div>
         );
     }

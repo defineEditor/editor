@@ -51,7 +51,10 @@ class ItemSelect extends React.Component {
 
     render() {
         const { classes, label} = this.props;
-        const value =  this.props.value || '';
+        // If value is provided - use value
+        // If value is not provided and missing is possible - use missing
+        // If value is not provided and missing is not possible - use the first option
+        const value =  this.props.value || (this.props.optional ? '' : this.props.options[0]);
 
         return (
             <form className={classes.container} autoComplete="off">

@@ -405,7 +405,11 @@ class Comment extends BasicFunctions {
         this.documents = documents;
     }
     addDocument (document) {
-        this.documents.push(document);
+        if (document === undefined) {
+            this.documents.push(new Document());
+        } else {
+            this.documents.push(document);
+        }
     }
     getCommentAsText () {
         let result = this.getDescription().value;
@@ -440,7 +444,11 @@ class Document {
     constructor ({
         leaf, isPdf, pdfPageRefs = []
     } = {}) {
-        this.leaf = leaf;
+        if (leaf === undefined) {
+            this.leaf = new Leaf();
+        } else {
+            this.leaf = leaf;
+        }
         this.pdfPageRefs = pdfPageRefs;
         // Non-define XML properties
         this.isPdf = isPdf;
