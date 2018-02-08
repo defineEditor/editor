@@ -14,7 +14,7 @@ let mainWindow;
 
 function createWindow () {
     // Create the browser window.
-    mainWindow = new BrowserWindow({width: 800, height: 600});
+    mainWindow = new BrowserWindow({fullscreen: true});
 
     // and load the index.html of the app.
     const startUrl = process.env.ELECTRON_START_URL || url.format({
@@ -34,16 +34,16 @@ function createWindow () {
         mainWindow = null;
     });
     // Read and Send the define.xml to the renderer process
-    var odm = Promise.resolve(readDefine('../data/define.adam.xml'));
+    var xml = Promise.resolve(readDefine('../data/define.adam.xml'));
 
     function sendToRender (data) {
-        global.odm = data;
+        global.xml = data;
         mainWindow.webContents.on('did-finish-load', () => {
             mainWindow.webContents.send('define', data);
         });
     }
 
-    odm.then(sendToRender);
+    xml.then(sendToRender);
 }
 
 // This method will be called when Electron has finished

@@ -1,6 +1,4 @@
-'use strict';
-
-function getOid (type) {
+function getOid (type, suffix) {
     let oid = '';
     let prefix = {
         MetaDataVersion : 'MDV.',
@@ -13,13 +11,17 @@ function getOid (type) {
         Method          : 'MT.',
         Comment         : 'COM.'
     };
-    // get UUID
-    var d = new Date().getTime();
-    oid = prefix[type] + 'xxxxxxxx-yxxx-4xxx'.replace(/[xy]/g, function (c) {
-        var r = (d + Math.random() * 16) % 16 | 0;
-        d = Math.floor(d / 16);
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    });
+    if (suffix !== undefined) {
+        oid = prefix[type] + suffix;
+    } else {
+        // get UUID
+        var d = new Date().getTime();
+        oid = prefix[type] + 'xxxxxxxx-yxxx-4xxx'.replace(/[xy]/g, function (c) {
+            var r = (d + Math.random() * 16) % 16 | 0;
+            d = Math.floor(d / 16);
+            return (c === 'x' ? r : ((r & 0x3) | 0x8)).toString(16);
+        });
+    }
     return oid;
 }
 
@@ -133,7 +135,7 @@ class ItemGroup extends BasicFunctions {
     constructor ({
         oid, name, domain, datasetName, repeating, isReferenceData, purpose,
         structure, datasetClass, archiveLocation, comment, isNotStandard,
-        standard, alias, leaf,
+        standard, alias, leaf, orderNumber,
         descriptions = [],
         itemRefs = []
     } = {}) {
@@ -155,17 +157,33 @@ class ItemGroup extends BasicFunctions {
         this.itemRefs = itemRefs;
         this.alias = alias;
         this.leaf = leaf;
+        // Non-define XML properties
+        this.orderNumber = orderNumber;
     }
     addItemRef (itemRef) {
         this.itemRefs.push(itemRef);
     }
-    updateItemGroup (updatedObject) {
-        for (let prop in updatedObject) {
-            if (updatedObject.hasOwnProperty(prop) && (prop in this)) {
-                if (typeof updatedObject[prop] === 'object') {
-                    this[prop] = Object.assign(Object.create(Object.getPrototypeOf(updatedObject[prop])), updatedObject[prop]);
+    update (updateObj, mdv) {
+        for (let prop in updateObj) {
+            if (updateObj.hasOwnProperty(prop) && (prop in this)) {
+                if (['datasetName','name'].includes(prop)) {
+                    // Check if a dataset with the same name already exists
+                    let newOid = getOid(this.constructor.name,updateObj[prop]);
+                    let oldOid = this.oid;
+                    if (mdv.itemGroups.hasOwnProperty(newOid)) {
+                        throw Error('Dataset with name ' + updateObj[prop] + ' already exists.');
+                    } else if (oldOid !== newOid){
+                        Object.defineProperty(mdv.itemGroups, newOid, Object.getOwnPropertyDescriptor(mdv.itemGroups, oldOid));
+                        delete mdv.itemGroups[oldOid];
+                        this.oid = newOid;
+                    }
+                    this.name = updateObj[prop];
+                    this.datasetName = updateObj[prop];
+
+                } else if (typeof updateObj[prop] === 'object') {
+                    this[prop] = Object.assign(Object.create(Object.getPrototypeOf(updateObj[prop])), updateObj[prop]);
                 } else {
-                    this[prop] = updatedObject[prop];
+                    this[prop] = updateObj[prop];
                 }
             }
         }
@@ -420,10 +438,12 @@ class Method extends Comment {
 
 class Document {
     constructor ({
-        leaf, pdfPageRefs = []
+        leaf, isPdf, pdfPageRefs = []
     } = {}) {
         this.leaf = leaf;
         this.pdfPageRefs = pdfPageRefs;
+        // Non-define XML properties
+        this.isPdf = isPdf;
     }
     addPdfPageRef (pdfPageRef) {
         this.pdfPageRefs.push(pdfPageRef);

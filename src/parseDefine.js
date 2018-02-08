@@ -1,27 +1,28 @@
-'use strict';
 const def = require('./elements.js');
 
 /*
  * Auxiliary functions
  */
 
-// This function removes namespace from attribute names
+// Remove namespace from attribute names
 function removeNamespace (obj) {
     for (let prop in obj) {
-        let propUpdated = prop;
-        // Rename only properties starting with a capital letter
-        if (/^\w+:/.test(prop)) {
-            propUpdated = prop.replace(/^\w+:(.*)/, '$1');
-            // Check if the renamed property already exists and if not - rename and remove the old one
-            if (obj.hasOwnProperty(propUpdated)) {
-                throw new Error('Cannot convert property ' + prop + ' to ' + propUpdated + ' as it already exists');
-            } else {
-                obj[propUpdated] = obj[prop];
-                delete obj[prop];
+        if (obj.hasOwnProperty(prop)) {
+            let propUpdated = prop;
+            // Rename only properties starting with a capital letter
+            if (/^\w+:/.test(prop)) {
+                propUpdated = prop.replace(/^\w+:(.*)/, '$1');
+                // Check if the renamed property already exists and if not - rename and remove the old one
+                if (obj.hasOwnProperty(propUpdated)) {
+                    throw new Error('Cannot convert property ' + prop + ' to ' + propUpdated + ' as it already exists');
+                } else {
+                    obj[propUpdated] = obj[prop];
+                    delete obj[prop];
+                }
             }
-        }
-        if (typeof obj[propUpdated] === 'object') {
-            removeNamespace(obj[propUpdated]);
+            if (typeof obj[propUpdated] === 'object') {
+                removeNamespace(obj[propUpdated]);
+            }
         }
     }
 }
@@ -30,32 +31,34 @@ function removeNamespace (obj) {
 // As they become class properties, all attributes are converted to lower camel case
 function convertAttrsToLCC (obj) {
     for (let prop in obj) {
-        let propUpdated = prop;
-        // Rename only properties starting with a capital letter
-        if (/^[A-Z]|leafID/.test(prop)) {
-            if (/^[A-Z0-9_]+$/.test(prop)) {
-                // All caps OID -> oid
-                propUpdated = prop.toLowerCase();
-            } else if (/[a-z](OID|CRF|ID)/.test(propUpdated)) {
-                // Abbreviations mid word: FileOID -> fileOid
-                propUpdated = propUpdated.replace(/^(\w*[a-z])(OID|CRF|ID)/, function (a, p1, p2) {
-                    return p1.slice(0, 1).toLowerCase() + p1.slice(1) + p2.slice(0, 1) + p2.slice(1).toLowerCase();
-                });
-            } else if (prop === 'ODMVersion') {
-                propUpdated = 'odmVersion';
-            } else {
-                propUpdated = prop.slice(0, 1).toLowerCase() + prop.slice(1);
+        if (obj.hasOwnProperty(prop)) {
+            let propUpdated = prop;
+            // Rename only properties starting with a capital letter
+            if (/^[A-Z]|leafID/.test(prop)) {
+                if (/^[A-Z0-9_]+$/.test(prop)) {
+                    // All caps OID -> oid
+                    propUpdated = prop.toLowerCase();
+                } else if (/[a-z](OID|CRF|ID)/.test(propUpdated)) {
+                    // Abbreviations mid word: FileOID -> fileOid
+                    propUpdated = propUpdated.replace(/^(\w*[a-z])(OID|CRF|ID)/, function (a, p1, p2) {
+                        return p1.slice(0, 1).toLowerCase() + p1.slice(1) + p2.slice(0, 1) + p2.slice(1).toLowerCase();
+                    });
+                } else if (prop === 'ODMVersion') {
+                    propUpdated = 'odmVersion';
+                } else {
+                    propUpdated = prop.slice(0, 1).toLowerCase() + prop.slice(1);
+                }
+                // Check if the renamed property already exists and if not - rename and remove the old one
+                if (obj.hasOwnProperty(propUpdated)) {
+                    throw new Error('Cannot convert property ' + prop + ' to ' + propUpdated + ' as it already exists');
+                } else {
+                    obj[propUpdated] = obj[prop];
+                    delete obj[prop];
+                }
             }
-            // Check if the renamed property already exists and if not - rename and remove the old one
-            if (obj.hasOwnProperty(propUpdated)) {
-                throw new Error('Cannot convert property ' + prop + ' to ' + propUpdated + ' as it already exists');
-            } else {
-                obj[propUpdated] = obj[prop];
-                delete obj[prop];
+            if (typeof obj[propUpdated] === 'object') {
+                convertAttrsToLCC(obj[propUpdated]);
             }
-        }
-        if (typeof obj[propUpdated] === 'object') {
-            convertAttrsToLCC(obj[propUpdated]);
         }
     }
 }
@@ -88,6 +91,12 @@ function parseDocument (doc, mdv) {
     let args = {
         leaf: mdv.leafs[doc['$']['leafId']]
     };
+    // If the file has PDF extension, set the corresponding class
+    if (/.pdf\s*$/i.test(args.leaf.href)) {
+        args.isPdf = true;
+    } else {
+        args.isPdf = false;
+    }
     let document = new def.Document(args);
     if (doc.hasOwnProperty('pDFPageRef')) {
         doc['pDFPageRef'].forEach(function (pdfPageRef) {
@@ -378,8 +387,11 @@ function parseItemRef (itemRefRaw, mdv) {
 
 function parseItemGroups (itemGroupsRaw, mdv) {
     let itemGroups = {};
-    itemGroupsRaw.forEach(function (itemGroupRaw) {
+    itemGroupsRaw.forEach(function (itemGroupRaw, index) {
         let args = itemGroupRaw['$'];
+        // Non-define.xml attribute - orderNumber
+        args.orderNumber = index + 1;
+
         if (args.hasOwnProperty('commentOid')) {
             args.comment = mdv.comments[args['commentOid']];
             delete args['commentOid'];
@@ -408,7 +420,6 @@ function parseItemGroups (itemGroupsRaw, mdv) {
                 delete args['archiveLocationId'];
             }
         }
-        // Rename  from property names
         let itemGroup = new def.ItemGroup(args);
 
         itemGroupRaw['description'].forEach(function (item) {
@@ -529,7 +540,9 @@ function parseGlobalVariables (globalVariablesRaw) {
     let args = {};
 
     for (let glVar in globalVariablesRaw) {
-        args[glVar] = globalVariablesRaw[glVar][0];
+        if (globalVariablesRaw.hasOwnProperty(glVar)) {
+            args[glVar] = globalVariablesRaw[glVar][0];
+        }
     }
 
     return new def.GlobalVariables(args);

@@ -15,7 +15,8 @@ function readDefine (pathToDefine) {
                 if (err !== null) {
                     return reject(err);
                 }
-                resolve(parseDefine(data));
+                //resolve(parseDefine(data));
+                resolve(data);
             });
         });
     });

@@ -1,7 +1,11 @@
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import '../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
-const React = require('react');
-const ReactDOM = require('react-dom');
+import Button from 'material-ui/Button';
+import TextField from 'material-ui/TextField';
+import ItemSelect from './itemSelect.js';
+import PdfPageRef from './pdfPageRef.js';
+import Divider from 'material-ui/Divider';
+import React from 'react';
 
 // Selector constants
 const classTypes = ['BASIC DATA STRUCTURE', 'SUBJECT LEVEL ANALYSIS DATASET'];
@@ -9,42 +13,73 @@ const classTypes = ['BASIC DATA STRUCTURE', 'SUBJECT LEVEL ANALYSIS DATASET'];
 class CommentEditor extends React.Component {
     constructor (props) {
         super(props);
-        this.updateData = this.updateData.bind(this);
+        this.close = this.close.bind(this);
         let comment = props.defaultValue;
         let text = comment.getDescription().value;
         let documents = comment.documents;
         this.state = {
             text      : text,
             documents : documents,
-            comment   : props.defaultValue
+            comment   : props.defaultValue,
         };
     }
 
-    focus () {
-        this.refs.inputRef.focus();
-    }
+    handleChange = name => event => {
+        let value = null;
+        if (name === 'text') {
+            value = event.currentTarget.value;
+        }
+        if (name === 'docName') {
+            value = event.target.value;
+        }
+        this.setState({[name]: value});
+    };
 
-    updateData () {
+    updateData = () => {
         let updatedComment = this.state.comment;
         updatedComment.descriptions[0].value = this.state.text;
         this.props.onUpdate(updatedComment);
     }
 
+    close () {
+        this.props.onUpdate(this.props.defaultValue);
+    }
+
     render () {
-        let rowNum = Math.max(this.state.text.split(/\r\n|\r|\n/).length + 1, 3);
+        // Get the list of available documents
+        let leafs = this.props.leafs;
+        let documentList = [];
+        Object.keys(leafs).forEach( (leafId) => {
+            documentList.push({[leafId] : leafs[leafId].title});
+        });
+
         return (
             <div>
-                Comment text:<br/>
-                <textarea
-                    ref='inputRef'
-                    className={ (this.props.editorClass || '') + ' form-control' }
-                    style={ {display: 'inline', width: '100%'} }
-                    type='text'
-                    rows={rowNum}
-                    value={ this.state.text }
-                    onBlur={ this.updateData }
-                    onChange={ (ev) => { this.setState({text: ev.currentTarget.value}); } } />
-                <br/>Documents:<br/>
+                <TextField
+                    label="Comment"
+                    multiline
+                    fullWidth
+                    rowsMax="10"
+                    autoFocus
+                    value={this.state.text}
+                    onChange={this.handleChange('text')}
+                    margin="normal"
+                />
+                <Divider/>
+                <ItemSelect
+                    options={documentList}
+                    value={this.state.docName}
+                    handleChange={this.handleChange('docName')}
+                    label='Document'
+                />
+                <div>
+                    <PdfPageRef value={{type: 'PhysicalRef', pageRefs: '1,2,3,4,5'}} />
+                </div>
+                <div>
+                    <br/><br/>
+                    <Button color='primary' onClick={this.updateData} variant='raised' style={{margin: '5pt'}}>Save</Button>
+                    <Button color='secondary' onClick={this.close} variant='raised' style={{margin: '5pt'}}>Cancel</Button>
+                </div>
             </div>
         );
     }
@@ -59,16 +94,18 @@ function commentFormatter (cell, row) {
 }
 
 class DatasetTable extends React.Component {
-    onAfterSaveCell (row, cellName, cellValue) {
-        //console.log(`Save cell ${cellName} with value ${cellValue}`);
-
-        let rowStr = '';
-        for (const prop in row) {
-            rowStr += prop + ': ' + row[prop] + '\n';
+    constructor(props) {
+        super(props);
+        this.onBeforeSaveCell = this.onBeforeSaveCell.bind(this);
+    }
+    onBeforeSaveCell (row, cellName, cellValue) {
+        // Update on if the value changed
+        if (row[cellName] !== cellValue) {
+            let updateObj = {};
+            updateObj[cellName] = cellValue;
+            this.props.onMdvChange('ItemGroup',row.oid,updateObj);
         }
-        return rowStr;
-
-        //console.log('The whole row :\n' + rowStr);
+        return true;
     }
 
     renderColumns (columns) {
@@ -91,14 +128,16 @@ class DatasetTable extends React.Component {
     render () {
         let datasets = [];
         // Extract data required for the dataset table
-        Object.keys(this.props.mdv.itemGroups).forEach((itemGroupOid) => {
-            let originDs = this.props.mdv.itemGroups[itemGroupOid];
+        const mdv = this.props.mdv;
+        Object.keys(mdv.itemGroups).forEach((itemGroupOid) => {
+            let originDs = mdv.itemGroups[itemGroupOid];
             let currentDs = {
                 oid          : originDs.oid,
-                datasetName  : originDs.datasetName,
+                name         : originDs.name,
                 datasetClass : originDs.datasetClass,
                 purpose      : originDs.purpose,
-                structure    : originDs.structure
+                structure    : originDs.structure,
+                orderNumber  : originDs.orderNumber
             };
             currentDs.description = originDs.getDescription().value;
             // Get key variables
@@ -113,13 +152,13 @@ class DatasetTable extends React.Component {
             currentDs.commentText = originDs.comment.getCommentAsText();
             currentDs.comment = originDs.comment;
             currentDs.location = originDs.archiveLocation.title + ' (' + originDs.archiveLocation.href + ')';
-            datasets.push(currentDs);
+            datasets[currentDs.orderNumber-1] = currentDs;
         });
 
         const cellEditProp = {
-            mode       : 'click',
-            blurToSave : true
-            /*            afterSaveCell: this.onAfterSaveCell */
+            mode           : 'click',
+            blurToSave     : true,
+            beforeSaveCell : this.onBeforeSaveCell
         };
 
         const columns = [
@@ -130,7 +169,7 @@ class DatasetTable extends React.Component {
                 text      : 'OID'
             },
             {
-                dataField : 'datasetName',
+                dataField : 'name',
                 text      : 'Name',
                 width     : '10%',
                 tdStyle   : { whiteSpace: 'normal' },
@@ -171,7 +210,9 @@ class DatasetTable extends React.Component {
                 tdStyle      : { whiteSpace: 'pre-wrap' },
                 thStyle      : { whiteSpace: 'normal' },
                 dataFormat   : commentFormatter,
-                customEditor : { getElement: createCommentEditor }
+                customEditor : { getElement             : createCommentEditor,
+                                 customEditorParameters : {leafs: mdv.leafs, supplementalDoc: mdv.supplementalDoc, annotatedCrf: mdv.annotatedCrf}
+                }
             },
             {
                 dataField : 'location',
@@ -184,7 +225,7 @@ class DatasetTable extends React.Component {
 
         return (
             <BootstrapTable data={datasets} striped hover version='4' cellEdit={ cellEditProp }
-                keyBoardNav = { { enterToEdit: true } }
+                keyBoardNav={ { enterToEdit: true } }
             >
                 {this.renderColumns(columns)}
             </BootstrapTable>
@@ -192,11 +233,4 @@ class DatasetTable extends React.Component {
     }
 }
 
-function buildDatasetTable (mdv) {
-    ReactDOM.render(
-        <DatasetTable mdv={mdv}/>,
-        document.getElementById('datasetTable')
-    );
-}
-
-module.exports = buildDatasetTable;
+export default DatasetTable;
