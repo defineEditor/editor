@@ -3,8 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
+    "babel-eslint": "^8.2.1",
     "electron": "^1.7.9",
     "electron-react-devtools": "^0.5.3",
+    "eslint": "^4.17.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^6.0.0",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
     "foreman": "^2.0.0",
     "react-scripts": "0.8.5"
   },
