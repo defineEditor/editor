@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
-import { InputLabel } from 'material-ui/Input';
+import TextField from 'material-ui/TextField';
 import { MenuItem } from 'material-ui/Menu';
-import { FormControl } from 'material-ui/Form';
-import Select from 'material-ui/Select';
 
 const styles = theme => ({
     container: {
@@ -23,7 +21,9 @@ const styles = theme => ({
 class ItemSelect extends React.Component {
     constructor (props) {
         super(props);
+        this.handleChange = this.handleChange.bind(this);
         this.getSelectionList = this.getSelectionList.bind(this);
+        this.state = {value: props.defaultValue};
     }
 
     getSelectionList () {
@@ -45,26 +45,36 @@ class ItemSelect extends React.Component {
         return list;
     }
 
-    handleChange = (event) => {
-        this.props.handleChange(event);
+    handleChange = event => {
+        let newValue = event.target.value;
+        this.setState({value: newValue});
+    };
+
+    componentWillUnmount = () => {
+        this.props.onUpdate(this.state.value);
+    }
+    // TODO this does not work as overwritten by unmount
+    close = () => {
+        this.props.onUpdate(this.props.defaultValue);
     }
 
     render() {
-        const {classes, label, value} = this.props;
+        const {classes, label} = this.props;
 
         return (
-            <form className={classes.container} autoComplete="off">
-                <FormControl className={classes.formControl}>
-                    <InputLabel>{label}</InputLabel>
-                    <Select
-                        value={value}
-                        onChange={this.handleChange}
-                        inputProps={{name: 'selector'}}
-                    >
-                        {this.getSelectionList()}
-                    </Select>
-                </FormControl>
-            </form>
+            <TextField
+                label={label}
+                fullWidth
+                autoFocus
+                multiline
+                select={true}
+                onKeyDown={this.props.onKeyDown}
+                value={this.state.value}
+                onChange={this.handleChange}
+                className={classes.textField}
+            >
+                {this.getSelectionList()}
+            </TextField>
         );
     }
 }
@@ -77,3 +87,18 @@ ItemSelect.propTypes = {
 
 export default withStyles(styles)(ItemSelect);
 
+{/*
+            <form className={classes.container} autoComplete="off">
+                <FormControl className={classes.formControl}>
+                    {(label !== undefined) && <InputLabel>label</InputLabel>}
+                    <Select
+                        value={this.state.value}
+                        autoFocus
+                        onChange={this.handleChange}
+                        inputProps={{name: 'selector'}}
+                    >
+                        {this.getSelectionList()}
+                    </Select>
+                </FormControl>
+            </form>
+            */}

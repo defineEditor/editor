@@ -165,7 +165,7 @@ class ItemGroup extends BasicFunctions {
     }
     update (updateObj, mdv) {
         for (let prop in updateObj) {
-            if (updateObj.hasOwnProperty(prop) && (prop in this)) {
+            if (updateObj.hasOwnProperty(prop) && (prop in this || ['description','name'].includes(prop))) {
                 if (['datasetName','name'].includes(prop)) {
                     // Check if a dataset with the same name already exists
                     let newOid = getOid(this.constructor.name,updateObj[prop]);
@@ -180,6 +180,9 @@ class ItemGroup extends BasicFunctions {
                     this.name = updateObj[prop];
                     this.datasetName = updateObj[prop];
 
+                } else if (prop === 'description') {
+                    this.descriptions[0].value = updateObj[prop];
+                    this.descriptions[0].lang = 'en';
                 } else if (typeof updateObj[prop] === 'object') {
                     this[prop] = Object.assign(Object.create(Object.getPrototypeOf(updateObj[prop])), updateObj[prop]);
                 } else {
@@ -460,7 +463,7 @@ class PdfPageRef {
         this.pageRefs = pageRefs;
         this.firstPage = firstPage;
         this.lastPage = lastPage;
-        this.title = title;
+        this.title = title; // 2.1D
     }
 }
 
@@ -481,6 +484,8 @@ class Document {
         } else {
             this.pdfPageRefs.push(pdfPageRef);
         }
+        // Return index of the added element
+        return this.pdfPageRefs.length - 1;
     }
 }
 
