@@ -69,10 +69,17 @@ function convertAttrsToLCC (obj) {
 function parseLeafs (leafsRaw) {
     let leafs = {};
     leafsRaw.forEach(function (leafRaw) {
+        // If the file has PDF extension, set the corresponding class
+        let isPdf = false;
+        if (/.pdf\s*$/i.test(leafRaw['$']['href'])) {
+            isPdf = true;
+        }
+
         let leaf = new def.Leaf({
             id    : leafRaw['$']['id'],
             href  : leafRaw['$']['href'],
-            title : leafRaw['title'][0]
+            title : leafRaw['title'][0],
+            isPdf : isPdf
         });
         leafs[leaf.id] = leaf;
     });
@@ -91,12 +98,6 @@ function parseDocument (doc, mdv) {
     let args = {
         leaf: mdv.leafs[doc['$']['leafId']]
     };
-    // If the file has PDF extension, set the corresponding class
-    if (/.pdf\s*$/i.test(args.leaf.href)) {
-        args.isPdf = true;
-    } else {
-        args.isPdf = false;
-    }
     let document = new def.Document(args);
     if (doc.hasOwnProperty('pDFPageRef')) {
         doc['pDFPageRef'].forEach(function (pdfPageRef) {

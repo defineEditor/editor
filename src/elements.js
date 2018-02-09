@@ -440,21 +440,15 @@ class Method extends Comment {
     }
 }
 
-class Document {
+class Leaf {
     constructor ({
-        leaf, isPdf, pdfPageRefs = []
+        id, href, title, isPdf
     } = {}) {
-        if (leaf === undefined) {
-            this.leaf = new Leaf();
-        } else {
-            this.leaf = leaf;
-        }
-        this.pdfPageRefs = pdfPageRefs;
+        this.id = id;
+        this.href = href;
+        this.title = title;
         // Non-define XML properties
         this.isPdf = isPdf;
-    }
-    addPdfPageRef (pdfPageRef) {
-        this.pdfPageRefs.push(pdfPageRef);
     }
 }
 
@@ -470,13 +464,23 @@ class PdfPageRef {
     }
 }
 
-class Leaf {
+class Document {
     constructor ({
-        id, href, title
+        leaf, pdfPageRefs = []
     } = {}) {
-        this.id = id;
-        this.href = href;
-        this.title = title;
+        if (leaf === undefined) {
+            this.leaf = new Leaf();
+        } else {
+            this.leaf = leaf;
+        }
+        this.pdfPageRefs = pdfPageRefs;
+    }
+    addPdfPageRef (pdfPageRef) {
+        if (pdfPageRef === undefined) {
+            this.pdfPageRefs.push(new PdfPageRef());
+        } else {
+            this.pdfPageRefs.push(pdfPageRef);
+        }
     }
 }
 

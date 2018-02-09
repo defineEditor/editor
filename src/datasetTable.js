@@ -20,12 +20,11 @@ class CommentEditor extends React.Component {
         let comment = props.defaultValue;
         let text = comment.getDescription().value;
         this.state = {
-            text      : text,
-            comment   : props.defaultValue,
+            comment   : props.defaultValue
         };
     }
 
-    handleChange = (name,id) => event => {
+    handleChange = (name, id, pdfPageRefId) => event => {
         let newComment = Object.assign(Object.create(Object.getPrototypeOf(this.state.comment)),this.state.comment);
         if (name === 'text') {
             newComment.getDescription().value = event.currentTarget.value;
@@ -43,17 +42,51 @@ class CommentEditor extends React.Component {
         if (name === 'newDocument') {
             newComment.addDocument();
         }
+        if (name === 'newPdfPageRef') {
+            newComment.documents[id].addPdfPageRef();
+        }
+        if (name === 'deletePdfPageRef') {
+            let newPdfPageRefs = newComment.documents[id].pdfPageRefs.slice();
+            newPdfPageRefs.splice(pdfPageRefId,1);
+            newComment.documents[id].pdfPageRefs = newPdfPageRefs;
+        }
         this.setState({comment: newComment});
     };
 
     updateData = () => {
         let updatedComment = this.state.comment;
-        updatedComment.descriptions[0].value = this.state.text;
         this.props.onUpdate(updatedComment);
     }
 
     close = () => {
         this.props.onUpdate(this.props.defaultValue);
+    }
+
+    getPdfPage (document, documentId) {
+        let result = document.pdfPageRefs.map( (pdfPageRef, index) => {
+            return (
+                <PdfPageRef
+                    key={index}
+                    value={pdfPageRef}
+                    pdfPageRefId={index}
+                    documentId={documentId}
+                    handleChange={this.handleChange}
+                />);
+        });
+        result.push(
+            <Button
+                size='small'
+                key='button'
+                color='default'
+                onClick={this.handleChange('newPdfPageRef',documentId)}
+                variant='raised'
+                style={{margin: '5pt'}}
+            >
+                Add PDF Page
+            </Button>
+        );
+
+        return result;
     }
 
     getDocuments = (documentList) => {
@@ -75,11 +108,12 @@ class CommentEditor extends React.Component {
                         <Grid item>
                             <ItemSelect
                                 options={documentList}
-                                value={document.leaf.id}
+                                value={document.leaf.id || Object.keys(documentList)[0]}
                                 handleChange={this.handleChange('updateDocument',index)}
                                 label='Document'
                             />
                         </Grid>
+                        {document.leaf.isPdf && <Grid item>{this.getPdfPage(document, index)}</Grid>}
                     </Grid>
                     <Divider/>
                 </div>
@@ -229,18 +263,21 @@ class DatasetTable extends React.Component {
                 dataField : 'name',
                 text      : 'Name',
                 width     : '10%',
+                hidden    : true,
                 tdStyle   : { whiteSpace: 'normal' },
                 thStyle   : { whiteSpace: 'normal' }
             },
             {
                 dataField : 'description',
                 text      : 'Description',
+                hidden    : true,
                 tdStyle   : { whiteSpace: 'normal' },
                 thStyle   : { whiteSpace: 'normal' }
             },
             {
                 dataField : 'datasetClass',
                 text      : 'Class',
+                hidden    : true,
                 tdStyle   : { whiteSpace: 'normal' },
                 thStyle   : { whiteSpace: 'normal' },
                 editable  : { type: 'select', options: {values: classTypes} }
@@ -248,6 +285,7 @@ class DatasetTable extends React.Component {
             {
                 dataField : 'structure',
                 text      : 'Structure',
+                hidden    : true,
                 tdStyle   : { whiteSpace: 'normal' },
                 thStyle   : { whiteSpace: 'normal' },
                 editable  : { type: 'textarea' }
@@ -256,6 +294,7 @@ class DatasetTable extends React.Component {
                 dataField : 'keys',
                 text      : 'Keys',
                 width     : '7%',
+                hidden    : true,
                 tdStyle   : { whiteSpace: 'normal', overflowWrap: 'break-word' },
                 thStyle   : { whiteSpace: 'normal' },
                 editable  : false
@@ -274,6 +313,7 @@ class DatasetTable extends React.Component {
             {
                 dataField : 'location',
                 text      : 'Location',
+                hidden    : true,
                 tdStyle   : { whiteSpace: 'normal' },
                 thStyle   : { whiteSpace: 'normal' }
             }
