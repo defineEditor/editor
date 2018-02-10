@@ -14,7 +14,18 @@ window.require('electron-react-devtools').install();
 
 electron.ipcRenderer.on('define', (event, message) => {
     // Get the XLM from the main process;
-    let odm = parseDefine(message); 
+    let odm = parseDefine(message);
+    /*
+    // Testing
+    let sourceIG = odm.study.metaDataVersion.itemGroups['IG.ADSL'];
+    for (let i=1;i<30;i++) {
+        let newds = Object.assign(Object.create(Object.getPrototypeOf(sourceIG)),sourceIG);
+        newds.oid += i.toString();
+        newds.name += i.toString();
+        newds.orderNumber = i+2;
+        odm.study.metaDataVersion.addItemGroup(newds);
+    }
+    */
     ReactDOM.render(
         <EditorLayout odm={odm}/>,
         document.getElementById('root')

@@ -80,25 +80,9 @@ class ItemSelect extends React.Component {
 }
 
 ItemSelect.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    options      : PropTypes.array.isRequired,
-    handleChange : PropTypes.func.isRequired,
+    classes  : PropTypes.object.isRequired,
+    options  : PropTypes.array.isRequired,
+    onUpdate : PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(ItemSelect);
-
-{/*
-            <form className={classes.container} autoComplete="off">
-                <FormControl className={classes.formControl}>
-                    {(label !== undefined) && <InputLabel>label</InputLabel>}
-                    <Select
-                        value={this.state.value}
-                        autoFocus
-                        onChange={this.handleChange}
-                        inputProps={{name: 'selector'}}
-                    >
-                        {this.getSelectionList()}
-                    </Select>
-                </FormControl>
-            </form>
-            */}

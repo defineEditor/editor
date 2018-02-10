@@ -323,15 +323,16 @@ function createItemGroupDef (data, version) {
     let result = {};
     if (version === '2.0.0') {
         let attributes = {
-            'OID'             : data.oid,
-            'Name'            : data.name,
-            'Repeating'       : data.repeating,
-            'IsReferenceData' : data.isReferenceData,
-            'SASDatasetName'  : data.datasetName,
-            'Domain'          : data.domain,
-            'Purpose'         : data.purpose,
-            'def:Structure'   : data.structure,
-            'def:Class'       : data.class
+            'OID'                   : data.oid,
+            'Name'                  : data.name,
+            'Repeating'             : data.repeating,
+            'IsReferenceData'       : data.isReferenceData,
+            'SASDatasetName'        : data.datasetName,
+            'Domain'                : data.domain,
+            'Purpose'               : data.purpose,
+            'def:Structure'         : data.structure,
+            'def:Class'             : data.class,
+            'def:ArchiveLocationID' : data.archiveLocationId,
         };
         if (data.comment !== undefined) {
             Object.assign(attributes, {'def:CommentOID': data.comment.oid});

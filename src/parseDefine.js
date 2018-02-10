@@ -416,10 +416,6 @@ function parseItemGroups (itemGroupsRaw, mdv) {
             // Only one leaf is possible per domain -> take the first
             let leafs = parseLeafs(itemGroupRaw['leaf']);
             args.leaf = leafs[Object.keys(leafs)[0]];
-            if (args.hasOwnProperty('archiveLocationId')) {
-                args.archiveLocation = leafs[args['archiveLocationId']];
-                delete args['archiveLocationId'];
-            }
         }
         let itemGroup = new def.ItemGroup(args);
 

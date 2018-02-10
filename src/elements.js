@@ -134,7 +134,7 @@ class Standard {
 class ItemGroup extends BasicFunctions {
     constructor ({
         oid, name, domain, datasetName, repeating, isReferenceData, purpose,
-        structure, datasetClass, archiveLocation, comment, isNotStandard,
+        structure, datasetClass, archiveLocationId, comment, isNotStandard,
         standard, alias, leaf, orderNumber,
         descriptions = [],
         itemRefs = []
@@ -149,7 +149,7 @@ class ItemGroup extends BasicFunctions {
         this.purpose = purpose;
         this.structure = structure;
         this.datasetClass = datasetClass;
-        this.archiveLocation = archiveLocation;
+        this.archiveLocationId = archiveLocationId;
         this.comment = comment;
         this.isNotStandard = isNotStandard;
         this.standard = standard;

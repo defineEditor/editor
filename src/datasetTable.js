@@ -1,15 +1,47 @@
-import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
+import {BootstrapTable, TableHeaderColumn, ButtonGroup} from 'react-bootstrap-table';
 import '../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import CommentEditor from './commentEditor.js';
+import LocationEditor from './locationEditor.js';
 import SimpleInput from './simpleInput.js';
 import SimpleSelect from './simpleSelect.js';
+import Grid from 'material-ui/Grid';
+import Button from 'material-ui/Button';
 import React from 'react';
+import green from 'material-ui/colors/green';
+import indigo from 'material-ui/colors/indigo';
+import grey from 'material-ui/colors/grey';
 
 // Selector constants
-const classTypes = [{'BASIC DATA STRUCTURE': 'BDS'},{'SUBJECT LEVEL ANALYSIS DATASET': 'ADSL'}];
+const classTypes = [
+    'BASIC DATA STRUCTURE',
+    'OCCURRENCE DATA STRUCTURE',
+    'SUBJECT LEVEL ANALYSIS DATASET',
+    'ADAM OTHER',
+    'INTEGRATED BASIC DATA STRUCTURE',
+    'INTEGRATED OCCURRENCE DATA STRUCTURE',
+    'INTEGRATED SUBJECT LEVEL',
+];
+const classTypeAbbreviations = {
+    'BASIC DATA STRUCTURE'                 : 'BDS',
+    'OCCURRENCE DATA STRUCTURE'            : 'OCCDS',
+    'SUBJECT LEVEL ANALYSIS DATASET'       : 'ADSL',
+    'ADAM OTHER'                           : 'Other',
+    'INTEGRATED BASIC DATA STRUCTURE'      : 'IBDS',
+    'INTEGRATED OCCURRENCE DATA STRUCTURE' : 'IOCCDS',
+    'INTEGRATED SUBJECT LEVEL'             : 'IADSL',
+};
 
+// Debug options
+const hideMe = false;
+
+
+// Editor functions
 function commentEditor (onUpdate, props) {
     return (<CommentEditor onUpdate={ onUpdate } {...props}/>);
+}
+
+function locationEditor (onUpdate, props) {
+    return (<LocationEditor onUpdate={ onUpdate } {...props}/>);
 }
 
 function simpleInput (onUpdate, props) {
@@ -20,8 +52,22 @@ function simpleSelect (onUpdate, props) {
     return (<SimpleSelect onUpdate={ onUpdate } {...props}/>);
 }
 
+// Formatter functions
 function commentFormatter (cell, row) {
-    return (<span>{cell.getCommentAsText()}</span>);
+    if (cell !== undefined) {
+        return (<span>{cell.getCommentAsText()}</span>);
+    } else {
+        return;
+    }
+}
+
+function locationFormatter (cell, row) {
+    return (<a href={'file://' + cell.href}>{cell.title}</a>);
+}
+
+function datasetClassFormatter (cell, row) {
+    let value = classTypeAbbreviations[cell];
+    return (<span>{value}</span>);
 }
 
 class DatasetTable extends React.Component {
@@ -29,7 +75,8 @@ class DatasetTable extends React.Component {
         super(props);
         this.onBeforeSaveCell = this.onBeforeSaveCell.bind(this);
     }
-    onBeforeSaveCell (row, cellName, cellValue) {
+
+    onBeforeSaveCell = (row, cellName, cellValue) => {
         // Update on if the value changed
         if (row[cellName] !== cellValue) {
             let updateObj = {};
@@ -39,7 +86,7 @@ class DatasetTable extends React.Component {
         return true;
     }
 
-    renderColumns (columns) {
+    renderColumns = (columns) => {
         let result = [];
         columns.forEach((column) => {
             let colProps = {};
@@ -56,6 +103,61 @@ class DatasetTable extends React.Component {
         return result;
     }
 
+    createCustomButtonGroup = props => {
+        return (
+            <ButtonGroup className='my-custom-class' sizeClass='btn-group-md'>
+                <Grid container>
+                    <Grid item>
+                        { props.showSelectedOnlyBtn }
+                    </Grid>
+                    <Grid item>
+                        { props.insertBtn }
+                    </Grid>
+                    <Grid item>
+                        <Button color='default' mini onClick={console.log}
+                            variant='raised'>
+                            Copy
+                        </Button>
+                    </Grid>
+                    <Grid item>
+                        <Button color='primary' mini onClick={console.log} style={{backgroundColor: green[400]}}
+                            variant='raised'>
+                            Update
+                        </Button>
+                    </Grid>
+                    <Grid item>
+                        { props.deleteBtn }
+                    </Grid>
+                </Grid>
+            </ButtonGroup>
+        );
+    }
+
+    createCustomToolBar = props => {
+        return (
+            <Grid container justify='space-between'>
+                <Grid item style={{paddingLeft: '8px'}}>
+                    { props.components.btnGroup }
+                </Grid>
+                <Grid item style={{paddingRight: '25px'}}>
+                    { props.components.searchPanel }
+                </Grid>
+            </Grid>
+        );
+    }
+
+    createCustomInsertButton = (openModal) => {
+        return (
+            <Button color='primary' mini onClick={openModal} variant='raised'>Add</Button>
+        );
+    }
+
+    createCustomDeleteButton = (onBtnClick) => {
+        return (
+            <Button color='secondary' mini onClick={onBtnClick} variant='raised'>Delete</Button>
+        );
+    }
+
     render () {
         let datasets = [];
         // Extract data required for the dataset table
@@ -68,7 +170,9 @@ class DatasetTable extends React.Component {
                 datasetClass : originDs.datasetClass,
                 purpose      : originDs.purpose,
                 structure    : originDs.structure,
-                orderNumber  : originDs.orderNumber
+                orderNumber  : originDs.orderNumber,
+                comment      : originDs.comment,
+                leaf         : originDs.leaf,
             };
             currentDs.description = originDs.getDescription().value;
             // Get key variables
@@ -80,26 +184,34 @@ class DatasetTable extends React.Component {
                 }
             });
             currentDs.keys = keysArray.join(', ');
-            currentDs.commentText = originDs.comment.getCommentAsText();
-            currentDs.comment = originDs.comment;
-            currentDs.location = originDs.archiveLocation.title + ' (' + originDs.archiveLocation.href + ')';
             datasets[currentDs.orderNumber-1] = currentDs;
         });
 
+        // Editor settings
         const cellEditProp = {
-            mode           : 'click',
+            mode           : 'dbclick',
             blurToSave     : true,
             beforeSaveCell : this.onBeforeSaveCell
         };
-        // For debugging
-        const hideMe = false;
+
+        const selectRowProp = {
+            mode: 'checkbox'
+        };
+
+        const options = {
+            toolBar   : this.createCustomToolBar,
+            insertBtn : this.createCustomInsertButton,
+            deleteBtn : this.createCustomDeleteButton,
+            btnGroup  : this.createCustomButtonGroup
+        };
 
         const columns = [
             {
                 dataField : 'oid',
                 isKey     : true,
                 hidden    : true,
-                text      : 'OID'
+                text      : 'OID',
+                editable  : false
             },
             {
                 dataField    : 'name',
@@ -122,6 +234,8 @@ class DatasetTable extends React.Component {
                 dataField    : 'datasetClass',
                 text         : 'Class',
                 hidden       : hideMe,
+                width        : '7%',
+                dataFormat   : datasetClassFormatter,
                 customEditor : {getElement: simpleSelect, customEditorParameters: {options: classTypes}},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' },
@@ -151,23 +265,37 @@ class DatasetTable extends React.Component {
                 tdStyle      : { whiteSpace: 'pre-wrap' },
                 thStyle      : { whiteSpace: 'normal' },
                 dataFormat   : commentFormatter,
-                customEditor : { getElement             : commentEditor,
+                customEditor : {
+                    getElement             : commentEditor,
                     customEditorParameters : {leafs: mdv.leafs, supplementalDoc: mdv.supplementalDoc, annotatedCrf: mdv.annotatedCrf}
                 }
             },
             {
-                dataField : 'location',
-                text      : 'Location',
-                hidden    : hideMe,
-                tdStyle   : { whiteSpace: 'normal' },
-                thStyle   : { whiteSpace: 'normal' }
+                dataField    : 'leaf',
+                text         : 'Location',
+                hidden       : hideMe,
+                dataFormat   : locationFormatter,
+                customEditor : {getElement: locationEditor},
+                tdStyle      : { whiteSpace: 'normal' },
+                thStyle      : { whiteSpace: 'normal' }
             }
 
         ];
 
         return (
-            <BootstrapTable data={datasets} striped hover version='4' cellEdit={ cellEditProp }
-                keyBoardNav={ { enterToEdit: true } }
+            <BootstrapTable
+                data={datasets}
+                options={options}
+                search
+                deleteRow
+                insertRow
+                striped
+                hover
+                version='4'
+                cellEdit={cellEditProp}
+                keyBoardNav={{enterToEdit: true}}
+                headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
+                selectRow={selectRowProp}
             >
                 {this.renderColumns(columns)}
             </BootstrapTable>
