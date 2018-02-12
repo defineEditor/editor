@@ -34,7 +34,7 @@ function createWindow () {
         mainWindow = null;
     });
     // Read and Send the define.xml to the renderer process
-    var xml = Promise.resolve(readDefine('../data/define.test.xml'));
+    var xml = Promise.resolve(readDefine('../data/define.adam.std.xml'));
 
     function sendToRender (data) {
         global.xml = data;

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import ItemSelect from './itemSelect.js';
-import DeleteIcon from 'material-ui-icons/Delete';
+import ClearIcon from 'material-ui-icons/Clear';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import { FormControlLabel, FormControl } from 'material-ui/Form';
@@ -167,7 +167,7 @@ class PdfPage extends React.Component {
                         variant='fab'
                         style={{margin: '5pt'}}
                     >
-                        <DeleteIcon />
+                        <ClearIcon />
                     </Button>
                 </Grid>
                 <Grid item>

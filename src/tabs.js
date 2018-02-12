@@ -5,6 +5,9 @@ import AppBar from 'material-ui/AppBar';
 import Tabs, { Tab } from 'material-ui/Tabs';
 import Typography from 'material-ui/Typography';
 import DatasetTable from './datasetTable.js';
+import VariableTable from './variableTable.js';
+import grey from 'material-ui/colors/grey';
+//import Grid from 'material-ui/Grid';
 
 function TabContainer(props) {
     return (
@@ -35,6 +38,7 @@ class EditorTabs extends React.Component {
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleMdvChange = this.handleMdvChange.bind(this);
+        this.generateVariableTables = this.generateVariableTables.bind(this);
     }
 
     handleChange (event, value) {
@@ -51,6 +55,26 @@ class EditorTabs extends React.Component {
         this.setState({odm: odm});
     }
 
+    generateVariableTables = () => {
+        let datasets = [];
+        // Sort datasets according to the orderNumber
+        const mdv = this.state.odm.study.metaDataVersion;
+        Object.keys(mdv.itemGroups).forEach((itemGroupOid) => {
+            datasets[mdv.itemGroups[itemGroupOid].orderNumber-1] = itemGroupOid;
+        });
+        let result = datasets.map(itemGroupOid => {
+            return (
+                <div key={itemGroupOid}>
+                    <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
+                        {mdv.itemGroups[itemGroupOid].name + ' (' + mdv.itemGroups[itemGroupOid].getDescription().value + ')'}
+                    </h3>
+                    <VariableTable mdv={mdv} itemGroupOid={itemGroupOid}/>
+                </div>
+            );
+        });
+        return result;
+    }
+
     render() {
 
         const { classes, tabs } = this.props;
@@ -60,7 +84,7 @@ class EditorTabs extends React.Component {
 
         return (
             <div className={classes.root}>
-                <AppBar position="static" color='default'>
+                <AppBar position="sticky" color='default'>
                     <Tabs value={value} onChange={this.handleChange} fullWidth indicatorColor='primary' textColor='primary'> 
                         { tabs.map( tab => {
                             return <Tab key={tab} label={tab} />;
@@ -70,7 +94,8 @@ class EditorTabs extends React.Component {
                 </AppBar>
                 <TabContainer>
                     {tabs[value] === 'Datasets' && <DatasetTable mdv={this.state.odm.study.metaDataVersion} onMdvChange={this.handleMdvChange}/>}
-                    {tabs[value] !== 'Datasets' && <div id={tabIds[value]}>{tabs[value]}</div>}
+                    {tabs[value] === 'Variables' && this.generateVariableTables()}
+                    {['Datasets','Variables'].indexOf(tabs[value]) === -1 && <div id={tabIds[value]}>{tabs[value]}</div>}
                 </TabContainer>
             </div>
         );

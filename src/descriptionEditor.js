@@ -11,17 +11,20 @@ const styles = theme => ({
     },
 });
 
-class CommentEditor extends React.Component {
+class DescriptionEditor extends React.Component {
     constructor (props) {
         super(props);
         this.handleChange = this.handleChange.bind(this);
         this.state = {
-            comment: props.defaultValue
+            origin   : props.defaultValue.origin,
+            comment  : props.defaultValue.comment,
+            method   : props.defaultValue.method,
+            prognote : props.defaultValue.prognote,
         };
     }
 
     handleChange = name => updateObj => {
-        if (name === 'text') {
+        if (name === 'commenttext') {
             let newComment = Object.assign(Object.create(Object.getPrototypeOf(this.state.comment)),this.state.comment);
             newComment.getDescription().value = updateObj.currentTarget.value;
             this.setState({comment: newComment});
@@ -41,20 +44,37 @@ class CommentEditor extends React.Component {
     }
 
     render () {
+        let originTypes;
+        if (this.props.model === 'ADaM') {
+            originTypes = ['Derived', 'Assigned', 'Predecessor'];
+        } else {
+            originTypes = ['CRF', 'Derived', 'Assigned', 'Protocol', 'eDT', 'Predecessor'];
+        }
+        // Get the list of available documents
+        let leafs = this.props.leafs;
+        let documentList = [];
+        Object.keys(leafs).forEach( (leafId) => {
+            documentList.push({[leafId]: leafs[leafId].title});
+        });
+
+        const origin = this.state.origins[0].type !== undefined ? this.state.origins[0].type : '';
+
         const { classes } = this.props;
 
         return (
             <div>
                 <TextField
-                    label="Comment"
-                    multiline
+                    label='Origin Type'
                     fullWidth
-                    rowsMax="10"
                     autoFocus
-                    value={this.state.comment.getDescription().value}
-                    onChange={this.handleChange('text')}
-                    margin="normal"
-                />
+                    select={true}
+                    onKeyDown={this.props.onKeyDown}
+                    value={}
+                    onChange={this.handleChange('originType')}
+                    className={classes.textField}
+                >
+                    {originTypes}
+                </TextField>
                 <DocumentEditor parentObj={this.state.comment} handleChange={this.handleChange('document')} {...this.props}/>
                 <div>
                     <br/><br/>
@@ -66,11 +86,18 @@ class CommentEditor extends React.Component {
     }
 }
 
-CommentEditor.propTypes = {
-    defaultValue    : PropTypes.object.isRequired,
+DescriptionEditor.propTypes = {
+    defaultValue    : PropTypes.object,
     leafs           : PropTypes.object.isRequired,
     annotatedCrf    : PropTypes.array.isRequired,
     supplementalDoc : PropTypes.array.isRequired,
 };
+/*
+    defaultValue.comment : PropTypes.object,
+    defaultValue.method  : PropTypes.object,
+    defaultValue.origins : PropTypes.array,
+    defaultValue.note    : PropTypes.object,
+    defaultValue.model   : PropTypes.string.isRequired,
+    */
 
-export default withStyles(styles)(CommentEditor);
+export default withStyles(styles)(DescriptionEditor);

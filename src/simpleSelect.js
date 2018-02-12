@@ -80,9 +80,11 @@ class ItemSelect extends React.Component {
 }
 
 ItemSelect.propTypes = {
-    classes  : PropTypes.object.isRequired,
-    options  : PropTypes.array.isRequired,
-    onUpdate : PropTypes.func.isRequired,
+    classes      : PropTypes.object.isRequired,
+    options      : PropTypes.array.isRequired,
+    onUpdate     : PropTypes.func.isRequired,
+    defaultValue : PropTypes.string,
+    optional     : PropTypes.bool,
 };
 
 export default withStyles(styles)(ItemSelect);

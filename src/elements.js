@@ -38,6 +38,242 @@ class BasicFunctions {
     }
 }
 
+class Origin extends BasicFunctions {
+    constructor ({
+        type, source, descriptions = [], documents = []
+    } = {}) {
+        super();
+        this.type = type;
+        this.source = source; // 2.1D
+        this.descriptions = descriptions;
+        this.documents = documents;
+    }
+    addDocument (document) {
+        this.documents.push(document);
+    }
+}
+
+class WhereClause {
+    constructor ({
+        oid, comment, rangeChecks = []
+    } = {}) {
+        this.oid = oid;
+        this.comment = comment;
+        this.rangeChecks = [];
+    }
+    addRangeCheck (rangeCheck) {
+        this.rangeChecks.push(rangeCheck);
+    }
+}
+
+class RangeCheck {
+    constructor ({
+        comparator, softHard, itemOid, checkValues = []
+    } = {}) {
+        this.comparator = comparator;
+        this.softHard = softHard;
+        this.itemOid = itemOid;
+        this.checkValues = checkValues;
+    }
+    addCheckValue (value) {
+        this.checkValues.push(value);
+    }
+}
+
+class CodeList extends BasicFunctions {
+    constructor ({
+        oid, name, dataType, standard, sasFormatName, comment, externalCodeList, alias,
+        descriptions = [],
+        enumeratedItems = [],
+        codeListItems = []
+    } = {}) {
+        super();
+        this.oid = oid || getOid(this.constructor.name);
+        this.name = name;
+        this.dataType = dataType;
+        this.standard = standard;
+        this.sasFormatName = sasFormatName;
+        this.comment = comment;
+        this.externalCodeList = externalCodeList;
+        this.alias = alias;
+        this.descriptions = descriptions;
+        this.enumeratedItems = enumeratedItems;
+        this.codeListItems = codeListItems;
+    }
+    addEnumeratedItem (item) {
+        this.enumeratedItems.push(item);
+    }
+    addCodeListItem (item) {
+        this.codeListItems.push(item);
+    }
+    setExternalCodeList (item) {
+        this.externalCodeList = item;
+    }
+}
+
+class EnumeratedItem {
+    constructor ({
+        codedValue, rank, orderNumber, extendedValue, alias
+    } = {}) {
+        this.codedValue = codedValue;
+        this.rank = rank;
+        this.orderNumber = orderNumber;
+        this.extendedValue = extendedValue;
+        this.alias = alias;
+    }
+}
+
+class CodeListItem extends EnumeratedItem {
+    constructor ({
+        codedValue, rank, orderNumber, extendedValue, alias,
+        decodes = []
+    } = {}) {
+        super({
+            codedValue    : codedValue,
+            rank          : rank,
+            orderNumber   : orderNumber,
+            extendedValue : extendedValue,
+            alias         : alias
+        });
+        this.decodes = decodes;
+    }
+    addDecode (decode) {
+        this.decodes.push(decode);
+    }
+}
+
+class ExternalCodeList {
+    constructor ({
+        dictionary, version, ref, href
+    } = {}) {
+        this.dictionary = dictionary;
+        this.version = version;
+        this.ref = ref;
+        this.href = href;
+    }
+}
+
+class Alias {
+    constructor ({
+        name, context
+    } = {}) {
+        this.name = name;
+        this.context = context;
+    }
+}
+
+class TranslatedText {
+    constructor ({
+        lang = 'en', value
+    } = {}) {
+        this.lang = lang;
+        this.value = value;
+    }
+}
+
+// Non-define XML element
+class Note {
+    constructor ({
+        markdown,
+        value,
+    } = {}) {
+        this.markdown = markdown;
+        this.value = value;
+    }
+}
+
+class Document {
+    constructor ({
+        leaf, pdfPageRefs = []
+    } = {}) {
+        if (leaf === undefined) {
+            this.leaf = new Leaf();
+        } else {
+            this.leaf = leaf;
+        }
+        this.pdfPageRefs = pdfPageRefs;
+    }
+    addPdfPageRef (pdfPageRef) {
+        if (pdfPageRef === undefined) {
+            this.pdfPageRefs.push(new PdfPageRef());
+        } else {
+            this.pdfPageRefs.push(pdfPageRef);
+        }
+        // Return index of the added element
+        return this.pdfPageRefs.length - 1;
+    }
+}
+
+
+class Comment extends BasicFunctions {
+    constructor ({
+        oid, descriptions = [], documents = []
+    } = {}) {
+        super();
+        this.oid = oid;
+        this.descriptions = descriptions;
+        this.documents = documents;
+    }
+    addDocument (document) {
+        if (document === undefined) {
+            this.documents.push(new Document());
+        } else {
+            this.documents.push(document);
+        }
+    }
+    getCommentAsText () {
+        let result = this.getDescription().value;
+        if (this.documents.length > 0) {
+            this.documents.forEach((doc) => {
+                result += '\n' + doc.leaf.title + '(' + doc.leaf.href + ')';
+            });
+        }
+        return result;
+    }
+}
+
+class Method extends Comment {
+    constructor ({
+        oid, name, type, descriptions = [], documents = [], formalExpressions = []
+    } = {}) {
+        super({
+            oid          : oid,
+            descriptions : descriptions,
+            documents    : documents
+        });
+        this.name = name;
+        this.type = type;
+        this.formalExpressions = formalExpressions;
+    }
+    addFormalExpression (expression) {
+        this.formalExpressions.push(expression);
+    }
+}
+
+class Leaf {
+    constructor ({
+        id, href, title, isPdf
+    } = {}) {
+        this.id = id;
+        this.href = href;
+        this.title = title;
+        // Non-define XML properties
+        this.isPdf = isPdf;
+    }
+}
+
+class PdfPageRef {
+    constructor ({
+        type, pageRefs, firstPage, lastPage, title
+    } = {}) {
+        this.type = type;
+        this.pageRefs = pageRefs;
+        this.firstPage = firstPage;
+        this.lastPage = lastPage;
+        this.title = title; // 2.1D
+    }
+}
+
 class Odm {
     constructor ({
         schemaLocation, odmVersion, fileType, fileOid, creationDateTime, asOfDateTime, originator, sourceSystem,
@@ -197,7 +433,7 @@ class ItemDef extends BasicFunctions {
     constructor ({
         oid, name, dataType, length,
         fractionDigits, fieldName, displayFormat,
-        comment, codeList, valueList, valueListOid, parent,
+        comment, codeList, valueList, valueListOid, parent, note,
         origins = [],
         descriptions = []
     } = {}) {
@@ -216,6 +452,12 @@ class ItemDef extends BasicFunctions {
         this.valueListOid = valueListOid;
         this.parent = parent;
         this.descriptions = descriptions;
+        // Non-define XML properties
+        if (note === undefined) {
+            this.note = note;
+        } else {
+            this.note = new Note();
+        }
     }
     addOrigin (origin) {
         this.origins.push(origin);
@@ -265,230 +507,6 @@ class ValueList extends BasicFunctions {
     }
 }
 
-class Origin extends BasicFunctions {
-    constructor ({
-        type, source, descriptions = [], documents = []
-    } = {}) {
-        super();
-        this.type = type;
-        this.source = source;
-        this.descriptions = descriptions;
-        this.documents = documents;
-    }
-    addDocument (document) {
-        this.documents.push(document);
-    }
-}
-
-class WhereClause {
-    constructor ({
-        oid, comment, rangeChecks = []
-    } = {}) {
-        this.oid = oid;
-        this.comment = comment;
-        this.rangeChecks = [];
-    }
-    addRangeCheck (rangeCheck) {
-        this.rangeChecks.push(rangeCheck);
-    }
-}
-
-class RangeCheck {
-    constructor ({
-        comparator, softHard, itemOid, checkValues = []
-    } = {}) {
-        this.comparator = comparator;
-        this.softHard = softHard;
-        this.itemOid = itemOid;
-        this.checkValues = checkValues;
-    }
-    addCheckValue (value) {
-        this.checkValues.push(value);
-    }
-}
-
-class CodeList extends BasicFunctions {
-    constructor ({
-        oid, name, dataType, standard, sasFormatName, comment, externalCodeList, alias,
-        descriptions = [],
-        enumeratedItems = [],
-        codeListItems = []
-    } = {}) {
-        super();
-        this.oid = oid || getOid(this.constructor.name);
-        this.name = name;
-        this.dataType = dataType;
-        this.standard = standard;
-        this.sasFormatName = sasFormatName;
-        this.comment = comment;
-        this.externalCodeList = externalCodeList;
-        this.alias = alias;
-        this.descriptions = descriptions;
-        this.enumeratedItems = enumeratedItems;
-        this.codeListItems = codeListItems;
-    }
-    addEnumeratedItem (item) {
-        this.enumeratedItems.push(item);
-    }
-    addCodeListItem (item) {
-        this.codeListItems.push(item);
-    }
-    setExternalCodeList (item) {
-        this.externalCodeList = item;
-    }
-}
-
-class EnumeratedItem {
-    constructor ({
-        codedValue, rank, orderNumber, extendedValue, alias
-    } = {}) {
-        this.codedValue = codedValue;
-        this.rank = rank;
-        this.orderNumber = orderNumber;
-        this.extendedValue = extendedValue;
-        this.alias = alias;
-    }
-}
-
-class CodeListItem extends EnumeratedItem {
-    constructor ({
-        codedValue, rank, orderNumber, extendedValue, alias,
-        decodes = []
-    } = {}) {
-        super({
-            codedValue    : codedValue,
-            rank          : rank,
-            orderNumber   : orderNumber,
-            extendedValue : extendedValue,
-            alias         : alias
-        });
-        this.decodes = decodes;
-    }
-    addDecode (decode) {
-        this.decodes.push(decode);
-    }
-}
-
-class ExternalCodeList {
-    constructor ({
-        dictionary, version, ref, href
-    } = {}) {
-        this.dictionary = dictionary;
-        this.version = version;
-        this.ref = ref;
-        this.href = href;
-    }
-}
-
-class Alias {
-    constructor ({
-        name, context
-    } = {}) {
-        this.name = name;
-        this.context = context;
-    }
-}
-
-class TranslatedText {
-    constructor ({
-        lang = 'en', value
-    } = {}) {
-        this.lang = lang;
-        this.value = value;
-    }
-}
-
-class Comment extends BasicFunctions {
-    constructor ({
-        oid, descriptions = [], documents = []
-    } = {}) {
-        super();
-        this.oid = oid;
-        this.descriptions = descriptions;
-        this.documents = documents;
-    }
-    addDocument (document) {
-        if (document === undefined) {
-            this.documents.push(new Document());
-        } else {
-            this.documents.push(document);
-        }
-    }
-    getCommentAsText () {
-        let result = this.getDescription().value;
-        if (this.documents.length > 0) {
-            this.documents.forEach((doc) => {
-                result += '\n' + doc.leaf.title + '(' + doc.leaf.href + ')';
-            });
-        }
-        return result;
-    }
-}
-
-class Method extends Comment {
-    constructor ({
-        oid, name, type, descriptions = [], documents = [], formalExpressions = []
-    } = {}) {
-        super({
-            oid          : oid,
-            descriptions : descriptions,
-            documents    : documents
-        });
-        this.name = name;
-        this.type = type;
-        this.formalExpressions = formalExpressions;
-    }
-    addFormalExpression (expression) {
-        this.formalExpressions.push(expression);
-    }
-}
-
-class Leaf {
-    constructor ({
-        id, href, title, isPdf
-    } = {}) {
-        this.id = id;
-        this.href = href;
-        this.title = title;
-        // Non-define XML properties
-        this.isPdf = isPdf;
-    }
-}
-
-class PdfPageRef {
-    constructor ({
-        type, pageRefs, firstPage, lastPage, title
-    } = {}) {
-        this.type = type;
-        this.pageRefs = pageRefs;
-        this.firstPage = firstPage;
-        this.lastPage = lastPage;
-        this.title = title; // 2.1D
-    }
-}
-
-class Document {
-    constructor ({
-        leaf, pdfPageRefs = []
-    } = {}) {
-        if (leaf === undefined) {
-            this.leaf = new Leaf();
-        } else {
-            this.leaf = leaf;
-        }
-        this.pdfPageRefs = pdfPageRefs;
-    }
-    addPdfPageRef (pdfPageRef) {
-        if (pdfPageRef === undefined) {
-            this.pdfPageRefs.push(new PdfPageRef());
-        } else {
-            this.pdfPageRefs.push(pdfPageRef);
-        }
-        // Return index of the added element
-        return this.pdfPageRefs.length - 1;
-    }
-}
-
 module.exports = {
     Odm              : Odm,
     Study            : Study,
@@ -512,5 +530,6 @@ module.exports = {
     Comment          : Comment,
     Document         : Document,
     PdfPageRef       : PdfPageRef,
-    Leaf             : Leaf
+    Leaf             : Leaf,
+    Note             : Note,
 };
