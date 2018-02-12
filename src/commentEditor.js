@@ -14,7 +14,6 @@ const styles = theme => ({
 class CommentEditor extends React.Component {
     constructor (props) {
         super(props);
-        this.handleChange = this.handleChange.bind(this);
         this.state = {
             comment: props.defaultValue
         };
@@ -23,7 +22,7 @@ class CommentEditor extends React.Component {
     handleChange = name => updateObj => {
         if (name === 'text') {
             let newComment = Object.assign(Object.create(Object.getPrototypeOf(this.state.comment)),this.state.comment);
-            newComment.getDescription().value = updateObj.currentTarget.value;
+            newComment.setDescription(updateObj.currentTarget.value);
             this.setState({comment: newComment});
         }
         if (name === 'document') {
@@ -32,8 +31,7 @@ class CommentEditor extends React.Component {
     }
 
     save = () => {
-        let updatedComment = this.state.comment;
-        this.props.onUpdate(updatedComment);
+        this.props.onUpdate(this.state.comment);
     }
 
     cancel = () => {
@@ -51,7 +49,7 @@ class CommentEditor extends React.Component {
                     fullWidth
                     rowsMax="10"
                     autoFocus
-                    value={this.state.comment.getDescription().value}
+                    value={this.state.comment.getDescription()}
                     onChange={this.handleChange('text')}
                     margin="normal"
                 />
@@ -71,6 +69,7 @@ CommentEditor.propTypes = {
     leafs           : PropTypes.object.isRequired,
     annotatedCrf    : PropTypes.array.isRequired,
     supplementalDoc : PropTypes.array.isRequired,
+    onUpdate        : PropTypes.func,
 };
 
 export default withStyles(styles)(CommentEditor);
