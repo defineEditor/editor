@@ -66,7 +66,7 @@ class EditorTabs extends React.Component {
             return (
                 <div key={itemGroupOid}>
                     <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
-                        {mdv.itemGroups[itemGroupOid].name + ' (' + mdv.itemGroups[itemGroupOid].getDescription().value + ')'}
+                        {mdv.itemGroups[itemGroupOid].name + ' (' + mdv.itemGroups[itemGroupOid].getDescription() + ')'}
                     </h3>
                     <VariableTable mdv={mdv} itemGroupOid={itemGroupOid}/>
                 </div>

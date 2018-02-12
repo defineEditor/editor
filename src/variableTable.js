@@ -28,7 +28,7 @@ const dataTypes = [
 ];
 
 // Debug options
-const hideMe = false;
+const hideMe = true;
 
 
 // Editor functions
@@ -191,12 +191,12 @@ class VariableTable extends React.Component {
         const mdv = this.props.mdv;
         const dataset = mdv.itemGroups[this.props.itemGroupOid];
         Object.keys(dataset.itemRefs).forEach((itemRefOid) => {
-            let originVar = dataset.itemRefs[itemRefOid];
+            const originVar = dataset.itemRefs[itemRefOid];
             let currentVar = {
                 oid            : originVar.itemDef.oid,
                 orderNumber    : originVar.orderNumber,
                 name           : originVar.itemDef.name,
-                label          : originVar.itemDef.getDescription().value,
+                label          : originVar.itemDef.getDescription(),
                 dataType       : originVar.itemDef.dataType,
                 length         : originVar.itemDef.length,
                 fractionDigits : originVar.itemDef.fractionDigits,
@@ -292,14 +292,14 @@ class VariableTable extends React.Component {
             {
                 dataField    : 'description',
                 text         : 'Description',
-                hidden       : hideMe,
+                hidden       : false,
                 width        : '40%',
                 dataFormat   : descriptionFormatter,
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' },
                 customEditor : {
                     getElement             : descriptionEditor,
-                    customEditorParameters : {leafs: mdv.leafs, supplementalDoc: mdv.supplementalDoc, annotatedCrf: mdv.annotatedCrf}
+                    customEditorParameters : {leafs: mdv.leafs, supplementalDoc: mdv.supplementalDoc, annotatedCrf: mdv.annotatedCrf, defineVersion: '2.0'}
                 },
             },
         ];

@@ -25,15 +25,86 @@ function getOid (type, suffix) {
     return oid;
 }
 
+class ExternalCodeList {
+    constructor ({
+        dictionary, version, ref, href
+    } = {}) {
+        this.dictionary = dictionary;
+        this.version = version;
+        this.ref = ref;
+        this.href = href;
+    }
+}
+
+class Alias {
+    constructor ({
+        name, context
+    } = {}) {
+        this.name = name;
+        this.context = context;
+    }
+}
+
+class TranslatedText {
+    constructor ({
+        lang = 'en', value
+    } = {}) {
+        this.lang = lang;
+        this.value = value;
+    }
+}
+
+// Non-define XML element
+class Note {
+    constructor ({
+        markdown,
+        value,
+    } = {}) {
+        this.markdown = markdown;
+        this.value = value;
+    }
+}
+
 class BasicFunctions {
     addDescription (description) {
         this.descriptions.push(description);
     }
     getDescription (language) {
         if (this.descriptions.length === 1) {
-            return this.descriptions[0];
+            return this.descriptions[0].value;
         } else {
             return undefined;
+        }
+    }
+    setDescription (value, language = 'en') {
+        let updatedFlag = false;
+        // No description yet
+        if (this.descriptions.length === 0) {
+            this.descriptions.push(new TranslatedText({lang: 'language', value: value}));
+            updatedFlag = true;
+        } else {
+        // Search for a description with a specific language and update it
+            this.descriptions.forEach( (description, index) => {
+                if (description.lang === language) {
+                    this.descriptions[index] = new TranslatedText({lang: language, value: value});
+                    updatedFlag = true;
+                }
+            });
+        }
+        // In case there is a description without language, use it as default;
+        if (updatedFlag === false && this.descriptions.length === 1
+            && this.descriptions[0].lang === undefined && language === 'en'
+        ) {
+            this.descriptions[0] = new TranslatedText({value: value});
+        }
+    }
+    addDocument (document) {
+        if (this.hasOwnProperty('documents')) {
+            if (document === undefined) {
+                this.documents.push(new Document());
+            } else {
+                this.documents.push(document);
+            }
         }
     }
 }
@@ -47,9 +118,6 @@ class Origin extends BasicFunctions {
         this.source = source; // 2.1D
         this.descriptions = descriptions;
         this.documents = documents;
-    }
-    addDocument (document) {
-        this.documents.push(document);
     }
 }
 
@@ -142,43 +210,30 @@ class CodeListItem extends EnumeratedItem {
     }
 }
 
-class ExternalCodeList {
+class Leaf {
     constructor ({
-        dictionary, version, ref, href
+        id, href, title, isPdf
     } = {}) {
-        this.dictionary = dictionary;
-        this.version = version;
-        this.ref = ref;
+        this.id = id;
         this.href = href;
+        this.title = title;
+        // Non-define XML properties
+        this.isPdf = isPdf;
     }
 }
 
-class Alias {
+class PdfPageRef {
     constructor ({
-        name, context
+        type, pageRefs, firstPage, lastPage, title
     } = {}) {
-        this.name = name;
-        this.context = context;
+        this.type = type;
+        this.pageRefs = pageRefs;
+        this.firstPage = firstPage;
+        this.lastPage = lastPage;
+        this.title = title; // 2.1D
     }
-}
-
-class TranslatedText {
-    constructor ({
-        lang = 'en', value
-    } = {}) {
-        this.lang = lang;
-        this.value = value;
-    }
-}
-
-// Non-define XML element
-class Note {
-    constructor ({
-        markdown,
-        value,
-    } = {}) {
-        this.markdown = markdown;
-        this.value = value;
+    clone (){
+        return new PdfPageRef(this);
     }
 }
 
@@ -202,6 +257,11 @@ class Document {
         // Return index of the added element
         return this.pdfPageRefs.length - 1;
     }
+    clone (){
+        let leaf = Object.assign(new Leaf(), this.leaf);
+        let pdfPageRefs = this.pdfPageRefs.map( pdfPageRef => (pdfPageRef.clone()));
+        return new Document({leaf: leaf, pdfPageRefs: pdfPageRefs});
+    }
 }
 
 
@@ -214,21 +274,19 @@ class Comment extends BasicFunctions {
         this.descriptions = descriptions;
         this.documents = documents;
     }
-    addDocument (document) {
-        if (document === undefined) {
-            this.documents.push(new Document());
-        } else {
-            this.documents.push(document);
-        }
-    }
     getCommentAsText () {
-        let result = this.getDescription().value;
+        let result = this.getDescription();
         if (this.documents.length > 0) {
             this.documents.forEach((doc) => {
                 result += '\n' + doc.leaf.title + '(' + doc.leaf.href + ')';
             });
         }
         return result;
+    }
+    clone (){
+        let descriptions = this.descriptions.slice();
+        let documents = this.documents.map( document => (document.clone()));
+        return new Comment({oid: this.oid, descriptions: descriptions, documents: documents});
     }
 }
 
@@ -247,30 +305,6 @@ class Method extends Comment {
     }
     addFormalExpression (expression) {
         this.formalExpressions.push(expression);
-    }
-}
-
-class Leaf {
-    constructor ({
-        id, href, title, isPdf
-    } = {}) {
-        this.id = id;
-        this.href = href;
-        this.title = title;
-        // Non-define XML properties
-        this.isPdf = isPdf;
-    }
-}
-
-class PdfPageRef {
-    constructor ({
-        type, pageRefs, firstPage, lastPage, title
-    } = {}) {
-        this.type = type;
-        this.pageRefs = pageRefs;
-        this.firstPage = firstPage;
-        this.lastPage = lastPage;
-        this.title = title; // 2.1D
     }
 }
 

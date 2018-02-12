@@ -54,7 +54,7 @@ function simpleSelect (onUpdate, props) {
 
 // Formatter functions
 function commentFormatter (cell, row) {
-    if (cell !== undefined) {
+    if (cell !== undefined && cell !== '') {
         return (<span>{cell.getCommentAsText()}</span>);
     } else {
         return;
@@ -71,10 +71,6 @@ function datasetClassFormatter (cell, row) {
 }
 
 class DatasetTable extends React.Component {
-    constructor(props) {
-        super(props);
-        this.onBeforeSaveCell = this.onBeforeSaveCell.bind(this);
-    }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
         // Update on if the value changed
@@ -82,8 +78,10 @@ class DatasetTable extends React.Component {
             let updateObj = {};
             updateObj[cellName] = cellValue;
             this.props.onMdvChange('ItemGroup',row.oid,updateObj);
+            return true;
+        } else {
+            return false;
         }
-        return true;
     }
 
     renderColumns = (columns) => {
@@ -161,9 +159,9 @@ class DatasetTable extends React.Component {
     render () {
         let datasets = [];
         // Extract data required for the dataset table
-        const mdv = this.props.mdv;
+        const mdv = Object.assign(Object.create(Object.getPrototypeOf(this.props.mdv)),this.props.mdv);
         Object.keys(mdv.itemGroups).forEach((itemGroupOid) => {
-            let originDs = mdv.itemGroups[itemGroupOid];
+            const originDs = mdv.itemGroups[itemGroupOid];
             let currentDs = {
                 oid          : originDs.oid,
                 name         : originDs.name,

@@ -26,23 +26,23 @@ class ItemSelect extends React.Component {
         this.state = {value: props.defaultValue};
     }
 
-    getSelectionList () {
-        let list = [];
-        if (this.props.options.length < 1) {
+    getSelectionList (list, optional) {
+        let selectionList = [];
+        if (list.length < 1) {
             throw Error('Blank value list provided for the ItemSelect element');
         } else {
-            if (this.props.optional === true) {
-                list.push(<MenuItem key='0' value=""><em>None</em></MenuItem>);
+            if (optional === true) {
+                selectionList.push(<MenuItem key='0' value=""><em>None</em></MenuItem>);
             }
-            this.props.options.forEach( (value, index) => {
+            list.forEach( (value, index) => {
                 if (typeof value === 'object') {
-                    list.push(<MenuItem key={index+1} value={Object.keys(value)[0]}>{value[Object.keys(value)[0]]}</MenuItem>);
+                    selectionList.push(<MenuItem key={index+1} value={Object.keys(value)[0]}>{value[Object.keys(value)[0]]}</MenuItem>);
                 } else {
-                    list.push(<MenuItem key={index+1} value={value}>{value}</MenuItem>);
+                    selectionList.push(<MenuItem key={index+1} value={value}>{value}</MenuItem>);
                 }
             });
         }
-        return list;
+        return selectionList;
     }
 
     handleChange = event => {
@@ -73,7 +73,7 @@ class ItemSelect extends React.Component {
                 onChange={this.handleChange}
                 className={classes.textField}
             >
-                {this.getSelectionList()}
+                {this.getSelectionList(this.props.options,this.props.optional)}
             </TextField>
         );
     }

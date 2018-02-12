@@ -5,7 +5,7 @@ import ItemSelect from './itemSelect.js';
 import ClearIcon from 'material-ui-icons/Clear';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
-import { FormControlLabel, FormControl } from 'material-ui/Form';
+import {FormControlLabel} from 'material-ui/Form';
 import Switch from 'material-ui/Switch';
 import TextField from 'material-ui/TextField';
 import {PdfPageRef} from './elements.js';
@@ -32,10 +32,9 @@ const styles = theme => ({
     },
 });
 
-class PdfPage extends React.Component {
+class PdfPageEditor extends React.Component {
     constructor (props) {
         super(props);
-        this.handleChange = this.handleChange.bind(this);
         this.state = {
             pageRangeFlag: ((this.props.value.firstPage !== undefined || this.props.value.lastPage !== undefined)? true : false)
         };
@@ -66,7 +65,7 @@ class PdfPage extends React.Component {
         }
         // Overwrite the updated property
         newPdfPageRef[name] = event.target.value;
-        // Life the state up
+        // Lift the state up
         this.props.handleChange('updatePdfPageRef', this.props.documentId, this.props.pdfPageRefId)(newPdfPageRef);
     }
 
@@ -89,49 +88,41 @@ class PdfPage extends React.Component {
             if (!this.state.pageRangeFlag) {
                 result.push(
                     <Grid item key='pages'>
-                        <FormControl className={classes.formControl}>
-                            <TextField
-                                label="Pages (space separated)"
-                                className={classes.textField}
-                                value={this.props.value.pageRefs}
-                                onChange={this.handleChange('pageRefs')}
-                            />
-                        </FormControl>
+                        <TextField
+                            label="Pages (space separated)"
+                            className={classes.textField}
+                            value={this.props.value.pageRefs||''}
+                            onChange={this.handleChange('pageRefs')}
+                        />
                     </Grid>
                 );
             } else {
                 result.push(
                     <Grid item key='firstLast'>
-                        <FormControl key='first' className={classes.formControlRange}>
-                            <TextField
-                                label="First Page"
-                                className={classes.textFieldRange}
-                                value={this.props.value.firstPage}
-                                onChange={this.handleChange('firstPage')}
-                            />
-                        </FormControl>
-                        <FormControl key='last' className={classes.formControlRange}>
-                            <TextField
-                                label="Last Page"
-                                className={classes.textFieldRange}
-                                value={this.props.value.lastPage}
-                                onChange={this.handleChange('lastPage')}
-                            />
-                        </FormControl>
+                        <TextField
+                            label="First Page"
+                            className={classes.textFieldRange}
+                            value={this.props.value.firstPage||''}
+                            onChange={this.handleChange('firstPage')}
+                        />
+                        <TextField
+                            label="Last Page"
+                            className={classes.textFieldRange}
+                            value={this.props.value.lastPage||''}
+                            onChange={this.handleChange('lastPage')}
+                        />
                     </Grid>
                 );
             }
         } else if (type === 'NamedDestination') {
             result.push(
                 <Grid item key='NamedDestination'>
-                    <FormControl className={classes.formControl}>
-                        <TextField
-                            label="Destination Anchor"
-                            className={classes.textField}
-                            value={this.props.value.pageRefs}
-                            onChange={this.handleChange('pageRefs')}
-                        />
-                    </FormControl>
+                    <TextField
+                        label="Destination Anchor"
+                        className={classes.textField}
+                        value={this.props.value.pageRefs||''}
+                        onChange={this.handleChange('pageRefs')}
+                    />
                 </Grid>
             );
         }
@@ -139,14 +130,12 @@ class PdfPage extends React.Component {
         if (this.props.defineVersion === '2.1') {
             result.push(
                 <Grid item key='Title'>
-                    <FormControl className={classes.formControl}>
-                        <TextField
-                            label="Title"
-                            className={classes.textField}
-                            value={this.props.value.title}
-                            onChange={this.handleChange('title')}
-                        />
-                    </FormControl>
+                    <TextField
+                        label="Title"
+                        className={classes.textField}
+                        value={this.props.value.title||''}
+                        onChange={this.handleChange('title')}
+                    />
                 </Grid>
             );
 
@@ -184,10 +173,10 @@ class PdfPage extends React.Component {
     }
 }
 
-PdfPageRef.propTypes = {
+PdfPageEditor.propTypes = {
     classes : PropTypes.object.isRequired,
     value   : PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(PdfPage);
+export default withStyles(styles)(PdfPageEditor);
 

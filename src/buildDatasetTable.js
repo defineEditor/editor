@@ -8,7 +8,7 @@ function buildDatasetTable (mdv) {
     let datasets = [];
 	Object.keys(mdv.itemGroups).forEach( (itemGroupOid) => {
         let currentDs = Object.assign(Object.create( Object.getPrototypeOf(mdv.itemGroups[itemGroupOid])),mdv.itemGroups[itemGroupOid]);
-        currentDs.description = currentDs.getDescription().value;
+        currentDs.description = currentDs.getDescription();
         // Get key variables
         // TODO: When key is located in the SUPP dataset.
         let keysArray = [];

@@ -1,7 +1,7 @@
 import Button from 'material-ui/Button';
 import PropTypes from 'prop-types';
 import ItemSelect from './itemSelect.js';
-import PdfPage from './pdfPage.js';
+import PdfPageEditor from './pdfPageEditor.js';
 import Divider from 'material-ui/Divider';
 import DeleteIcon from 'material-ui-icons/Delete';
 import Grid from 'material-ui/Grid';
@@ -12,16 +12,14 @@ const styles = theme => ({
     button: {
         margin: 'none',
     },
+    iconButton: {
+        marginBottom: '8px',
+    },
 });
 
 class DocumentEditor extends React.Component {
-    constructor (props) {
-        super(props);
-        this.handleDocumentChange = this.handleDocumentChange.bind(this);
-    }
-
-    handleDocumentChange = (name, documentId, pdfPageRefId) => event => {
-        let newObject = Object.assign(Object.create(Object.getPrototypeOf(this.props.parentObj)),this.props.parentObj);
+    handleChange = (name, documentId, pdfPageRefId) => event => {
+        let newObject =this.props.parentObj.clone();
         if (name === 'updateDocument') {
             let newDocuments = newObject.documents.slice();
             newDocuments[documentId].leaf = this.props.leafs[event.target.value];
@@ -58,95 +56,82 @@ class DocumentEditor extends React.Component {
         let result = [];
         result = result.concat(document.pdfPageRefs.map( (pdfPageRef, index) => {
             return (
-                <PdfPage
+                <PdfPageEditor
                     key={index}
                     value={pdfPageRef}
                     pdfPageRefId={index}
                     documentId={documentId}
-                    handleChange={this.handleDocumentChange}
+                    handleChange={this.handleChange}
                 />);
         }));
 
         return result;
     }
 
-    getDocuments = (documentList, classes) => {
-        return this.props.parentObj.documents.map( (document, index) => {
+    getDocuments = (documents, documentList, classes) => {
+        return documents.map( (document, index) => {
             return (
-                <div key={index}>
-                    <Grid container justify='flex-start' spacing={8}>
-                        <Grid item>
-                            <Button
-                                mini
-                                color='default'
-                                onClick={this.handleDocumentChange('deleteDocument',index)}
-                                variant='fab'
-                                className={classes.button}
-                            >
-                                <DeleteIcon />
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            <ItemSelect
-                                options={documentList}
-                                value={document.leaf.id || Object.keys(documentList)[0]}
-                                handleChange={this.handleDocumentChange('updateDocument',index)}
-                                label='Document'
-                            />
-                        </Grid>
-                        { document.leaf.isPdf &&
-                                <Grid item>
-                                    <Button
-                                        size='small'
-                                        key='button'
-                                        color='default'
-                                        onClick={this.handleDocumentChange('newPdfPageRef',index)}
-                                        variant='raised'
-                                        className={classes.button}
-                                    >
-                                        Add PDF Page
-                                    </Button>
-                                </Grid>
-                        }
-                        { document.leaf.isPdf &&
-                                <Grid item xs={12}>
-                                    {this.getPdfPage(document, index, classes)}
-                                </Grid>
-                        }
+                <Grid container justify='flex-start' spacing={8} key={index}>
+                    <Grid item>
+                        <Button
+                            mini
+                            color='default'
+                            onClick={this.handleChange('deleteDocument',index)}
+                            variant='fab'
+                            className={classes.button}
+                        >
+                            <DeleteIcon />
+                        </Button>
                     </Grid>
-                    <Divider/>
-                </div>
+                    <Grid item>
+                        <ItemSelect
+                            options={documentList}
+                            value={document.leaf.id || Object.keys(documentList)[0]}
+                            handleChange={this.handleChange('updateDocument',index)}
+                            label='Document'
+                        />
+                    </Grid>
+                    { document.leaf.isPdf &&
+                            <Grid item>
+                                <Button
+                                    size='small'
+                                    key='button'
+                                    color='default'
+                                    onClick={this.handleChange('newPdfPageRef',index)}
+                                    variant='raised'
+                                    className={classes.button}
+                                >
+                                    Add PDF Page
+                                </Button>
+                            </Grid>
+                    }
+                    { document.leaf.isPdf &&
+                            <Grid item xs={12}>
+                                {this.getPdfPage(document, index, classes)}
+                            </Grid>
+                    }
+                </Grid>
             );
         });
     }
 
     render () {
         // Get the list of available documents
-        let leafs = this.props.leafs;
+        const leafs = this.props.leafs;
         let documentList = [];
         Object.keys(leafs).forEach( (leafId) => {
             documentList.push({[leafId]: leafs[leafId].title});
         });
 
         const { classes } = this.props;
+        const numberOfDocs = this.props.parentObj.documents.length;
 
         return (
-            <div>
-                <Divider/>
-                {this.getDocuments(documentList, classes)}
-                <Divider/>
-                <div>
-                    <Button size='small'
-                        color='default'
-                        onClick={this.handleDocumentChange('newDocument')}
-                        variant='raised'
-                        className={classes.button}
-                    >
-                        Add Document
-                    </Button>
-                </div>
-                <Divider/>
-            </div>
+            <Grid xs={12} item>
+                {numberOfDocs > 0 && <Divider/>}
+                {this.getDocuments(this.props.parentObj.documents, documentList, classes)}
+                {numberOfDocs > 0 && <Divider/>}
+            </Grid>
         );
     }
 }
