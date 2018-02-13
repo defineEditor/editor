@@ -1,14 +1,11 @@
 import Button from 'material-ui/Button';
 import PropTypes from 'prop-types';
-import TextField from 'material-ui/TextField';
-import DocumentEditor from './documentEditor.js';
 import Divider from 'material-ui/Divider';
 import React from 'react';
 import { withStyles } from 'material-ui/styles';
-import { MenuItem } from 'material-ui/Menu';
 import Grid from 'material-ui/Grid';
-import Typography from 'material-ui/Typography';
 import CommentEditor from './commentEditor.js';
+import OriginEditor from './originEditor.js';
 
 const styles = theme => ({
     button: {
@@ -30,43 +27,6 @@ class DescriptionEditor extends React.Component {
         };
     }
 
-    getSelectionList = (list, optional) => {
-        let selectionList = [];
-        if (list.length < 1) {
-            throw Error('Blank value list provided for the ItemSelect element');
-        } else {
-            if (optional === true) {
-                selectionList.push(<MenuItem key='0' value=""><em>None</em></MenuItem>);
-            }
-            list.forEach( (value, index) => {
-                if (typeof value === 'object') {
-                    selectionList.push(<MenuItem key={index+1} value={Object.keys(value)[0]}>{value[Object.keys(value)[0]]}</MenuItem>);
-                } else {
-                    selectionList.push(<MenuItem key={index+1} value={value}>{value}</MenuItem>);
-                }
-            });
-        }
-        return selectionList;
-    }
-
-    handleOriginChange = (name, originId) => (updateObj) => {
-        let newOrigins = Object.assign(Object.create(Object.getPrototypeOf(this.state.origins)),this.state.origins);
-        if (name === 'type') {
-            newOrigins[originId].type = updateObj.target.value;
-            // TODO: If the selected TYPE is CRF, check if there is CRF document attached to the origin
-            // If not, create it with PhysicalRef type
-            this.setState({origins: newOrigins});
-        }
-        if (name === 'description') {
-            newOrigins[originId].setDescription(updateObj.target.value);
-            this.setState({origins: newOrigins});
-        }
-        if (name === 'document') {
-            newOrigins[originId] = updateObj;
-            this.setState({origins: newOrigins});
-        }
-    }
-
     handleChange = (name, originId) => (updateObj) => {
         this.setState({[name]: updateObj});
     }
@@ -81,62 +41,12 @@ class DescriptionEditor extends React.Component {
     }
 
     render () {
-        let originTypeList;
-        if (this.props.model === 'ADaM') {
-            originTypeList = ['Derived', 'Assigned', 'Predecessor'];
-        } else {
-            originTypeList = ['CRF', 'Derived', 'Assigned', 'Protocol', 'eDT', 'Predecessor'];
-        }
-        // Get the list of available documents
-        let leafs = this.props.leafs;
-        let documentList = [];
-        Object.keys(leafs).forEach( (leafId) => {
-            documentList.push({[leafId]: leafs[leafId].title});
-        });
-
-        let origin, originDescription;
-        let originType;
-        if (this.props.defineVersion === '2.0'){
-            origin = this.state.origins[0];
-            originType = this.state.origins[0] !== undefined ? this.state.origins[0].type : '';
-            originDescription = origin.getDescription() || '';
-        }
-
-
         const { classes } = this.props;
 
         return (
             <Grid container spacing={0}>
                 <Grid item xs={12}>
-                    <Typography variant="subheading">
-                        Origin
-                    </Typography>
-                </Grid>
-                <Grid container spacing={8}>
-                    <Grid item>
-                        <TextField
-                            label='Origin Type'
-                            select
-                            onKeyDown={this.props.onKeyDown}
-                            value={originType}
-                            onChange={this.handleOriginChange('type',0)}
-                            className={classes.textField}
-                        >
-                            {this.getSelectionList(originTypeList)}
-                        </TextField>
-                    </Grid>
-                    <Grid item>
-                        <TextField
-                            label='Origin Description'
-                            onKeyDown={this.props.onKeyDown}
-                            value={originDescription}
-                            onChange={this.handleOriginChange('description',0)}
-                            className={classes.textField}
-                        >
-                            {this.getSelectionList(originTypeList)}
-                        </TextField>
-                    </Grid>
-                    <DocumentEditor {...this.props} parentObj={origin} handleChange={this.handleOriginChange('document',0)} />
+                    <OriginEditor {...this.props} defaultValue={this.state.origins} onUpdate={this.handleChange('origins')}/>
                 </Grid>
                 <Divider/>
                 <Grid item xs={12}>

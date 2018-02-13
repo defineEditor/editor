@@ -159,7 +159,7 @@ class DatasetTable extends React.Component {
     render () {
         let datasets = [];
         // Extract data required for the dataset table
-        const mdv = Object.assign(Object.create(Object.getPrototypeOf(this.props.mdv)),this.props.mdv);
+        const mdv = this.props.mdv;
         Object.keys(mdv.itemGroups).forEach((itemGroupOid) => {
             const originDs = mdv.itemGroups[itemGroupOid];
             let currentDs = {
@@ -172,7 +172,7 @@ class DatasetTable extends React.Component {
                 comment      : originDs.comment,
                 leaf         : originDs.leaf,
             };
-            currentDs.description = originDs.getDescription().value;
+            currentDs.description = originDs.getDescription();
             // Get key variables
             // TODO: When key is located in the SUPP dataset.
             let keysArray = [];

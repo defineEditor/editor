@@ -1,12 +1,14 @@
-import Button from 'material-ui/Button';
+import IconButton from 'material-ui/IconButton';
 import PropTypes from 'prop-types';
 import ItemSelect from './itemSelect.js';
 import PdfPageEditor from './pdfPageEditor.js';
 import Divider from 'material-ui/Divider';
 import DeleteIcon from 'material-ui-icons/Delete';
+import PictureAsPdf from 'material-ui-icons/PictureAsPdf';
 import Grid from 'material-ui/Grid';
 import React from 'react';
 import { withStyles } from 'material-ui/styles';
+import Tooltip from 'material-ui/Tooltip';
 
 const styles = theme => ({
     button: {
@@ -71,17 +73,17 @@ class DocumentEditor extends React.Component {
     getDocuments = (documents, documentList, classes) => {
         return documents.map( (document, index) => {
             return (
-                <Grid container justify='flex-start' spacing={8} key={index}>
+                <Grid container justify='flex-start' alignItems='flex-end' spacing={8} key={index}>
                     <Grid item>
-                        <Button
-                            mini
-                            color='default'
-                            onClick={this.handleChange('deleteDocument',index)}
-                            variant='fab'
-                            className={classes.button}
-                        >
-                            <DeleteIcon />
-                        </Button>
+                        <Tooltip title="Remove Document" placement="right">
+                            <IconButton
+                                color='default'
+                                onClick={this.handleChange('deleteDocument',index)}
+                                className={classes.button}
+                            >
+                                <DeleteIcon />
+                            </IconButton>
+                        </Tooltip>
                     </Grid>
                     <Grid item>
                         <ItemSelect
@@ -91,24 +93,22 @@ class DocumentEditor extends React.Component {
                             label='Document'
                         />
                     </Grid>
+                    <Grid item>
+                        <Tooltip title="Add PDF Page Referece" placement="right">
+                            <IconButton
+                                disabled={!document.leaf.isPdf}
+                                color='primary'
+                                onClick={this.handleChange('newPdfPageRef',index)}
+                                className={classes.button}
+                            >
+                                <PictureAsPdf/>
+                            </IconButton>
+                        </Tooltip>
+                    </Grid>
                     { document.leaf.isPdf &&
-                            <Grid item>
-                                <Button
-                                    size='small'
-                                    key='button'
-                                    color='default'
-                                    onClick={this.handleChange('newPdfPageRef',index)}
-                                    variant='raised'
-                                    className={classes.button}
-                                >
-                                    Add PDF Page
-                                </Button>
-                            </Grid>
-                    }
-                    { document.leaf.isPdf &&
-                            <Grid item xs={12}>
-                                {this.getPdfPage(document, index, classes)}
-                            </Grid>
+                        <Grid item xs={12}>
+                            {this.getPdfPage(document, index, classes)}
+                        </Grid>
                     }
                 </Grid>
             );

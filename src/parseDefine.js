@@ -198,11 +198,12 @@ function parseMethods (methodsRaw, mdv) {
         }
         if (methodRaw.hasOwnProperty('formalExpression')) {
             methodRaw['formalExpression'].forEach(function (item) {
-                method.addFormalExpression(
+                method.addFormalExpression(new def.FormalExpression(
                     {
                         context : item['$'].context,
                         value   : item['_']
                     }
+                )
                 );
             });
         }

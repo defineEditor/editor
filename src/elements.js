@@ -52,6 +52,9 @@ class TranslatedText {
         this.lang = lang;
         this.value = value;
     }
+    clone() {
+        return new TranslatedText(this);
+    }
 }
 
 // Non-define XML element
@@ -118,6 +121,11 @@ class Origin extends BasicFunctions {
         this.source = source; // 2.1D
         this.descriptions = descriptions;
         this.documents = documents;
+    }
+    clone() {
+        let descriptions = this.descriptions.map( description => (description.clone()));
+        let documents = this.documents.map( document => (document.clone()));
+        return new Origin({type: this.type, source: this.source, descriptions: descriptions, documents: documents});
     }
 }
 
@@ -284,10 +292,22 @@ class Comment extends BasicFunctions {
         return result;
     }
     clone (){
-        let descriptions = this.descriptions.slice();
+        let descriptions = this.descriptions.map( description => (description.clone()));
         let documents = this.documents.map( document => (document.clone()));
         return new Comment({oid: this.oid, descriptions: descriptions, documents: documents});
     }
+}
+
+class FormalExpression {
+    constructor ({value, context} = {}) {
+        this.context = context;
+        this.value = value;
+    }
+
+    clone() {
+        return new FormalExpression(this);
+    }
+
 }
 
 class Method extends Comment {
@@ -305,6 +325,19 @@ class Method extends Comment {
     }
     addFormalExpression (expression) {
         this.formalExpressions.push(expression);
+    }
+    clone (){
+        let descriptions = this.descriptions.map( description => (description.clone()));
+        let formalExpressions = this.formalExpressions.map( formalExpression => (formalExpression.clone()));
+        let documents = this.documents.map( document => (document.clone()));
+        return new Comment({
+            oid               : this.oid,
+            name              : this.name,
+            type              : this.type,
+            descriptions      : descriptions,
+            documents         : documents,
+            formalExpressions : formalExpressions,
+        });
     }
 }
 
@@ -554,6 +587,7 @@ module.exports = {
     ItemRef          : ItemRef,
     ItemDef          : ItemDef,
     CodeList         : CodeList,
+    FormalExpression : FormalExpression,
     Method           : Method,
     TranslatedText   : TranslatedText,
     ExternalCodeList : ExternalCodeList,

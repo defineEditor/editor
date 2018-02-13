@@ -9,8 +9,8 @@ import {Comment, TranslatedText} from './elements.js';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
 import DeleteIcon from 'material-ui-icons/Delete';
-import DescriptionIcon from 'material-ui-icons/Description';
-import AddIcon from 'material-ui-icons/Add';
+import InsertLink from 'material-ui-icons/InsertLink';
+import AddIcon from 'material-ui-icons/AddCircle';
 import Tooltip from 'material-ui/Tooltip';
 
 const styles = theme => ({
@@ -18,7 +18,9 @@ const styles = theme => ({
         margin: theme.spacing.unit,
     },
     iconButton: {
-        marginBottom: '8px',
+        marginLeft   : '0px',
+        marginRight  : '0px',
+        marginBottom : '8px',
     },
 });
 
@@ -28,7 +30,6 @@ class CommentEditor extends React.Component {
         // Bootstrap table changed undefined to '' when saving the value. 
         // Catching this and resetting to undefined in case it is an empty string
         let defaultValue;
-        this.handleChange = this.handleChange.bind(this);
         if (this.props.stateless !== true) {
             if (this.props.defaultValue === '') {
                 defaultValue = undefined;
@@ -38,16 +39,6 @@ class CommentEditor extends React.Component {
             this.state = {
                 comment: defaultValue
             };
-        }
-    }
-
-    cloneComment = (prevComment)  => {
-        let newComment = Object.assign(Object.create(Object.getPrototypeOf(prevComment)),prevComment);
-        if (newComment.descriptions.length > 0) {
-            newComment.descriptions = prevComment.descriptions.slice();
-        }
-        if (newComment.documents.length > 0) {
-            newComment.descriptions = prevComment.descriptions.slice();
         }
     }
 
@@ -98,15 +89,25 @@ class CommentEditor extends React.Component {
                     <Typography variant="subheading">
                         Comment
                         {comment === undefined &&
-                                <Tooltip title="Add Comment" placement="right">
+                                <React.Fragment>
+                                    <Tooltip title="Add Comment" placement="right">
+                                        <IconButton
+                                            onClick={this.handleChange('addComment')}
+                                            className={classes.iconButton}
+                                            color='primary'
+                                        >
+                                            <AddIcon/>
+                                        </IconButton>
+                                    </Tooltip>
                                     <IconButton
-                                        onClick={this.handleChange('addComment')}
+                                        onClick={this.handleChange('addDocument')}
                                         className={classes.iconButton}
-                                        color='primary'
+                                        disabled
+                                        color='default'
                                     >
-                                        <AddIcon/>
+                                        <InsertLink/>
                                     </IconButton>
-                                </Tooltip>
+                                </React.Fragment>
                         }
                         {comment !== undefined &&
                                 <React.Fragment>
@@ -119,13 +120,13 @@ class CommentEditor extends React.Component {
                                             <DeleteIcon/>
                                         </IconButton>
                                     </Tooltip>
-                                    <Tooltip title="Add Document" placement="right">
+                                    <Tooltip title="Add Link to Document" placement="right">
                                         <IconButton
                                             onClick={this.handleChange('addDocument')}
                                             className={classes.iconButton}
                                             color='primary'
                                         >
-                                            <DescriptionIcon/>
+                                            <InsertLink/>
                                         </IconButton>
                                     </Tooltip>
                                 </React.Fragment>

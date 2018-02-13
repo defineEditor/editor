@@ -4,10 +4,11 @@ import { withStyles } from 'material-ui/styles';
 import ItemSelect from './itemSelect.js';
 import ClearIcon from 'material-ui-icons/Clear';
 import Grid from 'material-ui/Grid';
-import Button from 'material-ui/Button';
+import IconButton from 'material-ui/IconButton';
 import {FormControlLabel} from 'material-ui/Form';
 import Switch from 'material-ui/Switch';
 import TextField from 'material-ui/TextField';
+import Tooltip from 'material-ui/Tooltip';
 import {PdfPageRef} from './elements.js';
 
 const pageRefTypes = [{'PhysicalRef': 'Physical Reference'},{'NamedDestination': 'Named Destination'}];
@@ -27,8 +28,15 @@ const styles = theme => ({
     select: {
         marginTop: theme.spacing.unit * 2,
     },
-    textFieldRange: {
-        width: '80px'
+    textFieldFirst: {
+        width: '80px',
+    },
+    textFieldLast: {
+        width      : '80px',
+        marginLeft : theme.spacing.unit
+    },
+    rangeSwitch: {
+        margin: 'none',
     },
 });
 
@@ -79,6 +87,7 @@ class PdfPageEditor extends React.Component {
                             <Switch
                                 checked={this.state.pageRangeFlag}
                                 onChange={(event, checked) => this.setState({ pageRangeFlag: checked })}
+                                className={classes.rangeSwitch}
                             />
                         }
                         label="Range"
@@ -101,13 +110,13 @@ class PdfPageEditor extends React.Component {
                     <Grid item key='firstLast'>
                         <TextField
                             label="First Page"
-                            className={classes.textFieldRange}
+                            className={classes.textFieldFirst}
                             value={this.props.value.firstPage||''}
                             onChange={this.handleChange('firstPage')}
                         />
                         <TextField
                             label="Last Page"
-                            className={classes.textFieldRange}
+                            className={classes.textFieldLast}
                             value={this.props.value.lastPage||''}
                             onChange={this.handleChange('lastPage')}
                         />
@@ -149,15 +158,14 @@ class PdfPageEditor extends React.Component {
         return (
             <Grid container>
                 <Grid item>
-                    <Button
-                        mini
-                        color='default'
-                        onClick={this.props.handleChange('deletePdfPageRef',this.props.documentId,this.props.pdfPageRefId)}
-                        variant='fab'
-                        style={{margin: '5pt'}}
-                    >
-                        <ClearIcon />
-                    </Button>
+                    <Tooltip title="Remove PDF Page Reference" placement="right">
+                        <IconButton
+                            color='default'
+                            onClick={this.props.handleChange('deletePdfPageRef',this.props.documentId,this.props.pdfPageRefId)}
+                        >
+                            <ClearIcon />
+                        </IconButton>
+                    </Tooltip>
                 </Grid>
                 <Grid item>
                     <ItemSelect
