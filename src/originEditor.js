@@ -10,7 +10,7 @@ import Typography from 'material-ui/Typography';
 import DeleteIcon from 'material-ui-icons/Delete';
 import DescriptionIcon from 'material-ui-icons/Description';
 import InsertLink from 'material-ui-icons/InsertLink';
-import AddIcon from 'material-ui-icons/Add';
+import AddIcon from 'material-ui-icons/AddCircle';
 import Tooltip from 'material-ui/Tooltip';
 import { MenuItem } from 'material-ui/Menu';
 import ClearIcon from 'material-ui-icons/Clear';
@@ -24,9 +24,30 @@ const styles = theme => ({
         marginRight  : '0px',
         marginBottom : '8px',
     },
+    originType: {
+        minWidth: '110px',
+    },
+    textField: {
+        minWidth: '60px',
+    },
 });
 
 class OriginEditor extends React.Component {
+    constructor (props) {
+        super(props);
+        // Extract description from each origin into an array;
+        let descriptions = this.props.defaultValue.map(origin => (origin.getDescription()));
+        if (descriptions.length === 0) {
+            descriptions = [''];
+        }
+        this.state = {descriptions: descriptions};
+    }
+
+    handleLocalChange = (originId) => (event) => {
+        let descriptions = this.state.descriptions.slice();
+        descriptions[originId] = event.target.value;
+        this.setState({descriptions});
+    }
 
     handleChange = (name, originId) => (updateObj) => {
         let origins = this.props.defaultValue;
@@ -44,18 +65,26 @@ class OriginEditor extends React.Component {
             if (name === 'type') {
                 // TODO: If the selected TYPE is CRF, check if there is CRF document attached to the origin
                 // If not, create it with PhysicalRef type
+                // TODO: If the selected TYPE is Predecessor, check if there is a description
+                // If not, create it
                 newOrigin = origin.clone();
                 newOrigin.type = updateObj.target.value;
             }
             if (name === 'addDescription') {
                 newOrigin = origin.clone();
-                newOrigin.setDescription('');
+                newOrigin.addDescription();
             }
             if (name === 'updateDescription') {
                 // TODO: this is slow as each keypress updates the upstate
                 // Consider changing to local state or ref
                 newOrigin = origin.clone();
-                newOrigin.setDescription(updateObj.target.value);
+                newOrigin.setDescription(this.state.description);
+            }
+            if (name === 'deleteDescription') {
+                newOrigin = origin.clone();
+                newOrigin.descriptions = [];
+                // As description text changes are handled locally, reset the local state
+                this.setState({descriptions: ['']});
             }
             if (name === 'addDocument') {
                 newOrigin = origin.clone();
@@ -75,7 +104,7 @@ class OriginEditor extends React.Component {
             throw Error('Blank value list provided for the ItemSelect element');
         } else {
             if (optional === true) {
-                selectionList.push(<MenuItem key='0' value=""><em>None</em></MenuItem>);
+                selectionList.push(<MenuItem key='0' value=''><em>None</em></MenuItem>);
             }
             list.forEach( (value, index) => {
                 if (typeof value === 'object') {
@@ -104,81 +133,55 @@ class OriginEditor extends React.Component {
             documentList.push({[leafId]: leafs[leafId].title});
         });
 
-        let origin, originType, originDescription;
+        let origin, originType, descriptionExists;
         if (this.props.defineVersion === '2.0'){
             origin = this.props.defaultValue[0];
             if (origin) {
-                originType = this.props.defaultValue[0].type;
-                originDescription = origin.getDescription();
-            } else {
-                originType = '';
-                originDescription = '';
+                originType = origin.type || '';
+                descriptionExists = origin.descriptions.length > 0;
             }
         }
 
         return (
             <Grid container spacing={8}>
                 <Grid item xs={12}>
-                    <Typography variant="subheading">
+                    <Typography variant='subheading'>
                         Origin
-                        {origin === undefined &&
-                                <React.Fragment>
-                                    <Tooltip title={origin === undefined && "Add Origin"} placement="right">
-                                        <IconButton
-                                            onClick={this.handleChange('addOrigin',0)}
-                                            className={classes.iconButton}
-                                            color='primary'
-                                        >
-                                            <AddIcon/>
-                                        </IconButton>
-                                    </Tooltip>
-                                    <IconButton
-                                        className={classes.iconButton}
-                                        disabled
-                                        color='default'
-                                    >
-                                        <InsertLink/>
-                                    </IconButton>
-                                    <IconButton
-                                        className={classes.iconButton}
-                                        disabled
-                                        color='primary'
-                                    >
-                                        <DescriptionIcon/>
-                                    </IconButton>
-                                </React.Fragment>
-                        }
-                        {origin !== undefined &&
-                                <React.Fragment>
-                                    <Tooltip title="Remove Origin" placement="right">
-                                        <IconButton
-                                            onClick={this.handleChange('deleteOrigin',0)}
-                                            className={classes.iconButton}
-                                            color='default'
-                                        >
-                                            <DeleteIcon/>
-                                        </IconButton>
-                                    </Tooltip>
-                                    <Tooltip title="Add Link to Document" placement="right">
-                                        <IconButton
-                                            onClick={this.handleChange('addDocument',0)}
-                                            className={classes.iconButton}
-                                            color='primary'
-                                        >
-                                            <InsertLink/>
-                                        </IconButton>
-                                    </Tooltip>
-                                    <Tooltip title="Add Description" placement="right">
-                                        <IconButton
-                                            onClick={this.handleChange('addDescription',0)}
-                                            className={classes.iconButton}
-                                            color='primary'
-                                        >
-                                            <DescriptionIcon/>
-                                        </IconButton>
-                                    </Tooltip>
-                                </React.Fragment>
-                        }
+                        <Tooltip title={origin === undefined ? 'Add Origin' : 'Remove Origin'} placement='bottom'>
+                            <span>
+                                <IconButton
+                                    onClick={origin === undefined ? this.handleChange('addOrigin',0) : this.handleChange('deleteOrigin',0)}
+                                    className={classes.iconButton}
+                                    color={origin === undefined ? 'primary' : 'secondary'}
+                                >
+                                    {origin === undefined ? <AddIcon/> : <DeleteIcon/>}
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                        <Tooltip title='Add Link to Document' placement='bottom'>
+                            <span>
+                                <IconButton
+                                    onClick={this.handleChange('addDocument',0)}
+                                    disabled={origin === undefined}
+                                    className={classes.iconButton}
+                                    color={origin !== undefined ? 'primary' : 'default'}
+                                >
+                                    <InsertLink/>
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                        <Tooltip title={descriptionExists === false ? 'Add Description' : 'Remove Description'} placement='bottom'>
+                            <span>
+                                <IconButton
+                                    onClick={descriptionExists === false ? this.handleChange('addDescription',0) : this.handleChange('deleteDescription',0)}
+                                    className={classes.iconButton}
+                                    disabled={origin === undefined}
+                                    color={descriptionExists === false || origin === undefined ? 'primary' : 'secondary'}
+                                >
+                                    {descriptionExists === false ? <DescriptionIcon/> : <ClearIcon/>}
+                                </IconButton>
+                            </span>
+                        </Tooltip>
                     </Typography>
                 </Grid>
                 {origin !== undefined &&
@@ -191,17 +194,18 @@ class OriginEditor extends React.Component {
                                             select
                                             value={originType}
                                             onChange={this.handleChange('type',0)}
-                                            className={classes.textField}
+                                            className={classes.originType}
                                         >
                                             {this.getSelectionList(originTypeList)}
                                         </TextField>
                                     </Grid>
-                                    { originDescription !== undefined &&
+                                    {descriptionExists !== false &&
                                             <Grid item>
                                                 <TextField
                                                     label='Origin Description'
-                                                    value={originDescription}
-                                                    onChange={this.handleChange('description',0)}
+                                                    value={this.state.descriptions[0]}
+                                                    onChange={this.handleLocalChange(0)}
+                                                    onBlur={this.handleChange('updateDescription',0)}
                                                     className={classes.textField}
                                                 >
                                                 </TextField>
@@ -209,7 +213,7 @@ class OriginEditor extends React.Component {
                                     }
                                     <DocumentEditor
                                         parentObj={origin}
-                                        handleChange={this.handleChange('updateDocument')}
+                                        handleChange={this.handleChange('updateDocument',0)}
                                         leafs={this.props.leafs}
                                         annotatedCrf={this.props.annotatedCrf}
                                         supplementalDoc={this.props.supplementalDoc}
