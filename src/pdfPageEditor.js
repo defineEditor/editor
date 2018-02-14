@@ -5,7 +5,6 @@ import ItemSelect from './itemSelect.js';
 import ClearIcon from 'material-ui-icons/Clear';
 import Grid from 'material-ui/Grid';
 import IconButton from 'material-ui/IconButton';
-import {FormControlLabel} from 'material-ui/Form';
 import Switch from 'material-ui/Switch';
 import TextField from 'material-ui/TextField';
 import Tooltip from 'material-ui/Tooltip';
@@ -21,10 +20,6 @@ const styles = theme => ({
     formControl: {
         margin: 'none',
     },
-    formControlRange: {
-        marginRight : theme.spacing.unit,
-        marginLeft  : theme.spacing.unit
-    },
     select: {
         marginTop: theme.spacing.unit * 2,
     },
@@ -36,7 +31,8 @@ const styles = theme => ({
         marginLeft : theme.spacing.unit
     },
     rangeSwitch: {
-        margin: 'none',
+        alignItems : 'flex-end',
+        margin     : 'none',
     },
 });
 
@@ -82,23 +78,20 @@ class PdfPageEditor extends React.Component {
         if (type === 'PhysicalRef') {
             result.push(
                 <Grid item key='switch'>
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={this.state.pageRangeFlag}
-                                onChange={(event, checked) => this.setState({ pageRangeFlag: checked })}
-                                className={classes.rangeSwitch}
-                            />
-                        }
-                        label="Range"
-                    />
+                    <Tooltip title={!this.state.pageRangeFlag ? 'Enable Range of Pages' : 'Disable Range of Pages'} placement='bottom'>
+                        <Switch
+                            checked={this.state.pageRangeFlag}
+                            onChange={(event, checked) => this.setState({ pageRangeFlag: checked })}
+                            className={classes.rangeSwitch}
+                        />
+                    </Tooltip>
                 </Grid>
             );
             if (!this.state.pageRangeFlag) {
                 result.push(
                     <Grid item key='pages'>
                         <TextField
-                            label="Pages (space separated)"
+                            label='Pages (space separated)'
                             className={classes.textField}
                             value={this.props.value.pageRefs||''}
                             onChange={this.handleChange('pageRefs')}
@@ -109,13 +102,13 @@ class PdfPageEditor extends React.Component {
                 result.push(
                     <Grid item key='firstLast'>
                         <TextField
-                            label="First Page"
+                            label='First Page'
                             className={classes.textFieldFirst}
                             value={this.props.value.firstPage||''}
                             onChange={this.handleChange('firstPage')}
                         />
                         <TextField
-                            label="Last Page"
+                            label='Last Page'
                             className={classes.textFieldLast}
                             value={this.props.value.lastPage||''}
                             onChange={this.handleChange('lastPage')}
@@ -127,7 +120,7 @@ class PdfPageEditor extends React.Component {
             result.push(
                 <Grid item key='NamedDestination'>
                     <TextField
-                        label="Destination Anchor"
+                        label='Destination Anchor'
                         className={classes.textField}
                         value={this.props.value.pageRefs||''}
                         onChange={this.handleChange('pageRefs')}
@@ -140,7 +133,7 @@ class PdfPageEditor extends React.Component {
             result.push(
                 <Grid item key='Title'>
                     <TextField
-                        label="Title"
+                        label='Title'
                         className={classes.textField}
                         value={this.props.value.title||''}
                         onChange={this.handleChange('title')}
@@ -156,11 +149,11 @@ class PdfPageEditor extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container>
+            <Grid container spacing={8} alignItems='center'>
                 <Grid item>
-                    <Tooltip title="Remove PDF Page Reference" placement="right">
+                    <Tooltip title='Remove PDF Page Reference' placement='bottom'>
                         <IconButton
-                            color='default'
+                            color='secondary'
                             onClick={this.props.handleChange('deletePdfPageRef',this.props.documentId,this.props.pdfPageRefId)}
                         >
                             <ClearIcon />
@@ -182,8 +175,9 @@ class PdfPageEditor extends React.Component {
 }
 
 PdfPageEditor.propTypes = {
-    classes : PropTypes.object.isRequired,
-    value   : PropTypes.object.isRequired,
+    classes      : PropTypes.object.isRequired,
+    value        : PropTypes.object.isRequired,
+    handleChange : PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(PdfPageEditor);

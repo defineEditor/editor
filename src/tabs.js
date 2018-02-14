@@ -1,13 +1,30 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
 import Tabs, { Tab } from 'material-ui/Tabs';
 import Typography from 'material-ui/Typography';
 import DatasetTable from './datasetTable.js';
 import VariableTable from './variableTable.js';
 import grey from 'material-ui/colors/grey';
+import { MuiThemeProvider, createMuiTheme, withStyles } from 'material-ui/styles';
 //import Grid from 'material-ui/Grid';
+
+const theme = createMuiTheme({
+    palette: {
+        primary: {
+            light        : '#757ce8',
+            main         : '#3f50b5',
+            dark         : '#002884',
+            contrastText : '#fff',
+        },
+        secondary: {
+            light        : '#ff7961',
+            main         : '#f44336',
+            dark         : '#ba000d',
+            contrastText : '#000',
+        },
+    },
+});
 
 function TabContainer(props) {
     return (
@@ -51,6 +68,9 @@ class EditorTabs extends React.Component {
         if (type === 'ItemGroup') {
             mdv.itemGroups[elementId].update(updateObj, mdv);
         }
+        if (type === 'Item') {
+            mdv.itemGroups[elementId.itemGroupOid].update(updateObj, mdv);
+        }
 
         this.setState({odm: odm});
     }
@@ -68,7 +88,7 @@ class EditorTabs extends React.Component {
                     <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
                         {mdv.itemGroups[itemGroupOid].name + ' (' + mdv.itemGroups[itemGroupOid].getDescription() + ')'}
                     </h3>
-                    <VariableTable mdv={mdv} itemGroupOid={itemGroupOid}/>
+                    <VariableTable mdv={mdv} itemGroupOid={itemGroupOid} onMdvChange={this.handleMdvChange}/>
                 </div>
             );
         });
@@ -84,19 +104,21 @@ class EditorTabs extends React.Component {
 
         return (
             <div className={classes.root}>
-                <AppBar position="sticky" color='default'>
-                    <Tabs value={value} onChange={this.handleChange} fullWidth indicatorColor='primary' textColor='primary'> 
-                        { tabs.map( tab => {
-                            return <Tab key={tab} label={tab} />;
-                        })
-                        }
-                    </Tabs>
-                </AppBar>
-                <TabContainer>
-                    {tabs[value] === 'Datasets' && <DatasetTable mdv={this.state.odm.study.metaDataVersion} onMdvChange={this.handleMdvChange}/>}
-                    {tabs[value] === 'Variables' && this.generateVariableTables()}
-                    {['Datasets','Variables'].indexOf(tabs[value]) === -1 && <div id={tabIds[value]}>{tabs[value]}</div>}
-                </TabContainer>
+                <MuiThemeProvider theme={theme}>
+                    <AppBar position="sticky" color='default'>
+                        <Tabs value={value} onChange={this.handleChange} fullWidth indicatorColor='primary' textColor='primary'> 
+                            { tabs.map( tab => {
+                                return <Tab key={tab} label={tab} />;
+                            })
+                            }
+                        </Tabs>
+                    </AppBar>
+                    <TabContainer>
+                        {tabs[value] === 'Datasets' && <DatasetTable mdv={this.state.odm.study.metaDataVersion} onMdvChange={this.handleMdvChange}/>}
+                        {tabs[value] === 'Variables' && this.generateVariableTables()}
+                        {['Datasets','Variables'].indexOf(tabs[value]) === -1 && <div id={tabIds[value]}>{tabs[value]}</div>}
+                    </TabContainer>
+                </MuiThemeProvider>
             </div>
         );
     }

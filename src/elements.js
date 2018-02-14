@@ -70,7 +70,11 @@ class Note {
 
 class BasicFunctions {
     addDescription (description) {
-        this.descriptions.push(description);
+        if (description === undefined) {
+            this.descriptions.push(new TranslatedText({value: ''}));
+        } else {
+            this.descriptions.push(description);
+        }
     }
     getDescription (language) {
         if (this.descriptions.length === 1) {
@@ -312,7 +316,7 @@ class FormalExpression {
 
 class Method extends Comment {
     constructor ({
-        oid, name, type, descriptions = [], documents = [], formalExpressions = []
+        oid, name, type, autoMethodName, descriptions = [], documents = [], formalExpressions = []
     } = {}) {
         super({
             oid          : oid,
@@ -322,18 +326,33 @@ class Method extends Comment {
         this.name = name;
         this.type = type;
         this.formalExpressions = formalExpressions;
+        // Non-define XML properties
+        if (autoMethodName !== undefined) {
+            this.autoMethodName = autoMethodName;
+        } else {
+            if (name === undefined) {
+                this.autoMethodName = true;
+            } else {
+                this.autoMethodName = false;
+            }
+        }
     }
     addFormalExpression (expression) {
-        this.formalExpressions.push(expression);
+        if (expression === undefined) {
+            this.formalExpressions.push(new FormalExpression());
+        } else {
+            this.formalExpressions.push(expression);
+        }
     }
     clone (){
         let descriptions = this.descriptions.map( description => (description.clone()));
         let formalExpressions = this.formalExpressions.map( formalExpression => (formalExpression.clone()));
         let documents = this.documents.map( document => (document.clone()));
-        return new Comment({
+        return new Method({
             oid               : this.oid,
             name              : this.name,
             type              : this.type,
+            autoMethodName    : this.autoMethodName,
             descriptions      : descriptions,
             documents         : documents,
             formalExpressions : formalExpressions,

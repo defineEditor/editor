@@ -2,8 +2,7 @@ import IconButton from 'material-ui/IconButton';
 import PropTypes from 'prop-types';
 import ItemSelect from './itemSelect.js';
 import PdfPageEditor from './pdfPageEditor.js';
-import Divider from 'material-ui/Divider';
-import DeleteIcon from 'material-ui-icons/Delete';
+import RemoveIcon from 'material-ui-icons/RemoveCircleOutline';
 import PictureAsPdf from 'material-ui-icons/PictureAsPdf';
 import Grid from 'material-ui/Grid';
 import React from 'react';
@@ -77,11 +76,11 @@ class DocumentEditor extends React.Component {
                     <Grid item>
                         <Tooltip title="Remove Document" placement="right">
                             <IconButton
-                                color='default'
+                                color='secondary'
                                 onClick={this.handleChange('deleteDocument',index)}
                                 className={classes.button}
                             >
-                                <DeleteIcon />
+                                <RemoveIcon />
                             </IconButton>
                         </Tooltip>
                     </Grid>
@@ -95,14 +94,16 @@ class DocumentEditor extends React.Component {
                     </Grid>
                     <Grid item>
                         <Tooltip title="Add PDF Page Referece" placement="right">
-                            <IconButton
-                                disabled={!document.leaf.isPdf}
-                                color='primary'
-                                onClick={this.handleChange('newPdfPageRef',index)}
-                                className={classes.button}
-                            >
-                                <PictureAsPdf/>
-                            </IconButton>
+                            <span>
+                                <IconButton
+                                    disabled={!document.leaf.isPdf}
+                                    color='primary'
+                                    onClick={this.handleChange('newPdfPageRef',index)}
+                                    className={classes.button}
+                                >
+                                    <PictureAsPdf/>
+                                </IconButton>
+                            </span>
                         </Tooltip>
                     </Grid>
                     { document.leaf.isPdf &&
@@ -124,13 +125,10 @@ class DocumentEditor extends React.Component {
         });
 
         const { classes } = this.props;
-        const numberOfDocs = this.props.parentObj.documents.length;
 
         return (
             <Grid xs={12} item>
-                {numberOfDocs > 0 && <Divider/>}
                 {this.getDocuments(this.props.parentObj.documents, documentList, classes)}
-                {numberOfDocs > 0 && <Divider/>}
             </Grid>
         );
     }

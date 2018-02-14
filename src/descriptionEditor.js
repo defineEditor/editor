@@ -5,6 +5,7 @@ import React from 'react';
 import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import CommentEditor from './commentEditor.js';
+import MethodEditor from './methodEditor.js';
 import OriginEditor from './originEditor.js';
 
 const styles = theme => ({
@@ -13,6 +14,9 @@ const styles = theme => ({
     },
     iconButton: {
         marginBottom: '8px',
+    },
+    gridItem: {
+        margin: 'none',
     },
 });
 
@@ -42,18 +46,30 @@ class DescriptionEditor extends React.Component {
 
     render () {
         const { classes } = this.props;
+        let childProps = Object.assign({}, this.props);
+        delete childProps.classes;
 
         return (
-            <Grid container spacing={0}>
-                <Grid item xs={12}>
-                    <OriginEditor {...this.props} defaultValue={this.state.origins} onUpdate={this.handleChange('origins')}/>
+            <Grid container spacing={8} alignItems='center'>
+                <Grid item xs={12} className={classes.gridItem}>
+                    <OriginEditor {...childProps} defaultValue={this.state.origins} onUpdate={this.handleChange('origins')}/>
                 </Grid>
-                <Divider/>
-                <Grid item xs={12}>
-                    <CommentEditor {...this.props} defaultValue={this.state.comment} onUpdate={this.handleChange('comment')} stateless={true}/>
+                <Grid item xs={12} className={classes.gridItem}>
+                    <Divider/>
                 </Grid>
-                <Divider/>
-                <Grid item xs={12}>
+                <Grid item xs={12} className={classes.gridItem}>
+                    <CommentEditor {...childProps} defaultValue={this.state.comment} onUpdate={this.handleChange('comment')} stateless={true}/>
+                </Grid>
+                <Grid item xs={12} className={classes.gridItem}>
+                    <Divider/>
+                </Grid>
+                <Grid item xs={12} className={classes.gridItem}>
+                    <MethodEditor {...childProps} defaultValue={this.state.method} onUpdate={this.handleChange('method')} stateless={true}/>
+                </Grid>
+                <Grid item xs={12} className={classes.gridItem}>
+                    <Divider/>
+                </Grid>
+                <Grid item xs={12} className={classes.gridItem}>
                     <div>
                         <br/><br/>
                         <Button color='primary' onClick={this.save} variant='raised' className={classes.button}>Save</Button>
@@ -70,13 +86,7 @@ DescriptionEditor.propTypes = {
     leafs           : PropTypes.object.isRequired,
     annotatedCrf    : PropTypes.array.isRequired,
     supplementalDoc : PropTypes.array.isRequired,
+    model           : PropTypes.string.isRequired,
 };
-/*
-                defaultValue.comment : PropTypes.object,
-                defaultValue.method  : PropTypes.object,
-                defaultValue.origins : PropTypes.array,
-                defaultValue.note    : PropTypes.object,
-                defaultValue.model   : PropTypes.string.isRequired,
-                */
 
 export default withStyles(styles)(DescriptionEditor);

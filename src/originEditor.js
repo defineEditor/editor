@@ -7,7 +7,7 @@ import { withStyles } from 'material-ui/styles';
 import {Origin} from './elements.js';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
-import DeleteIcon from 'material-ui-icons/Delete';
+import RemoveIcon from 'material-ui-icons/RemoveCircleOutline';
 import DescriptionIcon from 'material-ui-icons/Description';
 import InsertLink from 'material-ui-icons/InsertLink';
 import AddIcon from 'material-ui-icons/AddCircle';
@@ -24,6 +24,9 @@ const styles = theme => ({
         marginRight  : '0px',
         marginBottom : '8px',
     },
+    editorHeading: {
+        minWidth: '70px',
+    },
     originType: {
         minWidth: '110px',
     },
@@ -33,21 +36,6 @@ const styles = theme => ({
 });
 
 class OriginEditor extends React.Component {
-    constructor (props) {
-        super(props);
-        // Extract description from each origin into an array;
-        let descriptions = this.props.defaultValue.map(origin => (origin.getDescription()));
-        if (descriptions.length === 0) {
-            descriptions = [''];
-        }
-        this.state = {descriptions: descriptions};
-    }
-
-    handleLocalChange = (originId) => (event) => {
-        let descriptions = this.state.descriptions.slice();
-        descriptions[originId] = event.target.value;
-        this.setState({descriptions});
-    }
 
     handleChange = (name, originId) => (updateObj) => {
         let origins = this.props.defaultValue;
@@ -78,13 +66,11 @@ class OriginEditor extends React.Component {
                 // TODO: this is slow as each keypress updates the upstate
                 // Consider changing to local state or ref
                 newOrigin = origin.clone();
-                newOrigin.setDescription(this.state.description);
+                newOrigin.setDescription(updateObj.target.value);
             }
             if (name === 'deleteDescription') {
                 newOrigin = origin.clone();
                 newOrigin.descriptions = [];
-                // As description text changes are handled locally, reset the local state
-                this.setState({descriptions: ['']});
             }
             if (name === 'addDocument') {
                 newOrigin = origin.clone();
@@ -121,6 +107,7 @@ class OriginEditor extends React.Component {
         const { classes } = this.props;
 
         let originTypeList;
+        console.log(this.props.model);
         if (this.props.model === 'ADaM') {
             originTypeList = ['Derived', 'Assigned', 'Predecessor'];
         } else {
@@ -133,56 +120,66 @@ class OriginEditor extends React.Component {
             documentList.push({[leafId]: leafs[leafId].title});
         });
 
-        let origin, originType, descriptionExists;
+        let origin, originType, originDescription;
         if (this.props.defineVersion === '2.0'){
             origin = this.props.defaultValue[0];
             if (origin) {
                 originType = origin.type || '';
-                descriptionExists = origin.descriptions.length > 0;
+                originDescription = origin.getDescription();
             }
         }
 
         return (
             <Grid container spacing={8}>
                 <Grid item xs={12}>
-                    <Typography variant='subheading'>
-                        Origin
-                        <Tooltip title={origin === undefined ? 'Add Origin' : 'Remove Origin'} placement='bottom'>
-                            <span>
-                                <IconButton
-                                    onClick={origin === undefined ? this.handleChange('addOrigin',0) : this.handleChange('deleteOrigin',0)}
-                                    className={classes.iconButton}
-                                    color={origin === undefined ? 'primary' : 'secondary'}
-                                >
-                                    {origin === undefined ? <AddIcon/> : <DeleteIcon/>}
-                                </IconButton>
-                            </span>
-                        </Tooltip>
-                        <Tooltip title='Add Link to Document' placement='bottom'>
-                            <span>
-                                <IconButton
-                                    onClick={this.handleChange('addDocument',0)}
-                                    disabled={origin === undefined}
-                                    className={classes.iconButton}
-                                    color={origin !== undefined ? 'primary' : 'default'}
-                                >
-                                    <InsertLink/>
-                                </IconButton>
-                            </span>
-                        </Tooltip>
-                        <Tooltip title={descriptionExists === false ? 'Add Description' : 'Remove Description'} placement='bottom'>
-                            <span>
-                                <IconButton
-                                    onClick={descriptionExists === false ? this.handleChange('addDescription',0) : this.handleChange('deleteDescription',0)}
-                                    className={classes.iconButton}
-                                    disabled={origin === undefined}
-                                    color={descriptionExists === false || origin === undefined ? 'primary' : 'secondary'}
-                                >
-                                    {descriptionExists === false ? <DescriptionIcon/> : <ClearIcon/>}
-                                </IconButton>
-                            </span>
-                        </Tooltip>
-                    </Typography>
+                    <Grid container spacing={0} justify='flex-start' alignItems='center'>
+                        <Grid item className={classes.editorHeading}>
+                            <Typography variant='subheading'>
+                                Origin
+                            </Typography>
+                        </Grid>
+                        <Grid item>
+                            <Tooltip title={origin === undefined ? 'Add Origin' : 'Remove Origin'} placement='bottom'>
+                                <span>
+                                    <IconButton
+                                        onClick={origin === undefined ? this.handleChange('addOrigin',0) : this.handleChange('deleteOrigin',0)}
+                                        className={classes.iconButton}
+                                        color={origin === undefined ? 'primary' : 'secondary'}
+                                    >
+                                        {origin === undefined ? <AddIcon/> : <RemoveIcon/>}
+                                    </IconButton>
+                                </span>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item>
+                            <Tooltip title='Add Link to Document' placement='bottom'>
+                                <span>
+                                    <IconButton
+                                        onClick={this.handleChange('addDocument',0)}
+                                        disabled={origin === undefined}
+                                        className={classes.iconButton}
+                                        color={origin !== undefined ? 'primary' : 'default'}
+                                    >
+                                        <InsertLink/>
+                                    </IconButton>
+                                </span>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item>
+                            <Tooltip title={originDescription === undefined ? 'Add Description' : 'Remove Description'} placement='bottom'>
+                                <span>
+                                    <IconButton
+                                        onClick={originDescription === undefined ? this.handleChange('addDescription',0) : this.handleChange('deleteDescription',0)}
+                                        className={classes.iconButton}
+                                        disabled={origin === undefined}
+                                        color={originDescription === undefined || origin === undefined ? 'primary' : 'secondary'}
+                                    >
+                                        {originDescription === undefined ? <DescriptionIcon/> : <ClearIcon/>}
+                                    </IconButton>
+                                </span>
+                            </Tooltip>
+                        </Grid>
+                    </Grid>
                 </Grid>
                 {origin !== undefined &&
                         <Grid item xs={12}>
@@ -199,12 +196,11 @@ class OriginEditor extends React.Component {
                                             {this.getSelectionList(originTypeList)}
                                         </TextField>
                                     </Grid>
-                                    {descriptionExists !== false &&
+                                    { originDescription !== undefined &&
                                             <Grid item>
                                                 <TextField
                                                     label='Origin Description'
-                                                    value={this.state.descriptions[0]}
-                                                    onChange={this.handleLocalChange(0)}
+                                                    defaultValue={originDescription}
                                                     onBlur={this.handleChange('updateDescription',0)}
                                                     className={classes.textField}
                                                 >

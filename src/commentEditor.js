@@ -8,7 +8,7 @@ import { withStyles } from 'material-ui/styles';
 import {Comment, TranslatedText} from './elements.js';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
-import DeleteIcon from 'material-ui-icons/Delete';
+import RemoveIcon from 'material-ui-icons/RemoveCircleOutline';
 import InsertLink from 'material-ui-icons/InsertLink';
 import AddIcon from 'material-ui-icons/AddCircle';
 import Tooltip from 'material-ui/Tooltip';
@@ -51,9 +51,9 @@ class CommentEditor extends React.Component {
         if (name === 'deleteComment') {
             newComment = undefined;
         }
-        if (name === 'text') {
+        if (name === 'textUpdate') {
             newComment = comment.clone();
-            newComment.setDescription(updateObj.currentTarget.value);
+            newComment.setDescription(updateObj.target.value);
         }
         if (name === 'addDocument') {
             newComment = comment.clone();
@@ -88,74 +88,52 @@ class CommentEditor extends React.Component {
                 <Grid item xs={12}>
                     <Typography variant="subheading">
                         Comment
-                        {comment === undefined &&
-                                <React.Fragment>
-                                    <Tooltip title="Add Comment" placement="right">
-                                        <IconButton
-                                            onClick={this.handleChange('addComment')}
-                                            className={classes.iconButton}
-                                            color='primary'
-                                        >
-                                            <AddIcon/>
-                                        </IconButton>
-                                    </Tooltip>
-                                    <IconButton
-                                        onClick={this.handleChange('addDocument')}
-                                        className={classes.iconButton}
-                                        disabled
-                                        color='default'
-                                    >
-                                        <InsertLink/>
-                                    </IconButton>
-                                </React.Fragment>
-                        }
-                        {comment !== undefined &&
-                                <React.Fragment>
-                                    <Tooltip title="Remove Comment" placement="right">
-                                        <IconButton
-                                            onClick={this.handleChange('deleteComment')}
-                                            className={classes.iconButton}
-                                            color='default'
-                                        >
-                                            <DeleteIcon/>
-                                        </IconButton>
-                                    </Tooltip>
-                                    <Tooltip title="Add Link to Document" placement="right">
-                                        <IconButton
-                                            onClick={this.handleChange('addDocument')}
-                                            className={classes.iconButton}
-                                            color='primary'
-                                        >
-                                            <InsertLink/>
-                                        </IconButton>
-                                    </Tooltip>
-                                </React.Fragment>
-                        }
+                        <Tooltip title={comment === undefined ? 'Add Comment' : 'Remove Comment'} placement='bottom'>
+                            <span>
+                                <IconButton
+                                    onClick={comment === undefined ? this.handleChange('addComment') : this.handleChange('deleteComment')}
+                                    className={classes.iconButton}
+                                    color={comment === undefined ? 'primary' : 'secondary'}
+                                >
+                                    {comment === undefined ? <AddIcon/> : <RemoveIcon/>}
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                        <Tooltip title='Add Link to Document' placement='bottom'>
+                            <span>
+                                <IconButton
+                                    onClick={this.handleChange('addDocument')}
+                                    disabled={comment === undefined}
+                                    className={classes.iconButton}
+                                    color={comment !== undefined ? 'primary' : 'default'}
+                                >
+                                    <InsertLink/>
+                                </IconButton>
+                            </span>
+                        </Tooltip>
                     </Typography>
                 </Grid>
-                <Grid item xs={12} >
-                    {comment !== undefined &&
-                            <React.Fragment>
-                                <TextField
-                                    label="Comment Text"
-                                    multiline
-                                    fullWidth
-                                    rowsMax="10"
-                                    autoFocus
-                                    value={comment.getDescription()}
-                                    onChange={this.handleChange('text')}
-                                    margin="normal"
-                                />
-                                <DocumentEditor
-                                    parentObj={comment}
-                                    handleChange={this.handleChange('updateDocument')}
-                                    leafs={this.props.leafs}
-                                    annotatedCrf={this.props.annotatedCrf}
-                                    supplementalDoc={this.props.supplementalDoc}
-                                />
-                            </React.Fragment>
-                    }
-                </Grid>
+                {comment !== undefined &&
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Comment Text"
+                                multiline
+                                fullWidth
+                                rowsMax="10"
+                                autoFocus
+                                defaultValue={comment.getDescription()}
+                                onBlur={this.handleChange('textUpdate')}
+                                margin="normal"
+                            />
+                            <DocumentEditor
+                                parentObj={comment}
+                                handleChange={this.handleChange('updateDocument')}
+                                leafs={this.props.leafs}
+                                annotatedCrf={this.props.annotatedCrf}
+                                supplementalDoc={this.props.supplementalDoc}
+                            />
+                        </Grid>
+                }
                 {this.props.stateless !== true &&
                     <Grid item xs={12} >
                         <br/>

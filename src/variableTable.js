@@ -2,6 +2,7 @@ import {BootstrapTable, TableHeaderColumn, ButtonGroup} from 'react-bootstrap-ta
 import '../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import PropTypes from 'prop-types';
 import DescriptionEditor from './descriptionEditor.js';
+import DescriptionFormatter from './descriptionFormatter.js';
 import SimpleInput from './simpleInput.js';
 import SimpleSelect from './simpleSelect.js';
 import Grid from 'material-ui/Grid';
@@ -10,7 +11,10 @@ import React from 'react';
 import green from 'material-ui/colors/green';
 import indigo from 'material-ui/colors/indigo';
 import grey from 'material-ui/colors/grey';
-import Typography from 'material-ui/Typography';
+import { withStyles } from 'material-ui/styles';
+import deepEqual from 'deep-equal';
+import RemoveRedEyeIcon from 'material-ui-icons/RemoveRedEye';
+import FilterListIcon from 'material-ui-icons/FilterList';
 
 // Selector constants
 const dataTypes = [
@@ -28,7 +32,13 @@ const dataTypes = [
 ];
 
 // Debug options
-const hideMe = true;
+const hideMe = false;
+
+const styles = theme => ({
+    button: {
+        margin: theme.spacing.unit,
+    },
+});
 
 
 // Editor functions
@@ -46,55 +56,7 @@ function simpleSelect (onUpdate, props) {
 
 // Formatter functions
 function descriptionFormatter (cell, row) {
-    let result = [];
-    if (cell.origins.length > 0) {
-        cell.origins.forEach( (origin) => {
-            result.push(
-                <Grid item key={origin} xs={12}>
-                    <Typography variant="subheading" gutterBottom>
-                        Origin:
-                    </Typography>
-                    {origin.type}
-                </Grid>
-            );
-        });
-    }
-    if (cell.comment !== undefined) {
-        result.push(
-            <Grid item key='comment' xs={12}>
-                <Typography variant="subheading" gutterBottom>
-                    Comment:
-                </Typography>
-                {cell.comment.getCommentAsText()}
-            </Grid>
-        );
-    }
-    if (cell.method !== undefined) {
-        result.push(
-            <Grid item key='method' xs={12}>
-                <Typography variant="subheading" gutterBottom>
-                    Method:
-                </Typography>
-                {cell.method.getCommentAsText()}
-            </Grid>
-        );
-    }
-    if (cell.note !== undefined) {
-        result.push(
-            <Grid item key='note' xs={12}>
-                <Typography variant="subheading" gutterBottom>
-                    Note (not part of Define-XML):
-                </Typography>
-                {cell.note.value}
-            </Grid>
-        );
-    }
-
-    return (
-        <Grid container>
-            {result}
-        </Grid>
-    );
+    return (<DescriptionFormatter value={cell}/>);
 }
 
 class VariableTable extends React.Component {
@@ -103,12 +65,19 @@ class VariableTable extends React.Component {
         this.onBeforeSaveCell = this.onBeforeSaveCell.bind(this);
     }
 
+    onCellEdit = (row, cellName, cellValue) => {
+        // Update on if the value changed
+        if (!deepEqual(row[cellName], cellValue)) {
+            this.props.onMdvChange('Item',{itemOid: row.oid, itemGroupOid: row.itemGroupOid},{cellName: cellValue});
+        }
+    }
+
     onBeforeSaveCell = (row, cellName, cellValue) => {
         // Update on if the value changed
         if (row[cellName] !== cellValue) {
             let updateObj = {};
             updateObj[cellName] = cellValue;
-            this.props.onMdvChange('ItemGroup',row.oid,updateObj);
+            this.props.onMdvChange('ItemGroup',{itemOid: row.oid, itemGroupOid: row.itemGroupOid},updateObj);
         }
         return true;
     }
@@ -167,7 +136,23 @@ class VariableTable extends React.Component {
                     { props.components.btnGroup }
                 </Grid>
                 <Grid item style={{paddingRight: '25px'}}>
-                    { props.components.searchPanel }
+                    <Grid container justify='flex-end'>
+                        <Grid item>
+                            <Button variant="raised" color="default">
+                                Filter
+                                <FilterListIcon style={{marginLeft: '7px'}}/>
+                            </Button>
+                        </Grid>
+                        <Grid item>
+                            <Button variant="raised" color="default">
+                                Columns
+                                <RemoveRedEyeIcon style={{marginLeft: '7px'}}/>
+                            </Button>
+                        </Grid>
+                        <Grid item>
+                            { props.components.searchPanel }
+                        </Grid>
+                    </Grid>
                 </Grid>
             </Grid>
         );
@@ -193,6 +178,8 @@ class VariableTable extends React.Component {
         Object.keys(dataset.itemRefs).forEach((itemRefOid) => {
             const originVar = dataset.itemRefs[itemRefOid];
             let currentVar = {
+                itemGroupOid   : this.props.itemGroupOid,
+                itemGroupName  : mdv.itemGroups[this.props.itemGroupOid].name,
                 oid            : originVar.itemDef.oid,
                 orderNumber    : originVar.orderNumber,
                 name           : originVar.itemDef.name,
@@ -209,6 +196,7 @@ class VariableTable extends React.Component {
                 method  : originVar.method,
                 origins : originVar.itemDef.origins,
                 note    : originVar.itemDef.note,
+                varName : originVar.itemDef.name,
                 model   : mdv.model,
             };
             variables[currentVar.orderNumber-1] = currentVar;
@@ -299,7 +287,13 @@ class VariableTable extends React.Component {
                 thStyle      : { whiteSpace: 'normal' },
                 customEditor : {
                     getElement             : descriptionEditor,
-                    customEditorParameters : {leafs: mdv.leafs, supplementalDoc: mdv.supplementalDoc, annotatedCrf: mdv.annotatedCrf, defineVersion: '2.0'}
+                    customEditorParameters : {
+                        leafs           : mdv.leafs,
+                        supplementalDoc : mdv.supplementalDoc,
+                        annotatedCrf    : mdv.annotatedCrf,
+                        model           : mdv.model,
+                        defineVersion   : '2.0',
+                    }
                 },
             },
         ];
@@ -330,4 +324,4 @@ VariableTable.propTypes = {
     itemGroupOid : PropTypes.string.isRequired,
 };
 
-export default VariableTable;
+export default withStyles(styles)(VariableTable);
