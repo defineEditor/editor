@@ -4,9 +4,9 @@ import Divider from 'material-ui/Divider';
 import React from 'react';
 import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
-import CommentEditor from './commentEditor.js';
-import MethodEditor from './methodEditor.js';
-import OriginEditor from './originEditor.js';
+import CommentEditor from 'editors/commentEditor.js';
+import MethodEditor from 'editors/methodEditor.js';
+import OriginEditor from 'editors/originEditor.js';
 
 const styles = theme => ({
     button: {

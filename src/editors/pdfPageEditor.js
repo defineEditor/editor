@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
-import ItemSelect from './itemSelect.js';
+import ItemSelect from 'itemSelect.js';
 import ClearIcon from 'material-ui-icons/Clear';
 import Grid from 'material-ui/Grid';
 import IconButton from 'material-ui/IconButton';
 import Switch from 'material-ui/Switch';
 import TextField from 'material-ui/TextField';
 import Tooltip from 'material-ui/Tooltip';
-import {PdfPageRef} from './elements.js';
+import {PdfPageRef} from 'elements.js';
 
 const pageRefTypes = [{'PhysicalRef': 'Physical Reference'},{'NamedDestination': 'Named Destination'}];
 

@@ -1,10 +1,10 @@
 import IconButton from 'material-ui/IconButton';
 import PropTypes from 'prop-types';
 import TextField from 'material-ui/TextField';
-import DocumentEditor from './documentEditor.js';
+import DocumentEditor from 'editors/documentEditor.js';
 import React from 'react';
 import { withStyles } from 'material-ui/styles';
-import {Origin} from './elements.js';
+import {Origin} from 'elements.js';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
 import RemoveIcon from 'material-ui-icons/RemoveCircleOutline';
@@ -108,6 +108,7 @@ class OriginEditor extends React.Component {
 
         let originTypeList;
         console.log(this.props.model);
+        // TODO: Move constants out of the components
         if (this.props.model === 'ADaM') {
             originTypeList = ['Derived', 'Assigned', 'Predecessor'];
         } else {

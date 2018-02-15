@@ -1,15 +1,15 @@
 import {BootstrapTable, TableHeaderColumn, ButtonGroup} from 'react-bootstrap-table';
 import '../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
-import CommentEditor from './commentEditor.js';
-import LocationEditor from './locationEditor.js';
-import SimpleInput from './simpleInput.js';
-import SimpleSelect from './simpleSelect.js';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import React from 'react';
 import green from 'material-ui/colors/green';
 import indigo from 'material-ui/colors/indigo';
 import grey from 'material-ui/colors/grey';
+import CommentEditor from 'editors/commentEditor.js';
+import LocationEditor from 'editors/locationEditor.js';
+import SimpleInput from 'simpleInput.js';
+import SimpleSelect from 'simpleSelect.js';
 
 // Selector constants
 const classTypes = [
@@ -169,10 +169,10 @@ class DatasetTable extends React.Component {
                 purpose      : originDs.purpose,
                 structure    : originDs.structure,
                 orderNumber  : originDs.orderNumber,
-                comment      : originDs.comment,
-                leaf         : originDs.leaf,
             };
             currentDs.description = originDs.getDescription();
+            currentDs.comment = originDs.comment === undefined ? undefined : originDs.comment.clone();
+            currentDs.leaf = originDs.leaf === undefined ? undefined : originDs.leaf.clone();
             // Get key variables
             // TODO: When key is located in the SUPP dataset.
             let keysArray = [];

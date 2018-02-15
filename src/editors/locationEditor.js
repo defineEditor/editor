@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import TextField from 'material-ui/TextField';
 import Grid from 'material-ui/Grid';
 import { withStyles } from 'material-ui/styles';
-import {Leaf} from './elements.js';
+import {Leaf} from 'elements.js';
 
 const styles = theme => ({
     textField: {

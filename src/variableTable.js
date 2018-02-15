@@ -1,10 +1,6 @@
 import {BootstrapTable, TableHeaderColumn, ButtonGroup} from 'react-bootstrap-table';
 import '../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import PropTypes from 'prop-types';
-import DescriptionEditor from './descriptionEditor.js';
-import DescriptionFormatter from './descriptionFormatter.js';
-import SimpleInput from './simpleInput.js';
-import SimpleSelect from './simpleSelect.js';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import React from 'react';
@@ -15,6 +11,10 @@ import { withStyles } from 'material-ui/styles';
 import deepEqual from 'deep-equal';
 import RemoveRedEyeIcon from 'material-ui-icons/RemoveRedEye';
 import FilterListIcon from 'material-ui-icons/FilterList';
+import DescriptionEditor from 'editors/descriptionEditor.js';
+import DescriptionFormatter from 'formatters/descriptionFormatter.js';
+import SimpleInput from 'simpleInput.js';
+import SimpleSelect from 'simpleSelect.js';
 
 // Selector constants
 const dataTypes = [
@@ -41,7 +41,7 @@ const styles = theme => ({
 });
 
 
-// Editor functions
+// Editors
 function descriptionEditor (onUpdate, props) {
     return (<DescriptionEditor onUpdate={ onUpdate } {...props}/>);
 }
@@ -54,8 +54,12 @@ function simpleSelect (onUpdate, props) {
     return (<SimpleSelect onUpdate={ onUpdate } {...props}/>);
 }
 
-// Formatter functions
+// Formatters
 function descriptionFormatter (cell, row) {
+    return (<DescriptionFormatter value={cell} model={row.model}/>);
+}
+
+function codelistFormatter (cell, row) {
     return (<DescriptionFormatter value={cell}/>);
 }
 
@@ -189,6 +193,7 @@ class VariableTable extends React.Component {
                 fractionDigits : originVar.itemDef.fractionDigits,
                 displayFormat  : originVar.itemDef.displayFormat,
                 codeList       : originVar.itemDef.codeList,
+                model          : mdv.model,
             };
             currentVar.codeListOid = originVar.itemDef.codeList !== undefined ? originVar.itemDef.codeList.oid : undefined;
             currentVar.description = {

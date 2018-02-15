@@ -68,6 +68,63 @@ class Note {
     }
 }
 
+class Leaf {
+    constructor ({
+        id, href, title, isPdf
+    } = {}) {
+        this.id = id;
+        this.href = href;
+        this.title = title;
+        // Non-define XML properties
+        this.isPdf = isPdf;
+    }
+    clone() {
+        return new Leaf(this);
+    }
+}
+
+class PdfPageRef {
+    constructor ({
+        type, pageRefs, firstPage, lastPage, title
+    } = {}) {
+        this.type = type;
+        this.pageRefs = pageRefs;
+        this.firstPage = firstPage;
+        this.lastPage = lastPage;
+        this.title = title; // 2.1D
+    }
+    clone (){
+        return new PdfPageRef(this);
+    }
+}
+
+class Document {
+    constructor ({
+        leaf, pdfPageRefs = []
+    } = {}) {
+        if (leaf === undefined) {
+            this.leaf = new Leaf();
+        } else {
+            this.leaf = leaf;
+        }
+        this.pdfPageRefs = pdfPageRefs;
+    }
+    addPdfPageRef (pdfPageRef) {
+        if (pdfPageRef === undefined) {
+            this.pdfPageRefs.push(new PdfPageRef());
+        } else {
+            this.pdfPageRefs.push(pdfPageRef);
+        }
+        // Return index of the added element
+        return this.pdfPageRefs.length - 1;
+    }
+    clone (){
+        let leaf = Object.assign(new Leaf(), this.leaf);
+        let pdfPageRefs = this.pdfPageRefs.map( pdfPageRef => (pdfPageRef.clone()));
+        return new Document({leaf: leaf, pdfPageRefs: pdfPageRefs});
+    }
+}
+
 class BasicFunctions {
     addDescription (description) {
         if (description === undefined) {
@@ -179,6 +236,12 @@ class CodeList extends BasicFunctions {
         this.descriptions = descriptions;
         this.enumeratedItems = enumeratedItems;
         this.codeListItems = codeListItems;
+        // Non-define XML properties
+        if (codeListItems.length > 0) {
+            this.codeListType = 'Decoded';
+        } else if (enumeratedItems.length > 0) {
+            this.codeListType = 'Enumerated';
+        }
     }
     addEnumeratedItem (item) {
         this.enumeratedItems.push(item);
@@ -221,61 +284,6 @@ class CodeListItem extends EnumeratedItem {
         this.decodes.push(decode);
     }
 }
-
-class Leaf {
-    constructor ({
-        id, href, title, isPdf
-    } = {}) {
-        this.id = id;
-        this.href = href;
-        this.title = title;
-        // Non-define XML properties
-        this.isPdf = isPdf;
-    }
-}
-
-class PdfPageRef {
-    constructor ({
-        type, pageRefs, firstPage, lastPage, title
-    } = {}) {
-        this.type = type;
-        this.pageRefs = pageRefs;
-        this.firstPage = firstPage;
-        this.lastPage = lastPage;
-        this.title = title; // 2.1D
-    }
-    clone (){
-        return new PdfPageRef(this);
-    }
-}
-
-class Document {
-    constructor ({
-        leaf, pdfPageRefs = []
-    } = {}) {
-        if (leaf === undefined) {
-            this.leaf = new Leaf();
-        } else {
-            this.leaf = leaf;
-        }
-        this.pdfPageRefs = pdfPageRefs;
-    }
-    addPdfPageRef (pdfPageRef) {
-        if (pdfPageRef === undefined) {
-            this.pdfPageRefs.push(new PdfPageRef());
-        } else {
-            this.pdfPageRefs.push(pdfPageRef);
-        }
-        // Return index of the added element
-        return this.pdfPageRefs.length - 1;
-    }
-    clone (){
-        let leaf = Object.assign(new Leaf(), this.leaf);
-        let pdfPageRefs = this.pdfPageRefs.map( pdfPageRef => (pdfPageRef.clone()));
-        return new Document({leaf: leaf, pdfPageRefs: pdfPageRefs});
-    }
-}
-
 
 class Comment extends BasicFunctions {
     constructor ({

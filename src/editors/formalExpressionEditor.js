@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import TextField from 'material-ui/TextField';
-import {FormalExpression} from './elements.js';
+import {FormalExpression} from 'elements.js';
 
 const styles = theme => ({
     context: {
