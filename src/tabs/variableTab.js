@@ -1,5 +1,5 @@
 import {BootstrapTable, TableHeaderColumn, ButtonGroup} from 'react-bootstrap-table';
-import '../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
+import '../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import PropTypes from 'prop-types';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
@@ -13,6 +13,7 @@ import RemoveRedEyeIcon from 'material-ui-icons/RemoveRedEye';
 import FilterListIcon from 'material-ui-icons/FilterList';
 import DescriptionEditor from 'editors/descriptionEditor.js';
 import DescriptionFormatter from 'formatters/descriptionFormatter.js';
+import CodeListFormatter from 'formatters/codeListFormatter.js';
 import SimpleInput from 'simpleInput.js';
 import SimpleSelect from 'simpleSelect.js';
 
@@ -60,7 +61,9 @@ function descriptionFormatter (cell, row) {
 }
 
 function codelistFormatter (cell, row) {
-    return (<DescriptionFormatter value={cell}/>);
+    if (cell !== undefined) {
+        return (<CodeListFormatter value={cell} defineVersion={row.defineVersion}/>);
+    }
 }
 
 class VariableTable extends React.Component {
@@ -194,6 +197,7 @@ class VariableTable extends React.Component {
                 displayFormat  : originVar.itemDef.displayFormat,
                 codeList       : originVar.itemDef.codeList,
                 model          : mdv.model,
+                defineVersion  : '2.0',
             };
             currentVar.codeListOid = originVar.itemDef.codeList !== undefined ? originVar.itemDef.codeList.oid : undefined;
             currentVar.description = {
@@ -275,9 +279,10 @@ class VariableTable extends React.Component {
                 thStyle      : { whiteSpace: 'normal' }
             },
             {
-                dataField    : 'codeListOid',
+                dataField    : 'codeList',
                 text         : 'Codelist',
                 hidden       : hideMe,
+                dataFormat   : codelistFormatter,
                 customEditor : {getElement: simpleSelect, customEditorParameters: {options: codeLists}},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }

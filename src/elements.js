@@ -283,6 +283,13 @@ class CodeListItem extends EnumeratedItem {
     addDecode (decode) {
         this.decodes.push(decode);
     }
+    getDecode (language) {
+        if (this.decodes.length === 1) {
+            return this.decodes[0].value;
+        } else {
+            return undefined;
+        }
+    }
 }
 
 class Comment extends BasicFunctions {
