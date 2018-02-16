@@ -17,16 +17,11 @@ class SimpleInput extends React.Component {
     }
 
     handleChange = event => {
-        let newValue = event.target.value;
-        this.setState({value: newValue});
+        this.setState({value: event.target.value});
     };
 
-    componentWillUnmount = () => {
-        this.props.onUpdate(this.state.value);
-    }
-    // TODO this does not work as overwritten by unmount
-    close = () => {
-        this.props.onUpdate(this.props.defaultValue);
+    save = (event) => {
+        this.props.onUpdate(event.target.value);
     }
 
     render () {
@@ -41,6 +36,7 @@ class SimpleInput extends React.Component {
                 inputProps={{onKeyDown: this.props.onKeyDown}}
                 value={this.state.value}
                 onChange={this.handleChange}
+                onBlur={this.save}
                 className={classes.textField}
             />
         );

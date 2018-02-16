@@ -2,28 +2,24 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
-import Paper from 'material-ui/Paper';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
 
 const styles = theme => ({
-    gridItem: {
-        margin: 'none',
-    },
     root: {
         width     : '100%',
         marginTop : theme.spacing.unit * 3,
         overflowX : 'auto',
     },
     table: {
-        minWidth: 700,
+        minWidth: 100,
     },
 });
 
 class CodeListFormatter extends React.Component {
 
     getCodeListTable(codeList, defineVersion, classes){
-        const isDecoded = (codeList.codeListType === 'decoded');
+        const isDecoded = (codeList.getCodeListType() === 'decoded');
 
         let codeListTable;
         if (isDecoded) {
@@ -38,7 +34,7 @@ class CodeListFormatter extends React.Component {
                 }
                 return ({
                     value  : item.codedValue,
-                    decode : item.decodes.getDecode(),
+                    decode : item.getDecode(),
                     ccode  : ccode,
                     rank   : item.rank,
                     key    : index,
@@ -66,11 +62,18 @@ class CodeListFormatter extends React.Component {
         const isCcoded = codeListTable.filter(item => (item.ccode !== undefined)).length > 0;
         const isRanked = codeListTable.filter(item => (item.rank !== undefined)).length > 0;
 
+        let codeListTitle;
+        if (codeList.getDescription() !== undefined) {
+            codeListTitle = codeList.name + ' (' + codeList.getDescription() + ')';
+        } else {
+            codeListTitle = codeList.name;
+        }
+
         return(
-            <Grid container>
+            <Grid container spacing={0}>
                 <Grid item xs={12}>
                     <Typography variant="title">
-                        {codeList.descriptions.length > 0 ? codeList.name + ' (' + codeList.getDescription() + ')' : codeList.name }
+                        {codeListTitle}
                     </Typography>
                 </Grid>
                 <Grid item xs={12}>
@@ -87,10 +90,10 @@ class CodeListFormatter extends React.Component {
                             {codeListTable.map( code => {
                                 return (
                                     <TableRow key={code.key}>
-                                        <TableCell>code.value</TableCell>
-                                        {isDecoded && <TableCell>code.decode</TableCell>}
-                                        {isCcoded && <TableCell>code.ccode</TableCell>}
-                                        {isRanked && <TableCell>code.rank</TableCell>}
+                                        <TableCell>{code.value}</TableCell>
+                                        {isDecoded && <TableCell>{code.decode}</TableCell>}
+                                        {isCcoded && <TableCell>{code.ccode}</TableCell>}
+                                        {isRanked && <TableCell>{code.rank}</TableCell>}
                                     </TableRow>
                                 );
                             })}
@@ -104,9 +107,9 @@ class CodeListFormatter extends React.Component {
     render () {
         const { value, defineVersion, classes } = this.props;
         return (
-            <Paper className={classes.root}>
+            <div className={classes.root}>
                 {this.getCodeListTable(value, defineVersion, classes)}
-            </Paper>
+            </div>
         );
     }
 }

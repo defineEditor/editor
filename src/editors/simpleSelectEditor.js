@@ -46,17 +46,8 @@ class ItemSelect extends React.Component {
     }
 
     handleChange = event => {
-        let newValue = event.target.value;
-        this.setState({value: newValue});
+        this.props.onUpdate(event.target.value);
     };
-
-    componentWillUnmount = () => {
-        this.props.onUpdate(this.state.value);
-    }
-    // TODO this does not work as overwritten by unmount
-    close = () => {
-        this.props.onUpdate(this.props.defaultValue);
-    }
 
     render() {
         const {classes, label} = this.props;

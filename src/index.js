@@ -3,7 +3,7 @@
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import '../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
-import EditorLayout from './editorLayout.js';
+import EditorTabs from 'tabs/editorTabs.js';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import parseDefine from './parseDefine.js';
@@ -15,10 +15,18 @@ window.require('electron-react-devtools').install();
 electron.ipcRenderer.on('define', (event, message) => {
     // Get the XLM from the main process;
     let odm = parseDefine(message);
-    /*
     // Testing
+    // Keep only 1 ds for testing
+    /*
+    Object.keys(odm.study.metaDataVersion.itemGroups).forEach( (item,index) => {
+        if (index >= 1) {
+            delete odm.study.metaDataVersion.itemGroups[item];
+        }
+    })
+    */
+    /*    
     let sourceIG = odm.study.metaDataVersion.itemGroups['IG.ADSL'];
-    for (let i=1;i<30;i++) {
+    for (let i=1;i<60;i++) {
         let newds = Object.assign(Object.create(Object.getPrototypeOf(sourceIG)),sourceIG);
         newds.oid += i.toString();
         newds.name += i.toString();
@@ -27,7 +35,7 @@ electron.ipcRenderer.on('define', (event, message) => {
     }
     */
     ReactDOM.render(
-        <EditorLayout odm={odm}/>,
+        <EditorTabs odm={odm}/>,
         document.getElementById('root')
     );
 });

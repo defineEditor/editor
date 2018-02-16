@@ -236,12 +236,6 @@ class CodeList extends BasicFunctions {
         this.descriptions = descriptions;
         this.enumeratedItems = enumeratedItems;
         this.codeListItems = codeListItems;
-        // Non-define XML properties
-        if (codeListItems.length > 0) {
-            this.codeListType = 'Decoded';
-        } else if (enumeratedItems.length > 0) {
-            this.codeListType = 'Enumerated';
-        }
     }
     addEnumeratedItem (item) {
         this.enumeratedItems.push(item);
@@ -251,6 +245,14 @@ class CodeList extends BasicFunctions {
     }
     setExternalCodeList (item) {
         this.externalCodeList = item;
+    }
+    getCodeListType () {
+        if (this.codeListItems.length > 0) {
+            return 'decoded';
+        } else if (this.enumeratedItems.length > 0) {
+            return 'enumerated';
+        }
+
     }
 }
 

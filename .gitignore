@@ -3,3 +3,4 @@ node_modules
 src/temp
 *.swp
 *.log
+.tern-project

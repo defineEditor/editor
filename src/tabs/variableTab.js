@@ -15,7 +15,7 @@ import DescriptionEditor from 'editors/descriptionEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import DescriptionFormatter from 'formatters/descriptionFormatter.js';
-import CodeListFormatter from 'formatters/codeListFormatter.js';
+import ModalCodeListFormatter from 'formatters/modalCodeListFormatter.js';
 
 // Selector constants
 const dataTypes = [
@@ -62,7 +62,7 @@ function descriptionFormatter (cell, row) {
 
 function codelistFormatter (cell, row) {
     if (cell !== undefined) {
-        return (<CodeListFormatter value={cell} defineVersion={row.defineVersion}/>);
+        return (<ModalCodeListFormatter value={cell} defineVersion={row.defineVersion}/>);
     }
 }
 

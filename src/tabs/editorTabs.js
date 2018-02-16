@@ -97,14 +97,15 @@ class EditorTabs extends React.Component {
 
     render() {
 
-        const { classes, tabs } = this.props;
+        const { classes } = this.props;
         const { value } = this.state;
         // Remove whitespaces and make lowercase for ID values
+        let tabs = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Methods', 'Comments', 'Where Conditions', 'Documents'];
         let tabIds = tabs.map( tab => {return tab.replace(/\s+/g, '').toLowerCase();});
 
         return (
-            <div className={classes.root}>
-                <MuiThemeProvider theme={theme}>
+            <MuiThemeProvider theme={theme}>
+                <div className={classes.root}>
                     <AppBar position="sticky" color='default'>
                         <Tabs value={value} onChange={this.handleChange} fullWidth indicatorColor='primary' textColor='primary'> 
                             { tabs.map( tab => {
@@ -118,8 +119,8 @@ class EditorTabs extends React.Component {
                         {tabs[value] === 'Variables' && this.generateVariableTables()}
                         {['Datasets','Variables'].indexOf(tabs[value]) === -1 && <div id={tabIds[value]}>{tabs[value]}</div>}
                     </TabContainer>
-                </MuiThemeProvider>
-            </div>
+                </div>
+            </MuiThemeProvider>
         );
     }
 }
