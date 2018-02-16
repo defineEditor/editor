@@ -8,8 +8,8 @@ import indigo from 'material-ui/colors/indigo';
 import grey from 'material-ui/colors/grey';
 import CommentEditor from 'editors/commentEditor.js';
 import LocationEditor from 'editors/locationEditor.js';
-import SimpleInput from 'simpleInput.js';
-import SimpleSelect from 'simpleSelect.js';
+import SimpleInputEditor from 'editors/simpleInputEditor.js';
+import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 
 // Selector constants
 const classTypes = [
@@ -44,12 +44,12 @@ function locationEditor (onUpdate, props) {
     return (<LocationEditor onUpdate={ onUpdate } {...props}/>);
 }
 
-function simpleInput (onUpdate, props) {
-    return (<SimpleInput onUpdate={ onUpdate } {...props}/>);
+function simpleInputEditor (onUpdate, props) {
+    return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
 }
 
-function simpleSelect (onUpdate, props) {
-    return (<SimpleSelect onUpdate={ onUpdate } {...props}/>);
+function simpleSelectEditor (onUpdate, props) {
+    return (<SimpleSelectEditor onUpdate={ onUpdate } {...props}/>);
 }
 
 // Formatter functions
@@ -216,7 +216,7 @@ class DatasetTable extends React.Component {
                 text         : 'Name',
                 width        : '10%',
                 hidden       : hideMe,
-                customEditor : {getElement: simpleInput},
+                customEditor : {getElement: simpleInputEditor},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },
@@ -224,7 +224,7 @@ class DatasetTable extends React.Component {
                 dataField    : 'description',
                 text         : 'Description',
                 hidden       : hideMe,
-                customEditor : {getElement: simpleInput},
+                customEditor : {getElement: simpleInputEditor},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },
@@ -234,7 +234,7 @@ class DatasetTable extends React.Component {
                 hidden       : hideMe,
                 width        : '7%',
                 dataFormat   : datasetClassFormatter,
-                customEditor : {getElement: simpleSelect, customEditorParameters: {options: classTypes}},
+                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: classTypes}},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' },
             },
@@ -242,7 +242,7 @@ class DatasetTable extends React.Component {
                 dataField    : 'structure',
                 text         : 'Structure',
                 hidden       : hideMe,
-                customEditor : {getElement: simpleInput},
+                customEditor : {getElement: simpleInputEditor},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' },
                 editable     : { type: 'textarea' }

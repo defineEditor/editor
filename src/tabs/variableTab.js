@@ -12,10 +12,10 @@ import deepEqual from 'deep-equal';
 import RemoveRedEyeIcon from 'material-ui-icons/RemoveRedEye';
 import FilterListIcon from 'material-ui-icons/FilterList';
 import DescriptionEditor from 'editors/descriptionEditor.js';
+import SimpleInputEditor from 'editors/simpleInputEditor.js';
+import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import DescriptionFormatter from 'formatters/descriptionFormatter.js';
 import CodeListFormatter from 'formatters/codeListFormatter.js';
-import SimpleInput from 'simpleInput.js';
-import SimpleSelect from 'simpleSelect.js';
 
 // Selector constants
 const dataTypes = [
@@ -47,12 +47,12 @@ function descriptionEditor (onUpdate, props) {
     return (<DescriptionEditor onUpdate={ onUpdate } {...props}/>);
 }
 
-function simpleInput (onUpdate, props) {
-    return (<SimpleInput onUpdate={ onUpdate } {...props}/>);
+function simpleInputEditor (onUpdate, props) {
+    return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
 }
 
-function simpleSelect (onUpdate, props) {
-    return (<SimpleSelect onUpdate={ onUpdate } {...props}/>);
+function simpleSelectEditor (onUpdate, props) {
+    return (<SimpleSelectEditor onUpdate={ onUpdate } {...props}/>);
 }
 
 // Formatters
@@ -249,7 +249,7 @@ class VariableTable extends React.Component {
                 dataField    : 'name',
                 text         : 'Name',
                 hidden       : hideMe,
-                customEditor : {getElement: simpleInput},
+                customEditor : {getElement: simpleInputEditor},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },
@@ -257,7 +257,7 @@ class VariableTable extends React.Component {
                 dataField    : 'label',
                 text         : 'Label',
                 hidden       : hideMe,
-                customEditor : {getElement: simpleInput},
+                customEditor : {getElement: simpleInputEditor},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },
@@ -265,7 +265,7 @@ class VariableTable extends React.Component {
                 dataField    : 'dataType',
                 text         : 'Type',
                 hidden       : hideMe,
-                customEditor : {getElement: simpleSelect, customEditorParameters: {options: dataTypes}},
+                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: dataTypes}},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },
@@ -274,7 +274,7 @@ class VariableTable extends React.Component {
                 text         : 'Length',
                 hidden       : hideMe,
                 width        : '5%',
-                customEditor : {getElement: simpleInput},
+                customEditor : {getElement: simpleInputEditor},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },
@@ -283,7 +283,7 @@ class VariableTable extends React.Component {
                 text         : 'Codelist',
                 hidden       : hideMe,
                 dataFormat   : codelistFormatter,
-                customEditor : {getElement: simpleSelect, customEditorParameters: {options: codeLists}},
+                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: codeLists}},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },
