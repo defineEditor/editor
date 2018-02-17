@@ -93,8 +93,8 @@ class PdfPageEditor extends React.Component {
                         <TextField
                             label='Pages (space separated)'
                             className={classes.textField}
-                            value={this.props.value.pageRefs||''}
-                            onChange={this.handleChange('pageRefs')}
+                            defaultValue={this.props.value.pageRefs}
+                            onBlur={this.handleChange('pageRefs')}
                         />
                     </Grid>
                 );
@@ -104,14 +104,14 @@ class PdfPageEditor extends React.Component {
                         <TextField
                             label='First Page'
                             className={classes.textFieldFirst}
-                            value={this.props.value.firstPage||''}
-                            onChange={this.handleChange('firstPage')}
+                            defaultValue={this.props.value.firstPage}
+                            onBlur={this.handleChange('firstPage')}
                         />
                         <TextField
                             label='Last Page'
                             className={classes.textFieldLast}
-                            value={this.props.value.lastPage||''}
-                            onChange={this.handleChange('lastPage')}
+                            defaultValue={this.props.value.lastPage}
+                            onBlur={this.handleChange('lastPage')}
                         />
                     </Grid>
                 );
@@ -122,8 +122,8 @@ class PdfPageEditor extends React.Component {
                     <TextField
                         label='Destination Anchor'
                         className={classes.textField}
-                        value={this.props.value.pageRefs||''}
-                        onChange={this.handleChange('pageRefs')}
+                        defaultValue={this.props.value.pageRefs}
+                        onBlur={this.handleChange('pageRefs')}
                     />
                 </Grid>
             );
@@ -135,8 +135,8 @@ class PdfPageEditor extends React.Component {
                     <TextField
                         label='Title'
                         className={classes.textField}
-                        value={this.props.value.title||''}
-                        onChange={this.handleChange('title')}
+                        defaultValue={this.props.value.title}
+                        onBlur={this.handleChange('title')}
                     />
                 </Grid>
             );
