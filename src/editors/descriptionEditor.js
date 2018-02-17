@@ -37,6 +37,12 @@ class DescriptionEditor extends React.Component {
 
     save = () => {
         let updatedComment = this.state.comment;
+        // If Origin is not derived and method is shown only for derived origins
+        // and a method exists, then remove the method
+        // TODO: add condition when method is shown only for derived origin
+        if (this.state.origins[0].type !== 'Derived' && this.state.method !== undefined) {
+            this.state.method = undefined;
+        }
         this.props.onUpdate(updatedComment);
     }
 
@@ -47,6 +53,7 @@ class DescriptionEditor extends React.Component {
     render () {
         const { classes } = this.props;
         let childProps = Object.assign({}, this.props);
+        let origin = this.state.origins[0].type;
         delete childProps.classes;
 
         return (
@@ -64,7 +71,9 @@ class DescriptionEditor extends React.Component {
                     <Divider/>
                 </Grid>
                 <Grid item xs={12} className={classes.gridItem}>
-                    <MethodEditor {...childProps} defaultValue={this.state.method} onUpdate={this.handleChange('method')} stateless={true}/>
+                    {origin === 'Derived' &&
+                        <MethodEditor {...childProps} defaultValue={this.state.method} onUpdate={this.handleChange('method')} stateless={true}/>
+                    }
                 </Grid>
                 <Grid item xs={12} className={classes.gridItem}>
                     <Divider/>

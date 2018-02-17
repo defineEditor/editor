@@ -10,6 +10,8 @@ import CommentEditor from 'editors/commentEditor.js';
 import LocationEditor from 'editors/locationEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
+import DatasetFlagsEditor from 'editors/datasetFlagsEditor.js';
+import DatasetFlagsFormatter from 'formatters/datasetFlagsFormatter.js';
 
 // Selector constants
 const classTypes = [
@@ -44,6 +46,10 @@ function locationEditor (onUpdate, props) {
     return (<LocationEditor onUpdate={ onUpdate } {...props}/>);
 }
 
+function datasetFlagsEditor (onUpdate, props) {
+    return (<DatasetFlagsEditor onUpdate={ onUpdate } {...props}/>);
+}
+
 function simpleInputEditor (onUpdate, props) {
     return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
 }
@@ -65,6 +71,10 @@ function locationFormatter (cell, row) {
     return (<a href={'file://' + cell.href}>{cell.title}</a>);
 }
 
+function datasetFlagsFormatter (cell, row) {
+    return (<DatasetFlagsFormatter value={cell} defineVersion={row.defineVersion}/>);
+}
+
 function datasetClassFormatter (cell, row) {
     let value = classTypeAbbreviations[cell];
     return (<span>{value}</span>);
@@ -76,7 +86,11 @@ class DatasetTable extends React.Component {
         // Update on if the value changed
         if (row[cellName] !== cellValue) {
             let updateObj = {};
-            updateObj[cellName] = cellValue;
+            if (cellName === 'flags'){
+                updateObj = cellValue;
+            } else {
+                updateObj[cellName] = cellValue;
+            }
             this.props.onMdvChange('ItemGroup',row.oid,updateObj);
             return true;
         } else {
@@ -163,16 +177,22 @@ class DatasetTable extends React.Component {
         Object.keys(mdv.itemGroups).forEach((itemGroupOid) => {
             const originDs = mdv.itemGroups[itemGroupOid];
             let currentDs = {
-                oid          : originDs.oid,
-                name         : originDs.name,
-                datasetClass : originDs.datasetClass,
-                purpose      : originDs.purpose,
-                structure    : originDs.structure,
-                orderNumber  : originDs.orderNumber,
+                oid           : originDs.oid,
+                name          : originDs.name,
+                datasetClass  : originDs.datasetClass,
+                purpose       : originDs.purpose,
+                structure     : originDs.structure,
+                orderNumber   : originDs.orderNumber,
+                defineVersion : '2.0',
             };
             currentDs.description = originDs.getDescription();
             currentDs.comment = originDs.comment === undefined ? undefined : originDs.comment.clone();
             currentDs.leaf = originDs.leaf === undefined ? undefined : originDs.leaf.clone();
+            // Group Repeating/IsReferenceData/isStandard
+            currentDs.flags = {
+                repeating       : originDs.repeating,
+                isReferenceData : originDs.isReferenceData,
+            };
             // Get key variables
             // TODO: When key is located in the SUPP dataset.
             let keysArray = [];
@@ -214,11 +234,11 @@ class DatasetTable extends React.Component {
             {
                 dataField    : 'name',
                 text         : 'Name',
-                width        : '10%',
+                width        : '110px',
                 hidden       : hideMe,
                 customEditor : {getElement: simpleInputEditor},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
+                tdStyle      : {whiteSpace: 'normal'},
+                thStyle      : {whiteSpace: 'normal'}
             },
             {
                 dataField    : 'description',
@@ -235,6 +255,16 @@ class DatasetTable extends React.Component {
                 width        : '7%',
                 dataFormat   : datasetClassFormatter,
                 customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: classTypes}},
+                tdStyle      : { whiteSpace: 'normal' },
+                thStyle      : { whiteSpace: 'normal' },
+            },
+            {
+                dataField    : 'flags',
+                text         : 'Flags',
+                hidden       : hideMe,
+                width        : '115px',
+                dataFormat   : datasetFlagsFormatter,
+                customEditor : {getElement: datasetFlagsEditor},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' },
             },
