@@ -1,4 +1,3 @@
-import Button from 'material-ui/Button';
 import PropTypes from 'prop-types';
 import Divider from 'material-ui/Divider';
 import React from 'react';
@@ -7,6 +6,7 @@ import Grid from 'material-ui/Grid';
 import CommentEditor from 'editors/commentEditor.js';
 import MethodEditor from 'editors/methodEditor.js';
 import OriginEditor from 'editors/originEditor.js';
+import SaveCancel from 'editors/saveCancel.js';
 
 const styles = theme => ({
     button: {
@@ -24,10 +24,11 @@ class DescriptionEditor extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            origins  : this.props.defaultValue.origins,
-            comment  : this.props.defaultValue.comment,
-            method   : this.props.defaultValue.method,
-            prognote : this.props.defaultValue.prognote,
+            origins   : this.props.defaultValue.origins,
+            comment   : this.props.defaultValue.comment,
+            method    : this.props.defaultValue.method,
+            mandatory : this.props.defaultValue.mandatory,
+            prognote  : this.props.defaultValue.prognote,
         };
     }
 
@@ -41,7 +42,7 @@ class DescriptionEditor extends React.Component {
         // and a method exists, then remove the method
         // TODO: add condition when method is shown only for derived origin
         if (this.state.origins[0].type !== 'Derived' && this.state.method !== undefined) {
-            this.state.method = undefined;
+            this.setState({method: undefined});
         }
         this.props.onUpdate(updatedComment);
     }
@@ -79,11 +80,7 @@ class DescriptionEditor extends React.Component {
                     <Divider/>
                 </Grid>
                 <Grid item xs={12} className={classes.gridItem}>
-                    <div>
-                        <br/><br/>
-                        <Button color='primary' onClick={this.save} variant='raised' className={classes.button}>Save</Button>
-                        <Button color='secondary' onClick={this.cancel} variant='raised' className={classes.button}>Cancel</Button>
-                    </div>
+                    <SaveCancel save={this.save} cancel={this.cancel} />
                 </Grid>
             </Grid>
         );

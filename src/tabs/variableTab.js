@@ -14,8 +14,10 @@ import FilterListIcon from 'material-ui-icons/FilterList';
 import DescriptionEditor from 'editors/descriptionEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
+import VariableLengthEditor from 'editors/variableLengthEditor.js';
 import DescriptionFormatter from 'formatters/descriptionFormatter.js';
 import ModalCodeListFormatter from 'formatters/modalCodeListFormatter.js';
+import VariableLengthFormatter from 'formatters/variableLengthFormatter.js';
 
 // Selector constants
 const dataTypes = [
@@ -54,6 +56,10 @@ function simpleInputEditor (onUpdate, props) {
 function simpleSelectEditor (onUpdate, props) {
     return (<SimpleSelectEditor onUpdate={ onUpdate } {...props}/>);
 }
+function variableLengthEditor (onUpdate, props) {
+    return (<VariableLengthEditor onUpdate={ onUpdate } {...props}/>);
+}
+
 
 // Formatters
 function descriptionFormatter (cell, row) {
@@ -64,6 +70,10 @@ function codelistFormatter (cell, row) {
     if (cell !== undefined) {
         return (<ModalCodeListFormatter value={cell} defineVersion={row.defineVersion}/>);
     }
+}
+
+function variableLengthFormatter (cell, row) {
+    return (<VariableLengthFormatter value={cell} defineVersion={row.defineVersion} dataType={row.dataType}/>);
 }
 
 class VariableTable extends React.Component {
@@ -185,21 +195,25 @@ class VariableTable extends React.Component {
         Object.keys(dataset.itemRefs).forEach((itemRefOid) => {
             const originVar = dataset.itemRefs[itemRefOid];
             let currentVar = {
-                itemGroupOid   : this.props.itemGroupOid,
-                itemGroupName  : mdv.itemGroups[this.props.itemGroupOid].name,
-                oid            : originVar.itemDef.oid,
-                orderNumber    : originVar.orderNumber,
-                name           : originVar.itemDef.name,
-                label          : originVar.itemDef.getDescription(),
-                dataType       : originVar.itemDef.dataType,
-                length         : originVar.itemDef.length,
-                fractionDigits : originVar.itemDef.fractionDigits,
-                displayFormat  : originVar.itemDef.displayFormat,
-                codeList       : originVar.itemDef.codeList,
-                model          : mdv.model,
-                defineVersion  : '2.0',
+                itemGroupOid  : this.props.itemGroupOid,
+                itemGroupName : mdv.itemGroups[this.props.itemGroupOid].name,
+                oid           : originVar.itemDef.oid,
+                orderNumber   : originVar.orderNumber,
+                name          : originVar.itemDef.name,
+                label         : originVar.itemDef.getDescription(),
+                dataType      : originVar.itemDef.dataType,
+                displayFormat : originVar.itemDef.displayFormat,
+                codeList      : originVar.itemDef.codeList,
+                model         : mdv.model,
+                defineVersion : '2.0',
             };
             currentVar.codeListOid = originVar.itemDef.codeList !== undefined ? originVar.itemDef.codeList.oid : undefined;
+            currentVar.lengthAttrs = {
+                length           : originVar.itemDef.length,
+                fractionDigits   : originVar.itemDef.fractionDigits,
+                lengthAsData     : originVar.itemDef.lengthAsData,
+                lengthAsCodelist : originVar.itemDef.lengthAsCodelist,
+            };
             currentVar.description = {
                 comment : originVar.itemDef.comment,
                 method  : originVar.method,
@@ -249,6 +263,7 @@ class VariableTable extends React.Component {
                 dataField    : 'name',
                 text         : 'Name',
                 hidden       : hideMe,
+                width        : '110px',
                 customEditor : {getElement: simpleInputEditor},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
@@ -270,11 +285,12 @@ class VariableTable extends React.Component {
                 thStyle      : { whiteSpace: 'normal' }
             },
             {
-                dataField    : 'length',
+                dataField    : 'lengthAttrs',
                 text         : 'Length',
                 hidden       : hideMe,
-                width        : '5%',
-                customEditor : {getElement: simpleInputEditor},
+                width        : '130px',
+                dataFormat   : variableLengthFormatter,
+                customEditor : {getElement: variableLengthEditor},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },

@@ -7,8 +7,11 @@ import SaveIcon from 'material-ui-icons/Save';
 import ClearIcon from 'material-ui-icons/Clear';
 
 const styles = theme => ({
-    button: {
+    buttonMini: {
         margin: 'none',
+    },
+    button: {
+        margin: theme.spacing.unit,
     },
 });
 
@@ -16,16 +19,17 @@ class SaveClose extends React.Component {
     render () {
         const { classes } = this.props;
         const mini = this.props.mini;
+        const style = mini ? classes.buttonMini : classes.button;
 
         return (
             <React.Fragment>
                 {mini !== true &&
                         <React.Fragment>
-                            <Button color='primary' size='small' onClick={this.props.save} variant='raised' className={classes.button}>
+                            <Button color='primary' size='small' onClick={this.props.save} variant='raised' className={style}>
                                 { this.props.icon && <SaveIcon/>}
                                 Save
                             </Button>
-                            <Button color='secondary' size='small' onClick={this.props.cancel} variant='raised' className={classes.button}>
+                            <Button color='secondary' size='small' onClick={this.props.cancel} variant='raised' className={style}>
                                 { this.props.icon && <ClearIcon/>}
                                 Cancel
                             </Button>
@@ -33,10 +37,10 @@ class SaveClose extends React.Component {
                 }
                 {mini === true &&
                         <React.Fragment>
-                            <IconButton color='primary' onClick={this.props.save} className={classes.button}>
+                            <IconButton color='primary' onClick={this.props.save} className={style}>
                                 <SaveIcon/>
                             </IconButton>
-                            <IconButton color='secondary' onClick={this.props.cancel} className={classes.button}>
+                            <IconButton color='secondary' onClick={this.props.cancel} className={style}>
                                 <ClearIcon/>
                             </IconButton>
                         </React.Fragment>

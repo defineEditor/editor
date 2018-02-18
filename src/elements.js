@@ -254,6 +254,23 @@ class CodeList extends BasicFunctions {
         }
 
     }
+    getMaxLength () {
+        // Returns the maximum length among all codedValues
+        let maxLength;
+        if (this.dataType === 'float' || this.dataType === 'integer') {
+            // For numeric data types count only digits
+            maxLength = (max, value) => (value.codedValue.replace(/[^\d]/g,'').length > max ? value.codedValue.replace(/[^\d]/g,'').length : max);
+        } else {
+            maxLength = (max, value) => (value.codedValue.length > max ? value.codedValue.length : max);
+        }
+        if (this.getCodeListType() === 'decoded') {
+            return this.codeListItems.reduce(maxLength, 1);
+        } else if (this.getCodeListType() === 'enumerated') {
+            return this.enumeratedItems.reduce(maxLength, 1);
+        } else {
+            return 1;
+        }
+    }
 }
 
 class EnumeratedItem {
@@ -537,6 +554,7 @@ class ItemDef extends BasicFunctions {
         oid, name, dataType, length,
         fractionDigits, fieldName, displayFormat,
         comment, codeList, valueList, valueListOid, parent, note,
+        varLength, lengthAsData, lengthAsCodelist,
         origins = [],
         descriptions = []
     } = {}) {
@@ -556,11 +574,15 @@ class ItemDef extends BasicFunctions {
         this.parent = parent;
         this.descriptions = descriptions;
         // Non-define XML properties
+        // Programming Note
         if (note === undefined) {
             this.note = note;
         } else {
             this.note = new Note();
         }
+        // Length derived from data/codelist
+        this.lengthAsData = lengthAsData;
+        this.lengthAsCodelist = lengthAsCodelist;
     }
     addOrigin (origin) {
         this.origins.push(origin);
