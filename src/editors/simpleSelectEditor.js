@@ -21,9 +21,7 @@ const styles = theme => ({
 class ItemSelect extends React.Component {
     constructor (props) {
         super(props);
-        this.handleChange = this.handleChange.bind(this);
-        this.getSelectionList = this.getSelectionList.bind(this);
-        this.state = {value: props.defaultValue};
+        this.state = {value: props.defaultValue || ''};
     }
 
     getSelectionList (list, optional) {
@@ -32,7 +30,7 @@ class ItemSelect extends React.Component {
             throw Error('Blank value list provided for the ItemSelect element');
         } else {
             if (optional === true) {
-                selectionList.push(<MenuItem key='0' value=""><em>None</em></MenuItem>);
+                selectionList.push(<MenuItem key='0' value=""></MenuItem>);
             }
             list.forEach( (value, index) => {
                 if (typeof value === 'object') {

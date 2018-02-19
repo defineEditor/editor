@@ -32,7 +32,11 @@ class VariableLengthFormatter extends React.Component {
                 {lengthAsData && <div>Derived from data: <br/></div>}
                 {lengthAsCodelist && <div>Derived from codelist:<br/></div>}
                 {length}
-                {dataType === 'float' && <div>Fraction Digits: {this.props.value.fractionDigits}</div>}
+                {dataType === 'float' && 
+                        <div>
+                            <abbr title='Fraction Digits (Significant Digits)'>FD</abbr>: {this.props.value.fractionDigits}
+                        </div>
+                }
             </div>
         );
     }

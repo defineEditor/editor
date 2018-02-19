@@ -15,9 +15,10 @@ import DescriptionEditor from 'editors/descriptionEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import VariableLengthEditor from 'editors/variableLengthEditor.js';
+import VariableCodeListFormatEditor from 'editors/variableCodeListFormatEditor.js';
 import DescriptionFormatter from 'formatters/descriptionFormatter.js';
-import ModalCodeListFormatter from 'formatters/modalCodeListFormatter.js';
 import VariableLengthFormatter from 'formatters/variableLengthFormatter.js';
+import VariableCodeListFormatFormatter from 'formatters/variableCodeListFormatFormatter.js';
 
 // Selector constants
 const dataTypes = [
@@ -56,20 +57,22 @@ function simpleInputEditor (onUpdate, props) {
 function simpleSelectEditor (onUpdate, props) {
     return (<SimpleSelectEditor onUpdate={ onUpdate } {...props}/>);
 }
+
 function variableLengthEditor (onUpdate, props) {
     return (<VariableLengthEditor onUpdate={ onUpdate } {...props}/>);
 }
 
+function variableCodeListFormatEditor (onUpdate, props) {
+    return (<VariableCodeListFormatEditor onUpdate={ onUpdate } {...props}/>);
+}
 
 // Formatters
 function descriptionFormatter (cell, row) {
     return (<DescriptionFormatter value={cell} model={row.model}/>);
 }
 
-function codelistFormatter (cell, row) {
-    if (cell !== undefined) {
-        return (<ModalCodeListFormatter value={cell} defineVersion={row.defineVersion}/>);
-    }
+function variableCodeListFormatFormatter (cell, row) {
+    return <VariableCodeListFormatFormatter value={cell} defineVersion={row.defineVersion}/>;
 }
 
 function variableLengthFormatter (cell, row) {
@@ -202,17 +205,19 @@ class VariableTable extends React.Component {
                 name          : originVar.itemDef.name,
                 label         : originVar.itemDef.getDescription(),
                 dataType      : originVar.itemDef.dataType,
-                displayFormat : originVar.itemDef.displayFormat,
-                codeList      : originVar.itemDef.codeList,
                 model         : mdv.model,
                 defineVersion : '2.0',
             };
-            currentVar.codeListOid = originVar.itemDef.codeList !== undefined ? originVar.itemDef.codeList.oid : undefined;
             currentVar.lengthAttrs = {
                 length           : originVar.itemDef.length,
                 fractionDigits   : originVar.itemDef.fractionDigits,
                 lengthAsData     : originVar.itemDef.lengthAsData,
                 lengthAsCodelist : originVar.itemDef.lengthAsCodelist,
+            };
+            currentVar.codeListFormatAttrs = {
+                codeList      : originVar.itemDef.codeList,
+                displayFormat : originVar.itemDef.displayFormat,
+                dataType      : originVar.itemDef.dataType,
             };
             currentVar.description = {
                 comment : originVar.itemDef.comment,
@@ -224,14 +229,6 @@ class VariableTable extends React.Component {
             };
             variables[currentVar.orderNumber-1] = currentVar;
         });
-
-        // Get list of codeLists
-        const codeLists = Object.keys(mdv.codeLists).map( codeListOid => {
-            let result = {};
-            result[codeListOid] = codeListOid + ' (' + mdv.codeLists[codeListOid].name + ')';
-            return result;
-        });
-
 
         // Editor settings
         const cellEditProp = {
@@ -280,7 +277,7 @@ class VariableTable extends React.Component {
                 dataField    : 'dataType',
                 text         : 'Type',
                 hidden       : hideMe,
-                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: dataTypes}},
+                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: dataTypes, optional: true}},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },
@@ -295,11 +292,11 @@ class VariableTable extends React.Component {
                 thStyle      : { whiteSpace: 'normal' }
             },
             {
-                dataField    : 'codeList',
+                dataField    : 'codeListFormatAttrs',
                 text         : 'Codelist',
                 hidden       : hideMe,
-                dataFormat   : codelistFormatter,
-                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: codeLists}},
+                dataFormat   : variableCodeListFormatFormatter,
+                customEditor : {getElement: variableCodeListFormatEditor, customEditorParameters: {codeLists: mdv.codeLists}},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },
