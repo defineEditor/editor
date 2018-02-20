@@ -20,12 +20,12 @@ class VariableCodeListFormatFormatter extends React.Component {
         return (
             <Grid container spacing={0}>
                 {codeList !== undefined &&
-                        <Grid item xs='12'>
+                        <Grid item xs={12}>
                             <ModalCodeListFormatter value={codeList} defineVersion={this.props.defineVersion}/>
                         </Grid>
                 }
                 {displayFormat !== undefined &&
-                        <Grid item xs='12'>
+                        <Grid item xs={12}>
                             <abbr title='Display Format'>DF</abbr>: {displayFormat}
                         </Grid>
                 }

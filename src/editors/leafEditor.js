@@ -4,6 +4,7 @@ import TextField from 'material-ui/TextField';
 import Grid from 'material-ui/Grid';
 import { withStyles } from 'material-ui/styles';
 import {Leaf} from 'elements.js';
+import SaveCancel from 'editors/saveCancel.js';
 
 const styles = theme => ({
     textField: {
@@ -11,7 +12,7 @@ const styles = theme => ({
     },
 });
 
-class LocationEditor extends React.Component {
+class LeafEditor extends React.Component {
     constructor (props) {
         super(props);
         this.handleChange = this.handleChange.bind(this);
@@ -26,11 +27,11 @@ class LocationEditor extends React.Component {
         this.setState({leaf: newLeaf});
     };
 
-    componentWillUnmount = () => {
+    save = () => {
         this.props.onUpdate(this.state.leaf);
     }
-    // TODO this does not work as overwritten by unmount
-    close = () => {
+
+    cancel = () => {
         this.props.onUpdate(this.props.defaultValue);
     }
 
@@ -62,15 +63,18 @@ class LocationEditor extends React.Component {
                         className={classes.textField}
                     />
                 </Grid>
+                <Grid item xs={12}>
+                    <SaveCancel mini icon save={this.save} cancel={this.cancel}/>
+                </Grid>
             </Grid>
         );
     }
 }
 
-LocationEditor.propTypes = {
+LeafEditor.propTypes = {
     classes      : PropTypes.object.isRequired,
     defaultValue : PropTypes.object.isRequired,
     onUpdate     : PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(LocationEditor);
+export default withStyles(styles)(LeafEditor);

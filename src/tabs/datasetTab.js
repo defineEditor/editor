@@ -7,7 +7,7 @@ import green from 'material-ui/colors/green';
 import indigo from 'material-ui/colors/indigo';
 import grey from 'material-ui/colors/grey';
 import CommentEditor from 'editors/commentEditor.js';
-import LocationEditor from 'editors/locationEditor.js';
+import LeafEditor from 'editors/leafEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import DatasetFlagsEditor from 'editors/datasetFlagsEditor.js';
@@ -42,8 +42,8 @@ function commentEditor (onUpdate, props) {
     return (<CommentEditor onUpdate={ onUpdate } {...props}/>);
 }
 
-function locationEditor (onUpdate, props) {
-    return (<LocationEditor onUpdate={ onUpdate } {...props}/>);
+function leafEditor (onUpdate, props) {
+    return (<LeafEditor onUpdate={ onUpdate } {...props}/>);
 }
 
 function datasetFlagsEditor (onUpdate, props) {
@@ -67,7 +67,7 @@ function commentFormatter (cell, row) {
     }
 }
 
-function locationFormatter (cell, row) {
+function leafFormatter (cell, row) {
     return (<a href={'file://' + cell.href}>{cell.title}</a>);
 }
 
@@ -302,8 +302,8 @@ class DatasetTable extends React.Component {
                 dataField    : 'leaf',
                 text         : 'Location',
                 hidden       : hideMe,
-                dataFormat   : locationFormatter,
-                customEditor : {getElement: locationEditor},
+                dataFormat   : leafFormatter,
+                customEditor : {getElement: leafEditor},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             }

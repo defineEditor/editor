@@ -11,6 +11,7 @@ import { withStyles } from 'material-ui/styles';
 import deepEqual from 'deep-equal';
 import RemoveRedEyeIcon from 'material-ui-icons/RemoveRedEye';
 import FilterListIcon from 'material-ui-icons/FilterList';
+import KeyOrderEditor from 'editors/keyOrderEditor.js';
 import DescriptionEditor from 'editors/descriptionEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
@@ -66,6 +67,10 @@ function variableCodeListFormatEditor (onUpdate, props) {
     return (<VariableCodeListFormatEditor onUpdate={ onUpdate } {...props}/>);
 }
 
+function keyOrderEditor (onUpdate, props) {
+    return (<KeyOrderEditor onUpdate={ onUpdate } {...props}/>);
+}
+
 // Formatters
 function descriptionFormatter (cell, row) {
     return (<DescriptionFormatter value={cell} model={row.model}/>);
@@ -77,6 +82,21 @@ function variableCodeListFormatFormatter (cell, row) {
 
 function variableLengthFormatter (cell, row) {
     return (<VariableLengthFormatter value={cell} defineVersion={row.defineVersion} dataType={row.dataType}/>);
+}
+
+function keyOrderFormatter (cell, row) {
+    return (
+        <Grid container>
+            <Grid item>
+                {cell.orderNumber}
+            </Grid>
+            {cell.keySequence !== undefined &&
+                    <Grid item>
+                        <abbr title='Key Sequence'>K</abbr>: {cell.keySequence}
+                    </Grid>
+            }
+        </Grid>
+    );
 }
 
 class VariableTable extends React.Component {
@@ -201,7 +221,6 @@ class VariableTable extends React.Component {
                 itemGroupOid  : this.props.itemGroupOid,
                 itemGroupName : mdv.itemGroups[this.props.itemGroupOid].name,
                 oid           : originVar.itemDef.oid,
-                orderNumber   : originVar.orderNumber,
                 name          : originVar.itemDef.name,
                 label         : originVar.itemDef.getDescription(),
                 dataType      : originVar.itemDef.dataType,
@@ -227,7 +246,11 @@ class VariableTable extends React.Component {
                 varName : originVar.itemDef.name,
                 model   : mdv.model,
             };
-            variables[currentVar.orderNumber-1] = currentVar;
+            currentVar.keyOrder = {
+                orderNumber : originVar.orderNumber,
+                keySequence : originVar.keySequence,
+            };
+            variables[currentVar.keyOrder.orderNumber-1] = currentVar;
         });
 
         // Editor settings
@@ -255,6 +278,16 @@ class VariableTable extends React.Component {
                 hidden    : true,
                 text      : 'OID',
                 editable  : false
+            },
+            {
+                dataField    : 'keyOrder',
+                text         : 'Key, Position',
+                hidden       : hideMe,
+                width        : '110px',
+                dataFormat   : keyOrderFormatter,
+                customEditor : {getElement: keyOrderEditor, customEditorParameters: {itemGroup: dataset}},
+                tdStyle      : { whiteSpace: 'normal' },
+                thStyle      : { whiteSpace: 'normal' }
             },
             {
                 dataField    : 'name',
@@ -293,7 +326,7 @@ class VariableTable extends React.Component {
             },
             {
                 dataField    : 'codeListFormatAttrs',
-                text         : 'Codelist',
+                text         : 'Codelist, Display Format',
                 hidden       : hideMe,
                 dataFormat   : variableCodeListFormatFormatter,
                 customEditor : {getElement: variableCodeListFormatEditor, customEditorParameters: {codeLists: mdv.codeLists}},

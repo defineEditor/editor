@@ -63,8 +63,14 @@ class CodeListFormatter extends React.Component {
         const isRanked = codeListTable.filter(item => (item.rank !== undefined)).length > 0;
 
         let codeListTitle;
+        let description = [];
         if (codeList.getDescription() !== undefined) {
-            codeListTitle = codeList.name + ' (' + codeList.getDescription() + ')';
+            description.push(codeList.getDescription());
+        } else if (codeList.alias !== undefined) {
+            description.push(codeList.alias.name);
+        }
+        if (description.length > 0) {
+            codeListTitle = codeList.name + ' (' + description.join(' ') + ')';
         } else {
             codeListTitle = codeList.name;
         }

@@ -84,7 +84,7 @@ class VariableCodeListFormatEditor extends React.Component {
 
         return (
             <Grid container spacing={0}>
-                <Grid item xs='12'>
+                <Grid item xs={12}>
                     <TextField
                         label='CodeList'
                         autoFocus
@@ -99,7 +99,7 @@ class VariableCodeListFormatEditor extends React.Component {
                         {this.getSelectionList(codeLists,true)}
                     </TextField>
                 </Grid>
-                <Grid item xs='12'>
+                <Grid item xs={12}>
                     <TextField
                         label='Display Format'
                         fullWidth
