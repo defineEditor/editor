@@ -15,10 +15,12 @@ import KeyOrderEditor from 'editors/keyOrderEditor.js';
 import DescriptionEditor from 'editors/descriptionEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
+import RoleMandatoryEditor from 'editors/roleMandatoryEditor.js';
 import VariableLengthEditor from 'editors/variableLengthEditor.js';
-import VariableCodeListFormatEditor from 'editors/variableCodeListFormatEditor.js';
 import DescriptionFormatter from 'formatters/descriptionFormatter.js';
+import RoleMandatoryFormatter from 'formatters/roleMandatoryFormatter.js';
 import VariableLengthFormatter from 'formatters/variableLengthFormatter.js';
+import VariableCodeListFormatEditor from 'editors/variableCodeListFormatEditor.js';
 import VariableCodeListFormatFormatter from 'formatters/variableCodeListFormatFormatter.js';
 
 // Selector constants
@@ -71,6 +73,10 @@ function keyOrderEditor (onUpdate, props) {
     return (<KeyOrderEditor onUpdate={ onUpdate } {...props}/>);
 }
 
+function roleMandatoryEditor (onUpdate, props) {
+    return (<RoleMandatoryEditor onUpdate={ onUpdate } {...props}/>);
+}
+
 // Formatters
 function descriptionFormatter (cell, row) {
     return (<DescriptionFormatter value={cell} model={row.model}/>);
@@ -97,6 +103,10 @@ function keyOrderFormatter (cell, row) {
             }
         </Grid>
     );
+}
+
+function roleMandatoryFormatter (cell, row) {
+    return (<RoleMandatoryFormatter value={cell} model={row.model}/>);
 }
 
 class VariableTable extends React.Component {
@@ -214,6 +224,7 @@ class VariableTable extends React.Component {
         let variables = [];
         // Extract data required for the variable table
         const mdv = this.props.mdv;
+        const model = mdv.model;
         const dataset = mdv.itemGroups[this.props.itemGroupOid];
         Object.keys(dataset.itemRefs).forEach((itemRefOid) => {
             const originVar = dataset.itemRefs[itemRefOid];
@@ -224,6 +235,8 @@ class VariableTable extends React.Component {
                 name          : originVar.itemDef.name,
                 label         : originVar.itemDef.getDescription(),
                 dataType      : originVar.itemDef.dataType,
+                codeList      : originVar.itemDef.codeList,
+                valueList     : originVar.itemDef.valueList,
                 model         : mdv.model,
                 defineVersion : '2.0',
             };
@@ -249,6 +262,11 @@ class VariableTable extends React.Component {
             currentVar.keyOrder = {
                 orderNumber : originVar.orderNumber,
                 keySequence : originVar.keySequence,
+            };
+            currentVar.roleMandatory = {
+                mandatory    : originVar.mandatory,
+                role         : originVar.role,
+                roleCodeList : originVar.roleCodeList,
             };
             variables[currentVar.keyOrder.orderNumber-1] = currentVar;
         });
@@ -301,6 +319,7 @@ class VariableTable extends React.Component {
             {
                 dataField    : 'label',
                 text         : 'Label',
+                width        : '210px',
                 hidden       : hideMe,
                 customEditor : {getElement: simpleInputEditor},
                 tdStyle      : { whiteSpace: 'normal' },
@@ -309,6 +328,7 @@ class VariableTable extends React.Component {
             {
                 dataField    : 'dataType',
                 text         : 'Type',
+                width        : '100px',
                 hidden       : hideMe,
                 customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: dataTypes, optional: true}},
                 tdStyle      : { whiteSpace: 'normal' },
@@ -318,9 +338,19 @@ class VariableTable extends React.Component {
                 dataField    : 'lengthAttrs',
                 text         : 'Length',
                 hidden       : hideMe,
-                width        : '130px',
+                width        : '110px',
                 dataFormat   : variableLengthFormatter,
                 customEditor : {getElement: variableLengthEditor},
+                tdStyle      : { whiteSpace: 'normal' },
+                thStyle      : { whiteSpace: 'normal' }
+            },
+            {
+                dataField    : 'roleMandatory',
+                text         : model === 'ADaM' ? 'Mandatory' : 'Role, Mandatory',
+                hidden       : hideMe,
+                width        : '110px',
+                dataFormat   : roleMandatoryFormatter,
+                customEditor : {getElement: roleMandatoryEditor, customEditorParameters: {model: model}},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },
@@ -328,6 +358,7 @@ class VariableTable extends React.Component {
                 dataField    : 'codeListFormatAttrs',
                 text         : 'Codelist, Display Format',
                 hidden       : hideMe,
+                width        : '130px',
                 dataFormat   : variableCodeListFormatFormatter,
                 customEditor : {getElement: variableCodeListFormatEditor, customEditorParameters: {codeLists: mdv.codeLists}},
                 tdStyle      : { whiteSpace: 'normal' },
@@ -368,6 +399,8 @@ class VariableTable extends React.Component {
                 keyBoardNav={{enterToEdit: true}}
                 headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
                 selectRow={selectRowProp}
+                expandableRow={(row) => (row.valueList !== undefined)}
+                expandComponent={this.buildVlmTable}
             >
                 {this.renderColumns(columns)}
             </BootstrapTable>

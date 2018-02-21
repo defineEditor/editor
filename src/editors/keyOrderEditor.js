@@ -17,7 +17,6 @@ const styles = theme => ({
 class KeyOrderEditor extends React.Component {
     constructor (props) {
         super(props);
-        this.handleChange = this.handleChange.bind(this);
         // Get the total number of variables in the dataset
         let maxOrderNum = props.itemGroup.itemRefs.length;
         // Get the number of keys and add 1 if the current variable is not a key
