@@ -107,7 +107,6 @@ class OriginEditor extends React.Component {
         const { classes } = this.props;
 
         let originTypeList;
-        console.log(this.props.model);
         // TODO: Move constants out of the components
         if (this.props.model === 'ADaM') {
             originTypeList = ['Derived', 'Assigned', 'Predecessor'];

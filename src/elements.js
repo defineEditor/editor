@@ -196,10 +196,14 @@ class WhereClause {
     } = {}) {
         this.oid = oid;
         this.comment = comment;
-        this.rangeChecks = [];
+        this.rangeChecks = rangeChecks;
     }
     addRangeCheck (rangeCheck) {
         this.rangeChecks.push(rangeCheck);
+    }
+    toString (itemDefs) {
+        let itemName = itemDefs[this.itemOid].name;
+        return 'Where ' + this.rangeChecks.map(rangeCheck => (rangeCheck.toString(itemName))).join(' and ');
     }
 }
 
@@ -214,6 +218,15 @@ class RangeCheck {
     }
     addCheckValue (value) {
         this.checkValues.push(value);
+    }
+    toString(itemName) {
+        let result = itemName + ' ' + this.comparator + ' ';
+        if (this.checkValues.length === 1) {
+            result += this.checkValues[0];
+        } else if (this.checkValues.length >= 1) {
+            result += '(' + this.checkValues.join(',') + ')';
+        }
+        return result;
     }
 }
 
@@ -622,7 +635,7 @@ class ValueList extends BasicFunctions {
         super();
         this.oid = oid || getOid(this.constructor.name);
         this.itemRefs = itemRefs;
-        this.descriptions = descriptions;
+        this.descriptions = descriptions; // 2.1D
     }
     addItemRef (itemRef) {
         this.itemRefs.push(itemRef);

@@ -158,7 +158,7 @@ class MethodEditor extends React.Component {
         }
 
         if (autoMethodName) {
-            methodName = 'Algorithm for ' + this.props.row.itemGroupName + '.' + this.props.row.name;
+            methodName = 'Algorithm for ' + this.props.row.fullName;
         }
 
         return (
