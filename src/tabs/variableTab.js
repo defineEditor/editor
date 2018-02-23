@@ -11,6 +11,8 @@ import { withStyles } from 'material-ui/styles';
 import deepEqual from 'deep-equal';
 import RemoveRedEyeIcon from 'material-ui-icons/RemoveRedEye';
 import FilterListIcon from 'material-ui-icons/FilterList';
+import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
+import ExpandLessIcon from 'material-ui-icons/ExpandLess';
 import KeyOrderEditor from 'editors/keyOrderEditor.js';
 import DescriptionEditor from 'editors/descriptionEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
@@ -124,9 +126,9 @@ function renderColumns (columns) {
 }
 
 // Extract data required for the table;
-function getTableData ({source, datasetName, mdv, defineVersion}) {
+function getTableData ({source, datasetName, mdv, defineVersion, vlmLevel}={}) {
     let result = [];
-    Object.keys(source.itemRefs).forEach((itemRefOid) => {
+    Object.keys(source.itemRefs).forEach((itemRefOid, index) => {
         const originVar = source.itemRefs[itemRefOid];
         let currentVar = {
             groupOid      : source.oid,
@@ -139,6 +141,7 @@ function getTableData ({source, datasetName, mdv, defineVersion}) {
             model         : mdv.model,
             mdv           : mdv,
             defineVersion : defineVersion,
+            vlmLevel      : vlmLevel,
         };
         currentVar.lengthAttrs = {
             length           : originVar.itemDef.length,
@@ -162,15 +165,16 @@ function getTableData ({source, datasetName, mdv, defineVersion}) {
         if (originVar.whereClause !== undefined) {
             // VLM itemRef
             currentVar.whereClause = originVar.whereClause;
-            currentVar.fullName = datasetName + '.' + originVar.itemDef.name + '[' + originVar.whereClause.toString(mdv.itemDefs) + ']';
+            currentVar.fullName = datasetName + '.' + originVar.itemDef.name + ' [' + originVar.whereClause.toString(mdv.itemDefs) + ']';
         } else {
             // Normal itemRef
             currentVar.fullName = datasetName + '.' + originVar.itemDef.name;
         }
 
         currentVar.keyOrder = {
-            orderNumber : originVar.orderNumber,
+            orderNumber : originVar.orderNumber || (index + 1),
             keySequence : originVar.keySequence,
+            itemGroup   : source,
         };
         currentVar.roleMandatory = {
             mandatory    : originVar.mandatory,
@@ -182,151 +186,39 @@ function getTableData ({source, datasetName, mdv, defineVersion}) {
     return result;
 }
 
-    // VLM table component
-class ValueLevelTable extends React.Component {
-    onCellEdit = (row, cellName, cellValue) => {
-        // Update on if the value changed
-        if (!deepEqual(row[cellName], cellValue)) {
-            this.props.onMdvChange('Item',{itemOid: row.oid, itemGroupOid: row.groupOid},{cellName: cellValue});
-        }
-    }
-
-    render () {
-        let values = [];
-        // Extract data required for the variable table
-        const mdv = this.props.mdv;
-        const model = mdv.model;
-        const valueList = this.props.valueList;
-        const values = getTableData({
-            source        : valueList,
-            datasetName   : this.props.datasetName,
-            mdv           : mdv,
-            defineVersion : this.props.defineVersion,
-        });
-
-        const columns = [
-            {
-                dataField : 'oid',
-                isKey     : true,
-                hidden    : true,
-                text      : 'OID',
-                editable  : false
-            },
-            {
-                dataField    : 'keyOrder',
-                text         : 'Key, Position',
-                hidden       : hideMe,
-                width        : '110px',
-                dataFormat   : keyOrderFormatter,
-                customEditor : {getElement: keyOrderEditor, customEditorParameters: {itemGroup: dataset}},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
-            },
-            {
-                dataField    : 'name',
-                text         : 'Name',
-                hidden       : hideMe,
-                width        : '110px',
-                customEditor : {getElement: simpleInputEditor},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
-            },
-            {
-                dataField    : 'label',
-                text         : 'Label',
-                width        : '210px',
-                hidden       : hideMe,
-                customEditor : {getElement: simpleInputEditor},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
-            },
-            {
-                dataField    : 'dataType',
-                text         : 'Type',
-                width        : '100px',
-                hidden       : hideMe,
-                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: dataTypes, optional: true}},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
-            },
-            {
-                dataField    : 'lengthAttrs',
-                text         : 'Length',
-                hidden       : hideMe,
-                width        : '110px',
-                dataFormat   : variableLengthFormatter,
-                customEditor : {getElement: variableLengthEditor},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
-            },
-            {
-                dataField    : 'roleMandatory',
-                text         : model === 'ADaM' ? 'Mandatory' : 'Role, Mandatory',
-                hidden       : hideMe,
-                width        : '110px',
-                dataFormat   : roleMandatoryFormatter,
-                customEditor : {getElement: roleMandatoryEditor, customEditorParameters: {model: model}},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
-            },
-            {
-                dataField    : 'codeListFormatAttrs',
-                text         : 'Codelist, Display Format',
-                hidden       : hideMe,
-                width        : '130px',
-                dataFormat   : variableCodeListFormatFormatter,
-                customEditor : {getElement: variableCodeListFormatEditor, customEditorParameters: {codeLists: mdv.codeLists}},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
-            },
-            {
-                dataField    : 'description',
-                text         : 'Description',
-                hidden       : false,
-                width        : '40%',
-                dataFormat   : descriptionFormatter,
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' },
-                customEditor : {
-                    getElement             : descriptionEditor,
-                    customEditorParameters : {
-                        leafs           : mdv.leafs,
-                        supplementalDoc : mdv.supplementalDoc,
-                        annotatedCrf    : mdv.annotatedCrf,
-                        model           : mdv.model,
-                        defineVersion   : '2.0',
-                    }
-                },
-            },
-        ];
-
-        return (
-            <BootstrapTable
-                data={variables}
-                options={options}
-                search
-                deleteRow
-                insertRow
-                striped
-                hover
-                version='4'
-                cellEdit={this.props.cellEditProp}
-                keyBoardNav={{enterToEdit: true}}
-                headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
-                selectRow={this.props.selectRowProp}
-            >
-                {renderColumns(columns)}
-            </BootstrapTable>
-        );
-    }
-}
-*/
-
-// Dataset table component
 class VariableTable extends React.Component {
     constructor(props) {
         super(props);
-        this.onBeforeSaveCell = this.onBeforeSaveCell.bind(this);
+        const mdv = this.props.mdv;
+        //const model = mdv.model;
+        const dataset = mdv.itemGroups[this.props.itemGroupOid];
+        // Get variable level metadata
+        let variables = getTableData({
+            source        : dataset,
+            datasetName   : dataset.name,
+            mdv           : this.props.mdv,
+            defineVersion : this.props.defineVersion,
+            vlmLevel      : 0,
+        });
+        // Get VLM metadata and set toggle status for each
+        let vlmData = {};
+        variables.filter( item => item.valueList !== undefined ).forEach( item => {
+            vlmData[item.oid] = {};
+            vlmData[item.oid].state = 'collaps';
+            vlmData[item.oid].data = getTableData({
+                source        : item.valueList,
+                datasetName   : dataset.name,
+                mdv           : mdv,
+                defineVersion : this.props.defineVersion,
+                vlmLevel      : 1,
+            });
+        });
+
+        this.state = {
+            variables : variables,
+            vlmData   : vlmData,
+            vlmState  : 'collaps',
+        };
     }
 
     onCellEdit = (row, cellName, cellValue) => {
@@ -344,11 +236,73 @@ class VariableTable extends React.Component {
             this.props.onMdvChange('ItemGroup',{itemOid: row.oid, itemGroupOid: row.groupOid},updateObj);
         }
         return true;
+    }
 
-    function buildVlmTable (row) {
-        return(
-            <ValueLevelTable mdv={row.mdv} valueList={row.valueList} datasetName={row.fullName} defineVersion={row.defineVersion} parent={row}>
-        );
+    toggleVlmAndVariablesData = (itemOid, variables, vlmData) => {
+        // This function is not pure
+        // Toggle the vlm state
+        let startIndex = variables.map(item => item.oid).indexOf(itemOid) + 1;
+        if (vlmData[itemOid].state === 'collaps') {
+            // Insert VLM rows
+            variables.splice.apply(variables, [startIndex, 0].concat(vlmData[itemOid].data));
+            vlmData[itemOid].state = 'expand';
+        } else {
+            // Remove VLM rows
+            variables.splice(startIndex, vlmData[itemOid].data.length);
+            vlmData[itemOid].state = 'collaps';
+        }
+    }
+
+    toggleVlmRow = (itemOid) => () => {
+        // Shallow copy the state
+        let variables = this.state.variables.slice();
+        let vlmData = {};
+        Object.keys(this.state.vlmData).forEach( vlmItemOid => {
+            vlmData[vlmItemOid] = Object.assign({}, this.state.vlmData[vlmItemOid]);
+        });
+        // Update the state
+        this.toggleVlmAndVariablesData(itemOid, variables, vlmData);
+        // Final result
+        let result = {
+            variables : variables,
+            vlmData   : vlmData,
+        };
+        // Check if all of the states became collapsed/expanded;
+        if (Object.keys(vlmData).filter( vlm => vlmData[vlm].state === 'collaps').length === 0) {
+            result.vlmState = 'expand';
+        } else if (Object.keys(vlmData).filter( vlm => vlmData[vlm].state === 'expand').length === 0) {
+            result.vlmState = 'collaps';
+        }
+        this.setState(result);
+    }
+
+    toggleVlmRows = (type) => () => {
+        if (Object.keys(this.state.vlmData).length === 0) {
+            // If dataset has no VLM, exit;
+            return;
+        } else if (type === this.state.vlmState) {
+            // If all are already collapsed or expanded
+            return;
+        }
+        // Shallow copy the state
+        let variables = this.state.variables.slice();
+        let vlmData = {};
+        Object.keys(this.state.vlmData).forEach( vlmItemOid => {
+            vlmData[vlmItemOid] = Object.assign({}, this.state.vlmData[vlmItemOid]);
+        });
+        // Update the state
+        Object.keys(this.state.vlmData).forEach( vlmItemOid => {
+            if (this.state.vlmData[vlmItemOid].state !== type) {
+                this.toggleVlmAndVariablesData(vlmItemOid, variables, vlmData);
+            }
+        });
+        // Final result
+        let result = {
+            variables : variables,
+            vlmData   : vlmData,
+            vlmState  : type,
+        };
+        this.setState(result);
     }
 
     createCustomButtonGroup = props => {
@@ -389,6 +343,18 @@ class VariableTable extends React.Component {
                 </Grid>
                 <Grid item style={{paddingRight: '25px'}}>
                     <Grid container justify='flex-end'>
+                        { Object.keys(this.state.vlmData).length > 0 &&
+                                <Grid item>
+                                    <Button
+                                        variant="raised"
+                                        color="default"
+                                        onClick={this.toggleVlmRows(this.state.vlmState === 'collaps' ? 'expand' : 'collaps')}
+                                    >
+                                        {this.state.vlmState === 'collaps' ? 'Expand' : 'Collaps'} VLM
+                                        {this.state.vlmState === 'collaps' ? <ExpandMoreIcon style={{marginLeft: '7px'}}/> : <ExpandLessIcon style={{marginLeft: '7px'}}/>}
+                                    </Button>
+                                </Grid>
+                        }
                         <Grid item>
                             <Button variant="raised" color="default">
                                 Filter
@@ -422,17 +388,14 @@ class VariableTable extends React.Component {
         );
     }
 
+    highLightVlmRows = (row, rowIndex) => {
+        return (row.vlmLevel > 0 ? 'vlmRow' : 'variableRow');
+    }
+
     render () {
         // Extract data required for the variable table
         const mdv = this.props.mdv;
         const model = mdv.model;
-        const dataset = mdv.itemGroups[this.props.itemGroupOid];
-        const variables = getTableData({
-            source        : dataset,
-            datasetName   : dataset.name,
-            mdv           : mdv,
-            defineVersion : '2.0',
-        });
 
         // Editor settings
         const cellEditProp = {
@@ -466,7 +429,7 @@ class VariableTable extends React.Component {
                 hidden       : hideMe,
                 width        : '110px',
                 dataFormat   : keyOrderFormatter,
-                customEditor : {getElement: keyOrderEditor, customEditorParameters: {itemGroup: dataset}},
+                customEditor : {getElement: keyOrderEditor},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },
@@ -550,7 +513,7 @@ class VariableTable extends React.Component {
 
         return (
             <BootstrapTable
-                data={variables}
+                data={this.state.variables}
                 options={options}
                 search
                 deleteRow
@@ -559,11 +522,10 @@ class VariableTable extends React.Component {
                 hover
                 version='4'
                 cellEdit={cellEditProp}
-                expandableRow={(row) => (row.valueList !== undefined)}
-                expandComponent={this.buildVlmTable}
                 keyBoardNav={{enterToEdit: true}}
                 headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
                 selectRow={selectRowProp}
+                trClassName={this.highLightVlmRows}
             >
                 {renderColumns(columns)}
             </BootstrapTable>
@@ -572,8 +534,9 @@ class VariableTable extends React.Component {
 }
 
 VariableTable.propTypes = {
-    mdv          : PropTypes.object.isRequired,
-    itemGroupOid : PropTypes.string.isRequired,
+    mdv           : PropTypes.object.isRequired,
+    itemGroupOid  : PropTypes.string.isRequired,
+    defineVersion : PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(VariableTable);

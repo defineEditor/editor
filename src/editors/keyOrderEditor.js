@@ -18,9 +18,9 @@ class KeyOrderEditor extends React.Component {
     constructor (props) {
         super(props);
         // Get the total number of variables in the dataset
-        let maxOrderNum = props.itemGroup.itemRefs.length;
+        let maxOrderNum = props.defaultValue.itemGroup.itemRefs.length;
         // Get the number of keys and add 1 if the current variable is not a key
-        let maxKeySeq = props.itemGroup.itemRefs.filter((itemRef) => {
+        let maxKeySeq = props.defaultValue.itemGroup.itemRefs.filter((itemRef) => {
             return itemRef.keySequence !== undefined;
         }).length + (this.props.defaultValue.keySequence === undefined ? 1 : 0);
         this.state = {
@@ -121,7 +121,6 @@ class KeyOrderEditor extends React.Component {
 KeyOrderEditor.propTypes = {
     classes      : PropTypes.object.isRequired,
     defaultValue : PropTypes.object.isRequired,
-    itemGroup    : PropTypes.object.isRequired,
     onUpdate     : PropTypes.func.isRequired,
 };
 

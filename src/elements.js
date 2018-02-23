@@ -202,8 +202,7 @@ class WhereClause {
         this.rangeChecks.push(rangeCheck);
     }
     toString (itemDefs) {
-        let itemName = itemDefs[this.itemOid].name;
-        return 'Where ' + this.rangeChecks.map(rangeCheck => (rangeCheck.toString(itemName))).join(' and ');
+        return 'Where ' + this.rangeChecks.map(rangeCheck => (rangeCheck.toString(itemDefs))).join(' and ');
     }
 }
 
@@ -219,7 +218,8 @@ class RangeCheck {
     addCheckValue (value) {
         this.checkValues.push(value);
     }
-    toString(itemName) {
+    toString(itemDefs) {
+        let itemName = itemDefs[this.itemOid].name;
         let result = itemName + ' ' + this.comparator + ' ';
         if (this.checkValues.length === 1) {
             result += this.checkValues[0];

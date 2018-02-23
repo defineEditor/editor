@@ -75,7 +75,7 @@ class EditorTabs extends React.Component {
         this.setState({odm: odm});
     }
 
-    generateVariableTables = () => {
+    generateVariableTables = (defineVersion) => {
         let datasets = [];
         // Sort datasets according to the orderNumber
         const mdv = this.state.odm.study.metaDataVersion;
@@ -88,7 +88,7 @@ class EditorTabs extends React.Component {
                     <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
                         {mdv.itemGroups[itemGroupOid].name + ' (' + mdv.itemGroups[itemGroupOid].getDescription() + ')'}
                     </h3>
-                    <VariableTable mdv={mdv} itemGroupOid={itemGroupOid} onMdvChange={this.handleMdvChange}/>
+                    <VariableTable mdv={mdv} itemGroupOid={itemGroupOid} onMdvChange={this.handleMdvChange} defineVersion={defineVersion}/>
                 </div>
             );
         });
@@ -99,6 +99,7 @@ class EditorTabs extends React.Component {
 
         const { classes } = this.props;
         const { value } = this.state;
+        const defineVersion = this.state.odm.study.metaDataVersion.defineVersion;
         // Remove whitespaces and make lowercase for ID values
         let tabs = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Methods', 'Comments', 'Where Conditions', 'Documents'];
         let tabIds = tabs.map( tab => {return tab.replace(/\s+/g, '').toLowerCase();});
@@ -107,7 +108,7 @@ class EditorTabs extends React.Component {
             <MuiThemeProvider theme={theme}>
                 <div className={classes.root}>
                     <AppBar position="sticky" color='default'>
-                        <Tabs value={value} onChange={this.handleChange} fullWidth indicatorColor='primary' textColor='primary'> 
+                        <Tabs value={value} onChange={this.handleChange} fullWidth indicatorColor='primary' textColor='primary'>
                             { tabs.map( tab => {
                                 return <Tab key={tab} label={tab} />;
                             })
@@ -115,8 +116,12 @@ class EditorTabs extends React.Component {
                         </Tabs>
                     </AppBar>
                     <TabContainer>
-                        {tabs[value] === 'Datasets' && <DatasetTable mdv={this.state.odm.study.metaDataVersion} onMdvChange={this.handleMdvChange}/>}
-                        {tabs[value] === 'Variables' && this.generateVariableTables()}
+                        {tabs[value] === 'Datasets' && <DatasetTable
+                            mdv={this.state.odm.study.metaDataVersion}
+                            onMdvChange={this.handleMdvChange}
+                            defineVersion={defineVersion}
+                        />}
+                        {tabs[value] === 'Variables' && this.generateVariableTables(defineVersion)}
                         {['Datasets','Variables'].indexOf(tabs[value]) === -1 && <div id={tabIds[value]}>{tabs[value]}</div>}
                     </TabContainer>
                 </div>
