@@ -13,6 +13,9 @@ const styles = theme => ({
     button: {
         margin: theme.spacing.unit,
     },
+    icon: {
+        marginRight: theme.spacing.unit,
+    }
 });
 
 class SaveClose extends React.Component {
@@ -26,11 +29,11 @@ class SaveClose extends React.Component {
                 {mini !== true &&
                         <React.Fragment>
                             <Button color='primary' size='small' onClick={this.props.save} variant='raised' className={style}>
-                                { this.props.icon && <SaveIcon/>}
+                                { this.props.icon && <SaveIcon className={classes.icon}/>}
                                 Save
                             </Button>
                             <Button color='secondary' size='small' onClick={this.props.cancel} variant='raised' className={style}>
-                                { this.props.icon && <ClearIcon/>}
+                                { this.props.icon && <ClearIcon className={classes.icon}/>}
                                 Cancel
                             </Button>
                         </React.Fragment>

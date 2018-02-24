@@ -15,15 +15,17 @@ import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import ExpandLessIcon from 'material-ui-icons/ExpandLess';
 import KeyOrderEditor from 'editors/keyOrderEditor.js';
 import DescriptionEditor from 'editors/descriptionEditor.js';
-import SimpleInputEditor from 'editors/simpleInputEditor.js';
+//import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import RoleMandatoryEditor from 'editors/roleMandatoryEditor.js';
-import variableLengthEditor from 'editors/variableLengthEditor.js';
+import VariableLengthEditor from 'editors/variableLengthEditor.js';
 import DescriptionFormatter from 'formatters/descriptionFormatter.js';
 import RoleMandatoryFormatter from 'formatters/roleMandatoryFormatter.js';
 import VariableLengthFormatter from 'formatters/variableLengthFormatter.js';
 import VariableCodeListFormatEditor from 'editors/variableCodeListFormatEditor.js';
 import VariableCodeListFormatFormatter from 'formatters/variableCodeListFormatFormatter.js';
+import VariableNameLabelWhereClauseEditor from 'editors/variableNameLabelWhereClauseEditor.js';
+import VariableNameLabelWhereClauseFormatter from 'formatters/variableNameLabelWhereClauseFormatter.js';
 
 // Selector constants
 const dataTypes = [
@@ -55,12 +57,22 @@ function descriptionEditor (onUpdate, props) {
     return (<DescriptionEditor onUpdate={ onUpdate } {...props}/>);
 }
 
+/*
 function simpleInputEditor (onUpdate, props) {
     return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
 }
+*/
 
 function simpleSelectEditor (onUpdate, props) {
     return (<SimpleSelectEditor onUpdate={ onUpdate } {...props}/>);
+}
+
+function variableNameLabelWhereClauseEditor (onUpdate, props) {
+    return (<VariableNameLabelWhereClauseEditor onUpdate={ onUpdate } {...props}/>);
+}
+
+function variableLengthEditor (onUpdate, props) {
+    return (<VariableLengthEditor onUpdate={ onUpdate } {...props}/>);
 }
 
 function variableCodeListFormatEditor (onUpdate, props) {
@@ -103,6 +115,31 @@ function keyOrderFormatter (cell, row) {
     );
 }
 
+function variableNameLabelWhereClauseFormatter (cell, row) {
+    const hasVlm = (row.valueList !== undefined);
+    if (hasVlm) {
+        const state = this.state.vlmData[row.oid].state;
+        return (
+            <VariableNameLabelWhereClauseFormatter
+                value={cell}
+                defineVersion={row.defineVersion}
+                toggleVlmRow={this.toggleVlmRow}
+                itemOid={row.oid}
+                hasVlm={hasVlm}
+                state={state}
+            />
+        );
+    } else {
+        return (
+            <VariableNameLabelWhereClauseFormatter
+                value={cell}
+                defineVersion={row.defineVersion}
+            />
+        );
+
+    }
+}
+
 function roleMandatoryFormatter (cell, row) {
     return (<RoleMandatoryFormatter value={cell} model={row.model}/>);
 }
@@ -134,7 +171,6 @@ function getTableData ({source, datasetName, mdv, defineVersion, vlmLevel}={}) {
             groupOid      : source.oid,
             oid           : originVar.itemDef.oid,
             name          : originVar.itemDef.name,
-            label         : originVar.itemDef.getDescription(),
             dataType      : originVar.itemDef.dataType,
             codeList      : originVar.itemDef.codeList,
             valueList     : originVar.itemDef.valueList,
@@ -162,9 +198,13 @@ function getTableData ({source, datasetName, mdv, defineVersion, vlmLevel}={}) {
             varName : originVar.itemDef.name,
             model   : mdv.model,
         };
+        currentVar.nameLabelWhereClause = {
+            name        : originVar.itemDef.name,
+            label       : originVar.itemDef.getDescription(),
+            whereClause : originVar.whereClause,
+        };
         if (originVar.whereClause !== undefined) {
             // VLM itemRef
-            currentVar.whereClause = originVar.whereClause;
             currentVar.fullName = datasetName + '.' + originVar.itemDef.name + ' [' + originVar.whereClause.toString(mdv.itemDefs) + ']';
         } else {
             // Normal itemRef
@@ -434,20 +474,12 @@ class VariableTable extends React.Component {
                 thStyle      : { whiteSpace: 'normal' }
             },
             {
-                dataField    : 'name',
-                text         : 'Name',
+                dataField    : 'nameLabelWhereClause',
+                text         : 'Name, Label, Where Clause',
+                width        : '300px',
                 hidden       : hideMe,
-                width        : '110px',
-                customEditor : {getElement: simpleInputEditor},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
-            },
-            {
-                dataField    : 'label',
-                text         : 'Label',
-                width        : '210px',
-                hidden       : hideMe,
-                customEditor : {getElement: simpleInputEditor},
+                dataFormat   : variableNameLabelWhereClauseFormatter.bind(this),
+                customEditor : {getElement: variableNameLabelWhereClauseEditor, customEditorParameters: {blueprint: mdv}},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },

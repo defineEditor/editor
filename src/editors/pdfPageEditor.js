@@ -82,6 +82,7 @@ class PdfPageEditor extends React.Component {
                         <Switch
                             checked={this.state.pageRangeFlag}
                             onChange={(event, checked) => this.setState({ pageRangeFlag: checked })}
+                            color='primary'
                             className={classes.rangeSwitch}
                         />
                     </Tooltip>
