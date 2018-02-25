@@ -14,8 +14,9 @@ const styles = theme => ({
     textField: {
     },
     nameTextField: {
-        width  : '90px',
-        margin : theme.spacing.unit,
+        width        : '90px',
+        marginRight  : theme.spacing.unit,
+        marginBottom : theme.spacing.unit,
     },
     switch: {
     },

@@ -199,6 +199,7 @@ function getTableData ({source, datasetName, mdv, defineVersion, vlmLevel}={}) {
             model   : mdv.model,
         };
         currentVar.nameLabelWhereClause = {
+            itemRef     : originVar,
             name        : originVar.itemDef.name,
             label       : originVar.itemDef.getDescription(),
             whereClause : originVar.whereClause,
@@ -258,6 +259,7 @@ class VariableTable extends React.Component {
             variables : variables,
             vlmData   : vlmData,
             vlmState  : 'collaps',
+            dataset   : dataset,
         };
     }
 
@@ -479,7 +481,7 @@ class VariableTable extends React.Component {
                 width        : '300px',
                 hidden       : hideMe,
                 dataFormat   : variableNameLabelWhereClauseFormatter.bind(this),
-                customEditor : {getElement: variableNameLabelWhereClauseEditor, customEditorParameters: {blueprint: mdv}},
+                customEditor : {getElement: variableNameLabelWhereClauseEditor, customEditorParameters: {blueprint: mdv, dataset: this.state.dataset}},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },

@@ -237,6 +237,7 @@ class MethodEditor extends React.Component {
                                                 <Switch
                                                     checked={autoMethodName}
                                                     onChange={this.handleChange('autoMethodNameUpdate',methodName)}
+                                                    color='primary'
                                                     className={classes.switch}
                                                 />
                                             </Tooltip>
@@ -245,6 +246,7 @@ class MethodEditor extends React.Component {
                                             <TextField
                                                 label="Method Name"
                                                 fullWidth
+                                                multiline
                                                 disabled={autoMethodName}
                                                 value={methodName}
                                                 onBlur={this.handleChange('nameUpdate')}

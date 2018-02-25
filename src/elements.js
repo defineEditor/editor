@@ -584,9 +584,10 @@ class ItemDef extends BasicFunctions {
         this.codeList = codeList;
         this.valueList = valueList;
         this.valueListOid = valueListOid;
-        this.parent = parent;
         this.descriptions = descriptions;
         // Non-define XML properties
+        // Parent ItemRef
+        this.parent = parent;
         // Programming Note
         if (note === undefined) {
             this.note = note;
