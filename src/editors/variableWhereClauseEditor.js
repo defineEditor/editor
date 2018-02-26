@@ -25,42 +25,34 @@ const styles = theme => ({
 class VariableWhereClauseEditor extends React.Component {
     render() {
         const {classes} = this.props;
-
+        const interactiveMode = this.props.wcEditingMode === 'interactive';
+        const wcIsInvalid = !this.props.validationCheck();
 
         return (
             <Grid container spacing={0} alignItems='flex-end'>
                 <Grid item>
-                    <TextField
-                        label='Name'
-                        autoFocus
-                        value={this.props.name}
-                        onChange={this.props.handleChange('name')}
-                        onBlur={this.props.autoLabel ? this.props.onNameBlur : void(0)}
-                        className={classes.nameTextField}
-                    />
-                </Grid>
-                <Grid item>
                     <FormControlLabel
                         control={
                             <Switch
-                                checked={this.props.autoLabel}
-                                onChange={this.props.handleChange('autoLabel')}
+                                checked={interactiveMode}
+                                onChange={this.props.handleChange('wcEditingMode')}
                                 className={classes.switch}
                                 color='primary'
-                                disabled={this.props.blueprint === undefined}
                             />
                         }
-                        label="Auto Label"
+                        label={interactiveMode ? 'Interactive Mode' : 'Manual Mode'}
                         className={classes.formControl}
                     />
                 </Grid>
                 <Grid item xs={12}>
                     <TextField
-                        label='Label'
+                        label='Where Clause'
                         multiline
                         fullWidth
-                        value={this.props.label}
-                        onChange={this.props.handleChange('label')}
+                        value={this.props.whereClauseText}
+                        onChange={this.props.handleChange('whereClauseText')}
+                        onBlur={this.props.handleChange('whereClause')}
+                        error={wcIsInvalid}
                         className={classes.textField}
                     />
                 </Grid>
@@ -70,13 +62,14 @@ class VariableWhereClauseEditor extends React.Component {
 }
 
 VariableWhereClauseEditor.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    handleChange : PropTypes.func.isRequired,
-    onNameBlur   : PropTypes.func.isRequired,
-    name         : PropTypes.string.isRequired,
-    label        : PropTypes.string.isRequired,
-    autoLabel    : PropTypes.bool,
-    blueprint    : PropTypes.object,
+    classes            : PropTypes.object.isRequired,
+    handleChange       : PropTypes.func.isRequired,
+    onNameBlur         : PropTypes.func.isRequired,
+    validationCheck    : PropTypes.func.isRequired,
+    whereClause        : PropTypes.object,
+    whereClauseText    : PropTypes.string,
+    whereClauseComment : PropTypes.object,
+    wcEditingMode      : PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(VariableWhereClauseEditor);

@@ -27,7 +27,7 @@ const styles = theme => ({
 class CommentEditor extends React.Component {
     constructor (props) {
         super(props);
-        // Bootstrap table changed undefined to '' when saving the value. 
+        // Bootstrap table changed undefined to '' when saving the value.
         // Catching this and resetting to undefined in case it is an empty string
         let defaultValue;
         if (this.props.stateless !== true) {

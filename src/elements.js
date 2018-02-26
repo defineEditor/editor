@@ -202,29 +202,46 @@ class WhereClause {
         this.rangeChecks.push(rangeCheck);
     }
     toString (itemDefs) {
-        return 'Where ' + this.rangeChecks.map(rangeCheck => (rangeCheck.toString(itemDefs))).join(' and ');
+        return this.rangeChecks.map(rangeCheck => (rangeCheck.toString(itemDefs))).join(' AND ');
     }
 }
 
 class RangeCheck {
     constructor ({
-        comparator, softHard, itemOid, checkValues = []
+        comparator, softHard='Soft', itemOid, checkValues = [], itemGroupOid
     } = {}) {
         this.comparator = comparator;
         this.softHard = softHard;
         this.itemOid = itemOid;
         this.checkValues = checkValues;
+        // Non-define XML properties
+        this.itemGroupOid = itemGroupOid;
     }
     addCheckValue (value) {
         this.checkValues.push(value);
     }
     toString(itemDefs) {
+        function surroundWithQuotes (value) {
+            if (/'/.test(value) && /"/.test(value) && /\s/.test(value)) {
+                // TODO Throw an error -> cannot handle such values at the moment
+                return value;
+            }
+            if (/'/.test(value) && /\s/.test(value)) {
+                return '\'' + value + '\'';
+            } else if (/"/.test(value) && /\s/.test(value)) {
+                return '"' + value + '"';
+            } else {
+                return value;
+            }
+        }
         let itemName = itemDefs[this.itemOid].name;
         let result = itemName + ' ' + this.comparator + ' ';
-        if (this.checkValues.length === 1) {
-            result += this.checkValues[0];
-        } else if (this.checkValues.length >= 1) {
-            result += '(' + this.checkValues.join(',') + ')';
+        if (this.checkValues.length > 0) {
+            if (['IN','NOTIN'].indexOf(this.comparator) >= 0) {
+                result += '(' + this.checkValues.map(value => surroundWithQuotes(value)).join(', ') + ')';
+            } else {
+                result += surroundWithQuotes(this.checkValues[0]);
+            }
         }
         return result;
     }
@@ -586,7 +603,7 @@ class ItemDef extends BasicFunctions {
         this.valueListOid = valueListOid;
         this.descriptions = descriptions;
         // Non-define XML properties
-        // Parent ItemRef
+        // Parent Item
         this.parent = parent;
         // Programming Note
         if (note === undefined) {

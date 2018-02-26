@@ -481,7 +481,7 @@ class VariableTable extends React.Component {
                 width        : '300px',
                 hidden       : hideMe,
                 dataFormat   : variableNameLabelWhereClauseFormatter.bind(this),
-                customEditor : {getElement: variableNameLabelWhereClauseEditor, customEditorParameters: {blueprint: mdv, dataset: this.state.dataset}},
+                customEditor : {getElement: variableNameLabelWhereClauseEditor, customEditorParameters: {blueprint: mdv, dataset: this.state.dataset, mdv: mdv}},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },
