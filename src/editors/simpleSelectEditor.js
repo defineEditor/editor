@@ -55,7 +55,6 @@ class ItemSelect extends React.Component {
                 label={label}
                 fullWidth
                 autoFocus
-                multiline
                 select={true}
                 onKeyDown={this.props.onKeyDown}
                 value={this.state.value}
@@ -74,6 +73,7 @@ ItemSelect.propTypes = {
     onUpdate     : PropTypes.func.isRequired,
     defaultValue : PropTypes.string,
     optional     : PropTypes.bool,
+    label        : PropTypes.string,
 };
 
 export default withStyles(styles)(ItemSelect);
