@@ -106,6 +106,8 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
             }
         } else if (name === 'whereClauseComment') {
             this.setState({ [name]: updateObj });
+        } else if (name === 'whereClauseInteractive') {
+            //this.setState({ [name]: updateObj });
         } else {
             this.setState({ [name]: updateObj.target.value });
         }

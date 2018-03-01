@@ -17,16 +17,22 @@ electron.ipcRenderer.on('define', (event, message) => {
     let odm = parseDefine(message);
     // Testing
     // Keep only 1 ds for testing
-    
+    /*    
     Object.keys(odm.study.metaDataVersion.itemGroups).forEach( (item,index) => {
         if (index !== 1) {
             delete odm.study.metaDataVersion.itemGroups[item];
         }
     });
+    */
     Object.keys(odm.study.metaDataVersion.itemGroups['IG.ADQSADAS'].itemRefs).forEach( (item,index) => {
         let itemRef = odm.study.metaDataVersion.itemGroups['IG.ADQSADAS'].itemRefs[item];
         if (5 < index && index < 39 && itemRef.itemDef.name !== 'AVAL' && itemRef.itemDef.name !== 'PARAMCD') {
             delete odm.study.metaDataVersion.itemGroups['IG.ADQSADAS'].itemRefs[item];
+        }
+    });
+    Object.keys(odm.study.metaDataVersion.itemGroups['IG.ADSL'].itemRefs).forEach( (item,index) => {
+        if (index > 5) {
+            delete odm.study.metaDataVersion.itemGroups['IG.ADSL'].itemRefs[item];
         }
     });
     

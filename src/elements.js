@@ -201,6 +201,14 @@ class WhereClause {
     addRangeCheck (rangeCheck) {
         this.rangeChecks.push(rangeCheck);
     }
+    clone () {
+        return new WhereClause({
+            oid         : this.oid,
+            comment     : this.comment,
+            rangeChecks : this.rangeChecks,
+        });
+
+    }
     toString (itemDefs) {
         return this.rangeChecks.map(rangeCheck => (rangeCheck.toString(itemDefs))).join(' AND ');
     }
@@ -219,6 +227,15 @@ class RangeCheck {
     }
     addCheckValue (value) {
         this.checkValues.push(value);
+    }
+    clone () {
+        return new RangeCheck({
+            comparator   : this.comparator,
+            softHard     : this.softHard,
+            itemOid      : this.itemOid,
+            checkValues  : this.checkValues.slice(),
+            itemGroupOid : this.itemGroupOid,
+        });
     }
     toString(itemDefs) {
         function surroundWithQuotes (value) {
@@ -500,6 +517,16 @@ class MetaDataVersion extends BasicFunctions {
     }
     addItemGroup (itemGroup) {
         this.itemGroups[itemGroup.oid] = itemGroup;
+    }
+    getOidByName (source, name) {
+        let result;
+        Object.keys(this[source]).some( oid => {
+            if (this[source][oid].name.toLowerCase() === name.toLowerCase()) {
+                result = oid;
+                return true;
+            }
+        });
+        return result;
     }
 }
 

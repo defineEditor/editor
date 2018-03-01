@@ -20,12 +20,12 @@ const styles = theme => ({
         borderRadius  : '10px',
         border        : '2px solid',
         borderColor   : 'primary',
-        top           : '50%',
-        left          : '50%',
-        transform     : 'translate(-50%, -50%)',
+        top           : '20%',
+        left          : '20%',
+        transform     : 'translate(-20%, -20%)',
         overflowX     : 'auto',
         maxHeight     : '90%',
-        maxWidth     : '90%',
+        maxWidth      : '90%',
         overflowY     : 'auto',
     },
     formControl: {
@@ -57,11 +57,11 @@ class VariableWhereClauseEditor extends React.Component {
     }
 
     handleCancelAndClose = (updateObj) => {
-        this.props.handleChange('whereClauseInteractive')(updateObj);
         this.setState({dialogOpened: false});
     }
 
     handleSaveAndClose = () => {
+        this.props.handleChange('whereClauseInteractive')(updateObj);
         this.setState({dialogOpened: false});
     }
 
