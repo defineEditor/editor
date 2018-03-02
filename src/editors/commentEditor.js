@@ -29,22 +29,22 @@ class CommentEditor extends React.Component {
         super(props);
         // Bootstrap table changed undefined to '' when saving the value.
         // Catching this and resetting to undefined in case it is an empty string
-        let defaultValue;
+        let comment;
         if (this.props.stateless !== true) {
-            if (this.props.defaultValue === '') {
-                defaultValue = undefined;
+            if (this.props.comment === '') {
+                comment = undefined;
             } else {
-                defaultValue = this.props.defaultValue;
+                comment = this.props.comment.clone();
             }
             this.state = {
-                comment: defaultValue
+                comment: comment
             };
         }
     }
 
     handleChange = (name) => (updateObj) => {
         let newComment;
-        let comment = this.props.stateless === true ? this.props.defaultValue : this.state.comment;
+        let comment = this.props.stateless === true ? this.props.comment : this.state.comment;
         if (name === 'addComment') {
             newComment = new Comment({descriptions: [new TranslatedText({lang: 'en', value: ''})]});
         }
@@ -76,12 +76,12 @@ class CommentEditor extends React.Component {
     }
 
     cancel = () => {
-        this.props.onUpdate(this.props.defaultValue);
+        this.props.onUpdate(this.props.comment);
     }
 
     render () {
         const { classes } = this.props;
-        let comment = this.props.stateless === true ? this.props.defaultValue : this.state.comment;
+        let comment = this.props.stateless === true ? this.props.comment : this.state.comment;
 
         return (
             <Grid container spacing={8}>
@@ -147,7 +147,7 @@ class CommentEditor extends React.Component {
 }
 
 CommentEditor.propTypes = {
-    defaultValue: PropTypes.oneOfType([
+    comment: PropTypes.oneOfType([
         PropTypes.instanceOf(Comment),
         PropTypes.oneOf([""]),
     ]),

@@ -576,6 +576,16 @@ class ItemGroup extends BasicFunctions {
     addItemRef (itemRef) {
         this.itemRefs.push(itemRef);
     }
+    getOidByName (name) {
+        let result;
+        this.itemRefs.some( itemRef => {
+            if (itemRef.itemDef.name.toLowerCase() === name.toLowerCase()) {
+                result = itemRef.itemDef.oid;
+                return true;
+            }
+        });
+        return result;
+    }
     update (updateObj, mdv) {
         for (let prop in updateObj) {
             if (updateObj.hasOwnProperty(prop) && (prop in this || ['description','name'].includes(prop))) {

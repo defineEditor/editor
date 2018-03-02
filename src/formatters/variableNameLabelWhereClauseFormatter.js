@@ -2,11 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Button from 'material-ui/Button';
+import Grid from 'material-ui/Grid';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import ExpandLessIcon from 'material-ui-icons/ExpandLess';
 
 const styles = theme => ({
-    div: {
+    main: {
         whiteSpace: 'normal',
     },
     expandIcon: {
@@ -31,21 +32,25 @@ class VariableNameLabelWhereClauseFormatter extends React.Component {
         }
 
         return (
-            <div className={classes.div}>
-                {nameLabel}
-                {hasVlm &&
-                        <Button
-                            variant='fab'
-                            mini
-                            color='default'
-                            onClick={this.props.toggleVlmRow(this.props.itemOid)}
-                            className={classes.expandIcon}
-                        >
-                            {state === 'collaps' ? <ExpandMoreIcon/> : <ExpandLessIcon/>}
-                        </Button>
+            <Grid container spacing={8} justify='space-between' alignItems='flex-end' className={classes.main}>
+                <Grid item>
+                    {nameLabel}
+                </Grid>
+                <Grid item>
+                    {hasVlm &&
+                            <Button
+                                variant='fab'
+                                mini
+                                color='default'
+                                onClick={this.props.toggleVlmRow(this.props.itemOid)}
+                                className={classes.expandIcon}
+                            >
+                                {state === 'collaps' ? <ExpandMoreIcon/> : <ExpandLessIcon/>}
+                            </Button>
 
-                }
-            </div>
+                    }
+                </Grid>
+            </Grid>
         );
     }
 }

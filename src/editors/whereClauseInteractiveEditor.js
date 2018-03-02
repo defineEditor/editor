@@ -4,26 +4,45 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import TextField from 'material-ui/TextField';
 import IconButton from 'material-ui/IconButton';
+import Button from 'material-ui/Button';
+import Typography from 'material-ui/Typography';
 import RemoveIcon from 'material-ui-icons/RemoveCircleOutline';
-import AddIcon from 'material-ui-icons/AddCircleOutline';
 import getSelectionList from 'utils/getSelectionList.js';
 import SaveCancel from 'editors/saveCancel.js';
+import clone from 'clone';
+
 
 const styles = theme => ({
     textField: {
         whiteSpace : 'normal',
-        marginTop  : theme.spacing.unit * 2,
+        minWidth   : '120px',
+    },
+    textFieldComparator: {
+        whiteSpace : 'normal',
+        minWidth   : '50px',
     },
     textFieldValues: {
         whiteSpace : 'normal',
-        marginTop  : theme.spacing.unit * 2,
         minWidth   : '100px',
+        marginLeft : theme.spacing.unit,
     },
     valuesGridItem: {
-        maxWidth: '30%',
+        maxWidth   : '60%',
+        marginLeft : theme.spacing.unit,
+    },
+    buttonLine: {
+        marginTop    : theme.spacing.unit * 2,
+        marginBottom : theme.spacing.unit * 2,
+    },
+    andLine: {
+        marginLeft : theme.spacing.unit * 8,
+        marginTop  : theme.spacing.unit * 2,
     },
     button: {
         marginLeft: theme.spacing.unit,
+    },
+    saveCancelButtons: {
+        marginTop: theme.spacing.unit * 4,
     },
     chips: {
         display  : 'flex',
@@ -42,7 +61,19 @@ const comparatorsLimited = ['EQ','NE','LT','LE','GT','GE'];
 class WhereClauseEditorInteractive extends React.Component {
     constructor (props) {
         super(props);
-        let whereClauseInteractive = this.props.whereClauseInteractive;
+        // Split into parts for visual editing
+        let rangeChecks = [];
+        this.props.whereClause.rangeChecks.forEach( rawRangeCheck => {
+            let rangeCheck = clone(rawRangeCheck);
+            rangeCheck.itemName = this.props.mdv.itemDefs[rawRangeCheck.itemOid].name;
+            if (rawRangeCheck.itemGroupOid !== undefined) {
+                rangeCheck.itemGroupName = this.props.mdv.itemGroups[rawRangeCheck.itemGroupOid].name;
+            } else {
+                rangeCheck.itemGroupName = this.props.dataset.name;
+                rangeCheck.itemGroupOid = this.props.dataset.oid;
+            }
+            rangeChecks.push(rangeCheck);
+        });
         // Get the list of datasets for drop-down selection
         let listOfDatasets = [];
         Object.keys(this.props.mdv.itemGroups).forEach( itemGroupOid => {
@@ -50,7 +81,7 @@ class WhereClauseEditorInteractive extends React.Component {
         });
         // Get the list of varialbes for each dataset in range checks for drop-down selection
         let listOfVariables = {};
-        whereClauseInteractive.forEach( rangeCheck => {
+        rangeChecks.forEach( rangeCheck => {
             let currentItemGroupOid = rangeCheck.itemGroupOid;
             listOfVariables[currentItemGroupOid] = [];
             Object.keys(this.props.mdv.itemGroups[currentItemGroupOid].itemRefs).forEach( itemRefOid => {
@@ -59,7 +90,7 @@ class WhereClauseEditorInteractive extends React.Component {
         });
         // Get codelist for all of the variables in range checks
         let listOfCodeValues = {};
-        whereClauseInteractive.forEach( rangeCheck => {
+        rangeChecks.forEach( rangeCheck => {
             let currentItemOid = rangeCheck.itemOid;
             let currentCodeList = this.props.mdv.itemDefs[currentItemOid].codeList;
             if (currentCodeList !== undefined) {
@@ -77,10 +108,10 @@ class WhereClauseEditorInteractive extends React.Component {
         });
 
         this.state = {
-            whereClauseInteractive : whereClauseInteractive,
-            listOfDatasets         : listOfDatasets,
-            listOfVariables        : listOfVariables,
-            listOfCodeValues       : listOfCodeValues,
+            rangeChecks      : rangeChecks,
+            listOfDatasets   : listOfDatasets,
+            listOfVariables  : listOfVariables,
+            listOfCodeValues : listOfCodeValues,
         };
     }
 
@@ -119,7 +150,7 @@ class WhereClauseEditorInteractive extends React.Component {
 
     handleChange = (name, index) => (updateObj) => {
         // Copy the whole object (checkValues array are not properly copied, but this is not important);
-        let result = this.state.whereClauseInteractive.map( rangeCheck => {
+        let result = this.state.rangeChecks.map( rangeCheck => {
             return Object.assign({},rangeCheck);
         });
         if (name === 'itemGroup') {
@@ -136,8 +167,8 @@ class WhereClauseEditorInteractive extends React.Component {
             result[index].comparator = 'EQ';
             result[index].checkValues = [''];
             this.setState({
-                whereClauseInteractive : result,
-                listOfVariables        : updatedListOfVariables,
+                rangeChecks     : result,
+                listOfVariables : updatedListOfVariables,
             });
         } else if (name === 'item') {
             // Do nothing if name did not change
@@ -150,8 +181,8 @@ class WhereClauseEditorInteractive extends React.Component {
             result[index].comparator = 'EQ';
             result[index].checkValues = [''];
             this.setState({
-                whereClauseInteractive : result,
-                listOfCodeValues       : this.updateListOfCodeValues(result[index].itemOid)
+                rangeChecks      : result,
+                listOfCodeValues : this.updateListOfCodeValues(result[index].itemOid)
             });
         } else if (name === 'comparator') {
             if (result[index].comparator === updateObj.target.event) {
@@ -159,16 +190,16 @@ class WhereClauseEditorInteractive extends React.Component {
             }
             result[index].comparator = updateObj.target.value;
             // Reset check values if there are multiple values selected and changing from IN/NOT to a comparator with a single value
-            if (['NOTIN','IN'].indexOf(this.state.whereClauseInteractive[index].comparator) >= 0
+            if (['NOTIN','IN'].indexOf(this.state.rangeChecks[index].comparator) >= 0
                 &&
                 ['NOTIN','IN'].indexOf(result[index].comparator) < 0
-                && 
+                &&
                 result[index].checkValues.length > 1
             ) {
                 result[index].checkValues = [''];
             }
             this.setState({
-                whereClauseInteractive: result,
+                rangeChecks: result,
             });
         } else if (name === 'checkValues') {
             if (typeof updateObj.target.value === 'object') {
@@ -177,12 +208,12 @@ class WhereClauseEditorInteractive extends React.Component {
                 result[index].checkValues = [updateObj.target.value];
             }
             this.setState({
-                whereClauseInteractive: result,
+                rangeChecks: result,
             });
         } else if (name === 'addRangeCheck') {
             let newIndex = result.length;
             result[newIndex] = {};
-            result[newIndex].itemGroupName = this.state.listOfDatasets[0];
+            result[newIndex].itemGroupName = this.props.dataset.name;
             result[newIndex].itemGroupOid = this.props.mdv.getOidByName('itemGroups',result[newIndex].itemGroupName);
             // Reset all other values
             let updatedListOfVariables = this.updateListOfVariables(result[newIndex].itemGroupOid);
@@ -191,19 +222,19 @@ class WhereClauseEditorInteractive extends React.Component {
             result[newIndex].comparator = 'EQ';
             result[newIndex].checkValues = [''];
             this.setState({
-                whereClauseInteractive : result,
-                listOfVariables        : updatedListOfVariables,
+                rangeChecks     : result,
+                listOfVariables : updatedListOfVariables,
             });
         } else if (name === 'deleteRangeCheck') {
             result.splice(index,1);
             this.setState({
-                whereClauseInteractive: result,
+                rangeChecks: result,
             });
         }
     }
 
     save = () => {
-        this.props.onSave(this.state.whereClauseInteractive);
+        this.props.onSave(this.state.rangeChecks);
     }
 
     cancel = () => {
@@ -211,38 +242,46 @@ class WhereClauseEditorInteractive extends React.Component {
     }
 
     getRangeChecks = () => {
-        let result = [];
         const {classes} = this.props;
 
-        this.state.whereClauseInteractive.forEach( (rangeCheck, index) => {
+        let result = [(
+            <Grid container spacing={8} key='buttonLine' alignItems='flex-end'>
+                <Grid item xs={12} className={classes.buttonLine}>
+                    <Button
+                        color='default'
+                        size='small'
+                        variant='raised'
+                        onClick={this.handleChange('addRangeCheck',0)}
+                        className={classes.button}
+                    >
+                        Add condition
+                    </Button>
+                </Grid>
+            </Grid>
+        )];
+        this.state.rangeChecks.forEach( (rangeCheck, index) => {
+            const hasCodeList = this.state.listOfCodeValues[rangeCheck.itemOid] !== undefined;
             const multipleValuesSelect = (['IN','NOTIN'].indexOf(rangeCheck.comparator) >= 0);
-            const valueSelect = this.state.listOfCodeValues[rangeCheck.itemOid] !== undefined
-                &&
-                ['EQ','NE','IN','NOTIN'].indexOf(rangeCheck.comparator) >= 0
-            ;
+            const valueSelect = hasCodeList && ['EQ','NE','IN','NOTIN'].indexOf(rangeCheck.comparator) >= 0;
             const value = multipleValuesSelect && valueSelect ? rangeCheck.checkValues : rangeCheck.checkValues[0];
 
             result.push(
-                <Grid container spacing={16} key={index} alignItems='flex-end'>
+                <Grid container spacing={8} key={index} alignItems='flex-end'>
+                    {index !== 0 &&
+                            <Grid item xs={12} className={classes.andLine}>
+                                <Typography variant="subheading" >
+                                    AND
+                                </Typography>
+                            </Grid>
+                    }
                     <Grid item>
-                        {index === 0 ? (
-                            <IconButton
-                                color='primary'
-                                onClick={this.handleChange('addRangeCheck',index)}
-                                className={classes.button}
-                            >
-                                <AddIcon />
-                            </IconButton>
-                        ) : (
-                            <IconButton
-                                color='secondary'
-                                onClick={this.handleChange('deleteRangeCheck',index)}
-                                className={classes.button}
-                            >
-                                <RemoveIcon />
-                            </IconButton>
-                        )
-                        }
+                        <IconButton
+                            color='secondary'
+                            onClick={this.handleChange('deleteRangeCheck',index)}
+                            className={classes.button}
+                        >
+                            <RemoveIcon />
+                        </IconButton>
                     </Grid>
                     <Grid item>
                         <TextField
@@ -276,9 +315,9 @@ class WhereClauseEditorInteractive extends React.Component {
                             select={true}
                             value={rangeCheck.comparator}
                             onChange={this.handleChange('comparator', index)}
-                            className={classes.textField}
+                            className={classes.textFieldComparator}
                         >
-                            {getSelectionList(valueSelect ? comparators : comparatorsLimited)}
+                            {getSelectionList(hasCodeList ? comparators : comparatorsLimited)}
                         </TextField>
                     </Grid>
                     { valueSelect ? (
@@ -302,9 +341,9 @@ class WhereClauseEditorInteractive extends React.Component {
                                 label='Values'
                                 fullWidth
                                 multiline
-                                value={value}
-                                onChange={this.handleChange('checkValues', index)}
-                                className={classes.textField}
+                                defaultValue={value}
+                                onBlur={this.handleChange('checkValues', index)}
+                                className={classes.textFieldValues}
                             />
                         </Grid>
                     )
@@ -317,11 +356,17 @@ class WhereClauseEditorInteractive extends React.Component {
     }
 
     render() {
+        const {classes} = this.props;
+
         return (
             <Grid container spacing={16} alignItems='flex-end'>
                 {this.getRangeChecks()}
-                <Grid item xs={12}>
-                    <SaveCancel icon save={this.save} cancel={this.cancel}/>
+                <Grid item xs={12} className={classes.saveCancelButtons}>
+                    <Grid container spacing={16} justify='flex-start'>
+                        <Grid item>
+                            <SaveCancel save={this.save} cancel={this.cancel}/>
+                        </Grid>
+                    </Grid>
                 </Grid>
             </Grid>
         );
@@ -329,11 +374,12 @@ class WhereClauseEditorInteractive extends React.Component {
 }
 
 WhereClauseEditorInteractive.propTypes = {
-    classes                : PropTypes.object.isRequired,
-    onSave                 : PropTypes.func.isRequired,
-    onCancel               : PropTypes.func.isRequired,
-    whereClauseInteractive : PropTypes.array.isRequired,
-    mdv                    : PropTypes.object.isRequired,
+    classes     : PropTypes.object.isRequired,
+    onSave      : PropTypes.func.isRequired,
+    onCancel    : PropTypes.func.isRequired,
+    whereClause : PropTypes.object.isRequired,
+    mdv         : PropTypes.object.isRequired,
+    dataset     : PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(WhereClauseEditorInteractive);

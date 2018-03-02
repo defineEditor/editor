@@ -66,7 +66,7 @@ class DescriptionEditor extends React.Component {
                     <Divider/>
                 </Grid>
                 <Grid item xs={12} className={classes.gridItem}>
-                    <CommentEditor {...childProps} defaultValue={this.state.comment} onUpdate={this.handleChange('comment')} stateless={true}/>
+                    <CommentEditor {...childProps} comment={this.state.comment} onUpdate={this.handleChange('comment')} stateless={true}/>
                 </Grid>
                 <Grid item xs={12} className={classes.gridItem}>
                     <Divider/>

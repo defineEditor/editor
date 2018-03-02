@@ -39,7 +39,7 @@ const hideMe = false;
 
 // Editor functions
 function commentEditor (onUpdate, props) {
-    return (<CommentEditor onUpdate={ onUpdate } {...props}/>);
+    return (<CommentEditor onUpdate={ onUpdate } {...props} comment={props.defaultValue}/>);
 }
 
 function leafEditor (onUpdate, props) {

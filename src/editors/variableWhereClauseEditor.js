@@ -12,20 +12,19 @@ import Button from 'material-ui/Button';
 
 const styles = theme => ({
     dialog: {
-        paddingLeft   : theme.spacing.unit * 4,
-        paddingRight  : theme.spacing.unit * 4,
+        paddingLeft   : theme.spacing.unit * 2,
+        paddingRight  : theme.spacing.unit * 2,
         paddingTop    : theme.spacing.unit * 1,
-        paddingBottom : theme.spacing.unit * 3,
+        paddingBottom : theme.spacing.unit * 1,
         position      : 'absolute',
         borderRadius  : '10px',
         border        : '2px solid',
         borderColor   : 'primary',
         top           : '20%',
-        left          : '20%',
-        transform     : 'translate(-20%, -20%)',
+        transform     : 'translate(0%, -20%)',
         overflowX     : 'auto',
         maxHeight     : '90%',
-        maxWidth      : '90%',
+        width         : '90%',
         overflowY     : 'auto',
     },
     formControl: {
@@ -47,20 +46,36 @@ class VariableWhereClauseEditor extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            dialogOpened: false,
+            dialogOpened    : false,
+            whereClauseLine : this.props.whereClause.toString(this.props.mdv.itemDefs),
         };
 
+    }
+
+    componentWillReceiveProps(nextProps) {
+        let newWhereClauseLine = nextProps.whereClause.toString(this.props.mdv.itemDefs);
+        if (newWhereClauseLine !== this.state.whereClauseLine) {
+            this.setState({
+                whereClauseLine: newWhereClauseLine,
+            });
+        }
+    }
+
+    handleChange = (name) => (event) => {
+        if (name === 'whereClauseLine') {
+            this.setState({ [name]: event.target.value });
+        }
     }
 
     handleOpen = () => {
         this.setState({ dialogOpened: true });
     }
 
-    handleCancelAndClose = (updateObj) => {
+    handleCancelAndClose = () => {
         this.setState({dialogOpened: false});
     }
 
-    handleSaveAndClose = () => {
+    handleSaveAndClose = (updateObj) => {
         this.props.handleChange('whereClauseInteractive')(updateObj);
         this.setState({dialogOpened: false});
     }
@@ -68,7 +83,7 @@ class VariableWhereClauseEditor extends React.Component {
     render() {
         const {classes} = this.props;
         const interactiveMode = this.props.wcEditingMode === 'interactive';
-        const manualWCIsInvalid = !this.props.validationCheck('manual');
+        const manualWCIsInvalid = !this.props.validationCheck(this.state.whereClauseLine);
 
         return (
             <Grid container spacing={0} alignItems='flex-end'>
@@ -92,9 +107,9 @@ class VariableWhereClauseEditor extends React.Component {
                                 label='Where Clause'
                                 multiline
                                 fullWidth
-                                value={this.props.whereClauseManual}
-                                onChange={this.props.handleChange('whereClauseManual')}
-                                onBlur={this.props.handleChange('whereClause')}
+                                value={this.state.whereClauseLine}
+                                onChange={this.handleChange('whereClauseLine')}
+                                onBlur={this.props.handleChange('whereClauseManual')}
                                 error={manualWCIsInvalid}
                                 className={classes.textField}
                             />
@@ -102,7 +117,7 @@ class VariableWhereClauseEditor extends React.Component {
                 }
                 {interactiveMode &&
                         <Grid item xs={12} className={classes.whereClause}>
-                            {this.props.whereClauseManual}
+                            {this.state.whereClauseLine}
                             <Button
                                 variant="fab"
                                 mini
@@ -122,8 +137,9 @@ class VariableWhereClauseEditor extends React.Component {
                                 <DialogTitle>Where Clause</DialogTitle>
                                 <DialogContent>
                                     <WhereClauseInteractiveEditor
-                                        whereClauseInteractive={this.props.whereClauseInteractive}
+                                        whereClause={this.props.whereClause}
                                         mdv={this.props.mdv}
+                                        dataset={this.props.dataset}
                                         onSave={this.handleSaveAndClose}
                                         onCancel={this.handleCancelAndClose}
                                     />
@@ -137,16 +153,14 @@ class VariableWhereClauseEditor extends React.Component {
 }
 
 VariableWhereClauseEditor.propTypes = {
-    classes                : PropTypes.object.isRequired,
-    handleChange           : PropTypes.func.isRequired,
-    onNameBlur             : PropTypes.func.isRequired,
-    validationCheck        : PropTypes.func.isRequired,
-    whereClause            : PropTypes.object,
-    whereClauseManual      : PropTypes.string,
-    whereClauseInteractive : PropTypes.array,
-    whereClauseComment     : PropTypes.object,
-    mdv                    : PropTypes.object,
-    wcEditingMode          : PropTypes.string.isRequired,
+    classes           : PropTypes.object.isRequired,
+    handleChange      : PropTypes.func.isRequired,
+    validationCheck   : PropTypes.func.isRequired,
+    whereClause       : PropTypes.object,
+    whereClauseManual : PropTypes.string,
+    mdv               : PropTypes.object,
+    dataset           : PropTypes.object.isRequired,
+    wcEditingMode     : PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(VariableWhereClauseEditor);
