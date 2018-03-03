@@ -1,5 +1,6 @@
-import {BootstrapTable, TableHeaderColumn, ButtonGroup} from 'react-bootstrap-table';
+import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
 import '../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
+import renderColumns from 'utils/renderColumns.js';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import React from 'react';
@@ -39,7 +40,7 @@ const hideMe = false;
 
 // Editor functions
 function commentEditor (onUpdate, props) {
-    return (<CommentEditor onUpdate={ onUpdate } {...props} comment={props.defaultValue}/>);
+    return (<CommentEditor onUpdate={ onUpdate } {...props} comment={props.defaultValue} autoFocus={true}/>);
 }
 
 function leafEditor (onUpdate, props) {
@@ -61,7 +62,7 @@ function simpleSelectEditor (onUpdate, props) {
 // Formatter functions
 function commentFormatter (cell, row) {
     if (cell !== undefined && cell !== '') {
-        return (<span>{cell.getCommentAsText()}</span>);
+        return (<span>{cell.toString()}</span>);
     } else {
         return;
     }
@@ -96,23 +97,6 @@ class DatasetTable extends React.Component {
         } else {
             return false;
         }
-    }
-
-    renderColumns = (columns) => {
-        let result = [];
-        columns.forEach((column) => {
-            let colProps = {};
-            let text = null;
-            Object.keys(column).forEach((key) => {
-                if (key !== 'text') {
-                    colProps[key] = column[key];
-                } else {
-                    text = column.text;
-                }
-            });
-            result.push(<TableHeaderColumn key={text} {...colProps}>{text}</TableHeaderColumn>);
-        });
-        return result;
     }
 
     createCustomButtonGroup = props => {
@@ -325,7 +309,7 @@ class DatasetTable extends React.Component {
                 headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
                 selectRow={selectRowProp}
             >
-                {this.renderColumns(columns)}
+                {renderColumns(columns)}
             </BootstrapTable>
         );
     }

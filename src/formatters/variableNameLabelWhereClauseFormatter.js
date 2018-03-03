@@ -22,22 +22,32 @@ class VariableNameLabelWhereClauseFormatter extends React.Component {
         const label = this.props.value.label || '';
         const hasVlm = this.props.hasVlm;
         const state = this.props.state;
+        const isVlm = this.props.value.whereClause !== undefined;
+
+        let whereClauseLine;
+        let commentText;
+        if (isVlm) {
+            whereClauseLine = this.props.value.whereClause.toString(this.props.mdv);
+            if (this.props.value.whereClause.comment !== undefined) {
+                commentText = this.props.value.whereClause.comment.toString(this.props.mdv);
+            }
+        }
 
         let nameLabel;
         if (label.length > 0) {
             nameLabel = name + ' (' + label + ')';
         } else {
             nameLabel = name;
-
         }
+
 
         return (
             <Grid container spacing={8} justify='space-between' alignItems='flex-end' className={classes.main}>
                 <Grid item>
                     {nameLabel}
                 </Grid>
-                <Grid item>
-                    {hasVlm &&
+                {hasVlm &&
+                        <Grid item>
                             <Button
                                 variant='fab'
                                 mini
@@ -48,8 +58,18 @@ class VariableNameLabelWhereClauseFormatter extends React.Component {
                                 {state === 'collaps' ? <ExpandMoreIcon/> : <ExpandLessIcon/>}
                             </Button>
 
-                    }
-                </Grid>
+                        </Grid>
+                }
+                {isVlm &&
+                        <Grid item xs={12}>
+                            {whereClauseLine}
+                        </Grid>
+                }
+                {commentText !== undefined &&
+                        <Grid item xs={12}>
+                            {commentText}
+                        </Grid>
+                }
             </Grid>
         );
     }
@@ -62,6 +82,7 @@ VariableNameLabelWhereClauseFormatter.propTypes = {
     itemOid       : PropTypes.string,
     state         : PropTypes.string,
     hasVlm        : PropTypes.bool,
+    mdv           : PropTypes.object,
     toggleVlmRow  : PropTypes.func,
 };
 

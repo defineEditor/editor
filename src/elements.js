@@ -209,8 +209,8 @@ class WhereClause {
         });
 
     }
-    toString (itemDefs) {
-        return this.rangeChecks.map(rangeCheck => (rangeCheck.toString(itemDefs))).join(' AND ');
+    toString (mdv) {
+        return this.rangeChecks.map(rangeCheck => (rangeCheck.toString(mdv))).join(' AND ');
     }
 }
 
@@ -237,22 +237,28 @@ class RangeCheck {
             itemGroupOid : this.itemGroupOid,
         });
     }
-    toString(itemDefs) {
+    toString(mdv) {
         function surroundWithQuotes (value) {
             if (/'/.test(value) && /"/.test(value) && /\s/.test(value)) {
                 // TODO Throw an error -> cannot handle such values at the moment
                 return value;
             }
-            if (/'/.test(value) && /\s/.test(value)) {
+            if (/"/.test(value) && /\s/.test(value)) {
                 return '\'' + value + '\'';
-            } else if (/"/.test(value) && /\s/.test(value)) {
+            } else if (/'/.test(value) || /\s/.test(value)) {
                 return '"' + value + '"';
             } else {
                 return value;
             }
         }
-        let itemName = itemDefs[this.itemOid].name;
-        let result = itemName + ' ' + this.comparator + ' ';
+        let result;
+        let itemName = mdv.itemDefs[this.itemOid].name;
+        if (this.itemGroupOid !== undefined) {
+            let itemGroupName = mdv.itemGroups[this.itemGroupOid].name;
+            result = itemGroupName + '.' + itemName + ' ' + this.comparator + ' ';
+        } else {
+            result = itemName + ' ' + this.comparator + ' ';
+        }
         if (this.checkValues.length > 0) {
             if (['IN','NOTIN'].indexOf(this.comparator) >= 0) {
                 result += '(' + this.checkValues.map(value => surroundWithQuotes(value)).join(', ') + ')';
@@ -367,7 +373,7 @@ class Comment extends BasicFunctions {
         this.descriptions = descriptions;
         this.documents = documents;
     }
-    getCommentAsText () {
+    toString () {
         let result = this.getDescription();
         if (this.documents.length > 0) {
             this.documents.forEach((doc) => {
@@ -525,6 +531,7 @@ class MetaDataVersion extends BasicFunctions {
                 result = oid;
                 return true;
             }
+            return false;
         });
         return result;
     }
@@ -583,6 +590,7 @@ class ItemGroup extends BasicFunctions {
                 result = itemRef.itemDef.oid;
                 return true;
             }
+            return false;
         });
         return result;
     }

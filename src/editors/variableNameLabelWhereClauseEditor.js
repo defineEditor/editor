@@ -160,17 +160,6 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
         return result;
     }
 
-    getOidByName (source, name) {
-        let result;
-        Object.keys(source).some( oid => {
-            if (source[oid].name.toLowerCase() === name.toLowerCase()) {
-                result = oid;
-                return true;
-            }
-        });
-        return result;
-    }
-
     setWhereClauseManual = (whereClauseLine) => {
         // Do nothing if the where clause in invalid;
         if (!this.validateWhereClause(whereClauseLine)) {

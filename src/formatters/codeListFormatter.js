@@ -4,6 +4,7 @@ import { withStyles } from 'material-ui/styles';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
+import getCodeListData from 'utils/getCodeListData.js';
 
 const styles = theme => ({
     root: {
@@ -18,62 +19,8 @@ const styles = theme => ({
 
 class CodeListFormatter extends React.Component {
 
-    getCodeListTable(codeList, defineVersion, classes){
-        const isDecoded = (codeList.getCodeListType() === 'decoded');
-
-        let codeListTable;
-        if (isDecoded) {
-            codeListTable = codeList.codeListItems.map( (item, index) => {
-                let ccode;
-                if (item.alias === undefined) {
-                    ccode = undefined;
-                } else if (item.alias.name !== undefined) {
-                    ccode = item.alias.name;
-                } else if (item.extendedValue === 'Y'){
-                    ccode =  'Extended';
-                }
-                return ({
-                    value  : item.codedValue,
-                    decode : item.getDecode(),
-                    ccode  : ccode,
-                    rank   : item.rank,
-                    key    : index,
-                });
-            });
-        } else {
-            codeListTable = codeList.enumeratedItems.map( (item, index) => {
-                let ccode;
-                if (item.alias === undefined) {
-                    ccode = undefined;
-                } else if (item.alias.name !== undefined) {
-                    ccode = item.alias.name;
-                } else if (item.extendedValue === 'Y'){
-                    ccode =  'Extended';
-                }
-                return ({
-                    value : item.codedValue,
-                    ccode : ccode,
-                    rank  : item.rank,
-                    key   : index,
-                });
-            });
-        }
-
-        const isCcoded = codeListTable.filter(item => (item.ccode !== undefined)).length > 0;
-        const isRanked = codeListTable.filter(item => (item.rank !== undefined)).length > 0;
-
-        let codeListTitle;
-        let description = [];
-        if (codeList.getDescription() !== undefined) {
-            description.push(codeList.getDescription());
-        } else if (codeList.alias !== undefined) {
-            description.push(codeList.alias.name);
-        }
-        if (description.length > 0) {
-            codeListTitle = codeList.name + ' (' + description.join(' ') + ')';
-        } else {
-            codeListTitle = codeList.name;
-        }
+    getCodeListTable(codeList, defineVersion, classes) {
+        let {codeListTable, codeListTitle, isDecoded, isRanked, isCcoded} = getCodeListData(codeList, defineVersion);
 
         return(
             <Grid container spacing={0}>

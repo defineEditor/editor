@@ -47,13 +47,13 @@ class VariableWhereClauseEditor extends React.Component {
         super(props);
         this.state = {
             dialogOpened    : false,
-            whereClauseLine : this.props.whereClause.toString(this.props.mdv.itemDefs),
+            whereClauseLine : this.props.whereClause.toString(this.props.mdv),
         };
 
     }
 
     componentWillReceiveProps(nextProps) {
-        let newWhereClauseLine = nextProps.whereClause.toString(this.props.mdv.itemDefs);
+        let newWhereClauseLine = nextProps.whereClause.toString(this.props.mdv);
         if (newWhereClauseLine !== this.state.whereClauseLine) {
             this.setState({
                 whereClauseLine: newWhereClauseLine,

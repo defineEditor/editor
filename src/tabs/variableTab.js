@@ -1,5 +1,6 @@
-import {BootstrapTable, TableHeaderColumn, ButtonGroup} from 'react-bootstrap-table';
+import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
 import '../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
+import renderColumns from 'utils/renderColumns.js';
 import PropTypes from 'prop-types';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
@@ -127,6 +128,7 @@ function variableNameLabelWhereClauseFormatter (cell, row) {
                 itemOid={row.oid}
                 hasVlm={hasVlm}
                 state={state}
+                mdv={row.mdv}
             />
         );
     } else {
@@ -134,6 +136,7 @@ function variableNameLabelWhereClauseFormatter (cell, row) {
             <VariableNameLabelWhereClauseFormatter
                 value={cell}
                 defineVersion={row.defineVersion}
+                mdv={row.mdv}
             />
         );
 
@@ -142,24 +145,6 @@ function variableNameLabelWhereClauseFormatter (cell, row) {
 
 function roleMandatoryFormatter (cell, row) {
     return (<RoleMandatoryFormatter value={cell} model={row.model}/>);
-}
-
-// Transform columns object to Bootstrap-react-table column headers;
-function renderColumns (columns) {
-    let result = [];
-    columns.forEach((column) => {
-        let colProps = {};
-        let text = null;
-        Object.keys(column).forEach((key) => {
-            if (key !== 'text') {
-                colProps[key] = column[key];
-            } else {
-                text = column.text;
-            }
-        });
-        result.push(<TableHeaderColumn key={text} {...colProps}>{text}</TableHeaderColumn>);
-    });
-    return result;
 }
 
 // Extract data required for the table;
@@ -206,7 +191,7 @@ function getTableData ({source, datasetName, mdv, defineVersion, vlmLevel}={}) {
         };
         if (originVar.whereClause !== undefined) {
             // VLM itemRef
-            currentVar.fullName = datasetName + '.' + originVar.itemDef.name + ' [' + originVar.whereClause.toString(mdv.itemDefs) + ']';
+            currentVar.fullName = datasetName + '.' + originVar.itemDef.name + ' [' + originVar.whereClause.toString(mdv) + ']';
         } else {
             // Normal itemRef
             currentVar.fullName = datasetName + '.' + originVar.itemDef.name;
@@ -275,7 +260,7 @@ class VariableTable extends React.Component {
         if (row[cellName] !== cellValue) {
             let updateObj = {};
             updateObj[cellName] = cellValue;
-            this.props.onMdvChange('ItemGroup',{itemOid: row.oid, itemGroupOid: row.groupOid},updateObj);
+            this.props.onMdvChange('Item',{itemOid: row.oid, itemGroupOid: row.groupOid},updateObj);
         }
         return true;
     }
@@ -546,23 +531,28 @@ class VariableTable extends React.Component {
         ];
 
         return (
-            <BootstrapTable
-                data={this.state.variables}
-                options={options}
-                search
-                deleteRow
-                insertRow
-                striped
-                hover
-                version='4'
-                cellEdit={cellEditProp}
-                keyBoardNav={{enterToEdit: true}}
-                headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
-                selectRow={selectRowProp}
-                trClassName={this.highLightVlmRows}
-            >
-                {renderColumns(columns)}
-            </BootstrapTable>
+            <React.Fragment>
+                <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
+                    {mdv.itemGroups[this.props.itemGroupOid].name + ' (' + mdv.itemGroups[this.props.itemGroupOid].getDescription() + ')'}
+                </h3>
+                <BootstrapTable
+                    data={this.state.variables}
+                    options={options}
+                    search
+                    deleteRow
+                    insertRow
+                    striped
+                    hover
+                    version='4'
+                    cellEdit={cellEditProp}
+                    keyBoardNav={{enterToEdit: true}}
+                    headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
+                    selectRow={selectRowProp}
+                    trClassName={this.highLightVlmRows}
+                >
+                    {renderColumns(columns)}
+                </BootstrapTable>
+            </React.Fragment>
         );
     }
 }

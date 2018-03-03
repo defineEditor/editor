@@ -203,7 +203,9 @@ class WhereClauseEditorInteractive extends React.Component {
             });
         } else if (name === 'checkValues') {
             if (typeof updateObj.target.value === 'object') {
-                result[index].checkValues = updateObj.target.value;
+                // Fix an issue when a blank values appreas when keyboard is used
+                // TODO: Investigate issue, see https://trello.com/c/GVhBqI4W/65
+                result[index].checkValues = updateObj.target.value.filter(value => value !== '');
             } else {
                 result[index].checkValues = [updateObj.target.value];
             }
@@ -305,7 +307,7 @@ class WhereClauseEditorInteractive extends React.Component {
                             onChange={this.handleChange('item', index)}
                             className={classes.textField}
                         >
-                            {getSelectionList(this.state.listOfVariables[rangeCheck.itemGroupOid],true)}
+                            {getSelectionList(this.state.listOfVariables[rangeCheck.itemGroupOid])}
                         </TextField>
                     </Grid>
                     <Grid item>

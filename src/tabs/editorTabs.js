@@ -5,7 +5,7 @@ import Tabs, { Tab } from 'material-ui/Tabs';
 import Typography from 'material-ui/Typography';
 import DatasetTable from 'tabs/datasetTab.js';
 import VariableTable from 'tabs/variableTab.js';
-import grey from 'material-ui/colors/grey';
+import CodeListTable from 'tabs/codeListTab.js';
 import { MuiThemeProvider, createMuiTheme, withStyles } from 'material-ui/styles';
 //import Grid from 'material-ui/Grid';
 
@@ -85,10 +85,24 @@ class EditorTabs extends React.Component {
         let result = datasets.map(itemGroupOid => {
             return (
                 <div key={itemGroupOid}>
-                    <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
-                        {mdv.itemGroups[itemGroupOid].name + ' (' + mdv.itemGroups[itemGroupOid].getDescription() + ')'}
-                    </h3>
                     <VariableTable mdv={mdv} itemGroupOid={itemGroupOid} onMdvChange={this.handleMdvChange} defineVersion={defineVersion}/>
+                </div>
+            );
+        });
+        return result;
+    }
+
+    generateCodeListTables = (defineVersion) => {
+        let codeLists = [];
+        // Sort codeLists according to the orderNumber
+        const mdv = this.state.odm.study.metaDataVersion;
+        Object.keys(mdv.codeLists).forEach((codeListOid) => {
+            codeLists.push(codeListOid);
+        });
+        let result = codeLists.map(codeListOid => {
+            return (
+                <div key={codeListOid}>
+                    <CodeListTable mdv={mdv} codeListOid={codeListOid} onMdvChange={this.handleMdvChange} defineVersion={defineVersion}/>
                 </div>
             );
         });
@@ -122,7 +136,8 @@ class EditorTabs extends React.Component {
                             defineVersion={defineVersion}
                         />}
                         {tabs[value] === 'Variables' && this.generateVariableTables(defineVersion)}
-                        {['Datasets','Variables'].indexOf(tabs[value]) === -1 && <div id={tabIds[value]}>{tabs[value]}</div>}
+                        {tabs[value] === 'Codelists' && this.generateCodeListTables(defineVersion)}
+                        {['Datasets','Variables','Codelists'].indexOf(tabs[value]) === -1 && <div id={tabIds[value]}>{tabs[value]}</div>}
                     </TabContainer>
                 </div>
             </MuiThemeProvider>

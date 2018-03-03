@@ -231,7 +231,7 @@ class MethodEditor extends React.Component {
                                         </Grid>
                                         <Grid item>
                                             <Tooltip
-                                                title={!autoMethodName ? 'Set Method Name Automatically' : 'Set Method Name Manually'}
+                                                title={autoMethodName ? 'Set Method Name Automatically' : 'Set Method Name Manually'}
                                                 placement='bottom'
                                             >
                                                 <Switch

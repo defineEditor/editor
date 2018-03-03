@@ -120,7 +120,7 @@ class CommentEditor extends React.Component {
                                 multiline
                                 fullWidth
                                 rowsMax="10"
-                                autoFocus
+                                autoFocus={this.props.autoFocus}
                                 defaultValue={comment.getDescription()}
                                 onBlur={this.handleChange('textUpdate')}
                                 margin="normal"
@@ -155,6 +155,7 @@ CommentEditor.propTypes = {
     annotatedCrf    : PropTypes.array.isRequired,
     supplementalDoc : PropTypes.array.isRequired,
     onUpdate        : PropTypes.func,
+    autoFocus       : PropTypes.bool,
     stateless       : PropTypes.bool,
 };
 
