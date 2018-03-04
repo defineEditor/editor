@@ -1,4 +1,4 @@
-const def = require('./elements.js');
+const def = require('elements.js');
 
 /*
  * Auxiliary functions

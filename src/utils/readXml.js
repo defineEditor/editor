@@ -1,10 +1,9 @@
 'use strict';
 const fs = require('fs');
 const xml2js = require('xml2js');
-const parseDefine = require('./parseDefine.js');
 const path = require('path');
 
-function readDefine (pathToDefine) {
+function readXml (pathToDefine) {
     return new Promise(function (resolve, reject) {
         fs.readFile(path.join(__dirname, pathToDefine), function (err, xmlData) {
             if (err !== null) {
@@ -22,4 +21,4 @@ function readDefine (pathToDefine) {
     });
 }
 
-module.exports = readDefine;
+module.exports = readXml;

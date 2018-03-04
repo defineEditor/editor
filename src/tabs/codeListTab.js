@@ -9,11 +9,13 @@ import React from 'react';
 import indigo from 'material-ui/colors/indigo';
 import grey from 'material-ui/colors/grey';
 import { withStyles } from 'material-ui/styles';
+import Chip from 'material-ui/Chip';
 import deepEqual from 'deep-equal';
 import FilterListIcon from 'material-ui-icons/FilterList';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 
 // Selector constants
+/*
 const dataTypes = [
     'text',
     'integer',
@@ -27,10 +29,14 @@ const dataTypes = [
     'incompleteDatetime',
     'durationDatetime',
 ];
-
+*/
 const styles = theme => ({
     button: {
         margin: theme.spacing.unit,
+    },
+    chip: {
+        verticalAlign : 'top',
+        marginLeft    : theme.spacing.unit,
     },
 });
 
@@ -130,6 +136,32 @@ function roleMandatoryFormatter (cell, row) {
 
 
 class CodeListTable extends React.Component {
+    constructor(props) {
+        super(props);
+        const mdv = this.props.mdv;
+        // Get list of variables which are using the codelist;
+        let codeListVariables = [];
+        Object.keys(mdv.itemGroups).forEach( itemGroupOid => {
+            let dataset = mdv.itemGroups[itemGroupOid];
+            dataset.itemRefs.forEach( itemRef => {
+                if (itemRef.itemDef.codeList !== undefined) {
+                    if (itemRef.itemDef.codeList.oid === this.props.codeListOid) {
+                        codeListVariables.push(
+                            <Chip
+                                label={dataset.name + '.' + itemRef.itemDef.name}
+                                key={dataset.oid + '.' + itemRef.itemDef.oid}
+                                className={this.props.classes.chip}
+                            />
+                        );
+                    }
+                }
+            });
+        });
+
+        this.state = {
+            codeListVariables: codeListVariables,
+        };
+    }
 
     onCellEdit = (row, cellName, cellValue) => {
         // Update on if the value changed
@@ -164,12 +196,6 @@ class CodeListTable extends React.Component {
                         <Button color='default' mini onClick={console.log}
                             variant='raised'>
                             Copy
-                        </Button>
-                    </Grid>
-                    <Grid item>
-                        <Button color='default' mini onClick={console.log}
-                            variant='raised'>
-                            Update
                         </Button>
                     </Grid>
                     <Grid item>
@@ -221,6 +247,23 @@ class CodeListTable extends React.Component {
         const codeList = mdv.codeLists[this.props.codeListOid];
         // Get codeList data
         let {codeListTable, codeListTitle, isDecoded, isRanked, isCcoded} = getCodeListData(codeList, this.props.defineVersion);
+        // Dynamically get column width;
+        let width = {};
+        width.value = {percent: 95};
+        if (isDecoded) {
+            width.decode = {percent: 50};
+            width.value.percent -= 50;
+        }
+        if (isRanked) {
+            width.rank = {percent: 10};
+            width.value.percent -= 10;
+        }
+        if (isCcoded) {
+            width.ccode = {percent: 10};
+            width.value.percent -= 10;
+        }
+
+
 
         // Editor settings
         const cellEditProp = {
@@ -230,7 +273,8 @@ class CodeListTable extends React.Component {
         };
 
         const selectRowProp = {
-            mode: 'checkbox'
+            mode        : 'checkbox',
+            columnWidth : '35px',
         };
 
         const options = {
@@ -242,16 +286,24 @@ class CodeListTable extends React.Component {
 
         let columns = [
             {
+                dataField : 'key',
+                isKey     : true,
+                hidden    : true,
+            },
+            {
                 dataField    : 'value',
-                isKey        : true,
                 text         : 'Coded Value',
+                width        : width.value.percent.toString() + '%',
                 customEditor : {getElement: simpleInputEditor},
+                tdStyle      : { whiteSpace: 'normal', width: '30px' },
+                thStyle      : { whiteSpace: 'normal', width: '30px' },
             }];
         if (isDecoded) {
             columns.push(
                 {
                     dataField    : 'decode',
                     text         : 'Decode',
+                    width        : width.decode.percent.toString() + '%',
                     customEditor : {getElement: simpleInputEditor},
                     tdStyle      : { whiteSpace: 'normal' },
                     thStyle      : { whiteSpace: 'normal' }
@@ -263,6 +315,7 @@ class CodeListTable extends React.Component {
                 {
                     dataField    : 'rank',
                     text         : 'Rank',
+                    width        : width.rank.percent.toString() + '%',
                     customEditor : {getElement: simpleInputEditor},
                     tdStyle      : { whiteSpace: 'normal' },
                     thStyle      : { whiteSpace: 'normal' }
@@ -272,8 +325,9 @@ class CodeListTable extends React.Component {
         if (isCcoded) {
             columns.push(
                 {
-                    dataField    : 'rank',
-                    text         : 'Rank',
+                    dataField    : 'ccode',
+                    text         : 'C-code',
+                    width        : width.ccode.percent.toString() + '%',
                     customEditor : {getElement: simpleInputEditor},
                     tdStyle      : { whiteSpace: 'normal' },
                     thStyle      : { whiteSpace: 'normal' },
@@ -285,7 +339,7 @@ class CodeListTable extends React.Component {
         return (
             <React.Fragment>
                 <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
-                    {codeListTitle}
+                    {codeListTitle} {this.state.codeListVariables}
                 </h3>
                 <BootstrapTable
                     data={codeListTable}

@@ -6,15 +6,23 @@ import '../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min
 import EditorTabs from 'tabs/editorTabs.js';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import parseDefine from './parseDefine.js';
+import parseDefine from 'parsers/parseDefine.js';
+import parseCodeLists from 'parsers/parseCodeLists.js';
 const electron = window.require('electron');
 
 // React tools for development purposes
 window.require('electron-react-devtools').install();
 
+let standardCodeLists = {};
+
 electron.ipcRenderer.on('define', (event, message) => {
     // Get the XLM from the main process;
     let odm = parseDefine(message);
+    /*
+    electron.ipcRenderer.on('codeList', (event, message) => {
+        standardCodeLists = parseCodeLists(message);
+    });
+    */
     // Testing
     // Keep only 1 ds for testing
     /*    
@@ -47,7 +55,7 @@ electron.ipcRenderer.on('define', (event, message) => {
     }
     */
     ReactDOM.render(
-        <EditorTabs odm={odm}/>,
+        <EditorTabs odm={odm} standardCodeLists={standardCodeLists}/>,
         document.getElementById('root')
     );
 });

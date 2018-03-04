@@ -6,7 +6,7 @@ const BrowserWindow = electron.BrowserWindow;
 
 const path = require('path');
 const url = require('url');
-const readDefine = require('./readDefine.js');
+const readXml = require('utils/readXml.js');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -34,16 +34,17 @@ function createWindow () {
         mainWindow = null;
     });
     // Read and Send the define.xml to the renderer process
-    var xml = Promise.resolve(readDefine('../data/define.adam.xml'));
+    let xml = Promise.resolve(readXml('../data/define.adam.xml'));
+    let codeList = Promise.resolve(readXml('../data/SDTM Terminology.odm.xml'));
 
-    function sendToRender (data) {
-        global.xml = data;
+    sendToRender => (eventName) => (data) {
         mainWindow.webContents.on('did-finish-load', () => {
             mainWindow.webContents.send('define', data);
         });
     }
 
-    xml.then(sendToRender);
+    xml.then(sendToRender('define'));
+    codeList.then(sendToRender('codeList'));
 }
 
 // This method will be called when Electron has finished

@@ -110,12 +110,14 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
         });
     }
 
-    validateWhereClause = (whereClauseLine) => {
+    validateWhereClause = (input) => {
+        // Trim leading and trailing spaces;
+        let whereClauseLine = input.trim();
         // Quick Check
         if (wcRegex.whereClause.test(whereClauseLine) === false) {
             return false;
         }
-        let result = false;
+        let result = [];
         // Detailed check: check that proper variables are specified
         let rawWhereClause = wcRegex.whereClause.exec(whereClauseLine);
         // Remove all undefined range checks (coming from (AND condition) part)
@@ -135,7 +137,9 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
             rawRangeChecks.push(rawWhereClause[1]);
         }
         // Extract variable names
-        rawRangeChecks.forEach( rawRangeCheck => {
+        rawRangeChecks.forEach( (rawRangeCheck, index) => {
+            // Default to failed
+            result[index] = false;
             let rangeCheckElements = wcRegex.rangeCheckParse.exec(rawRangeCheck).slice(1);
             // Remove all undefined elements (come from the (in|notin) vs (eq,ne,...) fork)
             rangeCheckElements = rangeCheckElements.filter(element => element !== undefined);
@@ -154,10 +158,11 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
                 }
             }
             if (itemOid !== undefined && itemGroupOid !== undefined) {
-                result = true;
+                result[index] = true;
             }
         });
-        return result;
+        // Return true only if all results are true;
+        return result.reduce((acc, value) => acc && value,true);
     }
 
     setWhereClauseManual = (whereClauseLine) => {
