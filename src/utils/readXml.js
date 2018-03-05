@@ -3,9 +3,9 @@ const fs = require('fs');
 const xml2js = require('xml2js');
 const path = require('path');
 
-function readXml (pathToDefine) {
+function readXml (pathToXml) {
     return new Promise(function (resolve, reject) {
-        fs.readFile(path.join(__dirname, pathToDefine), function (err, xmlData) {
+        fs.readFile(path.join(__dirname, pathToXml), function (err, xmlData) {
             if (err !== null) {
                 return reject(err);
             }
@@ -14,7 +14,6 @@ function readXml (pathToDefine) {
                 if (err !== null) {
                     return reject(err);
                 }
-                //resolve(parseDefine(data));
                 resolve(data);
             });
         });
