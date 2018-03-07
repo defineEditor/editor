@@ -80,6 +80,9 @@ class StdCodeList extends BasicFunctions {
     setExternalCodeList (item) {
         this.externalCodeList = item;
     }
+    getCodeListType () {
+        return 'decoded';
+    }
 }
 
 class StdEnumeratedItem {

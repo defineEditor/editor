@@ -35,18 +35,20 @@ function createWindow () {
     });
     // Read and Send the define.xml to the renderer process
     let xml = Promise.resolve(readXml('./../../data/define.adam.xml'));
-    let codeList = Promise.resolve(readXml('./../../data/SDTM Terminology.odm.xml'));
+    let codeListSdtm = Promise.resolve(readXml('./../../data/SDTM Terminology.odm.xml'));
+    let codeListAdam = Promise.resolve(readXml('./../../data/ADaM Terminology.odm.xml'));
 
     function sendToRender (eventName) { 
         return function (data) {
             mainWindow.webContents.on('did-finish-load', () => {
-                mainWindow.webContents.send('define', data);
+                mainWindow.webContents.send(eventName, data);
             });
         };
     }
 
     xml.then(sendToRender('define'));
-    codeList.then(sendToRender('codeList'));
+    codeListSdtm.then(sendToRender('stdCodeLists'));
+    codeListAdam.then(sendToRender('stdCodeLists'));
 }
 
 // This method will be called when Electron has finished

@@ -13,6 +13,7 @@ import Chip from 'material-ui/Chip';
 import deepEqual from 'deep-equal';
 import FilterListIcon from 'material-ui-icons/FilterList';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
+import ReactSelectEditor from 'editors/reactSelectEditor.js';
 
 // Selector constants
 /*
@@ -42,6 +43,18 @@ const styles = theme => ({
 
 
 // Editors
+
+function codedValueEditor (onUpdate, props) {
+    if (props.stdCodeListData !== undefined) {
+        const options = props.stdCodeListData.map( item => ({
+            value : item.value,
+            label : item.value + ' (' + item.decode + ')',
+        }));
+        return (<ReactSelectEditor onUpdate={ onUpdate } {...props} options={options}/>);
+    } else {
+        return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
+    }
+}
 
 function simpleInputEditor (onUpdate, props) {
     return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
@@ -157,10 +170,43 @@ class CodeListTable extends React.Component {
                 }
             });
         });
-
+        // Standard codelist
         this.state = {
-            codeListVariables: codeListVariables,
+            codeListVariables : codeListVariables,
+            stdCodeListData   : this.getStdCodeListData(),
         };
+    }
+
+    getStdCodeListData = () => {
+        const codeList = this.props.mdv.codeLists[this.props.codeListOid];
+        let stdCodeList;
+        if (codeList.alias !== undefined) {
+            let stdCodeLists = this.props.stdCodeLists;
+            // Find the codelist;
+            Object.keys(stdCodeLists).some( standardOid => {
+                Object.keys(stdCodeLists[standardOid].codeLists).some( codeListOid => {
+                    if (stdCodeLists[standardOid].codeLists[codeListOid].alias.name === codeList.alias.name) {
+                        stdCodeList = stdCodeLists[standardOid].codeLists[codeListOid];
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+                if (stdCodeList !== undefined) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+            // If result found, extract data from it;
+            if (stdCodeList !== undefined) {
+                return getCodeListData(stdCodeList).codeListTable;
+            } else {
+                return undefined;
+            }
+        } else {
+            return undefined;
+        }
     }
 
     onCellEdit = (row, cellName, cellValue) => {
@@ -179,8 +225,6 @@ class CodeListTable extends React.Component {
         }
         return true;
     }
-
-
 
     createCustomButtonGroup = props => {
         return (
@@ -247,6 +291,7 @@ class CodeListTable extends React.Component {
         const codeList = mdv.codeLists[this.props.codeListOid];
         // Get codeList data
         let {codeListTable, codeListTitle, isDecoded, isRanked, isCcoded} = getCodeListData(codeList, this.props.defineVersion);
+        codeListTable.codeList = codeList;
         // Dynamically get column width;
         let width = {};
         width.value = {percent: 95};
@@ -294,8 +339,8 @@ class CodeListTable extends React.Component {
                 dataField    : 'value',
                 text         : 'Coded Value',
                 width        : width.value.percent.toString() + '%',
-                customEditor : {getElement: simpleInputEditor},
-                tdStyle      : { whiteSpace: 'normal', width: '30px' },
+                customEditor : {getElement: codedValueEditor, customEditorParameters: {stdCodeListData: this.state.stdCodeListData}},
+                tdStyle      : { whiteSpace: 'normal', width: '30px', overflow: 'inherit !important' },
                 thStyle      : { whiteSpace: 'normal', width: '30px' },
             }];
         if (isDecoded) {
@@ -366,6 +411,7 @@ CodeListTable.propTypes = {
     mdv           : PropTypes.object.isRequired,
     codeListOid   : PropTypes.string.isRequired,
     defineVersion : PropTypes.string.isRequired,
+    stdCodeLists  : PropTypes.object,
 };
 
 export default withStyles(styles)(CodeListTable);

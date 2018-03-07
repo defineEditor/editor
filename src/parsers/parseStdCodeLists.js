@@ -1,4 +1,4 @@
-const stdCL = require('./elements.js');
+const stdCL = require('core/stdCodeListStructure.js');
 
 /*
  * Auxiliary functions

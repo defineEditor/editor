@@ -272,7 +272,7 @@ class RangeCheck {
 
 class CodeList extends BasicFunctions {
     constructor ({
-        oid, name, dataType, standard, sasFormatName, comment, externalCodeList, alias,
+        oid, name, dataType, standard, sasFormatName, comment, externalCodeList, alias, cdiscSubmissionValue,
         descriptions = [],
         enumeratedItems = [],
         codeListItems = []
@@ -289,6 +289,8 @@ class CodeList extends BasicFunctions {
         this.descriptions = descriptions;
         this.enumeratedItems = enumeratedItems;
         this.codeListItems = codeListItems;
+        // Non-define XML properties
+        this.cdiscSubmissionValue = cdiscSubmissionValue;
     }
     addEnumeratedItem (item) {
         this.enumeratedItems.push(item);

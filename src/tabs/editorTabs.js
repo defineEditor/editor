@@ -102,7 +102,13 @@ class EditorTabs extends React.Component {
         let result = codeLists.map(codeListOid => {
             return (
                 <div key={codeListOid}>
-                    <CodeListTable mdv={mdv} codeListOid={codeListOid} onMdvChange={this.handleMdvChange} defineVersion={defineVersion}/>
+                    <CodeListTable
+                        mdv={mdv}
+                        codeListOid={codeListOid}
+                        onMdvChange={this.handleMdvChange}
+                        defineVersion={defineVersion}
+                        stdCodeLists={this.props.stdCodeLists}
+                    />
                 </div>
             );
         });
@@ -146,7 +152,9 @@ class EditorTabs extends React.Component {
 }
 
 EditorTabs.propTypes = {
-    classes: PropTypes.object.isRequired,
+    classes      : PropTypes.object.isRequired,
+    odm          : PropTypes.object.isRequired,
+    stdCodeLists : PropTypes.object,
 };
 
 export default withStyles(styles)(EditorTabs);
