@@ -14,6 +14,28 @@ const styles = theme => ({
     },
 });
 
+
+const defineControlledTerminology = {
+    dataTypes: [
+        'text',
+        'integer',
+        'float',
+        'date',
+        'datetime',
+        'time',
+        'partialDate',
+        'partialTime',
+        'partialDatetime',
+        'incompleteDatetime',
+        'durationDatetime',
+    ],
+    codeListTypes: [
+        {'enumerated': 'Enumeration'},
+        {'decoded': 'Decoded'},
+        {'external': 'External Codelist'},
+    ],
+};
+
 class Editor extends React.Component {
     constructor (props) {
         super(props);
@@ -64,10 +86,12 @@ class Editor extends React.Component {
     loadStdCodeLists = (error, data) => {
         let stdCodeListsOdm = parseStdCodeLists(data);
         let stdCodeLists = this.state.stdCodeLists;
+
         stdCodeLists[stdCodeListsOdm.study.oid] = {
             codeLists   : stdCodeListsOdm.study.metaDataVersion.codeLists,
             description : stdCodeListsOdm.study.globalVariables.studyDescription,
         };
+        // TODO: Check if loaded standard impacts existing codelists
         this.setState({stdCodeLists: stdCodeLists});
     }
 
@@ -76,7 +100,7 @@ class Editor extends React.Component {
         return (
             <React.Fragment>
                 {odmLoaded ? (
-                    <EditorTabs odm={this.state.odm} stdCodeLists={this.state.stdCodeLists}/>
+                    <EditorTabs odm={this.state.odm} stdCodeLists={this.state.stdCodeLists} defineControlledTerminology={defineControlledTerminology}/>
                 ) : (
                     <span>Loading data</span>
                 )

@@ -272,7 +272,8 @@ class RangeCheck {
 
 class CodeList extends BasicFunctions {
     constructor ({
-        oid, name, dataType, standard, sasFormatName, comment, externalCodeList, alias, cdiscSubmissionValue,
+        oid, name, dataType, standard, formatName, comment, externalCodeList, alias,
+        cdiscSubmissionValue, linkedCodeList, codeListType,
         descriptions = [],
         enumeratedItems = [],
         codeListItems = []
@@ -282,14 +283,25 @@ class CodeList extends BasicFunctions {
         this.name = name;
         this.dataType = dataType;
         this.standard = standard;
-        this.sasFormatName = sasFormatName;
-        this.comment = comment;
+        this.formatName = formatName;
+        this.comment = comment; // 2.1D
         this.externalCodeList = externalCodeList;
         this.alias = alias;
-        this.descriptions = descriptions;
+        this.descriptions = descriptions; // 2.1D
         this.enumeratedItems = enumeratedItems;
         this.codeListItems = codeListItems;
         // Non-define XML properties
+        this.codeListType = codeListType;
+        if (codeListType === undefined) {
+            if (this.codeListItems.length > 0) {
+                this.codeListType = 'decoded';
+            } else if (this.enumeratedItems.length > 0) {
+                this.codeListType = 'enumerated';
+            } else if (this.externalCodeList !== undefined) {
+                this.codeListType = 'external';
+            }
+        }
+        this.linkedCodeList = linkedCodeList;
         this.cdiscSubmissionValue = cdiscSubmissionValue;
     }
     addEnumeratedItem (item) {
@@ -302,12 +314,7 @@ class CodeList extends BasicFunctions {
         this.externalCodeList = item;
     }
     getCodeListType () {
-        if (this.codeListItems.length > 0) {
-            return 'decoded';
-        } else if (this.enumeratedItems.length > 0) {
-            return 'enumerated';
-        }
-
+        return this.codeListType;
     }
     getMaxLength () {
         // Returns the maximum length among all codedValues

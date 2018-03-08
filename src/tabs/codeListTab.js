@@ -16,21 +16,6 @@ import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import ReactSelectEditor from 'editors/reactSelectEditor.js';
 
 // Selector constants
-/*
-const dataTypes = [
-    'text',
-    'integer',
-    'float',
-    'date',
-    'datetime',
-    'time',
-    'partialDate',
-    'partialTime',
-    'partialDatetime',
-    'incompleteDatetime',
-    'durationDatetime',
-];
-*/
 const styles = theme => ({
     button: {
         margin: theme.spacing.unit,
@@ -43,7 +28,6 @@ const styles = theme => ({
 
 
 // Editors
-
 function codedValueEditor (onUpdate, props) {
     if (props.stdCodeListData !== undefined) {
         const options = props.stdCodeListData.map( item => ({
@@ -59,94 +43,6 @@ function codedValueEditor (onUpdate, props) {
 function simpleInputEditor (onUpdate, props) {
     return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
 }
-/*
-function descriptionEditor (onUpdate, props) {
-    return (<DescriptionEditor onUpdate={ onUpdate } {...props}/>);
-}
-
-function simpleSelectEditor (onUpdate, props) {
-    return (<SimpleSelectEditor onUpdate={ onUpdate } {...props}/>);
-}
-
-function variableNameLabelWhereClauseEditor (onUpdate, props) {
-    return (<VariableNameLabelWhereClauseEditor onUpdate={ onUpdate } {...props}/>);
-}
-
-function variableLengthEditor (onUpdate, props) {
-    return (<VariableLengthEditor onUpdate={ onUpdate } {...props}/>);
-}
-
-function variableCodeListFormatEditor (onUpdate, props) {
-    return (<VariableCodeListFormatEditor onUpdate={ onUpdate } {...props}/>);
-}
-
-function keyOrderEditor (onUpdate, props) {
-    return (<KeyOrderEditor onUpdate={ onUpdate } {...props}/>);
-}
-
-function roleMandatoryEditor (onUpdate, props) {
-    return (<RoleMandatoryEditor onUpdate={ onUpdate } {...props}/>);
-}
-
-// Formatters
-function descriptionFormatter (cell, row) {
-    return (<DescriptionFormatter value={cell} model={row.model}/>);
-}
-
-function variableCodeListFormatFormatter (cell, row) {
-    return <VariableCodeListFormatFormatter value={cell} defineVersion={row.defineVersion}/>;
-}
-
-function variableLengthFormatter (cell, row) {
-    return (<VariableLengthFormatter value={cell} defineVersion={row.defineVersion} dataType={row.dataType}/>);
-}
-
-function keyOrderFormatter (cell, row) {
-    return (
-        <Grid container>
-            <Grid item>
-                {cell.orderNumber}
-            </Grid>
-            {cell.keySequence !== undefined &&
-                    <Grid item>
-                        <abbr title='Key Sequence'>K</abbr>: {cell.keySequence}
-                    </Grid>
-            }
-        </Grid>
-    );
-}
-
-function variableNameLabelWhereClauseFormatter (cell, row) {
-    const hasVlm = (row.valueList !== undefined);
-    if (hasVlm) {
-        const state = this.state.vlmData[row.oid].state;
-        return (
-            <VariableNameLabelWhereClauseFormatter
-                value={cell}
-                defineVersion={row.defineVersion}
-                toggleVlmRow={this.toggleVlmRow}
-                itemOid={row.oid}
-                hasVlm={hasVlm}
-                state={state}
-            />
-        );
-    } else {
-        return (
-            <VariableNameLabelWhereClauseFormatter
-                value={cell}
-                defineVersion={row.defineVersion}
-            />
-        );
-
-    }
-}
-
-function roleMandatoryFormatter (cell, row) {
-    return (<RoleMandatoryFormatter value={cell} model={row.model}/>);
-}
-
-*/
-
 
 class CodeListTable extends React.Component {
     constructor(props) {

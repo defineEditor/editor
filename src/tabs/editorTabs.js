@@ -5,6 +5,7 @@ import Tabs, { Tab } from 'material-ui/Tabs';
 import Typography from 'material-ui/Typography';
 import DatasetTable from 'tabs/datasetTab.js';
 import VariableTable from 'tabs/variableTab.js';
+import CodeListsTable from 'tabs/codeListsTab.js';
 import CodeListTable from 'tabs/codeListTab.js';
 import { MuiThemeProvider, createMuiTheme, withStyles } from 'material-ui/styles';
 //import Grid from 'material-ui/Grid';
@@ -121,14 +122,22 @@ class EditorTabs extends React.Component {
         const { value } = this.state;
         const defineVersion = this.state.odm.study.metaDataVersion.defineVersion;
         // Remove whitespaces and make lowercase for ID values
-        let tabs = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Methods', 'Comments', 'Where Conditions', 'Documents'];
+        let tabs = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Methods', 'Comments', 'Where Conditions', 'Documents'];
         let tabIds = tabs.map( tab => {return tab.replace(/\s+/g, '').toLowerCase();});
 
         return (
             <MuiThemeProvider theme={theme}>
                 <div className={classes.root}>
                     <AppBar position="sticky" color='default'>
-                        <Tabs value={value} onChange={this.handleChange} fullWidth indicatorColor='primary' textColor='primary'>
+                        <Tabs
+                            value={value}
+                            onChange={this.handleChange}
+                            fullWidth
+                            indicatorColor='primary'
+                            textColor='primary'
+                            scrollable
+                            scrollButtons="auto"
+                        >
                             { tabs.map( tab => {
                                 return <Tab key={tab} label={tab} />;
                             })
@@ -142,8 +151,15 @@ class EditorTabs extends React.Component {
                             defineVersion={defineVersion}
                         />}
                         {tabs[value] === 'Variables' && this.generateVariableTables(defineVersion)}
-                        {tabs[value] === 'Codelists' && this.generateCodeListTables(defineVersion)}
-                        {['Datasets','Variables','Codelists'].indexOf(tabs[value]) === -1 && <div id={tabIds[value]}>{tabs[value]}</div>}
+                        {tabs[value] === 'Codelists' && <CodeListsTable
+                            mdv={this.state.odm.study.metaDataVersion}
+                            stdCodeLists={this.props.stdCodeLists}
+                            onMdvChange={this.handleMdvChange}
+                            defineVersion={defineVersion}
+                            defineControlledTerminology={this.props.defineControlledTerminology}
+                        />}
+                        {tabs[value] === 'Coded Values' && this.generateCodeListTables(defineVersion)}
+                        {['Datasets','Variables','Codelists','Coded Values'].indexOf(tabs[value]) === -1 && <div id={tabIds[value]}>{tabs[value]}</div>}
                     </TabContainer>
                 </div>
             </MuiThemeProvider>

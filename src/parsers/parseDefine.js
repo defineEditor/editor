@@ -229,21 +229,20 @@ function parseCodelists (codelistsRaw, mdv) {
             if (codelistRaw.hasOwnProperty('alias')) {
                 args.alias = parseAlias(codelistRaw['alias']);
             }
+            if (codelistRaw.hasOwnProperty('codeListItem')) {
+                args.codeListType = 'decoded';
+            } else if (codelistRaw.hasOwnProperty('enumeratedItem')) {
+                args.codeListType = 'enumerated';
+            }
+            // Rename some of the properties to match class definitions
+            if (args.hasOwnProperty('sASFormatName')) {
+                args['formatName'] = args['sASFormatName'];
+                delete args['sASFormatName'];
+            }
             var codelist = new def.CodeList(args);
 
-            // Parse enumerated items
-            if (codelistRaw.hasOwnProperty('enumeratedItem')) {
-                codelistRaw['enumeratedItem'].forEach(function (item) {
-                    let enumeratedItem = new def.EnumeratedItem(item['$']);
-                    if (item.hasOwnProperty('alias')) {
-                        enumeratedItem.alias = parseAlias(item['alias']);
-                    }
-                    codelist.addEnumeratedItem(enumeratedItem);
-                });
-            }
-
-            // Parse coded items
             if (codelistRaw.hasOwnProperty('codeListItem')) {
+                // Parse coded items
                 codelistRaw['codeListItem'].forEach(function (item) {
                     let codelistItem = new def.CodeListItem(item['$']);
                     if (item.hasOwnProperty('alias')) {
@@ -253,6 +252,15 @@ function parseCodelists (codelistsRaw, mdv) {
                         codelistItem.addDecode(parseTranslatedText(item));
                     });
                     codelist.addCodeListItem(codelistItem);
+                });
+            } else if (codelistRaw.hasOwnProperty('enumeratedItem')) {
+                // Parse enumerated items
+                codelistRaw['enumeratedItem'].forEach(function (item) {
+                    let enumeratedItem = new def.EnumeratedItem(item['$']);
+                    if (item.hasOwnProperty('alias')) {
+                        enumeratedItem.alias = parseAlias(item['alias']);
+                    }
+                    codelist.addEnumeratedItem(enumeratedItem);
                 });
             }
 

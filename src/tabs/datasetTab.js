@@ -167,7 +167,7 @@ class DatasetTable extends React.Component {
                 purpose       : originDs.purpose,
                 structure     : originDs.structure,
                 orderNumber   : originDs.orderNumber,
-                defineVersion : '2.0',
+                defineVersion : this.props.defineVersion,
             };
             currentDs.description = originDs.getDescription();
             currentDs.comment = originDs.comment === undefined ? undefined : originDs.comment.clone();

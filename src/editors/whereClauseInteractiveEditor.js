@@ -94,15 +94,17 @@ class WhereClauseEditorInteractive extends React.Component {
             let currentItemOid = rangeCheck.itemOid;
             let currentCodeList = this.props.mdv.itemDefs[currentItemOid].codeList;
             if (currentCodeList !== undefined) {
-                listOfCodeValues[currentItemOid] = [];
-                if (currentCodeList.getCodeListType() === 'decoded') {
-                    currentCodeList.codeListItems.forEach( item => {
-                        listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue + ' (' + item.getDecode() + ')'});
-                    });
-                } else {
-                    currentCodeList.enumeratedItems.forEach( item => {
-                        listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue});
-                    });
+                if (currentCodeList.getCodeListType() !== 'external') {
+                    listOfCodeValues[currentItemOid] = [];
+                    if (currentCodeList.getCodeListType() === 'decoded') {
+                        currentCodeList.codeListItems.forEach( item => {
+                            listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue + ' (' + item.getDecode() + ')'});
+                        });
+                    } else if (currentCodeList.getCodeListType() === 'enumerated') {
+                        currentCodeList.enumeratedItems.forEach( item => {
+                            listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue});
+                        });
+                    }
                 }
             }
         });

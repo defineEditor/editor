@@ -60,9 +60,8 @@ class BasicFunctions {
 
 class StdCodeList extends BasicFunctions {
     constructor ({
-        oid, name, dataType, standard, sasFormatName, comment, externalCodeList, alias, cdiscSubmissionValue,
+        oid, name, dataType, alias, cdiscSubmissionValue, codeListType,
         descriptions = [],
-        enumeratedItems = [],
         codeListItems = []
     } = {}) {
         super();
@@ -73,6 +72,7 @@ class StdCodeList extends BasicFunctions {
         this.descriptions = descriptions;
         this.codeListItems = codeListItems;
         this.cdiscSubmissionValue = cdiscSubmissionValue;
+        this.codeListType = codeListType;
     }
     addCodeListItem (item) {
         this.codeListItems.push(item);
@@ -81,7 +81,7 @@ class StdCodeList extends BasicFunctions {
         this.externalCodeList = item;
     }
     getCodeListType () {
-        return 'decoded';
+        return this.codeListType;
     }
 }
 

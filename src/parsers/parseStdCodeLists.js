@@ -98,6 +98,8 @@ function parseCodeLists (codeListsRaw, mdv) {
             if (codeListRaw.hasOwnProperty('cDISCSubmissionValue')) {
                 args.cdiscSubmissionValue = codeListRaw['cDISCSubmissionValue'][0];
             }
+            // CodeList type is always set to decoded 
+            args.codeListType = 'decoded';
             var codeList = new stdCL.StdCodeList(args);
 
             // Parse enumerated items

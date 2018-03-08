@@ -4,7 +4,7 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import SaveCancel from 'editors/saveCancel.js';
 import TextField from 'material-ui/TextField';
-import { MenuItem } from 'material-ui/Menu';
+import getSelectionList from 'utils/getSelectionList.js';
 
 const styles = theme => ({
     textField: {
@@ -31,28 +31,9 @@ class VariableCodeListFormatEditor extends React.Component {
         };
     }
 
-    getSelectionList (list, optional) {
-        let selectionList = [];
-        if (list.length < 1) {
-            throw Error('Blank value list provided for the ItemSelect element');
-        } else {
-            if (optional === true) {
-                selectionList.push(<MenuItem key='0' value=""></MenuItem>);
-            }
-            list.forEach( (value, index) => {
-                if (typeof value === 'object') {
-                    selectionList.push(<MenuItem key={index+1} value={Object.keys(value)[0]}>{value[Object.keys(value)[0]]}</MenuItem>);
-                } else {
-                    selectionList.push(<MenuItem key={index+1} value={value}>{value}</MenuItem>);
-                }
-            });
-        }
-        return selectionList;
-    }
-
     handleChange = name => event => {
         // For items with the text datatype always prefix the value with $ or is blank
-        if (name === 'displayFormat' && event.target.value.match(/^\$|^$/) === null) {
+        if (this.props.row.dataType === 'text' && name === 'displayFormat' && event.target.value.match(/^\$|^$/) === null) {
             this.setState({ [name]: '$' + event.target.value });
         } else {
             this.setState({ [name]: event.target.value });
@@ -96,7 +77,7 @@ class VariableCodeListFormatEditor extends React.Component {
                         className={classes.textField}
                         InputProps={{classes: {input: classes.value}}}
                     >
-                        {this.getSelectionList(codeLists,true)}
+                        {getSelectionList(codeLists,true)}
                     </TextField>
                 </Grid>
                 <Grid item xs={12}>
