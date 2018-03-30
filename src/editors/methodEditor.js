@@ -217,7 +217,7 @@ class MethodEditor extends React.Component {
                     {method !== undefined &&
                             <Grid container spacing={0}>
                                 <Grid item xs={12}>
-                                    <Grid container justify='flex-start'>
+                                    <Grid container spacing={16} justify='flex-start'>
                                         <Grid item>
                                             <TextField
                                                 label='Method Type'

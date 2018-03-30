@@ -39,7 +39,7 @@ class LeafEditor extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container>
+            <Grid container spacing={16}>
                 <Grid item>
                     <TextField
                         label='Title'

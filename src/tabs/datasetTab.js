@@ -102,7 +102,7 @@ class DatasetTable extends React.Component {
     createCustomButtonGroup = props => {
         return (
             <ButtonGroup className='my-custom-class' sizeClass='btn-group-md'>
-                <Grid container>
+                <Grid container spacing={16}>
                     <Grid item>
                         { props.showSelectedOnlyBtn }
                     </Grid>
@@ -131,7 +131,7 @@ class DatasetTable extends React.Component {
 
     createCustomToolBar = props => {
         return (
-            <Grid container justify='space-between'>
+            <Grid container spacing={16} justify='space-between'>
                 <Grid item style={{paddingLeft: '8px'}}>
                     { props.components.btnGroup }
                 </Grid>

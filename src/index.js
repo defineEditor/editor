@@ -6,11 +6,15 @@ import '../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min
 import Editor from 'core/editor.js';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Provider } from "react-redux";
+import store from 'store/mdv.js';
 
 // React tools for development purposes
 window.require('electron-react-devtools').install();
 
 ReactDOM.render(
-    <Editor/>,
+    <Provider store={store}>
+        <Editor/>
+    </Provider>,
     document.getElementById('root')
 );

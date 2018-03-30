@@ -7,6 +7,7 @@ import DatasetTable from 'tabs/datasetTab.js';
 import VariableTable from 'tabs/variableTab.js';
 import CodeListsTable from 'tabs/codeListsTab.js';
 import CodeListTable from 'tabs/codeListTab.js';
+import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme, withStyles } from 'material-ui/styles';
 //import Grid from 'material-ui/Grid';
 
@@ -26,6 +27,13 @@ const theme = createMuiTheme({
         },
     },
 });
+
+const mapStateToProps = state => {
+    return {
+        odm          : state.odm,
+        stdCodeLists : state.stdCodeLists,
+    };
+};
 
 function TabContainer(props) {
     return (
@@ -47,7 +55,7 @@ const styles = theme => ({
     },
 });
 
-class EditorTabs extends React.Component {
+class ConnectedEditorTabs extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
@@ -167,10 +175,11 @@ class EditorTabs extends React.Component {
     }
 }
 
-EditorTabs.propTypes = {
+ConnectedEditorTabs.propTypes = {
     classes      : PropTypes.object.isRequired,
     odm          : PropTypes.object.isRequired,
     stdCodeLists : PropTypes.object,
 };
 
+const EditorTabs = connect(mapStateToProps)(ConnectedEditorTabs);
 export default withStyles(styles)(EditorTabs);

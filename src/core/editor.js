@@ -4,6 +4,8 @@ import EditorTabs from 'tabs/editorTabs.js';
 import parseDefine from 'parsers/parseDefine.js';
 import { withStyles } from 'material-ui/styles';
 import parseStdCodeLists from 'parsers/parseStdCodeLists.js';
+import { connect } from 'react-redux';
+import { addOdm, addStdControlledTerminology } from 'actions/index.js';
 const {ipcRenderer} = window.require('electron');
 
 const styles = theme => ({
@@ -14,6 +16,18 @@ const styles = theme => ({
     },
 });
 
+const mapDispatchToProps = dispatch => {
+    return {
+        addOdm                      : odm => dispatch(addOdm(odm)),
+        addStdControlledTerminology : codeListsOdm => dispatch(addStdControlledTerminology(codeListsOdm)),
+    };
+};
+
+const mapStateToProps = state => {
+    return {
+        odmLoaded: Object.keys(state.odm).length > 0,
+    };
+};
 
 const defineControlledTerminology = {
     dataTypes: [
@@ -36,15 +50,7 @@ const defineControlledTerminology = {
     ],
 };
 
-class Editor extends React.Component {
-    constructor (props) {
-        super(props);
-        this.state = {
-            odm          : {},
-            stdCodeLists : {},
-        };
-    }
-
+class ConnectedEditor extends React.Component {
     componentDidMount() {
         ipcRenderer.on('define', this.loadDefine);
         ipcRenderer.on('stdCodeLists', this.loadStdCodeLists);
@@ -80,27 +86,21 @@ class Editor extends React.Component {
             }
         });
 
-        this.setState({odm: odm});
+        this.props.addOdm(odm);
     }
 
     loadStdCodeLists = (error, data) => {
         let stdCodeListsOdm = parseStdCodeLists(data);
-        let stdCodeLists = this.state.stdCodeLists;
 
-        stdCodeLists[stdCodeListsOdm.study.oid] = {
-            codeLists   : stdCodeListsOdm.study.metaDataVersion.codeLists,
-            description : stdCodeListsOdm.study.globalVariables.studyDescription,
-        };
         // TODO: Check if loaded standard impacts existing codelists
-        this.setState({stdCodeLists: stdCodeLists});
+        this.props.addStdControlledTerminology(stdCodeListsOdm);
     }
 
     render() {
-        const odmLoaded = Object.keys(this.state.odm).length > 0;
         return (
             <React.Fragment>
-                {odmLoaded ? (
-                    <EditorTabs odm={this.state.odm} stdCodeLists={this.state.stdCodeLists} defineControlledTerminology={defineControlledTerminology}/>
+                {this.props.odmLoaded ? (
+                    <EditorTabs defineControlledTerminology={defineControlledTerminology}/>
                 ) : (
                     <span>Loading data</span>
                 )
@@ -110,8 +110,10 @@ class Editor extends React.Component {
     }
 }
 
-Editor.propTypes = {
-    classes: PropTypes.object.isRequired,
+ConnectedEditor.propTypes = {
+    odmLoaded : PropTypes.bool.isRequired,
+    classes   : PropTypes.object.isRequired,
 };
 
+const Editor = connect(mapStateToProps, mapDispatchToProps)(ConnectedEditor);
 export default withStyles(styles)(Editor);

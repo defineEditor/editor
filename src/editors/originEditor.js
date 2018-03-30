@@ -183,7 +183,7 @@ class OriginEditor extends React.Component {
                 </Grid>
                 {origin !== undefined &&
                         <Grid item xs={12}>
-                            <Grid container justify='flex-start'>
+                            <Grid container spacing={16} justify='flex-start'>
                                 <React.Fragment>
                                     <Grid item>
                                         <TextField

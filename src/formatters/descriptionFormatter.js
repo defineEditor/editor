@@ -23,7 +23,7 @@ class DescriptionFormatter extends React.Component {
             this.props.value.origins.forEach( (origin) => {
                 result.push(
                     <Grid item key={origin} xs={12}>
-                        <Grid container justify='flex-start' alignItems='flex-end'>
+                        <Grid container spacing={16} justify='flex-start' alignItems='flex-end'>
                             <Grid item>
                                 Origin: {origin.type}
                             </Grid>
@@ -64,7 +64,7 @@ class DescriptionFormatter extends React.Component {
         }
 
         return (
-            <Grid container>
+            <Grid container spacing={16}>
                 {result}
             </Grid>
         );
