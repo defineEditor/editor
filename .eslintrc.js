@@ -25,7 +25,7 @@ module.exports = {
     ],
     'rules': {
         // enable additional rules
-        'indent': ['error', 4],
+        'indent': ['error', 4 , {'SwitchCase': 1}],
         'linebreak-style': ['error', 'unix'],
         'semi': ['error', 'always'],
         'key-spacing': ['error', {
