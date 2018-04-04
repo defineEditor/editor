@@ -402,10 +402,6 @@ function parseItemGroups (itemGroupsRaw, mdv) {
         // Non-define.xml attribute - orderNumber
         args.orderNumber = index + 1;
 
-        if (args.hasOwnProperty('commentOid')) {
-            args.comment = mdv.comments[args['commentOid']];
-            delete args['commentOid'];
-        }
         if (args.hasOwnProperty('standardOid')) {
             args.standard = mdv.standards[args['standardOid']];
             delete args['standardOid'];
@@ -498,6 +494,7 @@ function parseMetaDataVersion (metadataRaw) {
         oid             : metadataRaw['$']['oid'],
         name            : metadataRaw['$']['name'],
         defineVersion   : metadataRaw['$']['defineVersion'],
+        commentOid      : metadataRaw['$']['commentOid'],
         standards       : mdv.standards,
         annotatedCRF    : mdv.annotatedCrf,
         supplementalDoc : mdv.supplementalDoc,
@@ -510,10 +507,6 @@ function parseMetaDataVersion (metadataRaw) {
         comments        : mdv.comments,
         leafs           : mdv.leafs
     };
-
-    if (metadataRaw['$'].hasOwnProperty('commentOid')) {
-        args.comment = mdv.comments[metadataRaw['$']['commentOid']];
-    }
 
     // Obtain CDISC model of the study from the default standard
     Object.keys(args.standards).forEach((standardOid) => {

@@ -1,4 +1,6 @@
 import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import '../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import renderColumns from 'utils/renderColumns.js';
 import Grid from 'material-ui/Grid';
@@ -13,6 +15,8 @@ import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import DatasetFlagsEditor from 'editors/datasetFlagsEditor.js';
 import DatasetFlagsFormatter from 'formatters/datasetFlagsFormatter.js';
+import { updateItemGroup, updateComment, addComment, deleteComment } from 'actions/index.js';
+import getOid from 'utils/getOid.js';
 
 // Selector constants
 const classTypes = [
@@ -34,9 +38,26 @@ const classTypeAbbreviations = {
     'INTEGRATED SUBJECT LEVEL'             : 'IADSL',
 };
 
+
+// Redux functions
+const mapDispatchToProps = dispatch => {
+    return {
+        updateItemGroup : (oid, updateObj) => dispatch(updateItemGroup(oid, updateObj)),
+        addComment      : (oid, updateObj) => dispatch(addComment(oid, updateObj)),
+        updateComment   : (oid, updateObj) => dispatch(updateComment(oid, updateObj)),
+        deleteComment   : (oid) => dispatch(deleteComment(oid)),
+    };
+};
+
+const mapStateToProps = state => {
+    return {
+        itemGroups : state.odm.study.metaDataVersion.itemGroups,
+        comments   : state.odm.study.metaDataVersion.comments
+    };
+};
+
 // Debug options
 const hideMe = false;
-
 
 // Editor functions
 function commentEditor (onUpdate, props) {
@@ -81,7 +102,7 @@ function datasetClassFormatter (cell, row) {
     return (<span>{value}</span>);
 }
 
-class DatasetTable extends React.Component {
+class ConnectedDatasetTable extends React.Component {
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
         // Update on if the value changed
@@ -92,7 +113,25 @@ class DatasetTable extends React.Component {
             } else {
                 updateObj[cellName] = cellValue;
             }
-            this.props.onMdvChange('ItemGroup',row.oid,updateObj);
+
+            if (cellName === 'comment') {
+                if (cellValue === undefined) {
+                    // If comment was removed
+                    this.props.deleteComment(row.comment.oid);
+                    this.props.updateItemGroup(row.oid, { commentOid: undefined });
+                } else if (row[cellName] === undefined) {
+                    // If comment was added
+                    let newOid = getOid('Comment', row.oid);
+                    let newComment = cellValue.clone();
+                    newComment.oid = newOid;
+                    this.props.addComment(newOid, newComment);
+                    this.props.updateItemGroup(row.oid, { commentOid: newOid });
+                } else {
+                    this.props.updateComment(cellValue.oid, cellValue);
+                }
+            } else {
+                this.props.updateItemGroup(row.oid,updateObj);
+            }
             return true;
         } else {
             return false;
@@ -157,9 +196,8 @@ class DatasetTable extends React.Component {
     render () {
         let datasets = [];
         // Extract data required for the dataset table
-        const mdv = this.props.mdv;
-        Object.keys(mdv.itemGroups).forEach((itemGroupOid) => {
-            const originDs = mdv.itemGroups[itemGroupOid];
+        Object.keys(this.props.itemGroups).forEach((itemGroupOid) => {
+            const originDs = this.props.itemGroups[itemGroupOid];
             let currentDs = {
                 oid           : originDs.oid,
                 name          : originDs.name,
@@ -170,7 +208,7 @@ class DatasetTable extends React.Component {
                 defineVersion : this.props.defineVersion,
             };
             currentDs.description = originDs.getDescription();
-            currentDs.comment = originDs.comment === undefined ? undefined : originDs.comment.clone();
+            currentDs.comment = originDs.commentOid === undefined ? undefined : this.props.comments[originDs.commentOid].clone();
             currentDs.leaf = originDs.leaf === undefined ? undefined : originDs.leaf.clone();
             // Group Repeating/IsReferenceData/isStandard
             currentDs.flags = {
@@ -277,10 +315,7 @@ class DatasetTable extends React.Component {
                 tdStyle      : { whiteSpace: 'pre-wrap' },
                 thStyle      : { whiteSpace: 'normal' },
                 dataFormat   : commentFormatter,
-                customEditor : {
-                    getElement             : commentEditor,
-                    customEditorParameters : {leafs: mdv.leafs, supplementalDoc: mdv.supplementalDoc, annotatedCrf: mdv.annotatedCrf}
-                }
+                customEditor : { getElement: commentEditor }
             },
             {
                 dataField    : 'leaf',
@@ -315,4 +350,11 @@ class DatasetTable extends React.Component {
     }
 }
 
+ConnectedDatasetTable.propTypes = {
+    itemGroups    : PropTypes.object.isRequired,
+    comments      : PropTypes.object.isRequired,
+    defineVersion : PropTypes.string.isRequired,
+};
+
+const DatasetTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedDatasetTable);
 export default DatasetTable;

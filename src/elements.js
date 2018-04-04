@@ -476,7 +476,7 @@ class GlobalVariables {
 
 class MetaDataVersion extends BasicFunctions {
     constructor ({
-        oid, name, defineVersion, comment,
+        oid, name, defineVersion, commentOid,
         standards, valueLists, whereClauses,
         itemGroups, itemDefs, codeLists, methods, comments, leafs, model,
         annotatedCrf = [],
@@ -484,11 +484,15 @@ class MetaDataVersion extends BasicFunctions {
         descriptions = []
     } = {}) {
         super();
-        this.oid = oid || getOid(this.constructor.name);
-        this.name = name;
+        this.props = {};
+        this.props.oid = oid || getOid(this.constructor.name);
+        this.props.name = name;
+        this.props.defineVersion = defineVersion;
+        this.props.commentOid = commentOid; //2.1
+        // Non-define XML properties
+        this.props.model = model; 
+        // Child elements
         this.descriptions = descriptions;
-        this.defineVersion = defineVersion;
-        this.comment = comment;
         this.standards = standards;
         this.annotatedCrf = annotatedCrf;
         this.supplementalDoc = supplementalDoc;
@@ -500,7 +504,6 @@ class MetaDataVersion extends BasicFunctions {
         this.methods = methods;
         this.comments = comments;
         this.leafs = leafs;
-        this.model = model;
     }
     addStandard (standard) {
         this.standards.push(standard);
@@ -538,7 +541,7 @@ class Standard {
 class ItemGroup extends BasicFunctions {
     constructor ({
         oid, name, domain, datasetName, repeating, isReferenceData, purpose,
-        structure, datasetClass, archiveLocationId, comment, isNotStandard,
+        structure, datasetClass, archiveLocationId, commentOid, isNotStandard,
         standard, alias, leaf, orderNumber,
         descriptions = [],
         itemRefs = []
@@ -554,7 +557,7 @@ class ItemGroup extends BasicFunctions {
         this.structure = structure;
         this.datasetClass = datasetClass;
         this.archiveLocationId = archiveLocationId;
-        this.comment = comment;
+        this.commentOid = commentOid;
         this.isNotStandard = isNotStandard;
         this.standard = standard;
         this.descriptions = descriptions;
@@ -577,34 +580,6 @@ class ItemGroup extends BasicFunctions {
             return false;
         });
         return result;
-    }
-    update (updateObj, mdv) {
-        for (let prop in updateObj) {
-            if (updateObj.hasOwnProperty(prop) && (prop in this || ['description','name'].includes(prop))) {
-                if (['datasetName','name'].includes(prop)) {
-                    // Check if a dataset with the same name already exists
-                    let newOid = getOid(this.constructor.name,updateObj[prop]);
-                    let oldOid = this.oid;
-                    if (mdv.itemGroups.hasOwnProperty(newOid)) {
-                        throw Error('Dataset with name ' + updateObj[prop] + ' already exists.');
-                    } else if (oldOid !== newOid){
-                        Object.defineProperty(mdv.itemGroups, newOid, Object.getOwnPropertyDescriptor(mdv.itemGroups, oldOid));
-                        delete mdv.itemGroups[oldOid];
-                        this.oid = newOid;
-                    }
-                    this.name = updateObj[prop];
-                    this.datasetName = updateObj[prop];
-
-                } else if (prop === 'description') {
-                    this.descriptions[0].value = updateObj[prop];
-                    this.descriptions[0].lang = 'en';
-                } else if (typeof updateObj[prop] === 'object') {
-                    this[prop] = Object.assign(Object.create(Object.getPrototypeOf(updateObj[prop])), updateObj[prop]);
-                } else {
-                    this[prop] = updateObj[prop];
-                }
-            }
-        }
     }
 }
 

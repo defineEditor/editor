@@ -159,7 +159,7 @@ function getTableData ({source, datasetName, mdv, defineVersion, vlmLevel}={}) {
             dataType      : originVar.itemDef.dataType,
             codeList      : originVar.itemDef.codeList,
             valueList     : originVar.itemDef.valueList,
-            model         : mdv.model,
+            model         : mdv.props.model,
             mdv           : mdv,
             defineVersion : defineVersion,
             vlmLevel      : vlmLevel,
@@ -181,7 +181,7 @@ function getTableData ({source, datasetName, mdv, defineVersion, vlmLevel}={}) {
             origins : originVar.itemDef.origins,
             note    : originVar.itemDef.note,
             varName : originVar.itemDef.name,
-            model   : mdv.model,
+            model   : mdv.props.model,
         };
         currentVar.nameLabelWhereClause = {
             itemRef     : originVar,

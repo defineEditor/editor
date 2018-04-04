@@ -49,6 +49,7 @@ class DatasetFlagsEditor extends React.Component {
                             control={
                                 <Checkbox
                                     checked={this.state.repeating}
+                                    color='primary'
                                     onChange={this.handleChange('repeating')}
                                     value="Repeating"
                                 />
@@ -60,6 +61,7 @@ class DatasetFlagsEditor extends React.Component {
                             control={
                                 <Checkbox
                                     checked={this.state.isReferenceData}
+                                    color='primary'
                                     onChange={this.handleChange('isReferenceData')}
                                     value="isReferenceData"
                                 />

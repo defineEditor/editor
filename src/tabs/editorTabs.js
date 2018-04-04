@@ -58,10 +58,7 @@ const styles = theme => ({
 class ConnectedEditorTabs extends React.Component {
     constructor (props) {
         super(props);
-        this.state = {
-            value : 0,
-            odm   : this.props.odm,
-        };
+        this.state = { value: 0 };
         this.handleChange = this.handleChange.bind(this);
         this.handleMdvChange = this.handleMdvChange.bind(this);
         this.generateVariableTables = this.generateVariableTables.bind(this);
@@ -72,11 +69,8 @@ class ConnectedEditorTabs extends React.Component {
     }
 
     handleMdvChange (type, elementId, updateObj) {
-        let odm = Object.assign({},this.state.odm);
+        let odm = Object.assign({},this.props.odm);
         let mdv = odm.study.metaDataVersion;
-        if (type === 'ItemGroup') {
-            mdv.itemGroups[elementId].update(updateObj, mdv);
-        }
         if (type === 'Item') {
             mdv.itemGroups[elementId.itemGroupOid].update(updateObj, mdv);
         }
@@ -87,7 +81,7 @@ class ConnectedEditorTabs extends React.Component {
     generateVariableTables = (defineVersion) => {
         let datasets = [];
         // Sort datasets according to the orderNumber
-        const mdv = this.state.odm.study.metaDataVersion;
+        const mdv = this.props.odm.study.metaDataVersion;
         Object.keys(mdv.itemGroups).forEach((itemGroupOid) => {
             datasets[mdv.itemGroups[itemGroupOid].orderNumber-1] = itemGroupOid;
         });
@@ -104,7 +98,7 @@ class ConnectedEditorTabs extends React.Component {
     generateCodeListTables = (defineVersion) => {
         let codeLists = [];
         // Sort codeLists according to the orderNumber
-        const mdv = this.state.odm.study.metaDataVersion;
+        const mdv = this.props.odm.study.metaDataVersion;
         Object.keys(mdv.codeLists).forEach((codeListOid) => {
             codeLists.push(codeListOid);
         });
@@ -128,7 +122,7 @@ class ConnectedEditorTabs extends React.Component {
 
         const { classes } = this.props;
         const { value } = this.state;
-        const defineVersion = this.state.odm.study.metaDataVersion.defineVersion;
+        const defineVersion = this.props.odm.study.metaDataVersion.props.defineVersion;
         // Remove whitespaces and make lowercase for ID values
         let tabs = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Methods', 'Comments', 'Where Conditions', 'Documents'];
         let tabIds = tabs.map( tab => {return tab.replace(/\s+/g, '').toLowerCase();});
@@ -154,13 +148,11 @@ class ConnectedEditorTabs extends React.Component {
                     </AppBar>
                     <TabContainer>
                         {tabs[value] === 'Datasets' && <DatasetTable
-                            mdv={this.state.odm.study.metaDataVersion}
-                            onMdvChange={this.handleMdvChange}
                             defineVersion={defineVersion}
                         />}
                         {tabs[value] === 'Variables' && this.generateVariableTables(defineVersion)}
                         {tabs[value] === 'Codelists' && <CodeListsTable
-                            mdv={this.state.odm.study.metaDataVersion}
+                            mdv={this.props.odm.study.metaDataVersion}
                             stdCodeLists={this.props.stdCodeLists}
                             onMdvChange={this.handleMdvChange}
                             defineVersion={defineVersion}

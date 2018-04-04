@@ -88,8 +88,8 @@ function createMetaDataVersion (data, version) {
     if (version === '2.0.0') {
         // MetaDataVersion
         let attributes = {
-            'OID'                 : data.oid,
-            'Name'                : data.name,
+            'OID'                 : data.props.oid,
+            'Name'                : data.props.name,
             'Description'         : data.getDescription(),
             'def:DefineVersion'   : version,
             'def:StandardName'    : data.standards[Object.keys(data.standards)[0]].name,
@@ -333,10 +333,8 @@ function createItemGroupDef (data, version) {
             'def:Structure'         : data.structure,
             'def:Class'             : data.class,
             'def:ArchiveLocationID' : data.archiveLocationId,
+            'def:CommentOID'        : data.commentOid,
         };
-        if (data.comment !== undefined) {
-            Object.assign(attributes, {'def:CommentOID': data.comment.oid});
-        }
         if (data.archiveLocation !== undefined) {
             Object.assign(attributes, {'def:ArchiveLocationID': data.archiveLocation.id});
         }

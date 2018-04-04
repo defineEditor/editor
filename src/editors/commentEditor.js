@@ -1,6 +1,7 @@
 import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import TextField from 'material-ui/TextField';
 import DocumentEditor from 'editors/documentEditor.js';
 import React from 'react';
@@ -24,7 +25,15 @@ const styles = theme => ({
     },
 });
 
-class CommentEditor extends React.Component {
+const mapStateToProps = state => {
+    return {
+        leafs           : state.odm.study.metaDataVersion.leafs,
+        annotatedCrf    : state.odm.study.metaDataVersion.annotatedCrf,
+        supplementalDoc : state.odm.study.metaDataVersion.supplementalDoc,
+    };
+};
+
+class CommentEditorConnected extends React.Component {
     constructor (props) {
         super(props);
         // Bootstrap table changed undefined to '' when saving the value.
@@ -146,7 +155,7 @@ class CommentEditor extends React.Component {
     }
 }
 
-CommentEditor.propTypes = {
+CommentEditorConnected.propTypes = {
     comment: PropTypes.oneOfType([
         PropTypes.instanceOf(Comment),
         PropTypes.oneOf([""]),
@@ -159,4 +168,5 @@ CommentEditor.propTypes = {
     stateless       : PropTypes.bool,
 };
 
+const CommentEditor = connect(mapStateToProps)(CommentEditorConnected);
 export default withStyles(styles)(CommentEditor);

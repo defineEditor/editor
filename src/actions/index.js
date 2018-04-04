@@ -3,6 +3,9 @@ import {
     ADD_ODM,
     ADD_STDCT,
     UPD_ITEMGROUP,
+    ADD_COMMENT,
+    DEL_COMMENT,
+    UPD_COMMENT,
 } from "constants/action-types";
 
 // Core actions
@@ -28,3 +31,26 @@ export const updateItemGroup = (oid, updateObj) => (
     }
 );
 
+// Comment actions
+export const updateComment = (oid, comment) => (
+    {
+        type    : UPD_COMMENT,
+        oid     : oid,
+        comment : comment,
+    }
+);
+
+export const addComment = (oid, comment) => (
+    {
+        type    : ADD_COMMENT,
+        oid     : oid,
+        comment : comment,
+    }
+);
+
+export const deleteComment = oid => (
+    {
+        type : DEL_COMMENT,
+        oid  : oid,
+    }
+);

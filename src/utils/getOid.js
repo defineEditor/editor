@@ -9,7 +9,8 @@ function getOid (type, suffix) {
         Item            : 'IT.',
         CodeList        : 'CL.',
         Method          : 'MT.',
-        Comment         : 'COM.'
+        Comment         : 'COM.',
+        Leaf            : 'LF.',
     };
     if (suffix !== undefined) {
         oid = prefix[type] + suffix;

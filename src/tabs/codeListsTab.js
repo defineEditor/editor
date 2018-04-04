@@ -15,7 +15,6 @@ import CodeListFormatNameEditor from 'editors/codeListFormatNameEditor.js';
 // Debug options
 const hideMe = false;
 
-
 // Editor functions
 
 function codeListStandardEditor (onUpdate, props) {
@@ -49,6 +48,7 @@ function codeListTypeFormatter (cell, row) {
                 typeDecode = type[cell];
                 return true;
             }
+            return false;
         });
         return (typeDecode);
     }
