@@ -13,6 +13,7 @@ import RemoveIcon from 'material-ui-icons/RemoveCircleOutline';
 import InsertLink from 'material-ui-icons/InsertLink';
 import AddIcon from 'material-ui-icons/AddCircle';
 import Tooltip from 'material-ui/Tooltip';
+import getOid from 'utils/getOid.js';
 
 const styles = theme => ({
     button: {
@@ -30,6 +31,7 @@ const mapStateToProps = state => {
         leafs           : state.odm.study.metaDataVersion.leafs,
         annotatedCrf    : state.odm.study.metaDataVersion.annotatedCrf,
         supplementalDoc : state.odm.study.metaDataVersion.supplementalDoc,
+        comments        : state.odm.study.metaDataVersion.comments,
     };
 };
 
@@ -55,7 +57,8 @@ class CommentEditorConnected extends React.Component {
         let newComment;
         let comment = this.props.stateless === true ? this.props.comment : this.state.comment;
         if (name === 'addComment') {
-            newComment = new Comment({descriptions: [new TranslatedText({lang: 'en', value: ''})]});
+            let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
+            newComment = new Comment({oid: commentOid, descriptions: [new TranslatedText({lang: 'en', value: ''})]});
         }
         if (name === 'deleteComment') {
             newComment = undefined;

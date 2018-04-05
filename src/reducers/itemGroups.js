@@ -1,5 +1,7 @@
 import {
     UPD_ITEMGROUP,
+    ADD_ITEMGROUPCOMMENT,
+    DEL_ITEMGROUPCOMMENT,
 } from "constants/action-types";
 import { ItemGroup, TranslatedText, Leaf } from 'elements.js';
 import getOid from 'utils/getOid.js';
@@ -55,13 +57,27 @@ const updateItemGroup = (state, action) => {
 
     // Add an updated itemGroup
     let newItemGroup = new ItemGroup({ ...state[action.oid], ...updateObj });
-    return {...newState, [newOid]: newItemGroup};
+    return { ...newState, [newOid]: newItemGroup };
+};
+
+const addItemGroupComment = (state, action) => {
+    let newItemGroup = new ItemGroup({ ...state[action.sourceOid], commentOid: action.comment.oid });
+    return { ...state, [action.sourceOid]: newItemGroup };
+};
+
+const deleteItemGroupComment = (state, action) => {
+    let newItemGroup = new ItemGroup({ ...state[action.sourceOid], commentOid: undefined });
+    return { ...state, [action.sourceOid]: newItemGroup };
 };
 
 const itemGroups = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMGROUP:
             return updateItemGroup(state, action);
+        case ADD_ITEMGROUPCOMMENT:
+            return addItemGroupComment(state, action);
+        case DEL_ITEMGROUPCOMMENT:
+            return deleteItemGroupComment(state, action);
         default:
             return state;
     }

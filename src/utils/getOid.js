@@ -1,4 +1,4 @@
-function getOid (type, suffix) {
+function getOid (type, suffix, existingOids = []) {
     let oid = '';
     let prefix = {
         MetaDataVersion : 'MDV.',
@@ -23,7 +23,12 @@ function getOid (type, suffix) {
             return (c === 'x' ? r : ((r & 0x3) | 0x8)).toString(16);
         });
     }
-    return oid;
+    // Check if the OID is not unique
+    if (existingOids.includes(oid)) {
+        return getOid(type, suffix, existingOids);
+    } else {
+        return oid;
+    }
 }
 
 export default getOid;

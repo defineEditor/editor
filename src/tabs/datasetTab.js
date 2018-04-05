@@ -15,8 +15,7 @@ import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import DatasetFlagsEditor from 'editors/datasetFlagsEditor.js';
 import DatasetFlagsFormatter from 'formatters/datasetFlagsFormatter.js';
-import { updateItemGroup, updateComment, addComment, deleteComment } from 'actions/index.js';
-import getOid from 'utils/getOid.js';
+import { updateItemGroup, updateItemGroupComment, addItemGroupComment, deleteItemGroupComment } from 'actions/index.js';
 
 // Selector constants
 const classTypes = [
@@ -42,10 +41,10 @@ const classTypeAbbreviations = {
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateItemGroup : (oid, updateObj) => dispatch(updateItemGroup(oid, updateObj)),
-        addComment      : (oid, updateObj) => dispatch(addComment(oid, updateObj)),
-        updateComment   : (oid, updateObj) => dispatch(updateComment(oid, updateObj)),
-        deleteComment   : (oid) => dispatch(deleteComment(oid)),
+        updateItemGroup        : (oid, updateObj) => dispatch(updateItemGroup(oid, updateObj)),
+        addItemGroupComment    : (sourceOid, comment) => dispatch(addItemGroupComment(sourceOid, comment)),
+        updateItemGroupComment : (sourceOid, comment) => dispatch(updateItemGroupComment(sourceOid, comment)),
+        deleteItemGroupComment : (sourceOid, commentOid) => dispatch(deleteItemGroupComment(sourceOid, commentOid)),
     };
 };
 
@@ -117,17 +116,12 @@ class ConnectedDatasetTable extends React.Component {
             if (cellName === 'comment') {
                 if (cellValue === undefined) {
                     // If comment was removed
-                    this.props.deleteComment(row.comment.oid);
-                    this.props.updateItemGroup(row.oid, { commentOid: undefined });
+                    this.props.deleteItemGroupComment(row.oid, row.comment.oid);
                 } else if (row[cellName] === undefined) {
                     // If comment was added
-                    let newOid = getOid('Comment', row.oid);
-                    let newComment = cellValue.clone();
-                    newComment.oid = newOid;
-                    this.props.addComment(newOid, newComment);
-                    this.props.updateItemGroup(row.oid, { commentOid: newOid });
+                    this.props.addItemGroupComment(row.oid, cellValue);
                 } else {
-                    this.props.updateComment(cellValue.oid, cellValue);
+                    this.props.addItemGroupComment(row.oid, cellValue);
                 }
             } else {
                 this.props.updateItemGroup(row.oid,updateObj);
