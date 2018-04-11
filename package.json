@@ -18,8 +18,8 @@
   "dependencies": {
     "bootstrap": "^4.0.0",
     "clone": "^2.1.1",
-    "deep-equal": "^1.0.1",
     "downshift": "^1.29.1",
+    "fast-deep-equal": "^1.1.0",
     "jquery": "^3.3.1",
     "material-ui": "^1.0.0-beta.39",
     "material-ui-icons": "^1.0.0-beta.17",
