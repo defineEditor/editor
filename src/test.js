@@ -1,7 +1,7 @@
 'use strict';
 const fs = require('fs');
 const xml2js = require('xml2js');
-const parseDefine = require('./parseDefine.js');
+const parseDefine = require('./parsers/parseDefine.js');
 const createDefine = require('./createDefine.js');
 const path = require('path');
 

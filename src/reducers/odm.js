@@ -3,7 +3,7 @@ import {
 } from 'constants/action-types';
 import study from 'reducers/study.js';
 
-const initialState = {study: {}};
+const initialState = {};
 
 const odm = (state = initialState, action) => {
     switch (action.type) {

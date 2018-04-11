@@ -2,7 +2,13 @@
 
 import { createStore } from "redux";
 import rootReducer from "reducers/rootReducer";
+import { Odm } from "elements.js";
 
-const store = createStore(rootReducer);
+const initialState = {
+    odm          : new Odm(),
+    stdCodeLists : {}
+};
+
+const store = createStore(rootReducer, initialState);
 
 export default store;

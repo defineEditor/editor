@@ -12,16 +12,20 @@ const styles = theme => ({
         margin : 'none',
         width  : '40px',
     },
+    container: {
+        minWidth: '110px',
+    },
 });
 
 class KeyOrderEditor extends React.Component {
     constructor (props) {
         super(props);
+        let itemGroup = props.defaultValue.itemGroup;
         // Get the total number of variables in the dataset
-        let maxOrderNum = props.defaultValue.itemGroup.itemRefs.length;
+        let maxOrderNum = itemGroup.itemRefsOrder.length;
         // Get the number of keys and add 1 if the current variable is not a key
-        let maxKeySeq = props.defaultValue.itemGroup.itemRefs.filter((itemRef) => {
-            return itemRef.keySequence !== undefined;
+        let maxKeySeq = Object.keys(itemGroup.itemRefs).filter((itemRefOid) => {
+            return itemGroup.itemRefs[itemRefOid].keySequence !== undefined;
         }).length + (this.props.defaultValue.keySequence === undefined ? 1 : 0);
         this.state = {
             key         : props.defaultValue.keySequence !== undefined,
@@ -73,7 +77,7 @@ class KeyOrderEditor extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={0}>
+            <Grid container spacing={0} className={classes.container}>
                 <Grid item xs={12}>
                     <TextField
                         label='Position'
@@ -91,14 +95,15 @@ class KeyOrderEditor extends React.Component {
                             <Checkbox
                                 checked={this.state.key}
                                 onChange={this.handleChange('key')}
-                                value="Key"
+                                value='Key'
+                                color='primary'
                             />
                         }
                         label="Key"
                         className={classes.textField}
                     />
                 </Grid>
-                {this.state.key && 
+                {this.state.key &&
                         <Grid item xs={12}>
                             <TextField
                                 label='Key Sequence'

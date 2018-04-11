@@ -9,6 +9,7 @@ import CodeListsTable from 'tabs/codeListsTab.js';
 import CodeListTable from 'tabs/codeListTab.js';
 import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme, withStyles } from 'material-ui/styles';
+import getItemGroupOrder from 'utils/getItemGroupOrder.js';
 //import Grid from 'material-ui/Grid';
 
 const theme = createMuiTheme({
@@ -82,8 +83,8 @@ class ConnectedEditorTabs extends React.Component {
         let datasets = [];
         // Sort datasets according to the orderNumber
         const mdv = this.props.odm.study.metaDataVersion;
-        Object.keys(mdv.itemGroups).forEach((itemGroupOid) => {
-            datasets[mdv.itemGroups[itemGroupOid].orderNumber-1] = itemGroupOid;
+        getItemGroupOrder(mdv.itemGroups).forEach((itemGroupOid, index) => {
+            datasets[index] = itemGroupOid;
         });
         let result = datasets.map(itemGroupOid => {
             return (
@@ -122,7 +123,7 @@ class ConnectedEditorTabs extends React.Component {
 
         const { classes } = this.props;
         const { value } = this.state;
-        const defineVersion = this.props.odm.study.metaDataVersion.props.defineVersion;
+        const defineVersion = this.props.odm.study.metaDataVersion.defineVersion;
         // Remove whitespaces and make lowercase for ID values
         let tabs = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Methods', 'Comments', 'Where Conditions', 'Documents'];
         let tabIds = tabs.map( tab => {return tab.replace(/\s+/g, '').toLowerCase();});

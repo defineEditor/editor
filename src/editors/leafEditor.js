@@ -73,7 +73,7 @@ class LeafEditor extends React.Component {
 
 LeafEditor.propTypes = {
     classes      : PropTypes.object.isRequired,
-    defaultValue : PropTypes.object.isRequired,
+    defaultValue : PropTypes.instanceOf(Leaf).isRequired,
     onUpdate     : PropTypes.func.isRequired,
 };
 

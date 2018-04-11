@@ -23,7 +23,6 @@ class VariableLengthEditor extends React.Component {
         super(props);
         this.state = {
             length           : this.props.defaultValue.length,
-            varLength        : this.props.defaultValue.varLength,
             fractionDigits   : this.props.defaultValue.fractionDigits,
             lengthAsData     : this.props.defaultValue.lengthAsData ? true : false,
             lengthAsCodelist : this.props.defaultValue.lengthAsCodelist ? true : false,
@@ -80,6 +79,7 @@ class VariableLengthEditor extends React.Component {
                         <FormControlLabel
                             control={
                                 <Switch
+                                    color='primary'
                                     checked={this.state.lengthAsData}
                                     onChange={this.handleChange('lengthAsData')}
                                     className={classes.switch}
@@ -93,6 +93,7 @@ class VariableLengthEditor extends React.Component {
                                 <FormControlLabel
                                     control={
                                         <Switch
+                                            color='primary'
                                             checked={this.state.lengthAsCodelist}
                                             onChange={this.handleChange('lengthAsCodelist')}
                                             className={classes.switch}
@@ -110,7 +111,7 @@ class VariableLengthEditor extends React.Component {
                         label='Length'
                         autoFocus
                         value={length}
-                        onChange={this.handleChange}
+                        onChange={this.handleChange('length')}
                         className={classes.textField}
                         disabled={lengthAsData || lengthAsCodelist || lengthNotApplicable}
                     />
@@ -120,7 +121,7 @@ class VariableLengthEditor extends React.Component {
                             <TextField
                                 label='Fraction Digits'
                                 value={fractionDigits}
-                                onChange={this.handleChange}
+                                onChange={this.handleChange('fractionDigits')}
                                 className={classes.textField}
                             />
                         </Grid>

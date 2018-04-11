@@ -1,5 +1,6 @@
 import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
 import '../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
+import { connect } from 'react-redux';
 import renderColumns from 'utils/renderColumns.js';
 import PropTypes from 'prop-types';
 import Grid from 'material-ui/Grid';
@@ -9,7 +10,7 @@ import green from 'material-ui/colors/green';
 import indigo from 'material-ui/colors/indigo';
 import grey from 'material-ui/colors/grey';
 import { withStyles } from 'material-ui/styles';
-import deepEqual from 'deep-equal';
+import deepEqual from 'fast-deep-equal';
 import RemoveRedEyeIcon from 'material-ui-icons/RemoveRedEye';
 import FilterListIcon from 'material-ui-icons/FilterList';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
@@ -27,6 +28,7 @@ import VariableCodeListFormatEditor from 'editors/variableCodeListFormatEditor.j
 import VariableCodeListFormatFormatter from 'formatters/variableCodeListFormatFormatter.js';
 import VariableNameLabelWhereClauseEditor from 'editors/variableNameLabelWhereClauseEditor.js';
 import VariableNameLabelWhereClauseFormatter from 'formatters/variableNameLabelWhereClauseFormatter.js';
+import { updateItemDef } from 'actions/index.js';
 
 // Selector constants
 const dataTypes = [
@@ -43,6 +45,19 @@ const dataTypes = [
     'durationDatetime',
 ];
 
+// Redux functions
+const mapDispatchToProps = dispatch => {
+    return {
+        updateItemDef: (oid, updateObj) => dispatch(updateItemDef(oid, updateObj)),
+    };
+};
+
+const mapStateToProps = state => {
+    return {
+        mdv: state.odm.study.metaDataVersion
+    };
+};
+
 // Debug options
 const hideMe = false;
 
@@ -51,7 +66,6 @@ const styles = theme => ({
         margin: theme.spacing.unit,
     },
 });
-
 
 // Editors
 function descriptionEditor (onUpdate, props) {
@@ -148,57 +162,58 @@ function roleMandatoryFormatter (cell, row) {
 }
 
 // Extract data required for the table;
-function getTableData ({source, datasetName, mdv, defineVersion, vlmLevel}={}) {
+function getTableData ({source, datasetName, itemDefs, mdv, defineVersion, vlmLevel}={}) {
     let result = [];
     Object.keys(source.itemRefs).forEach((itemRefOid, index) => {
         const originVar = source.itemRefs[itemRefOid];
+        const originItemDef = itemDefs[originVar.itemOid];
         let currentVar = {
             groupOid      : source.oid,
-            oid           : originVar.itemDef.oid,
-            name          : originVar.itemDef.name,
-            dataType      : originVar.itemDef.dataType,
-            codeList      : originVar.itemDef.codeList,
-            valueList     : originVar.itemDef.valueList,
-            model         : mdv.props.model,
+            itemRefOid    : originVar.oid,
+            oid           : originItemDef.oid,
+            name          : originItemDef.name,
+            dataType      : originItemDef.dataType,
+            codeList      : originItemDef.codeList,
+            valueList     : originItemDef.valueList,
+            model         : mdv.model,
             mdv           : mdv,
             defineVersion : defineVersion,
             vlmLevel      : vlmLevel,
         };
         currentVar.lengthAttrs = {
-            length           : originVar.itemDef.length,
-            fractionDigits   : originVar.itemDef.fractionDigits,
-            lengthAsData     : originVar.itemDef.lengthAsData,
-            lengthAsCodelist : originVar.itemDef.lengthAsCodelist,
+            length           : originItemDef.length,
+            fractionDigits   : originItemDef.fractionDigits,
+            lengthAsData     : originItemDef.lengthAsData,
+            lengthAsCodelist : originItemDef.lengthAsCodelist,
         };
         currentVar.codeListFormatAttrs = {
-            codeList      : originVar.itemDef.codeList,
-            displayFormat : originVar.itemDef.displayFormat,
-            dataType      : originVar.itemDef.dataType,
+            codeList      : originItemDef.codeList,
+            displayFormat : originItemDef.displayFormat,
+            dataType      : originItemDef.dataType,
         };
         currentVar.description = {
-            comment : originVar.itemDef.comment,
+            comment : mdv.comments[originItemDef.commentOid],
             method  : originVar.method,
-            origins : originVar.itemDef.origins,
-            note    : originVar.itemDef.note,
-            varName : originVar.itemDef.name,
-            model   : mdv.props.model,
+            origins : originItemDef.origins,
+            note    : originItemDef.note,
+            varName : originItemDef.name,
+            model   : mdv.model,
         };
         currentVar.nameLabelWhereClause = {
-            itemRef     : originVar,
-            name        : originVar.itemDef.name,
-            label       : originVar.itemDef.getDescription(),
-            whereClause : originVar.whereClause,
+            name         : originItemDef.name,
+            descriptions : originItemDef.descriptions,
+            whereClause  : originVar.whereClause,
         };
         if (originVar.whereClause !== undefined) {
             // VLM itemRef
-            currentVar.fullName = datasetName + '.' + originVar.itemDef.name + ' [' + originVar.whereClause.toString(mdv) + ']';
+            currentVar.fullName = datasetName + '.' + originItemDef.name + ' [' + originVar.whereClause.toString(mdv) + ']';
         } else {
             // Normal itemRef
-            currentVar.fullName = datasetName + '.' + originVar.itemDef.name;
+            currentVar.fullName = datasetName + '.' + originItemDef.name;
         }
 
         currentVar.keyOrder = {
-            orderNumber : originVar.orderNumber || (index + 1),
+            orderNumber : (source.itemRefsOrder.indexOf(itemRefOid) + 1),
             keySequence : originVar.keySequence,
             itemGroup   : source,
         };
@@ -212,7 +227,7 @@ function getTableData ({source, datasetName, mdv, defineVersion, vlmLevel}={}) {
     return result;
 }
 
-class VariableTable extends React.Component {
+class ConnectedVariableTable extends React.Component {
     constructor(props) {
         super(props);
         const mdv = this.props.mdv;
@@ -222,6 +237,7 @@ class VariableTable extends React.Component {
         let variables = getTableData({
             source        : dataset,
             datasetName   : dataset.name,
+            itemDefs      : mdv.itemDefs,
             mdv           : this.props.mdv,
             defineVersion : this.props.defineVersion,
             vlmLevel      : 0,
@@ -234,6 +250,7 @@ class VariableTable extends React.Component {
             vlmData[item.oid].data = getTableData({
                 source        : item.valueList,
                 datasetName   : dataset.name,
+                itemDefs      : mdv.itemDefs,
                 mdv           : mdv,
                 defineVersion : this.props.defineVersion,
                 vlmLevel      : 1,
@@ -248,19 +265,18 @@ class VariableTable extends React.Component {
         };
     }
 
-    onCellEdit = (row, cellName, cellValue) => {
-        // Update on if the value changed
-        if (!deepEqual(row[cellName], cellValue)) {
-            this.props.onMdvChange('Item',{itemOid: row.oid, itemGroupOid: row.groupOid},{cellName: cellValue});
-        }
-    }
-
     onBeforeSaveCell = (row, cellName, cellValue) => {
         // Update on if the value changed
-        if (row[cellName] !== cellValue) {
-            let updateObj = {};
-            updateObj[cellName] = cellValue;
-            this.props.onMdvChange('Item',{itemOid: row.oid, itemGroupOid: row.groupOid},updateObj);
+        if (!deepEqual(row[cellName], cellValue)) {
+            if (cellName === 'Description') {
+                // TODO
+            } else {
+                if (row.vlmLevel === 0) {
+                    this.props.updateItemDef(row.oid, cellValue);
+                    let updateObj = {};
+                    updateObj[cellName] = cellValue;
+                }
+            }
         }
         return true;
     }
@@ -557,10 +573,11 @@ class VariableTable extends React.Component {
     }
 }
 
-VariableTable.propTypes = {
+ConnectedVariableTable.propTypes = {
     mdv           : PropTypes.object.isRequired,
     itemGroupOid  : PropTypes.string.isRequired,
     defineVersion : PropTypes.string.isRequired,
 };
 
+const VariableTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedVariableTable);
 export default withStyles(styles)(VariableTable);

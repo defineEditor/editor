@@ -19,7 +19,12 @@ class VariableNameLabelWhereClauseFormatter extends React.Component {
     render() {
         const {classes} = this.props;
         const name = this.props.value.name || '';
-        const label = this.props.value.label || '';
+        let label;
+        if (this.props.value.descriptions.length >= 1) {
+            label = this.props.value.descriptions[0].value || '';
+        } else {
+            label = '';
+        }
         const hasVlm = this.props.hasVlm;
         const state = this.props.state;
         const isVlm = this.props.value.whereClause !== undefined;
@@ -28,8 +33,8 @@ class VariableNameLabelWhereClauseFormatter extends React.Component {
         let commentText;
         if (isVlm) {
             whereClauseLine = this.props.value.whereClause.toString(this.props.mdv);
-            if (this.props.value.whereClause.comment !== undefined) {
-                commentText = this.props.value.whereClause.comment.toString(this.props.mdv);
+            if (this.props.value.whereClause.commentOid !== undefined) {
+                commentText = this.props.mdv.comments[this.props.value.whereClause.commentOid].toString(this.props.mdv);
             }
         }
 

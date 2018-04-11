@@ -131,7 +131,6 @@ class VariableWhereClauseEditor extends React.Component {
                                 disableBackdropClick
                                 disableEscapeKeyDown
                                 open={this.state.dialogOpened}
-                                onClose={this.handleClose}
                                 PaperProps={{className: classes.dialog}}
                             >
                                 <DialogTitle>Where Clause</DialogTitle>

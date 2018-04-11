@@ -7,7 +7,7 @@ import Editor from 'core/editor.js';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from "react-redux";
-import store from 'store/mdv.js';
+import store from 'store/odm.js';
 
 // React tools for development purposes
 window.require('electron-react-devtools').install();

@@ -2,8 +2,8 @@ import {
     UPD_STUDY,
 } from 'constants/action-types';
 import metaDataVersion from 'reducers/metaDataVersion.js';
-
-const initialState = {metaDataVersion: {}};
+import { Study } from 'elements.js';
+const initialState = new Study();
 
 const study = (state = initialState, action) => {
     switch (action.type) {

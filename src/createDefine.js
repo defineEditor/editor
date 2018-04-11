@@ -87,10 +87,14 @@ function createMetaDataVersion (data, version) {
     let xmlRoot = xmlBuilder.create('MetaDataVersion');
     if (version === '2.0.0') {
         // MetaDataVersion
+        let description; 
+        if (data.descriptions.length >= 1) {
+            description = data.descriptions[0].value;
+        }
         let attributes = {
-            'OID'                 : data.props.oid,
-            'Name'                : data.props.name,
-            'Description'         : data.getDescription(),
+            'OID'                 : data.oid,
+            'Name'                : data.name,
+            'Description'         : description,
             'def:DefineVersion'   : version,
             'def:StandardName'    : data.standards[Object.keys(data.standards)[0]].name,
             'def:StandardVersion' : data.standards[Object.keys(data.standards)[0]].version
@@ -249,7 +253,10 @@ function createValueListDef (data, version) {
         }
         // Add ItemRefs
         result['ItemRef'] = [];
-        data.itemRefs.forEach(function (itemRef) {
+        data.itemRefsOrder.forEach(function (itemRefOid, index) {
+            // Set the order number
+            let itemRef = Object.assign({}, data.itemRefs[itemRefOid]);
+            itemRef.orderNumber = index;
             result['ItemRef'].push(createItemRef(itemRef, version));
         });
     }
@@ -292,7 +299,7 @@ function createWhereClauseDef (data, version) {
             'OID': data.oid
         };
         if (data.comment !== undefined) {
-            Object.assign(attributes, {'def:CommentOID': data.comment.oid});
+            Object.assign(attributes, {'def:CommentOID': data.commentOid});
         }
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -352,7 +359,10 @@ function createItemGroupDef (data, version) {
         }
         // Add ItemRefs
         result['ItemRef'] = [];
-        data.itemRefs.forEach(function (itemRef) {
+        data.itemRefsOrder.forEach(function (itemRefOid, index) {
+            // Set the order number
+            let itemRef = Object.assign({}, data.itemRefs[itemRefOid]);
+            itemRef.orderNumber = index;
             result['ItemRef'].push(createItemRef(itemRef, version));
         });
         // Add alias
@@ -431,7 +441,7 @@ function createItemDef (data, version) {
             'def:DisplayFormat' : data.displayFormat
         };
         if (data.comment !== undefined) {
-            Object.assign(attributes, {'def:CommentOID': data.comment.oid});
+            Object.assign(attributes, {'def:CommentOID': data.commentOid});
         }
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {

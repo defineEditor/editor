@@ -73,9 +73,10 @@ class ConnectedEditor extends React.Component {
         }
     });
     */
+        let mdv = odm.study.metaDataVersion;
         Object.keys(odm.study.metaDataVersion.itemGroups['IG.ADQSADAS'].itemRefs).forEach( (item,index) => {
             let itemRef = odm.study.metaDataVersion.itemGroups['IG.ADQSADAS'].itemRefs[item];
-            if (5 < index && index < 39 && itemRef.itemDef.name !== 'AVAL' && itemRef.itemDef.name !== 'PARAMCD') {
+            if (5 < index && index < 39 && mdv.itemDefs[itemRef.itemOid].name !== 'AVAL' && mdv.itemDefs[itemRef.itemOid].name !== 'PARAMCD') {
                 delete odm.study.metaDataVersion.itemGroups['IG.ADQSADAS'].itemRefs[item];
             }
         });

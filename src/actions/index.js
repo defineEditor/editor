@@ -3,9 +3,12 @@ import {
     ADD_ODM,
     ADD_STDCT,
     UPD_ITEMGROUP,
+    ADD_ITEMGROUP,
     ADD_ITEMGROUPCOMMENT,
     DEL_ITEMGROUPCOMMENT,
     UPD_ITEMGROUPCOMMENT,
+    UPD_ITEMDEF,
+    UPD_ITEMREF,
 } from "constants/action-types";
 
 // Core actions
@@ -31,27 +34,53 @@ export const updateItemGroup = (oid, updateObj) => (
     }
 );
 
+export const addItemGroup = (itemGroup) => (
+    {
+        type      : ADD_ITEMGROUP,
+        itemGroup : itemGroup,
+    }
+);
+
 // Comment actions
-export const updateItemGroupComment = (sourceOid, comment) => (
+export const updateItemGroupComment = (source, comment) => (
     {
-        type      : UPD_ITEMGROUPCOMMENT,
-        sourceOid : sourceOid,
-        comment   : comment,
+        type    : UPD_ITEMGROUPCOMMENT,
+        source  : source,
+        comment : comment,
     }
 );
 
-export const addItemGroupComment = (sourceOid, comment) => (
+export const addItemGroupComment = (source, comment) => (
     {
-        type      : ADD_ITEMGROUPCOMMENT,
-        sourceOid : sourceOid,
-        comment   : comment,
+        type    : ADD_ITEMGROUPCOMMENT,
+        source  : source,
+        comment : comment,
     }
 );
 
-export const deleteItemGroupComment = (sourceOid, commentOid) => (
+export const deleteItemGroupComment = (source, comment) => (
     {
-        type       : DEL_ITEMGROUPCOMMENT,
-        sourceOid  : sourceOid,
-        commentOid : commentOid,
+        type    : DEL_ITEMGROUPCOMMENT,
+        source  : source,
+        comment : comment,
     }
 );
+
+// Item Ref/Def actions
+export const updateItemDef = (oid, updateObj) => (
+    {
+        type      : UPD_ITEMDEF,
+        oid       : oid,
+        updateObj : updateObj,
+    }
+);
+
+export const updateItemRef = (source, updateObj) => (
+    {
+        type      : UPD_ITEMREF,
+        source    : source,
+        updateObj : updateObj,
+    }
+);
+
+

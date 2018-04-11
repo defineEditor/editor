@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import '../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import renderColumns from 'utils/renderColumns.js';
+import getItemGroupOrder from 'utils/getItemGroupOrder.js';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import React from 'react';
@@ -10,6 +11,7 @@ import green from 'material-ui/colors/green';
 import indigo from 'material-ui/colors/indigo';
 import grey from 'material-ui/colors/grey';
 import CommentEditor from 'editors/commentEditor.js';
+import AddDatasetEditor from 'editors/addDatasetEditor.js';
 import LeafEditor from 'editors/leafEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
@@ -42,15 +44,16 @@ const classTypeAbbreviations = {
 const mapDispatchToProps = dispatch => {
     return {
         updateItemGroup        : (oid, updateObj) => dispatch(updateItemGroup(oid, updateObj)),
-        addItemGroupComment    : (sourceOid, comment) => dispatch(addItemGroupComment(sourceOid, comment)),
-        updateItemGroupComment : (sourceOid, comment) => dispatch(updateItemGroupComment(sourceOid, comment)),
-        deleteItemGroupComment : (sourceOid, commentOid) => dispatch(deleteItemGroupComment(sourceOid, commentOid)),
+        addItemGroupComment    : (source, comment) => dispatch(addItemGroupComment(source, comment)),
+        updateItemGroupComment : (source, comment) => dispatch(updateItemGroupComment(source, comment)),
+        deleteItemGroupComment : (source, comment) => dispatch(deleteItemGroupComment(source, comment)),
     };
 };
 
 const mapStateToProps = state => {
     return {
         itemGroups : state.odm.study.metaDataVersion.itemGroups,
+        itemDefs   : state.odm.study.metaDataVersion.itemDefs,
         comments   : state.odm.study.metaDataVersion.comments
     };
 };
@@ -89,7 +92,11 @@ function commentFormatter (cell, row) {
 }
 
 function leafFormatter (cell, row) {
-    return (<a href={'file://' + cell.href}>{cell.title}</a>);
+    if (cell !== undefined && cell !== '') {
+        return (<a href={'file://' + cell.href}>{cell.title}</a>);
+    } else {
+        return;
+    }
 }
 
 function datasetFlagsFormatter (cell, row) {
@@ -116,12 +123,12 @@ class ConnectedDatasetTable extends React.Component {
             if (cellName === 'comment') {
                 if (cellValue === undefined) {
                     // If comment was removed
-                    this.props.deleteItemGroupComment(row.oid, row.comment.oid);
+                    this.props.deleteItemGroupComment({type: 'itemGroups', oid: row.oid}, row.comment);
                 } else if (row[cellName] === undefined) {
                     // If comment was added
-                    this.props.addItemGroupComment(row.oid, cellValue);
+                    this.props.addItemGroupComment({type: 'itemGroups', oid: row.oid}, cellValue);
                 } else {
-                    this.props.addItemGroupComment(row.oid, cellValue);
+                    this.props.addItemGroupComment({type: 'itemGroups', oid: row.oid}, cellValue);
                 }
             } else {
                 this.props.updateItemGroup(row.oid,updateObj);
@@ -140,7 +147,7 @@ class ConnectedDatasetTable extends React.Component {
                         { props.showSelectedOnlyBtn }
                     </Grid>
                     <Grid item>
-                        { props.insertBtn }
+                        <AddDatasetEditor/>
                     </Grid>
                     <Grid item>
                         <Button color='default' mini onClick={console.log}
@@ -190,7 +197,7 @@ class ConnectedDatasetTable extends React.Component {
     render () {
         let datasets = [];
         // Extract data required for the dataset table
-        Object.keys(this.props.itemGroups).forEach((itemGroupOid) => {
+        getItemGroupOrder(this.props.itemGroups).forEach((itemGroupOid, index) => {
             const originDs = this.props.itemGroups[itemGroupOid];
             let currentDs = {
                 oid           : originDs.oid,
@@ -198,11 +205,10 @@ class ConnectedDatasetTable extends React.Component {
                 datasetClass  : originDs.datasetClass,
                 purpose       : originDs.purpose,
                 structure     : originDs.structure,
-                orderNumber   : originDs.orderNumber,
                 defineVersion : this.props.defineVersion,
             };
             currentDs.description = originDs.getDescription();
-            currentDs.comment = originDs.commentOid === undefined ? undefined : this.props.comments[originDs.commentOid].clone();
+            currentDs.comment = originDs.commentOid === undefined ? undefined : this.props.comments[originDs.commentOid];
             currentDs.leaf = originDs.leaf === undefined ? undefined : originDs.leaf.clone();
             // Group Repeating/IsReferenceData/isStandard
             currentDs.flags = {
@@ -212,13 +218,14 @@ class ConnectedDatasetTable extends React.Component {
             // Get key variables
             // TODO: When key is located in the SUPP dataset.
             let keysArray = [];
-            originDs.itemRefs.forEach((itemRef) => {
+            Object.keys(originDs.itemRefs).forEach((itemRefOid) => {
+                let itemRef = originDs.itemRefs[itemRefOid];
                 if (itemRef.keySequence !== undefined) {
-                    keysArray[itemRef.keySequence - 1] = itemRef.itemDef.name;
+                    keysArray[itemRef.keySequence - 1] = this.props.itemDefs[itemRef.itemOid].name;
                 }
             });
             currentDs.keys = keysArray.join(', ');
-            datasets[currentDs.orderNumber-1] = currentDs;
+            datasets[index] = currentDs;
         });
 
         // Editor settings
@@ -234,7 +241,6 @@ class ConnectedDatasetTable extends React.Component {
 
         const options = {
             toolBar   : this.createCustomToolBar,
-            insertBtn : this.createCustomInsertButton,
             deleteBtn : this.createCustomDeleteButton,
             btnGroup  : this.createCustomButtonGroup
         };
@@ -346,6 +352,7 @@ class ConnectedDatasetTable extends React.Component {
 
 ConnectedDatasetTable.propTypes = {
     itemGroups    : PropTypes.object.isRequired,
+    itemDefs      : PropTypes.object.isRequired,
     comments      : PropTypes.object.isRequired,
     defineVersion : PropTypes.string.isRequired,
 };

@@ -1,24 +1,19 @@
 import itemGroups from 'reducers/itemGroups.js';
 import comments from 'reducers/comments.js';
-import { combineReducers } from 'redux';
+import { MetaDataVersion } from 'elements.js';
 
-const dummyArray = (state = [], action) => (state);
-const dummy = (state = {}, action) => (state);
+const initialState = new MetaDataVersion();
 
-const metaDataVersion = combineReducers({
-    itemGroups,
-    comments,
-    props           : dummy,
-    descriptions    : dummyArray,
-    standards       : dummy,
-    annotatedCrf    : dummy,
-    supplementalDoc : dummy,
-    valueLists      : dummy,
-    whereClauses    : dummy,
-    itemDefs        : dummy,
-    codeLists       : dummy,
-    methods         : dummy,
-    leafs           : dummy,
-});
+const metaDataVersion = (state = initialState, action) => {
+    if (action.type !== undefined) {
+        return new MetaDataVersion({
+            ...state,
+            itemGroups : itemGroups(state.itemGroups, action),
+            comments   : comments(state.comments, action),
+        });
+    } else {
+        return state;
+    }
+};
 
 export default metaDataVersion;

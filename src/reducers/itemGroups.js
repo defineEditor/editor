@@ -1,10 +1,16 @@
 import {
     UPD_ITEMGROUP,
+    ADD_ITEMGROUP,
     ADD_ITEMGROUPCOMMENT,
     DEL_ITEMGROUPCOMMENT,
+    UPD_ITEMREF,
 } from "constants/action-types";
-import { ItemGroup, TranslatedText, Leaf } from 'elements.js';
+import { ItemGroup, TranslatedText, Leaf, ItemRef } from 'elements.js';
 import getOid from 'utils/getOid.js';
+
+const addItemGroup = (state, action) => {
+    return { ...state, [action.itemGroup.oid]: action.itemGroup };
+};
 
 const updateItemGroup = (state, action) => {
     let newState = Object.assign({}, state);
@@ -61,23 +67,32 @@ const updateItemGroup = (state, action) => {
 };
 
 const addItemGroupComment = (state, action) => {
-    let newItemGroup = new ItemGroup({ ...state[action.sourceOid], commentOid: action.comment.oid });
-    return { ...state, [action.sourceOid]: newItemGroup };
+    let newItemGroup = new ItemGroup({ ...state[action.source.oid], commentOid: action.comment.oid });
+    return { ...state, [action.source.oid]: newItemGroup };
 };
 
 const deleteItemGroupComment = (state, action) => {
-    let newItemGroup = new ItemGroup({ ...state[action.sourceOid], commentOid: undefined });
-    return { ...state, [action.sourceOid]: newItemGroup };
+    let newItemGroup = new ItemGroup({ ...state[action.source.oid], commentOid: undefined });
+    return { ...state, [action.source.oid]: newItemGroup };
+};
+
+const updateItemRef = (state, action) => {
+    let newItemRef = new ItemRef({ ...state[action.source.groupOid].itemRefs[action.source.itemRefOid], ...action.updateObj });
+    return { ...state[action.source.groupOid], itemRefs: { ...state[action.source.groupOid], [action.itemRefOid]: newItemRef } };
 };
 
 const itemGroups = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMGROUP:
             return updateItemGroup(state, action);
+        case ADD_ITEMGROUP:
+            return addItemGroup(state, action);
         case ADD_ITEMGROUPCOMMENT:
             return addItemGroupComment(state, action);
         case DEL_ITEMGROUPCOMMENT:
             return deleteItemGroupComment(state, action);
+        case UPD_ITEMREF:
+            return updateItemRef(state, action);
         default:
             return state;
     }

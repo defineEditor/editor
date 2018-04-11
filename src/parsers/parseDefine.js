@@ -1,4 +1,5 @@
-const def = require('elements.js');
+import def from 'elements.js';
+import getOid from 'utils/getOid.js';
 
 /*
  * Auxiliary functions
@@ -60,6 +61,18 @@ function convertAttrsToLCC (obj) {
                 convertAttrsToLCC(obj[propUpdated]);
             }
         }
+    }
+}
+
+// Get an array of IDs using a specific comment;
+// Source is an object, with IDs as property names
+function getListOfSourceIds(source, targetName, targetId) {
+    if (source !== undefined) {
+        return Object.keys(source).filter( oid => {
+            return source[oid][targetName] === targetId;
+        });
+    } else {
+        return [];
     }
 }
 
@@ -152,6 +165,16 @@ function parseComments (commentsRaw, mdv) {
                 comment.addDocument(parseDocument(item, mdv));
             });
         }
+        // Connect comment to its sources
+        comment.sources = {
+            itemDefs     : getListOfSourceIds(mdv.itemDefs, 'commentOid', comment.oid),
+            itemGroups   : getListOfSourceIds(mdv.itemGroups, 'commentOid', comment.oid),
+            whereClauses : getListOfSourceIds(mdv.whereClauses, 'commentOid', comment.oid),
+            codeLists    : getListOfSourceIds(mdv.codeLists, 'commentOid', comment.oid),
+        };
+        if (mdv.commentOid === comment.oid) {
+            comment.sources['metaDataVersion'] = [mdv.oid];
+        }
         comments[comment.oid] = comment;
     });
 
@@ -218,10 +241,6 @@ function parseCodelists (codelistsRaw, mdv) {
     codelistsRaw.forEach(function (codelistRaw) {
         if (codelistRaw.hasOwnProperty('$')) {
             let args = codelistRaw['$'];
-            if (args.hasOwnProperty('commentOid')) {
-                args.comment = mdv.comments[args['commentOid']];
-                delete args['commentOid'];
-            }
             if (args.hasOwnProperty('standardOid')) {
                 args.standard = mdv.standards[args['standardOid']];
                 delete args['standardOid'];
@@ -280,10 +299,6 @@ function parseWhereClauses (whereClausesRaw, mdv) {
     whereClausesRaw.forEach(function (whereClauseRaw) {
         if (whereClauseRaw.hasOwnProperty('$')) {
             let args = whereClauseRaw['$'];
-            if (args.hasOwnProperty('commentOid')) {
-                args.comment = mdv.comments[args['commentOid']];
-                delete args['commentOid'];
-            }
             var whereClause = new def.WhereClause(args);
 
             if (whereClauseRaw.hasOwnProperty('rangeCheck')) {
@@ -337,10 +352,6 @@ function parseItemDefs (itemDefsRaw, mdv) {
     let itemDefs = {};
     itemDefsRaw.forEach(function (itemDefRaw) {
         let args = itemDefRaw['$'];
-        if (args.hasOwnProperty('commentOid')) {
-            args.comment = mdv.comments[args['commentOid']];
-            delete args['commentOid'];
-        }
         if (itemDefRaw.hasOwnProperty('codeListRef')) {
             args.codeList = mdv.codelists[itemDefRaw['codeListRef'][0]['$']['codeListOid']];
         }
@@ -380,10 +391,6 @@ function parseItemRef (itemRefRaw, mdv) {
         args.method = mdv.methods[args['methodOid']];
         delete args['methodOid'];
     }
-    if (args.hasOwnProperty('itemOid')) {
-        args.itemDef = mdv.itemDefs[args['itemOid']];
-        delete args['itemOid'];
-    }
     if (args.hasOwnProperty('roleCodeListOid')) {
         args.roleCodeList = mdv.codelists[args['roleCodeListOid']];
         delete args['roleCodeListOid'];
@@ -399,8 +406,6 @@ function parseItemGroups (itemGroupsRaw, mdv) {
     let itemGroups = {};
     itemGroupsRaw.forEach(function (itemGroupRaw, index) {
         let args = itemGroupRaw['$'];
-        // Non-define.xml attribute - orderNumber
-        args.orderNumber = index + 1;
 
         if (args.hasOwnProperty('standardOid')) {
             args.standard = mdv.standards[args['standardOid']];
@@ -422,14 +427,32 @@ function parseItemGroups (itemGroupsRaw, mdv) {
             let leafs = parseLeafs(itemGroupRaw['leaf']);
             args.leaf = leafs[Object.keys(leafs)[0]];
         }
+        // ItemRefs are stored as an object instead of an array
+        let itemRefs = {};
+        itemGroupRaw['itemRef'].forEach(function (item) {
+            let oid = getOid('ItemRef', undefined, Object.keys(itemRefs));
+            itemRefs[oid] = parseItemRef(item, mdv);
+        });
+        // Comparing to Define-XML structure, order of itemRefs is stored in an array of IDs
+        let itemRefsOrder = Object.keys(itemRefs).sort( (itemRefOid1, itemRefOid2) => {
+            if (itemRefs[itemRefOid1].orderNumber < itemRefs[itemRefOid2].orderNumber) {
+                return -1;
+            } else {
+                return 1;
+            }
+        });
+        // Set itemRef orderNumber to undefined;
+        Object.keys(itemRefs).forEach( itemRefOid => {
+            itemRefs[itemRefOid].orderNumber = undefined;
+        });
+
+        args.itemRefs = itemRefs;
+        args.itemRefsOrder = itemRefsOrder;
+
         let itemGroup = new def.ItemGroup(args);
 
         itemGroupRaw['description'].forEach(function (item) {
             itemGroup.addDescription(parseTranslatedText(item));
-        });
-
-        itemGroupRaw['itemRef'].forEach(function (item) {
-            itemGroup.addItemRef(parseItemRef(item, mdv));
         });
 
         itemGroups[itemGroup.oid] = itemGroup;
@@ -442,7 +465,31 @@ function parseValueLists (valueListsRaw, mdv) {
     let valueLists = {};
 
     valueListsRaw.forEach(function (valueListRaw) {
-        let valueList = new def.ValueList({oid: valueListRaw['$']['oid']});
+
+        let args = valueListRaw['$'];
+        // ItemRefs are stored as an object instead of an array
+        let itemRefs = {};
+        valueListRaw['itemRef'].forEach(function (item) {
+            let oid = getOid('ItemRef', undefined, Object.keys(itemRefs));
+            itemRefs[oid] = parseItemRef(item, mdv);
+        });
+        // Comparing to Define-XML structure, order of itemRefs is stored in an array of IDs
+        let itemRefsOrder = Object.keys(itemRefs).sort( (itemRefOid1, itemRefOid2) => {
+            if (itemRefs[itemRefOid1].orderNumber < itemRefs[itemRefOid2].orderNumber) {
+                return -1;
+            } else {
+                return 1;
+            }
+        });
+        // Set itemRef orderNumber to undefined;
+        Object.keys(itemRefs).forEach( itemRefOid => {
+            itemRefs[itemRefOid].orderNumber = undefined;
+        });
+
+        args.itemRefs = itemRefs;
+        args.itemRefsOrder = itemRefsOrder;
+
+        let valueList = new def.ValueList(args);
 
         if (valueListRaw.hasOwnProperty('description')) {
             valueListRaw['description'].forEach(function (item) {
@@ -450,9 +497,6 @@ function parseValueLists (valueListsRaw, mdv) {
             });
         }
 
-        valueListRaw['itemRef'].forEach(function (item) {
-            valueList.addItemRef(parseItemRef(item, mdv));
-        });
         valueLists[valueList.oid] = valueList;
     });
 
@@ -465,7 +509,6 @@ function parseMetaDataVersion (metadataRaw) {
 
     var mdv = {};
     mdv.leafs = parseLeafs(metadataRaw['leaf']);
-    mdv.comments = parseComments(metadataRaw['commentDef'], mdv);
     mdv.standards = parseStandards(metadataRaw, defineVersion);
     mdv.methods = parseMethods(metadataRaw['methodDef'], mdv);
     mdv.codelists = parseCodelists(metadataRaw['codeList'], mdv);
@@ -482,13 +525,19 @@ function parseMetaDataVersion (metadataRaw) {
     mdv.valueLists = parseValueLists(metadataRaw['valueListDef'], mdv);
 
     // Connect ItemDefs to VLM
-    Object.keys(mdv.itemDefs).forEach(function (itemDefOid) {
-        if (mdv.itemDefs[itemDefOid].valueListOid !== undefined) {
-            mdv.itemDefs[itemDefOid].setValueList(mdv.valueLists[mdv.itemDefs[itemDefOid].valueListOid]);
+    Object.keys(mdv.itemDefs).forEach(function (parentItemOid) {
+        if (mdv.itemDefs[parentItemOid].valueListOid !== undefined) {
+            let valueListOid = mdv.itemDefs[parentItemOid].valueListOid;
+            Object.keys(mdv.valueLists[valueListOid].itemRefs).forEach( itemRefOid => {
+                let itemOid = mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid;
+                mdv.itemDefs[itemOid].parentItemOid = parentItemOid;
+            });
         }
     });
 
+
     mdv.itemGroups = parseItemGroups(metadataRaw['itemGroupDef'], mdv);
+    mdv.comments = parseComments(metadataRaw['commentDef'], mdv);
 
     let args = {
         oid             : metadataRaw['$']['oid'],

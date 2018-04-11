@@ -6,7 +6,7 @@ import VariableNameLabelEditor from 'editors/variableNameLabelEditor.js';
 import VariableWhereClauseEditor from 'editors/variableWhereClauseEditor.js';
 import SaveCancel from 'editors/saveCancel.js';
 import CommentEditor from 'editors/commentEditor.js';
-import {WhereClause, RangeCheck} from 'elements.js';
+import { WhereClause, RangeCheck, TranslatedText } from 'elements.js';
 
 const styles = theme => ({
     gridItem: {
@@ -53,14 +53,27 @@ wcRegex.whereClause = new RegExp(
 class VariableNameLabelWhereClauseEditor extends React.Component {
     constructor (props) {
         super(props);
-        const autoLabel = this.props.defaultValue.label === undefined && this.props.blueprint !== undefined ? true : false;
+        let autoLabel;
+        if ( (this.props.defaultValue.descriptions.length === 0 || this.props.defaultValue.descriptions[0].value)
+            && this.props.blueprint !== undefined
+        ) {
+            autoLabel = true;
+        } else {
+            autoLabel = false;
+        }
+
+        let wcComment;
+        if (this.props.defaultValue.whereClause !== undefined) {
+            wcComment = this.props.mdv.comments[this.props.defaultValue.whereClause.commentOid];
+        }
 
         this.state = {
             name          : this.props.defaultValue.name || '',
-            label         : this.props.defaultValue.label || '',
+            descriptions  : this.props.defaultValue.descriptions,
             autoLabel     : autoLabel,
             whereClause   : this.props.defaultValue.whereClause,
             wcEditingMode : 'interactive',
+            wcComment     : wcComment,
         };
     }
 
@@ -81,7 +94,7 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
             this.setState({
                 whereClause: new WhereClause({
                     oid         : this.state.whereClause.oid,
-                    comment     : this.state.whereClause.comment,
+                    commentOid  : this.state.whereClause.commentOid,
                     rangeChecks : rangeChecks,
                 })
             });
@@ -89,12 +102,19 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
             this.setState({
                 whereClause: new WhereClause({
                     oid         : this.state.whereClause.oid,
-                    comment     : updateObj,
+                    commentOid  : updateObj.oid,
                     rangeChecks : this.state.whereClause.rangeChecks,
-                })
+                }),
+                wcComment: updateObj,
             });
         } else if (name === 'autoLabel') {
             this.setState({ [name]: !this.state.autoLabel });
+        } else if (name === 'label') {
+            // Create a new description;
+            let lang = 'en';
+            let value = updateObj.target.value;
+            let descriptions = [new TranslatedText({lang, value})];
+            this.setState({ descriptions });
         } else {
             this.setState({ [name]: updateObj.target.value });
         }
@@ -104,7 +124,7 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
         let bpItemDefs = this.props.blueprint.itemDefs;
         Object.keys(bpItemDefs).forEach( itemDefOid => {
             if (bpItemDefs[itemDefOid].name === this.state.name) {
-                this.setState({ label: bpItemDefs[itemDefOid].getDescription() });
+                this.setState({ descriptions: bpItemDefs[itemDefOid].descriptions });
                 return;
             }
         });
@@ -246,14 +266,18 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
         this.setState({
             whereClause: new WhereClause({
                 oid         : this.state.whereClause.oid,
-                comment     : this.state.whereClause.comment,
+                commentOid  : this.state.whereClause.commentOid,
                 rangeChecks : rangeChecks,
             })
         });
     }
 
     save = () => {
-        this.props.onUpdate(this.state);
+        this.props.onUpdate({
+            name         : this.state.name,
+            descriptions : this.state.descriptions,
+            whereClause  : this.state.whereClause
+        });
     }
 
     cancel = () => {
@@ -262,6 +286,7 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
 
     render() {
         const vlmLevel = this.props.row.vlmLevel;
+        const label = this.state.descriptions[0].value;
 
         return (
             <Grid container spacing={8}>
@@ -269,7 +294,7 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
                     <VariableNameLabelEditor
                         handleChange={this.handleChange}
                         onNameBlur={this.setAutoLabel}
-                        label={this.state.label}
+                        label={label}
                         name={this.state.name}
                         blueprint={this.props.blueprint}
                         autoLabel={this.state.autoLabel}
@@ -289,7 +314,7 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
                             </Grid>
                             <Grid item xs={12}>
                                 <CommentEditor
-                                    comment={this.state.whereClause.comment}
+                                    comment={this.state.wcComment}
                                     onUpdate={this.handleChange('comment')}
                                     stateless={true}
                                     leafs={this.props.mdv.leafs}

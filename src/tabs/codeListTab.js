@@ -10,7 +10,7 @@ import indigo from 'material-ui/colors/indigo';
 import grey from 'material-ui/colors/grey';
 import { withStyles } from 'material-ui/styles';
 import Chip from 'material-ui/Chip';
-import deepEqual from 'deep-equal';
+import deepEqual from 'fast-deep-equal';
 import FilterListIcon from 'material-ui-icons/FilterList';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import ReactSelectEditor from 'editors/reactSelectEditor.js';
@@ -50,6 +50,7 @@ class CodeListTable extends React.Component {
         const mdv = this.props.mdv;
         // Get list of variables which are using the codelist;
         let codeListVariables = [];
+        /*
         Object.keys(mdv.itemGroups).forEach( itemGroupOid => {
             let dataset = mdv.itemGroups[itemGroupOid];
             dataset.itemRefs.forEach( itemRef => {
@@ -66,6 +67,7 @@ class CodeListTable extends React.Component {
                 }
             });
         });
+        */
         // Standard codelist
         this.state = {
             codeListVariables : codeListVariables,

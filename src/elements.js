@@ -167,10 +167,10 @@ class Origin extends BasicFunctions {
 
 class WhereClause {
     constructor ({
-        oid, comment, rangeChecks = []
+        oid, commentOid, rangeChecks = []
     } = {}) {
         this.oid = oid;
-        this.comment = comment;
+        this.commentOid = commentOid;
         this.rangeChecks = rangeChecks;
     }
     addRangeCheck (rangeCheck) {
@@ -179,7 +179,7 @@ class WhereClause {
     clone () {
         return new WhereClause({
             oid         : this.oid,
-            comment     : this.comment,
+            commentOid  : this.commentOid,
             rangeChecks : this.rangeChecks,
         });
 
@@ -247,7 +247,7 @@ class RangeCheck {
 
 class CodeList extends BasicFunctions {
     constructor ({
-        oid, name, dataType, standard, formatName, comment, externalCodeList, alias,
+        oid, name, dataType, standard, formatName, commentOid, externalCodeList, alias,
         cdiscSubmissionValue, linkedCodeList, codeListType,
         descriptions = [],
         enumeratedItems = [],
@@ -259,7 +259,7 @@ class CodeList extends BasicFunctions {
         this.dataType = dataType;
         this.standard = standard;
         this.formatName = formatName;
-        this.comment = comment; // 2.1D
+        this.commentOid = commentOid; // 2.1D
         this.externalCodeList = externalCodeList;
         this.alias = alias;
         this.descriptions = descriptions; // 2.1D
@@ -350,12 +350,23 @@ class CodeListItem extends EnumeratedItem {
 
 class Comment extends BasicFunctions {
     constructor ({
-        oid, descriptions = [], documents = []
+        oid, descriptions = [], documents = [], sources
     } = {}) {
         super();
         this.oid = oid;
         this.descriptions = descriptions;
         this.documents = documents;
+        if (sources !== undefined) {
+            this.sources = sources;
+        } else {
+            this.sources = {
+                itemDefs        : [],
+                itemGroups      : [],
+                whereClauses    : [],
+                codeLists       : [],
+                metaDataVersion : [],
+            };
+        }
     }
     toString () {
         let result = this.getDescription();
@@ -369,7 +380,11 @@ class Comment extends BasicFunctions {
     clone (){
         let descriptions = this.descriptions.map( description => (description.clone()));
         let documents = this.documents.map( document => (document.clone()));
-        return new Comment({oid: this.oid, descriptions: descriptions, documents: documents});
+        let sources = {};
+        Object.keys(this.sources).forEach( type => {
+            sources[type] = this.sources[type].slice();
+        });
+        return new Comment({oid: this.oid, descriptions: descriptions, documents: documents, sources: sources});
     }
 }
 
@@ -431,66 +446,28 @@ class Method extends Comment {
     }
 }
 
-class Odm {
-    constructor ({
-        schemaLocation, odmVersion, fileType, fileOid, creationDateTime, asOfDateTime, originator, sourceSystem,
-        sourceSystemVersion, context, study, xlink, def, xmlns, xsi
-    } = {}) {
-        this.schemaLocation = schemaLocation;
-        this.odmVersion = odmVersion;
-        this.fileType = fileType;
-        this.fileOid = fileOid;
-        this.creationDateTime = creationDateTime;
-        this.asOfDateTime = asOfDateTime;
-        this.originator = originator;
-        this.sourceSystem = sourceSystem;
-        this.sourceSystemVersion = sourceSystemVersion;
-        this.context = context;
-        this.study = study;
-        this.xlink = xlink;
-        this.def = def;
-        this.xmlns = xmlns;
-        this.xsi = xsi;
-    }
-}
-
-class Study {
-    constructor ({
-        oid, metaDataVersion, globalVariables
-    } = {}) {
-        this.oid = oid;
-        this.globalVariables = globalVariables;
-        this.metaDataVersion = metaDataVersion;
-    }
-}
-
-class GlobalVariables {
-    constructor ({
-        protocolName, studyName, studyDescription
-    } = {}) {
-        this.protocolName = protocolName;
-        this.studyName = studyName;
-        this.studyDescription = studyDescription;
-    }
-}
-
 class MetaDataVersion extends BasicFunctions {
     constructor ({
         oid, name, defineVersion, commentOid,
-        standards, valueLists, whereClauses,
-        itemGroups, itemDefs, codeLists, methods, comments, leafs, model,
+        standards = {},
+        valueLists = {},
+        whereClauses = {},
+        itemGroups = {},
+        itemDefs = {},
+        codeLists = {},
+        methods = {},
+        comments = {},
+        leafs = {},
+        model = {},
         annotatedCrf = [],
         supplementalDoc = [],
         descriptions = []
     } = {}) {
         super();
-        this.props = {};
-        this.props.oid = oid || getOid(this.constructor.name);
-        this.props.name = name;
-        this.props.defineVersion = defineVersion;
-        this.props.commentOid = commentOid; //2.1
-        // Non-define XML properties
-        this.props.model = model; 
+        this.oid = oid || getOid(this.constructor.name);
+        this.name = name;
+        this.defineVersion = defineVersion;
+        this.commentOid = commentOid; //2.1
         // Child elements
         this.descriptions = descriptions;
         this.standards = standards;
@@ -504,6 +481,8 @@ class MetaDataVersion extends BasicFunctions {
         this.methods = methods;
         this.comments = comments;
         this.leafs = leafs;
+        // Non-define XML properties
+        this.model = model; 
     }
     addStandard (standard) {
         this.standards.push(standard);
@@ -526,7 +505,7 @@ class MetaDataVersion extends BasicFunctions {
 
 class Standard {
     constructor ({
-        oid, name, type, publishingSet, version, status, isDefault, comment
+        oid, name, type, publishingSet, version, status, isDefault, commentOid
     } = {}) {
         this.oid = oid || getOid(this.constructor.name);
         this.name = name;
@@ -534,7 +513,58 @@ class Standard {
         this.publishingSet = publishingSet;
         this.version = version;
         this.isDefault = isDefault;
-        this.comment = comment;
+        this.commentOid = commentOid;
+    }
+}
+
+class GlobalVariables {
+    constructor ({
+        protocolName, studyName, studyDescription
+    } = {}) {
+        this.protocolName = protocolName;
+        this.studyName = studyName;
+        this.studyDescription = studyDescription;
+    }
+}
+
+class Study {
+    constructor ({
+        oid, metaDataVersion, globalVariables
+    } = {}) {
+        this.oid = oid;
+        this.globalVariables = globalVariables;
+        if (metaDataVersion === undefined) {
+            this.metaDataVersion = new MetaDataVersion();
+        } else {
+            this.metaDataVersion = metaDataVersion;
+        }
+    }
+}
+
+class Odm {
+    constructor ({
+        schemaLocation, odmVersion, fileType, fileOid, creationDateTime, asOfDateTime, originator, sourceSystem,
+        sourceSystemVersion, context, study, xlink, def, xmlns, xsi
+    } = {}) {
+        this.schemaLocation = schemaLocation;
+        this.odmVersion = odmVersion;
+        this.fileType = fileType;
+        this.fileOid = fileOid;
+        this.creationDateTime = creationDateTime;
+        this.asOfDateTime = asOfDateTime;
+        this.originator = originator;
+        this.sourceSystem = sourceSystem;
+        this.sourceSystemVersion = sourceSystemVersion;
+        this.context = context;
+        this.xlink = xlink;
+        this.def = def;
+        this.xmlns = xmlns;
+        this.xsi = xsi;
+        if (study === undefined) {
+            this.study = new Study();
+        } else {
+            this.study = study;
+        }
     }
 }
 
@@ -542,9 +572,10 @@ class ItemGroup extends BasicFunctions {
     constructor ({
         oid, name, domain, datasetName, repeating, isReferenceData, purpose,
         structure, datasetClass, archiveLocationId, commentOid, isNotStandard,
-        standard, alias, leaf, orderNumber,
+        standard, alias, leaf, parentItemDefOid,
         descriptions = [],
-        itemRefs = []
+        itemRefs = {},
+        itemRefsOrder = [],
     } = {}) {
         super();
         this.oid = oid || getOid(this.constructor.name);
@@ -562,13 +593,18 @@ class ItemGroup extends BasicFunctions {
         this.standard = standard;
         this.descriptions = descriptions;
         this.itemRefs = itemRefs;
+        this.itemRefsOrder = itemRefsOrder;
         this.alias = alias;
-        this.leaf = leaf;
-        // Non-define XML properties
-        this.orderNumber = orderNumber;
+        if (leaf !== undefined) {
+            this.leaf = leaf;
+        } else {
+            this.leaf = new Leaf();
+        }
+        // Non Define-XML properties
+        this.parentItemDefOid = parentItemDefOid;
     }
-    addItemRef (itemRef) {
-        this.itemRefs.push(itemRef);
+    addItemRef (oid, itemRef) {
+        this.itemRefs[oid]= itemRef;
     }
     getOidByName (name) {
         let result;
@@ -587,7 +623,7 @@ class ItemDef extends BasicFunctions {
     constructor ({
         oid, name, dataType, length,
         fractionDigits, fieldName, displayFormat,
-        comment, codeList, valueList, valueListOid, parent, note,
+        commentOid, codeList, valueList, valueListOid, parent, note,
         varLength, lengthAsData, lengthAsCodelist,
         origins = [],
         descriptions = []
@@ -600,7 +636,7 @@ class ItemDef extends BasicFunctions {
         this.fractionDigits = fractionDigits;
         this.fieldName = fieldName;
         this.displayFormat = displayFormat;
-        this.comment = comment;
+        this.commentOid = commentOid;
         this.origins = origins;
         this.codeList = codeList;
         this.valueList = valueList;
@@ -622,13 +658,6 @@ class ItemDef extends BasicFunctions {
     addOrigin (origin) {
         this.origins.push(origin);
     }
-    setValueList (valueList) {
-        this.valueList = valueList;
-        var self = this;
-        this.valueList.getItemRefs().forEach(function (itemRef) {
-            itemRef.itemDef.setParent(self);
-        });
-    }
     setParent (parent) {
         this.parent = parent;
     }
@@ -636,34 +665,33 @@ class ItemDef extends BasicFunctions {
 
 class ItemRef {
     constructor ({
-        orderNumber, mandatory, keySequence, method, role, roleCodeList, itemDef, isNotStandatd, whereClause
+        orderNumber, mandatory, keySequence, method, role, roleCodeList, itemOid, isNotStandatd, whereClause
     } = {}) {
-        this.orderNumber = orderNumber;
+        // The order number is used only to create ItemRefOrder element in ItemGroup;
+        this.orderNumber = Number(orderNumber);
         this.mandatory = mandatory;
         this.keySequence = keySequence;
         this.method = method;
         this.isNotStandard = isNotStandatd;
         this.role = role;
         this.roleCodeList = roleCodeList;
-        this.itemDef = itemDef;
+        this.itemOid = itemOid;
         this.whereClause = whereClause;
     }
 }
 
 class ValueList extends BasicFunctions {
     constructor ({
-        oid, itemRefs = [], descriptions = []
+        oid, itemRefs = {}, itemRefsOrder = [], descriptions = []
     } = {}) {
         super();
         this.oid = oid || getOid(this.constructor.name);
         this.itemRefs = itemRefs;
+        this.itemRefsOrder = itemRefsOrder;
         this.descriptions = descriptions; // 2.1D
     }
-    addItemRef (itemRef) {
-        this.itemRefs.push(itemRef);
-    }
-    getItemRefs () {
-        return this.itemRefs;
+    addItemRef (oid, itemRef) {
+        this.itemRefs[oid]= itemRef;
     }
 }
 
