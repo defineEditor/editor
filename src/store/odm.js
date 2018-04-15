@@ -6,7 +6,8 @@ import { Odm } from "elements.js";
 
 const initialState = {
     odm          : new Odm(),
-    stdCodeLists : {}
+    stdCodeLists : {},
+    stdConstants : {},
 };
 
 const store = createStore(rootReducer, initialState);

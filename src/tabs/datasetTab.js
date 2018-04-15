@@ -217,14 +217,9 @@ class ConnectedDatasetTable extends React.Component {
             };
             // Get key variables
             // TODO: When key is located in the SUPP dataset.
-            let keysArray = [];
-            Object.keys(originDs.itemRefs).forEach((itemRefOid) => {
-                let itemRef = originDs.itemRefs[itemRefOid];
-                if (itemRef.keySequence !== undefined) {
-                    keysArray[itemRef.keySequence - 1] = this.props.itemDefs[itemRef.itemOid].name;
-                }
-            });
-            currentDs.keys = keysArray.join(', ');
+            currentDs.keys = originDs.keyOrder.map( keyOid => {
+                return this.props.itemDefs[originDs.itemRefs[keyOid].itemOid].name;
+            }).join(', ');
             datasets[index] = currentDs;
         });
 

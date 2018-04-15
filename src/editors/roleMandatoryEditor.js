@@ -37,11 +37,14 @@ class roleMandatoryEditor extends React.Component {
     }
 
     handleChange = name => event => {
-        if (name === 'mandatory') {
-            this.setState({[name]: event.target.checked});
-        }
         if (this.props.model === 'ADaM') {
-            this.save();
+            if (name === 'mandatoryFlag') {
+                this.setState({[name]: event.target.checked}, this.save);
+            }
+        } else {
+            if (name === 'mandatoryFlag') {
+                this.setState({[name]: event.target.checked});
+            }
         }
     };
 
@@ -79,8 +82,9 @@ class roleMandatoryEditor extends React.Component {
                         control={
                             <Checkbox
                                 checked={this.state.mandatoryFlag}
-                                onChange={this.handleChange('mandatory')}
-                                value="Mandatory"
+                                onChange={this.handleChange('mandatoryFlag')}
+                                value='Mandatory'
+                                color='primary'
                                 className={classes.checkbox}
                             />
                         }

@@ -4,6 +4,7 @@ import {
     ADD_ITEMGROUPCOMMENT,
     DEL_ITEMGROUPCOMMENT,
     UPD_ITEMREF,
+    UPD_ITEMREFKEYORDER,
 } from "constants/action-types";
 import { ItemGroup, TranslatedText, Leaf, ItemRef } from 'elements.js';
 import getOid from 'utils/getOid.js';
@@ -77,8 +78,52 @@ const deleteItemGroupComment = (state, action) => {
 };
 
 const updateItemRef = (state, action) => {
-    let newItemRef = new ItemRef({ ...state[action.source.groupOid].itemRefs[action.source.itemRefOid], ...action.updateObj });
-    return { ...state[action.source.groupOid], itemRefs: { ...state[action.source.groupOid], [action.itemRefOid]: newItemRef } };
+    let newItemRef = new ItemRef({ ...state[action.source.itemGroupOid].itemRefs[action.source.itemRefOid], ...action.updateObj });
+    let newItemGroup =  new ItemGroup({ ...state[action.source.itemGroupOid],
+        itemRefs: { ...state[action.source.itemGroupOid].itemRefs, [action.source.itemRefOid]: newItemRef }
+    });
+    return { ...state, [action.source.itemGroupOid]: newItemGroup };
+};
+
+const updateItemRefKeyOrder = (state, action) => {
+    // Check if order changed;
+    let ds = state[action.source.itemGroupOid];
+    let newItemRefOrder;
+    let newKeyOrder;
+    if (action.updateObj.orderNumber !== action.prevObj.orderNumber) {
+        newItemRefOrder = ds.itemRefOrder.slice();
+        // Delete element from the ordered array
+        newItemRefOrder.splice(newItemRefOrder.indexOf(action.source.itemRefOid),1);
+        // Insert it in the new place
+        if (action.updateObj.orderNumber !== ds.itemRefOrder.length) {
+            newItemRefOrder.splice(action.updateObj.orderNumber - 1, 0, action.source.itemRefOid);
+        } else {
+            newItemRefOrder.push(action.source.itemRefOid);
+        }
+    } else {
+        newItemRefOrder = ds.itemRefOrder;
+    }
+    if (action.updateObj.keySequence !== action.prevObj.keySequence) {
+        newKeyOrder = ds.keyOrder.slice();
+        // Delete element from the keys array if it was a key
+        if (ds.keyOrder.includes(action.source.itemRefOid)) {
+            newKeyOrder.splice(newKeyOrder.indexOf(action.source.itemRefOid),1);
+        }
+        // Insert it in the new place
+        if (action.updateObj.keySequence !== ds.keyOrder.length) {
+            newKeyOrder.splice(action.updateObj.keySequence - 1, 0, action.source.itemRefOid);
+        } else {
+            newKeyOrder.push(action.source.itemRefOid);
+        }
+
+    } else {
+        newKeyOrder = ds.keyOrder;
+    }
+    let newItemGroup =  new ItemGroup({ ...state[action.source.itemGroupOid],
+        itemRefOrder : newItemRefOrder,
+        keyOrder     : newKeyOrder,
+    });
+    return { ...state, [action.source.itemGroupOid]: newItemGroup };
 };
 
 const itemGroups = (state = {}, action) => {
@@ -93,6 +138,8 @@ const itemGroups = (state = {}, action) => {
             return deleteItemGroupComment(state, action);
         case UPD_ITEMREF:
             return updateItemRef(state, action);
+        case UPD_ITEMREFKEYORDER:
+            return updateItemRefKeyOrder(state, action);
         default:
             return state;
     }

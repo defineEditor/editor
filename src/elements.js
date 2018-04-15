@@ -575,7 +575,8 @@ class ItemGroup extends BasicFunctions {
         standard, alias, leaf, parentItemDefOid,
         descriptions = [],
         itemRefs = {},
-        itemRefsOrder = [],
+        itemRefOrder = [],
+        keyOrder = [],
     } = {}) {
         super();
         this.oid = oid || getOid(this.constructor.name);
@@ -593,7 +594,8 @@ class ItemGroup extends BasicFunctions {
         this.standard = standard;
         this.descriptions = descriptions;
         this.itemRefs = itemRefs;
-        this.itemRefsOrder = itemRefsOrder;
+        this.itemRefOrder = itemRefOrder;
+        this.keyOrder = keyOrder;
         this.alias = alias;
         if (leaf !== undefined) {
             this.leaf = leaf;
@@ -665,12 +667,9 @@ class ItemDef extends BasicFunctions {
 
 class ItemRef {
     constructor ({
-        orderNumber, mandatory, keySequence, method, role, roleCodeList, itemOid, isNotStandatd, whereClause
+        mandatory, method, role, roleCodeList, itemOid, isNotStandatd, whereClause
     } = {}) {
-        // The order number is used only to create ItemRefOrder element in ItemGroup;
-        this.orderNumber = Number(orderNumber);
         this.mandatory = mandatory;
-        this.keySequence = keySequence;
         this.method = method;
         this.isNotStandard = isNotStandatd;
         this.role = role;
@@ -682,13 +681,14 @@ class ItemRef {
 
 class ValueList extends BasicFunctions {
     constructor ({
-        oid, itemRefs = {}, itemRefsOrder = [], descriptions = []
+        oid, itemRefs = {}, itemRefOrder = [], descriptions = [], keyOrder = [],
     } = {}) {
         super();
         this.oid = oid || getOid(this.constructor.name);
         this.itemRefs = itemRefs;
-        this.itemRefsOrder = itemRefsOrder;
+        this.itemRefOrder = itemRefOrder;
         this.descriptions = descriptions; // 2.1D
+        this.keyOrder = keyOrder;
     }
     addItemRef (oid, itemRef) {
         this.itemRefs[oid]= itemRef;

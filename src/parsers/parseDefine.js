@@ -432,22 +432,36 @@ function parseItemGroups (itemGroupsRaw, mdv) {
         itemGroupRaw['itemRef'].forEach(function (item) {
             let oid = getOid('ItemRef', undefined, Object.keys(itemRefs));
             itemRefs[oid] = parseItemRef(item, mdv);
+            itemRefs[oid].orderNumber = item['$']['orderNumber'];
+            itemRefs[oid].keySequence = item['$']['keySequence'];
         });
         // Comparing to Define-XML structure, order of itemRefs is stored in an array of IDs
-        let itemRefsOrder = Object.keys(itemRefs).sort( (itemRefOid1, itemRefOid2) => {
+        let itemRefOrder = Object.keys(itemRefs).sort( (itemRefOid1, itemRefOid2) => {
             if (itemRefs[itemRefOid1].orderNumber < itemRefs[itemRefOid2].orderNumber) {
                 return -1;
             } else {
                 return 1;
             }
         });
-        // Set itemRef orderNumber to undefined;
+        // Order of keys is also stored in a separate array;
+        let keyOrder = Object.keys(itemRefs)
+            .filter( itemRefOid => (itemRefs[itemRefOid].keySequence !== undefined))
+            .sort( (itemRefOid1, itemRefOid2) => {
+                if (itemRefs[itemRefOid1].keySequence < itemRefs[itemRefOid2].keySequence) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            });
+        // Delete itemRef orderNumber/keySequence as they are not used;
         Object.keys(itemRefs).forEach( itemRefOid => {
-            itemRefs[itemRefOid].orderNumber = undefined;
+            delete itemRefs[itemRefOid].orderNumber;
+            delete itemRefs[itemRefOid].keySequence;
         });
 
         args.itemRefs = itemRefs;
-        args.itemRefsOrder = itemRefsOrder;
+        args.itemRefOrder = itemRefOrder;
+        args.keyOrder = keyOrder;
 
         let itemGroup = new def.ItemGroup(args);
 
@@ -472,22 +486,36 @@ function parseValueLists (valueListsRaw, mdv) {
         valueListRaw['itemRef'].forEach(function (item) {
             let oid = getOid('ItemRef', undefined, Object.keys(itemRefs));
             itemRefs[oid] = parseItemRef(item, mdv);
+            itemRefs[oid].orderNumber = item['$']['orderNumber'];
+            itemRefs[oid].keySequence = item['$']['keySequence'];
         });
         // Comparing to Define-XML structure, order of itemRefs is stored in an array of IDs
-        let itemRefsOrder = Object.keys(itemRefs).sort( (itemRefOid1, itemRefOid2) => {
+        let itemRefOrder = Object.keys(itemRefs).sort( (itemRefOid1, itemRefOid2) => {
             if (itemRefs[itemRefOid1].orderNumber < itemRefs[itemRefOid2].orderNumber) {
                 return -1;
             } else {
                 return 1;
             }
         });
-        // Set itemRef orderNumber to undefined;
+        // Order of keys is also stored in a separate array;
+        let keyOrder = Object.keys(itemRefs)
+            .filter( itemRefOid => (itemRefs[itemRefOid].keySequence !== undefined))
+            .sort( (itemRefOid1, itemRefOid2) => {
+                if (itemRefs[itemRefOid1].keySequence < itemRefs[itemRefOid2].keySequence) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            });
+        // Delete itemRef orderNumber/keySequence as they are not used;
         Object.keys(itemRefs).forEach( itemRefOid => {
-            itemRefs[itemRefOid].orderNumber = undefined;
+            delete itemRefs[itemRefOid].orderNumber;
+            delete itemRefs[itemRefOid].keySequence;
         });
 
         args.itemRefs = itemRefs;
-        args.itemRefsOrder = itemRefsOrder;
+        args.itemRefOrder = itemRefOrder;
+        args.keyOrder = keyOrder;
 
         let valueList = new def.ValueList(args);
 

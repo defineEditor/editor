@@ -28,33 +28,22 @@ import VariableCodeListFormatEditor from 'editors/variableCodeListFormatEditor.j
 import VariableCodeListFormatFormatter from 'formatters/variableCodeListFormatFormatter.js';
 import VariableNameLabelWhereClauseEditor from 'editors/variableNameLabelWhereClauseEditor.js';
 import VariableNameLabelWhereClauseFormatter from 'formatters/variableNameLabelWhereClauseFormatter.js';
-import { updateItemDef } from 'actions/index.js';
+import { updateItemDef, updateItemRef, updateItemRefKeyOrder } from 'actions/index.js';
 
-// Selector constants
-const dataTypes = [
-    'text',
-    'integer',
-    'float',
-    'date',
-    'datetime',
-    'time',
-    'partialDate',
-    'partialTime',
-    'partialDatetime',
-    'incompleteDatetime',
-    'durationDatetime',
-];
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateItemDef: (oid, updateObj) => dispatch(updateItemDef(oid, updateObj)),
+        updateItemDef         : (oid, updateObj) => dispatch(updateItemDef(oid, updateObj)),
+        updateItemRef         : (source, updateObj) => dispatch(updateItemRef(source, updateObj)),
+        updateItemRefKeyOrder : (source, updateObj, prevState) => dispatch(updateItemRefKeyOrder(source, updateObj, prevState)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        mdv: state.odm.study.metaDataVersion
+        mdv       : state.odm.study.metaDataVersion,
+        dataTypes : state.stdConstants.dataTypes,
     };
 };
 
@@ -168,8 +157,8 @@ function getTableData ({source, datasetName, itemDefs, mdv, defineVersion, vlmLe
         const originVar = source.itemRefs[itemRefOid];
         const originItemDef = itemDefs[originVar.itemOid];
         let currentVar = {
-            groupOid      : source.oid,
-            itemRefOid    : originVar.oid,
+            itemGroupOid  : source.oid,
+            itemRefOid    : itemRefOid,
             oid           : originItemDef.oid,
             name          : originItemDef.name,
             dataType      : originItemDef.dataType,
@@ -212,9 +201,11 @@ function getTableData ({source, datasetName, itemDefs, mdv, defineVersion, vlmLe
             currentVar.fullName = datasetName + '.' + originItemDef.name;
         }
 
+        let keySequence = source.keyOrder.includes(itemRefOid) ? source.keyOrder.indexOf(itemRefOid) + 1 : undefined;
+
         currentVar.keyOrder = {
-            orderNumber : (source.itemRefsOrder.indexOf(itemRefOid) + 1),
-            keySequence : originVar.keySequence,
+            orderNumber : (source.itemRefOrder.indexOf(itemRefOid) + 1),
+            keySequence : keySequence,
             itemGroup   : source,
         };
         currentVar.roleMandatory = {
@@ -268,13 +259,33 @@ class ConnectedVariableTable extends React.Component {
     onBeforeSaveCell = (row, cellName, cellValue) => {
         // Update on if the value changed
         if (!deepEqual(row[cellName], cellValue)) {
+
+            let updateObj = {};
+            if (cellName === 'dataType') {
+                updateObj[cellName] = cellValue;
+            } else {
+                updateObj = cellValue;
+            }
+
             if (cellName === 'Description') {
                 // TODO
             } else {
-                if (row.vlmLevel === 0) {
-                    this.props.updateItemDef(row.oid, cellValue);
-                    let updateObj = {};
-                    updateObj[cellName] = cellValue;
+                if (cellName === 'roleMandatory') {
+                    this.props.updateItemRef({
+                        itemGroupOid : row.itemGroupOid,
+                        itemRefOid   : row.itemRefOid,
+                    }, updateObj);
+                } else if (cellName === 'keyOrder') {
+                    this.props.updateItemRefKeyOrder(
+                        {
+                            itemGroupOid : row.itemGroupOid,
+                            itemRefOid   : row.itemRefOid,
+                        },
+                        updateObj,
+                        row.keyOrder
+                    );
+                } else if (row.vlmLevel === 0) {
+                    this.props.updateItemDef(row.oid, updateObj);
                 }
             }
         }
@@ -491,7 +502,7 @@ class ConnectedVariableTable extends React.Component {
                 text         : 'Type',
                 width        : '100px',
                 hidden       : hideMe,
-                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: dataTypes, optional: true}},
+                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: this.props.dataTypes, optional: true}},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },

@@ -1,4 +1,5 @@
 import itemGroups from 'reducers/itemGroups.js';
+import itemDefs from 'reducers/itemDefs.js';
 import comments from 'reducers/comments.js';
 import { MetaDataVersion } from 'elements.js';
 
@@ -9,6 +10,7 @@ const metaDataVersion = (state = initialState, action) => {
         return new MetaDataVersion({
             ...state,
             itemGroups : itemGroups(state.itemGroups, action),
+            itemDefs   : itemDefs(state.itemDefs, action),
             comments   : comments(state.comments, action),
         });
     } else {

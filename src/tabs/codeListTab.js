@@ -110,7 +110,7 @@ class CodeListTable extends React.Component {
     onCellEdit = (row, cellName, cellValue) => {
         // Update on if the value changed
         if (!deepEqual(row[cellName], cellValue)) {
-            this.props.onMdvChange('CodeList',{itemOid: row.oid, itemGroupOid: row.groupOid},{cellName: cellValue});
+            this.props.onMdvChange('CodeList',{itemOid: row.oid, itemGroupOid: row.itemGroupOid},{cellName: cellValue});
         }
     }
 
@@ -119,7 +119,7 @@ class CodeListTable extends React.Component {
         if (row[cellName] !== cellValue) {
             let updateObj = {};
             updateObj[cellName] = cellValue;
-            this.props.onMdvChange('CodeList',{itemOid: row.oid, itemGroupOid: row.groupOid},updateObj);
+            this.props.onMdvChange('CodeList',{itemOid: row.oid, itemGroupOid: row.itemGroupOid},updateObj);
         }
         return true;
     }

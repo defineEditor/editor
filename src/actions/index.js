@@ -9,6 +9,7 @@ import {
     UPD_ITEMGROUPCOMMENT,
     UPD_ITEMDEF,
     UPD_ITEMREF,
+    UPD_ITEMREFKEYORDER,
 } from "constants/action-types";
 
 // Core actions
@@ -82,5 +83,15 @@ export const updateItemRef = (source, updateObj) => (
         updateObj : updateObj,
     }
 );
+
+export const updateItemRefKeyOrder = (source, updateObj, prevObj) => (
+    {
+        type      : UPD_ITEMREFKEYORDER,
+        source    : source,
+        updateObj : updateObj,
+        prevObj   : prevObj,
+    }
+);
+
 
 

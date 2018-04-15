@@ -253,10 +253,13 @@ function createValueListDef (data, version) {
         }
         // Add ItemRefs
         result['ItemRef'] = [];
-        data.itemRefsOrder.forEach(function (itemRefOid, index) {
-            // Set the order number
+        data.itemRefOrder.forEach(function (itemRefOid, index) {
+            // Set the order and key sequence number
             let itemRef = Object.assign({}, data.itemRefs[itemRefOid]);
             itemRef.orderNumber = index;
+            if (data.keySequence.includes(itemRefOid)) {
+                itemRef.keySequence = data.keySequence.indexOf(itemRefOid) + 1;
+            }
             result['ItemRef'].push(createItemRef(itemRef, version));
         });
     }
@@ -359,8 +362,17 @@ function createItemGroupDef (data, version) {
         }
         // Add ItemRefs
         result['ItemRef'] = [];
-        data.itemRefsOrder.forEach(function (itemRefOid, index) {
-            // Set the order number
+        data.itemRefOrder.forEach(function (itemRefOid, index) {
+            // Set the order and key sequence number
+            let itemRef = Object.assign({}, data.itemRefs[itemRefOid]);
+            itemRef.orderNumber = index;
+            if (data.keySequence.includes(itemRefOid)) {
+                itemRef.keySequence = data.keySequence.indexOf(itemRefOid) + 1;
+            }
+            result['ItemRef'].push(createItemRef(itemRef, version));
+        });
+        data.keyOrder.forEach(function (itemRefOid, index) {
+            // Set the key sequence
             let itemRef = Object.assign({}, data.itemRefs[itemRefOid]);
             itemRef.orderNumber = index;
             result['ItemRef'].push(createItemRef(itemRef, version));

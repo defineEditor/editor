@@ -20,15 +20,14 @@ const styles = theme => ({
 class KeyOrderEditor extends React.Component {
     constructor (props) {
         super(props);
-        let itemGroup = props.defaultValue.itemGroup;
+        const itemGroup = props.defaultValue.itemGroup;
         // Get the total number of variables in the dataset
-        let maxOrderNum = itemGroup.itemRefsOrder.length;
+        const maxOrderNum = itemGroup.itemRefOrder.length;
         // Get the number of keys and add 1 if the current variable is not a key
-        let maxKeySeq = Object.keys(itemGroup.itemRefs).filter((itemRefOid) => {
-            return itemGroup.itemRefs[itemRefOid].keySequence !== undefined;
-        }).length + (this.props.defaultValue.keySequence === undefined ? 1 : 0);
+        const key = props.defaultValue.keySequence !== undefined;
+        const maxKeySeq = itemGroup.keyOrder.length + (key ? 0 : 1);
         this.state = {
-            key         : props.defaultValue.keySequence !== undefined,
+            key         : key,
             keySequence : props.defaultValue.keySequence,
             orderNumber : props.defaultValue.orderNumber,
             maxKeySeq   : maxKeySeq,
