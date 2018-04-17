@@ -14,14 +14,15 @@ const styles = theme => ({
 class VariableCodeListFormatFormatter extends React.Component {
     render() {
         //const {classes} = this.props;
-        const codeList = this.props.value.codeList;
+        const codeListOid = this.props.value.codeListOid;
         const displayFormat = this.props.value.displayFormat;
+        const codeListLabel = this.props.value.codeListLabel;
 
         return (
             <Grid container spacing={0}>
-                {codeList !== undefined &&
+                {codeListOid !== undefined &&
                         <Grid item xs={12}>
-                            <ModalCodeListFormatter value={codeList} defineVersion={this.props.defineVersion}/>
+                            <ModalCodeListFormatter codeListOid={codeListOid} codeListLabel={codeListLabel}/>
                         </Grid>
                 }
                 {displayFormat !== undefined &&
@@ -35,9 +36,8 @@ class VariableCodeListFormatFormatter extends React.Component {
 }
 
 VariableCodeListFormatFormatter.propTypes = {
-    classes       : PropTypes.object.isRequired,
-    value         : PropTypes.object,
-    defineVersion : PropTypes.string.isRequired,
+    classes : PropTypes.object.isRequired,
+    value   : PropTypes.object,
 };
 
 export default withStyles(styles)(VariableCodeListFormatFormatter);

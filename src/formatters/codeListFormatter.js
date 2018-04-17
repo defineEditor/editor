@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 import Grid from 'material-ui/Grid';
@@ -17,7 +18,15 @@ const styles = theme => ({
     },
 });
 
-class CodeListFormatter extends React.Component {
+const mapStateToProps = state => {
+    return {
+        codeLists     : state.odm.study.metaDataVersion.codeLists,
+        defineVersion : state.odm.study.metaDataVersion.defineVersion,
+    };
+};
+
+
+class ConnectedCodeListFormatter extends React.Component {
 
     getCodeListTable(codeList, defineVersion, classes) {
         let {codeListTable, codeListTitle, isDecoded, isRanked, isCcoded} = getCodeListData(codeList, defineVersion);
@@ -58,18 +67,21 @@ class CodeListFormatter extends React.Component {
     }
 
     render () {
-        const { value, defineVersion, classes } = this.props;
+        const { codeListOid, codeLists, defineVersion, classes } = this.props;
+        const codeList = codeLists[codeListOid];
         return (
             <div className={classes.root}>
-                {this.getCodeListTable(value, defineVersion, classes)}
+                {this.getCodeListTable(codeList, defineVersion, classes)}
             </div>
         );
     }
 }
 
-CodeListFormatter.propTypes = {
-    value         : PropTypes.object,
+ConnectedCodeListFormatter.propTypes = {
+    codeListOid   : PropTypes.string.isRequired,
+    codeLists     : PropTypes.object.isRequired,
     defineVersion : PropTypes.string.isRequired,
 };
 
+const CodeListFormatter = connect(mapStateToProps)(ConnectedCodeListFormatter);
 export default withStyles(styles)(CodeListFormatter);

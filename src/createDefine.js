@@ -469,7 +469,7 @@ function createItemDef (data, version) {
         }
         // Add CodelistRef
         if (data.codeList !== undefined) {
-            result['CodeListRef'] = {'@CodeListOID': data.codeList.oid};
+            result['CodeListRef'] = {'@CodeListOID': data.codeListOid};
         }
         // Add Origin
         // 2.0.0 allows only one origin

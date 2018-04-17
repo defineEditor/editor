@@ -19,16 +19,7 @@ const styles = theme => ({
 class VariableCodeListFormatEditor extends React.Component {
     constructor (props) {
         super(props);
-        let codeListOid;
-        if (this.props.defaultValue.codeList !== undefined) {
-            codeListOid = this.props.defaultValue.codeList.oid;
-        } else {
-            codeListOid = '';
-        }
-        this.state = {
-            codeListOid   : codeListOid,
-            displayFormat : this.props.defaultValue.displayFormat || '',
-        };
+        this.state = { ...this.props.defaultValue };
     }
 
     handleChange = name => event => {
@@ -50,6 +41,8 @@ class VariableCodeListFormatEditor extends React.Component {
 
     render() {
         const {classes} = this.props;
+        const displayFormat = this.state.displayFormat || '';
+        const codeListOid = this.state.codeListOid || '';
         // Get list of codeLists
         let codeLists = Object.keys(this.props.codeLists).map( codeListOid => {
             let result = {};
@@ -72,7 +65,7 @@ class VariableCodeListFormatEditor extends React.Component {
                         fullWidth
                         select
                         multiline
-                        value={this.state.codeListOid}
+                        value={codeListOid}
                         onChange={this.handleChange('codeListOid')}
                         className={classes.textField}
                         InputProps={{classes: {input: classes.value}}}
@@ -84,7 +77,7 @@ class VariableCodeListFormatEditor extends React.Component {
                     <TextField
                         label='Display Format'
                         fullWidth
-                        value={this.state.displayFormat}
+                        value={displayFormat}
                         onChange={this.handleChange('displayFormat')}
                         className={classes.textField}
                     />

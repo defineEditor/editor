@@ -46,7 +46,7 @@ class ModalCodeListFormatter extends React.Component {
     };
 
     render () {
-        const { value, classes } = this.props;
+        const { codeListLabel, codeListOid, classes } = this.props;
         return (
             <div>
                 <ButtonBase
@@ -54,14 +54,14 @@ class ModalCodeListFormatter extends React.Component {
                     className={classes.button}
                     focusRipple={true}
                 >
-                    {value.name}
+                    {codeListLabel}
                 </ButtonBase>
                 <Modal
                     open={this.state.open}
                     onClose={this.handleClose}
                 >
                     <Paper className={classes.paper} elevation={5}>
-                        <CodeListFormatter value={value} defineVersion={this.props.defineVersion}/>
+                        <CodeListFormatter codeListOid={codeListOid}/>
                     </Paper>
                 </Modal>
             </div>
@@ -70,8 +70,7 @@ class ModalCodeListFormatter extends React.Component {
 }
 
 ModalCodeListFormatter.propTypes = {
-    value         : PropTypes.object,
-    defineVersion : PropTypes.string.isRequired,
+    codeListOid: PropTypes.string,
 };
 
 export default withStyles(styles)(ModalCodeListFormatter);

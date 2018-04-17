@@ -251,7 +251,8 @@ class CodeList extends BasicFunctions {
         cdiscSubmissionValue, linkedCodeList, codeListType,
         descriptions = [],
         enumeratedItems = [],
-        codeListItems = []
+        codeListItems = [],
+        sources,
     } = {}) {
         super();
         this.oid = oid || getOid(this.constructor.name);
@@ -278,6 +279,14 @@ class CodeList extends BasicFunctions {
         }
         this.linkedCodeList = linkedCodeList;
         this.cdiscSubmissionValue = cdiscSubmissionValue;
+        // List of items from which the codelist is linked
+        if (sources !== undefined) {
+            this.sources = sources;
+        } else {
+            this.sources = {
+                itemDefs: [],
+            };
+        }
     }
     addEnumeratedItem (item) {
         this.enumeratedItems.push(item);
@@ -625,7 +634,7 @@ class ItemDef extends BasicFunctions {
     constructor ({
         oid, name, dataType, length,
         fractionDigits, fieldName, displayFormat,
-        commentOid, codeList, valueList, valueListOid, parent, note,
+        commentOid, codeListOid, valueList, valueListOid, parent, note,
         varLength, lengthAsData, lengthAsCodelist,
         origins = [],
         descriptions = []
@@ -640,7 +649,7 @@ class ItemDef extends BasicFunctions {
         this.displayFormat = displayFormat;
         this.commentOid = commentOid;
         this.origins = origins;
-        this.codeList = codeList;
+        this.codeListOid = codeListOid;
         this.valueList = valueList;
         this.valueListOid = valueListOid;
         this.descriptions = descriptions;

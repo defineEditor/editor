@@ -28,15 +28,16 @@ import VariableCodeListFormatEditor from 'editors/variableCodeListFormatEditor.j
 import VariableCodeListFormatFormatter from 'formatters/variableCodeListFormatFormatter.js';
 import VariableNameLabelWhereClauseEditor from 'editors/variableNameLabelWhereClauseEditor.js';
 import VariableNameLabelWhereClauseFormatter from 'formatters/variableNameLabelWhereClauseFormatter.js';
-import { updateItemDef, updateItemRef, updateItemRefKeyOrder } from 'actions/index.js';
+import { updateItemDef, updateItemRef, updateItemRefKeyOrder, updateItemCodeListDisplayFormat } from 'actions/index.js';
 
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateItemDef         : (oid, updateObj) => dispatch(updateItemDef(oid, updateObj)),
-        updateItemRef         : (source, updateObj) => dispatch(updateItemRef(source, updateObj)),
-        updateItemRefKeyOrder : (source, updateObj, prevState) => dispatch(updateItemRefKeyOrder(source, updateObj, prevState)),
+        updateItemDef                   : (oid, updateObj) => dispatch(updateItemDef(oid, updateObj)),
+        updateItemRef                   : (source, updateObj) => dispatch(updateItemRef(source, updateObj)),
+        updateItemRefKeyOrder           : (source, updateObj, prevState) => dispatch(updateItemRefKeyOrder(source, updateObj, prevState)),
+        updateItemCodeListDisplayFormat : (oid, updateObj, prevState) => dispatch(updateItemCodeListDisplayFormat(oid, updateObj, prevState)),
     };
 };
 
@@ -151,7 +152,7 @@ function roleMandatoryFormatter (cell, row) {
 }
 
 // Extract data required for the table;
-function getTableData ({source, datasetName, itemDefs, mdv, defineVersion, vlmLevel}={}) {
+function getTableData ({source, datasetName, itemDefs, codeLists, mdv, defineVersion, vlmLevel}={}) {
     let result = [];
     Object.keys(source.itemRefs).forEach((itemRefOid, index) => {
         const originVar = source.itemRefs[itemRefOid];
@@ -176,8 +177,9 @@ function getTableData ({source, datasetName, itemDefs, mdv, defineVersion, vlmLe
             lengthAsCodelist : originItemDef.lengthAsCodelist,
         };
         currentVar.codeListFormatAttrs = {
-            codeList      : originItemDef.codeList,
+            codeListOid   : originItemDef.codeListOid,
             displayFormat : originItemDef.displayFormat,
+            codeListLabel : originItemDef.codeListOid !== undefined && codeLists[originItemDef.codeListOid].name,
             dataType      : originItemDef.dataType,
         };
         currentVar.description = {
@@ -229,6 +231,7 @@ class ConnectedVariableTable extends React.Component {
             source        : dataset,
             datasetName   : dataset.name,
             itemDefs      : mdv.itemDefs,
+            codeLists     : mdv.codeLists,
             mdv           : this.props.mdv,
             defineVersion : this.props.defineVersion,
             vlmLevel      : 0,
@@ -242,6 +245,7 @@ class ConnectedVariableTable extends React.Component {
                 source        : item.valueList,
                 datasetName   : dataset.name,
                 itemDefs      : mdv.itemDefs,
+                codeLists     : mdv.codeLists,
                 mdv           : mdv,
                 defineVersion : this.props.defineVersion,
                 vlmLevel      : 1,
@@ -275,6 +279,12 @@ class ConnectedVariableTable extends React.Component {
                         itemGroupOid : row.itemGroupOid,
                         itemRefOid   : row.itemRefOid,
                     }, updateObj);
+                } else if (cellName === 'codeListFormatAttrs') {
+                    this.props.updateItemCodeListDisplayFormat(
+                        row.oid,
+                        updateObj,
+                        row.codeListFormatAttrs,
+                    );
                 } else if (cellName === 'keyOrder') {
                     this.props.updateItemRefKeyOrder(
                         {
@@ -551,7 +561,7 @@ class ConnectedVariableTable extends React.Component {
                         supplementalDoc : mdv.supplementalDoc,
                         annotatedCrf    : mdv.annotatedCrf,
                         model           : mdv.model,
-                        defineVersion   : '2.0',
+                        defineVersion   : this.props.defineVersion,
                     }
                 },
             },

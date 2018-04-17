@@ -10,6 +10,7 @@ import {
     UPD_ITEMDEF,
     UPD_ITEMREF,
     UPD_ITEMREFKEYORDER,
+    UPD_ITEMCLDF,
 } from "constants/action-types";
 
 // Core actions
@@ -93,5 +94,12 @@ export const updateItemRefKeyOrder = (source, updateObj, prevObj) => (
     }
 );
 
-
+export const updateItemCodeListDisplayFormat = (oid, updateObj, prevObj) => (
+    {
+        type      : UPD_ITEMCLDF,
+        oid       : oid,
+        updateObj : updateObj,
+        prevObj   : prevObj,
+    }
+);
 

@@ -353,7 +353,7 @@ function parseItemDefs (itemDefsRaw, mdv) {
     itemDefsRaw.forEach(function (itemDefRaw) {
         let args = itemDefRaw['$'];
         if (itemDefRaw.hasOwnProperty('codeListRef')) {
-            args.codeList = mdv.codelists[itemDefRaw['codeListRef'][0]['$']['codeListOid']];
+            args.codeListOid = itemDefRaw['codeListRef'][0]['$']['codeListOid'];
         }
         if (itemDefRaw.hasOwnProperty('alias')) {
             args.alias = parseAlias(itemDefRaw['alias']);
@@ -392,7 +392,7 @@ function parseItemRef (itemRefRaw, mdv) {
         delete args['methodOid'];
     }
     if (args.hasOwnProperty('roleCodeListOid')) {
-        args.roleCodeList = mdv.codelists[args['roleCodeListOid']];
+        args.roleCodeListOid = args['roleCodeListOid'];
         delete args['roleCodeListOid'];
     }
     if (itemRefRaw.hasOwnProperty('whereClauseRef')) {
