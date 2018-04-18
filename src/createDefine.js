@@ -275,12 +275,10 @@ function createItemRef (data, version) {
             'OrderNumber'     : data.orderNumber,
             'Mandatory'       : data.mandatory,
             'KeySequence'     : data.keySequence,
+            'MethodOid'       : data.methodOid,
             'Role'            : data.role,
             'RoleCodeListOID' : data.roleCodeList
         };
-        if (data.method !== undefined) {
-            attributes['MethodOID'] = data.method.oid;
-        }
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];

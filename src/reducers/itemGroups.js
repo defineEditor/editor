@@ -5,6 +5,7 @@ import {
     DEL_ITEMGROUPCOMMENT,
     UPD_ITEMREF,
     UPD_ITEMREFKEYORDER,
+    UPD_ITEMDESCRIPTION,
 } from "constants/action-types";
 import { ItemGroup, TranslatedText, Leaf, ItemRef } from 'elements.js';
 import getOid from 'utils/getOid.js';
@@ -126,6 +127,26 @@ const updateItemRefKeyOrder = (state, action) => {
     return { ...state, [action.source.itemGroupOid]: newItemGroup };
 };
 
+const updateItemDescription = (state, action) => {
+    // Method
+    let previousMethodOid;
+    if (action.prevObj.method !== undefined) {
+        previousMethodOid = action.prevObj.method.oid;
+    }
+    let newMethodOid;
+    if (action.updateObj.method !== undefined) {
+        newMethodOid = action.updateObj.method.oid;
+    }
+    if (previousMethodOid !== newMethodOid) {
+        let newAction = {};
+        newAction.source = action.source;
+        newAction.updateObj = { methodOid: newMethodOid };
+        return updateItemRef(state, newAction);
+    } else {
+        return state;
+    }
+};
+
 const itemGroups = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMGROUP:
@@ -140,6 +161,8 @@ const itemGroups = (state = {}, action) => {
             return updateItemRef(state, action);
         case UPD_ITEMREFKEYORDER:
             return updateItemRefKeyOrder(state, action);
+        case UPD_ITEMDESCRIPTION:
+            return updateItemDescription(state, action);
         default:
             return state;
     }

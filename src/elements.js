@@ -411,12 +411,21 @@ class FormalExpression {
 
 class Method extends Comment {
     constructor ({
-        oid, name, type, autoMethodName, descriptions = [], documents = [], formalExpressions = []
+        oid, name, type, autoMethodName, descriptions = [], documents = [], formalExpressions = [], sources,
     } = {}) {
+        let initialSources;
+        if (sources !== undefined) {
+            initialSources = sources;
+        } else {
+            initialSources = {
+                itemRefs: [],
+            };
+        }
         super({
             oid          : oid,
             descriptions : descriptions,
-            documents    : documents
+            documents    : documents,
+            sources      : initialSources,
         });
         this.name = name;
         this.type = type;
@@ -443,6 +452,10 @@ class Method extends Comment {
         let descriptions = this.descriptions.map( description => (description.clone()));
         let formalExpressions = this.formalExpressions.map( formalExpression => (formalExpression.clone()));
         let documents = this.documents.map( document => (document.clone()));
+        let sources = {};
+        Object.keys(this.sources).forEach( type => {
+            sources[type] = this.sources[type].slice();
+        });
         return new Method({
             oid               : this.oid,
             name              : this.name,
@@ -450,6 +463,7 @@ class Method extends Comment {
             autoMethodName    : this.autoMethodName,
             descriptions      : descriptions,
             documents         : documents,
+            sources           : sources,
             formalExpressions : formalExpressions,
         });
     }
@@ -676,10 +690,10 @@ class ItemDef extends BasicFunctions {
 
 class ItemRef {
     constructor ({
-        mandatory, method, role, roleCodeList, itemOid, isNotStandatd, whereClause
+        mandatory, methodOid, role, roleCodeList, itemOid, isNotStandatd, whereClause
     } = {}) {
         this.mandatory = mandatory;
-        this.method = method;
+        this.methodOid = methodOid;
         this.isNotStandard = isNotStandatd;
         this.role = role;
         this.roleCodeList = roleCodeList;

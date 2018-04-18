@@ -17,6 +17,7 @@ import AddIcon from 'material-ui-icons/AddCircle';
 import Tooltip from 'material-ui/Tooltip';
 import Switch from 'material-ui/Switch';
 import { MenuItem } from 'material-ui/Menu';
+import getOid from 'utils/getOid.js';
 
 const styles = theme => ({
     button: {
@@ -60,7 +61,8 @@ class MethodEditor extends React.Component {
         let newMethod;
         let method = this.props.stateless === true ? this.props.defaultValue : this.state.method;
         if (name === 'addMethod') {
-            newMethod = new Method({descriptions: [new TranslatedText({lang: 'en', value: ''})]});
+            let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
+            newMethod = new Method({ oid: methodOid, descriptions: [new TranslatedText({lang: 'en', value: ''})] });
         }
         if (name === 'deleteMethod') {
             newMethod = undefined;
@@ -302,6 +304,7 @@ MethodEditor.propTypes = {
         PropTypes.oneOf([""]),
     ]),
     leafs           : PropTypes.object.isRequired,
+    methods         : PropTypes.methods.isRequired,
     annotatedCrf    : PropTypes.array.isRequired,
     supplementalDoc : PropTypes.array.isRequired,
     onUpdate        : PropTypes.func,

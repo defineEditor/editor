@@ -3,7 +3,7 @@ import { MenuItem } from 'material-ui/Menu';
 
 function getSelectionList (list, optional) {
     let selectionList = [];
-    if (list.length < 1) {
+    if (list.length < 1 && optional !== true) {
         throw Error('Blank value list provided for the ItemSelect element');
     } else {
         if (optional === true) {

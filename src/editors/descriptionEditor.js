@@ -24,11 +24,10 @@ class DescriptionEditor extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            origins   : this.props.defaultValue.origins,
-            comment   : this.props.defaultValue.comment,
-            method    : this.props.defaultValue.method,
-            mandatory : this.props.defaultValue.mandatory,
-            prognote  : this.props.defaultValue.prognote,
+            origins  : this.props.defaultValue.origins,
+            comment  : this.props.defaultValue.comment,
+            method   : this.props.defaultValue.method,
+            prognote : this.props.defaultValue.prognote,
         };
     }
 
@@ -37,14 +36,13 @@ class DescriptionEditor extends React.Component {
     }
 
     save = () => {
-        let updatedComment = this.state.comment;
         // If Origin is not derived and method is shown only for derived origins
         // and a method exists, then remove the method
         // TODO: add condition when method is shown only for derived origin
-        if (this.state.origins[0].type !== 'Derived' && this.state.method !== undefined) {
-            this.setState({method: undefined});
-        }
-        this.props.onUpdate(updatedComment);
+        //if (this.state.origins[0].type !== 'Derived' && this.state.method !== undefined) {
+        //    this.setState({method: undefined});
+        //}
+        this.props.onUpdate(this.state);
     }
 
     cancel = () => {

@@ -5,7 +5,7 @@ import parseDefine from 'parsers/parseDefine.js';
 import { withStyles } from 'material-ui/styles';
 import parseStdCodeLists from 'parsers/parseStdCodeLists.js';
 import { connect } from 'react-redux';
-import { addOdm, addStdControlledTerminology } from 'actions/index.js';
+import { addOdm, addStdControlledTerminology, addStdConstants } from 'actions/index.js';
 const {ipcRenderer} = window.require('electron');
 
 const styles = theme => ({
@@ -20,6 +20,7 @@ const mapDispatchToProps = dispatch => {
     return {
         addOdm                      : odm => dispatch(addOdm(odm)),
         addStdControlledTerminology : codeListsOdm => dispatch(addStdControlledTerminology(codeListsOdm)),
+        addStdConstants             : () => dispatch(addStdConstants()),
     };
 };
 
@@ -54,6 +55,7 @@ class ConnectedEditor extends React.Component {
     componentDidMount() {
         ipcRenderer.on('define', this.loadDefine);
         ipcRenderer.on('stdCodeLists', this.loadStdCodeLists);
+        this.props.addStdConstants();
     }
 
     componentWillUnmount() {

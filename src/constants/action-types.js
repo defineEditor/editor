@@ -1,6 +1,7 @@
 // src/js/constants/action-types.js
 
 export const ADD_ODM = "ADD_ODM";
+export const ADD_STDCONST = "ADD_STDCONST";
 export const ADD_STDCT = "ADD_STDCT";
 export const UPD_ITEMGROUP = "UPD_ITEMGROUP";
 export const ADD_ITEMGROUP = "ADD_ITEMGROUP";
@@ -11,3 +12,4 @@ export const UPD_ITEMDEF= "UPD_ITEMDEF";
 export const UPD_ITEMREF= "UPD_ITEMREF";
 export const UPD_ITEMREFKEYORDER= "UPD_ITEMREFKEYORDER";
 export const UPD_ITEMCLDF = "UPD_ITEMCLDF";
+export const UPD_ITEMDESCRIPTION = "UPD_ITEMDESCRIPTION";

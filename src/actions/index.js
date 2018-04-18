@@ -1,6 +1,7 @@
 // src/js/actions/index.js
 import {
     ADD_ODM,
+    ADD_STDCONST,
     ADD_STDCT,
     UPD_ITEMGROUP,
     ADD_ITEMGROUP,
@@ -11,10 +12,13 @@ import {
     UPD_ITEMREF,
     UPD_ITEMREFKEYORDER,
     UPD_ITEMCLDF,
+    UPD_ITEMDESCRIPTION,
 } from "constants/action-types";
 
 // Core actions
 export const addOdm = odm => ({ type: ADD_ODM, odm: odm });
+
+export const addStdConstants = () => ({ type: ADD_STDCONST });
 
 export const addStdControlledTerminology = codeListsOdm => (
     {
@@ -103,3 +107,11 @@ export const updateItemCodeListDisplayFormat = (oid, updateObj, prevObj) => (
     }
 );
 
+export const updateItemDescription = (source, updateObj, prevObj) => (
+    {
+        type      : UPD_ITEMDESCRIPTION,
+        source    : source,
+        updateObj : updateObj,
+        prevObj   : prevObj,
+    }
+);

@@ -30,7 +30,7 @@ const handleItemDefUpdate = (state, action) => {
     return newState;
 };
 
-const comments = (state = {}, action) => {
+const codeLists = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMCLDF:
             return handleItemDefUpdate(state, action);
@@ -39,4 +39,4 @@ const comments = (state = {}, action) => {
     }
 };
 
-export default comments;
+export default codeLists;

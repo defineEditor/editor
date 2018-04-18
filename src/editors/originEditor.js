@@ -121,7 +121,7 @@ class OriginEditor extends React.Component {
         });
 
         let origin, originType, originDescription;
-        if (this.props.defineVersion === '2.0'){
+        if (this.props.defineVersion === '2.0.0'){
             origin = this.props.defaultValue[0];
             if (origin) {
                 originType = origin.type || '';

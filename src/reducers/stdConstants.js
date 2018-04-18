@@ -1,3 +1,7 @@
+import {
+    ADD_STDCONST
+} from "../constants/action-types";
+
 const dataTypes = [
     'text',
     'integer',
@@ -16,11 +20,13 @@ const initialState = {
     dataTypes,
 };
 
-const stdCodeLists = (state = initialState, action) => {
+const stdConstants = (state = initialState, action) => {
     switch (action.type) {
+        case ADD_STDCONST:
+            return initialState;
         default:
             return state;
     }
 };
 
-export default stdCodeLists;
+export default stdConstants;

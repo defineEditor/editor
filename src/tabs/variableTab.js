@@ -28,7 +28,7 @@ import VariableCodeListFormatEditor from 'editors/variableCodeListFormatEditor.j
 import VariableCodeListFormatFormatter from 'formatters/variableCodeListFormatFormatter.js';
 import VariableNameLabelWhereClauseEditor from 'editors/variableNameLabelWhereClauseEditor.js';
 import VariableNameLabelWhereClauseFormatter from 'formatters/variableNameLabelWhereClauseFormatter.js';
-import { updateItemDef, updateItemRef, updateItemRefKeyOrder, updateItemCodeListDisplayFormat } from 'actions/index.js';
+import { updateItemDef, updateItemRef, updateItemRefKeyOrder, updateItemCodeListDisplayFormat, updateItemDescription } from 'actions/index.js';
 
 
 // Redux functions
@@ -36,20 +36,22 @@ const mapDispatchToProps = dispatch => {
     return {
         updateItemDef                   : (oid, updateObj) => dispatch(updateItemDef(oid, updateObj)),
         updateItemRef                   : (source, updateObj) => dispatch(updateItemRef(source, updateObj)),
-        updateItemRefKeyOrder           : (source, updateObj, prevState) => dispatch(updateItemRefKeyOrder(source, updateObj, prevState)),
-        updateItemCodeListDisplayFormat : (oid, updateObj, prevState) => dispatch(updateItemCodeListDisplayFormat(oid, updateObj, prevState)),
+        updateItemRefKeyOrder           : (source, updateObj, prevObj) => dispatch(updateItemRefKeyOrder(source, updateObj, prevObj)),
+        updateItemCodeListDisplayFormat : (oid, updateObj, prevObj) => dispatch(updateItemCodeListDisplayFormat(oid, updateObj, prevObj)),
+        updateItemDescription           : (source, updateObj, prevObj) => dispatch(updateItemDescription(source, updateObj, prevObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        mdv       : state.odm.study.metaDataVersion,
-        dataTypes : state.stdConstants.dataTypes,
+        mdv           : state.odm.study.metaDataVersion,
+        dataTypes     : state.stdConstants.dataTypes,
+        defineVersion : state.odm.study.metaDataVersion.defineVersion,
     };
 };
 
 // Debug options
-const hideMe = false;
+const hideMe = true;
 
 const styles = theme => ({
     button: {
@@ -184,7 +186,7 @@ function getTableData ({source, datasetName, itemDefs, codeLists, mdv, defineVer
         };
         currentVar.description = {
             comment : mdv.comments[originItemDef.commentOid],
-            method  : originVar.method,
+            method  : mdv.methods[originVar.methodOid],
             origins : originItemDef.origins,
             note    : originItemDef.note,
             varName : originItemDef.name,
@@ -271,32 +273,38 @@ class ConnectedVariableTable extends React.Component {
                 updateObj = cellValue;
             }
 
-            if (cellName === 'Description') {
-                // TODO
-            } else {
-                if (cellName === 'roleMandatory') {
-                    this.props.updateItemRef({
+            if (cellName === 'description') {
+                this.props.updateItemDescription(
+                    {
+                        oid          : row.oid,
                         itemGroupOid : row.itemGroupOid,
                         itemRefOid   : row.itemRefOid,
-                    }, updateObj);
-                } else if (cellName === 'codeListFormatAttrs') {
-                    this.props.updateItemCodeListDisplayFormat(
-                        row.oid,
-                        updateObj,
-                        row.codeListFormatAttrs,
-                    );
-                } else if (cellName === 'keyOrder') {
-                    this.props.updateItemRefKeyOrder(
-                        {
-                            itemGroupOid : row.itemGroupOid,
-                            itemRefOid   : row.itemRefOid,
-                        },
-                        updateObj,
-                        row.keyOrder
-                    );
-                } else if (row.vlmLevel === 0) {
-                    this.props.updateItemDef(row.oid, updateObj);
-                }
+                    },
+                    updateObj,
+                    row.description,
+                );
+            } else if (cellName === 'roleMandatory') {
+                this.props.updateItemRef({
+                    itemGroupOid : row.itemGroupOid,
+                    itemRefOid   : row.itemRefOid,
+                }, updateObj);
+            } else if (cellName === 'codeListFormatAttrs') {
+                this.props.updateItemCodeListDisplayFormat(
+                    row.oid,
+                    updateObj,
+                    row.codeListFormatAttrs,
+                );
+            } else if (cellName === 'keyOrder') {
+                this.props.updateItemRefKeyOrder(
+                    {
+                        itemGroupOid : row.itemGroupOid,
+                        itemRefOid   : row.itemRefOid,
+                    },
+                    updateObj,
+                    row.keyOrder
+                );
+            } else if (row.vlmLevel === 0) {
+                this.props.updateItemDef(row.oid, updateObj);
             }
         }
         return true;

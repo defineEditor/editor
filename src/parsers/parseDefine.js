@@ -230,6 +230,20 @@ function parseMethods (methodsRaw, mdv) {
                 );
             });
         }
+        // Connect comment to its sources
+        let sources = [];
+        Object.keys(mdv.itemGroups).forEach( itemGroupOid => {
+            Object.keys(mdv.itemGroups[itemGroupOid].itemRefs).forEach( itemRefOid => {
+                if (mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].methodOid === method.oid) {
+                    sources.push(itemRefOid);
+                }
+            });
+        });
+
+        method.sources = {
+            itemRefs: sources,
+        };
+
         methods[method.oid] = method;
     });
 
@@ -387,10 +401,6 @@ function parseItemDefs (itemDefsRaw, mdv) {
 
 function parseItemRef (itemRefRaw, mdv) {
     let args = itemRefRaw['$'];
-    if (args.hasOwnProperty('methodOid')) {
-        args.method = mdv.methods[args['methodOid']];
-        delete args['methodOid'];
-    }
     if (args.hasOwnProperty('roleCodeListOid')) {
         args.roleCodeListOid = args['roleCodeListOid'];
         delete args['roleCodeListOid'];
@@ -538,7 +548,6 @@ function parseMetaDataVersion (metadataRaw) {
     var mdv = {};
     mdv.leafs = parseLeafs(metadataRaw['leaf']);
     mdv.standards = parseStandards(metadataRaw, defineVersion);
-    mdv.methods = parseMethods(metadataRaw['methodDef'], mdv);
     mdv.codelists = parseCodelists(metadataRaw['codeList'], mdv);
     mdv.whereClauses = parseWhereClauses(metadataRaw['whereClauseDef'], mdv);
 
@@ -565,6 +574,7 @@ function parseMetaDataVersion (metadataRaw) {
 
 
     mdv.itemGroups = parseItemGroups(metadataRaw['itemGroupDef'], mdv);
+    mdv.methods = parseMethods(metadataRaw['methodDef'], mdv);
     mdv.comments = parseComments(metadataRaw['commentDef'], mdv);
 
     let args = {
