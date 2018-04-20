@@ -13,6 +13,8 @@ import {
     UPD_ITEMREFKEYORDER,
     UPD_ITEMCLDF,
     UPD_ITEMDESCRIPTION,
+    ADD_VAR,
+    DEL_VARS,
 } from "constants/action-types";
 
 // Core actions
@@ -113,5 +115,26 @@ export const updateItemDescription = (source, updateObj, prevObj) => (
         source    : source,
         updateObj : updateObj,
         prevObj   : prevObj,
+    }
+);
+
+export const addVariable = (source, itemRef, itemDef, orderNumber) => (
+    {
+        type        : ADD_VAR,
+        source      : source,
+        itemRef     : itemRef,
+        itemDef     : itemDef,
+        orderNumber : orderNumber,
+    }
+);
+
+export const deleteVariables = (source, itemRefOids, itemDefOids, vlmItemRefOids, vlmItemDefOids) => (
+    {
+        type   : DEL_VARS,
+        source : source,
+        itemRefOids,
+        itemDefOids,
+        vlmItemRefOids,
+        vlmItemDefOids,
     }
 );

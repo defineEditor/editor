@@ -11,6 +11,7 @@ import store from 'store/odm.js';
 
 // React tools for development purposes
 window.require('electron-react-devtools').install();
+window.require('electron-redux-devtools').install();
 
 ReactDOM.render(
     <Provider store={store}>

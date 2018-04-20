@@ -52,7 +52,7 @@ class DescriptionEditor extends React.Component {
     render () {
         const { classes } = this.props;
         let childProps = Object.assign({}, this.props);
-        let origin = this.state.origins[0].type;
+        const originType = this.state.origins.length > 0 && this.state.origins[0].type;
         delete childProps.classes;
 
         return (
@@ -70,7 +70,7 @@ class DescriptionEditor extends React.Component {
                     <Divider/>
                 </Grid>
                 <Grid item xs={12} className={classes.gridItem}>
-                    {origin === 'Derived' &&
+                    {(['Derived','Assigned'].includes(originType) || this.state.method !== undefined) &&
                         <MethodEditor {...childProps} defaultValue={this.state.method} onUpdate={this.handleChange('method')} stateless={true}/>
                     }
                 </Grid>

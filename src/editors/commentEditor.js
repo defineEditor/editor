@@ -35,7 +35,7 @@ const mapStateToProps = state => {
     };
 };
 
-class CommentEditorConnected extends React.Component {
+class ConnectedCommentEditor extends React.Component {
     constructor (props) {
         super(props);
         // Bootstrap table changed undefined to '' when saving the value.
@@ -158,7 +158,7 @@ class CommentEditorConnected extends React.Component {
     }
 }
 
-CommentEditorConnected.propTypes = {
+ConnectedCommentEditor.propTypes = {
     comment: PropTypes.oneOfType([
         PropTypes.instanceOf(Comment),
         PropTypes.oneOf([""]),
@@ -171,5 +171,5 @@ CommentEditorConnected.propTypes = {
     stateless       : PropTypes.bool,
 };
 
-const CommentEditor = connect(mapStateToProps)(CommentEditorConnected);
+const CommentEditor = connect(mapStateToProps)(ConnectedCommentEditor);
 export default withStyles(styles)(CommentEditor);

@@ -61,23 +61,23 @@ const handleItemDescriptionUpdate = (state, action) => {
             // Add a method
             let subAction = {};
             subAction.method = action.updateObj.method;
-            subAction.source ={type: 'itemDefs', oid: action.source.oid};
+            subAction.source ={type: 'itemRefs', oid: action.source.itemRefOid};
             return addMethod(state, subAction);
         } else if (newMethodOid === undefined) {
             // Delete a method
             let subAction = {};
             subAction.method = action.prevObj.method;
-            subAction.source ={type: 'itemDefs', oid: action.source.oid};
+            subAction.source ={type: 'itemRefs', oid: action.source.itemRefOid};
             return deleteMethod(state, subAction);
         } else if (newMethodOid !== previousMethodOid) {
             // Method was replaced;
             let subAction = {};
             subAction.method = action.prevObj.method;
-            subAction.source ={type: 'itemDefs', oid: action.source.oid};
+            subAction.source ={type: 'itemRefs', oid: action.source.itemRefOid};
             let newState = deleteMethod(state, subAction);
             subAction = {};
             subAction.method = action.updateObj.method;
-            subAction.source ={type: 'itemDefs', oid: action.source.oid};
+            subAction.source ={type: 'itemRefs', oid: action.source.itemRefOid};
             return addMethod(newState, subAction);
         } else {
             // Method was just updated

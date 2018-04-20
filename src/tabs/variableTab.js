@@ -21,6 +21,7 @@ import DescriptionEditor from 'editors/descriptionEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import RoleMandatoryEditor from 'editors/roleMandatoryEditor.js';
 import VariableLengthEditor from 'editors/variableLengthEditor.js';
+import AddVariableEditor from 'editors/addVariableEditor.js';
 import DescriptionFormatter from 'formatters/descriptionFormatter.js';
 import RoleMandatoryFormatter from 'formatters/roleMandatoryFormatter.js';
 import VariableLengthFormatter from 'formatters/variableLengthFormatter.js';
@@ -28,7 +29,10 @@ import VariableCodeListFormatEditor from 'editors/variableCodeListFormatEditor.j
 import VariableCodeListFormatFormatter from 'formatters/variableCodeListFormatFormatter.js';
 import VariableNameLabelWhereClauseEditor from 'editors/variableNameLabelWhereClauseEditor.js';
 import VariableNameLabelWhereClauseFormatter from 'formatters/variableNameLabelWhereClauseFormatter.js';
-import { updateItemDef, updateItemRef, updateItemRefKeyOrder, updateItemCodeListDisplayFormat, updateItemDescription } from 'actions/index.js';
+import {
+    updateItemDef, updateItemRef, updateItemRefKeyOrder, updateItemCodeListDisplayFormat,
+    updateItemDescription, deleteVariables
+} from 'actions/index.js';
 
 
 // Redux functions
@@ -39,6 +43,7 @@ const mapDispatchToProps = dispatch => {
         updateItemRefKeyOrder           : (source, updateObj, prevObj) => dispatch(updateItemRefKeyOrder(source, updateObj, prevObj)),
         updateItemCodeListDisplayFormat : (oid, updateObj, prevObj) => dispatch(updateItemCodeListDisplayFormat(oid, updateObj, prevObj)),
         updateItemDescription           : (source, updateObj, prevObj) => dispatch(updateItemDescription(source, updateObj, prevObj)),
+        deleteVariables                 : (source, itemRefOids, itemDefOids, vlmItemRefOids, vlmItemDefOids) => dispatch(deleteVariables(source, itemRefOids, itemDefOids, vlmItemRefOids, vlmItemDefOids)),
     };
 };
 
@@ -51,7 +56,7 @@ const mapStateToProps = state => {
 };
 
 // Debug options
-const hideMe = true;
+const hideMe = false;
 
 const styles = theme => ({
     button: {
@@ -104,7 +109,9 @@ function variableCodeListFormatFormatter (cell, row) {
 }
 
 function variableLengthFormatter (cell, row) {
-    return (<VariableLengthFormatter value={cell} defineVersion={row.defineVersion} dataType={row.dataType}/>);
+    if (row.dataType !== undefined) {
+        return (<VariableLengthFormatter value={cell} defineVersion={row.defineVersion} dataType={row.dataType}/>);
+    }
 }
 
 function keyOrderFormatter (cell, row) {
@@ -255,10 +262,12 @@ class ConnectedVariableTable extends React.Component {
         });
 
         this.state = {
-            variables : variables,
-            vlmData   : vlmData,
-            vlmState  : 'collaps',
-            dataset   : dataset,
+            variables       : variables,
+            vlmData         : vlmData,
+            vlmState        : 'collaps',
+            dataset         : dataset,
+            selectedRows    : [],
+            selectedVlmRows : {},
         };
     }
 
@@ -385,7 +394,7 @@ class ConnectedVariableTable extends React.Component {
                         { props.showSelectedOnlyBtn }
                     </Grid>
                     <Grid item>
-                        { props.insertBtn }
+                        <AddVariableEditor itemGroupOid={this.props.itemGroupOid}/>
                     </Grid>
                     <Grid item>
                         <Button color='default' mini onClick={console.log}
@@ -448,20 +457,100 @@ class ConnectedVariableTable extends React.Component {
         );
     }
 
-    createCustomInsertButton = (openModal) => {
-        return (
-            <Button color='primary' mini onClick={openModal} variant='raised'>Add</Button>
-        );
+    deleteRows = () => {
+        let itemRefOids = this.state.selectedRows;
+        let vlmItemRefOids = this.state.selectedVlmRows;
+        // For variables, return an array of ItemDef OIDs;
+        let itemDefOids = [];
+        itemDefOids = itemRefOids.map( itemRefOid => {
+            return this.props.mdv.itemGroups[this.props.itemGroupOid].itemRefs[itemRefOid].itemOid;
+        });
+        // For value levels, return an object with arrays of ItemDef OIDs for each valueList OID;
+        let vlmItemDefOids = {};
+        Object.keys(vlmItemRefOids).forEach( valueListOid => {
+            vlmItemDefOids[valueListOid] = vlmItemRefOids[valueListOid].map( itemRefOid => {
+                return this.props.mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid;
+            });
+        });
+        this.props.deleteVariables({itemGroupOid: this.props.itemGroupOid}, itemRefOids, itemDefOids, vlmItemRefOids, vlmItemDefOids);
     }
 
     createCustomDeleteButton = (onBtnClick) => {
         return (
-            <Button color='secondary' mini onClick={onBtnClick} variant='raised'>Delete</Button>
+            <Button color='secondary' mini onClick={this.deleteRows} variant='raised'>Delete</Button>
         );
     }
 
     highLightVlmRows = (row, rowIndex) => {
         return (row.vlmLevel > 0 ? 'vlmRow' : 'variableRow');
+    }
+
+    // Row Selection functions
+    onRowSelected = (row, isSelected, event) => {
+        if (row.vlmLevel === 0) {
+            let selectedRows = this.state.selectedRows;
+            if (isSelected === true) {
+                // If the variable is going to be selected;
+                if (!selectedRows.includes(row.itemRefOid)) {
+                    selectedRows.push(row.itemRefOid);
+                }
+            } else {
+                // If the variable is going to be removed;
+                if (selectedRows.includes(row.itemRefOid)) {
+                    selectedRows.splice(selectedRows.indexOf(row.itemRefOid),1);
+                }
+            }
+            this.setState({selectedRows});
+        } else {
+            let selectedVlmRows = this.state.selectedVlmRows;
+            const valueListOid = row.itemGroupOid;
+            if (isSelected === true) {
+                // If the value level is going to be selected;
+                if (!selectedVlmRows.hasOwnProperty(valueListOid)) {
+                    selectedVlmRows[valueListOid] = [row.itemRefOid];
+                }    else if (!selectedVlmRows[valueListOid].includes(row.itemRefOid)) {
+                    selectedVlmRows[valueListOid].push(row.itemRefOid);
+                }
+            } else {
+                // If the value level is going to be removed;
+                if (selectedVlmRows.hasOwnProperty(valueListOid) && selectedVlmRows[valueListOid].includes(row.itemRefOid)) {
+                    selectedVlmRows[valueListOid].splice(selectedVlmRows[valueListOid].indexOf(row.itemRefOid),1);
+                }
+            }
+            this.setState({selectedVlmRows});
+        }
+        return true;
+    }
+
+    onAllRowSelected = (rows, isSelected, event) => {
+        let selectedRows;
+        let selectedVlmRows;
+        // (De)select all simple variables
+        if (isSelected === true) {
+            // If all rows are going to be selected;
+            selectedRows = rows
+                .filter( row => (row.vlmLevel === 0))
+                .map( row => (row.itemRefOid));
+        } else {
+            selectedRows = [];
+        }
+        // (De)select all value levels
+        if (isSelected === true) {
+            // If all rows are going to be selected;
+            rows.filter( row => (row.vlmLevel === 1))
+                .forEach( row => {
+                    const valueListOid = row.itemGroupOid;
+                    if (selectedVlmRows.hasOwnProperty(valueListOid)) {
+                        selectedRows[valueListOid].push(row.itemRefOid);
+                    } else {
+                        selectedRows[valueListOid] = [row.itemRefOid];
+                    }
+                });
+        } else {
+            selectedVlmRows = {};
+        }
+        this.setState({selectedRows, selectedVlmRows});
+        return true;
     }
 
     render () {
@@ -477,12 +566,13 @@ class ConnectedVariableTable extends React.Component {
         };
 
         const selectRowProp = {
-            mode: 'checkbox'
+            mode        : 'checkbox',
+            onSelect    : this.onRowSelected,
+            onSelectAll : this.onAllRowSelected,
         };
 
         const options = {
             toolBar   : this.createCustomToolBar,
-            insertBtn : this.createCustomInsertButton,
             deleteBtn : this.createCustomDeleteButton,
             btnGroup  : this.createCustomButtonGroup
         };

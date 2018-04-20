@@ -1,6 +1,7 @@
 import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import TextField from 'material-ui/TextField';
 import DocumentEditor from 'editors/documentEditor.js';
 import FormalExpressionEditor from 'editors/formalExpressionEditor.js';
@@ -39,7 +40,16 @@ const styles = theme => ({
     },
 });
 
-class MethodEditor extends React.Component {
+const mapStateToProps = state => {
+    return {
+        leafs           : state.odm.study.metaDataVersion.leafs,
+        annotatedCrf    : state.odm.study.metaDataVersion.annotatedCrf,
+        supplementalDoc : state.odm.study.metaDataVersion.supplementalDoc,
+        methods         : state.odm.study.metaDataVersion.methods,
+    };
+};
+
+class ConnectedMethodEditor extends React.Component {
     constructor (props) {
         super(props);
         // Bootstrap table changed undefined to '' when saving the value. 
@@ -103,7 +113,7 @@ class MethodEditor extends React.Component {
         }
         if (name === 'updateFormalExpression') {
             newMethod = method.clone();
-            newMethod.formalExpression = updateObj;
+            newMethod.formalExpressions[0] = updateObj;
         }
         if (this.props.stateless === true) {
             // If state should be uplifted - use the callback
@@ -298,17 +308,18 @@ class MethodEditor extends React.Component {
     }
 }
 
-MethodEditor.propTypes = {
+ConnectedMethodEditor.propTypes = {
     defaultValue: PropTypes.oneOfType([
         PropTypes.instanceOf(Method),
         PropTypes.oneOf([""]),
     ]),
     leafs           : PropTypes.object.isRequired,
-    methods         : PropTypes.methods.isRequired,
+    methods         : PropTypes.object.isRequired,
     annotatedCrf    : PropTypes.array.isRequired,
     supplementalDoc : PropTypes.array.isRequired,
     onUpdate        : PropTypes.func,
     stateless       : PropTypes.bool,
 };
 
+const MethodEditor = connect(mapStateToProps)(ConnectedMethodEditor);
 export default withStyles(styles)(MethodEditor);

@@ -651,7 +651,8 @@ class ItemDef extends BasicFunctions {
         commentOid, codeListOid, valueList, valueListOid, parent, note,
         varLength, lengthAsData, lengthAsCodelist,
         origins = [],
-        descriptions = []
+        descriptions = [],
+        sources,
     } = {}) {
         super();
         this.oid = oid || getOid(this.constructor.name);
@@ -679,6 +680,14 @@ class ItemDef extends BasicFunctions {
         // Length derived from data/codelist
         this.lengthAsData = lengthAsData;
         this.lengthAsCodelist = lengthAsCodelist;
+        // List of itemGroups from which the itemDef is linked
+        if (sources !== undefined) {
+            this.sources = sources;
+        } else {
+            this.sources = {
+                itemGroups: [],
+            };
+        }
     }
     addOrigin (origin) {
         this.origins.push(origin);
@@ -690,7 +699,7 @@ class ItemDef extends BasicFunctions {
 
 class ItemRef {
     constructor ({
-        mandatory, methodOid, role, roleCodeList, itemOid, isNotStandatd, whereClause
+        mandatory, methodOid, oid, role, roleCodeList, itemOid, isNotStandatd, whereClause
     } = {}) {
         this.mandatory = mandatory;
         this.methodOid = methodOid;
@@ -699,6 +708,8 @@ class ItemRef {
         this.roleCodeList = roleCodeList;
         this.itemOid = itemOid;
         this.whereClause = whereClause;
+        // Non-define XML properties
+        this.oid = oid;
     }
 }
 

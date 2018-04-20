@@ -13,3 +13,5 @@ export const UPD_ITEMREF= "UPD_ITEMREF";
 export const UPD_ITEMREFKEYORDER= "UPD_ITEMREFKEYORDER";
 export const UPD_ITEMCLDF = "UPD_ITEMCLDF";
 export const UPD_ITEMDESCRIPTION = "UPD_ITEMDESCRIPTION";
+export const ADD_VAR = "ADD_VAR";
+export const DEL_VARS = "DEL_VARS";

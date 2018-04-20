@@ -387,6 +387,30 @@ function parseItemDefs (itemDefsRaw, mdv) {
         // Create the itemDef
         let itemDef = new def.ItemDef(args);
 
+        // Connect itemDef to its sources
+        let itemGroupSources = [];
+        Object.keys(mdv.itemGroups).forEach( itemGroupOid => {
+            Object.keys(mdv.itemGroups[itemGroupOid].itemRefs).forEach( itemRefOid => {
+                if (mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid === itemDef.oid) {
+                    itemGroupSources.push(itemGroupOid);
+                }
+            });
+        });
+
+        let valueListSources = [];
+        Object.keys(mdv.valueLists).forEach( valueListOid => {
+            Object.keys(mdv.valueLists[valueListOid].itemRefs).forEach( itemRefOid => {
+                if (mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid === itemDef.oid) {
+                    valueListSources.push(valueListOid);
+                }
+            });
+        });
+
+        itemDef.sources = {
+            itemGroups : itemGroupSources,
+            valueLists : valueListSources,
+        };
+
         if (itemDefRaw['description'] !== undefined) {
             itemDefRaw['description'].forEach(function (item) {
                 itemDef.addDescription(parseTranslatedText(item));
@@ -399,8 +423,9 @@ function parseItemDefs (itemDefsRaw, mdv) {
     return itemDefs;
 }
 
-function parseItemRef (itemRefRaw, mdv) {
+function parseItemRef (itemRefRaw, oid, mdv) {
     let args = itemRefRaw['$'];
+    args.oid = oid;
     if (args.hasOwnProperty('roleCodeListOid')) {
         args.roleCodeListOid = args['roleCodeListOid'];
         delete args['roleCodeListOid'];
@@ -441,7 +466,7 @@ function parseItemGroups (itemGroupsRaw, mdv) {
         let itemRefs = {};
         itemGroupRaw['itemRef'].forEach(function (item) {
             let oid = getOid('ItemRef', undefined, Object.keys(itemRefs));
-            itemRefs[oid] = parseItemRef(item, mdv);
+            itemRefs[oid] = parseItemRef(item, oid, mdv);
             itemRefs[oid].orderNumber = item['$']['orderNumber'];
             itemRefs[oid].keySequence = item['$']['keySequence'];
         });
@@ -495,7 +520,7 @@ function parseValueLists (valueListsRaw, mdv) {
         let itemRefs = {};
         valueListRaw['itemRef'].forEach(function (item) {
             let oid = getOid('ItemRef', undefined, Object.keys(itemRefs));
-            itemRefs[oid] = parseItemRef(item, mdv);
+            itemRefs[oid] = parseItemRef(item, oid, mdv);
             itemRefs[oid].orderNumber = item['$']['orderNumber'];
             itemRefs[oid].keySequence = item['$']['keySequence'];
         });
@@ -558,9 +583,10 @@ function parseMetaDataVersion (metadataRaw) {
     if (metadataRaw.hasOwnProperty('supplementalDoc')) {
         mdv.supplementalDoc = parseDocumentCollection(metadataRaw['supplementalDoc'], mdv);
     }
-    mdv.itemDefs = parseItemDefs(metadataRaw['itemDef'], mdv);
     mdv.valueLists = parseValueLists(metadataRaw['valueListDef'], mdv);
+    mdv.itemGroups = parseItemGroups(metadataRaw['itemGroupDef'], mdv);
 
+    mdv.itemDefs = parseItemDefs(metadataRaw['itemDef'], mdv);
     // Connect ItemDefs to VLM
     Object.keys(mdv.itemDefs).forEach(function (parentItemOid) {
         if (mdv.itemDefs[parentItemOid].valueListOid !== undefined) {
@@ -572,8 +598,6 @@ function parseMetaDataVersion (metadataRaw) {
         }
     });
 
-
-    mdv.itemGroups = parseItemGroups(metadataRaw['itemGroupDef'], mdv);
     mdv.methods = parseMethods(metadataRaw['methodDef'], mdv);
     mdv.comments = parseComments(metadataRaw['commentDef'], mdv);
 
