@@ -85,14 +85,14 @@ class WhereClauseEditorInteractive extends React.Component {
             let currentItemGroupOid = rangeCheck.itemGroupOid;
             listOfVariables[currentItemGroupOid] = [];
             Object.keys(this.props.mdv.itemGroups[currentItemGroupOid].itemRefs).forEach( itemRefOid => {
-                listOfVariables[currentItemGroupOid].push(this.props.mdv.itemGroups[currentItemGroupOid].itemRefs[itemRefOid].itemDef.name);
+                listOfVariables[currentItemGroupOid].push(this.props.mdv.itemDefs[this.props.mdv.itemGroups[currentItemGroupOid].itemRefs[itemRefOid].itemOid].name);
             });
         });
         // Get codelist for all of the variables in range checks
         let listOfCodeValues = {};
         rangeChecks.forEach( rangeCheck => {
             let currentItemOid = rangeCheck.itemOid;
-            let currentCodeList = this.props.mdv.itemDefs[currentItemOid].codeList;
+            let currentCodeList = this.props.mdv.codeLists[this.props.mdv.itemDefs[currentItemOid].codeListOid];
             if (currentCodeList !== undefined) {
                 if (currentCodeList.getCodeListType() !== 'external') {
                     listOfCodeValues[currentItemOid] = [];
@@ -118,12 +118,13 @@ class WhereClauseEditorInteractive extends React.Component {
     }
 
     updateListOfVariables = (itemGroupOid) => {
+        let mdv = this.props.mdv;
         let result = Object.assign({},this.state.listOfVariables);
         // Update the list only if the dataset is not yet present
         if (Object.keys(result).indexOf(itemGroupOid) < 0) {
             result[itemGroupOid] = [];
-            Object.keys(this.props.mdv.itemGroups[itemGroupOid].itemRefs).forEach( itemRefOid => {
-                result[itemGroupOid].push(this.props.mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemDef.name);
+            Object.keys(mdv.itemGroups[itemGroupOid].itemRefs).forEach( itemRefOid => {
+                result[itemGroupOid].push(mdv.itemDefs[mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid].name);
             });
         }
         return result;
@@ -133,7 +134,7 @@ class WhereClauseEditorInteractive extends React.Component {
         let result = Object.assign({},this.state.listOfCodeValues);
         // Update the list only if the codes are not yet present
         if (Object.keys(result).indexOf(itemOid) < 0) {
-            let currentCodeList = this.props.mdv.itemDefs[itemOid].codeList;
+            let currentCodeList = this.props.mdv.codeLists[this.props.mdv.itemDefs[itemOid].codeListOid];
             if (currentCodeList !== undefined) {
                 result[itemOid] = [];
                 if (currentCodeList.getCodeListType() === 'decoded') {

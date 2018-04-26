@@ -631,11 +631,11 @@ class ItemGroup extends BasicFunctions {
     addItemRef (oid, itemRef) {
         this.itemRefs[oid]= itemRef;
     }
-    getOidByName (name) {
+    getOidByName (name, itemDefs) {
         let result;
-        this.itemRefs.some( itemRef => {
-            if (itemRef.itemDef.name.toLowerCase() === name.toLowerCase()) {
-                result = itemRef.itemDef.oid;
+        Object.keys(this.itemRefs).some( itemRefOid => {
+            if (itemDefs[this.itemRefs[itemRefOid].itemOid].name.toLowerCase() === name.toLowerCase()) {
+                result = this.itemRefs[itemRefOid].itemOid;
                 return true;
             }
             return false;

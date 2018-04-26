@@ -3,6 +3,7 @@ import {
     DEL_ITEMGROUPCOMMENT,
     UPD_ITEMGROUPCOMMENT,
     UPD_ITEMDESCRIPTION,
+    DEL_VARS,
 } from "constants/action-types";
 import { Comment } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -10,7 +11,7 @@ import deepEqual from 'fast-deep-equal';
 const addComment = (state, action) => {
     // Check if the item to which comment is attached is already referenced
     // in the list of comment sources
-    if (action.comment.sources.hasOwnProperty(action.source.type) 
+    if (action.comment.sources.hasOwnProperty(action.source.type)
         && action.comment.sources[action.source.type].includes(action.source.oid)) {
         return {...state, [action.comment.oid]: action.comment};
     } else {
@@ -36,7 +37,7 @@ const deleteComment = (state, action) => {
     if (sourceNum <= 1 && action.comment.sources[action.source.type][0] === action.source.oid) {
         // If the item to which comment is attached is the only one, fully remove the comment
         let newState = Object.assign({}, state);
-        delete newState[action.commentOid];
+        delete newState[action.comment.oid];
         return newState;
     } else if (action.comment.sources[action.source.type].includes(action.source.oid)){
         // Remove  referece to the source OID from the list of comment sources
@@ -64,23 +65,23 @@ const handleItemDescriptionUpdate = (state, action) => {
             // Add a comment
             let subAction = {};
             subAction.comment = action.updateObj.comment;
-            subAction.source ={type: 'itemDefs', oid: action.source.oid};
+            subAction.source ={ type: 'itemDefs', oid: action.source.oid };
             return addComment(state, subAction);
         } else if (newCommentOid === undefined) {
             // Delete a comment
             let subAction = {};
             subAction.comment = action.prevObj.comment;
-            subAction.source ={type: 'itemDefs', oid: action.source.oid};
+            subAction.source ={ type: 'itemDefs', oid: action.source.oid };
             return deleteComment(state, subAction);
         } else if (newCommentOid !== previousCommentOid) {
             // Comment was replaced;
             let subAction = {};
             subAction.comment = action.prevObj.comment;
-            subAction.source ={type: 'itemDefs', oid: action.source.oid};
+            subAction.source ={ type: 'itemDefs', oid: action.source.oid };
             let newState = deleteComment(state, subAction);
             subAction = {};
             subAction.comment = action.updateObj.comment;
-            subAction.source ={type: 'itemDefs', oid: action.source.oid};
+            subAction.source ={ type: 'itemDefs', oid: action.source.oid };
             return addComment(newState, subAction);
         } else {
             // Comment was just updated
@@ -95,6 +96,21 @@ const handleItemDescriptionUpdate = (state, action) => {
     }
 };
 
+const deleteVariableComments = (state, action) => {
+    // DeleteObj.commentOids contains:
+    // {commentOid1: [itemOid1, itemOid2], commentOid2: [itemOid3, itemOid1]}
+    let newState = { ...state };
+    Object.keys(action.deleteObj.commentOids).forEach( commentOid => {
+        action.deleteObj.commentOids[commentOid].forEach(itemOid => {
+            let subAction = {};
+            subAction.comment = newState[commentOid];
+            subAction.source ={ type: 'itemDefs', oid: itemOid };
+            newState = deleteComment(newState, subAction);
+        });
+    });
+    return newState;
+};
+
 const comments = (state = {}, action) => {
     switch (action.type) {
         case ADD_ITEMGROUPCOMMENT:
@@ -105,6 +121,8 @@ const comments = (state = {}, action) => {
             return handleItemDescriptionUpdate(state, action);
         case DEL_ITEMGROUPCOMMENT:
             return deleteComment(state, action);
+        case DEL_VARS:
+            return deleteVariableComments(state, action);
         default:
             return state;
     }

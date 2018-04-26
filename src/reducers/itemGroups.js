@@ -169,26 +169,26 @@ const deleteVariables = (state, action) => {
     // Check if order changed;
     let ds = state[action.source.itemGroupOid];
     let newItemRefs = Object.assign({}, ds.itemRefs);
-    action.itemRefOids.forEach( itemRefOid => {
+    action.deleteObj.itemRefOids.forEach( itemRefOid => {
         if (newItemRefs.hasOwnProperty(itemRefOid)) {
             delete newItemRefs[itemRefOid];
         }
     });
     // Update itemRef order array
     let newItemRefOrder = ds.itemRefOrder.slice();
-    action.itemRefOids.forEach( itemRefOid => {
+    action.deleteObj.itemRefOids.forEach( itemRefOid => {
         if (newItemRefOrder.includes(itemRefOid)) {
             newItemRefOrder.splice(newItemRefOrder.indexOf(itemRefOid),1);
         }
     });
     // Check if there are any key variables removed;
     let newKeyOrder;
-    let keysAreRemoved = action.itemRefOids.reduce( (includesKey, itemRefOid) => {
+    let keysAreRemoved = action.deleteObj.itemRefOids.reduce( (includesKey, itemRefOid) => {
         return includesKey || ds.keyOrder.includes(itemRefOid);
     }, false);
     if (keysAreRemoved) {
         newKeyOrder = ds.keyOrder.slice();
-        action.itemRefOids.forEach( itemRefOid => {
+        action.deleteObj.itemRefOids.forEach( itemRefOid => {
             if (newKeyOrder.includes(itemRefOid)) {
                 newKeyOrder.splice(newKeyOrder.indexOf(itemRefOid),1);
             }

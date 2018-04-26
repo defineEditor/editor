@@ -128,13 +128,10 @@ export const addVariable = (source, itemRef, itemDef, orderNumber) => (
     }
 );
 
-export const deleteVariables = (source, itemRefOids, itemDefOids, vlmItemRefOids, vlmItemDefOids) => (
+export const deleteVariables = (source, deleteObj) => (
     {
         type   : DEL_VARS,
         source : source,
-        itemRefOids,
-        itemDefOids,
-        vlmItemRefOids,
-        vlmItemDefOids,
+        deleteObj,
     }
 );

@@ -168,13 +168,13 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
                 // If variable part contains dataset name;
                 itemGroupOid = this.props.mdv.getOidByName('itemGroups',rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$1'));
                 if (itemGroupOid !== undefined) {
-                    itemOid = this.props.mdv.itemGroups[itemGroupOid].getOidByName(rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$2'));
+                    itemOid = this.props.mdv.itemGroups[itemGroupOid].getOidByName(rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$2'), this.props.mdv.itemDefs);
                 }
             } else {
                 // If variable part does not contain dataset name, use the current dataset;
                 itemGroupOid = this.props.dataset.oid;
                 if (itemGroupOid !== undefined) {
-                    itemOid = this.props.mdv.itemGroups[itemGroupOid].getOidByName(rangeCheckElements[0]);
+                    itemOid = this.props.mdv.itemGroups[itemGroupOid].getOidByName(rangeCheckElements[0], this.props.mdv.itemDefs);
                 }
             }
             if (itemOid !== undefined && itemGroupOid !== undefined) {
@@ -221,13 +221,13 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
                 // If variable part contains dataset name;
                 itemGroupOid = this.props.mdv.getOidByName('itemGroups',rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$1'));
                 if (itemGroupOid !== undefined) {
-                    itemOid = this.props.mdv.itemGroups[itemGroupOid].getOidByName(rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$2'));
+                    itemOid = this.props.mdv.itemGroups[itemGroupOid].getOidByName(rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$2'), this.props.mdv.itemDefs);
                 }
             } else {
                 // If variable part does not contain dataset name, use the current dataset;
                 itemGroupOid = this.props.dataset.oid;
                 if (itemGroupOid !== undefined) {
-                    itemOid = this.props.mdv.itemGroups[itemGroupOid].getOidByName(rangeCheckElements[0]);
+                    itemOid = this.props.mdv.itemGroups[itemGroupOid].getOidByName(rangeCheckElements[0], this.props.mdv.itemDefs);
                 }
             }
             let comparator = rangeCheckElements[1].toUpperCase();

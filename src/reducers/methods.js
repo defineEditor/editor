@@ -1,5 +1,6 @@
 import {
     UPD_ITEMDESCRIPTION,
+    DEL_VARS,
 } from "constants/action-types";
 import { Method } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -33,7 +34,7 @@ const deleteMethod = (state, action) => {
     if (sourceNum <= 1 && action.method.sources[action.source.type][0] === action.source.oid) {
         // If the item to which method is attached is the only one, fully remove the method
         let newState = Object.assign({}, state);
-        delete newState[action.methodOid];
+        delete newState[action.method.oid];
         return newState;
     } else if (action.method.sources[action.source.type].includes(action.source.oid)){
         // Remove  referece to the source OID from the list of method sources
@@ -92,10 +93,27 @@ const handleItemDescriptionUpdate = (state, action) => {
     }
 };
 
+const deleteVariableMethods = (state, action) => {
+    // DeleteObj.methodOids contains:
+    // {methodOid1: [itemRefOid1, itemRefOid2], methodOid2: [itemRefOid3, itemRefOid1]}
+    let newState = { ...state };
+    Object.keys(action.deleteObj.methodOids).forEach( methodOid => {
+        action.deleteObj.methodOids[methodOid].forEach(itemRefOid => {
+            let subAction = {};
+            subAction.method = newState[methodOid];
+            subAction.source ={ type: 'itemRefs', oid: itemRefOid };
+            newState = deleteMethod(newState, subAction);
+        });
+    });
+    return newState;
+};
+
 const methods = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMDESCRIPTION:
             return handleItemDescriptionUpdate(state, action);
+        case DEL_VARS:
+            return deleteVariableMethods(state, action);
         default:
             return state;
     }

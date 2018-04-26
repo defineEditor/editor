@@ -60,7 +60,7 @@ const addVariable = (state, action) => {
 const deleteVariables = (state, action) => {
     let newState = Object.assign({}, state);
     // First go through itemDefs which are coming from the variable level;
-    action.itemDefOids.forEach( itemDefOid => {
+    action.deleteObj.itemDefOids.forEach( itemDefOid => {
         // If it is referened only in 1 dataset, remove it
         let sourceNum = [].concat.apply([],Object.keys(state[itemDefOid].sources).map(type => (state[itemDefOid].sources[type]))).length;
         if (sourceNum === 1

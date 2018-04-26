@@ -43,7 +43,7 @@ const mapDispatchToProps = dispatch => {
         updateItemRefKeyOrder           : (source, updateObj, prevObj) => dispatch(updateItemRefKeyOrder(source, updateObj, prevObj)),
         updateItemCodeListDisplayFormat : (oid, updateObj, prevObj) => dispatch(updateItemCodeListDisplayFormat(oid, updateObj, prevObj)),
         updateItemDescription           : (source, updateObj, prevObj) => dispatch(updateItemDescription(source, updateObj, prevObj)),
-        deleteVariables                 : (source, itemRefOids, itemDefOids, vlmItemRefOids, vlmItemDefOids) => dispatch(deleteVariables(source, itemRefOids, itemDefOids, vlmItemRefOids, vlmItemDefOids)),
+        deleteVariables                 : (source, deleteObj) => dispatch(deleteVariables(source, deleteObj)),
     };
 };
 
@@ -173,7 +173,7 @@ function getTableData ({source, datasetName, itemDefs, codeLists, mdv, defineVer
             name          : originItemDef.name,
             dataType      : originItemDef.dataType,
             codeList      : originItemDef.codeList,
-            valueList     : originItemDef.valueList,
+            valueList     : originItemDef.valueListOid !== undefined ? mdv.valueLists[originItemDef.valueListOid] : undefined,
             model         : mdv.model,
             mdv           : mdv,
             defineVersion : defineVersion,
@@ -458,21 +458,50 @@ class ConnectedVariableTable extends React.Component {
     }
 
     deleteRows = () => {
+        let mdv = this.props.mdv;
         let itemRefOids = this.state.selectedRows;
         let vlmItemRefOids = this.state.selectedVlmRows;
         // For variables, return an array of ItemDef OIDs;
         let itemDefOids = [];
         itemDefOids = itemRefOids.map( itemRefOid => {
-            return this.props.mdv.itemGroups[this.props.itemGroupOid].itemRefs[itemRefOid].itemOid;
+            return mdv.itemGroups[this.props.itemGroupOid].itemRefs[itemRefOid].itemOid;
         });
         // For value levels, return an object with arrays of ItemDef OIDs for each valueList OID;
         let vlmItemDefOids = {};
         Object.keys(vlmItemRefOids).forEach( valueListOid => {
             vlmItemDefOids[valueListOid] = vlmItemRefOids[valueListOid].map( itemRefOid => {
-                return this.props.mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid;
+                return mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid;
             });
         });
-        this.props.deleteVariables({itemGroupOid: this.props.itemGroupOid}, itemRefOids, itemDefOids, vlmItemRefOids, vlmItemDefOids);
+        // Form an object of comments to remove {commentOid: [itemOid1, itemOid2, ...]}
+        let commentOids = {};
+        // Form an object of methods to remove {methodOid: [itemOid1, itemOid2, ...]}
+        let methodOids = {};
+        itemRefOids.forEach( itemRefOid => {
+            let itemOid = mdv.itemGroups[this.props.itemGroupOid].itemRefs[itemRefOid].itemOid;
+            // Comments
+            let commentOid = mdv.itemDefs[itemOid].commentOid;
+            if (commentOid !== undefined) {
+                if (commentOids[commentOid] === undefined) {
+                    commentOids[commentOid] = [];
+                }
+                if (!commentOids[commentOid].includes[itemOid]) {
+                    commentOids[commentOid].push(itemOid);
+                }
+            }
+            // Methods
+            let methodOid = mdv.itemGroups[this.props.itemGroupOid].itemRefs[itemRefOid].methodOid;
+            if (methodOid !== undefined) {
+                if (methodOids[methodOid] === undefined) {
+                    methodOids[methodOid] = [];
+                }
+                if (!methodOids[methodOid].includes[itemRefOid]) {
+                    methodOids[methodOid].push(itemRefOid);
+                }
+            }
+        });
+        const deleteObj = {itemRefOids, itemDefOids, vlmItemRefOids, vlmItemDefOids, commentOids, methodOids};
+        this.props.deleteVariables({itemGroupOid: this.props.itemGroupOid}, deleteObj);
     }
 
     createCustomDeleteButton = (onBtnClick) => {
