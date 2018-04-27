@@ -15,6 +15,9 @@ import {
     UPD_ITEMDESCRIPTION,
     ADD_VAR,
     DEL_VARS,
+    ADD_CODELIST,
+    UPD_CODELIST,
+    DEL_CODELISTS,
 } from "constants/action-types";
 
 // Core actions
@@ -130,8 +133,32 @@ export const addVariable = (source, itemRef, itemDef, orderNumber) => (
 
 export const deleteVariables = (source, deleteObj) => (
     {
-        type   : DEL_VARS,
-        source : source,
+        type: DEL_VARS,
+        source,
         deleteObj,
     }
 );
+
+// Codelist actions
+export const updateCodeList = (oid, updateObj) => (
+    {
+        type: UPD_CODELIST,
+        oid,
+        updateObj,
+    }
+);
+
+export const addCodeList = (codeList) => (
+    {
+        type: ADD_CODELIST,
+        codeList,
+    }
+);
+
+export const deleteCodeLists = (deleteObj) => (
+    {
+        type: DEL_CODELISTS,
+        deleteObj,
+    }
+);
+

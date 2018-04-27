@@ -15,9 +15,15 @@ const dataTypes = [
     'incompleteDatetime',
     'durationDatetime',
 ];
+const codeListTypes =  [
+    {'enumerated': 'Enumeration'},
+    {'decoded': 'Decoded'},
+    {'external': 'External Codelist'},
+];
 
 const initialState = {
     dataTypes,
+    codeListTypes,
 };
 
 const stdConstants = (state = initialState, action) => {

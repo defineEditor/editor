@@ -247,8 +247,8 @@ class RangeCheck {
 
 class CodeList extends BasicFunctions {
     constructor ({
-        oid, name, dataType, standard, formatName, commentOid, externalCodeList, alias,
-        cdiscSubmissionValue, linkedCodeList, codeListType,
+        oid, name, dataType, standardOid, formatName, commentOid, externalCodeList, alias,
+        cdiscSubmissionValue, linkedCodeListOid, codeListType, standardCodeListOid,
         descriptions = [],
         enumeratedItems = [],
         codeListItems = [],
@@ -258,7 +258,7 @@ class CodeList extends BasicFunctions {
         this.oid = oid || getOid(this.constructor.name);
         this.name = name;
         this.dataType = dataType;
-        this.standard = standard;
+        this.standardOid = standardOid;
         this.formatName = formatName;
         this.commentOid = commentOid; // 2.1D
         this.externalCodeList = externalCodeList;
@@ -277,7 +277,8 @@ class CodeList extends BasicFunctions {
                 this.codeListType = 'external';
             }
         }
-        this.linkedCodeList = linkedCodeList;
+        this.linkedCodeListOid = linkedCodeListOid;
+        this.standardCodeListOid = standardCodeListOid;
         this.cdiscSubmissionValue = cdiscSubmissionValue;
         // List of items from which the codelist is linked
         if (sources !== undefined) {

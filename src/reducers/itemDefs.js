@@ -4,6 +4,7 @@ import {
     UPD_ITEMDESCRIPTION,
     ADD_VAR,
     DEL_VARS,
+    DEL_CODELISTS,
 } from "constants/action-types";
 import { ItemDef } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -70,11 +71,22 @@ const deleteVariables = (state, action) => {
             // Delete the dataset from the sources
             let newSourcesForType = state[itemDefOid].sources.itemGroups.slice();
             newSourcesForType.splice(newSourcesForType.indexOf(action.source.itemGroupOid),1);
-            newState = { ... newState, [itemDefOid]: new ItemDef({ ...state[itemDefOid], sources: { ...state[itemDefOid].sources, itemGroups: newSourcesForType } }) };
+            newState = { ...newState, [itemDefOid]: new ItemDef({ ...state[itemDefOid], sources: { ...state[itemDefOid].sources, itemGroups: newSourcesForType } }) };
         }
     });
     // Remove value levels
     // TODO
+    return newState;
+};
+
+const deleteCodeLists = (state, action) => {
+    // action.deleteObj - array of itemOids for which codelists should be removed
+    let newState = { ...state };
+    action.deleteObj.itemDefOids.forEach( itemDefOid => {
+        let newItemDef = new ItemDef({ ...state[itemDefOid], codeListOid: undefined });
+        newState = { ...newState, [itemDefOid]: newItemDef };
+    });
+
     return newState;
 };
 
@@ -90,6 +102,8 @@ const itemDefs = (state = {}, action) => {
             return addVariable(state, action);
         case DEL_VARS:
             return deleteVariables(state, action);
+        case DEL_CODELISTS:
+            return deleteCodeLists(state, action);
         default:
             return state;
     }

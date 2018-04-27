@@ -152,13 +152,7 @@ class ConnectedEditorTabs extends React.Component {
                             defineVersion={defineVersion}
                         />}
                         {tabs[value] === 'Variables' && this.generateVariableTables(defineVersion)}
-                        {tabs[value] === 'Codelists' && <CodeListsTable
-                            mdv={this.props.odm.study.metaDataVersion}
-                            stdCodeLists={this.props.stdCodeLists}
-                            onMdvChange={this.handleMdvChange}
-                            defineVersion={defineVersion}
-                            defineControlledTerminology={this.props.defineControlledTerminology}
-                        />}
+                        {tabs[value] === 'Codelists' && <CodeListsTable/>}
                         {tabs[value] === 'Coded Values' && this.generateCodeListTables(defineVersion)}
                         {['Datasets','Variables','Codelists','Coded Values'].indexOf(tabs[value]) === -1 && <div id={tabIds[value]}>{tabs[value]}</div>}
                     </TabContainer>

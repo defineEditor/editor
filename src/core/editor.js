@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import EditorTabs from 'tabs/editorTabs.js';
+import '../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import parseDefine from 'parsers/parseDefine.js';
 import { withStyles } from 'material-ui/styles';
 import parseStdCodeLists from 'parsers/parseStdCodeLists.js';
@@ -28,27 +29,6 @@ const mapStateToProps = state => {
     return {
         odmLoaded: Object.keys(state.odm).length > 0,
     };
-};
-
-const defineControlledTerminology = {
-    dataTypes: [
-        'text',
-        'integer',
-        'float',
-        'date',
-        'datetime',
-        'time',
-        'partialDate',
-        'partialTime',
-        'partialDatetime',
-        'incompleteDatetime',
-        'durationDatetime',
-    ],
-    codeListTypes: [
-        {'enumerated': 'Enumeration'},
-        {'decoded': 'Decoded'},
-        {'external': 'External Codelist'},
-    ],
 };
 
 class ConnectedEditor extends React.Component {
@@ -117,7 +97,7 @@ class ConnectedEditor extends React.Component {
         return (
             <React.Fragment>
                 {this.props.odmLoaded ? (
-                    <EditorTabs defineControlledTerminology={defineControlledTerminology}/>
+                    <EditorTabs/>
                 ) : (
                     <span>Loading data</span>
                 )

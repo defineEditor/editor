@@ -230,7 +230,7 @@ function parseMethods (methodsRaw, mdv) {
                 );
             });
         }
-        // Connect comment to its sources
+        // Connect method to its sources
         let sources = [];
         Object.keys(mdv.itemGroups).forEach( itemGroupOid => {
             Object.keys(mdv.itemGroups[itemGroupOid].itemRefs).forEach( itemRefOid => {
@@ -255,10 +255,6 @@ function parseCodelists (codelistsRaw, mdv) {
     codelistsRaw.forEach(function (codelistRaw) {
         if (codelistRaw.hasOwnProperty('$')) {
             let args = codelistRaw['$'];
-            if (args.hasOwnProperty('standardOid')) {
-                args.standard = mdv.standards[args['standardOid']];
-                delete args['standardOid'];
-            }
             if (codelistRaw.hasOwnProperty('alias')) {
                 args.alias = parseAlias(codelistRaw['alias']);
             }
@@ -301,6 +297,18 @@ function parseCodelists (codelistsRaw, mdv) {
             if (codelistRaw.hasOwnProperty('externalCodeList')) {
                 codelist.setExternalCodeList(new def.ExternalCodeList(codelistRaw['externalCodeList'][0]['$']));
             }
+
+            // Connect codeList to its sources
+            let sources = [];
+            Object.keys(mdv.itemDefs).forEach( itemDefOid => {
+                if (mdv.itemDefs[itemDefOid].codeListOid === codelist.oid) {
+                    sources.push(itemDefOid);
+                }
+            });
+
+            codelist.sources = {
+                itemDefs: sources,
+            };
         }
         codelists[codelist.oid] = codelist;
     });
@@ -573,7 +581,6 @@ function parseMetaDataVersion (metadataRaw) {
     var mdv = {};
     mdv.leafs = parseLeafs(metadataRaw['leaf']);
     mdv.standards = parseStandards(metadataRaw, defineVersion);
-    mdv.codelists = parseCodelists(metadataRaw['codeList'], mdv);
     mdv.whereClauses = parseWhereClauses(metadataRaw['whereClauseDef'], mdv);
 
     if (metadataRaw.hasOwnProperty('annotatedCrf')) {
@@ -598,6 +605,7 @@ function parseMetaDataVersion (metadataRaw) {
         }
     });
 
+    mdv.codelists = parseCodelists(metadataRaw['codeList'], mdv);
     mdv.methods = parseMethods(metadataRaw['methodDef'], mdv);
     mdv.comments = parseComments(metadataRaw['commentDef'], mdv);
 

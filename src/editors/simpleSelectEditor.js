@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import TextField from 'material-ui/TextField';
-import { MenuItem } from 'material-ui/Menu';
+import getSelectionList from 'utils/getSelectionList.js';
 
 const styles = theme => ({
     container: {
@@ -24,25 +24,6 @@ class ItemSelect extends React.Component {
         this.state = {value: props.defaultValue || ''};
     }
 
-    getSelectionList (list, optional) {
-        let selectionList = [];
-        if (list.length < 1) {
-            throw Error('Blank value list provided for the ItemSelect element');
-        } else {
-            if (optional === true) {
-                selectionList.push(<MenuItem key='0' value=""></MenuItem>);
-            }
-            list.forEach( (value, index) => {
-                if (typeof value === 'object') {
-                    selectionList.push(<MenuItem key={index+1} value={Object.keys(value)[0]}>{value[Object.keys(value)[0]]}</MenuItem>);
-                } else {
-                    selectionList.push(<MenuItem key={index+1} value={value}>{value}</MenuItem>);
-                }
-            });
-        }
-        return selectionList;
-    }
-
     handleChange = event => {
         this.props.onUpdate(event.target.value);
     };
@@ -61,7 +42,7 @@ class ItemSelect extends React.Component {
                 onChange={this.handleChange}
                 className={classes.textField}
             >
-                {this.getSelectionList(this.props.options,this.props.optional)}
+                {getSelectionList(this.props.options,this.props.optional)}
             </TextField>
         );
     }

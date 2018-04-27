@@ -1,5 +1,4 @@
 import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
-import '../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import { connect } from 'react-redux';
 import renderColumns from 'utils/renderColumns.js';
 import PropTypes from 'prop-types';
