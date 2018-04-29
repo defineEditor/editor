@@ -249,9 +249,8 @@ class CodeList extends BasicFunctions {
     constructor ({
         oid, name, dataType, standardOid, formatName, commentOid, externalCodeList, alias,
         cdiscSubmissionValue, linkedCodeListOid, codeListType, standardCodeListOid,
+        enumeratedItems, codeListItems,
         descriptions = [],
-        enumeratedItems = [],
-        codeListItems = [],
         sources,
     } = {}) {
         super();
@@ -269,9 +268,9 @@ class CodeList extends BasicFunctions {
         // Non-define XML properties
         this.codeListType = codeListType;
         if (codeListType === undefined) {
-            if (this.codeListItems.length > 0) {
+            if (this.codeListItems !== undefined) {
                 this.codeListType = 'decoded';
-            } else if (this.enumeratedItems.length > 0) {
+            } else if (this.enumeratedItems !== undefined) {
                 this.codeListType = 'enumerated';
             } else if (this.externalCodeList !== undefined) {
                 this.codeListType = 'external';
@@ -290,10 +289,22 @@ class CodeList extends BasicFunctions {
         }
     }
     addEnumeratedItem (item) {
-        this.enumeratedItems.push(item);
+        if (this.enumeratedItems !== undefined) {
+            let oid = getOid('CodeListItem', undefined, Object.keys(this.enumeratedItems));
+            this.enumeratedItems[oid] = item;
+        } else {
+            let oid = getOid('CodeListItem');
+            this.enumeratedItems = { [oid]: item };
+        }
     }
     addCodeListItem (item) {
-        this.codeListItems.push(item);
+        if (this.codeListItems !== undefined) {
+            let oid = getOid('CodeListItem', undefined, Object.keys(this.codeListItems));
+            this.codeListItems[oid] = item;
+        } else {
+            let oid = getOid('CodeListItem');
+            this.codeListItems = { [oid]: item };
+        }
     }
     setExternalCodeList (item) {
         this.externalCodeList = item;

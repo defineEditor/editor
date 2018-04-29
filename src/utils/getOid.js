@@ -12,6 +12,7 @@ function getOid (type, suffix, existingOids = []) {
         Comment         : 'COM.',
         Leaf            : 'LF.',
         ItemRef         : 'NG.IR.',
+        CodeListItem    : 'NG.CI.',
     };
     if (suffix !== undefined) {
         oid = prefix[type] + suffix;

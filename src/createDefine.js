@@ -151,7 +151,7 @@ function createMetaDataVersion (data, version) {
             let codeLists = {'CodeList': []};
             // Codelists with EnumeratedItems
             Object.keys(data.codeLists).filter(function (codeListOid) {
-                if (data.codeLists[codeListOid].enumeratedItems.length !== 0) {
+                if (data.codeLists[codeListOid].enumeratedItems !== undefined) {
                     return true;
                 } else {
                     return false;
@@ -161,7 +161,7 @@ function createMetaDataVersion (data, version) {
             });
             // Codelists with CodeListItem
             Object.keys(data.codeLists).filter(function (codeListOid) {
-                if (data.codeLists[codeListOid].codeListItems.length !== 0) {
+                if (data.codeLists[codeListOid].codeListItems !== undefined) {
                     return true;
                 } else {
                     return false;
@@ -528,17 +528,17 @@ function createCodeList (data, version) {
             }
         }
         // Add EnumeratedItem
-        if (data.enumeratedItems.length !== 0) {
+        if (data.enumeratedItems !== undefined) {
             result['EnumeratedItem'] = [];
-            data.enumeratedItems.forEach(function (enumeratedItem) {
-                result['EnumeratedItem'].push(createEnumeratedItem(enumeratedItem, version));
+            Object.keys(data.enumeratedItems).forEach(function (enumeratedItemOid) {
+                result['EnumeratedItem'].push(createEnumeratedItem(data.enumeratedItems[enumeratedItemOid], version));
             });
         }
         // Add CodeListItem
-        if (data.codeListItems.length !== 0) {
+        if (data.codeListItems !== undefined) {
             result['CodeListItem'] = [];
-            data.codeListItems.forEach(function (codeListItem) {
-                result['CodeListItem'].push(createCodeListItem(codeListItem, version));
+            Object.keys(data.codeListItems).forEach(function (codeListItemOid) {
+                result['CodeListItem'].push(createCodeListItem(data.codeListItems[codeListItemOid], version));
             });
         }
         // Add ExternalCodeList

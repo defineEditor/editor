@@ -5,8 +5,8 @@ import Tabs, { Tab } from 'material-ui/Tabs';
 import Typography from 'material-ui/Typography';
 import DatasetTable from 'tabs/datasetTab.js';
 import VariableTable from 'tabs/variableTab.js';
-import CodeListsTable from 'tabs/codeListsTab.js';
 import CodeListTable from 'tabs/codeListTab.js';
+import CodedValueTable from 'tabs/codedValueTab.js';
 import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme, withStyles } from 'material-ui/styles';
 import getItemGroupOrder from 'utils/getItemGroupOrder.js';
@@ -106,7 +106,7 @@ class ConnectedEditorTabs extends React.Component {
         let result = codeLists.map(codeListOid => {
             return (
                 <div key={codeListOid}>
-                    <CodeListTable
+                    <CodedValueTable
                         mdv={mdv}
                         codeListOid={codeListOid}
                         onMdvChange={this.handleMdvChange}
@@ -152,7 +152,7 @@ class ConnectedEditorTabs extends React.Component {
                             defineVersion={defineVersion}
                         />}
                         {tabs[value] === 'Variables' && this.generateVariableTables(defineVersion)}
-                        {tabs[value] === 'Codelists' && <CodeListsTable/>}
+                        {tabs[value] === 'Codelists' && <CodeListTable/>}
                         {tabs[value] === 'Coded Values' && this.generateCodeListTables(defineVersion)}
                         {['Datasets','Variables','Codelists','Coded Values'].indexOf(tabs[value]) === -1 && <div id={tabIds[value]}>{tabs[value]}</div>}
                     </TabContainer>

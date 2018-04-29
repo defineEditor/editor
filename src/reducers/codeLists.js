@@ -4,7 +4,7 @@ import {
     ADD_CODELIST,
     DEL_CODELISTS,
 } from "constants/action-types";
-import { CodeList } from 'elements.js';
+import { CodeList, CodeListItem, EnumeratedItem } from 'elements.js';
 
 
 const handleItemDefUpdate = (state, action) => {
@@ -83,6 +83,67 @@ const updateLinkedCodeList = (state, action) => {
     }
 };
 
+const updateCodeListType = (state, action) => {
+    // Update the codelist type
+    // Get the current type of a codelist
+    let currentCodeList = state[action.oid];
+    let newType = action.updateObj.codeListType;
+
+    // If codelist was linked, unlink it
+    let newState;
+    if (currentCodeList.linkedCodeListOid !== undefined) {
+        let newAction = { oid: action.oid, updateObj: { linkedCodeListOid: undefined } };
+        newState = updateLinkedCodeList(state, newAction);
+    } else {
+        newState = state;
+    }
+
+    if (currentCodeList.externalCodeList !== undefined) {
+        // If it is an external codelist, just remove the link
+        let newCodeList = new CodeList({ ...newState[action.oid], ...action.updateObj, externalCodeList: undefined });
+        return {...newState, [action.oid]: newCodeList};
+    } else if (currentCodeList.enumeratedItems !== undefined && newType  === 'decoded') {
+        // Transform EnumeratedItems to CodeListItems
+        let codeListItems = {};
+        Object.keys(currentCodeList.enumeratedItems).forEach( itemOid => {
+            codeListItems[itemOid] = new CodeListItem({ ...currentCodeList.enumeratedItems[itemOid] });
+        });
+        let newCodeList = new CodeList({
+            ...newState[action.oid],
+            ...action.updateObj,
+            enumeratedItems: undefined,
+            codeListItems,
+        });
+        return {...newState, [action.oid]: newCodeList};
+
+    } else if (currentCodeList.codeListItems !== undefined && newType  === 'enumerated') {
+        // Transform CodeListItems to EnumeratedItems
+        let enumeratedItems = {};
+        Object.keys(currentCodeList.codeListItems).forEach( itemOid => {
+            enumeratedItems[itemOid] =  new EnumeratedItem({ ...currentCodeList.codeListItems[itemOid] });
+        });
+        let newCodeList = new CodeList({
+            ...newState[action.oid],
+            ...action.updateObj,
+            codeListItems: undefined,
+            enumeratedItems,
+        });
+        return {...newState, [action.oid]: newCodeList};
+    } else if (newType === 'external') {
+        // Remove CodeListItems and EnumeratedItems
+        let newCodeList = new CodeList({
+            ...newState[action.oid],
+            ...action.updateObj,
+            codeListItems   : undefined,
+            enumeratedItems : undefined,
+        });
+        return {...newState, [action.oid]: newCodeList};
+    } else {
+        // Nothing changed
+        return state;
+    }
+};
+
 const updateCodeList = (state, action) => {
     // action.oid - codelist oid
     // action.updateObj - object with CodeList class properties
@@ -91,6 +152,8 @@ const updateCodeList = (state, action) => {
     // Linked codelist updated
     if (action.updateObj.hasOwnProperty('linkedCodeListOid')) {
         return updateLinkedCodeList(state, action);
+    } else if (action.updateObj.hasOwnProperty('codeListType')) {
+        return updateCodeListType(state, action);
     } else {
         return {...state, [action.oid]: newCodeList};
     }

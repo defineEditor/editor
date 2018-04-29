@@ -1,125 +1,110 @@
 import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
-import '../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
-import renderColumns from 'utils/renderColumns.js';
-import getCodeListData from 'utils/getCodeListData.js';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import deepEqual from 'fast-deep-equal';
+import renderColumns from 'utils/renderColumns.js';
+import AddCodeListEditor from 'editors/addCodeListEditor.js';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import React from 'react';
 import indigo from 'material-ui/colors/indigo';
 import grey from 'material-ui/colors/grey';
-import { withStyles } from 'material-ui/styles';
-import Chip from 'material-ui/Chip';
-import deepEqual from 'fast-deep-equal';
-import FilterListIcon from 'material-ui-icons/FilterList';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
-import ReactSelectEditor from 'editors/reactSelectEditor.js';
+import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
+import CodeListFormatNameEditor from 'editors/codeListFormatNameEditor.js';
+import {
+    updateCodeList,
+    deleteCodeLists,
+} from 'actions/index.js';
 
-// Selector constants
-const styles = theme => ({
-    button: {
-        margin: theme.spacing.unit,
-    },
-    chip: {
-        verticalAlign : 'top',
-        marginLeft    : theme.spacing.unit,
-    },
-});
+// Redux functions
+const mapDispatchToProps = dispatch => {
+    return {
+        updateCodeList  : (oid, updateObj) => dispatch(updateCodeList(oid, updateObj)),
+        deleteCodeLists : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
+    };
+};
 
+const mapStateToProps = state => {
+    return {
+        codeLists     : state.odm.study.metaDataVersion.codeLists,
+        stdCodeLists  : state.stdCodeLists,
+        stdConstants  : state.stdConstants,
+        defineVersion : state.odm.study.metaDataVersion.defineVersion,
+    };
+};
 
-// Editors
-function codedValueEditor (onUpdate, props) {
-    if (props.stdCodeListData !== undefined) {
-        const options = props.stdCodeListData.map( item => ({
-            value : item.value,
-            label : item.value + ' (' + item.decode + ')',
-        }));
-        return (<ReactSelectEditor onUpdate={ onUpdate } {...props} options={options}/>);
-    } else {
-        return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
-    }
+// Debug options
+const hideMe = false;
+
+// Editor functions
+function codeListStandardEditor (onUpdate, props) {
+    return ('');
+}
+
+function codeListFormatNameEditor (onUpdate, props) {
+    return (<CodeListFormatNameEditor onUpdate={onUpdate} {...props}/>);
 }
 
 function simpleInputEditor (onUpdate, props) {
-    return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
+    return (<SimpleInputEditor onUpdate={onUpdate} {...props}/>);
 }
 
-class CodeListTable extends React.Component {
+function simpleSelectEditor (onUpdate, props) {
+    return (<SimpleSelectEditor onUpdate={onUpdate} {...props}/>);
+}
+
+// Formatter functions
+function codeListStandardFormatter (cell, row) {
+    if (cell.standard !== undefined) {
+        return (cell.standard.getDescription() + '\n' + cell.cdiscSubmissionValue);
+    }
+}
+
+function codeListTypeFormatter (cell, row) {
+    if (cell !== undefined) {
+        let typeDecode;
+        row.stdConstants.codeListTypes.some( type => {
+            if (type.hasOwnProperty(cell)) {
+                typeDecode = type[cell];
+                return true;
+            }
+            return false;
+        });
+        return (typeDecode);
+    }
+}
+
+class ConnectedCodeListTable extends React.Component {
     constructor(props) {
         super(props);
-        const mdv = this.props.mdv;
-        // Get list of variables which are using the codelist;
-        let codeListVariables = [];
-        /*
-        Object.keys(mdv.itemGroups).forEach( itemGroupOid => {
-            let dataset = mdv.itemGroups[itemGroupOid];
-            dataset.itemRefs.forEach( itemRef => {
-                if (itemRef.itemDef.codeList !== undefined) {
-                    if (itemRef.itemDef.codeList.oid === this.props.codeListOid) {
-                        codeListVariables.push(
-                            <Chip
-                                label={dataset.name + '.' + itemRef.itemDef.name}
-                                key={dataset.oid + '.' + itemRef.itemDef.oid}
-                                className={this.props.classes.chip}
-                            />
-                        );
-                    }
-                }
-            });
-        });
-        */
-        // Standard codelist
+
         this.state = {
-            codeListVariables : codeListVariables,
-            stdCodeListData   : this.getStdCodeListData(),
+            selectedRows: [],
         };
     }
 
-    getStdCodeListData = () => {
-        const codeList = this.props.mdv.codeLists[this.props.codeListOid];
-        let stdCodeList;
-        if (codeList.alias !== undefined) {
-            let stdCodeLists = this.props.stdCodeLists;
-            // Find the codelist;
-            Object.keys(stdCodeLists).some( standardOid => {
-                Object.keys(stdCodeLists[standardOid].codeLists).some( codeListOid => {
-                    if (stdCodeLists[standardOid].codeLists[codeListOid].alias.name === codeList.alias.name) {
-                        stdCodeList = stdCodeLists[standardOid].codeLists[codeListOid];
+    onBeforeSaveCell = (row, cellName, cellValue) => {
+        // Update on if the value changed
+        if (!deepEqual(row[cellName], cellValue)) {
+
+            let updateObj = {};
+            if (cellName === 'linkedCodeList') {
+                // Find codelistId by name
+                updateObj['linkedCodeListOid'] = undefined;
+                Object.keys(this.props.codeLists).some( codeListOid => {
+                    if (this.props.codeLists[codeListOid].name === cellValue) {
+                        updateObj['linkedCodeListOid'] = codeListOid;
                         return true;
                     } else {
                         return false;
                     }
                 });
-                if (stdCodeList !== undefined) {
-                    return true;
-                } else {
-                    return false;
-                }
-            });
-            // If result found, extract data from it;
-            if (stdCodeList !== undefined) {
-                return getCodeListData(stdCodeList).codeListTable;
             } else {
-                return undefined;
+                updateObj[cellName] = cellValue;
             }
-        } else {
-            return undefined;
-        }
-    }
 
-    onCellEdit = (row, cellName, cellValue) => {
-        // Update on if the value changed
-        if (!deepEqual(row[cellName], cellValue)) {
-            this.props.onMdvChange('CodeList',{itemOid: row.oid, itemGroupOid: row.itemGroupOid},{cellName: cellValue});
-        }
-    }
-
-    onBeforeSaveCell = (row, cellName, cellValue) => {
-        // Update on if the value changed
-        if (row[cellName] !== cellValue) {
-            let updateObj = {};
-            updateObj[cellName] = cellValue;
-            this.props.onMdvChange('CodeList',{itemOid: row.oid, itemGroupOid: row.itemGroupOid},updateObj);
+            this.props.updateCodeList(row.oid, updateObj);
         }
         return true;
     }
@@ -132,7 +117,7 @@ class CodeListTable extends React.Component {
                         { props.showSelectedOnlyBtn }
                     </Grid>
                     <Grid item>
-                        { props.insertBtn }
+                        <AddCodeListEditor/>
                     </Grid>
                     <Grid item>
                         <Button color='default' mini onClick={console.log}
@@ -155,17 +140,7 @@ class CodeListTable extends React.Component {
                     { props.components.btnGroup }
                 </Grid>
                 <Grid item style={{paddingRight: '25px'}}>
-                    <Grid container spacing={16} justify='flex-end'>
-                        <Grid item>
-                            <Button variant="raised" color="default">
-                                Filter
-                                <FilterListIcon style={{marginLeft: '7px'}}/>
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            { props.components.searchPanel }
-                        </Grid>
-                    </Grid>
+                    { props.components.searchPanel }
                 </Grid>
             </Grid>
         );
@@ -179,34 +154,108 @@ class CodeListTable extends React.Component {
 
     createCustomDeleteButton = (onBtnClick) => {
         return (
-            <Button color='secondary' mini onClick={onBtnClick} variant='raised'>Delete</Button>
+            <Button color='secondary' mini onClick={this.deleteRows} variant='raised'>Delete</Button>
         );
     }
 
+    deleteRows = () => {
+        let codeLists = this.props.codeLists;
+        let codeListOids = this.state.selectedRows;
+        // Get the list of ItemOIDs for which the codelists should be removed;
+        let itemDefOids = [];
+        codeListOids.forEach(codeListOid => {
+            codeLists[codeListOid].sources.itemDefs.forEach( itemDefOid => {
+                itemDefOids.push(itemDefOid);
+            });
+        });
+        let deleteObj = {
+            codeListOids,
+            itemDefOids,
+        };
+        this.props.deleteCodeLists(deleteObj);
+    }
+
+    // Row Selection functions
+    onRowSelected = (row, isSelected, event) => {
+        let selectedRows = this.state.selectedRows;
+        if (isSelected === true) {
+            // If the variable is going to be selected;
+            if (!selectedRows.includes(row.oid)) {
+                selectedRows.push(row.oid);
+            }
+        } else {
+            // If the variable is going to be removed;
+            if (selectedRows.includes(row.oid)) {
+                selectedRows.splice(selectedRows.indexOf(row.oid),1);
+            }
+        }
+        this.setState({selectedRows});
+        return true;
+    }
+
+    onAllRowSelected = (rows, isSelected, event) => {
+        let selectedRows;
+        let selectedVlmRows;
+        // (De)select all simple variables
+        if (isSelected === true) {
+            // If all rows are going to be selected;
+            selectedRows = rows
+                .filter( row => (row.vlmLevel === 0))
+                .map( row => (row.itemRefOid));
+        } else {
+            selectedRows = [];
+        }
+        // (De)select all value levels
+        if (isSelected === true) {
+            // If all rows are going to be selected;
+            rows.filter( row => (row.vlmLevel === 1))
+                .forEach( row => {
+                    const valueListOid = row.itemGroupOid;
+                    if (selectedVlmRows.hasOwnProperty(valueListOid)) {
+                        selectedRows[valueListOid].push(row.itemRefOid);
+                    } else {
+                        selectedRows[valueListOid] = [row.itemRefOid];
+                    }
+                });
+        } else {
+            selectedVlmRows = {};
+        }
+        this.setState({selectedRows, selectedVlmRows});
+        return true;
+    }
+
     render () {
-        // Extract data required for the variable table
-        const mdv = this.props.mdv;
-        const codeList = mdv.codeLists[this.props.codeListOid];
-        // Get codeList data
-        let {codeListTable, codeListTitle, isDecoded, isRanked, isCcoded} = getCodeListData(codeList, this.props.defineVersion);
-        codeListTable.codeList = codeList;
-        // Dynamically get column width;
-        let width = {};
-        width.value = {percent: 95};
-        if (isDecoded) {
-            width.decode = {percent: 50};
-            width.value.percent -= 50;
-        }
-        if (isRanked) {
-            width.rank = {percent: 10};
-            width.value.percent -= 10;
-        }
-        if (isCcoded) {
-            width.ccode = {percent: 10};
-            width.value.percent -= 10;
-        }
+        let codeLists = [];
+        // Extract data required for the dataset table
+        const codeListsRaw = this.props.codeLists;
+        Object.keys(codeListsRaw).forEach((codeListOid, index) => {
+            const originCL = codeListsRaw[codeListOid];
+            let currentCL = {
+                oid            : originCL.oid,
+                name           : originCL.name,
+                dataType       : originCL.dataType,
+                codeListType   : originCL.codeListType,
+                formatName     : originCL.formatName,
+                orderNumber    : originCL.orderNumber,
+                linkedCodeList : originCL.linkedCodeListOid !== undefined ? codeListsRaw[originCL.linkedCodeListOid].name : undefined,
+                defineVersion  : this.props.defineVersion,
+                stdConstants   : this.props.stdConstants,
+            };
+            currentCL.standardData = {
+                standard             : originCL.standard,
+                cdiscSubmissionValue : originCL.cdiscSubmissionValue,
+            };
+            // Get key variables
+            // TODO: When key is located in the SUPP dataset.
+            codeLists[index] = currentCL;
+        });
 
-
+        // Get list of codelists with decodes for linked codelist selection;
+        const codeListWithDecodes = Object.keys(codeListsRaw).filter( codeListOid => {
+            return codeListsRaw[codeListOid].getCodeListType() === 'decoded';
+        }).map( codeListOid => {
+            return codeListsRaw[codeListOid].name;
+        });
 
         // Editor settings
         const cellEditProp = {
@@ -217,7 +266,8 @@ class CodeListTable extends React.Component {
 
         const selectRowProp = {
             mode        : 'checkbox',
-            columnWidth : '35px',
+            onSelect    : this.onRowSelected,
+            onSelectAll : this.onAllRowSelected,
         };
 
         const options = {
@@ -227,89 +277,96 @@ class CodeListTable extends React.Component {
             btnGroup  : this.createCustomButtonGroup
         };
 
-        let columns = [
+        const columns = [
             {
-                dataField : 'key',
+                dataField : 'oid',
                 isKey     : true,
                 hidden    : true,
+                text      : 'OID',
+                editable  : false
             },
             {
-                dataField    : 'value',
-                text         : 'Coded Value',
-                width        : width.value.percent.toString() + '%',
-                customEditor : {getElement: codedValueEditor, customEditorParameters: {stdCodeListData: this.state.stdCodeListData}},
-                tdStyle      : { whiteSpace: 'normal', width: '30px', overflow: 'inherit !important' },
-                thStyle      : { whiteSpace: 'normal', width: '30px' },
-            }];
-        if (isDecoded) {
-            columns.push(
-                {
-                    dataField    : 'decode',
-                    text         : 'Decode',
-                    width        : width.decode.percent.toString() + '%',
-                    customEditor : {getElement: simpleInputEditor},
-                    tdStyle      : { whiteSpace: 'normal' },
-                    thStyle      : { whiteSpace: 'normal' }
-                }
-            );
-        }
-        if (isRanked) {
-            columns.push(
-                {
-                    dataField    : 'rank',
-                    text         : 'Rank',
-                    width        : width.rank.percent.toString() + '%',
-                    customEditor : {getElement: simpleInputEditor},
-                    tdStyle      : { whiteSpace: 'normal' },
-                    thStyle      : { whiteSpace: 'normal' }
-                }
-            );
-        }
-        if (isCcoded) {
-            columns.push(
-                {
-                    dataField    : 'ccode',
-                    text         : 'C-code',
-                    width        : width.ccode.percent.toString() + '%',
-                    customEditor : {getElement: simpleInputEditor},
-                    tdStyle      : { whiteSpace: 'normal' },
-                    thStyle      : { whiteSpace: 'normal' },
-                    editable     : false,
-                }
-            );
-        }
+                dataField    : 'name',
+                text         : 'Name',
+                width        : '20%',
+                hidden       : hideMe,
+                customEditor : {getElement: simpleInputEditor},
+                tdStyle      : {whiteSpace: 'normal'},
+                thStyle      : {whiteSpace: 'normal'}
+            },
+            {
+                dataField    : 'codeListType',
+                text         : 'Type',
+                hidden       : hideMe,
+                width        : '130px',
+                dataFormat   : codeListTypeFormatter,
+                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: this.props.stdConstants.codeListTypes}},
+                tdStyle      : { whiteSpace: 'normal' },
+                thStyle      : { whiteSpace: 'normal' },
+            },
+            {
+                dataField    : 'dataType',
+                text         : 'Data Type',
+                hidden       : hideMe,
+                width        : '140px',
+                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: this.props.stdConstants.dataTypes}},
+                tdStyle      : { whiteSpace: 'normal' },
+                thStyle      : { whiteSpace: 'normal' },
+            },
+            {
+                dataField    : 'formatName',
+                text         : 'Format Name',
+                hidden       : hideMe,
+                customEditor : {getElement: codeListFormatNameEditor},
+                tdStyle      : { whiteSpace: 'normal' },
+                thStyle      : { whiteSpace: 'normal' },
+            },
+            {
+                dataField    : 'linkedCodeList',
+                text         : 'Linked Codelist',
+                hidden       : hideMe,
+                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: codeListWithDecodes, optional: true}},
+                tdStyle      : { whiteSpace: 'normal' },
+                thStyle      : { whiteSpace: 'normal' },
+            },
+            {
+                dataField    : 'standardData',
+                text         : 'Standard',
+                hidden       : hideMe,
+                dataFormat   : codeListStandardFormatter,
+                customEditor : {getElement: codeListStandardEditor},
+                tdStyle      : { whiteSpace: 'normal' },
+                thStyle      : { whiteSpace: 'normal' }
+            },
+        ];
 
         return (
-            <React.Fragment>
-                <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
-                    {codeListTitle} {this.state.codeListVariables}
-                </h3>
-                <BootstrapTable
-                    data={codeListTable}
-                    options={options}
-                    search
-                    deleteRow
-                    insertRow
-                    striped
-                    hover
-                    version='4'
-                    cellEdit={cellEditProp}
-                    keyBoardNav={{enterToEdit: true}}
-                    headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
-                    selectRow={selectRowProp}
-                >
-                    {renderColumns(columns)}
-                </BootstrapTable>
-            </React.Fragment>
+            <BootstrapTable
+                data={codeLists}
+                options={options}
+                search
+                deleteRow
+                insertRow
+                striped
+                hover
+                version='4'
+                cellEdit={cellEditProp}
+                keyBoardNav={{enterToEdit: true}}
+                headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
+                selectRow={selectRowProp}
+            >
+                {renderColumns(columns)}
+            </BootstrapTable>
         );
     }
 }
 
-CodeListTable.propTypes = {
-    mdv           : PropTypes.object.isRequired,
-    codeListOid   : PropTypes.string.isRequired,
+ConnectedCodeListTable.propTypes = {
+    codeLists     : PropTypes.object.isRequired,
+    stdCodeLists  : PropTypes.object.isRequired,
+    stdConstants  : PropTypes.object.isRequired,
     defineVersion : PropTypes.string.isRequired,
-    stdCodeLists  : PropTypes.object,
 };
 
-export default withStyles(styles)(CodeListTable);
+const CodeListTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodeListTable);
+export default CodeListTable;
