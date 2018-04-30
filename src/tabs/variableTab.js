@@ -171,7 +171,7 @@ function getTableData ({source, datasetName, itemDefs, codeLists, mdv, defineVer
             oid           : originItemDef.oid,
             name          : originItemDef.name,
             dataType      : originItemDef.dataType,
-            codeList      : originItemDef.codeList,
+            codeList      : originItemDef.codeListOid !== undefined && codeLists[originItemDef.codeListOid],
             valueList     : originItemDef.valueListOid !== undefined ? mdv.valueLists[originItemDef.valueListOid] : undefined,
             model         : mdv.model,
             mdv           : mdv,

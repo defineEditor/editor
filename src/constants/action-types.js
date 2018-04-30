@@ -18,3 +18,4 @@ export const DEL_VARS = "DEL_VARS";
 export const ADD_CODELIST = "ADD_CODELIST";
 export const UPD_CODELIST = "UPD_CODELIST";
 export const DEL_CODELISTS = "DEL_CODELISTS";
+export const UPD_CDVAL = "UPD_CDVAL";

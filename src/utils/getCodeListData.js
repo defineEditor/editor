@@ -3,7 +3,7 @@ function getCodeListData(codeList, defineVersion) {
 
     let codeListTable;
     if (isDecoded) {
-        codeListTable = Object.keys(codeList.codeListItems).map( (itemOid, index) => {
+        codeListTable = codeList.itemOrder.map( (itemOid, index) => {
             let item = codeList.codeListItems[itemOid];
             let ccode;
             if (item.alias === undefined) {
@@ -22,7 +22,7 @@ function getCodeListData(codeList, defineVersion) {
             });
         });
     } else {
-        codeListTable = Object.keys(codeList.enumeratedItems).map( (itemOid, index) => {
+        codeListTable = codeList.itemOrder.map( (itemOid, index) => {
             let item = codeList.enumeratedItems[itemOid];
             let ccode;
             if (item.alias === undefined) {

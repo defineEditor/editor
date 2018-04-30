@@ -102,6 +102,7 @@ function parseCodeLists (codeListsRaw, mdv) {
             args.codeListType = 'decoded';
             var codeList = new stdCL.StdCodeList(args);
 
+            let itemOrder = [];
             // Parse enumerated items
             if (codeListRaw.hasOwnProperty('enumeratedItem')) {
                 codeListRaw['enumeratedItem'].forEach(function (item) {
@@ -115,9 +116,11 @@ function parseCodeLists (codeListsRaw, mdv) {
                     item['preferredTerm'].forEach(function (item) {
                         codeListItem.addDecode(new stdCL.TranslatedText({value: item}));
                     });
-                    codeList.addCodeListItem(codeListItem);
+                    itemOrder.push(codeList.addCodeListItem(codeListItem));
                 });
             }
+
+            codeList.itemOrder = itemOrder;
 
             // Parse descriptions
             codeListRaw['description'].forEach(function (item) {

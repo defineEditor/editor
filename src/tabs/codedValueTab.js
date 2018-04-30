@@ -1,5 +1,6 @@
 import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
 import '../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
+import { connect } from 'react-redux';
 import renderColumns from 'utils/renderColumns.js';
 import getCodeListData from 'utils/getCodeListData.js';
 import PropTypes from 'prop-types';
@@ -14,8 +15,10 @@ import deepEqual from 'fast-deep-equal';
 import FilterListIcon from 'material-ui-icons/FilterList';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import ReactSelectEditor from 'editors/reactSelectEditor.js';
+import {
+    updateCodedValue,
+} from 'actions/index.js';
 
-// Selector constants
 const styles = theme => ({
     button: {
         margin: theme.spacing.unit,
@@ -26,6 +29,21 @@ const styles = theme => ({
     },
 });
 
+// Redux functions
+const mapDispatchToProps = dispatch => {
+    return {
+        updateCodedValue: (oid, updateObj) => dispatch(updateCodedValue(oid, updateObj)),
+    };
+};
+
+const mapStateToProps = state => {
+    return {
+        mdv           : state.odm.study.metaDataVersion,
+        codeLists     : state.odm.study.metaDataVersion.codeLists,
+        stdCodeLists  : state.stdCodeLists,
+        defineVersion : state.odm.study.metaDataVersion.defineVersion,
+    };
+};
 
 // Editors
 function codedValueEditor (onUpdate, props) {
@@ -44,7 +62,7 @@ function simpleInputEditor (onUpdate, props) {
     return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
 }
 
-class CodeListTable extends React.Component {
+class ConnectedCodedValueTable extends React.Component {
     constructor(props) {
         super(props);
         const mdv = this.props.mdv;
@@ -305,11 +323,12 @@ class CodeListTable extends React.Component {
     }
 }
 
-CodeListTable.propTypes = {
+ConnectedCodedValueTable.propTypes = {
     mdv           : PropTypes.object.isRequired,
     codeListOid   : PropTypes.string.isRequired,
     defineVersion : PropTypes.string.isRequired,
     stdCodeLists  : PropTypes.object,
 };
 
-export default withStyles(styles)(CodeListTable);
+const CodedValueTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodedValueTable);
+export default withStyles(styles)(CodedValueTable);

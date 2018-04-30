@@ -250,6 +250,7 @@ class CodeList extends BasicFunctions {
         oid, name, dataType, standardOid, formatName, commentOid, externalCodeList, alias,
         cdiscSubmissionValue, linkedCodeListOid, codeListType, standardCodeListOid,
         enumeratedItems, codeListItems,
+        itemOrder = [],
         descriptions = [],
         sources,
     } = {}) {
@@ -265,6 +266,7 @@ class CodeList extends BasicFunctions {
         this.descriptions = descriptions; // 2.1D
         this.enumeratedItems = enumeratedItems;
         this.codeListItems = codeListItems;
+        this.itemOrder = itemOrder;
         // Non-define XML properties
         this.codeListType = codeListType;
         if (codeListType === undefined) {
@@ -289,22 +291,30 @@ class CodeList extends BasicFunctions {
         }
     }
     addEnumeratedItem (item) {
+        let oid;
         if (this.enumeratedItems !== undefined) {
-            let oid = getOid('CodeListItem', undefined, Object.keys(this.enumeratedItems));
+            oid = getOid('CodeListItem', undefined, Object.keys(this.enumeratedItems));
             this.enumeratedItems[oid] = item;
+            this.itemOrder.push(oid);
         } else {
-            let oid = getOid('CodeListItem');
+            oid = getOid('CodeListItem');
             this.enumeratedItems = { [oid]: item };
+            this.itemOrder.push(oid);
         }
+        return oid;
     }
     addCodeListItem (item) {
+        let oid;
         if (this.codeListItems !== undefined) {
-            let oid = getOid('CodeListItem', undefined, Object.keys(this.codeListItems));
+            oid = getOid('CodeListItem', undefined, Object.keys(this.codeListItems));
             this.codeListItems[oid] = item;
+            this.itemOrder.push(oid);
         } else {
-            let oid = getOid('CodeListItem');
+            oid = getOid('CodeListItem');
             this.codeListItems = { [oid]: item };
+            this.itemOrder.push(oid);
         }
+        return oid;
     }
     setExternalCodeList (item) {
         this.externalCodeList = item;
@@ -322,9 +332,9 @@ class CodeList extends BasicFunctions {
             maxLength = (max, value) => (value.codedValue.length > max ? value.codedValue.length : max);
         }
         if (this.getCodeListType() === 'decoded') {
-            return this.codeListItems.reduce(maxLength, 1);
+            return Object.keys(this.codeListItems).map( itemOid => (this.codeListItems[itemOid])).reduce(maxLength,1);
         } else if (this.getCodeListType() === 'enumerated') {
-            return this.enumeratedItems.reduce(maxLength, 1);
+            return Object.keys(this.enumeratedItems).map( itemOid => (this.enumeratedItems[itemOid])).reduce(maxLength,1);
         } else {
             return 1;
         }
@@ -333,11 +343,10 @@ class CodeList extends BasicFunctions {
 
 class EnumeratedItem {
     constructor ({
-        codedValue, rank, orderNumber, extendedValue, alias
+        codedValue, rank, extendedValue, alias
     } = {}) {
         this.codedValue = codedValue;
         this.rank = rank;
-        this.orderNumber = orderNumber;
         this.extendedValue = extendedValue;
         this.alias = alias;
     }

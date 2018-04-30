@@ -1,3 +1,5 @@
+import getOid from 'utils/getOid.js';
+
 class Alias {
     constructor ({
         name, context
@@ -60,9 +62,9 @@ class BasicFunctions {
 
 class StdCodeList extends BasicFunctions {
     constructor ({
-        oid, name, dataType, alias, cdiscSubmissionValue, codeListType,
+        oid, name, dataType, alias, cdiscSubmissionValue, codeListType, codeListItems,
+        itemOrder = [],
         descriptions = [],
-        codeListItems = []
     } = {}) {
         super();
         this.oid = oid;
@@ -71,14 +73,22 @@ class StdCodeList extends BasicFunctions {
         this.alias = alias;
         this.descriptions = descriptions;
         this.codeListItems = codeListItems;
+        this.itemOrder = itemOrder;
         this.cdiscSubmissionValue = cdiscSubmissionValue;
         this.codeListType = codeListType;
     }
     addCodeListItem (item) {
-        this.codeListItems.push(item);
-    }
-    setExternalCodeList (item) {
-        this.externalCodeList = item;
+        let oid;
+        if (this.codeListItems !== undefined) {
+            oid = getOid('CodeListItem', undefined, Object.keys(this.codeListItems));
+            this.codeListItems[oid] = item;
+            this.itemOrder.push(oid);
+        } else {
+            oid = getOid('CodeListItem');
+            this.codeListItems = { [oid]: item };
+            this.itemOrder.push(oid);
+        }
+        return oid;
     }
     getCodeListType () {
         return this.codeListType;

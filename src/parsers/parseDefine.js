@@ -250,17 +250,17 @@ function parseMethods (methodsRaw, mdv) {
     return methods;
 }
 
-function parseCodelists (codelistsRaw, mdv) {
-    let codelists = {};
-    codelistsRaw.forEach(function (codelistRaw) {
-        if (codelistRaw.hasOwnProperty('$')) {
-            let args = codelistRaw['$'];
-            if (codelistRaw.hasOwnProperty('alias')) {
-                args.alias = parseAlias(codelistRaw['alias']);
+function parseCodelists (codeListsRaw, mdv) {
+    let codeLists = {};
+    codeListsRaw.forEach(function (codeListRaw) {
+        if (codeListRaw.hasOwnProperty('$')) {
+            let args = codeListRaw['$'];
+            if (codeListRaw.hasOwnProperty('alias')) {
+                args.alias = parseAlias(codeListRaw['alias']);
             }
-            if (codelistRaw.hasOwnProperty('codeListItem')) {
+            if (codeListRaw.hasOwnProperty('codeListItem')) {
                 args.codeListType = 'decoded';
-            } else if (codelistRaw.hasOwnProperty('enumeratedItem')) {
+            } else if (codeListRaw.hasOwnProperty('enumeratedItem')) {
                 args.codeListType = 'enumerated';
             }
             // Rename some of the properties to match class definitions
@@ -268,52 +268,77 @@ function parseCodelists (codelistsRaw, mdv) {
                 args['formatName'] = args['sASFormatName'];
                 delete args['sASFormatName'];
             }
-            var codelist = new def.CodeList(args);
+            var codeList = new def.CodeList(args);
 
-            if (codelistRaw.hasOwnProperty('codeListItem')) {
+            let itemOrderRaw = {};
+
+            if (codeListRaw.hasOwnProperty('codeListItem')) {
                 // Parse coded items
-                codelistRaw['codeListItem'].forEach(function (item) {
-                    let codelistItem = new def.CodeListItem(item['$']);
+                codeListRaw['codeListItem'].forEach(function (item, index) {
+                    let codeListItem = new def.CodeListItem(item['$']);
                     if (item.hasOwnProperty('alias')) {
-                        codelistItem.alias = parseAlias(item['alias']);
+                        codeListItem.alias = parseAlias(item['alias']);
                     }
                     item['decode'].forEach(function (item) {
-                        codelistItem.addDecode(parseTranslatedText(item));
+                        codeListItem.addDecode(parseTranslatedText(item));
                     });
-                    codelist.addCodeListItem(codelistItem);
+                    let oid = codeList.addCodeListItem(codeListItem);
+
+                    if (item['$']['orderNumber'] >= 1) {
+                        itemOrderRaw[oid] = item['$']['orderNumber'];
+                    } else {
+                        itemOrderRaw[oid] = -1 / index;
+                    }
                 });
-            } else if (codelistRaw.hasOwnProperty('enumeratedItem')) {
+            } else if (codeListRaw.hasOwnProperty('enumeratedItem')) {
                 // Parse enumerated items
-                codelistRaw['enumeratedItem'].forEach(function (item) {
+                codeListRaw['enumeratedItem'].forEach(function (item, index) {
                     let enumeratedItem = new def.EnumeratedItem(item['$']);
                     if (item.hasOwnProperty('alias')) {
                         enumeratedItem.alias = parseAlias(item['alias']);
                     }
-                    codelist.addEnumeratedItem(enumeratedItem);
+                    let oid = codeList.addEnumeratedItem(enumeratedItem);
+
+                    if (item['$']['orderNumber'] >= 1) {
+                        itemOrderRaw[oid] = item['$']['orderNumber'];
+                    } else {
+                        itemOrderRaw[oid] = -1 / (index+1);
+                    }
                 });
             }
 
+            // Comparing to Define-XML structure, order of codelist items is stored in an array of IDs
+            let itemOrder = Object.keys(itemOrderRaw).sort( (itemOid1, itemOid2) => {
+                if (itemOrderRaw[itemOid1] < itemOrderRaw[itemOid2]) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            });
+
+            codeList.itemOrder = itemOrder;
+
             // Parse external codelists
-            if (codelistRaw.hasOwnProperty('externalCodeList')) {
-                codelist.setExternalCodeList(new def.ExternalCodeList(codelistRaw['externalCodeList'][0]['$']));
+            if (codeListRaw.hasOwnProperty('externalCodeList')) {
+                codeList.setExternalCodeList(new def.ExternalCodeList(codeListRaw['externalCodeList'][0]['$']));
             }
 
             // Connect codeList to its sources
             let sources = [];
             Object.keys(mdv.itemDefs).forEach( itemDefOid => {
-                if (mdv.itemDefs[itemDefOid].codeListOid === codelist.oid) {
+                if (mdv.itemDefs[itemDefOid].codeListOid === codeList.oid) {
                     sources.push(itemDefOid);
                 }
             });
 
-            codelist.sources = {
+            codeList.sources = {
                 itemDefs: sources,
             };
         }
-        codelists[codelist.oid] = codelist;
+        codeLists[codeList.oid] = codeList;
     });
 
-    return codelists;
+    return codeLists;
 }
 
 function parseWhereClauses (whereClausesRaw, mdv) {
