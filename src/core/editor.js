@@ -6,7 +6,12 @@ import parseDefine from 'parsers/parseDefine.js';
 import { withStyles } from 'material-ui/styles';
 import parseStdCodeLists from 'parsers/parseStdCodeLists.js';
 import { connect } from 'react-redux';
-import { addOdm, addStdControlledTerminology, addStdConstants } from 'actions/index.js';
+import {
+    addOdm,
+    addStdControlledTerminology,
+    addStdConstants,
+    updateCodeListStandardOids,
+} from 'actions/index.js';
 const {ipcRenderer} = window.require('electron');
 
 const styles = theme => ({
@@ -22,12 +27,14 @@ const mapDispatchToProps = dispatch => {
         addOdm                      : odm => dispatch(addOdm(odm)),
         addStdControlledTerminology : codeListsOdm => dispatch(addStdControlledTerminology(codeListsOdm)),
         addStdConstants             : () => dispatch(addStdConstants()),
+        updateCodeListStandardOids  : (updateObj) => dispatch(updateCodeListStandardOids(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        odmLoaded: Object.keys(state.odm).length > 0,
+        odmLoaded : Object.keys(state.odm).length > 0,
+        codeLists : state.odm !== undefined ? state.odm.study.metaDataVersion.codeLists : undefined,
     };
 };
 
@@ -89,8 +96,21 @@ class ConnectedEditor extends React.Component {
     loadStdCodeLists = (error, data) => {
         let stdCodeListsOdm = parseStdCodeLists(data);
 
+        // Check if any codelist with alias, but without a standard assigned matches the loaded standard
+        let codeLists = this.props.codeLists;
+        let updateObj = {};
+        Object.keys(codeLists).forEach( codeListOid => {
+            if (codeLists[codeListOid].alias !== undefined
+                && codeLists[codeListOid].standardOid === undefined
+                && codeLists[codeListOid].alias.context === 'nci:ExtCodeID') {
+                if (Object.keys(stdCodeListsOdm.study.metaDataVersion.nciCodeOids).includes(codeLists[codeListOid].alias.name)) {
+                    updateObj[codeListOid] = stdCodeListsOdm.study.oid;
+                }
+            }
+        });
         // TODO: Check if loaded standard impacts existing codelists
-        this.props.addStdControlledTerminology(stdCodeListsOdm);
+        Promise.resolve(this.props.addStdControlledTerminology(stdCodeListsOdm))
+            .then(this.props.updateCodeListStandardOids(updateObj));
     }
 
     render() {
@@ -109,6 +129,7 @@ class ConnectedEditor extends React.Component {
 
 ConnectedEditor.propTypes = {
     odmLoaded : PropTypes.bool.isRequired,
+    codeLists : PropTypes.object.isRequired,
     classes   : PropTypes.object.isRequired,
 };
 

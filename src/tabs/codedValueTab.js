@@ -38,8 +38,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        mdv           : state.odm.study.metaDataVersion,
         codeLists     : state.odm.study.metaDataVersion.codeLists,
+        itemDefs      : state.odm.study.metaDataVersion.itemDefs,
+        itemGroups    : state.odm.study.metaDataVersion.itemGroups,
         stdCodeLists  : state.stdCodeLists,
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
     };
@@ -65,27 +66,24 @@ function simpleInputEditor (onUpdate, props) {
 class ConnectedCodedValueTable extends React.Component {
     constructor(props) {
         super(props);
-        const mdv = this.props.mdv;
+        const itemGroups = this.props.itemGroups;
+        const codeList = this.props.codeLists[this.props.codeListOid];
         // Get list of variables which are using the codelist;
         let codeListVariables = [];
-        /*
-        Object.keys(mdv.itemGroups).forEach( itemGroupOid => {
-            let dataset = mdv.itemGroups[itemGroupOid];
-            dataset.itemRefs.forEach( itemRef => {
-                if (itemRef.itemDef.codeList !== undefined) {
-                    if (itemRef.itemDef.codeList.oid === this.props.codeListOid) {
-                        codeListVariables.push(
-                            <Chip
-                                label={dataset.name + '.' + itemRef.itemDef.name}
-                                key={dataset.oid + '.' + itemRef.itemDef.oid}
-                                className={this.props.classes.chip}
-                            />
-                        );
-                    }
-                }
+
+        codeList.sources.itemDefs.forEach( itemDefOid => {
+            let itemDef = this.props.itemDefs[itemDefOid];
+            itemDef.sources.itemGroups.forEach(itemGroupOid => {
+                codeListVariables.push(
+                    <Chip
+                        label={itemGroups[itemGroupOid].name + '.' + itemDef.name}
+                        key={itemGroups[itemGroupOid].oid + '.' + itemDef.oid}
+                        className={this.props.classes.chip}
+                    />
+                );
             });
         });
-        */
+
         // Standard codelist
         this.state = {
             codeListVariables : codeListVariables,
@@ -94,7 +92,7 @@ class ConnectedCodedValueTable extends React.Component {
     }
 
     getStdCodeListData = () => {
-        const codeList = this.props.mdv.codeLists[this.props.codeListOid];
+        const codeList = this.props.codeLists[this.props.codeListOid];
         let stdCodeList;
         if (codeList.alias !== undefined) {
             let stdCodeLists = this.props.stdCodeLists;
@@ -125,19 +123,11 @@ class ConnectedCodedValueTable extends React.Component {
         }
     }
 
-    onCellEdit = (row, cellName, cellValue) => {
-        // Update on if the value changed
-        if (!deepEqual(row[cellName], cellValue)) {
-            this.props.onMdvChange('CodeList',{itemOid: row.oid, itemGroupOid: row.itemGroupOid},{cellName: cellValue});
-        }
-    }
-
     onBeforeSaveCell = (row, cellName, cellValue) => {
         // Update on if the value changed
-        if (row[cellName] !== cellValue) {
+        if (!deepEqual(row[cellName],cellValue)) {
             let updateObj = {};
             updateObj[cellName] = cellValue;
-            this.props.onMdvChange('CodeList',{itemOid: row.oid, itemGroupOid: row.itemGroupOid},updateObj);
         }
         return true;
     }
@@ -203,8 +193,7 @@ class ConnectedCodedValueTable extends React.Component {
 
     render () {
         // Extract data required for the variable table
-        const mdv = this.props.mdv;
-        const codeList = mdv.codeLists[this.props.codeListOid];
+        const codeList = this.props.codeLists[this.props.codeListOid];
         // Get codeList data
         let {codeListTable, codeListTitle, isDecoded, isRanked, isCcoded} = getCodeListData(codeList, this.props.defineVersion);
         codeListTable.codeList = codeList;
@@ -324,7 +313,9 @@ class ConnectedCodedValueTable extends React.Component {
 }
 
 ConnectedCodedValueTable.propTypes = {
-    mdv           : PropTypes.object.isRequired,
+    codeLists     : PropTypes.object.isRequired,
+    itemGroups    : PropTypes.object.isRequired,
+    itemDefs      : PropTypes.object.isRequired,
     codeListOid   : PropTypes.string.isRequired,
     defineVersion : PropTypes.string.isRequired,
     stdCodeLists  : PropTypes.object,

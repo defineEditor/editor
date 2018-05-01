@@ -3,6 +3,7 @@ import {
     UPD_CODELIST,
     ADD_CODELIST,
     DEL_CODELISTS,
+    UPD_CODELISTSTDOIDS,
 } from "constants/action-types";
 import { CodeList, CodeListItem, EnumeratedItem } from 'elements.js';
 
@@ -173,6 +174,16 @@ const deleteCodeLists = (state, action) => {
     return newState;
 };
 
+const updateCodeListStandardOids = (state, action) => {
+    // action.deleteObj.codeListOids - list of codeLists to remove
+    let newState = { ...state };
+    Object.keys(action.updateObj).forEach( codeListOid => {
+        let newCodeList = new CodeList({...state[codeListOid], standardOid: action.updateObj[codeListOid]});
+        newState = { ...newState, [codeListOid]: newCodeList };
+    });
+    return newState;
+};
+
 const codeLists = (state = {}, action) => {
     switch (action.type) {
         case ADD_CODELIST:
@@ -183,6 +194,8 @@ const codeLists = (state = {}, action) => {
             return updateCodeList(state, action);
         case UPD_ITEMCLDF:
             return handleItemDefUpdate(state, action);
+        case UPD_CODELISTSTDOIDS:
+            return updateCodeListStandardOids(state, action);
         default:
             return state;
     }

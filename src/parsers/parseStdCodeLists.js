@@ -138,11 +138,17 @@ function parseMetaDataVersion (metadataRaw) {
 
     var mdv = {};
     mdv.codeLists = parseCodeLists(metadataRaw['codeList'], mdv);
+    // Connect NCI codes with CodeList IDs
+    let nciCodeOids = {};
+    Object.keys(mdv.codeLists).forEach( codeListOid => {
+        nciCodeOids[mdv.codeLists[codeListOid].alias.name] = codeListOid;
+    });
 
     let args = {
         oid       : metadataRaw['$']['oid'],
         name      : metadataRaw['$']['name'],
         codeLists : mdv.codeLists,
+        nciCodeOids,
     };
 
     let metaDataVersion = new stdCL.MetaDataVersion(args);

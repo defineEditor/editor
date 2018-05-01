@@ -172,10 +172,7 @@ class GlobalVariables {
 
 class MetaDataVersion extends BasicFunctions {
     constructor ({
-        oid, name, defineVersion, comment,
-        standards, valueLists, whereClauses,
-        itemGroups, itemDefs, codeLists, methods, comments, leafs, model,
-        annotatedCrf = [],
+        oid, name, defineVersion, comment, codeLists, comments, leafs, model, nciCodeOids,
         supplementalDoc = [],
         descriptions = []
     } = {}) {
@@ -184,16 +181,9 @@ class MetaDataVersion extends BasicFunctions {
         this.name = name;
         this.descriptions = descriptions;
         this.defineVersion = defineVersion;
-        this.comment = comment;
-        this.standards = standards;
-        this.annotatedCrf = annotatedCrf;
         this.supplementalDoc = supplementalDoc;
-        this.valueLists = valueLists;
-        this.whereClauses = whereClauses;
-        this.itemGroups = itemGroups;
-        this.itemDefs = itemDefs;
         this.codeLists = codeLists;
-        this.methods = methods;
+        this.nciCodeOids = nciCodeOids;
         this.comments = comments;
         this.leafs = leafs;
         this.model = model;

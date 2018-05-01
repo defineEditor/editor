@@ -18,6 +18,7 @@ import {
     ADD_CODELIST,
     UPD_CODELIST,
     DEL_CODELISTS,
+    UPD_CODELISTSTDOIDS,
     UPD_CDVAL,
 } from "constants/action-types";
 
@@ -33,6 +34,7 @@ export const addStdControlledTerminology = codeListsOdm => (
         controlledTerminology : {
             codeLists   : codeListsOdm.study.metaDataVersion.codeLists,
             description : codeListsOdm.study.globalVariables.studyDescription,
+            nciCodeOids : codeListsOdm.study.metaDataVersion.nciCodeOids,
         }
     }
 );
@@ -160,6 +162,13 @@ export const deleteCodeLists = (deleteObj) => (
     {
         type: DEL_CODELISTS,
         deleteObj,
+    }
+);
+
+export const updateCodeListStandardOids = (updateObj) => (
+    {
+        type: UPD_CODELISTSTDOIDS,
+        updateObj,
     }
 );
 

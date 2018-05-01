@@ -97,25 +97,19 @@ class ConnectedEditorTabs extends React.Component {
     }
 
     generateCodeListTables = (defineVersion) => {
-        let codeLists = [];
         // Sort codeLists according to the orderNumber
-        const mdv = this.props.odm.study.metaDataVersion;
-        Object.keys(mdv.codeLists).forEach((codeListOid) => {
-            codeLists.push(codeListOid);
-        });
-        let result = codeLists.map(codeListOid => {
-            return (
-                <div key={codeListOid}>
-                    <CodedValueTable
-                        mdv={mdv}
-                        codeListOid={codeListOid}
-                        onMdvChange={this.handleMdvChange}
-                        defineVersion={defineVersion}
-                        stdCodeLists={this.props.stdCodeLists}
-                    />
-                </div>
-            );
-        });
+        const codeLists = this.props.odm.study.metaDataVersion.codeLists;
+        let codeListOids = Object.keys(codeLists);
+        // Show only enumerated and decoded codelists
+        let result = codeListOids
+            .filter(codeListOid => (codeLists[codeListOid].codeListType !== 'external'))
+            .map(codeListOid => {
+                return (
+                    <div key={codeListOid}>
+                        <CodedValueTable codeListOid={codeListOid}/>
+                    </div>
+                );
+            });
         return result;
     }
 
