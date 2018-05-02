@@ -550,7 +550,7 @@ class ConnectedVariableTable extends React.Component {
         return true;
     }
 
-    onAllRowSelected = (rows, isSelected, event) => {
+    onAllRowSelected = (isSelected, rows, event) => {
         let selectedRows;
         let selectedVlmRows;
         // (De)select all simple variables

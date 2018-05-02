@@ -4,8 +4,12 @@ import {
     ADD_CODELIST,
     DEL_CODELISTS,
     UPD_CODELISTSTDOIDS,
+    UPD_CODEDVALUE,
+    ADD_CODEDVALUE,
+    DEL_CODEDVALUES,
 } from "constants/action-types";
 import { CodeList, CodeListItem, EnumeratedItem } from 'elements.js';
+import getOid from 'utils/getOid.js';
 
 
 const handleItemDefUpdate = (state, action) => {
@@ -184,6 +188,89 @@ const updateCodeListStandardOids = (state, action) => {
     return newState;
 };
 
+const updateCodedValue = (state, action) => {
+    // action.updateObj - object with properties to update
+    let codeList = state[action.source.codeListOid];
+    let newCodeList;
+    if (codeList.codeListType === 'decoded') {
+        let newCodeListItems = {
+            ...codeList.codeListItems,
+            [action.source.oid]: new CodeListItem({ ...codeList.codeListItems[action.source.oid], ...action.updateObj }),
+        };
+        newCodeList = new CodeList({ ...state[action.source.codeListOid], codeListItems: newCodeListItems });
+    } else if (codeList.codeListType === 'enumerated') {
+        let newEnumeratedItems = {
+            ...codeList.enumeratedItems,
+            [action.source.oid]: new EnumeratedItem({ ...codeList.enumeratedItems[action.source.oid], ...action.updateObj }),
+        };
+        newCodeList = new CodeList({ ...state[action.source.codeListOid], enumeratedItems: newEnumeratedItems });
+
+    } else if (codeList.codeListType === 'external') {
+        newCodeList = new CodeList({ ...state[action.source.codeListOid], externalCodeList: {...action.updateObj} });
+    }
+    return { ...state, [action.source.codeListOid]: newCodeList };
+};
+
+const addCodedValue = (state, action) => {
+    // action.codedValue - new value
+    // action.codeListOid - OID of the codelist
+    let codeList = state[action.codeListOid];
+    let newCodeList;
+    if (codeList.codeListType === 'decoded') {
+        let newOid = getOid('CodeListItem', undefined, Object.keys(codeList.codeListItems));
+        let newCodeListItems = {
+            ...codeList.codeListItems,
+            [newOid]: new CodeListItem({ codedValue: action.codedValue }),
+        };
+        let newItemOrder = codeList.itemOrder.slice();
+        newItemOrder.push(newOid);
+        newCodeList = new CodeList({ ...state[action.codeListOid], codeListItems: newCodeListItems, itemOrder: newItemOrder });
+    } else if (codeList.codeListType === 'enumerated') {
+        let newOid = getOid('CodeListItem', undefined, Object.keys(codeList.enumeratedItems));
+        let newEnumeratedItems = {
+            ...codeList.enumeratedItems,
+            [newOid]: new EnumeratedItem({ codedValue: action.codedValue }),
+        };
+        let newItemOrder = codeList.itemOrder.slice();
+        newItemOrder.push(newOid);
+        newCodeList = new CodeList({ ...state[action.codeListOid], enumeratedItems: newEnumeratedItems, itemOrder: newItemOrder });
+
+    } else if (codeList.codeListType === 'external') {
+        // No coded values for the external codelists
+        return state;
+    }
+    return { ...state, [action.codeListOid]: newCodeList };
+};
+
+const deleteCodedValues = (state, action) => {
+    // action.codeListOid - OID of the codelist
+    // action.deletedOids - list of OIDs which are removed
+    let codeList = state[action.codeListOid];
+    let newCodeList;
+    if (codeList.codeListType === 'decoded') {
+        let newCodeListItems = { ...codeList.codeListItems };
+        let newItemOrder = codeList.itemOrder.slice();
+        action.deletedOids.forEach( deletedOid => {
+            delete newCodeListItems.deletedOid;
+            newItemOrder.splice(newItemOrder.indexOf(deletedOid),1);
+        });
+        newCodeList = new CodeList({ ...state[action.codeListOid], codeListItems: newCodeListItems, itemOrder: newItemOrder });
+    } else if (codeList.codeListType === 'enumerated') {
+        let newEnumeratedItems = { ...codeList.enumeratedItems };
+        let newItemOrder = codeList.itemOrder.slice();
+        action.deletedOids.forEach( deletedOid => {
+            delete newEnumeratedItems.deletedOid;
+            newItemOrder.splice(newItemOrder.indexOf(deletedOid),1);
+        });
+        newCodeList = new CodeList({ ...state[action.codeListOid], enumeratedItems: newEnumeratedItems, itemOrder: newItemOrder });
+
+    } else if (codeList.codeListType === 'external') {
+        // No coded values for the external codelists
+        return state;
+    }
+    return { ...state, [action.codeListOid]: newCodeList };
+};
+
 const codeLists = (state = {}, action) => {
     switch (action.type) {
         case ADD_CODELIST:
@@ -196,6 +283,12 @@ const codeLists = (state = {}, action) => {
             return handleItemDefUpdate(state, action);
         case UPD_CODELISTSTDOIDS:
             return updateCodeListStandardOids(state, action);
+        case UPD_CODEDVALUE:
+            return updateCodedValue(state, action);
+        case ADD_CODEDVALUE:
+            return addCodedValue(state, action);
+        case DEL_CODEDVALUES:
+            return deleteCodedValues(state, action);
         default:
             return state;
     }

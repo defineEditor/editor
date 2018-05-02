@@ -38,39 +38,89 @@ class Option extends React.Component {
 function SelectWrapped(props) {
     const { classes, ...other } = props;
 
+    const handleEsc = (event) => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            props.cancel();
+        }
+    };
+
     return (
-        <ReactSelect
-            optionComponent={Option}
-            noResultsText={<Typography>{'No results found'}</Typography>}
-            arrowRenderer={arrowProps => {
-                return arrowProps.isOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />;
-            }}
-            clearRenderer={() => <ClearIcon />}
-            valueComponent={valueProps => {
-                const { value, children, onRemove } = valueProps;
+        <React.Fragment>
+            { props.extensible ? (
+                <ReactSelect.Creatable
+                    optionComponent={Option}
+                    clearable={false}
+                    onInputKeyDown={handleEsc}
+                    escapeClearsValue={false}
+                    noResultsText={<Typography>{'No results found'}</Typography>}
+                    arrowRenderer={arrowProps => {
+                        return arrowProps.isOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />;
+                    }}
+                    clearRenderer={() => <ClearIcon />}
+                    valueComponent={valueProps => {
+                        const { value, children, onRemove } = valueProps;
 
-                const onDelete = event => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    onRemove(value);
-                };
+                        const onDelete = event => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            onRemove(value);
+                        };
 
-                if (onRemove) {
-                    return (
-                        <Chip
-                            tabIndex={-1}
-                            label={children}
-                            className={classes.chip}
-                            deleteIcon={<CancelIcon onTouchEnd={onDelete} />}
-                            onDelete={onDelete}
-                        />
-                    );
-                }
+                        if (onRemove) {
+                            return (
+                                <Chip
+                                    tabIndex={-1}
+                                    label={children}
+                                    className={classes.chip}
+                                    deleteIcon={<CancelIcon onTouchEnd={onDelete} />}
+                                    onDelete={onDelete}
+                                />
+                            );
+                        }
 
-                return <div className="Select-value">{children}</div>;
-            }}
-            {...other}
-        />
+                        return <div className="Select-value">{children}</div>;
+                    }}
+                    {...other}
+                />
+            ) : (
+                <ReactSelect
+                    optionComponent={Option}
+                    clearable={false}
+                    onInputKeyDown={handleEsc}
+                    escapeClearsValue={false}
+                    noResultsText={<Typography>{'No results found'}</Typography>}
+                    arrowRenderer={arrowProps => {
+                        return arrowProps.isOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />;
+                    }}
+                    clearRenderer={() => <ClearIcon />}
+                    valueComponent={valueProps => {
+                        const { value, children, onRemove } = valueProps;
+
+                        const onDelete = event => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            onRemove(value);
+                        };
+
+                        if (onRemove) {
+                            return (
+                                <Chip
+                                    tabIndex={-1}
+                                    label={children}
+                                    className={classes.chip}
+                                    deleteIcon={<CancelIcon onTouchEnd={onDelete} />}
+                                    onDelete={onDelete}
+                                />
+                            );
+                        }
+
+                        return <div className="Select-value">{children}</div>;
+                    }}
+                    {...other}
+                />
+            )
+            }
+        </React.Fragment>
     );
 }
 
@@ -190,9 +240,7 @@ class ReactSelectEditor extends React.Component {
     };
 
     handleChangeSingle = single => {
-        this.setState({
-            single,
-        });
+        this.props.onUpdate(single);
     };
 
     handleChangeMulti = multi => {
@@ -200,6 +248,10 @@ class ReactSelectEditor extends React.Component {
             multi,
         });
     };
+
+    cancel = () => {
+        this.props.onUpdate(this.props.defaultValue);
+    }
 
     render() {
         const { classes } = this.props;
@@ -210,6 +262,7 @@ class ReactSelectEditor extends React.Component {
                 {this.props.multiSelect ? (
                     <Input
                         fullWidth
+                        autoFocus
                         inputComponent={SelectWrapped}
                         inputProps={{
                             classes,
@@ -221,11 +274,14 @@ class ReactSelectEditor extends React.Component {
                             name        : 'react-select-chip',
                             simpleValue : true,
                             options     : this.props.options,
+                            cancel      : this.props.cancel,
+                            extensible  : this.props.extensible,
                         }}
                     />
                 ) : (
                     <Input
                         fullWidth
+                        autoFocus
                         inputComponent={SelectWrapped}
                         inputProps={{
                             classes,
@@ -236,6 +292,8 @@ class ReactSelectEditor extends React.Component {
                             name        : 'react-select-single',
                             simpleValue : true,
                             options     : this.props.options,
+                            cancel      : this.cancel,
+                            extensible  : this.props.extensible,
                         }}
                     />
                 )
@@ -249,6 +307,7 @@ ReactSelectEditor.propTypes = {
     classes      : PropTypes.object.isRequired,
     options      : PropTypes.array.isRequired,
     onUpdate     : PropTypes.func.isRequired,
+    extensible   : PropTypes.bool,
     defaultValue : PropTypes.string,
     optional     : PropTypes.bool,
     label        : PropTypes.string,

@@ -19,7 +19,9 @@ import {
     UPD_CODELIST,
     DEL_CODELISTS,
     UPD_CODELISTSTDOIDS,
-    UPD_CDVAL,
+    UPD_CODEDVALUE,
+    ADD_CODEDVALUE,
+    DEL_CODEDVALUES,
 } from "constants/action-types";
 
 // Core actions
@@ -174,9 +176,24 @@ export const updateCodeListStandardOids = (updateObj) => (
 
 export const updateCodedValue = (source, updateObj) => (
     {
-        type: UPD_CDVAL,
+        type: UPD_CODEDVALUE,
         source,
         updateObj,
     }
 );
 
+export const addCodedValue = (codeListOid, codedValue) => (
+    {
+        type: ADD_CODEDVALUE,
+        codeListOid,
+        codedValue,
+    }
+);
+
+export const deleteCodedValues = (codeListOid, deletedOids) => (
+    {
+        type: DEL_CODEDVALUES,
+        codeListOid,
+        deletedOids,
+    }
+);

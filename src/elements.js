@@ -18,6 +18,9 @@ class Alias {
         this.name = name;
         this.context = context;
     }
+    clone() {
+        return new Alias(this);
+    }
 }
 
 class TranslatedText {
@@ -339,6 +342,15 @@ class CodeList extends BasicFunctions {
             return 1;
         }
     }
+    getCodedValuesAsArray () {
+        if (this.codeListType === 'decoded') {
+            return Object.keys(this.codeListItems).map( oid => (this.codeListItems[oid].codedValue) );
+        } else if (this.codeListType === 'enumerated') {
+            return Object.keys(this.enumeratedItems).map( oid => (this.enumeratedItems[oid].codedValue) );
+        } else {
+            return undefined;
+        }
+    }
 }
 
 class EnumeratedItem {
@@ -502,7 +514,8 @@ class MetaDataVersion extends BasicFunctions {
         methods = {},
         comments = {},
         leafs = {},
-        model = {},
+        model,
+        lang = 'en',
         annotatedCrf = [],
         supplementalDoc = [],
         descriptions = []
@@ -526,7 +539,8 @@ class MetaDataVersion extends BasicFunctions {
         this.comments = comments;
         this.leafs = leafs;
         // Non-define XML properties
-        this.model = model; 
+        this.model = model;
+        this.lang = lang;
     }
     addStandard (standard) {
         this.standards.push(standard);

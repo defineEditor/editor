@@ -7,6 +7,9 @@ class Alias {
         this.name = name;
         this.context = context;
     }
+    clone() {
+        return new Alias(this);
+    }
 }
 
 class TranslatedText {
@@ -62,7 +65,7 @@ class BasicFunctions {
 
 class StdCodeList extends BasicFunctions {
     constructor ({
-        oid, name, dataType, alias, cdiscSubmissionValue, codeListType, codeListItems,
+        oid, name, dataType, alias, cdiscSubmissionValue, codeListType, codeListItems, codeListExtensible,
         itemOrder = [],
         descriptions = [],
     } = {}) {
@@ -76,6 +79,7 @@ class StdCodeList extends BasicFunctions {
         this.itemOrder = itemOrder;
         this.cdiscSubmissionValue = cdiscSubmissionValue;
         this.codeListType = codeListType;
+        this.codeListExtensible = codeListExtensible;
     }
     addCodeListItem (item) {
         let oid;
@@ -92,6 +96,15 @@ class StdCodeList extends BasicFunctions {
     }
     getCodeListType () {
         return this.codeListType;
+    }
+    getCodedValuesAsArray () {
+        if (this.codeListType === 'decoded') {
+            return Object.keys(this.codeListItems).map( oid => (this.codeListItems[oid].codedValue) );
+        } else if (this.codeListType === 'enumerated') {
+            return Object.keys(this.enumeratedItems).map( oid => (this.enumeratedItems[oid].codedValue) );
+        } else {
+            return undefined;
+        }
     }
 }
 

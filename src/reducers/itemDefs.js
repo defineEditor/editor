@@ -8,7 +8,6 @@ import {
 } from "constants/action-types";
 import { ItemDef } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
-//import getOid from 'utils/getOid.js';
 
 const updateItemDef = (state, action) => {
     let newItemDef = new ItemDef({...state[action.oid], ...action.updateObj});

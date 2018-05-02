@@ -15,8 +15,11 @@ import deepEqual from 'fast-deep-equal';
 import FilterListIcon from 'material-ui-icons/FilterList';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import ReactSelectEditor from 'editors/reactSelectEditor.js';
+import { TranslatedText } from 'elements.js';
 import {
     updateCodedValue,
+    addCodedValue,
+    deleteCodedValues,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -32,7 +35,9 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateCodedValue: (oid, updateObj) => dispatch(updateCodedValue(oid, updateObj)),
+        updateCodedValue   : (source, updateObj) => dispatch(updateCodedValue(source, updateObj)),
+        addBlankCodedValue : (codeListOid) => dispatch(addCodedValue(codeListOid,'')),
+        deleteCodedValues  : (codeListOid, deletedOids) => dispatch(deleteCodedValues(codeListOid, deletedOids)),
     };
 };
 
@@ -43,17 +48,26 @@ const mapStateToProps = state => {
         itemGroups    : state.odm.study.metaDataVersion.itemGroups,
         stdCodeLists  : state.stdCodeLists,
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
+        lang          : state.odm.study.metaDataVersion.lang,
     };
 };
 
 // Editors
 function codedValueEditor (onUpdate, props) {
-    if (props.stdCodeListData !== undefined) {
-        const options = props.stdCodeListData.map( item => ({
-            value : item.value,
-            label : item.value + ' (' + item.decode + ')',
-        }));
-        return (<ReactSelectEditor onUpdate={ onUpdate } {...props} options={options}/>);
+    let stdCodeListData = getCodeListData(props.stdCodeList).codeListTable;
+    if (stdCodeListData !== undefined) {
+        let existingValues = props.codeList.getCodedValuesAsArray();
+        let options = stdCodeListData
+            .filter( item => (!existingValues.includes(item.value) || item.value === props.defaultValue))
+            .map( item => ({
+                value : item.value,
+                label : item.value + ' (' + item.decode + ')',
+            }));
+        // If current value is not from the standard codelist, still include it
+        if (!props.stdCodeList.getCodedValuesAsArray().includes(props.defaultValue)) {
+            options.push({ value: props.defaultValue, label: props.defaultValue });
+        }
+        return (<ReactSelectEditor onUpdate={ onUpdate } {...props} options={options} extensible={props.stdCodeList.codeListExtensible === 'Yes'}/>);
     } else {
         return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
     }
@@ -84,50 +98,63 @@ class ConnectedCodedValueTable extends React.Component {
             });
         });
 
+        // Get standard codelist
+        let stdCodeList;
+        if (codeList.alias !== undefined && codeList.standardOid !== undefined && codeList.alias.context === 'nci:ExtCodeID') {
+            let standard = this.props.stdCodeLists[codeList.standardOid];
+            stdCodeList = standard.codeLists[standard.nciCodeOids[codeList.alias.name]];
+        }
         // Standard codelist
         this.state = {
-            codeListVariables : codeListVariables,
-            stdCodeListData   : this.getStdCodeListData(),
+            codeListVariables,
+            stdCodeList,
+            selectedRows: [],
         };
-    }
-
-    getStdCodeListData = () => {
-        const codeList = this.props.codeLists[this.props.codeListOid];
-        let stdCodeList;
-        if (codeList.alias !== undefined) {
-            let stdCodeLists = this.props.stdCodeLists;
-            // Find the codelist;
-            Object.keys(stdCodeLists).some( standardOid => {
-                Object.keys(stdCodeLists[standardOid].codeLists).some( codeListOid => {
-                    if (stdCodeLists[standardOid].codeLists[codeListOid].alias.name === codeList.alias.name) {
-                        stdCodeList = stdCodeLists[standardOid].codeLists[codeListOid];
-                        return true;
-                    } else {
-                        return false;
-                    }
-                });
-                if (stdCodeList !== undefined) {
-                    return true;
-                } else {
-                    return false;
-                }
-            });
-            // If result found, extract data from it;
-            if (stdCodeList !== undefined) {
-                return getCodeListData(stdCodeList).codeListTable;
-            } else {
-                return undefined;
-            }
-        } else {
-            return undefined;
-        }
     }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
         // Update on if the value changed
         if (!deepEqual(row[cellName],cellValue)) {
             let updateObj = {};
-            updateObj[cellName] = cellValue;
+            if (cellName === 'value') {
+                updateObj.codedValue = cellValue;
+                const codeList = this.props.codeLists[this.props.codeListOid];
+                // Check if the same value already exists in the codelist;
+                if (codeList.getCodedValuesAsArray().includes(cellValue)) {
+                    // TODO Warn users  that coded Value already exists in the codelist;
+                    return false;
+                }
+                if (codeList.alias !== undefined && codeList.standardOid !== undefined && codeList.alias.context === 'nci:ExtCodeID') {
+                    let standard = this.props.stdCodeLists[codeList.standardOid];
+                    let stdCodeList = standard.codeLists[standard.nciCodeOids[codeList.alias.name]];
+                    // Search for the value in the standard codelist items
+                    let itemFound = Object.keys(stdCodeList.codeListItems).some( itemOid => {
+                        if (stdCodeList.codeListItems[itemOid].codedValue === cellValue) {
+                            updateObj.alias = stdCodeList.codeListItems[itemOid].alias.clone();
+                            // If the decode is not blank, set it
+                            if (codeList.codeListType === 'decoded' && stdCodeList.codeListItems[itemOid].getDecode() !== undefined) {
+                                updateObj.decodes = [stdCodeList.codeListItems[itemOid].decodes[0].clone()];
+                            }
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    });
+                    // If item was not found, reset the code value and decode
+                    if (!itemFound && row.ccode !== undefined ) {
+                        updateObj.alias = undefined;
+                        updateObj.decodes = [];
+                    }
+                }
+            } else if (cellName === 'decode') {
+                updateObj.decodes = [new TranslatedText({value: cellValue, lang: this.props.lang})];
+            } else {
+                updateObj[cellName] = cellValue;
+            }
+            this.props.updateCodedValue({
+                codeListOid : this.props.codeListOid,
+                oid         : row.oid,
+            }, updateObj);
         }
         return true;
     }
@@ -180,15 +207,55 @@ class ConnectedCodedValueTable extends React.Component {
     }
 
     createCustomInsertButton = (openModal) => {
+        const handleClick = (event) => {
+            this.props.addBlankCodedValue(this.props.codeListOid);
+        };
         return (
-            <Button color='primary' mini onClick={openModal} variant='raised'>Add</Button>
+            <Button color='primary' mini onClick={handleClick} variant='raised'>Add</Button>
         );
+    }
+
+    deleteRows = () => {
+        if (this.state.selectedRows.length > 0) {
+            this.props.deleteCodedValues(this.props.codeListOid, this.state.selectedRows);
+        }
     }
 
     createCustomDeleteButton = (onBtnClick) => {
         return (
-            <Button color='secondary' mini onClick={onBtnClick} variant='raised'>Delete</Button>
+            <Button color='secondary' mini onClick={this.deleteRows} variant='raised'>Delete</Button>
         );
+    }
+
+    // Row Selection functions
+    onRowSelected = (row, isSelected, event) => {
+        let selectedRows = this.state.selectedRows;
+        if (isSelected === true) {
+            // If the item is going to be selected;
+            if (!selectedRows.includes(row.oid)) {
+                selectedRows.push(row.oid);
+            }
+        } else {
+            // If the item is going to be removed;
+            if (selectedRows.includes(row.oid)) {
+                selectedRows.splice(selectedRows.indexOf(row.oid),1);
+            }
+        }
+        this.setState({selectedRows});
+        return true;
+    }
+
+    onAllRowSelected = (isSelected, rows, event) => {
+        let selectedRows;
+        if (isSelected === true) {
+            // If all rows are going to be selected;
+            selectedRows = rows
+                .map( row => (row.oid));
+        } else {
+            selectedRows = [];
+        }
+        this.setState({selectedRows});
+        return true;
     }
 
     render () {
@@ -225,6 +292,8 @@ class ConnectedCodedValueTable extends React.Component {
         const selectRowProp = {
             mode        : 'checkbox',
             columnWidth : '35px',
+            onSelect    : this.onRowSelected,
+            onSelectAll : this.onAllRowSelected,
         };
 
         const options = {
@@ -236,7 +305,7 @@ class ConnectedCodedValueTable extends React.Component {
 
         let columns = [
             {
-                dataField : 'key',
+                dataField : 'oid',
                 isKey     : true,
                 hidden    : true,
             },
@@ -244,7 +313,7 @@ class ConnectedCodedValueTable extends React.Component {
                 dataField    : 'value',
                 text         : 'Coded Value',
                 width        : width.value.percent.toString() + '%',
-                customEditor : {getElement: codedValueEditor, customEditorParameters: {stdCodeListData: this.state.stdCodeListData}},
+                customEditor : { getElement: codedValueEditor, customEditorParameters: {stdCodeList: this.state.stdCodeList, codeList: this.props.codeLists[this.props.codeListOid]} },
                 tdStyle      : { whiteSpace: 'normal', width: '30px', overflow: 'inherit !important' },
                 thStyle      : { whiteSpace: 'normal', width: '30px' },
             }];
@@ -318,6 +387,7 @@ ConnectedCodedValueTable.propTypes = {
     itemDefs      : PropTypes.object.isRequired,
     codeListOid   : PropTypes.string.isRequired,
     defineVersion : PropTypes.string.isRequired,
+    lang          : PropTypes.string.isRequired,
     stdCodeLists  : PropTypes.object,
 };
 

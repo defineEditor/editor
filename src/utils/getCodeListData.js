@@ -14,11 +14,11 @@ function getCodeListData(codeList, defineVersion) {
                 ccode =  'Extended';
             }
             return ({
+                oid    : itemOid,
                 value  : item.codedValue,
                 decode : item.getDecode(),
                 ccode  : ccode,
                 rank   : item.rank,
-                key    : index,
             });
         });
     } else {
@@ -33,10 +33,10 @@ function getCodeListData(codeList, defineVersion) {
                 ccode =  'Extended';
             }
             return ({
+                oid   : itemOid,
                 value : item.codedValue,
                 ccode : ccode,
                 rank  : item.rank,
-                key   : index,
             });
         });
     }

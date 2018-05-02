@@ -179,12 +179,12 @@ class ConnectedCodeListTable extends React.Component {
     onRowSelected = (row, isSelected, event) => {
         let selectedRows = this.state.selectedRows;
         if (isSelected === true) {
-            // If the variable is going to be selected;
+            // If the item is going to be selected;
             if (!selectedRows.includes(row.oid)) {
                 selectedRows.push(row.oid);
             }
         } else {
-            // If the variable is going to be removed;
+            // If the item is going to be removed;
             if (selectedRows.includes(row.oid)) {
                 selectedRows.splice(selectedRows.indexOf(row.oid),1);
             }
@@ -193,34 +193,16 @@ class ConnectedCodeListTable extends React.Component {
         return true;
     }
 
-    onAllRowSelected = (rows, isSelected, event) => {
+    onAllRowSelected = (isSelected, rows, event) => {
         let selectedRows;
-        let selectedVlmRows;
-        // (De)select all simple variables
         if (isSelected === true) {
             // If all rows are going to be selected;
             selectedRows = rows
-                .filter( row => (row.vlmLevel === 0))
-                .map( row => (row.itemRefOid));
+                .map( row => (row.oid));
         } else {
             selectedRows = [];
         }
-        // (De)select all value levels
-        if (isSelected === true) {
-            // If all rows are going to be selected;
-            rows.filter( row => (row.vlmLevel === 1))
-                .forEach( row => {
-                    const valueListOid = row.itemGroupOid;
-                    if (selectedVlmRows.hasOwnProperty(valueListOid)) {
-                        selectedRows[valueListOid].push(row.itemRefOid);
-                    } else {
-                        selectedRows[valueListOid] = [row.itemRefOid];
-                    }
-                });
-        } else {
-            selectedVlmRows = {};
-        }
-        this.setState({selectedRows, selectedVlmRows});
+        this.setState({selectedRows});
         return true;
     }
 
