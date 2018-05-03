@@ -6,6 +6,7 @@ import parseDefine from 'parsers/parseDefine.js';
 import { withStyles } from 'material-ui/styles';
 import parseStdCodeLists from 'parsers/parseStdCodeLists.js';
 import { connect } from 'react-redux';
+import { CircularProgress } from 'material-ui/Progress';
 import {
     addOdm,
     addStdControlledTerminology,
@@ -20,6 +21,16 @@ const styles = theme => ({
         marginTop       : theme.spacing.unit * 3,
         backgroundColor : theme.palette.background.paper,
     },
+    progress: {
+        margin: theme.spacing.unit * 2,
+    },
+    loading: {
+        position  : 'absolute',
+        top       : '47%',
+        left      : '47%',
+        transform : 'translate(-47%, -47%)',
+        textAlign : 'center',
+    }
 });
 
 const mapDispatchToProps = dispatch => {
@@ -32,9 +43,13 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
+    let odmLoaded = false;
+    if (state.odm !== undefined && state.odm.odmVersion !== undefined) {
+        odmLoaded = true;
+    }
     return {
-        odmLoaded : Object.keys(state.odm).length > 0,
-        codeLists : state.odm !== undefined ? state.odm.study.metaDataVersion.codeLists : undefined,
+        odmLoaded,
+        codeLists: odmLoaded ? state.odm.study.metaDataVersion.codeLists : undefined,
     };
 };
 
@@ -114,12 +129,17 @@ class ConnectedEditor extends React.Component {
     }
 
     render() {
+        const { classes } = this.props;
         return (
             <React.Fragment>
                 {this.props.odmLoaded ? (
                     <EditorTabs/>
                 ) : (
-                    <span>Loading data</span>
+                    <div className={classes.loading}>
+                        Loading Define-XML
+                        <br/>
+                        <CircularProgress className={classes.progress} />
+                    </div>
                 )
                 }
             </React.Fragment>
@@ -129,8 +149,8 @@ class ConnectedEditor extends React.Component {
 
 ConnectedEditor.propTypes = {
     odmLoaded : PropTypes.bool.isRequired,
-    codeLists : PropTypes.object.isRequired,
     classes   : PropTypes.object.isRequired,
+    codeLists : PropTypes.object,
 };
 
 const Editor = connect(mapStateToProps, mapDispatchToProps)(ConnectedEditor);

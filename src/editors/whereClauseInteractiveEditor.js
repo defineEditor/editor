@@ -54,6 +54,7 @@ const styles = theme => ({
 });
 
 
+// TODO move to store
 const comparators = ['EQ','NE','LT','LE','GT','GE','IN','NOTIN'];
 const comparatorsLimited = ['EQ','NE','LT','LE','GT','GE'];
 

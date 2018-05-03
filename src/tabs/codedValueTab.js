@@ -54,8 +54,8 @@ const mapStateToProps = state => {
 
 // Editors
 function codedValueEditor (onUpdate, props) {
-    let stdCodeListData = getCodeListData(props.stdCodeList).codeListTable;
-    if (stdCodeListData !== undefined) {
+    if (props.stdCodeList!== undefined) {
+        let stdCodeListData = getCodeListData(props.stdCodeList).codeListTable;
         let existingValues = props.codeList.getCodedValuesAsArray();
         let options = stdCodeListData
             .filter( item => (!existingValues.includes(item.value) || item.value === props.defaultValue))

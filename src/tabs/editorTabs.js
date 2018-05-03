@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import AppBar from 'material-ui/AppBar';
 import Tabs, { Tab } from 'material-ui/Tabs';
 import Typography from 'material-ui/Typography';
+import StandardTable from 'tabs/standardTab.js';
 import DatasetTable from 'tabs/datasetTab.js';
 import VariableTable from 'tabs/variableTab.js';
 import CodeListTable from 'tabs/codeListTab.js';
@@ -142,13 +143,14 @@ class ConnectedEditorTabs extends React.Component {
                         </Tabs>
                     </AppBar>
                     <TabContainer>
+                        {tabs[value] === 'Standards' && <StandardTable/>}
                         {tabs[value] === 'Datasets' && <DatasetTable
                             defineVersion={defineVersion}
                         />}
                         {tabs[value] === 'Variables' && this.generateVariableTables(defineVersion)}
                         {tabs[value] === 'Codelists' && <CodeListTable/>}
                         {tabs[value] === 'Coded Values' && this.generateCodeListTables(defineVersion)}
-                        {['Datasets','Variables','Codelists','Coded Values'].indexOf(tabs[value]) === -1 && <div id={tabIds[value]}>{tabs[value]}</div>}
+                        {['Datasets','Variables','Codelists','Coded Values', 'Standards'].indexOf(tabs[value]) === -1 && <div id={tabIds[value]}>{tabs[value]}</div>}
                     </TabContainer>
                 </div>
             </MuiThemeProvider>
