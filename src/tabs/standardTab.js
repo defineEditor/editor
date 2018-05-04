@@ -2,11 +2,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import React from 'react';
 //import deepEqual from 'fast-deep-equal';
-//import Grid from 'material-ui/Grid';
-//import Button from 'material-ui/Button';
-//import SimpleInputEditor from 'editors/simpleInputEditor.js';
-//import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
+import Grid from 'material-ui/Grid';
 import GlobalVariablesFormatter from 'formatters/globalVariablesFormatter.js';
+import MetaDataVersionFormatter from 'formatters/metaDataVersionFormatter.js';
+import MetaDataVersionEditor from 'editors/metaDataVersionEditor.js';
 import {
     updateGlobalVariables,
 } from 'actions/index.js';
@@ -22,7 +21,10 @@ const mapStateToProps = state => {
     return {
         globalVariables : state.odm.study.globalVariables,
         standards       : state.odm.study.metaDataVersion.standards,
-        mdv             : state.odm.study.metaDataVersion,
+        mdvName         : state.odm.study.metaDataVersion.name,
+        mdvDescription  : state.odm.study.metaDataVersion.getDescription(),
+        mdvCommentOid   : state.odm.study.metaDataVersion.commentOid,
+        comments        : state.odm.study.metaDataVersion.comments,
         defineVersion   : state.odm.study.metaDataVersion.defineVersion,
         stdConstants    : state.stdConstants,
     };
@@ -33,18 +35,52 @@ class ConnectedStandardTable extends React.Component {
         super(props);
 
         this.state = {
-            selectedRows: [],
+            metaDataEdit        : false,
+            globalVariablesEdit : false,
         };
     }
 
+    handleChange = (name) => () => {
+        if (name === 'metaDataEdit') {
+            this.setState({metaDataEdit: true});
+        }
+    }
+
     render () {
+        let comment;
+
+        if (this.props.defineVersion === '2.1.0' && this.props.mdvCommentOid !== undefined) {
+            comment = this.props.comments[this.props.mdvCommentOid];
+        }
+
         const mdvAttrs = {
-            name        : this.props.mdv.name,
-            description : this.props.mdv.getDescription,
+            name        : this.props.mdvName,
+            description : this.props.mdvDescription,
+            comment,
         };
 
         return (
-            <GlobalVariablesFormatter globalVariables={this.props.globalVariables} mdvAttrs={mdvAttrs}/>
+            <Grid container spacing={8}>
+                <Grid item xs={6}>
+                    <GlobalVariablesFormatter globalVariables={this.props.globalVariables} handleEdit={this.handleChange('globalVariablesEdit')}/>
+                </Grid>
+                <Grid item xs={6}>
+                    { this.state.metaDataEdit === true ? (
+                        <MetaDataVersionEditor
+                            mdvAttrs={mdvAttrs}
+                            defineVersion={this.props.defineVersion}
+                            handleChange={this.handleChange('metaDataVersion')}
+                        />
+                    ) : (
+                        <MetaDataVersionFormatter
+                            mdvAttrs={mdvAttrs}
+                            defineVersion={this.props.defineVersion}
+                            handleEdit={this.handleChange('metaDataEdit')}
+                        />
+                    )
+                    }
+                </Grid>
+            </Grid>
         );
     }
 }
@@ -52,7 +88,9 @@ class ConnectedStandardTable extends React.Component {
 ConnectedStandardTable.propTypes = {
     globalVariables : PropTypes.object.isRequired,
     standards       : PropTypes.object.isRequired,
-    mdv             : PropTypes.object.isRequired,
+    mdvName         : PropTypes.string.isRequired,
+    mdvDescription  : PropTypes.string,
+    mdvCommentOid   : PropTypes.string,
     defineVersion   : PropTypes.string.isRequired,
     stdConstants    : PropTypes.object.isRequired,
 };
