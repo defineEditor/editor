@@ -8,12 +8,14 @@ import MetaDataVersionFormatter from 'formatters/metaDataVersionFormatter.js';
 import MetaDataVersionEditor from 'editors/metaDataVersionEditor.js';
 import {
     updateGlobalVariables,
+    updateMetaDataVersion,
 } from 'actions/index.js';
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateGlobalVariables: (updateObj) => dispatch(updateGlobalVariables(updateObj)),
+        updateGlobalVariables : (updateObj) => dispatch(updateGlobalVariables(updateObj)),
+        updateMetaDataVersion : (updateObj) => dispatch(updateMetaDataVersion(updateObj)),
     };
 };
 
@@ -41,8 +43,21 @@ class ConnectedStandardTable extends React.Component {
     }
 
     handleChange = (name) => () => {
-        if (name === 'metaDataEdit') {
+        if (name === 'metaDataVersionEdit') {
             this.setState({metaDataEdit: true});
+        }
+    }
+
+    save = (name) => (updateObj) => {
+        if (name === 'metaDataVersion') {
+            this.props.updateMetaDataVersion(updateObj);
+        }
+        this.setState({metaDataEdit: false});
+    }
+
+    cancel = (name) => () => {
+        if (name === 'metaDataVersion') {
+            this.setState({metaDataEdit: false});
         }
     }
 
@@ -69,13 +84,14 @@ class ConnectedStandardTable extends React.Component {
                         <MetaDataVersionEditor
                             mdvAttrs={mdvAttrs}
                             defineVersion={this.props.defineVersion}
-                            handleChange={this.handleChange('metaDataVersion')}
+                            onSave={this.save('metaDataVersion')}
+                            onCancel={this.cancel('metaDataVersion')}
                         />
                     ) : (
                         <MetaDataVersionFormatter
                             mdvAttrs={mdvAttrs}
                             defineVersion={this.props.defineVersion}
-                            handleEdit={this.handleChange('metaDataEdit')}
+                            handleEdit={this.handleChange('metaDataVersionEdit')}
                         />
                     )
                     }

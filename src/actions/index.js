@@ -23,6 +23,7 @@ import {
     ADD_CODEDVALUE,
     DEL_CODEDVALUES,
     UPD_GLOBALVARS,
+    UPD_MDV,
 } from "constants/action-types";
 
 // Core actions
@@ -204,6 +205,13 @@ export const deleteCodedValues = (codeListOid, deletedOids) => (
 export const updateGlobalVariables = (updateObj) => (
     {
         type: UPD_GLOBALVARS,
+        updateObj,
+    }
+);
+
+export const updateMetaDataVersion = (updateObj) => (
+    {
+        type: UPD_MDV,
         updateObj,
     }
 );

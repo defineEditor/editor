@@ -1,5 +1,3 @@
-// src/js/constants/action-types.js
-
 export const ADD_ODM = "ADD_ODM";
 export const ADD_STDCONST = "ADD_STDCONST";
 export const ADD_STDCT = "ADD_STDCT";
@@ -23,3 +21,4 @@ export const UPD_CODEDVALUE = "UPD_CODEDVALUE";
 export const ADD_CODEDVALUE = "ADD_CODEDVALUE";
 export const DEL_CODEDVALUES = "DEL_CODEDVALUES";
 export const UPD_GLOBALVARS = "UPD_GLOBALVARS";
+export const UPD_MDV = "UPD_MDV";

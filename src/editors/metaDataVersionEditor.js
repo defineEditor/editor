@@ -5,14 +5,12 @@ import Typography from 'material-ui/Typography';
 import Paper from 'material-ui/Paper';
 import List, { ListItem, ListItemText } from 'material-ui/List';
 import TextField from 'material-ui/TextField';
+import EditingControlIcons from 'editors/editingControlIcons.js';
 
 const styles = theme => ({
     metaDataVersion: {
         padding   : 16,
         marginTop : theme.spacing.unit * 3,
-    },
-    editButton: {
-        transform: 'translate(0, -5%)',
     },
     inputField: {
     },
@@ -20,40 +18,57 @@ const styles = theme => ({
 
 class MetaDataVersionEditor extends React.Component {
 
+    constructor (props) {
+
+        super(props);
+
+        const { mdvAttrs } = this.props;
+
+        this.state = mdvAttrs;
+    }
+
+    handleChange = (name) => (event) => {
+        this.setState({ [name]: event.target.value });
+    }
+
+    save = () => {
+        this.props.onSave(this.state);
+    }
+
+    cancel = () => {
+        this.props.onCancel();
+    }
+
     render () {
-        const { classes, mdvAttrs, defineVersion } = this.props;
-        const { name, description, comment } = mdvAttrs;
+        const { classes, defineVersion } = this.props;
         return (
             <Paper className={classes.metaDataVersion} elevation={4}>
                 <Typography variant="headline" component="h3">
                     Metadata Version
+                    <EditingControlIcons onSave={this.save} onCancel={this.cancel}/>
                 </Typography>
                 <List>
-                    <ListItem>
-                        <ListItemText primary='Name'/>
-                    </ListItem>
-                    <ListItem>
+                    <ListItem dense>
                         <TextField
-                            value={name}
+                            label='Name'
+                            value={this.state.name}
                             fullWidth
-                            onChange={this.props.handleChange('name')}
+                            onChange={this.handleChange('name')}
                             className={classes.inputField}
                         />
                     </ListItem>
-                    <ListItem>
-                        <ListItemText primary='Description'/>
-                    </ListItem>
-                    <ListItem>
+                    <ListItem dense>
                         <TextField
-                            value={description}
+                            label='Description'
+                            value={this.state.description}
                             fullWidth
-                            onChange={this.props.handleChange('description')}
+                            onChange={this.handleChange('description')}
                             className={classes.inputField}
                         />
                     </ListItem>
                     { defineVersion === '2.1.0' &&
                     <ListItem>
-                        <ListItemText primary='Comment' secondary={comment.getDescription()}/>
+                        <ListItemText primary='Comment' secondary={this.state.comment.getDescription()}/>
                     </ListItem>
                     }
                 </List>
@@ -66,7 +81,10 @@ MetaDataVersionEditor.propTypes = {
     mdvAttrs      : PropTypes.object.isRequired,
     defineVersion : PropTypes.string.isRequired,
     classes       : PropTypes.object.isRequired,
-    handleChange  : PropTypes.func.isRequired,
+    onSave        : PropTypes.func.isRequired,
+    onCancel      : PropTypes.func.isRequired,
+    onHelp        : PropTypes.func,
+    onComment     : PropTypes.func,
 };
 
 export default withStyles(styles)(MetaDataVersionEditor);
