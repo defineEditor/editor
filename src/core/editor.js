@@ -113,19 +113,21 @@ class ConnectedEditor extends React.Component {
 
         // Check if any codelist with alias, but without a standard assigned matches the loaded standard
         let codeLists = this.props.codeLists;
-        let updateObj = {};
-        Object.keys(codeLists).forEach( codeListOid => {
-            if (codeLists[codeListOid].alias !== undefined
-                && codeLists[codeListOid].standardOid === undefined
-                && codeLists[codeListOid].alias.context === 'nci:ExtCodeID') {
-                if (Object.keys(stdCodeListsOdm.study.metaDataVersion.nciCodeOids).includes(codeLists[codeListOid].alias.name)) {
-                    updateObj[codeListOid] = stdCodeListsOdm.study.oid;
+        if (codeLists !== undefined) {
+            let updateObj = {};
+            Object.keys(codeLists).forEach( codeListOid => {
+                if (codeLists[codeListOid].alias !== undefined
+                    && codeLists[codeListOid].standardOid === undefined
+                    && codeLists[codeListOid].alias.context === 'nci:ExtCodeID') {
+                    if (Object.keys(stdCodeListsOdm.study.metaDataVersion.nciCodeOids).includes(codeLists[codeListOid].alias.name)) {
+                        updateObj[codeListOid] = stdCodeListsOdm.study.oid;
+                    }
                 }
-            }
-        });
-        // TODO: Check if loaded standard impacts existing codelists
-        Promise.resolve(this.props.addStdControlledTerminology(stdCodeListsOdm))
-            .then(this.props.updateCodeListStandardOids(updateObj));
+            });
+            // TODO: Check if loaded standard impacts existing codelists
+            Promise.resolve(this.props.addStdControlledTerminology(stdCodeListsOdm))
+                .then(this.props.updateCodeListStandardOids(updateObj));
+        }
     }
 
     render() {

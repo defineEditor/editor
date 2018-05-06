@@ -23,7 +23,6 @@ class MetaDataVersionEditor extends React.Component {
         super(props);
 
         const { mdvAttrs } = this.props;
-
         this.state = mdvAttrs;
     }
 
@@ -52,6 +51,7 @@ class MetaDataVersionEditor extends React.Component {
                         <TextField
                             label='Name'
                             value={this.state.name}
+                            autoFocus
                             fullWidth
                             onChange={this.handleChange('name')}
                             className={classes.inputField}

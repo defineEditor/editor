@@ -4,6 +4,7 @@ import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
 import Paper from 'material-ui/Paper';
 import List, { ListItem, ListItemText } from 'material-ui/List';
+import FormattingControlIcons from 'formatters/formattingControlIcons.js';
 
 const styles = theme => ({
     globalVariables: {
@@ -21,6 +22,7 @@ class GlobalVariablesFormatter extends React.Component {
             <Paper className={classes.globalVariables} elevation={4}>
                 <Typography variant="headline" component="h3">
                     Global Variables
+                    <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>
                 <List>
                     <ListItem>
@@ -44,6 +46,8 @@ class GlobalVariablesFormatter extends React.Component {
 GlobalVariablesFormatter.propTypes = {
     globalVariables : PropTypes.object.isRequired,
     classes         : PropTypes.object.isRequired,
+    onEdit          : PropTypes.func.isRequired,
+    onComment       : PropTypes.func,
 };
 
 export default withStyles(styles)(GlobalVariablesFormatter);

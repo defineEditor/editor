@@ -2,6 +2,7 @@ import {
     UPD_STUDY,
 } from 'constants/action-types';
 import metaDataVersion from 'reducers/metaDataVersion.js';
+import globalVariables from 'reducers/globalVariables.js';
 import { Study } from 'elements.js';
 const initialState = new Study();
 
@@ -11,7 +12,11 @@ const study = (state = initialState, action) => {
             // TODO
             return action.updatedStudyAttrs;
         default:
-            return {...state, metaDataVersion: metaDataVersion(state.metaDataVersion, action)};
+            return {
+                ...state,
+                globalVariables : globalVariables(state.globalVariables, action),
+                metaDataVersion : metaDataVersion(state.metaDataVersion, action),
+            };
     }
 };
 

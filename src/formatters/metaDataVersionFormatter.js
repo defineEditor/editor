@@ -4,16 +4,12 @@ import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
 import Paper from 'material-ui/Paper';
 import List, { ListItem, ListItemText } from 'material-ui/List';
-import IconButton from 'material-ui/IconButton';
-import EditIcon from 'material-ui-icons/Edit';
+import FormattingControlIcons from 'formatters/formattingControlIcons.js';
 
 const styles = theme => ({
     metaDataVersion: {
         padding   : 16,
         marginTop : theme.spacing.unit * 3,
-    },
-    editButton: {
-        transform: 'translate(0, -5%)',
     },
 });
 
@@ -26,14 +22,7 @@ class MetaDataVersionFormatter extends React.Component {
             <Paper className={classes.metaDataVersion} elevation={4}>
                 <Typography variant="headline" component="h3">
                     Metadata Version
-                    <IconButton
-                        variant="fab"
-                        color="default"
-                        onClick={this.props.handleEdit}
-                        className={classes.editButton}
-                    >
-                        <EditIcon/>
-                    </IconButton>
+                    <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>
                 <List>
                     <ListItem>
@@ -57,6 +46,8 @@ MetaDataVersionFormatter.propTypes = {
     mdvAttrs      : PropTypes.object.isRequired,
     defineVersion : PropTypes.string.isRequired,
     classes       : PropTypes.object.isRequired,
+    onEdit        : PropTypes.func.isRequired,
+    onComment     : PropTypes.func,
 };
 
 export default withStyles(styles)(MetaDataVersionFormatter);

@@ -33,13 +33,9 @@ export const addStdConstants = () => ({ type: ADD_STDCONST });
 
 export const addStdControlledTerminology = codeListsOdm => (
     {
-        type                  : ADD_STDCT,
-        oid                   : codeListsOdm.study.oid,
-        controlledTerminology : {
-            codeLists   : codeListsOdm.study.metaDataVersion.codeLists,
-            description : codeListsOdm.study.globalVariables.studyDescription,
-            nciCodeOids : codeListsOdm.study.metaDataVersion.nciCodeOids,
-        }
+        type : ADD_STDCT,
+        oid  : codeListsOdm.study.oid,
+        codeListsOdm,
     }
 );
 
