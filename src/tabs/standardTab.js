@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import React from 'react';
-//import deepEqual from 'fast-deep-equal';
+import deepEqual from 'fast-deep-equal';
 import Grid from 'material-ui/Grid';
 import GlobalVariablesFormatter from 'formatters/globalVariablesFormatter.js';
 import MetaDataVersionFormatter from 'formatters/metaDataVersionFormatter.js';
@@ -12,14 +12,16 @@ import ControlledTerminologyEditor from 'editors/controlledTerminologyEditor.js'
 import {
     updateGlobalVariables,
     updateMetaDataVersion,
+    updateControlledTerminologies,
 } from 'actions/index.js';
 import { TranslatedText } from 'elements.js';
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateGlobalVariables : (updateObj) => dispatch(updateGlobalVariables(updateObj)),
-        updateMetaDataVersion : (updateObj) => dispatch(updateMetaDataVersion(updateObj)),
+        updateGlobalVariables         : (updateObj) => dispatch(updateGlobalVariables(updateObj)),
+        updateMetaDataVersion         : (updateObj) => dispatch(updateMetaDataVersion(updateObj)),
+        updateControlledTerminologies : (updateObj) => dispatch(updateControlledTerminologies(updateObj)),
     };
 };
 
@@ -49,6 +51,7 @@ const mapStateToProps = state => {
         standards       : state.odm.study.metaDataVersion.standards,
         lang            : state.odm.study.metaDataVersion.lang,
         stdConstants    : state.stdConstants,
+        stdCodeLists    : state.stdCodeLists,
         mdvAttrs,
         comments,
         defineVersion,
@@ -107,6 +110,42 @@ class ConnectedStandardTable extends React.Component {
                 this.props.updateGlobalVariables(updateObj);
             }
             this.setState({globalVariablesEdit: false});
+        } else if (name === 'controlledTerminology') {
+            let oldStandards = this.props.standards;
+            let newStandards = returnValue.standards;
+            // Check which CT were added;
+            let addedStandards = {};
+            Object.keys(newStandards).forEach( stdOid => {
+                if (!oldStandards.hasOwnProperty(stdOid)) {
+                    addedStandards[stdOid] = newStandards[stdOid];
+                }
+            });
+            // Check which CT were removed;
+            let removedStandardOids = [];
+            Object.keys(oldStandards).forEach( stdOid => {
+                if (!newStandards.hasOwnProperty(stdOid)) {
+                    removedStandardOids.push(stdOid);
+                }
+            });
+            // Check which CT were updated;
+            let updatedStandards = [];
+            Object.keys(newStandards).forEach( stdOid => {
+                if (oldStandards.hasOwnProperty(stdOid) && !deepEqual(oldStandards[stdOid], newStandards[stdOid]) ) {
+                    updatedStandards[stdOid] = newStandards[stdOid];
+                }
+            });
+
+            if (Object.keys(updatedStandards).length > 0
+                || Object.keys(addedStandards).length > 0
+                || removedStandardOids.length > 0
+            ) {
+                this.props.updateControlledTerminologies({
+                    addedStandards,
+                    removedStandardOids,
+                    updatedStandards,
+                });
+            }
+            this.setState({controlledTerminologyEdit: false});
         }
     }
 
@@ -160,6 +199,7 @@ class ConnectedStandardTable extends React.Component {
                     {  this.state.controlledTerminologyEdit === true ? (
                         <ControlledTerminologyEditor
                             standards={this.props.standards}
+                            stdCodeLists={this.props.stdCodeLists}
                             defineVersion={this.props.defineVersion}
                             onSave={this.save('controlledTerminology')}
                             onCancel={this.cancel('controlledTerminology')}
@@ -167,6 +207,7 @@ class ConnectedStandardTable extends React.Component {
                     ) : (
                         <ControlledTerminologyFormatter
                             standards={this.props.standards}
+                            stdCodeLists={this.props.stdCodeLists}
                             defineVersion={this.props.defineVersion}
                             onEdit={this.handleChange('controlledTerminologyEdit')}
                         />

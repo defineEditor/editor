@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import React from 'react';
-import green from 'material-ui/colors/green';
 import indigo from 'material-ui/colors/indigo';
 import grey from 'material-ui/colors/grey';
 import { withStyles } from 'material-ui/styles';
@@ -402,7 +401,7 @@ class ConnectedVariableTable extends React.Component {
                         </Button>
                     </Grid>
                     <Grid item>
-                        <Button color='primary' mini onClick={console.log} style={{backgroundColor: green[400]}}
+                        <Button color='default' mini onClick={console.log}
                             variant='raised'>
                             Update
                         </Button>

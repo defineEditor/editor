@@ -2,7 +2,8 @@
 import {
     ADD_ODM,
     ADD_STDCONST,
-    ADD_STDCT,
+    LOAD_STDCT,
+    UPD_STDCT,
     UPD_ITEMGROUP,
     ADD_ITEMGROUP,
     ADD_ITEMGROUPCOMMENT,
@@ -33,7 +34,7 @@ export const addStdConstants = () => ({ type: ADD_STDCONST });
 
 export const addStdControlledTerminology = codeListsOdm => (
     {
-        type : ADD_STDCT,
+        type : LOAD_STDCT,
         oid  : codeListsOdm.study.oid,
         codeListsOdm,
     }
@@ -211,3 +212,11 @@ export const updateMetaDataVersion = (updateObj) => (
         updateObj,
     }
 );
+
+export const updateControlledTerminologies = (updateObj) => (
+    {
+        type: UPD_STDCT,
+        updateObj,
+    }
+);
+

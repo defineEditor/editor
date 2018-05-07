@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
-import Typography from 'material-ui/Typography';
 import Paper from 'material-ui/Paper';
-import List, { ListItem } from 'material-ui/List';
+import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
+import Typography from 'material-ui/Typography';
 import FormattingControlIcons from 'formatters/formattingControlIcons.js';
 
 const styles = theme => ({
@@ -17,15 +17,24 @@ class ControlledTerminologyFormatter extends React.Component {
 
     getControlledTerminologies = () => {
         let standards = this.props.standards;
+        let stdCodeLists = this.props.stdCodeLists;
         let ctList = Object.keys(standards)
             .filter(standardOid => {
                 return (standards[standardOid].name === 'CDISC/NCI' && standards[standardOid].type === 'CT');
             })
             .map(standardOid => {
                 return (
-                    <ListItem dense key={standardOid}>
-                        {standards[standardOid].description}
-                    </ListItem>
+                    <TableRow key={standardOid}>
+                        <TableCell>
+                            {standards[standardOid].publishingSet}
+                        </TableCell>
+                        <TableCell>
+                            {standards[standardOid].version}
+                        </TableCell>
+                        <TableCell>
+                            {Object.keys(stdCodeLists[standardOid].nciCodeOids).length}
+                        </TableCell>
+                    </TableRow>
                 );
             });
         return ctList;
@@ -37,12 +46,21 @@ class ControlledTerminologyFormatter extends React.Component {
         return (
             <Paper className={classes.mainPart} elevation={4}>
                 <Typography variant="headline" component="h3">
-                    CDISC Controlled Terminologies
-                    <FormattingControlIcons onEdit={this.props.onEdit} />
+                    Controlled Terminology
+                    <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>
-                <List>
-                    {this.getControlledTerminologies()}
-                </List>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Publishing Set</TableCell>
+                            <TableCell>Version</TableCell>
+                            <TableCell># Codelists</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {this.getControlledTerminologies()}
+                    </TableBody>
+                </Table>
             </Paper>
         );
     }

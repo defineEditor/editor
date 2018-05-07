@@ -51,7 +51,7 @@ class ConnectedCodeListFormatter extends React.Component {
                         <TableBody>
                             {codeListTable.map( code => {
                                 return (
-                                    <TableRow key={code.key}>
+                                    <TableRow key={code.oid}>
                                         <TableCell>{code.value}</TableCell>
                                         {isDecoded && <TableCell>{code.decode}</TableCell>}
                                         {isCcoded && <TableCell>{code.ccode}</TableCell>}

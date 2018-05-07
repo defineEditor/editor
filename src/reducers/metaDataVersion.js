@@ -3,6 +3,7 @@ import itemDefs from 'reducers/itemDefs.js';
 import comments from 'reducers/comments.js';
 import codeLists from 'reducers/codeLists.js';
 import methods from 'reducers/methods.js';
+import standards from 'reducers/standards.js';
 import { MetaDataVersion } from 'elements.js';
 import {
     UPD_MDV,
@@ -20,6 +21,7 @@ const metaDataVersion = (state = initialState, action) => {
     } else if (action.type !== undefined) {
         return new MetaDataVersion({
             ...state,
+            standards  : standards(state.standards, action),
             itemGroups : itemGroups(state.itemGroups, action),
             itemDefs   : itemDefs(state.itemDefs, action),
             methods    : methods(state.methods, action),

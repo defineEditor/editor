@@ -1,5 +1,5 @@
 import {
-    ADD_STDCT
+    LOAD_STDCT
 } from "../constants/action-types";
 
 const initialState = {};
@@ -31,7 +31,7 @@ const addStdControlledTerminology = (state, action) => {
 
 const stdCodeLists = (state = initialState, action) => {
     switch (action.type) {
-        case ADD_STDCT:
+        case LOAD_STDCT:
             return addStdControlledTerminology(state, action);
         default:
             return state;

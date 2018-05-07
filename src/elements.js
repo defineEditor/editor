@@ -543,7 +543,7 @@ class MetaDataVersion extends BasicFunctions {
         this.lang = lang;
     }
     addStandard (standard) {
-        this.standards.push(standard);
+        this.standards[standard.oid] = standard;
     }
     addItemGroup (itemGroup) {
         this.itemGroups[itemGroup.oid] = itemGroup;
