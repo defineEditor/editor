@@ -1,8 +1,11 @@
+import { Standard } from 'elements.js';
+import getOid from 'utils/getOid.js';
 import {
-    UPD_STDCT
+    UPD_STDCT,
+    UPD_STD,
 } from "../constants/action-types";
 
-const initialState = {};
+const initialState = new Standard({oid: getOid('Standard')});
 
 const updateStandards = (state, action) => {
     let newState = { ...state };
@@ -16,7 +19,7 @@ const updateStandards = (state, action) => {
         newState[stdOid] = action.updateObj.addedStandards[stdOid];
     });
     Object.keys(action.updateObj.updatedStandards).forEach( stdOid => {
-        newState[stdOid] = action.updateObj.addedStandards[stdOid];
+        newState[stdOid] = action.updateObj.updatedStandards[stdOid];
     });
     return newState;
 };
@@ -24,6 +27,8 @@ const updateStandards = (state, action) => {
 const standards = (state = initialState, action) => {
     switch (action.type) {
         case UPD_STDCT:
+            return updateStandards(state, action);
+        case UPD_STD:
             return updateStandards(state, action);
         default:
             return state;

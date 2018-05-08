@@ -6,13 +6,16 @@ import Grid from 'material-ui/Grid';
 import GlobalVariablesFormatter from 'formatters/globalVariablesFormatter.js';
 import MetaDataVersionFormatter from 'formatters/metaDataVersionFormatter.js';
 import ControlledTerminologyFormatter from 'formatters/controlledTerminologyFormatter.js';
+import StandardFormatter from 'formatters/standardFormatter.js';
 import MetaDataVersionEditor from 'editors/metaDataVersionEditor.js';
 import GlobalVariablesEditor from 'editors/globalVariablesEditor.js';
 import ControlledTerminologyEditor from 'editors/controlledTerminologyEditor.js';
+import StandardEditor from 'editors/standardEditor.js';
 import {
     updateGlobalVariables,
     updateMetaDataVersion,
     updateControlledTerminologies,
+    updatedStandards,
 } from 'actions/index.js';
 import { TranslatedText } from 'elements.js';
 
@@ -22,6 +25,7 @@ const mapDispatchToProps = dispatch => {
         updateGlobalVariables         : (updateObj) => dispatch(updateGlobalVariables(updateObj)),
         updateMetaDataVersion         : (updateObj) => dispatch(updateMetaDataVersion(updateObj)),
         updateControlledTerminologies : (updateObj) => dispatch(updateControlledTerminologies(updateObj)),
+        updatedStandards              : (updateObj) => dispatch(updatedStandards(updateObj)),
     };
 };
 
@@ -62,21 +66,31 @@ class ConnectedStandardTable extends React.Component {
     constructor(props) {
         super(props);
 
+        const heights = {
+            mdvHeight : undefined,
+            gvHeight  : undefined,
+        };
+
         this.state = {
-            metaDataEdit        : false,
-            globalVariablesEdit : false,
+            metaDataEdit              : false,
+            globalVariablesEdit       : false,
+            controlledTerminologyEdit : false,
+            standardEdit              : false,
+            heights,
         };
     }
 
-    handleChange = (name) => () => {
+    handleChange = (name) => (updateObj) => {
         if (name === 'metaDataVersionEdit') {
             this.setState({metaDataEdit: true});
-        }
-        else if (name === 'globalVariablesEdit') {
+        } else if (name === 'globalVariablesEdit') {
             this.setState({globalVariablesEdit: true});
-        }
-        else if (name === 'controlledTerminologyEdit') {
+        } else if (name === 'controlledTerminologyEdit') {
             this.setState({controlledTerminologyEdit: true});
+        } else if (name === 'standardEdit') {
+            this.setState({standardEdit: true});
+        } else if (name === 'updateHeight') {
+            this.setState({heights: updateObj});
         }
     }
 
@@ -110,8 +124,21 @@ class ConnectedStandardTable extends React.Component {
                 this.props.updateGlobalVariables(updateObj);
             }
             this.setState({globalVariablesEdit: false});
-        } else if (name === 'controlledTerminology') {
-            let oldStandards = this.props.standards;
+        } else if (name === 'controlledTerminology' || name === 'standard') {
+            let oldStandards = {};
+            if (name === 'controlledTerminology') {
+                Object.keys(this.props.standards).forEach(standardOid => {
+                    if (this.props.standards[standardOid].name === 'CDISC/NCI' && this.props.standards[standardOid].type === 'CT') {
+                        oldStandards[standardOid] = this.props.standards[standardOid];
+                    }
+                });
+            } else if (name === 'standard') {
+                Object.keys(this.props.standards).forEach(standardOid => {
+                    if (!(this.props.standards[standardOid].name === 'CDISC/NCI' && this.props.standards[standardOid].type === 'CT')) {
+                        oldStandards[standardOid] = this.props.standards[standardOid];
+                    }
+                });
+            }
             let newStandards = returnValue.standards;
             // Check which CT were added;
             let addedStandards = {};
@@ -135,17 +162,31 @@ class ConnectedStandardTable extends React.Component {
                 }
             });
 
-            if (Object.keys(updatedStandards).length > 0
-                || Object.keys(addedStandards).length > 0
-                || removedStandardOids.length > 0
-            ) {
-                this.props.updateControlledTerminologies({
-                    addedStandards,
-                    removedStandardOids,
-                    updatedStandards,
-                });
+            if (name === 'controlledTerminology') {
+                if (Object.keys(updatedStandards).length > 0
+                    || Object.keys(addedStandards).length > 0
+                    || removedStandardOids.length > 0
+                ) {
+                    this.props.updateControlledTerminologies({
+                        addedStandards,
+                        removedStandardOids,
+                        updatedStandards,
+                    });
+                }
+                this.setState({controlledTerminologyEdit: false});
+            } else if (name === 'standard') {
+                if (Object.keys(updatedStandards).length > 0
+                    || Object.keys(addedStandards).length > 0
+                    || removedStandardOids.length > 0
+                ) {
+                    this.props.updatedStandards({
+                        addedStandards,
+                        removedStandardOids,
+                        updatedStandards,
+                    });
+                }
+                this.setState({standardEdit: false});
             }
-            this.setState({controlledTerminologyEdit: false});
         }
     }
 
@@ -156,13 +197,15 @@ class ConnectedStandardTable extends React.Component {
             this.setState({globalVariablesEdit: false});
         } else if (name === 'controlledTerminology') {
             this.setState({controlledTerminologyEdit: false});
+        } else if (name === 'standard') {
+            this.setState({standardEdit: false});
         }
     }
 
     render () {
 
         return (
-            <Grid container spacing={8}>
+            <Grid container spacing={8} alignItems='baseline'>
                 <Grid item xs={6}>
                     { this.state.globalVariablesEdit === true ? (
                         <GlobalVariablesEditor
@@ -172,6 +215,8 @@ class ConnectedStandardTable extends React.Component {
                         />
                     ) : (
                         <GlobalVariablesFormatter
+                            heights={this.state.heights}
+                            updateHeight={this.handleChange('updateHeight')}
                             globalVariables={this.props.globalVariables}
                             onEdit={this.handleChange('globalVariablesEdit')}
                         />
@@ -189,8 +234,28 @@ class ConnectedStandardTable extends React.Component {
                     ) : (
                         <MetaDataVersionFormatter
                             mdvAttrs={this.props.mdvAttrs}
+                            heights={this.state.heights}
+                            updateHeight={this.handleChange('updateHeight')}
                             defineVersion={this.props.defineVersion}
                             onEdit={this.handleChange('metaDataVersionEdit')}
+                        />
+                    )
+                    }
+                </Grid>
+                <Grid item xs={12}>
+                    {  this.state.standardEdit === true ? (
+                        <StandardEditor
+                            standards={this.props.standards}
+                            stdConstants={this.props.stdConstants}
+                            defineVersion={this.props.defineVersion}
+                            onSave={this.save('standard')}
+                            onCancel={this.cancel('standard')}
+                        />
+                    ) : (
+                        <StandardFormatter
+                            standards={this.props.standards}
+                            defineVersion={this.props.defineVersion}
+                            onEdit={this.handleChange('standardEdit')}
                         />
                     )
                     }

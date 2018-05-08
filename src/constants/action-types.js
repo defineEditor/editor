@@ -2,6 +2,7 @@ export const ADD_ODM = "ADD_ODM";
 export const ADD_STDCONST = "ADD_STDCONST";
 export const LOAD_STDCT = "LOAD_STDCT";
 export const UPD_STDCT = "UPD_STDCT";
+export const UPD_STD = "UPD_STD";
 export const UPD_GLOBALVARS = "UPD_GLOBALVARS";
 export const UPD_MDV = "UPD_MDV";
 export const UPD_ITEMGROUP = "UPD_ITEMGROUP";

@@ -13,26 +13,22 @@ const styles = theme => ({
     },
 });
 
-class ControlledTerminologyFormatter extends React.Component {
+class StandardFormatter extends React.Component {
 
-    getControlledTerminologies = () => {
+    getStandards = () => {
         let standards = this.props.standards;
-        let stdCodeLists = this.props.stdCodeLists;
         let ctList = Object.keys(standards)
             .filter(standardOid => {
-                return (standards[standardOid].name === 'CDISC/NCI' && standards[standardOid].type === 'CT');
+                return !(standards[standardOid].name === 'CDISC/NCI' && standards[standardOid].type === 'CT');
             })
             .map(standardOid => {
                 return (
                     <TableRow key={standardOid}>
                         <TableCell>
-                            {standards[standardOid].publishingSet}
+                            {standards[standardOid].name}
                         </TableCell>
                         <TableCell>
                             {standards[standardOid].version}
-                        </TableCell>
-                        <TableCell>
-                            {Object.keys(stdCodeLists[standardOid].nciCodeOids).length}
                         </TableCell>
                     </TableRow>
                 );
@@ -46,19 +42,18 @@ class ControlledTerminologyFormatter extends React.Component {
         return (
             <Paper className={classes.mainPart} elevation={4}>
                 <Typography variant="headline" component="h3">
-                    Controlled Terminology
+                    Standard
                     <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>Model</TableCell>
+                            <TableCell>Name</TableCell>
                             <TableCell>Version</TableCell>
-                            <TableCell># Codelists</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {this.getControlledTerminologies()}
+                        {this.getStandards()}
                     </TableBody>
                 </Table>
             </Paper>
@@ -66,12 +61,11 @@ class ControlledTerminologyFormatter extends React.Component {
     }
 }
 
-ControlledTerminologyFormatter.propTypes = {
-    standards    : PropTypes.object.isRequired,
-    stdCodeLists : PropTypes.object.isRequired,
-    classes      : PropTypes.object.isRequired,
-    onEdit       : PropTypes.func.isRequired,
-    onComment    : PropTypes.func,
+StandardFormatter.propTypes = {
+    standards : PropTypes.object.isRequired,
+    classes   : PropTypes.object.isRequired,
+    onEdit    : PropTypes.func.isRequired,
+    onComment : PropTypes.func,
 };
 
-export default withStyles(styles)(ControlledTerminologyFormatter);
+export default withStyles(styles)(StandardFormatter);

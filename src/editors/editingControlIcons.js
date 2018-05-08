@@ -9,8 +9,7 @@ import IconButton from 'material-ui/IconButton';
 
 const styles = theme => ({
     icon: {
-        marginRight : theme.spacing.unit,
-        transform   : 'translate(0, -5%)',
+        transform: 'translate(0, -5%)',
     }
 });
 

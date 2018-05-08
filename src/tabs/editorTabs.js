@@ -120,7 +120,7 @@ class ConnectedEditorTabs extends React.Component {
         const { value } = this.state;
         const defineVersion = this.props.odm.study.metaDataVersion.defineVersion;
         // Remove whitespaces and make lowercase for ID values
-        let tabs = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Methods', 'Comments', 'Where Conditions', 'Documents'];
+        let tabs = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents', 'Methods', 'Comments', 'Where Conditions'];
         let tabIds = tabs.map( tab => {return tab.replace(/\s+/g, '').toLowerCase();});
 
         return (

@@ -4,6 +4,7 @@ import {
     ADD_STDCONST,
     LOAD_STDCT,
     UPD_STDCT,
+    UPD_STD,
     UPD_ITEMGROUP,
     ADD_ITEMGROUP,
     ADD_ITEMGROUPCOMMENT,
@@ -216,6 +217,13 @@ export const updateMetaDataVersion = (updateObj) => (
 export const updateControlledTerminologies = (updateObj) => (
     {
         type: UPD_STDCT,
+        updateObj,
+    }
+);
+
+export const updatedStandards = (updateObj) => (
+    {
+        type: UPD_STD,
         updateObj,
     }
 );
