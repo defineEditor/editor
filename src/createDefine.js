@@ -105,18 +105,18 @@ function createMetaDataVersion (data, version) {
             }
         }
         // AnnotatedCRF
-        if (data.annotatedCrf.length !== 0) {
+        if (Object.keys(data.annotatedCrf).length !== 0) {
             let annotatedCrf = {'def:AnnotatedCRF': {'def:DocumentRef': []}};
-            data.annotatedCrf.forEach(function (document) {
-                annotatedCrf['def:AnnotatedCRF']['def:DocumentRef'].push(createDocumentRef(document, version));
+            Object.keys(data.annotatedCrf).forEach(function (documentOid) {
+                annotatedCrf['def:AnnotatedCRF']['def:DocumentRef'].push(createDocumentRef(data.annotatedCrf[documentOid], version));
             });
             xmlRoot.ele(annotatedCrf);
         }
         // SupplementalDoc
-        if (data.supplementalDoc.length !== 0) {
+        if (Object.keys(data.supplementalDoc).length !== 0) {
             let supplementalDoc = {'SupplementalDoc': {'def:DocumentRef': []}};
-            data.supplementalDoc.forEach(function (document) {
-                supplementalDoc['SupplementalDoc']['def:DocumentRef'].push(createDocumentRef(document, version));
+            Object.keys(data.supplementalDoc).forEach(function (documentOid) {
+                supplementalDoc['SupplementalDoc']['def:DocumentRef'].push(createDocumentRef(data.supplementalDoc[documentOid], version));
             });
             xmlRoot.ele(supplementalDoc);
         }
@@ -214,7 +214,7 @@ function createDocumentRef (data, version) {
     let result = {};
     if (version === '2.0.0') {
         let attributes = {
-            leafId: data.leaf.id
+            leafId: data.leafId
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {

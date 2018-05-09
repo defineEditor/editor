@@ -98,11 +98,13 @@ class WhereClauseEditorInteractive extends React.Component {
                 if (currentCodeList.getCodeListType() !== 'external') {
                     listOfCodeValues[currentItemOid] = [];
                     if (currentCodeList.getCodeListType() === 'decoded') {
-                        currentCodeList.codeListItems.forEach( item => {
+                        Object.keys(currentCodeList.codeListItems).forEach( itemOid => {
+                            let item = currentCodeList.codeListItems[itemOid];
                             listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue + ' (' + item.getDecode() + ')'});
                         });
                     } else if (currentCodeList.getCodeListType() === 'enumerated') {
-                        currentCodeList.enumeratedItems.forEach( item => {
+                        Object.keys(currentCodeList.enumeratedItems).forEach( itemOid => {
+                            let item = currentCodeList.codeListItems[itemOid];
                             listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue});
                         });
                     }

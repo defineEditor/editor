@@ -92,7 +92,7 @@ class ControlledTerminologyEditor extends React.Component {
                             </IconButton>
                         </Tooltip>
                         <TextField
-                            label='CDISC Controlled Terminology'
+                            label='Controlled Terminology'
                             value={standards[standardOid].oid}
                             select
                             onChange={this.handleChange('updateCt',standardOid)}
@@ -119,7 +119,6 @@ class ControlledTerminologyEditor extends React.Component {
                     <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
                 </Typography>
                 <List>
-                    {this.getControlledTerminologies()}
                     <ListItem dense>
                         <Button
                             color='default'
@@ -131,6 +130,7 @@ class ControlledTerminologyEditor extends React.Component {
                             Add Controlled Terminology
                         </Button>
                     </ListItem>
+                    {this.getControlledTerminologies()}
                 </List>
             </Paper>
         );

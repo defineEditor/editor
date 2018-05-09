@@ -107,9 +107,9 @@ function parseAlias (aliasRaw) {
     });
 }
 
-function parseDocument (doc, mdv) {
+function parseDocument (doc) {
     let args = {
-        leaf: mdv.leafs[doc['$']['leafId']]
+        leafId: doc['$']['leafId'],
     };
     let document = new def.Document(args);
     if (doc.hasOwnProperty('pDFPageRef')) {
@@ -128,9 +128,10 @@ function parseDocument (doc, mdv) {
 }
 
 function parseDocumentCollection (documentsRaw, mdv) {
-    let documents = [];
+    let documents = {};
     documentsRaw.forEach(function (documentRaw) {
-        documents.push(parseDocument(documentRaw['documentRef'][0], mdv));
+        let document = parseDocument(documentRaw['documentRef'][0]);
+        documents[document.leafId] = document;
     });
 
     return documents;
@@ -162,7 +163,7 @@ function parseComments (commentsRaw, mdv) {
         });
         if (commentRaw.hasOwnProperty('documentRef')) {
             commentRaw['documentRef'].forEach(function (item) {
-                comment.addDocument(parseDocument(item, mdv));
+                comment.addDocument(parseDocument(item));
             });
         }
         // Connect comment to its sources
@@ -216,7 +217,7 @@ function parseMethods (methodsRaw, mdv) {
         });
         if (methodRaw.hasOwnProperty('documentRef')) {
             methodRaw['documentRef'].forEach(function (item) {
-                method.addDocument(parseDocument(item, mdv));
+                method.addDocument(parseDocument(item));
             });
         }
         if (methodRaw.hasOwnProperty('formalExpression')) {
@@ -386,7 +387,7 @@ function parseOrigins (originsRaw, mdv) {
         }
         if (originRaw.hasOwnProperty('documentRef')) {
             originRaw['documentRef'].forEach(function (item) {
-                origin.addDocument(parseDocument(item, mdv));
+                origin.addDocument(parseDocument(item));
             });
         }
         origins.push(origin);

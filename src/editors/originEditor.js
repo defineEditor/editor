@@ -226,8 +226,8 @@ class OriginEditor extends React.Component {
 OriginEditor.propTypes = {
     defaultValue    : PropTypes.array.isRequired,
     leafs           : PropTypes.object.isRequired,
-    annotatedCrf    : PropTypes.array.isRequired,
-    supplementalDoc : PropTypes.array.isRequired,
+    annotatedCrf    : PropTypes.object.isRequired,
+    supplementalDoc : PropTypes.object.isRequired,
     onUpdate        : PropTypes.func
 };
 

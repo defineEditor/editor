@@ -66,17 +66,11 @@ class ConnectedStandardTable extends React.Component {
     constructor(props) {
         super(props);
 
-        const heights = {
-            mdvHeight : undefined,
-            gvHeight  : undefined,
-        };
-
         this.state = {
             metaDataEdit              : false,
             globalVariablesEdit       : false,
             controlledTerminologyEdit : false,
             standardEdit              : false,
-            heights,
         };
     }
 
@@ -89,8 +83,6 @@ class ConnectedStandardTable extends React.Component {
             this.setState({controlledTerminologyEdit: true});
         } else if (name === 'standardEdit') {
             this.setState({standardEdit: true});
-        } else if (name === 'updateHeight') {
-            this.setState({heights: updateObj});
         }
     }
 
@@ -205,8 +197,8 @@ class ConnectedStandardTable extends React.Component {
     render () {
 
         return (
-            <Grid container spacing={8} alignItems='baseline'>
-                <Grid item xs={6}>
+            <Grid container spacing={8} alignItems='stretch'>
+                <Grid item xs={6} style={{display: 'flex'}}>
                     { this.state.globalVariablesEdit === true ? (
                         <GlobalVariablesEditor
                             globalVariables={this.props.globalVariables}
@@ -215,15 +207,13 @@ class ConnectedStandardTable extends React.Component {
                         />
                     ) : (
                         <GlobalVariablesFormatter
-                            heights={this.state.heights}
-                            updateHeight={this.handleChange('updateHeight')}
                             globalVariables={this.props.globalVariables}
                             onEdit={this.handleChange('globalVariablesEdit')}
                         />
                     )
                     }
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={6} style={{display: 'flex'}}>
                     { this.state.metaDataEdit === true ? (
                         <MetaDataVersionEditor
                             mdvAttrs={this.props.mdvAttrs}
@@ -234,8 +224,6 @@ class ConnectedStandardTable extends React.Component {
                     ) : (
                         <MetaDataVersionFormatter
                             mdvAttrs={this.props.mdvAttrs}
-                            heights={this.state.heights}
-                            updateHeight={this.handleChange('updateHeight')}
                             defineVersion={this.props.defineVersion}
                             onEdit={this.handleChange('metaDataVersionEdit')}
                         />

@@ -23,7 +23,7 @@ class DocumentEditor extends React.Component {
         let newObject =this.props.parentObj.clone();
         if (name === 'updateDocument') {
             let newDocuments = newObject.documents.slice();
-            newDocuments[documentId].leaf = this.props.leafs[event.target.value];
+            newDocuments[documentId].leafId = event.target.value;
             newObject.documents = newDocuments;
         }
         if (name === 'deleteDocument') {
@@ -71,6 +71,10 @@ class DocumentEditor extends React.Component {
 
     getDocuments = (documents, documentList, classes) => {
         return documents.map( (document, index) => {
+            let isPdf = false;
+            if (this.props.leafs.hasOwnProperty(document.leafId)) {
+                isPdf = this.props.leafs[document.leafId].isPdf;
+            }
             return (
                 <Grid container justify='flex-start' alignItems='flex-end' spacing={8} key={index}>
                     <Grid item>
@@ -87,7 +91,7 @@ class DocumentEditor extends React.Component {
                     <Grid item>
                         <ItemSelect
                             options={documentList}
-                            value={document.leaf.id || Object.keys(documentList)[0]}
+                            value={document.leafId || Object.keys(documentList)[0]}
                             handleChange={this.handleChange('updateDocument',index)}
                             label='Document'
                         />
@@ -96,7 +100,7 @@ class DocumentEditor extends React.Component {
                         <Tooltip title="Add PDF Page Referece" placement="bottom">
                             <span>
                                 <IconButton
-                                    disabled={!document.leaf.isPdf}
+                                    disabled={!isPdf}
                                     color='primary'
                                     onClick={this.handleChange('newPdfPageRef',index)}
                                     className={classes.button}
@@ -106,7 +110,7 @@ class DocumentEditor extends React.Component {
                             </span>
                         </Tooltip>
                     </Grid>
-                    { document.leaf.isPdf &&
+                    { isPdf &&
                         <Grid item xs={12}>
                             {this.getPdfPage(document, index, classes)}
                         </Grid>
@@ -137,8 +141,8 @@ class DocumentEditor extends React.Component {
 DocumentEditor.propTypes = {
     parentObj       : PropTypes.object.isRequired,
     leafs           : PropTypes.object.isRequired,
-    annotatedCrf    : PropTypes.array.isRequired,
-    supplementalDoc : PropTypes.array.isRequired,
+    annotatedCrf    : PropTypes.object.isRequired,
+    supplementalDoc : PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(DocumentEditor);

@@ -38,7 +38,7 @@ class DescriptionFormatter extends React.Component {
                     <Typography variant="subheading" gutterBottom>
                         Comment:
                     </Typography>
-                    {this.props.value.comment.toString()}
+                    {this.props.value.comment.getText(this.props.leafs)}
                 </Grid>
             );
         }
@@ -48,7 +48,7 @@ class DescriptionFormatter extends React.Component {
                     <Typography variant="subheading" gutterBottom>
                         Method:
                     </Typography>
-                    {this.props.value.method.toString()}
+                    {this.props.value.method.getText(this.props.leafs)}
                 </Grid>
             );
         }

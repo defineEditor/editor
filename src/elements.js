@@ -78,13 +78,9 @@ class PdfPageRef {
 
 class Document {
     constructor ({
-        leaf, pdfPageRefs = []
+        leafId, pdfPageRefs = []
     } = {}) {
-        if (leaf === undefined) {
-            this.leaf = new Leaf();
-        } else {
-            this.leaf = leaf;
-        }
+        this.leafId = leafId;
         this.pdfPageRefs = pdfPageRefs;
     }
     addPdfPageRef (pdfPageRef) {
@@ -97,9 +93,8 @@ class Document {
         return this.pdfPageRefs.length - 1;
     }
     clone (){
-        let leaf = Object.assign(new Leaf(), this.leaf);
         let pdfPageRefs = this.pdfPageRefs.map( pdfPageRef => (pdfPageRef.clone()));
-        return new Document({leaf: leaf, pdfPageRefs: pdfPageRefs});
+        return new Document({leafId: this.leafId, pdfPageRefs: pdfPageRefs});
     }
 }
 
@@ -410,11 +405,13 @@ class Comment extends BasicFunctions {
             };
         }
     }
-    toString () {
+    getText (leafs) {
         let result = this.getDescription();
         if (this.documents.length > 0) {
             this.documents.forEach((doc) => {
-                result += '\n' + doc.leaf.title + '(' + doc.leaf.href + ')';
+                if (leafs.hasOwnProperty(doc.leafId)) {
+                    result += '\n' + leafs[doc.leafId].title + '(' + leafs[doc.leafId].href + ')';
+                }
             });
         }
         return result;
@@ -516,8 +513,8 @@ class MetaDataVersion extends BasicFunctions {
         leafs = {},
         model,
         lang = 'en',
-        annotatedCrf = [],
-        supplementalDoc = [],
+        annotatedCrf = {},
+        supplementalDoc = {},
         descriptions = []
     } = {}) {
         super();

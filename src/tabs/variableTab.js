@@ -99,7 +99,7 @@ function roleMandatoryEditor (onUpdate, props) {
 
 // Formatters
 function descriptionFormatter (cell, row) {
-    return (<DescriptionFormatter value={cell} model={row.model}/>);
+    return (<DescriptionFormatter value={cell} model={row.model} leafs={row.mdv.leafs}/>);
 }
 
 function variableCodeListFormatFormatter (cell, row) {

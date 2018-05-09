@@ -53,7 +53,8 @@ const mapStateToProps = state => {
     return {
         itemGroups : state.odm.study.metaDataVersion.itemGroups,
         itemDefs   : state.odm.study.metaDataVersion.itemDefs,
-        comments   : state.odm.study.metaDataVersion.comments
+        comments   : state.odm.study.metaDataVersion.comments,
+        leafs      : state.odm.study.metaDataVersion.leafs,
     };
 };
 
@@ -84,7 +85,7 @@ function simpleSelectEditor (onUpdate, props) {
 // Formatter functions
 function commentFormatter (cell, row) {
     if (cell !== undefined && cell !== '') {
-        return (<span>{cell.toString()}</span>);
+        return (<span>{cell.getText(row.leafs)}</span>);
     } else {
         return;
     }
@@ -205,6 +206,7 @@ class ConnectedDatasetTable extends React.Component {
                 purpose       : originDs.purpose,
                 structure     : originDs.structure,
                 defineVersion : this.props.defineVersion,
+                leafs         : this.props.leafs,
             };
             currentDs.description = originDs.getDescription();
             currentDs.comment = originDs.commentOid === undefined ? undefined : this.props.comments[originDs.commentOid];

@@ -10,6 +10,7 @@ const styles = theme => ({
     globalVariables: {
         padding   : 16,
         marginTop : theme.spacing.unit * 3,
+        width     : '100%',
     },
 });
 

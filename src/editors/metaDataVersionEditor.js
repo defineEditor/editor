@@ -11,6 +11,7 @@ const styles = theme => ({
     metaDataVersion: {
         padding   : 16,
         marginTop : theme.spacing.unit * 3,
+        width     : '100%',
     },
     inputField: {
     },
@@ -62,6 +63,7 @@ class MetaDataVersionEditor extends React.Component {
                             label='Description'
                             value={this.state.description}
                             fullWidth
+                            multiline
                             onChange={this.handleChange('description')}
                             className={classes.inputField}
                         />
