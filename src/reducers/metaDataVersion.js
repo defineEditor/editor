@@ -4,6 +4,7 @@ import comments from 'reducers/comments.js';
 import codeLists from 'reducers/codeLists.js';
 import methods from 'reducers/methods.js';
 import standards from 'reducers/standards.js';
+import leafs from 'reducers/leafs.js';
 import { MetaDataVersion } from 'elements.js';
 import {
     UPD_MDV,
@@ -27,6 +28,7 @@ const metaDataVersion = (state = initialState, action) => {
             methods    : methods(state.methods, action),
             comments   : comments(state.comments, action),
             codeLists  : codeLists(state.codeLists, action),
+            leafs      : leafs(state.leafs, action),
         });
     } else {
         return state;

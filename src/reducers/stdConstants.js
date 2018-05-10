@@ -43,10 +43,28 @@ const standardNames = {
     ],
 };
 
+const typeLabel = {
+    annotatedCrf    : 'Annotated CRF',
+    supplementalDoc : 'Supplemental Document',
+    other           : 'Other',
+};
+
+const typeOrder = {
+    annotatedCrf    : 1,
+    supplementalDoc : 2,
+    other           : 3,
+};
+
+const documentTypes = {
+    typeOrder,
+    typeLabel,
+};
+
 const initialState = {
     dataTypes,
     codeListTypes,
     standardNames,
+    documentTypes,
 };
 
 const stdConstants = (state = initialState, action) => {

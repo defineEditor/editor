@@ -79,7 +79,7 @@ function getListOfSourceIds(source, targetName, targetId) {
 /*
  * Parse functions
  */
-function parseLeafs (leafsRaw) {
+function parseLeafs (leafsRaw, mdv) {
     let leafs = {};
     leafsRaw.forEach(function (leafRaw) {
         // If the file has PDF extension, set the corresponding class
@@ -88,11 +88,21 @@ function parseLeafs (leafsRaw) {
             isPdf = true;
         }
 
+        let type = 'other';
+        if (mdv !== undefined) {
+            if (mdv.hasOwnProperty('supplementalDoc') && mdv.supplementalDoc.hasOwnProperty(leafRaw['$']['id'])) {
+                type = 'supplementalDoc';
+            } else if (mdv.hasOwnProperty('annotatedCrf') && mdv.annotatedCrf.hasOwnProperty(leafRaw['$']['id'])) {
+                type = 'annotatedCrf';
+            }
+        }
+
         let leaf = new def.Leaf({
             id    : leafRaw['$']['id'],
             href  : leafRaw['$']['href'],
             title : leafRaw['title'][0],
-            isPdf : isPdf
+            isPdf : isPdf,
+            type,
         });
         leafs[leaf.id] = leaf;
     });
@@ -127,7 +137,7 @@ function parseDocument (doc) {
     return new def.Document(args);
 }
 
-function parseDocumentCollection (documentsRaw, mdv) {
+function parseDocumentCollection (documentsRaw) {
     let documents = {};
     documentsRaw.forEach(function (documentRaw) {
         let document = parseDocument(documentRaw['documentRef'][0]);
@@ -605,17 +615,17 @@ function parseMetaDataVersion (metadataRaw) {
     let defineVersion = metadataRaw['$']['defineVersion'];
 
     var mdv = {};
-    mdv.leafs = parseLeafs(metadataRaw['leaf']);
     mdv.standards = parseStandards(metadataRaw, defineVersion);
     mdv.whereClauses = parseWhereClauses(metadataRaw['whereClauseDef'], mdv);
 
     if (metadataRaw.hasOwnProperty('annotatedCrf')) {
-        mdv.annotatedCrf = parseDocumentCollection(metadataRaw['annotatedCrf'], mdv);
+        mdv.annotatedCrf = parseDocumentCollection(metadataRaw['annotatedCrf']);
     }
 
     if (metadataRaw.hasOwnProperty('supplementalDoc')) {
-        mdv.supplementalDoc = parseDocumentCollection(metadataRaw['supplementalDoc'], mdv);
+        mdv.supplementalDoc = parseDocumentCollection(metadataRaw['supplementalDoc']);
     }
+    mdv.leafs = parseLeafs(metadataRaw['leaf'], mdv);
     mdv.valueLists = parseValueLists(metadataRaw['valueListDef'], mdv);
     mdv.itemGroups = parseItemGroups(metadataRaw['itemGroupDef'], mdv);
 

@@ -46,15 +46,15 @@ class ControlledTerminologyEditor extends React.Component {
 
     handleChange = (name, oid) => (event) => {
         if (name === 'addCt') {
-            let newStandards = this.state.standards;
+            let newStandards = { ...this.state.standards };
             let newOid = getOid('Standard', undefined, Object.keys(this.state.standards));
             newStandards[newOid] = new Standard({ oid: newOid, name: 'CDISC/NCI', type: 'CT' });
             this.setState({ standards: newStandards });
         } else if (name === 'updateCt') {
             let newOid = event.target.value;
             if (oid !== newOid) {
-                // Delete old OID
-                let newStandards = this.state.standards;
+                let newStandards = { ...this.state.standards };
+                // Replace old OID with a new one
                 delete newStandards[oid];
                 if (this.props.stdCodeLists.hasOwnProperty(newOid)) {
                     let publishingSet = this.props.stdCodeLists[newOid].model;
@@ -64,7 +64,7 @@ class ControlledTerminologyEditor extends React.Component {
                 }
             }
         } else if (name === 'deleteCt') {
-            let newStandards = this.state.standards;
+            let newStandards = { ...this.state.standards };
             delete newStandards[oid];
             this.setState({ standards: newStandards });
         }

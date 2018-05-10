@@ -8,6 +8,7 @@ import DatasetTable from 'tabs/datasetTab.js';
 import VariableTable from 'tabs/variableTab.js';
 import CodeListTable from 'tabs/codeListTab.js';
 import CodedValueTable from 'tabs/codedValueTab.js';
+import DocumentTab from 'tabs/documentTab.js';
 import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme, withStyles } from 'material-ui/styles';
 import getItemGroupOrder from 'utils/getItemGroupOrder.js';
@@ -120,8 +121,8 @@ class ConnectedEditorTabs extends React.Component {
         const { value } = this.state;
         const defineVersion = this.props.odm.study.metaDataVersion.defineVersion;
         // Remove whitespaces and make lowercase for ID values
-        let tabs = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents', 'Methods', 'Comments', 'Where Conditions'];
-        let tabIds = tabs.map( tab => {return tab.replace(/\s+/g, '').toLowerCase();});
+        /* TODO: 'Methods', 'Comments', 'Where Conditions'*/
+        let tabs = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents'];
 
         return (
             <MuiThemeProvider theme={theme}>
@@ -150,7 +151,7 @@ class ConnectedEditorTabs extends React.Component {
                         {tabs[value] === 'Variables' && this.generateVariableTables(defineVersion)}
                         {tabs[value] === 'Codelists' && <CodeListTable/>}
                         {tabs[value] === 'Coded Values' && this.generateCodeListTables(defineVersion)}
-                        {['Datasets','Variables','Codelists','Coded Values', 'Standards'].indexOf(tabs[value]) === -1 && <div id={tabIds[value]}>{tabs[value]}</div>}
+                        {tabs[value] === 'Documents' && <DocumentTab/>}
                     </TabContainer>
                 </div>
             </MuiThemeProvider>

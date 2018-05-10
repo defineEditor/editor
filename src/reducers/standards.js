@@ -5,7 +5,8 @@ import {
     UPD_STD,
 } from "../constants/action-types";
 
-const initialState = new Standard({oid: getOid('Standard')});
+const initialOid = getOid('Standard');
+const initialState = { [initialOid]: new Standard({ oid: initialOid }) };
 
 const updateStandards = (state, action) => {
     let newState = { ...state };

@@ -132,21 +132,21 @@ class ConnectedStandardTable extends React.Component {
                 });
             }
             let newStandards = returnValue.standards;
-            // Check which CT were added;
+            // Check which items were added;
             let addedStandards = {};
             Object.keys(newStandards).forEach( stdOid => {
                 if (!oldStandards.hasOwnProperty(stdOid)) {
                     addedStandards[stdOid] = newStandards[stdOid];
                 }
             });
-            // Check which CT were removed;
+            // Check which items were removed;
             let removedStandardOids = [];
             Object.keys(oldStandards).forEach( stdOid => {
                 if (!newStandards.hasOwnProperty(stdOid)) {
                     removedStandardOids.push(stdOid);
                 }
             });
-            // Check which CT were updated;
+            // Check which items were updated;
             let updatedStandards = [];
             Object.keys(newStandards).forEach( stdOid => {
                 if (oldStandards.hasOwnProperty(stdOid) && !deepEqual(oldStandards[stdOid], newStandards[stdOid]) ) {

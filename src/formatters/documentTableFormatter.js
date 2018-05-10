@@ -11,29 +11,37 @@ const styles = theme => ({
         padding   : 16,
         marginTop : theme.spacing.unit * 3,
     },
+    typeColumn: {
+        width: '20%',
+    }
 });
 
-class SupplementalDocFormatter extends React.Component {
+class DocumentTableFormatter extends React.Component {
 
-    getSupplementalDocs = () => {
-        let SupplementalDocs = this.props.SupplementalDocs;
-        let ctList = Object.keys(SupplementalDocs)
-            .filter(SupplementalDocOid => {
-                return !(SupplementalDocs[SupplementalDocOid].name === 'CDISC/NCI' && SupplementalDocs[SupplementalDocOid].type === 'CT');
-            })
-            .map(SupplementalDocOid => {
-                return (
-                    <TableRow key={SupplementalDocOid}>
-                        <TableCell>
-                            {SupplementalDocs[SupplementalDocOid].name}
-                        </TableCell>
-                        <TableCell>
-                            {SupplementalDocs[SupplementalDocOid].version}
-                        </TableCell>
-                    </TableRow>
-                );
-            });
-        return ctList;
+    getDocuments = () => {
+        let leafs = this.props.leafs;
+
+        const createRow = (leafId) => {
+            return (
+                <TableRow key={leafId}>
+                    <TableCell>
+                        {this.props.documentTypes.typeLabel[leafs[leafId].type]}
+                    </TableCell>
+                    <TableCell>
+                        <a href={'file://' + leafs[leafId].href}>{leafs[leafId].title}</a>
+                    </TableCell>
+                </TableRow>
+            );
+        };
+
+        const compareDocTypes = (leafId1, leafId2) => {
+            return this.props.documentTypes.typeOrder[leafs[leafId1].type] - this.props.documentTypes.typeOrder[leafs[leafId2].type];
+        };
+
+        let docList = Object.keys(leafs)
+            .sort(compareDocTypes)
+            .map(createRow);
+        return docList;
     };
 
     render () {
@@ -42,18 +50,18 @@ class SupplementalDocFormatter extends React.Component {
         return (
             <Paper className={classes.mainPart} elevation={4}>
                 <Typography variant="headline" component="h3">
-                    SupplementalDoc
+                    Documents
                     <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Version</TableCell>
+                            <TableCell className={classes.typeColumn}>Type</TableCell>
+                            <TableCell>Document</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {this.getSupplementalDocs()}
+                        {this.getDocuments()}
                     </TableBody>
                 </Table>
             </Paper>
@@ -61,11 +69,12 @@ class SupplementalDocFormatter extends React.Component {
     }
 }
 
-SupplementalDocFormatter.propTypes = {
-    SupplementalDocs : PropTypes.object.isRequired,
-    classes          : PropTypes.object.isRequired,
-    onEdit           : PropTypes.func.isRequired,
-    onComment        : PropTypes.func,
+DocumentTableFormatter.propTypes = {
+    leafs         : PropTypes.object.isRequired,
+    documentTypes : PropTypes.object.isRequired,
+    classes       : PropTypes.object.isRequired,
+    onEdit        : PropTypes.func.isRequired,
+    onComment     : PropTypes.func,
 };
 
-export default withStyles(styles)(SupplementalDocFormatter);
+export default withStyles(styles)(DocumentTableFormatter);

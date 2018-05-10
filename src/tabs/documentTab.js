@@ -3,29 +3,25 @@ import { connect } from 'react-redux';
 import React from 'react';
 import deepEqual from 'fast-deep-equal';
 import Grid from 'material-ui/Grid';
-import SupplementalDocFormatter from 'formatters/globalVariablesFormatter.js';
-//import MetaDataVersionEditor from 'editors/metaDataVersionEditor.js';
+import DocumentTableFormatter from 'formatters/documentTableFormatter.js';
+import DocumentTableEditor from 'editors/documentTableEditor.js';
 import {
-    updateCrfDocuments,
-    updateSupplementalDoc,
+    updateLeafs,
 } from 'actions/index.js';
-import { TranslatedText } from 'elements.js';
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateCrfDocuments    : (updateObj) => dispatch(updateCrfDocuments(updateObj)),
-        updateSupplementalDoc : (updateObj) => dispatch(updateSupplementalDoc(updateObj)),
+        updateLeafs: (updateObj) => dispatch(updateLeafs(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
 
     return {
-        annotatedCrf    : state.odm.study.metaDataVersion.annotatedCrf,
-        supplementalDoc : state.odm.study.metaDataVersion.supplementalDoc,
-        defineVersion   : state.odm.study.metaDataVersion.defineVersion,
-        model           : state.odm.study.metaDataVersion.model,
+        leafs         : state.odm.study.metaDataVersion.leafs,
+        defineVersion : state.odm.study.metaDataVersion.defineVersion,
+        documentTypes : state.stdConstants.documentTypes,
     };
 };
 
@@ -34,120 +30,59 @@ class ConnectedDocumentTable extends React.Component {
         super(props);
 
         this.state = {
-            annotatedCrfEdit    : false,
-            supplementalDocEdit : false,
+            documentEdit: false,
         };
     }
 
     handleChange = (name) => () => {
-        if (name === 'annotatedCrfEdit') {
-            this.setState({annotatedCrfEdit: true});
-        } else if (name === 'supplementalDocEdit') {
-            this.setState({supplementalDocEdit: true});
+        if (name === 'documentEdit') {
+            this.setState({documentEdit: true});
         }
     }
 
     save = (name) => (returnValue) => {
-        let updateObj = {};
-        if (name === 'metaDataVersion') {
-            // Check which properties changed;
-            if (this.props.mdvAttrs.name !== returnValue.name) {
-                updateObj.name = returnValue.name;
-            }
-            if (returnValue.description === '') {
-                updateObj.descriptions = [];
-            } else if (this.props.mdvAttrs.description !== returnValue.description) {
-                let newDescription = new TranslatedText({ value: returnValue.description, lang: this.props.lang });
-                updateObj.descriptions = [newDescription];
-            }
-
-            if (Object.keys(updateObj).length > 0) {
-                this.props.updateMetaDataVersion(updateObj);
-            }
-            this.setState({metaDataEdit: false});
-        } else if (name === 'globalVariables') {
-            // Check which properties changed;
-            for (let prop in returnValue) {
-                if (this.props.globalVariables[prop] !== returnValue[prop]) {
-                    updateObj[prop] = returnValue[prop];
+        if (name === 'documents') {
+            let oldLeafs = this.props.leafs;
+            let newLeafs = returnValue.leafs;
+            // Check which items were added;
+            let addedLeafs = {};
+            Object.keys(newLeafs).forEach( leafId => {
+                if (!oldLeafs.hasOwnProperty(leafId)) {
+                    addedLeafs[leafId] = newLeafs[leafId];
                 }
-            }
+            });
+            // Check which items were removed;
+            let removedLeafIds = [];
+            Object.keys(oldLeafs).forEach( leafId => {
+                if (!newLeafs.hasOwnProperty(leafId)) {
+                    removedLeafIds.push(leafId);
+                }
+            });
+            // Check which items were updated;
+            let updatedLeafs = [];
+            Object.keys(newLeafs).forEach( leafId => {
+                if (oldLeafs.hasOwnProperty(leafId) && !deepEqual(oldLeafs[leafId], newLeafs[leafId]) ) {
+                    updatedLeafs[leafId] = newLeafs[leafId];
+                }
+            });
 
-            if (Object.keys(updateObj).length > 0) {
-                this.props.updateGlobalVariables(updateObj);
-            }
-            this.setState({globalVariablesEdit: false});
-        } else if (name === 'controlledTerminology' || name === 'standard') {
-            let oldStandards = {};
-            if (name === 'controlledTerminology') {
-                Object.keys(this.props.standards).forEach(standardOid => {
-                    if (this.props.standards[standardOid].name === 'CDISC/NCI' && this.props.standards[standardOid].type === 'CT') {
-                        oldStandards[standardOid] = this.props.standards[standardOid];
-                    }
-                });
-            } else if (name === 'standard') {
-                Object.keys(this.props.standards).forEach(standardOid => {
-                    if (!(this.props.standards[standardOid].name === 'CDISC/NCI' && this.props.standards[standardOid].type === 'CT')) {
-                        oldStandards[standardOid] = this.props.standards[standardOid];
-                    }
+            if (Object.keys(updatedLeafs).length > 0
+                || Object.keys(addedLeafs).length > 0
+                || removedLeafIds.length > 0
+            ) {
+                this.props.updateLeafs({
+                    addedLeafs,
+                    removedLeafIds,
+                    updatedLeafs,
                 });
             }
-            let newStandards = returnValue.standards;
-            // Check which CT were added;
-            let addedStandards = {};
-            Object.keys(newStandards).forEach( stdOid => {
-                if (!oldStandards.hasOwnProperty(stdOid)) {
-                    addedStandards[stdOid] = newStandards[stdOid];
-                }
-            });
-            // Check which CT were removed;
-            let removedStandardOids = [];
-            Object.keys(oldStandards).forEach( stdOid => {
-                if (!newStandards.hasOwnProperty(stdOid)) {
-                    removedStandardOids.push(stdOid);
-                }
-            });
-            // Check which CT were updated;
-            let updatedStandards = [];
-            Object.keys(newStandards).forEach( stdOid => {
-                if (oldStandards.hasOwnProperty(stdOid) && !deepEqual(oldStandards[stdOid], newStandards[stdOid]) ) {
-                    updatedStandards[stdOid] = newStandards[stdOid];
-                }
-            });
-
-            if (name === 'controlledTerminology') {
-                if (Object.keys(updatedStandards).length > 0
-                    || Object.keys(addedStandards).length > 0
-                    || removedStandardOids.length > 0
-                ) {
-                    this.props.updateControlledTerminologies({
-                        addedStandards,
-                        removedStandardOids,
-                        updatedStandards,
-                    });
-                }
-                this.setState({controlledTerminologyEdit: false});
-            } else if (name === 'standard') {
-                if (Object.keys(updatedStandards).length > 0
-                    || Object.keys(addedStandards).length > 0
-                    || removedStandardOids.length > 0
-                ) {
-                    this.props.updatedStandards({
-                        addedStandards,
-                        removedStandardOids,
-                        updatedStandards,
-                    });
-                }
-                this.setState({standardEdit: false});
-            }
+            this.setState({documentEdit: false});
         }
     }
 
     cancel = (name) => () => {
-        if (name === 'annotatedCrfEdit') {
-            this.setState({annotatedCrfEdit: false});
-        } else if (name === 'supplementalDocEdit') {
-            this.setState({supplementalDocEdit: false});
+        if (name === 'documents') {
+            this.setState({documentEdit: false});
         }
     }
 
@@ -156,24 +91,18 @@ class ConnectedDocumentTable extends React.Component {
         return (
             <Grid container spacing={8}>
                 <Grid item xs={12}>
-                    {  this.state.supplementalDocEdit === true ? (
-                        /*
-                        <StandardEditor
-                            standards={this.props.standards}
-                            stdConstants={this.props.stdConstants}
-                            defineVersion={this.props.defineVersion}
-                            onSave={this.save('standard')}
-                            onCancel={this.cancel('standard')}
-                        />
-                        */
-                        <SupplementalDocFormatter
-                            supplementalDoc={this.props.supplementalDoc}
-                            onEdit={this.handleChange('supplementalDoc')}
+                    {  this.state.documentEdit === true ? (
+                        <DocumentTableEditor
+                            leafs={this.props.leafs}
+                            documentTypes={this.props.documentTypes}
+                            onSave={this.save('documents')}
+                            onCancel={this.cancel('documents')}
                         />
                     ) : (
-                        <SupplementalDocFormatter
-                            supplementalDoc={this.props.supplementalDoc}
-                            onEdit={this.handleChange('supplementalDoc')}
+                        <DocumentTableFormatter
+                            leafs={this.props.leafs}
+                            documentTypes={this.props.documentTypes}
+                            onEdit={this.handleChange('documentEdit')}
                         />
                     )
                     }
@@ -184,13 +113,9 @@ class ConnectedDocumentTable extends React.Component {
 }
 
 ConnectedDocumentTable.propTypes = {
-    globalVariables : PropTypes.object.isRequired,
-    standards       : PropTypes.object.isRequired,
-    comments        : PropTypes.object.isRequired,
-    mdvAttrs        : PropTypes.object.isRequired,
-    defineVersion   : PropTypes.string.isRequired,
-    stdConstants    : PropTypes.object.isRequired,
-    lang            : PropTypes.string.isRequired,
+    leafs         : PropTypes.object.isRequired,
+    documentTypes : PropTypes.object.isRequired,
+    defineVersion : PropTypes.string.isRequired,
 };
 
 const DocumentTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedDocumentTable);

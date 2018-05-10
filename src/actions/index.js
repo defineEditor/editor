@@ -26,6 +26,7 @@ import {
     DEL_CODEDVALUES,
     UPD_GLOBALVARS,
     UPD_MDV,
+    UPD_LEAFS,
 } from "constants/action-types";
 
 // Core actions
@@ -228,3 +229,11 @@ export const updatedStandards = (updateObj) => (
     }
 );
 
+// Documents
+
+export const updateLeafs = (updateObj) => (
+    {
+        type: UPD_LEAFS,
+        updateObj,
+    }
+);
