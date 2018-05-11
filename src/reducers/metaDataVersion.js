@@ -4,6 +4,8 @@ import comments from 'reducers/comments.js';
 import codeLists from 'reducers/codeLists.js';
 import methods from 'reducers/methods.js';
 import standards from 'reducers/standards.js';
+import supplementalDoc from 'reducers/supplementalDoc.js';
+import annotatedCrf from 'reducers/annotatedCrf.js';
 import leafs from 'reducers/leafs.js';
 import { MetaDataVersion } from 'elements.js';
 import {
@@ -22,13 +24,15 @@ const metaDataVersion = (state = initialState, action) => {
     } else if (action.type !== undefined) {
         return new MetaDataVersion({
             ...state,
-            standards  : standards(state.standards, action),
-            itemGroups : itemGroups(state.itemGroups, action),
-            itemDefs   : itemDefs(state.itemDefs, action),
-            methods    : methods(state.methods, action),
-            comments   : comments(state.comments, action),
-            codeLists  : codeLists(state.codeLists, action),
-            leafs      : leafs(state.leafs, action),
+            standards       : standards(state.standards, action),
+            annotatedCrf    : annotatedCrf(state.annotatedCrf, action),
+            supplementalDoc : supplementalDoc(state.supplementalDoc, action),
+            itemGroups      : itemGroups(state.itemGroups, action),
+            itemDefs        : itemDefs(state.itemDefs, action),
+            methods         : methods(state.methods, action),
+            comments        : comments(state.comments, action),
+            codeLists       : codeLists(state.codeLists, action),
+            leafs           : leafs(state.leafs, action),
         });
     } else {
         return state;
