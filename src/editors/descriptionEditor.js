@@ -88,8 +88,6 @@ class DescriptionEditor extends React.Component {
 DescriptionEditor.propTypes = {
     defaultValue    : PropTypes.object,
     leafs           : PropTypes.object.isRequired,
-    annotatedCrf    : PropTypes.object.isRequired,
-    supplementalDoc : PropTypes.object.isRequired,
     model           : PropTypes.string.isRequired,
 };
 

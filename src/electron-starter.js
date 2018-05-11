@@ -1,16 +1,27 @@
 const electron = require('electron');
 // Module to control application life.
 const app = electron.app;
+const Menu = electron.Menu;
+
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
+const createMenu = require('./menu/menu.js');
 
 const path = require('path');
 const url = require('url');
 const readXml = require('./utils/readXml.js');
+const createDefine = require('./core/createDefine.js');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+
+// Create Define-XML 
+function convertToDefineXml (error, odm) {
+    console.log('Received ODM object');
+    let defineXml = createDefine(odm, '2.0.0');
+    console.log(defineXml.length);
+}
 
 function createWindow () {
     // Create the browser window.
@@ -25,6 +36,8 @@ function createWindow () {
     mainWindow.loadURL(startUrl);
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
+    // Set the menu
+    Menu.setApplicationMenu(createMenu(mainWindow));
 
     // Emitted when the window is closed.
     mainWindow.on('closed', function () {
@@ -49,6 +62,9 @@ function createWindow () {
     xml.then(sendToRender('define'));
     codeListSdtm.then(sendToRender('stdCodeLists'));
     codeListAdam.then(sendToRender('stdCodeLists'));
+
+    // Add listener for Define-XML generation
+    mainWindow.webContents.on('DefineObject', convertToDefineXml);
 }
 
 // This method will be called when Electron has finished
