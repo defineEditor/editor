@@ -104,7 +104,7 @@ class WhereClauseEditorInteractive extends React.Component {
                         });
                     } else if (currentCodeList.getCodeListType() === 'enumerated') {
                         Object.keys(currentCodeList.enumeratedItems).forEach( itemOid => {
-                            let item = currentCodeList.codeListItems[itemOid];
+                            let item = currentCodeList.enumeratedItems[itemOid];
                             listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue});
                         });
                     }
@@ -141,11 +141,13 @@ class WhereClauseEditorInteractive extends React.Component {
             if (currentCodeList !== undefined) {
                 result[itemOid] = [];
                 if (currentCodeList.getCodeListType() === 'decoded') {
-                    currentCodeList.codeListItems.forEach( item => {
+                    Object.keys(currentCodeList.codeListItems).forEach( oid => {
+                        let item = currentCodeList.codeListItems[oid];
                         result[itemOid].push({[item.codedValue]: item.codedValue + ' (' + item.getDecode() + ')'});
                     });
                 } else {
-                    currentCodeList.enumeratedItems.forEach( item => {
+                    Object.keys(currentCodeList.enumeratedItems).forEach( oid => {
+                        let item = currentCodeList.enumeratedItems[oid];
                         result[itemOid].push({[item.codedValue]: item.codedValue});
                     });
                 }

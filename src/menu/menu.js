@@ -7,7 +7,9 @@ const createMenu = (mainWindow) => {
         {
             label: 'File',
             submenu: [
-                {label: 'Save As Define-XML 2.0',
+                {
+                    label: 'Save As Define-XML 2.0',
+                    accelerator: 'CmdOrCtrl+S',
                     click () { saveAs(mainWindow) }
                 },
                 {type: 'separator'},

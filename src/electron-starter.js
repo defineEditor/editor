@@ -3,6 +3,7 @@ const electron = require('electron');
 const app = electron.app;
 const Menu = electron.Menu;
 
+const ipcMain = electron.ipcMain;
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
 const createMenu = require('./menu/menu.js');
@@ -10,22 +11,16 @@ const createMenu = require('./menu/menu.js');
 const path = require('path');
 const url = require('url');
 const readXml = require('./utils/readXml.js');
-const createDefine = require('./core/createDefine.js');
+const saveAs = require('./main/saveAs.js');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
-// Create Define-XML 
-function convertToDefineXml (error, odm) {
-    console.log('Received ODM object');
-    let defineXml = createDefine(odm, '2.0.0');
-    console.log(defineXml.length);
-}
-
 function createWindow () {
     // Create the browser window.
     mainWindow = new BrowserWindow({fullscreen: true});
+    console.log('Starting render process');
 
     // and load the index.html of the app.
     const startUrl = process.env.ELECTRON_START_URL || url.format({
@@ -51,7 +46,7 @@ function createWindow () {
     let codeListSdtm = Promise.resolve(readXml('./../../data/SDTM Terminology.odm.xml'));
     let codeListAdam = Promise.resolve(readXml('./../../data/ADaM Terminology.odm.xml'));
 
-    function sendToRender (eventName) { 
+    function sendToRender (eventName) {
         return function (data) {
             mainWindow.webContents.on('did-finish-load', () => {
                 mainWindow.webContents.send(eventName, data);
@@ -63,9 +58,12 @@ function createWindow () {
     codeListSdtm.then(sendToRender('stdCodeLists'));
     codeListAdam.then(sendToRender('stdCodeLists'));
 
-    // Add listener for Define-XML generation
-    mainWindow.webContents.on('DefineObject', convertToDefineXml);
 }
+
+// Add listener for Define-XML generation
+ipcMain.on('DefineObject', (event, odm) => {
+    saveAs(mainWindow, odm);
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

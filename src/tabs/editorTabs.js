@@ -11,8 +11,6 @@ import CodedValueTable from 'tabs/codedValueTab.js';
 import DocumentTab from 'tabs/documentTab.js';
 import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme, withStyles } from 'material-ui/styles';
-import getItemGroupOrder from 'utils/getItemGroupOrder.js';
-//import Grid from 'material-ui/Grid';
 
 const theme = createMuiTheme({
     palette: {
@@ -85,7 +83,7 @@ class ConnectedEditorTabs extends React.Component {
         let datasets = [];
         // Sort datasets according to the orderNumber
         const mdv = this.props.odm.study.metaDataVersion;
-        getItemGroupOrder(mdv.itemGroups).forEach((itemGroupOid, index) => {
+        mdv.itemGroupOrder.forEach((itemGroupOid, index) => {
             datasets[index] = itemGroupOid;
         });
         let result = datasets.map(itemGroupOid => {

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import '../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import renderColumns from 'utils/renderColumns.js';
-import getItemGroupOrder from 'utils/getItemGroupOrder.js';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import React from 'react';
@@ -51,10 +50,11 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        itemGroups : state.odm.study.metaDataVersion.itemGroups,
-        itemDefs   : state.odm.study.metaDataVersion.itemDefs,
-        comments   : state.odm.study.metaDataVersion.comments,
-        leafs      : state.odm.study.metaDataVersion.leafs,
+        itemGroups     : state.odm.study.metaDataVersion.itemGroups,
+        itemGroupOrder : state.odm.study.metaDataVersion.itemGroupOrder,
+        itemDefs       : state.odm.study.metaDataVersion.itemDefs,
+        comments       : state.odm.study.metaDataVersion.comments,
+        leafs          : state.odm.study.metaDataVersion.leafs,
     };
 };
 
@@ -197,7 +197,7 @@ class ConnectedDatasetTable extends React.Component {
     render () {
         let datasets = [];
         // Extract data required for the dataset table
-        getItemGroupOrder(this.props.itemGroups).forEach((itemGroupOid, index) => {
+        this.props.itemGroupOrder.forEach((itemGroupOid, index) => {
             const originDs = this.props.itemGroups[itemGroupOid];
             let currentDs = {
                 oid           : originDs.oid,

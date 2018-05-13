@@ -200,7 +200,7 @@ function getTableData ({source, datasetName, itemDefs, codeLists, mdv, defineVer
         currentVar.nameLabelWhereClause = {
             name         : originItemDef.name,
             descriptions : originItemDef.descriptions,
-            whereClause  : originVar.whereClause,
+            whereClause  : originVar.whereClauseOid !== undefined ? mdv.whereClauses[originVar.whereClauseOid] : undefined,
         };
         if (originVar.whereClause !== undefined) {
             // VLM itemRef

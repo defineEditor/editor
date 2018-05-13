@@ -516,7 +516,8 @@ class MetaDataVersion extends BasicFunctions {
         lang = 'en',
         annotatedCrf = {},
         supplementalDoc = {},
-        descriptions = []
+        descriptions = [],
+        itemGroupOrder = [],
     } = {}) {
         super();
         this.oid = oid || getOid(this.constructor.name);
@@ -537,6 +538,7 @@ class MetaDataVersion extends BasicFunctions {
         this.comments = comments;
         this.leafs = leafs;
         // Non-define XML properties
+        this.itemGroupOrder = itemGroupOrder;
         this.model = model;
         this.lang = lang;
     }
@@ -732,7 +734,7 @@ class ItemDef extends BasicFunctions {
 
 class ItemRef {
     constructor ({
-        mandatory, methodOid, oid, role, roleCodeList, itemOid, isNotStandatd, whereClause
+        mandatory, methodOid, oid, role, roleCodeList, itemOid, isNotStandatd, whereClauseOid
     } = {}) {
         this.mandatory = mandatory;
         this.methodOid = methodOid;
@@ -740,7 +742,7 @@ class ItemRef {
         this.role = role;
         this.roleCodeList = roleCodeList;
         this.itemOid = itemOid;
-        this.whereClause = whereClause;
+        this.whereClauseOid = whereClauseOid;
         // Non-define XML properties
         this.oid = oid;
     }

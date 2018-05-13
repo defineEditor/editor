@@ -63,7 +63,7 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
         }
 
         let wcComment;
-        if (this.props.defaultValue.whereClause !== undefined) {
+        if (this.props.defaultValue.whereClause !== undefined && this.props.defaultValue.whereClause.commentOid !== undefined) {
             wcComment = this.props.mdv.comments[this.props.defaultValue.whereClause.commentOid];
         }
 

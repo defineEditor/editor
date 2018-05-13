@@ -23,7 +23,7 @@ function createDefine (data, version) {
         newline          : '\n',
         spacebeforeslash : ''
     });
-    console.log(result);
+    return result;
 }
 
 function createOdm (data, version) {
@@ -38,7 +38,7 @@ function createOdm (data, version) {
             'odmVersion'          : data.odmVersion,
             'FileType'            : data.fileType,
             'FileOID'             : data.fileOid,
-            'CreationDateTime'    : new Date().toISOString(),
+            'CreationDateTime'    : new Date().toISOString().replace(/(.*)\..*/,'$1'),
             'AsOfDateTime'        : data.asOfDateTime,
             'Originator'          : data.originator,
             'SourceSystem'        : data.sourceSystem,
@@ -114,9 +114,9 @@ function createMetaDataVersion (data, version) {
         }
         // SupplementalDoc
         if (Object.keys(data.supplementalDoc).length !== 0) {
-            let supplementalDoc = {'SupplementalDoc': {'def:DocumentRef': []}};
+            let supplementalDoc = {'def:SupplementalDoc': {'def:DocumentRef': []}};
             Object.keys(data.supplementalDoc).forEach(function (documentOid) {
-                supplementalDoc['SupplementalDoc']['def:DocumentRef'].push(createDocumentRef(data.supplementalDoc[documentOid], version));
+                supplementalDoc['def:SupplementalDoc']['def:DocumentRef'].push(createDocumentRef(data.supplementalDoc[documentOid], version));
             });
             xmlRoot.ele(supplementalDoc);
         }
@@ -136,7 +136,7 @@ function createMetaDataVersion (data, version) {
         }
         // ItemGroupDef
         let itemGroupDefs = {'ItemGroupDef': []};
-        Object.keys(data.itemGroups).forEach(function (itemGroupOid) {
+        data.itemGroupOrder.forEach(function (itemGroupOid) {
             itemGroupDefs['ItemGroupDef'].push(createItemGroupDef(data.itemGroups[itemGroupOid], version));
         });
         xmlRoot.ele(itemGroupDefs);
@@ -214,7 +214,7 @@ function createDocumentRef (data, version) {
     let result = {};
     if (version === '2.0.0') {
         let attributes = {
-            leafId: data.leafId
+            leafID: data.leafId
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -225,13 +225,14 @@ function createDocumentRef (data, version) {
             // Create PDFPageDef element
             result['def:PDFPageRef'] = [];
             data.pdfPageRefs.forEach(function (pdfPageRef) {
-                let pdfPageRefObj = {
-                    '@Type'      : pdfPageRef.type,
-                    '@PageRefs'  : pdfPageRef.pageRefs,
-                    '@FirstPage' : pdfPageRef.firstPage,
-                    '@LastPage'  : pdfPageRef.lastPage,
-                    '@Title'     : pdfPageRef.title
-                };
+                let pdfPageRefObj = {};
+                for (let pdfPageAttr in pdfPageRef) {
+                    if (pdfPageRef[pdfPageAttr] !== undefined) {
+                        // Capitalize first letter of an attribute
+                        let uccPdfPageAttr = pdfPageAttr.charAt(0).toUpperCase() + pdfPageAttr.substr(1); 
+                        pdfPageRefObj['@' + uccPdfPageAttr] = pdfPageRef[pdfPageAttr];
+                    }
+                }
                 result['def:PDFPageRef'].push(pdfPageRefObj);
             });
         }
@@ -256,9 +257,9 @@ function createValueListDef (data, version) {
         data.itemRefOrder.forEach(function (itemRefOid, index) {
             // Set the order and key sequence number
             let itemRef = Object.assign({}, data.itemRefs[itemRefOid]);
-            itemRef.orderNumber = index;
-            if (data.keySequence.includes(itemRefOid)) {
-                itemRef.keySequence = data.keySequence.indexOf(itemRefOid) + 1;
+            itemRef.orderNumber = index + 1;
+            if (data.keyOrder.includes(itemRefOid)) {
+                itemRef.keySequence = data.keyOrder.indexOf(itemRefOid) + 1;
             }
             result['ItemRef'].push(createItemRef(itemRef, version));
         });
@@ -275,7 +276,7 @@ function createItemRef (data, version) {
             'OrderNumber'     : data.orderNumber,
             'Mandatory'       : data.mandatory,
             'KeySequence'     : data.keySequence,
-            'MethodOid'       : data.methodOid,
+            'MethodOID'       : data.methodOid,
             'Role'            : data.role,
             'RoleCodeListOID' : data.roleCodeList
         };
@@ -285,8 +286,8 @@ function createItemRef (data, version) {
             }
         }
         // Add WhereClauseRef
-        if (data.whereClause !== undefined) {
-            result['def:WhereClauseRef'] = {'@WhereClauseOID': data.whereClause.oid};
+        if (data.whereClauseOid !== undefined) {
+            result['def:WhereClauseRef'] = {'@WhereClauseOID': data.whereClauseOid};
         }
     }
 
@@ -299,7 +300,7 @@ function createWhereClauseDef (data, version) {
         let attributes = {
             'OID': data.oid
         };
-        if (data.comment !== undefined) {
+        if (data.commentOid !== undefined) {
             Object.assign(attributes, {'def:CommentOID': data.commentOid});
         }
         for (let attr in attributes) {
@@ -311,10 +312,10 @@ function createWhereClauseDef (data, version) {
         result['RangeCheck'] = [];
         data.rangeChecks.forEach(function (rangeCheck) {
             let rangeCheckObj = {
-                '@Comparator' : rangeCheck.comparator,
-                '@SoftHard'   : rangeCheck.softHard,
-                '@ItemOID'    : rangeCheck.itemOid,
-                'CheckValue'  : []
+                '@Comparator'  : rangeCheck.comparator,
+                '@SoftHard'    : rangeCheck.softHard,
+                '@def:ItemOID' : rangeCheck.itemOid,
+                'CheckValue'   : []
             };
             // Add check values
             rangeCheck.checkValues.forEach(function (checkValue) {
@@ -339,12 +340,12 @@ function createItemGroupDef (data, version) {
             'Domain'                : data.domain,
             'Purpose'               : data.purpose,
             'def:Structure'         : data.structure,
-            'def:Class'             : data.class,
+            'def:Class'             : data.datasetClass,
             'def:ArchiveLocationID' : data.archiveLocationId,
             'def:CommentOID'        : data.commentOid,
         };
         if (data.archiveLocation !== undefined) {
-            Object.assign(attributes, {'def:ArchiveLocationID': data.archiveLocation.id});
+            Object.assign(attributes, {'def:ArchiveLocationID': data.archiveLocationId});
         }
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -363,16 +364,10 @@ function createItemGroupDef (data, version) {
         data.itemRefOrder.forEach(function (itemRefOid, index) {
             // Set the order and key sequence number
             let itemRef = Object.assign({}, data.itemRefs[itemRefOid]);
-            itemRef.orderNumber = index;
-            if (data.keySequence.includes(itemRefOid)) {
-                itemRef.keySequence = data.keySequence.indexOf(itemRefOid) + 1;
+            itemRef.orderNumber = index + 1;
+            if (data.keyOrder.includes(itemRefOid)) {
+                itemRef.keySequence = data.keyOrder.indexOf(itemRefOid) + 1;
             }
-            result['ItemRef'].push(createItemRef(itemRef, version));
-        });
-        data.keyOrder.forEach(function (itemRefOid, index) {
-            // Set the key sequence
-            let itemRef = Object.assign({}, data.itemRefs[itemRefOid]);
-            itemRef.orderNumber = index;
             result['ItemRef'].push(createItemRef(itemRef, version));
         });
         // Add alias
@@ -450,7 +445,7 @@ function createItemDef (data, version) {
             'SASFieldName'      : data.fieldName,
             'def:DisplayFormat' : data.displayFormat
         };
-        if (data.comment !== undefined) {
+        if (data.commentOid !== undefined) {
             Object.assign(attributes, {'def:CommentOID': data.commentOid});
         }
         for (let attr in attributes) {
@@ -466,7 +461,7 @@ function createItemDef (data, version) {
             });
         }
         // Add CodelistRef
-        if (data.codeList !== undefined) {
+        if (data.codeListOid !== undefined) {
             result['CodeListRef'] = {'@CodeListOID': data.codeListOid};
         }
         // Add Origin
@@ -475,8 +470,8 @@ function createItemDef (data, version) {
             result['def:Origin'] = createOrigin(data.origins[0], version);
         }
         // Add ValueListRef
-        if (data.valueList !== undefined) {
-            result['ValueListRef'] = {'@ValueListOID': data.valueList.oid};
+        if (data.valueListOid !== undefined) {
+            result['def:ValueListRef'] = {'@ValueListOID': data.valueListOid};
         }
     }
 
@@ -530,14 +525,14 @@ function createCodeList (data, version) {
         // Add EnumeratedItem
         if (data.enumeratedItems !== undefined) {
             result['EnumeratedItem'] = [];
-            Object.keys(data.enumeratedItems).forEach(function (enumeratedItemOid) {
+            data.itemOrder.forEach(function (enumeratedItemOid) {
                 result['EnumeratedItem'].push(createEnumeratedItem(data.enumeratedItems[enumeratedItemOid], version));
             });
         }
         // Add CodeListItem
         if (data.codeListItems !== undefined) {
             result['CodeListItem'] = [];
-            Object.keys(data.codeListItems).forEach(function (codeListItemOid) {
+            data.itemOrder.forEach(function (codeListItemOid) {
                 result['CodeListItem'].push(createCodeListItem(data.codeListItems[codeListItemOid], version));
             });
         }

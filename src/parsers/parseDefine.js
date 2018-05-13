@@ -134,7 +134,7 @@ function parseDocument (doc) {
         });
     }
 
-    return new def.Document(args);
+    return document;
 }
 
 function parseDocumentCollection (documentsRaw) {
@@ -295,8 +295,8 @@ function parseCodelists (codeListsRaw, mdv) {
                     });
                     let oid = codeList.addCodeListItem(codeListItem);
 
-                    if (item['$']['orderNumber'] >= 1) {
-                        itemOrderRaw[oid] = item['$']['orderNumber'];
+                    if (Number(item['$']['orderNumber']) >= 1) {
+                        itemOrderRaw[oid] = Number(item['$']['orderNumber']);
                     } else {
                         itemOrderRaw[oid] = -1 / index;
                     }
@@ -310,8 +310,8 @@ function parseCodelists (codeListsRaw, mdv) {
                     }
                     let oid = codeList.addEnumeratedItem(enumeratedItem);
 
-                    if (item['$']['orderNumber'] >= 1) {
-                        itemOrderRaw[oid] = item['$']['orderNumber'];
+                    if (Number(item['$']['orderNumber']) >= 1) {
+                        itemOrderRaw[oid] = Number(item['$']['orderNumber']);
                     } else {
                         itemOrderRaw[oid] = -1 / (index+1);
                     }
@@ -475,7 +475,7 @@ function parseItemRef (itemRefRaw, oid, mdv) {
         delete args['roleCodeListOid'];
     }
     if (itemRefRaw.hasOwnProperty('whereClauseRef')) {
-        args.whereClause = mdv.whereClauses[itemRefRaw['whereClauseRef'][0]['$']['whereClauseOid']];
+        args.whereClauseOid = itemRefRaw['whereClauseRef'][0]['$']['whereClauseOid'];
     }
 
     return new def.ItemRef(args);
@@ -511,8 +511,14 @@ function parseItemGroups (itemGroupsRaw, mdv) {
         itemGroupRaw['itemRef'].forEach(function (item) {
             let oid = getOid('ItemRef', undefined, Object.keys(itemRefs));
             itemRefs[oid] = parseItemRef(item, oid, mdv);
-            itemRefs[oid].orderNumber = item['$']['orderNumber'];
-            itemRefs[oid].keySequence = item['$']['keySequence'];
+            if ( item['$']['orderNumber'] ) {
+                itemRefs[oid].orderNumber = Number(item['$']['orderNumber']);
+            } else {
+                itemRefs[oid].orderNumber = -1 / index;
+            }
+            if ( item['$']['keySequence'] ) {
+                itemRefs[oid].keySequence = Number(item['$']['keySequence']);
+            }
         });
         // Comparing to Define-XML structure, order of itemRefs is stored in an array of IDs
         let itemRefOrder = Object.keys(itemRefs).sort( (itemRefOid1, itemRefOid2) => {
@@ -562,11 +568,17 @@ function parseValueLists (valueListsRaw, mdv) {
         let args = valueListRaw['$'];
         // ItemRefs are stored as an object instead of an array
         let itemRefs = {};
-        valueListRaw['itemRef'].forEach(function (item) {
+        valueListRaw['itemRef'].forEach(function (item, index) {
             let oid = getOid('ItemRef', undefined, Object.keys(itemRefs));
             itemRefs[oid] = parseItemRef(item, oid, mdv);
-            itemRefs[oid].orderNumber = item['$']['orderNumber'];
-            itemRefs[oid].keySequence = item['$']['keySequence'];
+            if ( item['$']['orderNumber'] ) {
+                itemRefs[oid].orderNumber = Number(item['$']['orderNumber']);
+            } else {
+                itemRefs[oid].orderNumber = -1 / index;
+            }
+            if ( item['$']['keySequence'] ) {
+                itemRefs[oid].keySequence = Number(item['$']['keySequence']);
+            }
         });
         // Comparing to Define-XML structure, order of itemRefs is stored in an array of IDs
         let itemRefOrder = Object.keys(itemRefs).sort( (itemRefOid1, itemRefOid2) => {
@@ -628,6 +640,8 @@ function parseMetaDataVersion (metadataRaw) {
     mdv.leafs = parseLeafs(metadataRaw['leaf'], mdv);
     mdv.valueLists = parseValueLists(metadataRaw['valueListDef'], mdv);
     mdv.itemGroups = parseItemGroups(metadataRaw['itemGroupDef'], mdv);
+    // Add itemGroupOrder - no part of Define, but is required to properly sort the datasets;
+    mdv.itemGroupOrder = Object.keys(mdv.itemGroups);
 
     mdv.itemDefs = parseItemDefs(metadataRaw['itemDef'], mdv);
     // Connect ItemDefs to VLM
@@ -660,7 +674,8 @@ function parseMetaDataVersion (metadataRaw) {
         codeLists       : mdv.codelists,
         methods         : mdv.methods,
         comments        : mdv.comments,
-        leafs           : mdv.leafs
+        leafs           : mdv.leafs,
+        itemGroupOrder  : mdv.itemGroupOrder,
     };
 
     // Obtain CDISC model of the study from the default standard
@@ -681,10 +696,8 @@ function parseMetaDataVersion (metadataRaw) {
 
     let metaDataVersion = new def.MetaDataVersion(args);
 
-    if (metadataRaw.hasOwnProperty('description')) {
-        metadataRaw['description'].forEach(function (item) {
-            metaDataVersion.addDescription(parseTranslatedText(item));
-        });
+    if (metadataRaw['$'].hasOwnProperty('description')) {
+        metaDataVersion.addDescription(new def.TranslatedText({value: metadataRaw['$'].description}));
     }
 
     return metaDataVersion;

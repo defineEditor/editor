@@ -15,10 +15,9 @@ window.require('electron-react-devtools').install();
 window.require('electron-redux-devtools').install();
 
 const sendDefineObject = (error, data) => {
-    console.log('received request');
     let odm = store.getState().odm;
     ipcRenderer.send('DefineObject', odm);
-}
+};
 
 ipcRenderer.on('sendDefineObjectToMain', sendDefineObject);
 

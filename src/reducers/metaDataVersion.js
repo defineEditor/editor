@@ -1,4 +1,5 @@
 import itemGroups from 'reducers/itemGroups.js';
+import itemGroupOrder from 'reducers/itemGroupOrder.js';
 import itemDefs from 'reducers/itemDefs.js';
 import comments from 'reducers/comments.js';
 import codeLists from 'reducers/codeLists.js';
@@ -28,6 +29,7 @@ const metaDataVersion = (state = initialState, action) => {
             annotatedCrf    : annotatedCrf(state.annotatedCrf, action),
             supplementalDoc : supplementalDoc(state.supplementalDoc, action),
             itemGroups      : itemGroups(state.itemGroups, action),
+            itemGroupOrder  : itemGroupOrder(state.itemGroupOrder, action),
             itemDefs        : itemDefs(state.itemDefs, action),
             methods         : methods(state.methods, action),
             comments        : comments(state.comments, action),
