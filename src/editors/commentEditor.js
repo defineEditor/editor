@@ -28,10 +28,8 @@ const styles = theme => ({
 
 const mapStateToProps = state => {
     return {
-        leafs           : state.odm.study.metaDataVersion.leafs,
-        annotatedCrf    : state.odm.study.metaDataVersion.annotatedCrf,
-        supplementalDoc : state.odm.study.metaDataVersion.supplementalDoc,
-        comments        : state.odm.study.metaDataVersion.comments,
+        leafs    : state.odm.study.metaDataVersion.leafs,
+        comments : state.odm.study.metaDataVersion.comments,
     };
 };
 
@@ -141,8 +139,6 @@ class ConnectedCommentEditor extends React.Component {
                                 parentObj={comment}
                                 handleChange={this.handleChange('updateDocument')}
                                 leafs={this.props.leafs}
-                                annotatedCrf={this.props.annotatedCrf}
-                                supplementalDoc={this.props.supplementalDoc}
                             />
                         </Grid>
                 }
@@ -163,12 +159,10 @@ ConnectedCommentEditor.propTypes = {
         PropTypes.instanceOf(Comment),
         PropTypes.oneOf([""]),
     ]),
-    leafs           : PropTypes.object.isRequired,
-    annotatedCrf    : PropTypes.object.isRequired,
-    supplementalDoc : PropTypes.object.isRequired,
-    onUpdate        : PropTypes.func,
-    autoFocus       : PropTypes.bool,
-    stateless       : PropTypes.bool,
+    leafs     : PropTypes.object.isRequired,
+    onUpdate  : PropTypes.func,
+    autoFocus : PropTypes.bool,
+    stateless : PropTypes.bool,
 };
 
 const CommentEditor = connect(mapStateToProps)(ConnectedCommentEditor);

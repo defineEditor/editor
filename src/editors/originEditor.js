@@ -211,8 +211,6 @@ class OriginEditor extends React.Component {
                                         parentObj={origin}
                                         handleChange={this.handleChange('updateDocument',0)}
                                         leafs={this.props.leafs}
-                                        annotatedCrf={this.props.annotatedCrf}
-                                        supplementalDoc={this.props.supplementalDoc}
                                     />
                                 </React.Fragment>
                             </Grid>
@@ -224,11 +222,9 @@ class OriginEditor extends React.Component {
 }
 
 OriginEditor.propTypes = {
-    defaultValue    : PropTypes.array.isRequired,
-    leafs           : PropTypes.object.isRequired,
-    annotatedCrf    : PropTypes.object.isRequired,
-    supplementalDoc : PropTypes.object.isRequired,
-    onUpdate        : PropTypes.func
+    defaultValue : PropTypes.array.isRequired,
+    leafs        : PropTypes.object.isRequired,
+    onUpdate     : PropTypes.func
 };
 
 export default withStyles(styles)(OriginEditor);

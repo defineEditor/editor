@@ -1,6 +1,7 @@
 import {
     UPD_ITEMGROUP,
     ADD_ITEMGROUP,
+    DEL_ITEMGROUPS,
     ADD_ITEMGROUPCOMMENT,
     DEL_ITEMGROUPCOMMENT,
     UPD_ITEMREF,
@@ -14,6 +15,16 @@ import getOid from 'utils/getOid.js';
 
 const addItemGroup = (state, action) => {
     return { ...state, [action.itemGroup.oid]: action.itemGroup };
+};
+
+const deleteItemGroups = (state, action) => {
+    // action.deleteObj.itemGroupOids - oids to remove;
+    let newState = { ...state };
+    action.deleteObj.itemGroupOids.forEach( itemGroupOid => {
+        delete newState[itemGroupOid];
+    });
+
+    return newState;
 };
 
 const updateItemGroup = (state, action) => {
@@ -79,6 +90,7 @@ const deleteItemGroupComment = (state, action) => {
     let newItemGroup = new ItemGroup({ ...state[action.source.oid], commentOid: undefined });
     return { ...state, [action.source.oid]: newItemGroup };
 };
+
 
 const updateItemRef = (state, action) => {
     let newItemRef = new ItemRef({ ...state[action.source.itemGroupOid].itemRefs[action.source.itemRefOid], ...action.updateObj });
@@ -210,6 +222,8 @@ const itemGroups = (state = {}, action) => {
             return updateItemGroup(state, action);
         case ADD_ITEMGROUP:
             return addItemGroup(state, action);
+        case DEL_ITEMGROUPS:
+            return deleteItemGroups(state, action);
         case ADD_ITEMGROUPCOMMENT:
             return addItemGroupComment(state, action);
         case DEL_ITEMGROUPCOMMENT:

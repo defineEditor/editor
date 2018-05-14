@@ -1,4 +1,4 @@
-const saveAs = require('../menu/saveAs.js')
+const openDefineXml = require('../main/openDefineXml.js');
 const { Menu } = require('electron');
 
 const createMenu = (mainWindow) => {
@@ -8,9 +8,14 @@ const createMenu = (mainWindow) => {
             label: 'File',
             submenu: [
                 {
+                    label: 'Open Define-XML',
+                    accelerator: 'CmdOrCtrl+O',
+                    click () { openDefineXml(mainWindow) }
+                },
+                {
                     label: 'Save As Define-XML 2.0',
                     accelerator: 'CmdOrCtrl+S',
-                    click () { saveAs(mainWindow) }
+                    click () { mainWindow.webContents.send('SendDefineObjectToMain') }
                 },
                 {type: 'separator'},
                 {role: 'quit'},

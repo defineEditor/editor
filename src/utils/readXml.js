@@ -1,11 +1,10 @@
 'use strict';
 const fs = require('fs');
 const xml2js = require('xml2js');
-const path = require('path');
 
 function readXml (pathToXml) {
     return new Promise(function (resolve, reject) {
-        fs.readFile(path.join(__dirname, pathToXml), function (err, xmlData) {
+        fs.readFile(pathToXml, function (err, xmlData) {
             if (err !== null) {
                 return reject(err);
             }

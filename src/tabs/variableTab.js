@@ -682,11 +682,9 @@ class ConnectedVariableTable extends React.Component {
                 customEditor : {
                     getElement             : descriptionEditor,
                     customEditorParameters : {
-                        leafs           : mdv.leafs,
-                        supplementalDoc : mdv.supplementalDoc,
-                        annotatedCrf    : mdv.annotatedCrf,
-                        model           : mdv.model,
-                        defineVersion   : this.props.defineVersion,
+                        leafs         : mdv.leafs,
+                        model         : mdv.model,
+                        defineVersion : this.props.defineVersion,
                     }
                 },
             },

@@ -10,12 +10,19 @@ import indigo from 'material-ui/colors/indigo';
 import grey from 'material-ui/colors/grey';
 import CommentEditor from 'editors/commentEditor.js';
 import AddDatasetEditor from 'editors/addDatasetEditor.js';
+import DatasetOrderEditor from 'editors/datasetOrderEditor.js';
 import LeafEditor from 'editors/leafEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import DatasetFlagsEditor from 'editors/datasetFlagsEditor.js';
 import DatasetFlagsFormatter from 'formatters/datasetFlagsFormatter.js';
-import { updateItemGroup, updateItemGroupComment, addItemGroupComment, deleteItemGroupComment } from 'actions/index.js';
+import {
+    updateItemGroup,
+    updateItemGroupComment,
+    addItemGroupComment,
+    deleteItemGroupComment,
+    deleteItemGroups,
+} from 'actions/index.js';
 
 // Selector constants
 const classTypes = [
@@ -45,6 +52,7 @@ const mapDispatchToProps = dispatch => {
         addItemGroupComment    : (source, comment) => dispatch(addItemGroupComment(source, comment)),
         updateItemGroupComment : (source, comment) => dispatch(updateItemGroupComment(source, comment)),
         deleteItemGroupComment : (source, comment) => dispatch(deleteItemGroupComment(source, comment)),
+        deleteItemGroups       : (deleteObj) => dispatch(deleteItemGroups(deleteObj)),
     };
 };
 
@@ -109,6 +117,13 @@ function datasetClassFormatter (cell, row) {
 }
 
 class ConnectedDatasetTable extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            selectedRows: [],
+        };
+    }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
         // Update on if the value changed
@@ -164,6 +179,9 @@ class ConnectedDatasetTable extends React.Component {
                     <Grid item>
                         { props.deleteBtn }
                     </Grid>
+                    <Grid item>
+                        <DatasetOrderEditor/>
+                    </Grid>
                 </Grid>
             </ButtonGroup>
         );
@@ -190,8 +208,59 @@ class ConnectedDatasetTable extends React.Component {
 
     createCustomDeleteButton = (onBtnClick) => {
         return (
-            <Button color='secondary' mini onClick={onBtnClick} variant='raised'>Delete</Button>
+            <Button color='secondary' mini onClick={this.deleteRows} variant='raised'>Delete</Button>
         );
+    }
+
+    deleteRows = () => {
+        let itemGroups = this.props.itemGroups;
+        let itemGroupOids = this.state.selectedRows;
+        // Form an object of comments to remove {commentOid: [itemOid1, itemOid2, ...]}
+        let commentOids = {};
+        itemGroupOids.forEach( itemGroupOid => {
+            let commentOid = itemGroups[itemGroupOid].commentOid;
+            if (commentOid !== undefined) {
+                if (commentOids[commentOid] === undefined) {
+                    commentOids[commentOid] = [];
+                }
+                if (!commentOids[commentOid].includes[itemGroupOid]) {
+                    commentOids[commentOid].push(itemGroupOid);
+                }
+            }
+        });
+        const deleteObj = { itemGroupOids, commentOids };
+        this.props.deleteItemGroups(deleteObj);
+    }
+
+    // Row Selection functions
+    onRowSelected = (row, isSelected, event) => {
+        let selectedRows = this.state.selectedRows;
+        if (isSelected === true) {
+            // If the item is going to be selected;
+            if (!selectedRows.includes(row.oid)) {
+                selectedRows.push(row.oid);
+            }
+        } else {
+            // If the item is going to be removed;
+            if (selectedRows.includes(row.oid)) {
+                selectedRows.splice(selectedRows.indexOf(row.oid),1);
+            }
+        }
+        this.setState({selectedRows});
+        return true;
+    }
+
+    onAllRowSelected = (isSelected, rows, event) => {
+        let selectedRows;
+        if (isSelected === true) {
+            // If all rows are going to be selected;
+            selectedRows = rows
+                .map( row => (row.oid));
+        } else {
+            selectedRows = [];
+        }
+        this.setState({selectedRows});
+        return true;
     }
 
     render () {
@@ -232,7 +301,9 @@ class ConnectedDatasetTable extends React.Component {
         };
 
         const selectRowProp = {
-            mode: 'checkbox'
+            mode        : 'checkbox',
+            onSelect    : this.onRowSelected,
+            onSelectAll : this.onAllRowSelected,
         };
 
         const options = {

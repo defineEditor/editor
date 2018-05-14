@@ -4,6 +4,7 @@ import {
     UPD_ITEMGROUPCOMMENT,
     UPD_ITEMDESCRIPTION,
     DEL_VARS,
+    DEL_ITEMGROUPS,
 } from "constants/action-types";
 import { Comment } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -96,15 +97,15 @@ const handleItemDescriptionUpdate = (state, action) => {
     }
 };
 
-const deleteVariableComments = (state, action) => {
-    // DeleteObj.commentOids contains:
+const deleteCommentRefereces = (state, action, type) => {
+    // action.deleteObj.commentOids contains:
     // {commentOid1: [itemOid1, itemOid2], commentOid2: [itemOid3, itemOid1]}
     let newState = { ...state };
     Object.keys(action.deleteObj.commentOids).forEach( commentOid => {
         action.deleteObj.commentOids[commentOid].forEach(itemOid => {
             let subAction = {};
             subAction.comment = newState[commentOid];
-            subAction.source ={ type: 'itemDefs', oid: itemOid };
+            subAction.source ={ type, oid: itemOid };
             newState = deleteComment(newState, subAction);
         });
     });
@@ -121,8 +122,10 @@ const comments = (state = {}, action) => {
             return handleItemDescriptionUpdate(state, action);
         case DEL_ITEMGROUPCOMMENT:
             return deleteComment(state, action);
+        case DEL_ITEMGROUPS:
+            return deleteCommentRefereces(state, action, 'itemGroups');
         case DEL_VARS:
-            return deleteVariableComments(state, action);
+            return deleteCommentRefereces(state, action, 'itemDefs');
         default:
             return state;
     }

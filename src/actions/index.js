@@ -7,6 +7,7 @@ import {
     UPD_STD,
     UPD_ITEMGROUP,
     ADD_ITEMGROUP,
+    DEL_ITEMGROUPS,
     ADD_ITEMGROUPCOMMENT,
     DEL_ITEMGROUPCOMMENT,
     UPD_ITEMGROUPCOMMENT,
@@ -55,6 +56,13 @@ export const addItemGroup = (itemGroup) => (
     {
         type      : ADD_ITEMGROUP,
         itemGroup : itemGroup,
+    }
+);
+
+export const deleteItemGroups = (deleteObj) => (
+    {
+        type: DEL_ITEMGROUPS,
+        deleteObj,
     }
 );
 

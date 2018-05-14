@@ -42,10 +42,8 @@ const styles = theme => ({
 
 const mapStateToProps = state => {
     return {
-        leafs           : state.odm.study.metaDataVersion.leafs,
-        annotatedCrf    : state.odm.study.metaDataVersion.annotatedCrf,
-        supplementalDoc : state.odm.study.metaDataVersion.supplementalDoc,
-        methods         : state.odm.study.metaDataVersion.methods,
+        leafs   : state.odm.study.metaDataVersion.leafs,
+        methods : state.odm.study.metaDataVersion.methods,
     };
 };
 
@@ -281,8 +279,6 @@ class ConnectedMethodEditor extends React.Component {
                                         parentObj={method}
                                         handleChange={this.handleChange('updateDocument')}
                                         leafs={this.props.leafs}
-                                        annotatedCrf={this.props.annotatedCrf}
-                                        supplementalDoc={this.props.supplementalDoc}
                                     />
                                 </Grid>
                                 {formalExpressionExists === true &&
@@ -313,12 +309,10 @@ ConnectedMethodEditor.propTypes = {
         PropTypes.instanceOf(Method),
         PropTypes.oneOf([""]),
     ]),
-    leafs           : PropTypes.object.isRequired,
-    methods         : PropTypes.object.isRequired,
-    annotatedCrf    : PropTypes.array.isRequired,
-    supplementalDoc : PropTypes.array.isRequired,
-    onUpdate        : PropTypes.func,
-    stateless       : PropTypes.bool,
+    leafs     : PropTypes.object.isRequired,
+    methods   : PropTypes.object.isRequired,
+    onUpdate  : PropTypes.func,
+    stateless : PropTypes.bool,
 };
 
 const MethodEditor = connect(mapStateToProps)(ConnectedMethodEditor);

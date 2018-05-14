@@ -77,35 +77,37 @@ class ConnectedEditor extends React.Component {
         }
     });
     */
-        /*
         let mdv = odm.study.metaDataVersion;
-        Object.keys(odm.study.metaDataVersion.itemGroups['IG.ADQSADAS'].itemRefs).forEach( (item,index) => {
-            let ds = odm.study.metaDataVersion.itemGroups['IG.ADQSADAS'];
-            let itemRef = odm.study.metaDataVersion.itemGroups['IG.ADQSADAS'].itemRefs[item];
-            if (5 < index && index < 39 && mdv.itemDefs[itemRef.itemOid].name !== 'AVAL' && mdv.itemDefs[itemRef.itemOid].name !== 'PARAMCD') {
-                delete ds.itemRefs[item];
-                if ( ds.keyOrder.includes(item) ) {
-                    ds.keyOrder.splice(ds.keyOrder.indexOf(item), 1);
+        if (odm.study.metaDataVersion.itemGroups.hasOwnProperty('IG.ADQSADAS')) {
+            Object.keys(odm.study.metaDataVersion.itemGroups['IG.ADQSADAS'].itemRefs).forEach( (item,index) => {
+                let ds = odm.study.metaDataVersion.itemGroups['IG.ADQSADAS'];
+                let itemRef = odm.study.metaDataVersion.itemGroups['IG.ADQSADAS'].itemRefs[item];
+                if (5 < index && index < 39 && mdv.itemDefs[itemRef.itemOid].name !== 'AVAL' && mdv.itemDefs[itemRef.itemOid].name !== 'PARAMCD') {
+                    delete ds.itemRefs[item];
+                    if ( ds.keyOrder.includes(item) ) {
+                        ds.keyOrder.splice(ds.keyOrder.indexOf(item), 1);
+                    }
+                    if ( ds.itemRefOrder.includes(item) ) {
+                        ds.itemRefOrder.splice(ds.itemRefOrder.indexOf(item), 1);
+                    }
                 }
-                if ( ds.itemRefOrder.includes(item) ) {
-                    ds.itemRefOrder.splice(ds.itemRefOrder.indexOf(item), 1);
-                }
-            }
-        });
+            });
+        }
 
-        Object.keys(odm.study.metaDataVersion.itemGroups['IG.ADSL'].itemRefs).forEach( (item,index) => {
-            let ds = odm.study.metaDataVersion.itemGroups['IG.ADSL'];
-            if (index > 5) {
-                delete odm.study.metaDataVersion.itemGroups['IG.ADSL'].itemRefs[item];
-                if ( ds.keyOrder.includes(item) ) {
-                    ds.keyOrder.splice(ds.keyOrder.indexOf(item), 1);
+        if (odm.study.metaDataVersion.itemGroups.hasOwnProperty('IG.ADSL')) {
+            Object.keys(odm.study.metaDataVersion.itemGroups['IG.ADSL'].itemRefs).forEach( (item,index) => {
+                let ds = odm.study.metaDataVersion.itemGroups['IG.ADSL'];
+                if (index > 5) {
+                    delete odm.study.metaDataVersion.itemGroups['IG.ADSL'].itemRefs[item];
+                    if ( ds.keyOrder.includes(item) ) {
+                        ds.keyOrder.splice(ds.keyOrder.indexOf(item), 1);
+                    }
+                    if ( ds.itemRefOrder.includes(item) ) {
+                        ds.itemRefOrder.splice(ds.itemRefOrder.indexOf(item), 1);
+                    }
                 }
-                if ( ds.itemRefOrder.includes(item) ) {
-                    ds.itemRefOrder.splice(ds.itemRefOrder.indexOf(item), 1);
-                }
-            }
-        });
-        */
+            });
+        }
         this.props.addOdm(odm);
     }
 

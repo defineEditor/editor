@@ -139,10 +139,8 @@ class DocumentEditor extends React.Component {
 }
 
 DocumentEditor.propTypes = {
-    parentObj       : PropTypes.object.isRequired,
-    leafs           : PropTypes.object.isRequired,
-    annotatedCrf    : PropTypes.object.isRequired,
-    supplementalDoc : PropTypes.object.isRequired,
+    parentObj : PropTypes.object.isRequired,
+    leafs     : PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(DocumentEditor);

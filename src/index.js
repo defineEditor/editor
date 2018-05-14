@@ -19,7 +19,7 @@ const sendDefineObject = (error, data) => {
     ipcRenderer.send('DefineObject', odm);
 };
 
-ipcRenderer.on('sendDefineObjectToMain', sendDefineObject);
+ipcRenderer.on('SendDefineObjectToMain', sendDefineObject);
 
 ReactDOM.render(
     <Provider store={store}>

@@ -1,17 +1,14 @@
 const electron = require('electron');
-// Module to control application life.
 const app = electron.app;
 const Menu = electron.Menu;
-
 const ipcMain = electron.ipcMain;
-// Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
 const createMenu = require('./menu/menu.js');
-
 const path = require('path');
 const url = require('url');
 const readXml = require('./utils/readXml.js');
 const saveAs = require('./main/saveAs.js');
+const openDefineXml = require('./main/openDefineXml.js');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -42,9 +39,9 @@ function createWindow () {
         mainWindow = null;
     });
     // Read and Send the define.xml to the renderer process
-    let xml = Promise.resolve(readXml('./../../data/define.adam.xml'));
-    let codeListSdtm = Promise.resolve(readXml('./../../data/SDTM Terminology.odm.xml'));
-    let codeListAdam = Promise.resolve(readXml('./../../data/ADaM Terminology.odm.xml'));
+    let xml = Promise.resolve(readXml('/home/nogi/nogi/nogi/data/define.adam.xml'));
+    let codeListSdtm = Promise.resolve(readXml('/home/nogi/nogi/nogi/data/SDTM Terminology.odm.xml'));
+    let codeListAdam = Promise.resolve(readXml('/home/nogi/nogi/nogi/data/ADaM Terminology.odm.xml'));
 
     function sendToRender (eventName) {
         return function (data) {
@@ -63,6 +60,10 @@ function createWindow () {
 // Add listener for Define-XML generation
 ipcMain.on('DefineObject', (event, odm) => {
     saveAs(mainWindow, odm);
+});
+// Add listener for Define-XML open
+ipcMain.on('OpenDefineXml', (event) => {
+    openDefineXml(mainWindow);
 });
 
 // This method will be called when Electron has finished

@@ -318,8 +318,6 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
                                     onUpdate={this.handleChange('comment')}
                                     stateless={true}
                                     leafs={this.props.mdv.leafs}
-                                    annotatedCrf={this.props.mdv.annotatedCrf}
-                                    supplementalDoc={this.props.mdv.supplementalDoc}
                                 />
                             </Grid>
                         </React.Fragment>
