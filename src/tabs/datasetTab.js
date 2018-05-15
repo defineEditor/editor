@@ -1,6 +1,7 @@
 import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { withStyles } from 'material-ui/styles';
 import '../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import renderColumns from 'utils/renderColumns.js';
 import Grid from 'material-ui/Grid';
@@ -9,6 +10,7 @@ import React from 'react';
 import indigo from 'material-ui/colors/indigo';
 import grey from 'material-ui/colors/grey';
 import CommentEditor from 'editors/commentEditor.js';
+import KeyOrderEditor from 'editors/keyOrderEditor.js';
 import AddDatasetEditor from 'editors/addDatasetEditor.js';
 import DatasetOrderEditor from 'editors/datasetOrderEditor.js';
 import LeafEditor from 'editors/leafEditor.js';
@@ -44,6 +46,14 @@ const classTypeAbbreviations = {
     'INTEGRATED SUBJECT LEVEL'             : 'IADSL',
 };
 
+const styles = theme => ({
+    tableHeader: {
+        backgroundColor : indigo[500],
+        color           : grey[200],
+        fontSize        : '16px',
+    },
+});
+
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
@@ -72,6 +82,10 @@ const hideMe = false;
 // Editor functions
 function commentEditor (onUpdate, props) {
     return (<CommentEditor onUpdate={ onUpdate } {...props} comment={props.defaultValue} autoFocus={true}/>);
+}
+
+function keyOrderEditor (onUpdate, props) {
+    return (<KeyOrderEditor onUpdate={ onUpdate } {...props}/>);
 }
 
 function leafEditor (onUpdate, props) {
@@ -367,13 +381,13 @@ class ConnectedDatasetTable extends React.Component {
                 editable     : { type: 'textarea' }
             },
             {
-                dataField : 'keys',
-                text      : 'Keys',
-                width     : '7%',
-                hidden    : hideMe,
-                tdStyle   : { whiteSpace: 'normal', overflowWrap: 'break-word' },
-                thStyle   : { whiteSpace: 'normal' },
-                editable  : false
+                dataField    : 'keys',
+                text         : 'Keys',
+                width        : '7%',
+                hidden       : hideMe,
+                tdStyle      : { whiteSpace: 'normal', overflowWrap: 'break-word' },
+                thStyle      : { whiteSpace: 'normal' },
+                customEditor : {getElement: keyOrderEditor},
             },
             {
                 dataField    : 'comment',
@@ -396,6 +410,8 @@ class ConnectedDatasetTable extends React.Component {
 
         ];
 
+        const {classes} = this.props;
+
         return (
             <BootstrapTable
                 data={datasets}
@@ -408,7 +424,7 @@ class ConnectedDatasetTable extends React.Component {
                 version='4'
                 cellEdit={cellEditProp}
                 keyBoardNav={{enterToEdit: true}}
-                headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
+                tableHeaderClass={classes.tableHeader}
                 selectRow={selectRowProp}
             >
                 {renderColumns(columns)}
@@ -425,4 +441,4 @@ ConnectedDatasetTable.propTypes = {
 };
 
 const DatasetTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedDatasetTable);
-export default DatasetTable;
+export default withStyles(styles)(DatasetTable);

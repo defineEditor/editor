@@ -28,7 +28,7 @@ const styles = theme => ({
         width         : '90%',
         overflowY     : 'auto',
     },
-    name: {
+    inputField: {
         width: '200px',
     },
 });
@@ -126,7 +126,7 @@ class AddVariableEditorConnected extends React.Component {
                     open={this.state.dialogOpened}
                     PaperProps={{className: classes.dialog}}
                 >
-                    <DialogTitle>Add New Dataset</DialogTitle>
+                    <DialogTitle>Add New Variable</DialogTitle>
                     <DialogContent>
                         <Grid container spacing={8} alignItems='flex-end'>
                             <Grid item xs={12}>
@@ -135,7 +135,7 @@ class AddVariableEditorConnected extends React.Component {
                                     autoFocus
                                     value={this.state.name}
                                     onChange={this.handleChange('name')}
-                                    className={classes.name}
+                                    className={classes.inputField}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -145,7 +145,7 @@ class AddVariableEditorConnected extends React.Component {
                                     InputLabelProps={{shrink: true}}
                                     value={this.state.orderNumber}
                                     onChange={this.handleChange('orderNumber')}
-                                    className={classes.textField}
+                                    className={classes.inputField}
                                 />
                             </Grid>
                             <Grid item>

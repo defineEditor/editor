@@ -1,6 +1,7 @@
 import {
     ADD_ITEMGROUP,
     DEL_ITEMGROUPS,
+    UPD_ITEMGROUPORDER,
 } from "constants/action-types";
 
 const addItemGroup = (state, action) => {
@@ -8,6 +9,12 @@ const addItemGroup = (state, action) => {
     newState.push([action.itemGroup.oid]);
     return newState;
 };
+
+const updateItemGroupOrder = (state, action) => {
+    let newState = action.itemGroupOrder.slice();
+    return newState;
+};
+
 
 const deleteItemGroups = (state, action) => {
     // action.deleteObj.itemGroupOids - oids to remove;
@@ -25,6 +32,8 @@ const itemGroupOrder = (state = {}, action) => {
             return addItemGroup(state, action);
         case DEL_ITEMGROUPS:
             return deleteItemGroups(state, action);
+        case UPD_ITEMGROUPORDER:
+            return updateItemGroupOrder(state, action);
         default:
             return state;
     }

@@ -14,7 +14,6 @@ const styles = theme => ({
     dialog: {
         paddingLeft   : theme.spacing.unit * 2,
         paddingRight  : theme.spacing.unit * 2,
-        paddingTop    : theme.spacing.unit * 1,
         paddingBottom : theme.spacing.unit * 1,
         position      : 'absolute',
         borderRadius  : '10px',

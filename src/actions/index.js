@@ -6,6 +6,7 @@ import {
     UPD_STDCT,
     UPD_STD,
     UPD_ITEMGROUP,
+    UPD_ITEMGROUPORDER,
     ADD_ITEMGROUP,
     DEL_ITEMGROUPS,
     ADD_ITEMGROUPCOMMENT,
@@ -28,6 +29,7 @@ import {
     UPD_GLOBALVARS,
     UPD_MDV,
     UPD_LEAFS,
+    UPD_KEYOREDER,
 } from "constants/action-types";
 
 // Core actions
@@ -49,6 +51,21 @@ export const updateItemGroup = (oid, updateObj) => (
         type      : UPD_ITEMGROUP,
         oid       : oid,
         updateObj : updateObj,
+    }
+);
+
+export const updateItemGroupOrder = (itemGroupOrder) => (
+    {
+        type: UPD_ITEMGROUPORDER,
+        itemGroupOrder,
+    }
+);
+
+export const updateKeyOrder = (itemGroupOid, keyOrder) => (
+    {
+        type: UPD_KEYOREDER,
+        itemGroupOid,
+        keyOrder,
     }
 );
 
