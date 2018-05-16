@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
+import deepEqual from 'fast-deep-equal';
 import Dialog, {DialogContent, DialogTitle} from 'material-ui/Dialog';
 import List, { ListItem, ListItemText } from 'material-ui/List';
 import SwapVert from 'material-ui-icons/SwapVert';
@@ -22,15 +23,14 @@ const styles = theme => ({
         transform     : 'translate(0%, -20%)',
         overflowX     : 'auto',
         maxHeight     : '90%',
-        width         : '270px',
         overflowY     : 'auto',
+        width         : '300px',
     },
     editButton: {
         transform: 'translate(0%, -6%)',
     },
     list: {
         backgroundColor : '#F9F9F9',
-        width           : '200px',
         padding         : '0px',
     },
     listItem: {
@@ -38,8 +38,6 @@ const styles = theme => ({
         backgroundColor : '#FFFFFF',
         borderStyle     : 'solid',
         borderColor     : 'rgba(0, 0, 0, 0.12)',
-        width           : '200px',
-        boxingSize      : 'none',
     },
     sortableHelper: {
         zIndex: 3000,
@@ -95,8 +93,11 @@ class GeneralOrderEditor extends React.Component {
         this.resetState();
     }
 
-    handleSaveAndClose = (updateObj) => {
-        this.props.onSave(this.state.items);
+    handleSaveAndClose = () => {
+        // Check if the order changed
+        if (!deepEqual(this.state.items, this.props.items)) {
+            this.props.onSave(this.state.items);
+        }
         this.setState({ dialogOpened: false });
     }
 
@@ -138,8 +139,8 @@ class GeneralOrderEditor extends React.Component {
                                     helperClass={classes.sortableHelper}
                                 />
                             </Grid>
-                            <Grid item>
-                                <SaveCancel save={this.handleSaveAndClose} cancel={this.handleCancelAndClose}/>
+                            <Grid item xs={12}>
+                                <SaveCancel save={this.handleSaveAndClose} cancel={this.handleCancelAndClose} justify='space-around'/>
                             </Grid>
                         </Grid>
                     </DialogContent>

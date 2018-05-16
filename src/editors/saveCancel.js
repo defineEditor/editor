@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
+import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import SaveIcon from 'material-ui-icons/Save';
@@ -23,30 +24,39 @@ class SaveClose extends React.Component {
         const { classes } = this.props;
         const mini = this.props.mini;
         const style = mini ? classes.buttonMini : classes.button;
+        const justify = this.props.justify ? this.props.justify : 'flex-start';
 
         return (
             <React.Fragment>
                 {mini !== true &&
-                        <React.Fragment>
-                            <Button color='primary' size='small' onClick={this.props.save} variant='raised' className={style}>
-                                { this.props.icon && <SaveIcon className={classes.icon}/>}
-                                Save
-                            </Button>
-                            <Button color='secondary' size='small' onClick={this.props.cancel} variant='raised' className={style}>
-                                { this.props.icon && <ClearIcon className={classes.icon}/>}
-                                Cancel
-                            </Button>
-                        </React.Fragment>
+                        <Grid container spacing={0} justify={justify}>
+                            <Grid item>
+                                <Button color='primary' size='small' onClick={this.props.save} variant='raised' className={style}>
+                                    { this.props.icon && <SaveIcon className={classes.icon}/>}
+                                    Save
+                                </Button>
+                            </Grid>
+                            <Grid item>
+                                <Button color='secondary' size='small' onClick={this.props.cancel} variant='raised' className={style}>
+                                    { this.props.icon && <ClearIcon className={classes.icon}/>}
+                                    Cancel
+                                </Button>
+                            </Grid>
+                        </Grid>
                 }
                 {mini === true &&
-                        <React.Fragment>
-                            <IconButton color='primary' onClick={this.props.save} className={style}>
-                                <SaveIcon/>
-                            </IconButton>
-                            <IconButton color='secondary' onClick={this.props.cancel} className={style}>
-                                <ClearIcon/>
-                            </IconButton>
-                        </React.Fragment>
+                        <Grid container spacing={0} justify={justify}>
+                            <Grid item xs={6}>
+                                <IconButton color='primary' onClick={this.props.save} className={style}>
+                                    <SaveIcon/>
+                                </IconButton>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <IconButton color='secondary' onClick={this.props.cancel} className={style}>
+                                    <ClearIcon/>
+                                </IconButton>
+                            </Grid>
+                        </Grid>
                 }
             </React.Fragment>
         );
@@ -54,10 +64,11 @@ class SaveClose extends React.Component {
 }
 
 SaveClose.propTypes = {
-    mini   : PropTypes.bool,
-    icon   : PropTypes.bool,
-    save   : PropTypes.func.isRequired,
-    cancel : PropTypes.func.isRequired,
+    mini    : PropTypes.bool,
+    icon    : PropTypes.bool,
+    save    : PropTypes.func.isRequired,
+    cancel  : PropTypes.func.isRequired,
+    justify : PropTypes.string,
 };
 
 export default withStyles(styles)(SaveClose);

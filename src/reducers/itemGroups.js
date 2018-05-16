@@ -9,6 +9,7 @@ import {
     UPD_ITEMDESCRIPTION,
     ADD_VAR,
     DEL_VARS,
+    UPD_KEYOREDER,
 } from "constants/action-types";
 import { ItemGroup, TranslatedText, Leaf, ItemRef } from 'elements.js';
 import getOid from 'utils/getOid.js';
@@ -216,6 +217,13 @@ const deleteVariables = (state, action) => {
     return { ...state, [action.source.itemGroupOid]: newItemGroup };
 };
 
+const updateKeyOrder = (state, action) => {
+    // action.itemGroupOid
+    // action.keyOrder
+    let newItemGroup =  new ItemGroup({ ...state[action.itemGroupOid], keyOrder: action.keyOrder });
+    return { ...state, [action.itemGroupOid]: newItemGroup };
+};
+
 const itemGroups = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMGROUP:
@@ -238,6 +246,8 @@ const itemGroups = (state = {}, action) => {
             return addVariable(state, action);
         case DEL_VARS:
             return deleteVariables(state, action);
+        case UPD_KEYOREDER:
+            return updateKeyOrder(state, action);
         default:
             return state;
     }

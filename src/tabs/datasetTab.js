@@ -10,7 +10,7 @@ import React from 'react';
 import indigo from 'material-ui/colors/indigo';
 import grey from 'material-ui/colors/grey';
 import CommentEditor from 'editors/commentEditor.js';
-import KeyOrderEditor from 'editors/keyOrderEditor.js';
+import InteractiveKeyOrderEditor from 'editors/interactiveKeyOrderEditor.js';
 import AddDatasetEditor from 'editors/addDatasetEditor.js';
 import DatasetOrderEditor from 'editors/datasetOrderEditor.js';
 import LeafEditor from 'editors/leafEditor.js';
@@ -18,6 +18,7 @@ import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import DatasetFlagsEditor from 'editors/datasetFlagsEditor.js';
 import DatasetFlagsFormatter from 'formatters/datasetFlagsFormatter.js';
+import CommentFormatter from 'formatters/commentFormatter.js';
 import {
     updateItemGroup,
     updateItemGroupComment,
@@ -84,8 +85,8 @@ function commentEditor (onUpdate, props) {
     return (<CommentEditor onUpdate={ onUpdate } {...props} comment={props.defaultValue} autoFocus={true}/>);
 }
 
-function keyOrderEditor (onUpdate, props) {
-    return (<KeyOrderEditor onUpdate={ onUpdate } {...props}/>);
+function interactiveKeyOrderEditor(onUpdate, props) {
+    return (<InteractiveKeyOrderEditor onUpdate={ onUpdate } {...props}/>);
 }
 
 function leafEditor (onUpdate, props) {
@@ -107,7 +108,7 @@ function simpleSelectEditor (onUpdate, props) {
 // Formatter functions
 function commentFormatter (cell, row) {
     if (cell !== undefined && cell !== '') {
-        return (<span>{cell.getText(row.leafs)}</span>);
+        return (<CommentFormatter comment={cell} leafs={row.leafs}/>);
     } else {
         return;
     }
@@ -387,7 +388,7 @@ class ConnectedDatasetTable extends React.Component {
                 hidden       : hideMe,
                 tdStyle      : { whiteSpace: 'normal', overflowWrap: 'break-word' },
                 thStyle      : { whiteSpace: 'normal' },
-                customEditor : {getElement: keyOrderEditor},
+                customEditor : {getElement: interactiveKeyOrderEditor},
             },
             {
                 dataField    : 'comment',
