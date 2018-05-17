@@ -27,6 +27,14 @@ class LeafEditor extends React.Component {
         this.setState({leaf: newLeaf});
     };
 
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.cancel();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.save();
+        }
+    }
+
     save = () => {
         this.props.onUpdate(this.state.leaf);
     }
@@ -39,14 +47,13 @@ class LeafEditor extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={16}>
+            <Grid container spacing={16} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Grid item>
                     <TextField
                         label='Title'
                         fullWidth
                         autoFocus
                         multiline
-                        inputProps={{onKeyDown: this.props.onKeyDown}}
                         value={this.state.leaf.title}
                         onChange={this.handleChange('title')}
                         className={classes.textField}
@@ -57,7 +64,6 @@ class LeafEditor extends React.Component {
                         label='Href'
                         fullWidth
                         multiline
-                        inputProps={{onKeyDown: this.props.onKeyDown}}
                         value={this.state.leaf.href}
                         onChange={this.handleChange('href')}
                         className={classes.textField}

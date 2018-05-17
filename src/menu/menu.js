@@ -14,7 +14,6 @@ const createMenu = (mainWindow) => {
                 },
                 {
                     label: 'Save As Define-XML 2.0',
-                    accelerator: 'CmdOrCtrl+S',
                     click () { mainWindow.webContents.send('SendDefineObjectToMain') }
                 },
                 {type: 'separator'},

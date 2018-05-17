@@ -39,10 +39,18 @@ class DatasetFlagsEditor extends React.Component {
         this.props.onUpdate(this.props.defaultValue);
     }
 
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.cancel();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.save();
+        }
+    }
+
     render() {
         const {classes} = this.props;
         return (
-            <Grid container spacing={0}>
+            <Grid container spacing={0} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Grid item xs={12}>
                     <FormGroup>
                         <FormControlLabel

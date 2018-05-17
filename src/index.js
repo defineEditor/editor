@@ -11,8 +11,8 @@ import store from 'store/odm.js';
 const {ipcRenderer} = window.require('electron');
 
 // React tools for development purposes
-window.require('electron-react-devtools').install();
-window.require('electron-redux-devtools').install();
+//window.require('electron-react-devtools').install();
+//window.require('electron-redux-devtools').install();
 
 const sendDefineObject = (error, data) => {
     let odm = store.getState().odm;

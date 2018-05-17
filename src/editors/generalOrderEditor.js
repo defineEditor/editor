@@ -107,6 +107,14 @@ class GeneralOrderEditor extends React.Component {
         });
     };
 
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.handleCancelAndClose();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.handleSaveAndClose();
+        }
+    }
+
     render() {
         const {classes} = this.props;
 
@@ -126,6 +134,8 @@ class GeneralOrderEditor extends React.Component {
                     disableEscapeKeyDown
                     open={this.state.dialogOpened}
                     PaperProps={{className: classes.dialog}}
+                    onKeyDown={this.onKeyDown}
+                    tabIndex='0'
                 >
                     <DialogTitle>{this.props.title}</DialogTitle>
                     <DialogContent>

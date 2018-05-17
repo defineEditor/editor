@@ -22,7 +22,7 @@ class CommentFormatter extends React.Component {
                 doc.pdfPageRefs.forEach (pdfPageRef => {
                     if (pdfPageRef.pageRefs !== undefined) {
                         if (pdfPageRef.type === 'NamedDestination') {
-                            pdfPageRefs.push(<a href={leafs[doc.leafId].href + '#' + pdfPageRef.pageRefs}>{pdfPageRef.pageRefs}</a>);
+                            pdfPageRefs.push(<a href={leafs[doc.leafId].href + '#' + pdfPageRef.pageRefs} key={pdfPageRef.pageRefs}>{pdfPageRef.pageRefs}</a>);
                         } else if (pdfPageRef.type === 'PhysicalRef') {
                             // It is expected that pages are separated by a space (as per Define-XML spec)
                             pdfPageRef.pageRefs.split(' ').forEach( pageNumber => {
@@ -37,18 +37,18 @@ class CommentFormatter extends React.Component {
                     }
                 });
                 if (pdfPageRefs.length > 0) {
-                    documents.push(<span key='start'> (</span>);
+                    documents.push(<span key={'startPR'+doc.leafId}> (</span>);
                     documents.push(pdfPageRefs);
-                    documents.push(<span key='end'>)</span>);
+                    documents.push(<span key={'endPR'+doc.leafId}>)</span>);
                 }
                 documents.push(<br key={'br' + doc.leafId}/>);
             }
         });
 
         return (
-            <div>
-                {commentText}
-                <br/>
+            <div key='commentDescription'>
+                <span key='commentText'>{commentText}</span>
+                { (documents.length !== 0) && <br key='docSeparator'/>}
                 {documents}
             </div>
         );

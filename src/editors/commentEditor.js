@@ -1,4 +1,3 @@
-import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -12,13 +11,12 @@ import Typography from 'material-ui/Typography';
 import RemoveIcon from 'material-ui-icons/RemoveCircleOutline';
 import InsertLink from 'material-ui-icons/InsertLink';
 import AddIcon from 'material-ui-icons/AddCircle';
+import SelectCommentIcon from 'material-ui-icons/OpenInNew';
 import Tooltip from 'material-ui/Tooltip';
 import getOid from 'utils/getOid.js';
+import SaveCancel from 'editors/saveCancel.js';
 
 const styles = theme => ({
-    button: {
-        margin: theme.spacing.unit,
-    },
     iconButton: {
         marginLeft   : '0px',
         marginRight  : '0px',
@@ -38,6 +36,7 @@ class ConnectedCommentEditor extends React.Component {
         super(props);
         // Bootstrap table changed undefined to '' when saving the value.
         // Catching this and resetting to undefined in case it is an empty string
+        this.rootRef = React.createRef();
         let comment;
         if (this.props.stateless !== true) {
             if (this.props.comment === '') {
@@ -89,67 +88,94 @@ class ConnectedCommentEditor extends React.Component {
         this.props.onUpdate(this.props.comment);
     }
 
+    onKeyDown = (event)  => {
+        if (this.props.stateless !== true) {
+            if (event.key === 'Escape' || event.keyCode === 27) {
+                this.cancel();
+            } else if (event.ctrlKey && (event.keyCode === 83)) {
+                // Focusing on the root element to fire all onBlur events for input fields
+                this.rootRef.current.focus();
+                // Call save through dummy setState to verify all states were updated
+                // TODO Check if this guarantees that all onBlurs are finished, looks like it is not
+                this.setState({}, this.save);
+            }
+        }
+    }
+
     render () {
         const { classes } = this.props;
         let comment = this.props.stateless === true ? this.props.comment : this.state.comment;
 
         return (
-            <Grid container spacing={8}>
-                <Grid item xs={12}>
-                    <Typography variant="subheading">
-                        Comment
-                        <Tooltip title={comment === undefined ? 'Add Comment' : 'Remove Comment'} placement='bottom'>
-                            <span>
-                                <IconButton
-                                    onClick={comment === undefined ? this.handleChange('addComment') : this.handleChange('deleteComment')}
-                                    className={classes.iconButton}
-                                    color={comment === undefined ? 'primary' : 'secondary'}
-                                >
-                                    {comment === undefined ? <AddIcon/> : <RemoveIcon/>}
-                                </IconButton>
-                            </span>
-                        </Tooltip>
-                        <Tooltip title='Add Link to Document' placement='bottom'>
-                            <span>
-                                <IconButton
-                                    onClick={this.handleChange('addDocument')}
-                                    disabled={comment === undefined}
-                                    className={classes.iconButton}
-                                    color={comment !== undefined ? 'primary' : 'default'}
-                                >
-                                    <InsertLink/>
-                                </IconButton>
-                            </span>
-                        </Tooltip>
-                    </Typography>
-                </Grid>
-                {comment !== undefined &&
-                        <Grid item xs={12}>
-                            <TextField
-                                label="Comment Text"
-                                multiline
-                                fullWidth
-                                rowsMax="10"
-                                autoFocus={this.props.autoFocus}
-                                defaultValue={comment.getDescription()}
-                                onBlur={this.handleChange('textUpdate')}
-                                margin="normal"
-                            />
-                            <DocumentEditor
-                                parentObj={comment}
-                                handleChange={this.handleChange('updateDocument')}
-                                leafs={this.props.leafs}
-                            />
-                        </Grid>
-                }
-                {this.props.stateless !== true &&
-                    <Grid item xs={12} >
-                        <br/>
-                        <Button color='primary' onClick={this.save} variant='raised' className={classes.button}>Save</Button>
-                        <Button color='secondary' onClick={this.cancel} variant='raised' className={classes.button}>Cancel</Button>
+            <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef}>
+                <Grid container spacing={8}>
+                    <Grid item xs={12}>
+                        <Typography variant="subheading">
+                            Comment
+                            <Tooltip title={comment === undefined ? 'Add Comment' : 'Remove Comment'} placement='bottom'>
+                                <span>
+                                    <IconButton
+                                        onClick={comment === undefined ? this.handleChange('addComment') : this.handleChange('deleteComment')}
+                                        className={classes.iconButton}
+                                        color={comment === undefined ? 'primary' : 'secondary'}
+                                    >
+                                        {comment === undefined ? <AddIcon/> : <RemoveIcon/>}
+                                    </IconButton>
+                                </span>
+                            </Tooltip>
+                            <Tooltip title='Add Link to Document' placement='bottom'>
+                                <span>
+                                    <IconButton
+                                        onClick={this.handleChange('addDocument')}
+                                        disabled={comment === undefined}
+                                        className={classes.iconButton}
+                                        color={comment !== undefined ? 'primary' : 'default'}
+                                    >
+                                        <InsertLink/>
+                                    </IconButton>
+                                </span>
+                            </Tooltip>
+                            <Tooltip title='Select Comment' placement='bottom'>
+                                <span>
+                                    <IconButton
+                                        onClick={this.handleChange('selectComment')}
+                                        disabled={comment === undefined}
+                                        className={classes.iconButton}
+                                        color={comment !== undefined ? 'primary' : 'default'}
+                                    >
+                                        <SelectCommentIcon/>
+                                    </IconButton>
+                                </span>
+                            </Tooltip>
+                        </Typography>
                     </Grid>
-                }
-            </Grid>
+                    {comment !== undefined &&
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="Comment Text"
+                                    multiline
+                                    fullWidth
+                                    rowsMax="10"
+                                    autoFocus={this.props.autoFocus}
+                                    defaultValue={comment.getDescription()}
+                                    onChange={this.handleChange('textUpdate')}
+                                    margin="normal"
+                                />
+                                <DocumentEditor
+                                    parentObj={comment}
+                                    handleChange={this.handleChange('updateDocument')}
+                                    leafs={this.props.leafs}
+                                />
+                            </Grid>
+                    }
+                    {this.props.stateless !== true &&
+                            <Grid item xs={12} >
+                                <br/>
+                                <SaveCancel save={this.save} cancel={this.cancel}/>
+                            </Grid>
+                    }
+                </Grid>
+            </div>
         );
     }
 }
