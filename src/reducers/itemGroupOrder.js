@@ -6,7 +6,7 @@ import {
 
 const addItemGroup = (state, action) => {
     let newState = state.slice();
-    newState.push([action.itemGroup.oid]);
+    newState.push(action.itemGroup.oid);
     return newState;
 };
 

@@ -89,6 +89,14 @@ class AddDatasetEditorConnected extends React.Component {
         this.resetState();
     }
 
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.handleCancelAndClose();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.handleSaveAndClose();
+        }
+    }
+
     render() {
         const {classes} = this.props;
 
@@ -108,6 +116,8 @@ class AddDatasetEditorConnected extends React.Component {
                     disableEscapeKeyDown
                     open={this.state.dialogOpened}
                     PaperProps={{className: classes.dialog}}
+                    onKeyDown={this.onKeyDown}
+                    tabIndex='0'
                 >
                     <DialogTitle>Add New Dataset</DialogTitle>
                     <DialogContent>

@@ -80,13 +80,9 @@ class ConnectedEditorTabs extends React.Component {
     }
 
     generateVariableTables = (defineVersion) => {
-        let datasets = [];
         // Sort datasets according to the orderNumber
         const mdv = this.props.odm.study.metaDataVersion;
-        mdv.itemGroupOrder.forEach((itemGroupOid, index) => {
-            datasets[index] = itemGroupOid;
-        });
-        let result = datasets.map(itemGroupOid => {
+        let result = mdv.itemGroupOrder.map(itemGroupOid => {
             return (
                 <div key={itemGroupOid}>
                     <VariableTable mdv={mdv} itemGroupOid={itemGroupOid} onMdvChange={this.handleMdvChange} defineVersion={defineVersion}/>
