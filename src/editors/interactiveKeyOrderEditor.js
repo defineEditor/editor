@@ -39,7 +39,7 @@ const styles = theme => ({
         border        : '2px solid',
         borderColor   : 'primary',
         top           : '20%',
-        transform     : 'translate(0%, -20%)',
+        transform     : 'translate(0%, calc(-20%+0.5px))',
         overflowX     : 'auto',
         maxHeight     : '90%',
         overflowY     : 'auto',

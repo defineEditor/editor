@@ -12,6 +12,7 @@ import {
     ADD_ITEMGROUPCOMMENT,
     DEL_ITEMGROUPCOMMENT,
     UPD_ITEMGROUPCOMMENT,
+    REP_ITEMGROUPCOMMENT,
     UPD_ITEMDEF,
     UPD_ITEMREF,
     UPD_ITEMREFKEYORDER,
@@ -107,6 +108,16 @@ export const deleteItemGroupComment = (source, comment) => (
         comment : comment,
     }
 );
+
+export const replaceItemGroupComment = (source, newCommentOid, oldCommentOid) => (
+    {
+        type: REP_ITEMGROUPCOMMENT,
+        source,
+        newCommentOid,
+        oldCommentOid,
+    }
+);
+
 
 // Item Ref/Def actions
 export const updateItemDef = (oid, updateObj) => (

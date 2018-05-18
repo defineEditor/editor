@@ -2,6 +2,7 @@ import {
     ADD_ITEMGROUPCOMMENT,
     DEL_ITEMGROUPCOMMENT,
     UPD_ITEMGROUPCOMMENT,
+    REP_ITEMGROUPCOMMENT,
     UPD_ITEMDESCRIPTION,
     DEL_VARS,
     DEL_ITEMGROUPS,
@@ -96,6 +97,19 @@ const handleItemDescriptionUpdate = (state, action) => {
         return state;
     }
 };
+const replaceComment = (state, action) => {
+    // action.newCommentOid
+    // action.oldCommentOid
+    let subAction = {};
+    subAction.comment = state[action.oldCommentOid];
+    subAction.source = action.source;
+    let newState = deleteComment(state, subAction);
+    subAction = {};
+    subAction.comment = state[action.newCommentOid];
+    subAction.source = action.source;
+    return addComment(newState, subAction);
+};
+
 
 const deleteCommentRefereces = (state, action, type) => {
     // action.deleteObj.commentOids contains:
@@ -122,6 +136,8 @@ const comments = (state = {}, action) => {
             return handleItemDescriptionUpdate(state, action);
         case DEL_ITEMGROUPCOMMENT:
             return deleteComment(state, action);
+        case REP_ITEMGROUPCOMMENT:
+            return replaceComment(state, action);
         case DEL_ITEMGROUPS:
             return deleteCommentRefereces(state, action, 'itemGroups');
         case DEL_VARS:

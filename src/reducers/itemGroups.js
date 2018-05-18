@@ -7,6 +7,7 @@ import {
     UPD_ITEMREF,
     UPD_ITEMREFKEYORDER,
     UPD_ITEMDESCRIPTION,
+    REP_ITEMGROUPCOMMENT,
     ADD_VAR,
     DEL_VARS,
     UPD_KEYOREDER,
@@ -86,6 +87,12 @@ const addItemGroupComment = (state, action) => {
     let newItemGroup = new ItemGroup({ ...state[action.source.oid], commentOid: action.comment.oid });
     return { ...state, [action.source.oid]: newItemGroup };
 };
+
+const replaceItemGroupComment = (state, action) => {
+    let newItemGroup = new ItemGroup({ ...state[action.source.oid], commentOid: action.newCommentOid });
+    return { ...state, [action.source.oid]: newItemGroup };
+};
+
 
 const deleteItemGroupComment = (state, action) => {
     let newItemGroup = new ItemGroup({ ...state[action.source.oid], commentOid: undefined });
@@ -234,6 +241,8 @@ const itemGroups = (state = {}, action) => {
             return deleteItemGroups(state, action);
         case ADD_ITEMGROUPCOMMENT:
             return addItemGroupComment(state, action);
+        case REP_ITEMGROUPCOMMENT:
+            return replaceItemGroupComment(state, action);
         case DEL_ITEMGROUPCOMMENT:
             return deleteItemGroupComment(state, action);
         case UPD_ITEMREF:

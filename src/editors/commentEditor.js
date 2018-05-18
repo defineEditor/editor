@@ -1,11 +1,10 @@
-import IconButton from '@material-ui/core/IconButton';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
 import DocumentEditor from 'editors/documentEditor.js';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import {Comment, TranslatedText} from 'elements.js';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
@@ -13,7 +12,9 @@ import InsertLink from '@material-ui/icons/InsertLink';
 import AddIcon from '@material-ui/icons/AddCircle';
 import SelectCommentIcon from '@material-ui/icons/OpenInNew';
 import Tooltip from '@material-ui/core/Tooltip';
+import {Comment, TranslatedText} from 'elements.js';
 import getOid from 'utils/getOid.js';
+import SelectComment from 'utils/selectComment.js';
 import SaveCancel from 'editors/saveCancel.js';
 
 const styles = theme => ({
@@ -45,7 +46,12 @@ class ConnectedCommentEditor extends React.Component {
                 comment = this.props.comment.clone();
             }
             this.state = {
-                comment: comment
+                comment             : comment,
+                selectCommentOpened : false,
+            };
+        } else {
+            this.state = {
+                selectCommentOpened: false,
             };
         }
     }
@@ -56,21 +62,25 @@ class ConnectedCommentEditor extends React.Component {
         if (name === 'addComment') {
             let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
             newComment = new Comment({oid: commentOid, descriptions: [new TranslatedText({lang: 'en', value: ''})]});
-        }
-        if (name === 'deleteComment') {
+        } else if (name === 'deleteComment') {
             newComment = undefined;
-        }
-        if (name === 'textUpdate') {
+        } else if (name === 'textUpdate') {
             newComment = comment.clone();
             newComment.setDescription(updateObj.target.value);
-        }
-        if (name === 'addDocument') {
+        } else if (name === 'addDocument') {
             newComment = comment.clone();
             newComment.addDocument();
-        }
-        if (name === 'updateDocument') {
+        } else if (name === 'updateDocument') {
             newComment = updateObj;
+        } else if (name === 'openSelectComment') {
+            this.setState({selectCommentOpened: true});
+        } else if (name === 'closeSelectComment') {
+            this.setState({selectCommentOpened: false});
+        } else if (name === 'selectedComment') {
+            newComment = updateObj;
+            this.setState({selectCommentOpened: false});
         }
+
         if (this.props.stateless === true) {
             // If state should be uplifted - use the callback
             this.props.onUpdate(newComment);
@@ -135,15 +145,21 @@ class ConnectedCommentEditor extends React.Component {
                                     </IconButton>
                                 </span>
                             </Tooltip>
-                            <Tooltip title='Select Comment' placement='bottom'>
+                            <Tooltip title='Select Comment' placement='bottom' open={!this.state.selectCommentOpened}>
                                 <span>
                                     <IconButton
-                                        onClick={this.handleChange('selectComment')}
+                                        onClick={this.handleChange('openSelectComment')}
                                         disabled={comment === undefined}
                                         className={classes.iconButton}
                                         color={comment !== undefined ? 'primary' : 'default'}
                                     >
                                         <SelectCommentIcon/>
+                                        { this.state.selectCommentOpened &&
+                                                <SelectComment
+                                                    onSelect={this.handleChange('selectedComment')}
+                                                    onClose={this.handleChange('closeSelectComment')}
+                                                />
+                                        }
                                     </IconButton>
                                 </span>
                             </Tooltip>

@@ -9,7 +9,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItem from '@material-ui/core/ListItem';
 import List from '@material-ui/core/List';
-import SwapVert from '@material-ui/icons/SwapVert';
+import LowPriority from '@material-ui/icons/LowPriority';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import SaveCancel from 'editors/saveCancel.js';
@@ -24,7 +24,7 @@ const styles = theme => ({
         border        : '2px solid',
         borderColor   : 'primary',
         top           : '20%',
-        transform     : 'translate(0%, -20%)',
+        transform     : 'translate(0%, calc(-20%+0.5px))',
         overflowX     : 'auto',
         maxHeight     : '90%',
         overflowY     : 'auto',
@@ -131,7 +131,7 @@ class GeneralOrderEditor extends React.Component {
                     onClick={this.handleOpen}
                     className={classes.editButton}
                 >
-                    <SwapVert/>
+                    <LowPriority/>
                 </Button>
                 <Dialog
                     disableBackdropClick

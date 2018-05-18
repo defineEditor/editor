@@ -22,6 +22,7 @@ import CommentFormatter from 'formatters/commentFormatter.js';
 import {
     updateItemGroup,
     updateItemGroupComment,
+    replaceItemGroupComment,
     addItemGroupComment,
     deleteItemGroupComment,
     deleteItemGroups,
@@ -59,11 +60,12 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateItemGroup        : (oid, updateObj) => dispatch(updateItemGroup(oid, updateObj)),
-        addItemGroupComment    : (source, comment) => dispatch(addItemGroupComment(source, comment)),
-        updateItemGroupComment : (source, comment) => dispatch(updateItemGroupComment(source, comment)),
-        deleteItemGroupComment : (source, comment) => dispatch(deleteItemGroupComment(source, comment)),
-        deleteItemGroups       : (deleteObj) => dispatch(deleteItemGroups(deleteObj)),
+        updateItemGroup         : (oid, updateObj) => dispatch(updateItemGroup(oid, updateObj)),
+        addItemGroupComment     : (source, comment) => dispatch(addItemGroupComment(source, comment)),
+        updateItemGroupComment  : (source, comment) => dispatch(updateItemGroupComment(source, comment)),
+        replaceItemGroupComment : (source, comment, oldComment) => dispatch(replaceItemGroupComment(source, comment, oldComment)),
+        deleteItemGroupComment  : (source, comment) => dispatch(deleteItemGroupComment(source, comment)),
+        deleteItemGroups        : (deleteObj) => dispatch(deleteItemGroups(deleteObj)),
     };
 };
 
@@ -157,8 +159,11 @@ class ConnectedDatasetTable extends React.Component {
                 } else if (row[cellName] === undefined) {
                     // If comment was added
                     this.props.addItemGroupComment({type: 'itemGroups', oid: row.oid}, cellValue);
+                } else if (row[cellName].oid !== cellValue.oid) {
+                    // If comment was replaced
+                    this.props.replaceItemGroupComment({type: 'itemGroups', oid: row.oid}, cellValue.oid, row[cellName].oid);
                 } else {
-                    this.props.addItemGroupComment({type: 'itemGroups', oid: row.oid}, cellValue);
+                    this.props.updatedItemGroupComment({type: 'itemGroups', oid: row.oid}, cellValue);
                 }
             } else {
                 this.props.updateItemGroup(row.oid,updateObj);
