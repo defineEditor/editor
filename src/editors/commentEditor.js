@@ -1,18 +1,18 @@
-import IconButton from 'material-ui/IconButton';
+import IconButton from '@material-ui/core/IconButton';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import TextField from 'material-ui/TextField';
+import TextField from '@material-ui/core/TextField';
 import DocumentEditor from 'editors/documentEditor.js';
 import React from 'react';
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 import {Comment, TranslatedText} from 'elements.js';
-import Grid from 'material-ui/Grid';
-import Typography from 'material-ui/Typography';
-import RemoveIcon from 'material-ui-icons/RemoveCircleOutline';
-import InsertLink from 'material-ui-icons/InsertLink';
-import AddIcon from 'material-ui-icons/AddCircle';
-import SelectCommentIcon from 'material-ui-icons/OpenInNew';
-import Tooltip from 'material-ui/Tooltip';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
+import InsertLink from '@material-ui/icons/InsertLink';
+import AddIcon from '@material-ui/icons/AddCircle';
+import SelectCommentIcon from '@material-ui/icons/OpenInNew';
+import Tooltip from '@material-ui/core/Tooltip';
 import getOid from 'utils/getOid.js';
 import SaveCancel from 'editors/saveCancel.js';
 

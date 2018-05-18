@@ -1,13 +1,13 @@
-import IconButton from 'material-ui/IconButton';
+import IconButton from '@material-ui/core/IconButton';
 import PropTypes from 'prop-types';
 import ItemSelect from 'itemSelect.js';
 import PdfPageEditor from 'editors/pdfPageEditor.js';
-import RemoveIcon from 'material-ui-icons/RemoveCircleOutline';
-import PictureAsPdf from 'material-ui-icons/PictureAsPdf';
-import Grid from 'material-ui/Grid';
+import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
+import PictureAsPdf from '@material-ui/icons/PictureAsPdf';
+import Grid from '@material-ui/core/Grid';
 import React from 'react';
-import { withStyles } from 'material-ui/styles';
-import Tooltip from 'material-ui/Tooltip';
+import { withStyles } from '@material-ui/core/styles';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
     button: {

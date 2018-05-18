@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import EditorTabs from 'tabs/editorTabs.js';
 import '../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import parseDefine from 'parsers/parseDefine.js';
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 import parseStdCodeLists from 'parsers/parseStdCodeLists.js';
 import { connect } from 'react-redux';
-import { CircularProgress } from 'material-ui/Progress';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import {
     addOdm,
     addStdControlledTerminology,

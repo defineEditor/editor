@@ -1,14 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import Typography from 'material-ui/Typography';
-import Paper from 'material-ui/Paper';
-import TextField from 'material-ui/TextField';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
+import TextField from '@material-ui/core/TextField';
 import EditingControlIcons from 'editors/editingControlIcons.js';
-import IconButton from 'material-ui/IconButton';
-import RemoveIcon from 'material-ui-icons/RemoveCircleOutline';
-import Tooltip from 'material-ui/Tooltip';
-import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
+import IconButton from '@material-ui/core/IconButton';
+import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
+import Tooltip from '@material-ui/core/Tooltip';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 import { Standard } from 'elements.js';
 import getSelectionList from 'utils/getSelectionList.js';
 

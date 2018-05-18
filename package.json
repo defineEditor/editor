@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
+    "@material-ui/codemod": "^1.0.0",
     "babel-eslint": "^8.2.3",
     "electron": "^2.0.0",
     "electron-react-devtools": "^0.5.3",
@@ -17,13 +18,13 @@
     "react-scripts": "0.8.5"
   },
   "dependencies": {
+    "@material-ui/core": "^1.0.0",
+    "@material-ui/icons": "^1.0.0",
     "bootstrap": "^4.1.1",
     "clone": "^2.1.2",
     "downshift": "^1.31.14",
     "fast-deep-equal": "^1.1.0",
     "jquery": "^3.3.1",
-    "material-ui": "^1.0.0-beta.44",
-    "material-ui-icons": "^1.0.0-beta.36",
     "prop-types": "^15.6.1",
     "react": "^16.3.2",
     "react-bootstrap-table": "^4.3.1",

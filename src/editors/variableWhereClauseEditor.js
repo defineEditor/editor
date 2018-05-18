@@ -1,14 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import Switch from 'material-ui/Switch';
-import { FormControlLabel } from 'material-ui/Form';
-import Grid from 'material-ui/Grid';
-import TextField from 'material-ui/TextField';
-import EditIcon from 'material-ui-icons/Edit';
-import Dialog, {DialogContent, DialogTitle} from 'material-ui/Dialog';
+import { withStyles } from '@material-ui/core/styles';
+import Switch from '@material-ui/core/Switch';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Grid from '@material-ui/core/Grid';
+import TextField from '@material-ui/core/TextField';
+import EditIcon from '@material-ui/icons/Edit';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import WhereClauseInteractiveEditor from 'editors/whereClauseInteractiveEditor.js';
-import Button from 'material-ui/Button';
+import Button from '@material-ui/core/Button';
 
 const styles = theme => ({
     dialog: {

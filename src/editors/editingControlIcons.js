@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import SaveIcon from 'material-ui-icons/Save';
-import ClearIcon from 'material-ui-icons/Clear';
-import HelpIcon from 'material-ui-icons/HelpOutline';
-import CommentIcon from 'material-ui-icons/Comment';
-import IconButton from 'material-ui/IconButton';
+import { withStyles } from '@material-ui/core/styles';
+import SaveIcon from '@material-ui/icons/Save';
+import ClearIcon from '@material-ui/icons/Clear';
+import HelpIcon from '@material-ui/icons/HelpOutline';
+import CommentIcon from '@material-ui/icons/Comment';
+import IconButton from '@material-ui/core/IconButton';
 
 const styles = theme => ({
     icon: {

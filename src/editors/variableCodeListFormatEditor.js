@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import Grid from 'material-ui/Grid';
+import { withStyles } from '@material-ui/core/styles';
+import Grid from '@material-ui/core/Grid';
 import SaveCancel from 'editors/saveCancel.js';
-import TextField from 'material-ui/TextField';
+import TextField from '@material-ui/core/TextField';
 import getSelectionList from 'utils/getSelectionList.js';
 
 const styles = theme => ({

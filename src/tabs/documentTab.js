@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import React from 'react';
 import deepEqual from 'fast-deep-equal';
-import Grid from 'material-ui/Grid';
+import Grid from '@material-ui/core/Grid';
 import DocumentTableFormatter from 'formatters/documentTableFormatter.js';
 import DocumentTableEditor from 'editors/documentTableEditor.js';
 import {

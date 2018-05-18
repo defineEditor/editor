@@ -1,23 +1,23 @@
-import Button from 'material-ui/Button';
-import IconButton from 'material-ui/IconButton';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import TextField from 'material-ui/TextField';
+import TextField from '@material-ui/core/TextField';
 import DocumentEditor from 'editors/documentEditor.js';
 import FormalExpressionEditor from 'editors/formalExpressionEditor.js';
 import React from 'react';
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 import {Method, TranslatedText} from 'elements.js';
-import Grid from 'material-ui/Grid';
-import Typography from 'material-ui/Typography';
-import RemoveIcon from 'material-ui-icons/RemoveCircleOutline';
-import ClearIcon from 'material-ui-icons/Clear';
-import CodeIcon from 'material-ui-icons/Code';
-import InsertLink from 'material-ui-icons/InsertLink';
-import AddIcon from 'material-ui-icons/AddCircle';
-import Tooltip from 'material-ui/Tooltip';
-import Switch from 'material-ui/Switch';
-import { MenuItem } from 'material-ui/Menu';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
+import ClearIcon from '@material-ui/icons/Clear';
+import CodeIcon from '@material-ui/icons/Code';
+import InsertLink from '@material-ui/icons/InsertLink';
+import AddIcon from '@material-ui/icons/AddCircle';
+import Tooltip from '@material-ui/core/Tooltip';
+import Switch from '@material-ui/core/Switch';
+import MenuItem from '@material-ui/core/MenuItem';
 import getOid from 'utils/getOid.js';
 
 const styles = theme => ({

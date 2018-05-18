@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import Grid from 'material-ui/Grid';
+import { withStyles } from '@material-ui/core/styles';
+import Grid from '@material-ui/core/Grid';
 import VariableNameLabelEditor from 'editors/variableNameLabelEditor.js';
 import VariableWhereClauseEditor from 'editors/variableWhereClauseEditor.js';
 import SaveCancel from 'editors/saveCancel.js';

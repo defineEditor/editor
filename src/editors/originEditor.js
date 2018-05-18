@@ -1,19 +1,19 @@
-import IconButton from 'material-ui/IconButton';
+import IconButton from '@material-ui/core/IconButton';
 import PropTypes from 'prop-types';
-import TextField from 'material-ui/TextField';
+import TextField from '@material-ui/core/TextField';
 import DocumentEditor from 'editors/documentEditor.js';
 import React from 'react';
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 import {Origin} from 'elements.js';
-import Grid from 'material-ui/Grid';
-import Typography from 'material-ui/Typography';
-import RemoveIcon from 'material-ui-icons/RemoveCircleOutline';
-import DescriptionIcon from 'material-ui-icons/Description';
-import InsertLink from 'material-ui-icons/InsertLink';
-import AddIcon from 'material-ui-icons/AddCircle';
-import Tooltip from 'material-ui/Tooltip';
-import { MenuItem } from 'material-ui/Menu';
-import ClearIcon from 'material-ui-icons/Clear';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
+import DescriptionIcon from '@material-ui/icons/Description';
+import InsertLink from '@material-ui/icons/InsertLink';
+import AddIcon from '@material-ui/icons/AddCircle';
+import Tooltip from '@material-ui/core/Tooltip';
+import MenuItem from '@material-ui/core/MenuItem';
+import ClearIcon from '@material-ui/icons/Clear';
 
 const styles = theme => ({
     button: {

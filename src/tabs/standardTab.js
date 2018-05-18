@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import React from 'react';
 import deepEqual from 'fast-deep-equal';
-import Grid from 'material-ui/Grid';
+import Grid from '@material-ui/core/Grid';
 import GlobalVariablesFormatter from 'formatters/globalVariablesFormatter.js';
 import MetaDataVersionFormatter from 'formatters/metaDataVersionFormatter.js';
 import ControlledTerminologyFormatter from 'formatters/controlledTerminologyFormatter.js';

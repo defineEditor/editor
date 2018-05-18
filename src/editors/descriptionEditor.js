@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
-import Divider from 'material-ui/Divider';
+import Divider from '@material-ui/core/Divider';
 import React from 'react';
-import { withStyles } from 'material-ui/styles';
-import Grid from 'material-ui/Grid';
+import { withStyles } from '@material-ui/core/styles';
+import Grid from '@material-ui/core/Grid';
 import CommentEditor from 'editors/commentEditor.js';
 import MethodEditor from 'editors/methodEditor.js';
 import OriginEditor from 'editors/originEditor.js';

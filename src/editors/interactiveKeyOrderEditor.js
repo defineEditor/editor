@@ -1,13 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 import { updateKeyOrder } from 'actions/index.js';
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
 import deepEqual from 'fast-deep-equal';
-import Dialog, {DialogContent, DialogTitle} from 'material-ui/Dialog';
-import List, { ListItem, ListItemText } from 'material-ui/List';
-import Grid from 'material-ui/Grid';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListItem from '@material-ui/core/ListItem';
+import List from '@material-ui/core/List';
+import Grid from '@material-ui/core/Grid';
 import ManageKeysEditor from 'editors/manageKeysEditor.js';
 import SaveCancel from 'editors/saveCancel.js';
 

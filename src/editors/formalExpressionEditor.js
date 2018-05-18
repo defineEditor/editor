@@ -1,9 +1,9 @@
 import React from 'react';
 import 'typeface-roboto-mono';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import Grid from 'material-ui/Grid';
-import TextField from 'material-ui/TextField';
+import { withStyles } from '@material-ui/core/styles';
+import Grid from '@material-ui/core/Grid';
+import TextField from '@material-ui/core/TextField';
 import {FormalExpression} from 'elements.js';
 
 const styles = theme => ({

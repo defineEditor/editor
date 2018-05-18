@@ -1,5 +1,5 @@
 import React from 'react';
-import { MenuItem } from 'material-ui/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 
 function getSelectionList (list, optional) {
     let selectionList = [];
