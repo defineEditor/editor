@@ -109,11 +109,11 @@ export const deleteItemGroupComment = (source, comment) => (
     }
 );
 
-export const replaceItemGroupComment = (source, newCommentOid, oldCommentOid) => (
+export const replaceItemGroupComment = (source, newComment, oldCommentOid) => (
     {
         type: REP_ITEMGROUPCOMMENT,
         source,
-        newCommentOid,
+        newComment,
         oldCommentOid,
     }
 );

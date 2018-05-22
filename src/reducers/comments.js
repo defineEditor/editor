@@ -98,14 +98,14 @@ const handleItemDescriptionUpdate = (state, action) => {
     }
 };
 const replaceComment = (state, action) => {
-    // action.newCommentOid
+    // action.newComment
     // action.oldCommentOid
     let subAction = {};
     subAction.comment = state[action.oldCommentOid];
     subAction.source = action.source;
     let newState = deleteComment(state, subAction);
     subAction = {};
-    subAction.comment = state[action.newCommentOid];
+    subAction.comment = action.newComment;
     subAction.source = action.source;
     return addComment(newState, subAction);
 };

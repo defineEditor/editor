@@ -645,12 +645,12 @@ function parseMetaDataVersion (metadataRaw) {
 
     mdv.itemDefs = parseItemDefs(metadataRaw['itemDef'], mdv);
     // Connect ItemDefs to VLM
-    Object.keys(mdv.itemDefs).forEach(function (parentItemOid) {
-        if (mdv.itemDefs[parentItemOid].valueListOid !== undefined) {
-            let valueListOid = mdv.itemDefs[parentItemOid].valueListOid;
+    Object.keys(mdv.itemDefs).forEach(function (parentItemDefOid) {
+        if (mdv.itemDefs[parentItemDefOid].valueListOid !== undefined) {
+            let valueListOid = mdv.itemDefs[parentItemDefOid].valueListOid;
             Object.keys(mdv.valueLists[valueListOid].itemRefs).forEach( itemRefOid => {
                 let itemOid = mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid;
-                mdv.itemDefs[itemOid].parentItemOid = parentItemOid;
+                mdv.itemDefs[itemOid].parentItemDefOid = parentItemDefOid;
             });
         }
     });

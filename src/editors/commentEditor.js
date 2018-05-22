@@ -16,6 +16,7 @@ import {Comment, TranslatedText} from 'elements.js';
 import getOid from 'utils/getOid.js';
 import SelectComment from 'utils/selectComment.js';
 import SaveCancel from 'editors/saveCancel.js';
+import getSourceLabels from 'utils/getSourceLabels.js';
 
 const styles = theme => ({
     iconButton: {
@@ -29,6 +30,7 @@ const mapStateToProps = state => {
     return {
         leafs    : state.odm.study.metaDataVersion.leafs,
         comments : state.odm.study.metaDataVersion.comments,
+        mdv      : state.odm.study.metaDataVersion,
     };
 };
 
@@ -72,12 +74,12 @@ class ConnectedCommentEditor extends React.Component {
             newComment.addDocument();
         } else if (name === 'updateDocument') {
             newComment = updateObj;
-        } else if (name === 'openSelectComment') {
-            this.setState({selectCommentOpened: true});
-        } else if (name === 'closeSelectComment') {
-            this.setState({selectCommentOpened: false});
-        } else if (name === 'selectedComment') {
+        } else if (name === 'selectComment') {
             newComment = updateObj;
+            this.setState({selectCommentOpened: false});
+        } else if (name === 'copyComment') {
+            let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
+            newComment = new Comment({ ...updateObj.clone(), oid: commentOid, sources: undefined });
             this.setState({selectCommentOpened: false});
         }
 
@@ -87,6 +89,14 @@ class ConnectedCommentEditor extends React.Component {
         } else {
             // Otherwise update state locally
             this.setState({comment: newComment});
+        }
+    }
+
+    handleSelectDialog = (name) => (updateObj) => {
+        if (name === 'openSelectComment') {
+            this.setState({selectCommentOpened: true});
+        } else if (name === 'closeSelectComment') {
+            this.setState({selectCommentOpened: false});
         }
     }
 
@@ -115,6 +125,14 @@ class ConnectedCommentEditor extends React.Component {
     render () {
         const { classes } = this.props;
         let comment = this.props.stateless === true ? this.props.comment : this.state.comment;
+        let sourceLabels = {count: 0};
+        let usedBy;
+        if (comment !== undefined) {
+            sourceLabels = getSourceLabels(comment.sources, this.props.mdv);
+            if (sourceLabels.count > 1) {
+                usedBy = sourceLabels.labelParts.join('. ');
+            }
+        }
 
         return (
             <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef}>
@@ -145,26 +163,34 @@ class ConnectedCommentEditor extends React.Component {
                                     </IconButton>
                                 </span>
                             </Tooltip>
-                            <Tooltip title='Select Comment' placement='bottom' open={!this.state.selectCommentOpened}>
+                            <Tooltip title='Select Comment' placement='bottom'>
                                 <span>
                                     <IconButton
-                                        onClick={this.handleChange('openSelectComment')}
+                                        onClick={this.handleSelectDialog('openSelectComment')}
                                         disabled={comment === undefined}
                                         className={classes.iconButton}
                                         color={comment !== undefined ? 'primary' : 'default'}
                                     >
                                         <SelectCommentIcon/>
-                                        { this.state.selectCommentOpened &&
-                                                <SelectComment
-                                                    onSelect={this.handleChange('selectedComment')}
-                                                    onClose={this.handleChange('closeSelectComment')}
-                                                />
-                                        }
                                     </IconButton>
                                 </span>
                             </Tooltip>
                         </Typography>
                     </Grid>
+                    {(sourceLabels.count > 1)  &&
+                            <Grid item xs={12}>
+                                <Typography variant="caption">
+                                    Comment used by multiple sources. {usedBy}
+                                </Typography>
+                            </Grid>
+                    }
+                    { this.state.selectCommentOpened &&
+                            <SelectComment
+                                onSelect={this.handleChange('selectComment')}
+                                onCopy={this.handleChange('copyComment')}
+                                onClose={this.handleSelectDialog('closeSelectComment')}
+                            />
+                    }
                     {comment !== undefined &&
                             <Grid item xs={12}>
                                 <TextField
@@ -173,7 +199,7 @@ class ConnectedCommentEditor extends React.Component {
                                     fullWidth
                                     rowsMax="10"
                                     autoFocus={this.props.autoFocus}
-                                    defaultValue={comment.getDescription()}
+                                    value={comment.getDescription()}
                                     onChange={this.handleChange('textUpdate')}
                                     margin="normal"
                                 />
@@ -202,6 +228,7 @@ ConnectedCommentEditor.propTypes = {
         PropTypes.oneOf([""]),
     ]),
     leafs     : PropTypes.object.isRequired,
+    mdv       : PropTypes.object.isRequired,
     onUpdate  : PropTypes.func,
     autoFocus : PropTypes.bool,
     stateless : PropTypes.bool,

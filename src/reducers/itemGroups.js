@@ -89,7 +89,7 @@ const addItemGroupComment = (state, action) => {
 };
 
 const replaceItemGroupComment = (state, action) => {
-    let newItemGroup = new ItemGroup({ ...state[action.source.oid], commentOid: action.newCommentOid });
+    let newItemGroup = new ItemGroup({ ...state[action.source.oid], commentOid: action.newComment.oid });
     return { ...state, [action.source.oid]: newItemGroup };
 };
 
