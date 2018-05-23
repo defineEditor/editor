@@ -7,6 +7,7 @@ import {
     UPD_CODEDVALUE,
     ADD_CODEDVALUE,
     DEL_CODEDVALUES,
+    DEL_VARS,
 } from "constants/action-types";
 import { CodeList, CodeListItem, EnumeratedItem } from 'elements.js';
 import getOid from 'utils/getOid.js';
@@ -271,6 +272,30 @@ const deleteCodedValues = (state, action) => {
     return { ...state, [action.codeListOid]: newCodeList };
 };
 
+const deleteCodeListReferences = (state, action, type) => {
+    // action.deleteObj.codeListOids contains:
+    // {codeListOid1: [itemOid1, itemOid2], codeListOid2: [itemOid3, itemOid1]}
+    let newState = { ...state };
+    Object.keys(action.deleteObj.codeListOids).forEach( codeListOid => {
+        action.deleteObj.codeListOids[codeListOid].forEach(itemOid => {
+            let codeList = newState[codeListOid];
+            let sourceNum = [].concat.apply([],Object.keys(codeList.sources).map(type => (codeList.sources[type]))).length;
+            if (sourceNum <= 1 && codeList.sources.itemDefs[0] === itemOid) {
+                // If the item to which codeList is attached is the only one, fully remove the codeList
+                delete newState[codeList.oid];
+            } else if (codeList.sources.itemDefs.includes(itemOid)){
+                // Remove  referece to the source OID from the list of codeList sources
+                let newSources = codeList.sources.itemDefs.slice();
+                newSources.splice(newSources.indexOf(itemOid),1);
+                let newCodeList = new CodeList({ ...codeList, sources: { ...codeList.sources, itemDefs: newSources } });
+                newState = {...newState, [codeList.oid]: newCodeList};
+            }
+        });
+    });
+    return newState;
+};
+
+
 const codeLists = (state = {}, action) => {
     switch (action.type) {
         case ADD_CODELIST:
@@ -289,6 +314,8 @@ const codeLists = (state = {}, action) => {
             return addCodedValue(state, action);
         case DEL_CODEDVALUES:
             return deleteCodedValues(state, action);
+        case DEL_VARS:
+            return deleteCodeListReferences(state, action);
         default:
             return state;
     }

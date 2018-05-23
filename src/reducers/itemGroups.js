@@ -6,6 +6,7 @@ import {
     DEL_ITEMGROUPCOMMENT,
     UPD_ITEMREF,
     UPD_ITEMREFKEYORDER,
+    UPD_ITEMREFORDER,
     UPD_ITEMDESCRIPTION,
     REP_ITEMGROUPCOMMENT,
     ADD_VAR,
@@ -106,6 +107,12 @@ const updateItemRef = (state, action) => {
         itemRefs: { ...state[action.source.itemGroupOid].itemRefs, [action.source.itemRefOid]: newItemRef }
     });
     return { ...state, [action.source.itemGroupOid]: newItemGroup };
+};
+
+const updateItemRefOrder = (state, action) => {
+    // Check if order changed;
+    let newItemGroup =  new ItemGroup({ ...state[action.itemGroupOid], itemRefOrder: action.itemRefOrder });
+    return { ...state, [action.itemGroupOid]: newItemGroup };
 };
 
 const updateItemRefKeyOrder = (state, action) => {
@@ -249,6 +256,8 @@ const itemGroups = (state = {}, action) => {
             return updateItemRef(state, action);
         case UPD_ITEMREFKEYORDER:
             return updateItemRefKeyOrder(state, action);
+        case UPD_ITEMREFORDER:
+            return updateItemRefOrder(state, action);
         case UPD_ITEMDESCRIPTION:
             return updateItemDescription(state, action);
         case ADD_VAR:

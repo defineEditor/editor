@@ -16,6 +16,7 @@ import {
     UPD_ITEMDEF,
     UPD_ITEMREF,
     UPD_ITEMREFKEYORDER,
+    UPD_ITEMREFORDER,
     UPD_ITEMCLDF,
     UPD_ITEMDESCRIPTION,
     ADD_VAR,
@@ -142,6 +143,14 @@ export const updateItemRefKeyOrder = (source, updateObj, prevObj) => (
         source    : source,
         updateObj : updateObj,
         prevObj   : prevObj,
+    }
+);
+
+export const updateItemRefOrder = (itemGroupOid, itemRefOrder) => (
+    {
+        type: UPD_ITEMREFORDER,
+        itemGroupOid,
+        itemRefOrder,
     }
 );
 

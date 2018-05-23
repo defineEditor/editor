@@ -67,6 +67,8 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
             wcComment = this.props.mdv.comments[this.props.defaultValue.whereClause.commentOid];
         }
 
+        this.rootRef = React.createRef();
+
         this.state = {
             name          : this.props.defaultValue.name || '',
             descriptions  : this.props.defaultValue.descriptions,
@@ -284,48 +286,64 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
         this.props.onUpdate(this.props.defaultValue);
     }
 
+    onKeyDown = (event)  => {
+        if (this.props.stateless !== true) {
+            if (event.key === 'Escape' || event.keyCode === 27) {
+                this.cancel();
+            } else if (event.ctrlKey && (event.keyCode === 83)) {
+                // Focusing on the root element to fire all onBlur events for input fields
+                this.rootRef.current.focus();
+                // Call save through dummy setState to verify all states were updated
+                // TODO Check if this guarantees that all onBlurs are finished, looks like it is not
+                this.setState({}, this.save);
+            }
+        }
+    }
+
     render() {
         const vlmLevel = this.props.row.vlmLevel;
         const label = this.state.descriptions[0].value;
 
         return (
-            <Grid container spacing={8}>
-                <Grid item xs={12}>
-                    <VariableNameLabelEditor
-                        handleChange={this.handleChange}
-                        onNameBlur={this.setAutoLabel}
-                        label={label}
-                        name={this.state.name}
-                        blueprint={this.props.blueprint}
-                        autoLabel={this.state.autoLabel}
-                    />
+            <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef}>
+                <Grid container spacing={8}>
+                    <Grid item xs={12}>
+                        <VariableNameLabelEditor
+                            handleChange={this.handleChange}
+                            onNameBlur={this.setAutoLabel}
+                            label={label}
+                            name={this.state.name}
+                            blueprint={this.props.blueprint}
+                            autoLabel={this.state.autoLabel}
+                        />
+                    </Grid>
+                    {vlmLevel > 0 &&
+                            <React.Fragment>
+                                <Grid item xs={12}>
+                                    <VariableWhereClauseEditor
+                                        handleChange={this.handleChange}
+                                        whereClause={this.state.whereClause}
+                                        validationCheck={this.validateWhereClause}
+                                        wcEditingMode={this.state.wcEditingMode}
+                                        dataset={this.props.dataset}
+                                        mdv={this.props.mdv}
+                                    />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <CommentEditor
+                                        comment={this.state.wcComment}
+                                        onUpdate={this.handleChange('comment')}
+                                        stateless={true}
+                                        leafs={this.props.mdv.leafs}
+                                    />
+                                </Grid>
+                            </React.Fragment>
+                    }
+                    <Grid item xs={12}>
+                        <SaveCancel save={this.save} cancel={this.cancel}/>
+                    </Grid>
                 </Grid>
-                {vlmLevel > 0 &&
-                        <React.Fragment>
-                            <Grid item xs={12}>
-                                <VariableWhereClauseEditor
-                                    handleChange={this.handleChange}
-                                    whereClause={this.state.whereClause}
-                                    validationCheck={this.validateWhereClause}
-                                    wcEditingMode={this.state.wcEditingMode}
-                                    dataset={this.props.dataset}
-                                    mdv={this.props.mdv}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <CommentEditor
-                                    comment={this.state.wcComment}
-                                    onUpdate={this.handleChange('comment')}
-                                    stateless={true}
-                                    leafs={this.props.mdv.leafs}
-                                />
-                            </Grid>
-                        </React.Fragment>
-                }
-                <Grid item xs={12}>
-                    <SaveCancel save={this.save} cancel={this.cancel}/>
-                </Grid>
-            </Grid>
+            </div>
         );
     }
 }

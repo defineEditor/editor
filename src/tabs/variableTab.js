@@ -1,6 +1,7 @@
 import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
 import { connect } from 'react-redux';
 import renderColumns from 'utils/renderColumns.js';
+import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
 import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -13,13 +14,14 @@ import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import AddVariableEditor from 'editors/addVariableEditor.js';
 import KeyOrderEditor from 'editors/keyOrderEditor.js';
 import DescriptionEditor from 'editors/descriptionEditor.js';
+import VariableOrderEditor from 'editors/variableOrderEditor.js';
 //import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import RoleMandatoryEditor from 'editors/roleMandatoryEditor.js';
 import VariableLengthEditor from 'editors/variableLengthEditor.js';
-import AddVariableEditor from 'editors/addVariableEditor.js';
 import DescriptionFormatter from 'formatters/descriptionFormatter.js';
 import RoleMandatoryFormatter from 'formatters/roleMandatoryFormatter.js';
 import VariableLengthFormatter from 'formatters/variableLengthFormatter.js';
@@ -409,6 +411,9 @@ class ConnectedVariableTable extends React.Component {
                     <Grid item>
                         { props.deleteBtn }
                     </Grid>
+                    <Grid item>
+                        <VariableOrderEditor itemGroupOid={this.props.itemGroupOid}/>
+                    </Grid>
                 </Grid>
             </ButtonGroup>
         );
@@ -456,49 +461,7 @@ class ConnectedVariableTable extends React.Component {
     }
 
     deleteRows = () => {
-        let mdv = this.props.mdv;
-        let itemRefOids = this.state.selectedRows;
-        let vlmItemRefOids = this.state.selectedVlmRows;
-        // For variables, return an array of ItemDef OIDs;
-        let itemDefOids = [];
-        itemDefOids = itemRefOids.map( itemRefOid => {
-            return mdv.itemGroups[this.props.itemGroupOid].itemRefs[itemRefOid].itemOid;
-        });
-        // For value levels, return an object with arrays of ItemDef OIDs for each valueList OID;
-        let vlmItemDefOids = {};
-        Object.keys(vlmItemRefOids).forEach( valueListOid => {
-            vlmItemDefOids[valueListOid] = vlmItemRefOids[valueListOid].map( itemRefOid => {
-                return mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid;
-            });
-        });
-        // Form an object of comments to remove {commentOid: [itemOid1, itemOid2, ...]}
-        let commentOids = {};
-        // Form an object of methods to remove {methodOid: [itemOid1, itemOid2, ...]}
-        let methodOids = {};
-        itemRefOids.forEach( itemRefOid => {
-            let itemOid = mdv.itemGroups[this.props.itemGroupOid].itemRefs[itemRefOid].itemOid;
-            // Comments
-            let commentOid = mdv.itemDefs[itemOid].commentOid;
-            if (commentOid !== undefined) {
-                if (commentOids[commentOid] === undefined) {
-                    commentOids[commentOid] = [];
-                }
-                if (!commentOids[commentOid].includes[itemOid]) {
-                    commentOids[commentOid].push(itemOid);
-                }
-            }
-            // Methods
-            let methodOid = mdv.itemGroups[this.props.itemGroupOid].itemRefs[itemRefOid].methodOid;
-            if (methodOid !== undefined) {
-                if (methodOids[methodOid] === undefined) {
-                    methodOids[methodOid] = [];
-                }
-                if (!methodOids[methodOid].includes[itemRefOid]) {
-                    methodOids[methodOid].push(itemRefOid);
-                }
-            }
-        });
-        const deleteObj = {itemRefOids, itemDefOids, vlmItemRefOids, vlmItemDefOids, commentOids, methodOids};
+        let deleteObj = getItemRefsRelatedOids(this.props.mdv, this.props.itemGroupOid, this.state.selectedRows, this.state.selectedVlmRows);
         this.props.deleteVariables({itemGroupOid: this.props.itemGroupOid}, deleteObj);
     }
 
@@ -668,7 +631,7 @@ class ConnectedVariableTable extends React.Component {
                 width        : '130px',
                 dataFormat   : variableCodeListFormatFormatter,
                 customEditor : {getElement: variableCodeListFormatEditor, customEditorParameters: {codeLists: mdv.codeLists}},
-                tdStyle      : { whiteSpace: 'normal' },
+                tdStyle      : { whiteSpace: 'normal', wordBreak: 'break-all' },
                 thStyle      : { whiteSpace: 'normal' }
             },
             {

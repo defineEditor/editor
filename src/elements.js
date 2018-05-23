@@ -166,11 +166,19 @@ class Origin extends BasicFunctions {
 
 class WhereClause {
     constructor ({
-        oid, commentOid, rangeChecks = []
+        oid, commentOid, sources, rangeChecks = []
     } = {}) {
         this.oid = oid;
         this.commentOid = commentOid;
         this.rangeChecks = rangeChecks;
+        // List of ItemGroups/itemRefs from which the whereClause is linked
+        if (sources !== undefined) {
+            this.sources = sources;
+        } else {
+            this.sources = {
+                valueLists: [],
+            };
+        }
     }
     addRangeCheck (rangeCheck) {
         this.rangeChecks.push(rangeCheck);
@@ -720,7 +728,8 @@ class ItemDef extends BasicFunctions {
             this.sources = sources;
         } else {
             this.sources = {
-                itemGroups: [],
+                itemGroups : [],
+                valueLists : [],
             };
         }
     }

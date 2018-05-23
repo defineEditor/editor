@@ -27,16 +27,18 @@ const getSourceLabels = (sources, mdv) => {
     let labelParts = [];
     let count = 0;
     for (let group in result) {
-        if (group === 'itemDefs') {
-            labelParts.push('Variables: ' + result[group].join(', '));
+        if (result.hasOwnProperty(group)) {
+            if (group === 'itemDefs') {
+                labelParts.push('Variables: ' + result[group].join(', '));
+            }
+            if (group === 'itemGroups') {
+                labelParts.push('Datasets: ' + result[group].join(', '));
+            }
+            if (group === 'whereClauses') {
+                labelParts.push('Where Clauses: ' + result[group].join(', '));
+            }
+            count += result[group].length;
         }
-        if (group === 'itemGroups') {
-            labelParts.push('Datasets: ' + result[group].join(', '));
-        }
-        if (group === 'whereClauses') {
-            labelParts.push('Where Clauses: ' + result[group].join(', '));
-        }
-        count += result[group].length;
     }
 
     result.labelParts = labelParts;

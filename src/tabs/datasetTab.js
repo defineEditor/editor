@@ -248,6 +248,7 @@ class ConnectedDatasetTable extends React.Component {
                 }
             }
         });
+        // Form a list of itemRefs to delete;
         const deleteObj = { itemGroupOids, commentOids };
         this.props.deleteItemGroups(deleteObj);
     }

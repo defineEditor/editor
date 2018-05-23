@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import CommentFormatter from 'formatters/commentFormatter.js';
 
 const styles = theme => ({
     main: {
@@ -30,11 +31,11 @@ class VariableNameLabelWhereClauseFormatter extends React.Component {
         const isVlm = this.props.value.whereClause !== undefined;
 
         let whereClauseLine;
-        let commentText;
+        let comment;
         if (isVlm) {
             whereClauseLine = this.props.value.whereClause.toString(this.props.mdv);
             if (this.props.value.whereClause.commentOid !== undefined) {
-                commentText = this.props.mdv.comments[this.props.value.whereClause.commentOid].toString(this.props.mdv);
+                comment = this.props.mdv.comments[this.props.value.whereClause.commentOid];
             }
         }
 
@@ -70,9 +71,9 @@ class VariableNameLabelWhereClauseFormatter extends React.Component {
                             {whereClauseLine}
                         </Grid>
                 }
-                {commentText !== undefined &&
+                {comment !== undefined &&
                         <Grid item xs={12}>
-                            {commentText}
+                            <CommentFormatter comment={comment} leafs={this.props.mdv.leafs}/>
                         </Grid>
                 }
             </Grid>

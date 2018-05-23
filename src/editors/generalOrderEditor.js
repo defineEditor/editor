@@ -23,9 +23,9 @@ const styles = theme => ({
         borderRadius  : '10px',
         border        : '2px solid',
         borderColor   : 'primary',
-        top           : '20%',
-        transform     : 'translate(0%, calc(-20%+0.5px))',
-        overflowX     : 'auto',
+        top           : '10%',
+        transform     : 'translate(0%, calc(-10%+0.5px))',
+        overflowX     : 'none',
         maxHeight     : '90%',
         overflowY     : 'auto',
         width         : '300px',
@@ -36,6 +36,8 @@ const styles = theme => ({
     list: {
         backgroundColor : '#F9F9F9',
         padding         : '0px',
+        maxHeight       : '600px',
+        overflowX       : 'auto',
     },
     listItem: {
         borderWidth     : '1px',
@@ -147,6 +149,7 @@ class GeneralOrderEditor extends React.Component {
                             <Grid item xs={12}>
                                 <SortableList
                                     items={this.state.items}
+                                    axis={'xy'}
                                     onSortEnd={this.handleChange}
                                     className={classes.list}
                                     itemClass={classes.listItem}

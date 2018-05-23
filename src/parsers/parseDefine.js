@@ -378,6 +378,14 @@ function parseWhereClauses (whereClausesRaw, mdv) {
                 });
             }
         }
+        // Connect whereClause to its sources
+        let valueLists = [];
+        Object.keys(mdv.valueLists).forEach(valueListOid => {
+            if (getListOfSourceIds(mdv.valueLists[valueListOid].itemRefs,'whereClauseOid',whereClause.oid).length > 0) {
+                valueLists.push(valueListOid);
+            }
+        });
+        whereClause.sources = { valueLists };
         whereClauses[whereClause.oid] = whereClause;
     });
 
@@ -628,7 +636,6 @@ function parseMetaDataVersion (metadataRaw) {
 
     var mdv = {};
     mdv.standards = parseStandards(metadataRaw, defineVersion);
-    mdv.whereClauses = parseWhereClauses(metadataRaw['whereClauseDef'], mdv);
 
     if (metadataRaw.hasOwnProperty('annotatedCrf')) {
         mdv.annotatedCrf = parseDocumentCollection(metadataRaw['annotatedCrf']);
@@ -639,6 +646,7 @@ function parseMetaDataVersion (metadataRaw) {
     }
     mdv.leafs = parseLeafs(metadataRaw['leaf'], mdv);
     mdv.valueLists = parseValueLists(metadataRaw['valueListDef'], mdv);
+    mdv.whereClauses = parseWhereClauses(metadataRaw['whereClauseDef'], mdv);
     mdv.itemGroups = parseItemGroups(metadataRaw['itemGroupDef'], mdv);
     // Add itemGroupOrder - no part of Define, but is required to properly sort the datasets;
     mdv.itemGroupOrder = Object.keys(mdv.itemGroups);
