@@ -759,7 +759,7 @@ class ItemRef {
 
 class ValueList extends BasicFunctions {
     constructor ({
-        oid, itemRefs = {}, itemRefOrder = [], descriptions = [], keyOrder = [],
+        oid, itemRefs = {}, itemRefOrder = [], descriptions = [], keyOrder = [], sources,
     } = {}) {
         super();
         this.oid = oid || getOid(this.constructor.name);
@@ -767,6 +767,14 @@ class ValueList extends BasicFunctions {
         this.itemRefOrder = itemRefOrder;
         this.descriptions = descriptions; // 2.1D
         this.keyOrder = keyOrder;
+        // Non-define XML properties
+        if (sources !== undefined) {
+            this.sources = sources;
+        } else {
+            this.sources = {
+                itemDefs: [],
+            };
+        }
     }
     addItemRef (oid, itemRef) {
         this.itemRefs[oid]= itemRef;

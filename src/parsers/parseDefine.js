@@ -28,6 +28,24 @@ function removeNamespace (obj) {
     }
 }
 
+function populateValueListSources(valueLists, itemDefs) {
+    // Connect codeList to its sources
+    // Required as a separate function, because valueLists are connected to itemDefs and itemDefs are connected to valueLists
+    Object.keys(valueLists).forEach( valueListOid => {
+        let sources = [];
+        let valueList = valueLists[valueListOid];
+        Object.keys(itemDefs).forEach( itemDefOid => {
+            if (itemDefs[itemDefOid].valueListOid === valueList.oid) {
+                sources.push(itemDefOid);
+            }
+        });
+
+        valueList.sources = {
+            itemDefs: sources,
+        };
+    });
+}
+
 // ODM naming convention uses UpperCamelCase for attribute/element names
 // As they become class properties, all attributes are converted to lower camel case
 function convertAttrsToLCC (obj) {
@@ -662,6 +680,8 @@ function parseMetaDataVersion (metadataRaw) {
             });
         }
     });
+    // Connect valueLists to ItemDefs
+    populateValueListSources(mdv.valueLists, mdv.itemDefs);
 
     mdv.codelists = parseCodelists(metadataRaw['codeList'], mdv);
     mdv.methods = parseMethods(metadataRaw['methodDef'], mdv);

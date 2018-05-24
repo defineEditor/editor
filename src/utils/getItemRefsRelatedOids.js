@@ -1,21 +1,37 @@
 // Get OIDs of items which are linked from ItemRefs
-function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOids) {
+function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsRaw) {
+    let vlmItemRefOids = vlmItemRefOidsRaw === undefined ? {} : { ...vlmItemRefOidsRaw };
     // For variables, return an array of ItemDef OIDs;
     let itemDefOids = [];
     itemDefOids = itemRefOids.map( itemRefOid => {
-        return mdv.itemGroups[this.props.itemGroupOid].itemRefs[itemRefOid].itemOid;
+        return mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid;
     });
-    // For variables having a valueList attached, return an array of ValueList OIDs;
-    let valueListOids = [];
-    valueListOids = itemRefOids
+    // Select ItemRefs with itemDefs having a valueList
+    let itemRefOidsWithValueLists = itemRefOids
         .filter( itemRefOid => {
-            let itemOid = mdv.itemGroups[this.props.itemGroupOid].itemRefs[itemRefOid].itemOid;
+            let itemOid = mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid;
             return mdv.itemDefs[itemOid].valueListOid !== undefined;
-        })
-        .map( itemRefOid => {
-            let itemOid = mdv.itemGroups[this.props.itemGroupOid].itemRefs[itemRefOid].itemOid;
-            return mdv.itemDefs[itemOid].valueListOid;
         });
+    // For variables having a valueList attached, return an array of ValueList OIDs;
+    let valueListOids = {};
+    itemRefOidsWithValueLists.forEach( itemRefOid => {
+        let itemOid = mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid;
+        let valueListOid = mdv.itemDefs[itemOid].valueListOid;
+        if (valueListOids.hasOwnProperty(itemOid)) {
+            valueListOids[itemOid].push(valueListOid);
+        } else {
+            valueListOids[itemOid] = [valueListOid];
+        }
+    });
+    // For variables having a valueList attached, add all itemRefs of that valueList to vlmItemRefOids;
+    itemRefOidsWithValueLists
+        .forEach( itemRefOid => {
+            let itemOid = mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid;
+            let valueListOid = mdv.itemDefs[itemOid].valueListOid;
+            // It is OK to overwrite existing valueListOids in vlmItemRefOids as the full itemRefs list is included
+            vlmItemRefOids[valueListOid] = mdv.valueLists[valueListOid].itemRefOrder;
+        });
+
     // For value levels, return an object with arrays of ItemDef OIDs for each valueList OID;
     let vlmItemDefOids = {};
     Object.keys(vlmItemRefOids).forEach( valueListOid => {
@@ -38,7 +54,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOids)
     let codeListOids = {};
     // Variable-level
     itemRefOids.forEach( itemRefOid => {
-        let itemOid = mdv.itemGroups[this.props.itemGroupOid].itemRefs[itemRefOid].itemOid;
+        let itemOid = mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid;
         // Comments
         let commentOid = mdv.itemDefs[itemOid].commentOid;
         if (commentOid !== undefined) {
@@ -50,7 +66,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOids)
             }
         }
         // Methods
-        let methodOid = mdv.itemGroups[this.props.itemGroupOid].itemRefs[itemRefOid].methodOid;
+        let methodOid = mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].methodOid;
         if (methodOid !== undefined) {
             if (methodOids[methodOid] === undefined) {
                 methodOids[methodOid] = [];
@@ -69,6 +85,43 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOids)
                 codeListOids[codeListOid].push(itemOid);
             }
         }
+    });
+    // Value-level
+
+    Object.keys(vlmItemRefOids).forEach( valueListOid => {
+        vlmItemRefOids[valueListOid].forEach( itemRefOid => {
+            let itemOid = mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid;
+            // Comments
+            let commentOid = mdv.itemDefs[itemOid].commentOid;
+            if (commentOid !== undefined) {
+                if (commentOids[commentOid] === undefined) {
+                    commentOids[commentOid] = [];
+                }
+                if (!commentOids[commentOid].includes[itemOid]) {
+                    commentOids[commentOid].push(itemOid);
+                }
+            }
+            // Methods
+            let methodOid = mdv.valueLists[valueListOid].itemRefs[itemRefOid].methodOid;
+            if (methodOid !== undefined) {
+                if (methodOids[methodOid] === undefined) {
+                    methodOids[methodOid] = [];
+                }
+                if (!methodOids[methodOid].includes[itemRefOid]) {
+                    methodOids[methodOid].push(itemRefOid);
+                }
+            }
+            // CodeLists
+            let codeListOid = mdv.itemDefs[itemOid].codeListOid;
+            if (codeListOid !== undefined) {
+                if (codeListOids[codeListOid] === undefined) {
+                    codeListOids[codeListOid] = [];
+                }
+                if (!codeListOids[codeListOid].includes[itemOid]) {
+                    codeListOids[codeListOid].push(itemOid);
+                }
+            }
+        });
     });
 
     return (

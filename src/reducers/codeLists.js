@@ -281,8 +281,9 @@ const deleteCodeListReferences = (state, action, type) => {
             let codeList = newState[codeListOid];
             let sourceNum = [].concat.apply([],Object.keys(codeList.sources).map(type => (codeList.sources[type]))).length;
             if (sourceNum <= 1 && codeList.sources.itemDefs[0] === itemOid) {
-                // If the item to which codeList is attached is the only one, fully remove the codeList
-                delete newState[codeList.oid];
+                // If the item to which codeList is attached is the only one, keep it
+                // As codelists can be  created and worked on without any variables
+                // delete newState[codeList.oid];
             } else if (codeList.sources.itemDefs.includes(itemOid)){
                 // Remove  referece to the source OID from the list of codeList sources
                 let newSources = codeList.sources.itemDefs.slice();

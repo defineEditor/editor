@@ -68,21 +68,10 @@ const deleteWhereClauseRefereces = (state, action) => {
     // [valueListOid1, valueListOid2]
     let newState = { ...state };
     Object.keys(action.deleteObj.whereClauseOids).forEach( valueListOid => {
-        let whereClauseOid = action.deleteObj.whereClauseOids[valueListOid];
         let subAction = {};
-        subAction.whereClause = newState[whereClauseOid];
         subAction.source ={ oid: valueListOid };
-        newState = deleteWhereClause(newState, subAction);
-    });
-    action.deleteObj.valueListOids.forEach( valueListOid => {
-        // Find all whereClauses referencing that valueList
-        let whereClauseOids = Object.keys(newState).filter( whereClauseOid => {
-            return newState[whereClauseOid].sources.valueLists.includes(valueListOid);
-        });
-        whereClauseOids.forEach( whereClauseOid => {
-            let subAction = {};
+        action.deleteObj.whereClauseOids[valueListOid].forEach( whereClauseOid => {
             subAction.whereClause = newState[whereClauseOid];
-            subAction.source ={ oid: valueListOid };
             newState = deleteWhereClause(newState, subAction);
         });
     });

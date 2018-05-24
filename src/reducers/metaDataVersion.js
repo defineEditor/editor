@@ -8,6 +8,7 @@ import standards from 'reducers/standards.js';
 import supplementalDoc from 'reducers/supplementalDoc.js';
 import annotatedCrf from 'reducers/annotatedCrf.js';
 import whereClauses from 'reducers/whereClauses.js';
+import valueLists from 'reducers/valueLists.js';
 import leafs from 'reducers/leafs.js';
 import { MetaDataVersion } from 'elements.js';
 import {
@@ -28,6 +29,7 @@ const metaDataVersion = (state = initialState, action) => {
             ...state,
             standards       : standards(state.standards, action),
             whereClauses    : whereClauses(state.whereClauses, action),
+            valueLists      : valueLists(state.valueLists, action),
             annotatedCrf    : annotatedCrf(state.annotatedCrf, action),
             supplementalDoc : supplementalDoc(state.supplementalDoc, action),
             itemGroups      : itemGroups(state.itemGroups, action),

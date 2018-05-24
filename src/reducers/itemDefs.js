@@ -58,6 +58,8 @@ const addVariable = (state, action) => {
 };
 
 const deleteVariables = (state, action) => {
+    // action.deleteObj.itemDefOids: [itemDefOid1, itemDefOid2, ...]
+    // action.deleteObj.vlmItemDefOids: { valueListOid1: [itemDefOid1, itemDefOid2, ...], valueListOid2: [itemDefOid3, ...]
     let newState = Object.assign({}, state);
     // First go through itemDefs which are coming from the variable level;
     action.deleteObj.itemDefOids.forEach( itemDefOid => {
@@ -74,7 +76,26 @@ const deleteVariables = (state, action) => {
         }
     });
     // Remove value levels
-    // TODO
+    Object.keys(action.deleteObj.vlmItemDefOids).forEach( valueListOid => {
+        action.deleteObj.vlmItemDefOids[valueListOid].forEach( itemDefOid => {
+            // If it is referened only in 1 dataset, remove it
+            let sourceNum = [].concat.apply([],Object.keys(state[itemDefOid].sources).map(type => (state[itemDefOid].sources[type]))).length;
+            if (sourceNum === 1
+                && state[itemDefOid].sources.valueLists[0] === valueListOid) {
+                delete newState[itemDefOid];
+            } else if (state[itemDefOid].sources.valueLists.includes(valueListOid)) {
+                // Delete the dataset from the sources
+                let newSourcesForType = state[itemDefOid].sources.valueLists.slice();
+                newSourcesForType.splice(newSourcesForType.indexOf(valueListOid),1);
+                newState = {
+                    ...newState,
+                    [itemDefOid]: new ItemDef({ ...state[itemDefOid],
+                        sources: { ...state[itemDefOid].sources, valueLists: newSourcesForType }
+                    })
+                };
+            }
+        });
+    });
     return newState;
 };
 
