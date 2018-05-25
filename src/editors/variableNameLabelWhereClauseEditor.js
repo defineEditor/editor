@@ -72,10 +72,10 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
         this.state = {
             name          : this.props.defaultValue.name || '',
             descriptions  : this.props.defaultValue.descriptions,
-            autoLabel     : autoLabel,
             whereClause   : this.props.defaultValue.whereClause,
-            wcEditingMode : 'interactive',
             wcComment     : wcComment,
+            autoLabel     : autoLabel,
+            wcEditingMode : 'interactive',
         };
     }
 
@@ -95,17 +95,15 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
             });
             this.setState({
                 whereClause: new WhereClause({
-                    oid         : this.state.whereClause.oid,
-                    commentOid  : this.state.whereClause.commentOid,
-                    rangeChecks : rangeChecks,
+                    ...this.state.whereClause,
+                    rangeChecks: rangeChecks,
                 })
             });
         } else if (name === 'comment') {
             this.setState({
                 whereClause: new WhereClause({
-                    oid         : this.state.whereClause.oid,
-                    commentOid  : updateObj.oid,
-                    rangeChecks : this.state.whereClause.rangeChecks,
+                    ...this.state.whereClause,
+                    commentOid: updateObj.oid,
                 }),
                 wcComment: updateObj,
             });
@@ -267,9 +265,8 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
         // Create and set the new WhereClause
         this.setState({
             whereClause: new WhereClause({
-                oid         : this.state.whereClause.oid,
-                commentOid  : this.state.whereClause.commentOid,
-                rangeChecks : rangeChecks,
+                ...this.state.whereClause,
+                rangeChecks: rangeChecks,
             })
         });
     }
@@ -278,7 +275,8 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
         this.props.onUpdate({
             name         : this.state.name,
             descriptions : this.state.descriptions,
-            whereClause  : this.state.whereClause
+            whereClause  : this.state.whereClause,
+            wcComment    : this.state.wcComment,
         });
     }
 

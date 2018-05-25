@@ -102,11 +102,16 @@ const deleteItemGroupComment = (state, action) => {
 
 
 const updateItemRef = (state, action) => {
-    let newItemRef = new ItemRef({ ...state[action.source.itemGroupOid].itemRefs[action.source.itemRefOid], ...action.updateObj });
-    let newItemGroup =  new ItemGroup({ ...state[action.source.itemGroupOid],
-        itemRefs: { ...state[action.source.itemGroupOid].itemRefs, [action.source.itemRefOid]: newItemRef }
-    });
-    return { ...state, [action.source.itemGroupOid]: newItemGroup };
+    // Skip update if this is VLM itemRef
+    if (action.source.vlm) {
+        return state;
+    } else {
+        let newItemRef = new ItemRef({ ...state[action.source.itemGroupOid].itemRefs[action.source.itemRefOid], ...action.updateObj });
+        let newItemGroup =  new ItemGroup({ ...state[action.source.itemGroupOid],
+            itemRefs: { ...state[action.source.itemGroupOid].itemRefs, [action.source.itemRefOid]: newItemRef }
+        });
+        return { ...state, [action.source.itemGroupOid]: newItemGroup };
+    }
 };
 
 const updateItemRefOrder = (state, action) => {
@@ -116,63 +121,73 @@ const updateItemRefOrder = (state, action) => {
 };
 
 const updateItemRefKeyOrder = (state, action) => {
-    // Check if order changed;
-    let ds = state[action.source.itemGroupOid];
-    let newItemRefOrder;
-    let newKeyOrder;
-    if (action.updateObj.orderNumber !== action.prevObj.orderNumber) {
-        newItemRefOrder = ds.itemRefOrder.slice();
-        // Delete element from the ordered array
-        newItemRefOrder.splice(newItemRefOrder.indexOf(action.source.itemRefOid),1);
-        // Insert it in the new place
-        if (action.updateObj.orderNumber !== ds.itemRefOrder.length) {
-            newItemRefOrder.splice(action.updateObj.orderNumber - 1, 0, action.source.itemRefOid);
-        } else {
-            newItemRefOrder.push(action.source.itemRefOid);
-        }
+    // Skip update if this is VLM itemRef
+    if (action.source.vlm) {
+        return state;
     } else {
-        newItemRefOrder = ds.itemRefOrder;
-    }
-    if (action.updateObj.keySequence !== action.prevObj.keySequence) {
-        newKeyOrder = ds.keyOrder.slice();
-        // Delete element from the keys array if it was a key
-        if (ds.keyOrder.includes(action.source.itemRefOid)) {
-            newKeyOrder.splice(newKeyOrder.indexOf(action.source.itemRefOid),1);
-        }
-        // Insert it in the new place
-        if (action.updateObj.keySequence !== ds.keyOrder.length) {
-            newKeyOrder.splice(action.updateObj.keySequence - 1, 0, action.source.itemRefOid);
+        // Check if order changed;
+        let ds = state[action.source.itemGroupOid];
+        let newItemRefOrder;
+        let newKeyOrder;
+        if (action.updateObj.orderNumber !== action.prevObj.orderNumber) {
+            newItemRefOrder = ds.itemRefOrder.slice();
+            // Delete element from the ordered array
+            newItemRefOrder.splice(newItemRefOrder.indexOf(action.source.itemRefOid),1);
+            // Insert it in the new place
+            if (action.updateObj.orderNumber !== ds.itemRefOrder.length) {
+                newItemRefOrder.splice(action.updateObj.orderNumber - 1, 0, action.source.itemRefOid);
+            } else {
+                newItemRefOrder.push(action.source.itemRefOid);
+            }
         } else {
-            newKeyOrder.push(action.source.itemRefOid);
+            newItemRefOrder = ds.itemRefOrder;
         }
+        if (action.updateObj.keySequence !== action.prevObj.keySequence) {
+            newKeyOrder = ds.keyOrder.slice();
+            // Delete element from the keys array if it was a key
+            if (ds.keyOrder.includes(action.source.itemRefOid)) {
+                newKeyOrder.splice(newKeyOrder.indexOf(action.source.itemRefOid),1);
+            }
+            // Insert it in the new place
+            if (action.updateObj.keySequence !== ds.keyOrder.length) {
+                newKeyOrder.splice(action.updateObj.keySequence - 1, 0, action.source.itemRefOid);
+            } else {
+                newKeyOrder.push(action.source.itemRefOid);
+            }
 
-    } else {
-        newKeyOrder = ds.keyOrder;
+        } else {
+            newKeyOrder = ds.keyOrder;
+        }
+        let newItemGroup =  new ItemGroup({ ...state[action.source.itemGroupOid],
+            itemRefOrder : newItemRefOrder,
+            keyOrder     : newKeyOrder,
+        });
+        return { ...state, [action.source.itemGroupOid]: newItemGroup };
     }
-    let newItemGroup =  new ItemGroup({ ...state[action.source.itemGroupOid],
-        itemRefOrder : newItemRefOrder,
-        keyOrder     : newKeyOrder,
-    });
-    return { ...state, [action.source.itemGroupOid]: newItemGroup };
 };
 
 const updateItemDescription = (state, action) => {
-    // Method
-    let previousMethodOid;
-    if (action.prevObj.method !== undefined) {
-        previousMethodOid = action.prevObj.method.oid;
-    }
-    let newMethodOid;
-    if (action.updateObj.method !== undefined) {
-        newMethodOid = action.updateObj.method.oid;
-    }
-    if (previousMethodOid !== newMethodOid) {
-        let newAction = {};
-        newAction.source = action.source;
-        newAction.updateObj = { methodOid: newMethodOid };
-        return updateItemRef(state, newAction);
-    } else {
+    // Skip update if this is VLM itemRef
+    if (action.source.vlm) {
         return state;
+    } else {
+        // Method
+        let previousMethodOid;
+        if (action.prevObj.method !== undefined) {
+            previousMethodOid = action.prevObj.method.oid;
+        }
+        let newMethodOid;
+        if (action.updateObj.method !== undefined) {
+            newMethodOid = action.updateObj.method.oid;
+        }
+        if (previousMethodOid !== newMethodOid) {
+            let newAction = {};
+            newAction.source = action.source;
+            newAction.updateObj = { methodOid: newMethodOid };
+            return updateItemRef(state, newAction);
+        } else {
+            return state;
+        }
     }
 };
 

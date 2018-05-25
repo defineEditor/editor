@@ -49,7 +49,11 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
     // Form an object of comments to remove {commentOid: [itemOid1, itemOid2, ...]}
     let commentOids = {};
     // Form an object of methods to remove {methodOid: [itemOid1, itemOid2, ...]}
+    // Had to distinguish vlm and non-vlm method Oids, as they are defined at ItemRef level
     let methodOids = {};
+    // Form an object of VLM methods to remove {methodOid: { valueListOid1: [itemRefOid1, itemRefOid2] valueListOid2: [itemRefOid3, ...], ...}
+    // Had to distinguish vlm and non-vlm method Oids, as they are defined at ItemRef level
+    let vlmMethodOids = {};
     // Form an object of codeLists to remove {codeListOid: [itemOid1, itemOid2, ...]}
     let codeListOids = {};
     // Variable-level
@@ -104,11 +108,14 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
             // Methods
             let methodOid = mdv.valueLists[valueListOid].itemRefs[itemRefOid].methodOid;
             if (methodOid !== undefined) {
-                if (methodOids[methodOid] === undefined) {
-                    methodOids[methodOid] = [];
+                if (vlmMethodOids[methodOid] === undefined) {
+                    vlmMethodOids[methodOid] = {};
                 }
-                if (!methodOids[methodOid].includes[itemRefOid]) {
-                    methodOids[methodOid].push(itemRefOid);
+                if (vlmMethodOids[methodOid][valueListOid] === undefined) {
+                    vlmMethodOids[methodOid][valueListOid] = [];
+                }
+                if (!vlmMethodOids[methodOid][valueListOid].includes[itemRefOid]) {
+                    vlmMethodOids[methodOid][valueListOid].push(itemRefOid);
                 }
             }
             // CodeLists
@@ -132,6 +139,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
             vlmItemDefOids,
             commentOids,
             methodOids,
+            vlmMethodOids,
             codeListOids,
             valueListOids,
             whereClauseOids

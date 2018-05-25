@@ -260,19 +260,35 @@ function parseMethods (methodsRaw, mdv) {
             });
         }
         // Connect method to its sources
-        let sources = [];
+        let sources = {
+            itemGroups : {},
+            valueLists : {},
+        };
         Object.keys(mdv.itemGroups).forEach( itemGroupOid => {
             Object.keys(mdv.itemGroups[itemGroupOid].itemRefs).forEach( itemRefOid => {
                 if (mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].methodOid === method.oid) {
-                    sources.push(itemRefOid);
+                    if (sources.itemGroups[itemGroupOid] === undefined) {
+                        sources.itemGroups[itemGroupOid] = [itemRefOid];
+                    } else {
+                        sources.itemGroups[itemGroupOid].push(itemRefOid);
+                    }
                 }
             });
         });
 
-        method.sources = {
-            itemRefs: sources,
-        };
+        Object.keys(mdv.valueLists).forEach( valueListOid => {
+            Object.keys(mdv.valueLists[valueListOid].itemRefs).forEach( itemRefOid => {
+                if (mdv.valueLists[valueListOid].itemRefs[itemRefOid].methodOid === method.oid) {
+                    if (sources.valueLists[valueListOid] === undefined) {
+                        sources.valueLists[valueListOid] = [itemRefOid];
+                    } else {
+                        sources.valueLists[valueListOid].push(itemRefOid);
+                    }
+                }
+            });
+        });
 
+        method.sources = sources;
         methods[method.oid] = method;
     });
 

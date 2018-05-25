@@ -457,7 +457,8 @@ class Method extends Comment {
             initialSources = sources;
         } else {
             initialSources = {
-                itemRefs: [],
+                itemGroups : [],
+                valueLists : [],
             };
         }
         super({

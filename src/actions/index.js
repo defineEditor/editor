@@ -32,6 +32,7 @@ import {
     UPD_MDV,
     UPD_LEAFS,
     UPD_KEYOREDER,
+    UPD_NAMELABELWHERECLAUSE,
 } from "constants/action-types";
 
 // Core actions
@@ -171,6 +172,15 @@ export const updateItemDescription = (source, updateObj, prevObj) => (
         prevObj   : prevObj,
     }
 );
+
+export const updateNameLabelWhereClause = (source, updateObj) => (
+    {
+        type: UPD_NAMELABELWHERECLAUSE,
+        source,
+        updateObj,
+    }
+);
+
 
 export const addVariable = (source, itemRef, itemDef, orderNumber) => (
     {

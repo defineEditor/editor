@@ -24,6 +24,9 @@ const styles = theme => ({
         marginRight  : '0px',
         marginBottom : '8px',
     },
+    multipleSourcesLine: {
+        whiteSpace: 'pre-wrap',
+    },
 });
 
 const mapStateToProps = state => {
@@ -179,7 +182,7 @@ class ConnectedCommentEditor extends React.Component {
                     </Grid>
                     {(sourceLabels.count > 1)  &&
                             <Grid item xs={12}>
-                                <Typography variant="caption">
+                                <Typography variant="caption" className={classes.multipleSourcesLine}>
                                     Comment used by multiple sources. {usedBy}
                                 </Typography>
                             </Grid>

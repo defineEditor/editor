@@ -1,7 +1,8 @@
 import {
     DEL_VARS,
+    UPD_NAMELABELWHERECLAUSE,
 } from "constants/action-types";
-import { ValueList } from 'elements.js';
+import { ValueList, ItemRef } from 'elements.js';
 
 /*
 const addValueList = (state, action) => {
@@ -145,15 +146,37 @@ const deleteVariables = (state, action) => {
             } else {
                 newKeyOrder = valueList.keyOrder;
             }
-            let newValueList =  new ValueList({ ...newState[valueListOid],
-                itemRefs     : newItemRefs,
-                itemRefOrder : newItemRefOrder,
-                keyOrder     : newKeyOrder,
-            });
-            newState = { ...newState, [newValueList.oid]: newValueList };
+            if (newItemRefOrder.length === 0) {
+                // If there are no more itemRefs left, delete the valueList
+                delete newState[valueListOid];
+            } else {
+                let newValueList =  new ValueList({ ...newState[valueListOid],
+                    itemRefs     : newItemRefs,
+                    itemRefOrder : newItemRefOrder,
+                    keyOrder     : newKeyOrder,
+                });
+
+                newState = { ...newState, [valueListOid]: newValueList };
+            }
         }
     });
     return newState;
+};
+
+const updateItemRefWhereClause = (state, action) => {
+    // action.source = {oid, itemRefOid, valueListOid}
+    // action.updateObj = {name, description, whereClause, wcComment, oldWcCommentOid, oldWcOid}
+    // Check if the whereClauseOid changed;
+    let valueList = state[action.source.valueListOid];
+    let itemRef = valueList.itemRefs[action.source.itemRefOid];
+    if (action.updateObj.whereClause.oid !== itemRef.whereClauseOid) {
+        let newItemRef =  new ItemRef({ ...itemRef, whereClauseOid: action.updateObj.whereClause.oid });
+        let newValueList =  new ValueList({ ...valueList, itemRefs: { ...valueList.itemRefs, [action.source.itemRefOid]: newItemRef } });
+        return { ...state, [action.source.valueListOid]: newValueList };
+    }
+    else {
+        return state;
+    }
 };
 
 /*
@@ -171,6 +194,8 @@ const valueLists = (state = {}, action) => {
         case DEL_ITEMGROUPS:
             return deleteValueLists(state, action);
             */
+        case UPD_NAMELABELWHERECLAUSE:
+            return updateItemRefWhereClause(state, action);
         case DEL_VARS:
             return deleteVariables(state, action);
         default:

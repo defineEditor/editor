@@ -2,6 +2,7 @@ import {
     UPD_ITEMDEF,
     UPD_ITEMCLDF,
     UPD_ITEMDESCRIPTION,
+    UPD_NAMELABELWHERECLAUSE,
     ADD_VAR,
     DEL_VARS,
     DEL_CODELISTS,
@@ -51,6 +52,11 @@ const updateItemDescription = (state, action) => {
     } else {
         return state;
     }
+};
+
+const updateNameLabel = (state, action) => {
+    let newItemDef = new ItemDef({...state[action.source.itemOid], ...action.updateObj});
+    return { ...state, [action.oid]: newItemDef };
 };
 
 const addVariable = (state, action) => {
@@ -118,6 +124,8 @@ const itemDefs = (state = {}, action) => {
             return updateItemCodeListDisplayFormat(state, action);
         case UPD_ITEMDESCRIPTION:
             return updateItemDescription(state, action);
+        case UPD_NAMELABELWHERECLAUSE:
+            return updateNameLabel(state, action);
         case ADD_VAR:
             return addVariable(state, action);
         case DEL_VARS:

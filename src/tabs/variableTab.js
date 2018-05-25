@@ -31,7 +31,7 @@ import VariableNameLabelWhereClauseEditor from 'editors/variableNameLabelWhereCl
 import VariableNameLabelWhereClauseFormatter from 'formatters/variableNameLabelWhereClauseFormatter.js';
 import {
     updateItemDef, updateItemRef, updateItemRefKeyOrder, updateItemCodeListDisplayFormat,
-    updateItemDescription, deleteVariables
+    updateItemDescription, deleteVariables, updateNameLabelWhereClause,
 } from 'actions/index.js';
 
 
@@ -40,6 +40,7 @@ const mapDispatchToProps = dispatch => {
     return {
         updateItemDef                   : (oid, updateObj) => dispatch(updateItemDef(oid, updateObj)),
         updateItemRef                   : (source, updateObj) => dispatch(updateItemRef(source, updateObj)),
+        updateNameLabelWhereClause      : (source, updateObj) => dispatch(updateNameLabelWhereClause(source, updateObj)),
         updateItemRefKeyOrder           : (source, updateObj, prevObj) => dispatch(updateItemRefKeyOrder(source, updateObj, prevObj)),
         updateItemCodeListDisplayFormat : (oid, updateObj, prevObj) => dispatch(updateItemCodeListDisplayFormat(oid, updateObj, prevObj)),
         updateItemDescription           : (source, updateObj, prevObj) => dispatch(updateItemDescription(source, updateObj, prevObj)),
@@ -288,6 +289,7 @@ class ConnectedVariableTable extends React.Component {
                         oid          : row.oid,
                         itemGroupOid : row.itemGroupOid,
                         itemRefOid   : row.itemRefOid,
+                        vlm          : (row.vlmLevel === 1),
                     },
                     updateObj,
                     row.description,
@@ -296,6 +298,7 @@ class ConnectedVariableTable extends React.Component {
                 this.props.updateItemRef({
                     itemGroupOid : row.itemGroupOid,
                     itemRefOid   : row.itemRefOid,
+                    vlm          : (row.vlmLevel === 1),
                 }, updateObj);
             } else if (cellName === 'codeListFormatAttrs') {
                 this.props.updateItemCodeListDisplayFormat(
@@ -308,12 +311,27 @@ class ConnectedVariableTable extends React.Component {
                     {
                         itemGroupOid : row.itemGroupOid,
                         itemRefOid   : row.itemRefOid,
+                        vlm          : (row.vlmLevel === 1),
                     },
                     updateObj,
                     row.keyOrder
                 );
-            } else if (row.vlmLevel === 0) {
+            } else if (row.vlmLevel === 0 || (cellName !== 'nameLabelWhereClause')) {
                 this.props.updateItemDef(row.oid, updateObj);
+            } else if (row.vlmLevel === 1 && cellName === 'nameLabelWhereClause') {
+                // If WhereClause itself or attached comment did not change, then it is just itemDef update
+                let oldWcComment;
+                if (row[cellName].whereClause.commentOid !== undefined) {
+                    oldWcComment = row.mdv.comments[row[cellName].whereClause.commentOid];
+                }
+                if (deepEqual(row.nameLabelWhereClause.whereClause, cellValue.whereClause)
+                    && deepEqual(oldWcComment, cellValue.wcComment)) {
+                    this.props.updateItemDef(row.oid, updateObj);
+                } else {
+                    updateObj.oldWcOid = row[cellName].whereClause.oid;
+                    updateObj.oldWcCommentOid = row[cellName].whereClause.commentOid;
+                    this.props.updateNameLabelWhereClause({ oid: row.oid, itemRefOid: row.itemRefOid, valueListOid: row.itemGroupOid }, updateObj);
+                }
             }
         }
         return true;
