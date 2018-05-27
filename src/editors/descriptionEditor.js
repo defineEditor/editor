@@ -86,9 +86,9 @@ class DescriptionEditor extends React.Component {
 }
 
 DescriptionEditor.propTypes = {
-    defaultValue    : PropTypes.object,
-    leafs           : PropTypes.object.isRequired,
-    model           : PropTypes.string.isRequired,
+    defaultValue : PropTypes.object,
+    leafs        : PropTypes.object.isRequired,
+    model        : PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(DescriptionEditor);

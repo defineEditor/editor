@@ -111,7 +111,7 @@ function variableCodeListFormatFormatter (cell, row) {
 
 function variableLengthFormatter (cell, row) {
     if (row.dataType !== undefined) {
-        return (<VariableLengthFormatter value={cell} defineVersion={row.defineVersion} dataType={row.dataType}/>);
+        return (<VariableLengthFormatter value={cell} defineVersion={row.defineVersion} dataType={row.dataType} row={row}/>);
     }
 }
 
@@ -173,7 +173,7 @@ function getTableData ({source, datasetName, itemDefs, codeLists, mdv, defineVer
             oid           : originItemDef.oid,
             name          : originItemDef.name,
             dataType      : originItemDef.dataType,
-            codeList      : originItemDef.codeListOid !== undefined && codeLists[originItemDef.codeListOid],
+            codeList      : originItemDef.codeListOid !== undefined ? codeLists[originItemDef.codeListOid] : undefined,
             valueList     : originItemDef.valueListOid !== undefined ? mdv.valueLists[originItemDef.valueListOid] : undefined,
             model         : mdv.model,
             mdv           : mdv,

@@ -28,6 +28,14 @@ class ItemSelect extends React.Component {
         this.props.onUpdate(event.target.value);
     };
 
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.props.onUpdate(this.props.defaultValue);
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.props.onUpdate(event.target.value);
+        }
+    }
+
     render() {
         const {classes, label} = this.props;
 
@@ -37,7 +45,7 @@ class ItemSelect extends React.Component {
                 fullWidth
                 autoFocus
                 select={true}
-                onKeyDown={this.props.onKeyDown}
+                onKeyDown={this.onKeyDown}
                 value={this.state.value}
                 onChange={this.handleChange}
                 className={classes.textField}

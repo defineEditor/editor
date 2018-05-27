@@ -13,7 +13,10 @@ const styles = theme => ({
     value: {
         whiteSpace   : 'normal',
         overflowWrap : 'break-word',
-    }
+    },
+    root: {
+        outline: 'none',
+    },
 });
 
 class VariableCodeListFormatEditor extends React.Component {
@@ -26,6 +29,12 @@ class VariableCodeListFormatEditor extends React.Component {
         // For items with the text datatype always prefix the value with $ or is blank
         if (this.props.row.dataType === 'text' && name === 'displayFormat' && event.target.value.match(/^\$|^$/) === null) {
             this.setState({ [name]: '$' + event.target.value });
+        } else if (name === 'codeListOid') {
+            if (event.target.value !== '') {
+                this.setState({ codeListOid: event.target.value });
+            } else {
+                this.setState({ codeListOid: undefined });
+            }
         } else {
             this.setState({ [name]: event.target.value });
         }
@@ -38,6 +47,15 @@ class VariableCodeListFormatEditor extends React.Component {
     cancel = () => {
         this.props.onUpdate(this.props.defaultValue);
     }
+
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.cancel();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.save();
+        }
+    }
+
 
     render() {
         const {classes} = this.props;
@@ -57,35 +75,41 @@ class VariableCodeListFormatEditor extends React.Component {
         });
 
         return (
-            <Grid container spacing={0}>
-                <Grid item xs={12}>
-                    <TextField
-                        label='CodeList'
-                        autoFocus
-                        fullWidth
-                        select
-                        multiline
-                        value={codeListOid}
-                        onChange={this.handleChange('codeListOid')}
-                        className={classes.textField}
-                        InputProps={{classes: {input: classes.value}}}
-                    >
-                        {getSelectionList(codeLists,true)}
-                    </TextField>
+            <div
+                onKeyDown={this.onKeyDown}
+                tabIndex='0'
+                className={classes.root}
+            >
+                <Grid container spacing={0}>
+                    <Grid item xs={12}>
+                        <TextField
+                            label='CodeList'
+                            autoFocus
+                            fullWidth
+                            select
+                            multiline
+                            value={codeListOid}
+                            onChange={this.handleChange('codeListOid')}
+                            className={classes.textField}
+                            InputProps={{classes: {input: classes.value}}}
+                        >
+                            {getSelectionList(codeLists,true)}
+                        </TextField>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label='Display Format'
+                            fullWidth
+                            value={displayFormat}
+                            onChange={this.handleChange('displayFormat')}
+                            className={classes.textField}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <SaveCancel mini icon save={this.save} cancel={this.cancel}/>
+                    </Grid>
                 </Grid>
-                <Grid item xs={12}>
-                    <TextField
-                        label='Display Format'
-                        fullWidth
-                        value={displayFormat}
-                        onChange={this.handleChange('displayFormat')}
-                        className={classes.textField}
-                    />
-                </Grid>
-                <Grid item xs={12}>
-                    <SaveCancel mini icon save={this.save} cancel={this.cancel}/>
-                </Grid>
-            </Grid>
+            </div>
         );
     }
 }

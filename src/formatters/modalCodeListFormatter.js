@@ -38,7 +38,9 @@ class ModalCodeListFormatter extends React.Component {
     };
 
     handleOpen = () => {
-        this.setState({ open: true });
+        if (!this.state.open) {
+            this.setState({ open: true });
+        }
     };
 
     handleClose = () => {

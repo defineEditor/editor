@@ -9,20 +9,26 @@ import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 
 const styles = theme => ({
     textField: {
-        margin : 'none',
         width  : '40px',
+        height : '20px',
     },
     gridItemADaM: {
-        textAlign: 'center',
+        flexBasis : 'unset',
+        textAlign : 'center',
+        height    : '20px',
     },
     checkbox: {
         margin: 'none',
+    },
+    root: {
+        outline: 'none',
     },
 });
 
 class roleMandatoryEditor extends React.Component {
     constructor (props) {
         super(props);
+        this.rootRef = React.createRef();
         if (props.model === 'SDTM' || props.model === 'SEND') {
             this.state = {
                 role          : this.props.defaultValue.role,
@@ -64,45 +70,68 @@ class roleMandatoryEditor extends React.Component {
         this.props.onUpdate(this.props.defaultValue);
     }
 
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.cancel();
+        } else if (event.keyCode === 13) {
+            this.save();
+        } else if (event.keyCode === 32) {
+            if (this.props.model === 'ADaM') {
+                event.preventDefault();
+                this.setState({mandatoryFlag: !this.state.mandatoryFlag});
+            }
+        }
+    }
+
+    componentDidMount() {
+        this.rootRef.current.focus();
+    }
+
     render () {
         const { classes } = this.props;
 
         return (
-            <Grid
-                container
-                spacing={0}
-                onKeyDown={ this.props.onKeyDown }
+            <div
+                onKeyDown={this.onKeyDown}
+                tabIndex='0'
+                ref={this.rootRef}
+                className={classes.root}
             >
                 <Grid
-                    item
-                    xs={12}
-                    className={this.props.model === 'ADaM' ? classes.gridItemADaM : false}
+                    container
+                    spacing={0}
                 >
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={this.state.mandatoryFlag}
-                                onChange={this.handleChange('mandatoryFlag')}
-                                value='Mandatory'
-                                color='primary'
-                                className={classes.checkbox}
-                            />
-                        }
-                        label={this.props.model === 'ADaM' ? false : "Mandatory"}
-                        className={classes.textField}
-                    />
+                    <Grid
+                        item
+                        xs={12}
+                        className={this.props.model === 'ADaM' ? classes.gridItemADaM : false}
+                    >
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={this.state.mandatoryFlag}
+                                    onChange={this.handleChange('mandatoryFlag')}
+                                    value='Mandatory'
+                                    color='primary'
+                                    className={classes.checkbox}
+                                />
+                            }
+                            label={this.props.model === 'ADaM' ? false : "Mandatory"}
+                            className={classes.textField}
+                        />
+                    </Grid>
+                    {(this.props.model === 'SDTM' || this.props.model === 'SEND') &&
+                            <React.Fragment>
+                                <Grid item xs={12}>
+                                    <SimpleSelectEditor/>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <SaveCancel mini icon save={this.save} cancel={this.cancel}/>
+                                </Grid>
+                            </React.Fragment>
+                    }
                 </Grid>
-                {(this.props.model === 'SDTM' || this.props.model === 'SEND') &&
-                        <React.Fragment>
-                            <Grid item xs={12}>
-                                <SimpleSelectEditor/>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <SaveCancel mini icon save={this.save} cancel={this.cancel}/>
-                            </Grid>
-                        </React.Fragment>
-                }
-            </Grid>
+            </div>
         );
     }
 }

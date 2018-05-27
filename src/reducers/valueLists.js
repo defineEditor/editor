@@ -1,6 +1,7 @@
 import {
     DEL_VARS,
     UPD_NAMELABELWHERECLAUSE,
+    UPD_ITEMREF,
 } from "constants/action-types";
 import { ValueList, ItemRef } from 'elements.js';
 
@@ -19,14 +20,6 @@ const deleteValueLists = (state, action) => {
     });
 
     return newState;
-};
-
-const updateItemRef = (state, action) => {
-    let newItemRef = new ItemRef({ ...state[action.source.valueListOid].itemRefs[action.source.itemRefOid], ...action.updateObj });
-    let newValueList =  new ValueList({ ...state[action.source.valueListOid],
-        itemRefs: { ...state[action.source.valueListOid].itemRefs, [action.source.itemRefOid]: newItemRef }
-    });
-    return { ...state, [action.source.valueListOid]: newValueList };
 };
 
 const updateItemRefOrder = (state, action) => {
@@ -92,6 +85,17 @@ const addVariable = (state, action) => {
     return { ...state, [action.source.valueListOid]: newValueList };
 };
 */
+const updateItemRef = (state, action) => {
+    if (!action.source.vlm) {
+        return state;
+    } else {
+        let newItemRef = new ItemRef({ ...state[action.source.itemGroupOid].itemRefs[action.source.itemRefOid], ...action.updateObj });
+        let newValueList =  new ValueList({ ...state[action.source.itemGroupOid],
+            itemRefs: { ...state[action.source.itemGroupOid].itemRefs, [action.source.itemRefOid]: newItemRef }
+        });
+        return { ...state, [action.source.itemGroupOid]: newValueList };
+    }
+};
 
 const deleteVariables = (state, action) => {
     let newState = { ...state };
@@ -198,6 +202,8 @@ const valueLists = (state = {}, action) => {
             return updateItemRefWhereClause(state, action);
         case DEL_VARS:
             return deleteVariables(state, action);
+        case UPD_ITEMREF:
+            return updateItemRef(state, action);
         default:
             return state;
     }
