@@ -145,12 +145,13 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
         // If there is more than one range check, extract them one by one;
         let rawRangeChecks = [];
         if (rawWhereClause.length >= 3) {
-            let rawRangeCheck;
             let rawRanges = whereClauseLine;
+            let rawRangeCheck = wcRegex.rangeCheckExtract.exec(rawRanges);
             let nextRangeCheckRegex = new RegExp(wcRegex.rangeCheck.source + '(?:AND)?(.*)$','i');
-            while ((rawRangeCheck = wcRegex.rangeCheckExtract.exec(rawRanges)) !== null) {
+            while (rawRangeCheck !== null) {
                 rawRangeChecks.push(rawRangeCheck[1]);
                 rawRanges = rawRanges.replace(nextRangeCheckRegex, '$1');
+                rawRangeCheck = wcRegex.rangeCheckExtract.exec(rawRanges);
             }
         } else {
             // Only 1 range check is provided;
@@ -199,12 +200,13 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
         // If there is more than one range check, extract them one by one;
         let rawRangeChecks = [];
         if (rawWhereClause.length >= 3) {
-            let rawRangeCheck;
             let rawRanges = whereClauseLine;
+            let rawRangeCheck = wcRegex.rangeCheckExtract.exec(rawRanges);
             let nextRangeCheckRegex = new RegExp(wcRegex.rangeCheck.source + '(?:AND)?(.*)$','i');
-            while ((rawRangeCheck = wcRegex.rangeCheckExtract.exec(rawRanges)) !== null) {
+            while (rawRangeCheck !== null) {
                 rawRangeChecks.push(rawRangeCheck[1]);
                 rawRanges = rawRanges.replace(nextRangeCheckRegex, '$1');
+                rawRangeCheck = wcRegex.rangeCheckExtract.exec(rawRanges);
             }
         } else {
             // Only 1 range check is provided;
@@ -236,11 +238,12 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
             if (['IN','NOTIN'].indexOf(comparator) >= 0) {
                 let rawCheckValues = rangeCheckElements[2].trim();
                 // Extract values one by one when comparator is IN or NOT IN
-                let value;
+                let value = wcRegex.itemParse.exec(rawCheckValues);
                 let nextValueRegex = new RegExp(wcRegex.item.source + ',?(.*$)');
-                while ((value = wcRegex.itemParse.exec(rawCheckValues)) !== null) {
+                while (value !== null) {
                     checkValues.push(value[1]);
                     rawCheckValues = rawCheckValues.replace(nextValueRegex, '$1').trim();
+                    value = wcRegex.itemParse.exec(rawCheckValues);
                 }
             } else {
                 // Only 1 element is possible for other operators;

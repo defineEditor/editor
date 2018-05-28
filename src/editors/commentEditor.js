@@ -14,7 +14,7 @@ import SelectCommentIcon from '@material-ui/icons/OpenInNew';
 import Tooltip from '@material-ui/core/Tooltip';
 import {Comment, TranslatedText} from 'elements.js';
 import getOid from 'utils/getOid.js';
-import SelectComment from 'utils/selectComment.js';
+import SelectMethodComment from 'utils/selectMethodComment.js';
 import SaveCancel from 'editors/saveCancel.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
 
@@ -24,8 +24,15 @@ const styles = theme => ({
         marginRight  : '0px',
         marginBottom : '8px',
     },
+    commentInput: {
+        margin: '0px',
+    },
     multipleSourcesLine: {
-        whiteSpace: 'pre-wrap',
+        whiteSpace : 'pre-wrap',
+        color      : 'grey',
+    },
+    root: {
+        outline: 'none',
     },
 });
 
@@ -138,8 +145,13 @@ class ConnectedCommentEditor extends React.Component {
         }
 
         return (
-            <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef}>
-                <Grid container spacing={8}>
+            <div
+                onKeyDown={this.onKeyDown}
+                tabIndex='0'
+                ref={this.rootRef}
+                className={classes.root}
+            >
+                <Grid container>
                     <Grid item xs={12}>
                         <Typography variant="subheading">
                             Comment
@@ -182,13 +194,14 @@ class ConnectedCommentEditor extends React.Component {
                     </Grid>
                     {(sourceLabels.count > 1)  &&
                             <Grid item xs={12}>
-                                <Typography variant="caption" className={classes.multipleSourcesLine}>
-                                    Comment used by multiple sources. {usedBy}
-                                </Typography>
+                                <div className={classes.multipleSourcesLine}>
+                                    This comment is used by multiple sources. {usedBy}
+                                </div>
                             </Grid>
                     }
                     { this.state.selectCommentOpened &&
-                            <SelectComment
+                            <SelectMethodComment
+                                type='Comment'
                                 onSelect={this.handleChange('selectComment')}
                                 onCopy={this.handleChange('copyComment')}
                                 onClose={this.handleSelectDialog('closeSelectComment')}
@@ -203,8 +216,8 @@ class ConnectedCommentEditor extends React.Component {
                                     rowsMax="10"
                                     autoFocus={this.props.autoFocus}
                                     value={comment.getDescription()}
+                                    className={classes.commentInput}
                                     onChange={this.handleChange('textUpdate')}
-                                    margin="normal"
                                 />
                                 <DocumentEditor
                                     parentObj={comment}

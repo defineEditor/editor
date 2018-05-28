@@ -13,9 +13,11 @@ import TableRow from '@material-ui/core/TableRow';
 import ArchiveIcon from '@material-ui/icons/Archive';
 import CopyIcon from '@material-ui/icons/ContentCopy';
 import CloseIcon from '@material-ui/icons/Close';
+import MethodFormatter from 'formatters/methodFormatter.js';
 import CommentFormatter from 'formatters/commentFormatter.js';
 import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
+import getMethodSourceLabels from 'utils/getMethodSourceLabels.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -56,24 +58,39 @@ const styles = theme => ({
 
 const mapStateToProps = state => {
     return {
-        leafs    : state.odm.study.metaDataVersion.leafs,
-        comments : state.odm.study.metaDataVersion.comments,
-        mdv      : state.odm.study.metaDataVersion,
+        leafs : state.odm.study.metaDataVersion.leafs,
+        mdv   : state.odm.study.metaDataVersion,
     };
 };
 
-class ConnectedSelectComment extends React.Component {
+class ConnectedSelectMethodComment extends React.Component {
 
-    getComments = () => {
-        // Reverse the array, so that most recently worked comments are shown first.
+    getItems = (type) => {
+        // Reverse the array, so that most recently worked items are shown first.
         // TODO Sort by type of source (variables-> datasets -> codelists -> where clauses -> metadataVersion)
-        let result = Object.keys(this.props.comments).reverse()
-            .map(commentOid => {
-                let usedBy = getSourceLabels(this.props.comments[commentOid].sources, this.props.mdv).labelParts.join('. ');
+        let items;
+        if (type === 'Method') {
+            items = this.props.mdv.methods;
+        } else if (type === 'Comment') {
+            items = this.props.mdv.comments;
+        }
+        let result = Object.keys(items).reverse()
+            .map(itemOid => {
+                let usedBy;
+                if (type === 'Method') {
+                    usedBy = getMethodSourceLabels(items[itemOid].sources, this.props.mdv).labelParts.join('. ');
+                } else if (type === 'Comment') {
+                    usedBy = getSourceLabels(items[itemOid].sources, this.props.mdv).labelParts.join('. ');
+                }
                 return (
-                    <TableRow key={commentOid}>
+                    <TableRow key={itemOid}>
                         <TableCell className={this.props.classes.col1}>
-                            <CommentFormatter comment={this.props.comments[commentOid]} leafs={this.props.leafs}/>
+                            { type === 'Comment' &&
+                                <CommentFormatter comment={items[itemOid]} leafs={this.props.leafs}/>
+                            }
+                            { type === 'Method' &&
+                                <MethodFormatter method={items[itemOid]} leafs={this.props.leafs}/>
+                            }
                         </TableCell>
                         <TableCell className={this.props.classes.col2}>
                             {usedBy}
@@ -82,7 +99,7 @@ class ConnectedSelectComment extends React.Component {
                             <Tooltip title={'Select'} placement='bottom'>
                                 <span>
                                     <IconButton
-                                        onClick={() => this.props.onSelect(this.props.comments[commentOid])}
+                                        onClick={() => this.props.onSelect(items[itemOid])}
                                         className={this.props.classes.iconButton}
                                         color='default'
                                     >
@@ -93,7 +110,7 @@ class ConnectedSelectComment extends React.Component {
                             <Tooltip title={'Duplicate'} placement='bottom'>
                                 <span>
                                     <IconButton
-                                        onClick={() => this.props.onCopy(this.props.comments[commentOid])}
+                                        onClick={() => this.props.onCopy(items[itemOid])}
                                         className={this.props.classes.iconButton}
                                         color='default'
                                     >
@@ -129,7 +146,7 @@ class ConnectedSelectComment extends React.Component {
                 <DialogTitle>
                     <Grid container justify='space-between' alignItems='center'>
                         <Grid item xs={10}>
-                            Select Comment
+                            Select Method
                         </Grid>
                         <Grid item xs={2} className={classes.icon}>
                             <IconButton
@@ -146,13 +163,13 @@ class ConnectedSelectComment extends React.Component {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell className={classes.col1}>Comment</TableCell>
+                                <TableCell className={classes.col1}>{this.props.type}</TableCell>
                                 <TableCell className={classes.col2}>Used By</TableCell>
                                 <TableCell className={classes.col3}>Action</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.getComments()}
+                            {this.getItems(this.props.type)}
                         </TableBody>
                     </Table>
                 </DialogContent>
@@ -161,8 +178,8 @@ class ConnectedSelectComment extends React.Component {
     }
 }
 
-ConnectedSelectComment.propTypes = {
-    comments : PropTypes.object.isRequired,
+ConnectedSelectMethodComment.propTypes = {
+    type     : PropTypes.string.isRequired,
     leafs    : PropTypes.object.isRequired,
     mdv      : PropTypes.object.isRequired,
     onClose  : PropTypes.func.isRequired,
@@ -170,5 +187,5 @@ ConnectedSelectComment.propTypes = {
     onCopy   : PropTypes.func.isRequired,
 };
 
-const SelectComment = connect(mapStateToProps)(ConnectedSelectComment);
-export default withStyles(styles)(SelectComment);
+const SelectMethodComment = connect(mapStateToProps)(ConnectedSelectMethodComment);
+export default withStyles(styles)(SelectMethodComment);

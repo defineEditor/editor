@@ -111,7 +111,7 @@ class BasicFunctions {
         if (this.descriptions.length === 1) {
             return this.descriptions[0].value;
         } else {
-            return undefined;
+            return '';
         }
     }
     setDescription (value, language = 'en') {
@@ -457,8 +457,8 @@ class Method extends Comment {
             initialSources = sources;
         } else {
             initialSources = {
-                itemGroups : [],
-                valueLists : [],
+                itemGroups : {},
+                valueLists : {},
             };
         }
         super({
@@ -492,9 +492,14 @@ class Method extends Comment {
         let descriptions = this.descriptions.map( description => (description.clone()));
         let formalExpressions = this.formalExpressions.map( formalExpression => (formalExpression.clone()));
         let documents = this.documents.map( document => (document.clone()));
-        let sources = {};
+        let sources = {
+            itemGroups : {},
+            valueLists : {},
+        };
         Object.keys(this.sources).forEach( type => {
-            sources[type] = this.sources[type].slice();
+            Object.keys(this.sources[type]).forEach( typeOid => {
+                sources[type][typeOid] = this.sources[type][typeOid].slice();
+            });
         });
         return new Method({
             oid               : this.oid,

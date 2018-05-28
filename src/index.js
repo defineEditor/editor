@@ -8,18 +8,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from "react-redux";
 import store from 'store/odm.js';
-const {ipcRenderer} = window.require('electron');
-
-// React tools for development purposes
-window.require('electron-react-devtools').install();
-window.require('electron-redux-devtools').install();
 
 const sendDefineObject = (error, data) => {
     let odm = store.getState().odm;
-    ipcRenderer.send('DefineObject', odm);
+    window.ipcRenderer.send('DefineObject', odm);
 };
 
-ipcRenderer.on('SendDefineObjectToMain', sendDefineObject);
+window.ipcRenderer.on('SendDefineObjectToMain', sendDefineObject);
 
 ReactDOM.render(
     <Provider store={store}>

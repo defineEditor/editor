@@ -57,7 +57,7 @@ const mapStateToProps = state => {
 };
 
 // Debug options
-const hideMe = false;
+const hideMe = true;
 
 const styles = theme => ({
     button: {

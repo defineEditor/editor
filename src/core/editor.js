@@ -13,7 +13,6 @@ import {
     addStdConstants,
     updateCodeListStandardOids,
 } from 'actions/index.js';
-const {ipcRenderer} = window.require('electron');
 
 const styles = theme => ({
     root: {
@@ -55,14 +54,14 @@ const mapStateToProps = state => {
 
 class ConnectedEditor extends React.Component {
     componentDidMount() {
-        ipcRenderer.on('define', this.loadDefine);
-        ipcRenderer.on('stdCodeLists', this.loadStdCodeLists);
+        window.ipcRenderer.on('define', this.loadDefine);
+        window.ipcRenderer.on('stdCodeLists', this.loadStdCodeLists);
         this.props.addStdConstants();
     }
 
     componentWillUnmount() {
-        ipcRenderer.removeListener('define', this.loadDefine);
-        ipcRenderer.removeListener('stdCodeLists', this.loadStdCodeLists);
+        window.ipcRenderer.removeListener('define', this.loadDefine);
+        window.ipcRenderer.removeListener('stdCodeLists', this.loadStdCodeLists);
     }
 
     loadDefine = (error, data) => {
@@ -77,6 +76,7 @@ class ConnectedEditor extends React.Component {
         }
     });
     */
+        /*
         let mdv = odm.study.metaDataVersion;
         if (odm.study.metaDataVersion.itemGroups.hasOwnProperty('IG.ADQSADAS')) {
             Object.keys(odm.study.metaDataVersion.itemGroups['IG.ADQSADAS'].itemRefs).forEach( (item,index) => {
@@ -108,6 +108,7 @@ class ConnectedEditor extends React.Component {
                 }
             });
         }
+        */
         this.props.addOdm(odm);
     }
 

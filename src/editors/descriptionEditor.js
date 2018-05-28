@@ -18,11 +18,15 @@ const styles = theme => ({
     gridItem: {
         margin: 'none',
     },
+    root: {
+        outline: 'none',
+    },
 });
 
 class DescriptionEditor extends React.Component {
     constructor (props) {
         super(props);
+        this.rootRef = React.createRef();
         this.state = {
             origins  : this.props.defaultValue.origins,
             comment  : this.props.defaultValue.comment,
@@ -36,17 +40,25 @@ class DescriptionEditor extends React.Component {
     }
 
     save = () => {
-        // If Origin is not derived and method is shown only for derived origins
-        // and a method exists, then remove the method
-        // TODO: add condition when method is shown only for derived origin
-        //if (this.state.origins[0].type !== 'Derived' && this.state.method !== undefined) {
-        //    this.setState({method: undefined});
-        //}
         this.props.onUpdate(this.state);
     }
 
     cancel = () => {
         this.props.onUpdate(this.props.defaultValue);
+    }
+
+    onKeyDown = (event)  => {
+        if (this.props.stateless !== true) {
+            if (event.key === 'Escape' || event.keyCode === 27) {
+                this.cancel();
+            } else if (event.ctrlKey && (event.keyCode === 83)) {
+                // Focusing on the root element to fire all onBlur events for input fields
+                this.rootRef.current.focus();
+                // Call save through dummy setState to verify all states were updated
+                // TODO Check if this guarantees that all onBlurs are finished, looks like it is not
+                this.setState({}, this.save);
+            }
+        }
     }
 
     render () {
@@ -56,31 +68,40 @@ class DescriptionEditor extends React.Component {
         delete childProps.classes;
 
         return (
-            <Grid container spacing={8} alignItems='center'>
-                <Grid item xs={12} className={classes.gridItem}>
-                    <OriginEditor {...childProps} defaultValue={this.state.origins} onUpdate={this.handleChange('origins')}/>
-                </Grid>
-                <Grid item xs={12} className={classes.gridItem}>
-                    <Divider/>
-                </Grid>
-                <Grid item xs={12} className={classes.gridItem}>
-                    <CommentEditor {...childProps} comment={this.state.comment} onUpdate={this.handleChange('comment')} stateless={true}/>
-                </Grid>
-                <Grid item xs={12} className={classes.gridItem}>
-                    <Divider/>
-                </Grid>
-                <Grid item xs={12} className={classes.gridItem}>
+            <div
+                onKeyDown={this.onKeyDown}
+                tabIndex='0'
+                ref={this.rootRef}
+                className={classes.root}
+            >
+                <Grid container spacing={8} alignItems='center'>
+                    <Grid item xs={12} className={classes.gridItem}>
+                        <OriginEditor {...childProps} defaultValue={this.state.origins} onUpdate={this.handleChange('origins')}/>
+                    </Grid>
+                    <Grid item xs={12} className={classes.gridItem}>
+                        <Divider/>
+                    </Grid>
                     {(['Derived','Assigned'].includes(originType) || this.state.method !== undefined) &&
-                        <MethodEditor {...childProps} defaultValue={this.state.method} onUpdate={this.handleChange('method')} stateless={true}/>
+                            <React.Fragment>
+                                <Grid item xs={12} className={classes.gridItem}>
+                                    <MethodEditor {...childProps} defaultValue={this.state.method} onUpdate={this.handleChange('method')} stateless={true}/>
+                                </Grid>
+                                <Grid item xs={12} className={classes.gridItem}>
+                                    <Divider/>
+                                </Grid>
+                            </React.Fragment>
                     }
+                    <Grid item xs={12} className={classes.gridItem}>
+                        <CommentEditor {...childProps} comment={this.state.comment} onUpdate={this.handleChange('comment')} stateless={true}/>
+                    </Grid>
+                    <Grid item xs={12} className={classes.gridItem}>
+                        <Divider/>
+                    </Grid>
+                    <Grid item xs={12} className={classes.gridItem}>
+                        <SaveCancel save={this.save} cancel={this.cancel} />
+                    </Grid>
                 </Grid>
-                <Grid item xs={12} className={classes.gridItem}>
-                    <Divider/>
-                </Grid>
-                <Grid item xs={12} className={classes.gridItem}>
-                    <SaveCancel save={this.save} cancel={this.cancel} />
-                </Grid>
-            </Grid>
+            </div>
         );
     }
 }

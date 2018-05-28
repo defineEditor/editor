@@ -19,6 +19,9 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Switch from '@material-ui/core/Switch';
 import MenuItem from '@material-ui/core/MenuItem';
 import getOid from 'utils/getOid.js';
+import SelectMethodComment from 'utils/selectMethodComment.js';
+import getMethodSourceLabels from 'utils/getMethodSourceLabels.js';
+import SelectMethodIcon from '@material-ui/icons/OpenInNew';
 
 const styles = theme => ({
     button: {
@@ -38,11 +41,19 @@ const styles = theme => ({
     methodName: {
         marginLeft: '8px',
     },
+    multipleSourcesLine: {
+        whiteSpace : 'pre-wrap',
+        color      : 'grey',
+    },
+    titleLine: {
+        height: '40px',
+    },
 });
 
 const mapStateToProps = state => {
     return {
         leafs   : state.odm.study.metaDataVersion.leafs,
+        mdv     : state.odm.study.metaDataVersion,
         methods : state.odm.study.metaDataVersion.methods,
     };
 };
@@ -60,7 +71,12 @@ class ConnectedMethodEditor extends React.Component {
                 defaultValue = this.props.defaultValue;
             }
             this.state = {
-                method: defaultValue
+                method             : defaultValue,
+                selectMethodOpened : false,
+            };
+        } else {
+            this.state = {
+                selectMethodOpened: false,
             };
         }
     }
@@ -71,54 +87,60 @@ class ConnectedMethodEditor extends React.Component {
         if (name === 'addMethod') {
             let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
             newMethod = new Method({ oid: methodOid, descriptions: [new TranslatedText({lang: 'en', value: ''})] });
-        }
-        if (name === 'deleteMethod') {
+        } else if (name === 'deleteMethod') {
             newMethod = undefined;
-        }
-        if (name === 'textUpdate') {
+        } else if (name === 'textUpdate') {
             newMethod = method.clone();
             newMethod.setDescription(updateObj.target.value);
-        }
-        if (name === 'typeUpdate') {
+        } else if (name === 'typeUpdate') {
             newMethod = method.clone();
             newMethod.type = updateObj.target.value;
-        }
-        if (name === 'nameUpdate') {
+        } else if (name === 'nameUpdate') {
             newMethod = method.clone();
             newMethod.name = updateObj.target.value;
-        }
-        if (name === 'autoMethodNameUpdate') {
+        } else if (name === 'autoMethodNameUpdate') {
             newMethod = method.clone();
             newMethod.autoMethodName = checked;
             if (checked) {
                 newMethod.name = methodName;
             }
-        }
-        if (name === 'addDocument') {
+        } else if (name === 'addDocument') {
             newMethod = method.clone();
             newMethod.addDocument();
-        }
-        if (name === 'updateDocument') {
+        } else if (name === 'updateDocument') {
             newMethod = updateObj;
-        }
-        if (name === 'addFormalExpression') {
+        } else if (name === 'addFormalExpression') {
             newMethod = method.clone();
             newMethod.addFormalExpression();
-        }
-        if (name === 'deleteFormalExpression') {
+        } else if (name === 'deleteFormalExpression') {
             newMethod = method.clone();
             newMethod.formalExpressions = [];
-        }
-        if (name === 'updateFormalExpression') {
+        } else if (name === 'updateFormalExpression') {
             newMethod = method.clone();
             newMethod.formalExpressions[0] = updateObj;
+        } else if (name === 'selectMethod') {
+            newMethod = updateObj;
+            this.setState({selectMethodOpened: false});
+        } else if (name === 'copyMethod') {
+            let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
+            newMethod = new Method({ ...updateObj.clone(), oid: methodOid, sources: undefined });
+            this.setState({selectMethodOpened: false});
         }
+
         if (this.props.stateless === true) {
             // If state should be uplifted - use the callback
             this.props.onUpdate(newMethod);
         } else {
             // Otherwise update state locally
             this.setState({method: newMethod});
+        }
+    }
+
+    handleSelectDialog = (name) => (updateObj) => {
+        if (name === 'openSelectMethod') {
+            this.setState({selectMethodOpened: true});
+        } else if (name === 'closeSelectMethod') {
+            this.setState({selectMethodOpened: false});
         }
     }
 
@@ -153,6 +175,7 @@ class ConnectedMethodEditor extends React.Component {
         const { classes } = this.props;
         let method = this.props.stateless === true ? this.props.defaultValue : this.state.method;
         const methodTypeList = ['Imputation', 'Computation'];
+        let methodText = method.getDescription();
         let methodName, autoMethodName, methodType, formalExpressionExists;
         if (method !== undefined) {
             methodName = method.name || '';
@@ -171,10 +194,19 @@ class ConnectedMethodEditor extends React.Component {
             methodName = 'Algorithm for ' + this.props.row.fullName;
         }
 
+        let usedBy;
+        let sourceLabels = {count: 0};
+        if (method !== undefined) {
+            sourceLabels = getMethodSourceLabels(method.sources, this.props.mdv);
+            if (sourceLabels.count > 1) {
+                usedBy = sourceLabels.labelParts.join('. ');
+            }
+        }
+
         return (
             <Grid container spacing={8}>
                 <Grid item xs={12}>
-                    <Grid container spacing={0} justify='flex-start' alignItems='center'>
+                    <Grid container spacing={0} justify='flex-start' alignItems='center' className={classes.titleLine}>
                         <Grid item className={classes.editorHeading}>
                             <Typography variant="subheading" >
                                 Method
@@ -221,9 +253,38 @@ class ConnectedMethodEditor extends React.Component {
                                 </span>
                             </Tooltip>
                         </Grid>
+                        <Grid item>
+                            <Tooltip title='Select Method' placement='bottom'>
+                                <span>
+                                    <IconButton
+                                        onClick={this.handleSelectDialog('openSelectMethod')}
+                                        disabled={method === undefined}
+                                        className={classes.iconButton}
+                                        color={method !== undefined ? 'primary' : 'default'}
+                                    >
+                                        <SelectMethodIcon/>
+                                    </IconButton>
+                                </span>
+                            </Tooltip>
+                        </Grid>
                     </Grid>
                 </Grid>
+                {(sourceLabels.count > 1)  &&
+                        <Grid item xs={12}>
+                            <div className={classes.multipleSourcesLine}>
+                                This method is used by multiple sources. {usedBy}
+                            </div>
+                        </Grid>
+                }
                 <Grid item xs={12}>
+                    { this.state.selectMethodOpened &&
+                            <SelectMethodComment
+                                type='Method'
+                                onSelect={this.handleChange('selectMethod')}
+                                onCopy={this.handleChange('copyMethod')}
+                                onClose={this.handleSelectDialog('closeSelectMethod')}
+                            />
+                    }
                     {method !== undefined &&
                             <Grid container spacing={0}>
                                 <Grid item xs={12}>
@@ -271,7 +332,7 @@ class ConnectedMethodEditor extends React.Component {
                                         multiline
                                         fullWidth
                                         autoFocus
-                                        defaultValue={method.getDescription()}
+                                        value={methodText}
                                         onBlur={this.handleChange('textUpdate')}
                                         margin="normal"
                                     />
@@ -309,6 +370,7 @@ ConnectedMethodEditor.propTypes = {
         PropTypes.instanceOf(Method),
         PropTypes.oneOf([""]),
     ]),
+    mdv       : PropTypes.object.isRequired,
     leafs     : PropTypes.object.isRequired,
     methods   : PropTypes.object.isRequired,
     onUpdate  : PropTypes.func,

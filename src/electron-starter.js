@@ -16,7 +16,15 @@ let mainWindow;
 
 function createWindow () {
     // Create the browser window.
-    mainWindow = new BrowserWindow({fullscreen: true});
+    mainWindow = new BrowserWindow(
+        {
+            fullscreen     : true,
+            webPreferences : {
+                nodeIntegration : false,
+                preload         : __dirname + '/core/preload.js'
+            }
+        }
+    );
     console.log('Starting render process');
 
     // and load the index.html of the app.

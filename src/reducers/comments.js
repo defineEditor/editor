@@ -53,26 +53,6 @@ const deleteComment = (state, action) => {
     }
 };
 
-const handleItemDescriptionUpdate = (state, action) => {
-    return handleCommentUpdate(state, action, 'itemDefs');
-};
-
-const handleNameLabelWhereClauseUpdate = (state, action) => {
-    // action.source = {oid, itemRefOid, valueListOid}
-    // action.updateObj = {name, description, whereClause, wcComment, oldWcCommentOid, oldWcOid}
-    let subAction = {};
-    subAction.updateObj = {};
-    subAction.updateObj.comment = action.updateObj.wcComment;
-    subAction.prevObj = {};
-    if (action.updateObj.oldWcCommentOid !== undefined) {
-        subAction.prevObj.comment = state[action.updateObj.oldWcCommentOid];
-    } else {
-        subAction.prevObj.comment = undefined;
-    }
-    subAction.source ={ type: 'whereClauses', oid: action.updateObj.whereClause.oid };
-    return handleCommentUpdate(state, subAction, 'whereClauses');
-};
-
 const handleCommentUpdate = (state, action, type) => {
     if (!deepEqual(action.updateObj.comment, action.prevObj.comment)) {
         let previousCommentOid;
@@ -118,6 +98,27 @@ const handleCommentUpdate = (state, action, type) => {
         return state;
     }
 };
+
+const handleItemDescriptionUpdate = (state, action) => {
+    return handleCommentUpdate(state, action, 'itemDefs');
+};
+
+const handleNameLabelWhereClauseUpdate = (state, action) => {
+    // action.source = {oid, itemRefOid, valueListOid}
+    // action.updateObj = {name, description, whereClause, wcComment, oldWcCommentOid, oldWcOid}
+    let subAction = {};
+    subAction.updateObj = {};
+    subAction.updateObj.comment = action.updateObj.wcComment;
+    subAction.prevObj = {};
+    if (action.updateObj.oldWcCommentOid !== undefined) {
+        subAction.prevObj.comment = state[action.updateObj.oldWcCommentOid];
+    } else {
+        subAction.prevObj.comment = undefined;
+    }
+    subAction.source ={ type: 'whereClauses', oid: action.updateObj.whereClause.oid };
+    return handleCommentUpdate(state, subAction, 'whereClauses');
+};
+
 const replaceComment = (state, action) => {
     // action.newComment
     // action.oldCommentOid

@@ -3,6 +3,9 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
+import OriginFormatter from 'formatters/originFormatter.js';
+import CommentFormatter from 'formatters/commentFormatter.js';
+import MethodFormatter from 'formatters/methodFormatter.js';
 
 const styles = theme => ({
     button: {
@@ -23,32 +26,32 @@ class DescriptionFormatter extends React.Component {
             this.props.value.origins.forEach( (origin) => {
                 result.push(
                     <Grid item key={origin} xs={12}>
-                        <Grid container spacing={16} justify='flex-start' alignItems='flex-end'>
-                            <Grid item>
-                                Origin: {origin.type}
-                            </Grid>
-                        </Grid>
+                        <OriginFormatter origin={origin} leafs={this.props.leafs}/>
                     </Grid>
                 );
             });
         }
-        if (this.props.value.comment !== undefined) {
-            result.push(
-                <Grid item key='comment' xs={12}>
-                    <Typography variant="subheading" gutterBottom>
-                        Comment:
-                    </Typography>
-                    {this.props.value.comment.getText(this.props.leafs)}
-                </Grid>
-            );
-        }
         if (this.props.value.method !== undefined) {
             result.push(
                 <Grid item key='method' xs={12}>
-                    <Typography variant="subheading" gutterBottom>
-                        Method:
+                    <Typography variant="caption" gutterBottom>
+                        Method
                     </Typography>
-                    {this.props.value.method.getText(this.props.leafs)}
+                    <Grid item xs={12}>
+                        <MethodFormatter method={this.props.value.method} leafs={this.props.leafs}/>
+                    </Grid>
+                </Grid>
+            );
+        }
+        if (this.props.value.comment !== undefined) {
+            result.push(
+                <Grid item key='comment' xs={12}>
+                    <Typography variant="caption" gutterBottom>
+                        Comment
+                    </Typography>
+                    <Grid item xs={12}>
+                        <CommentFormatter comment={this.props.value.comment} leafs={this.props.leafs}/>
+                    </Grid>
                 </Grid>
             );
         }
