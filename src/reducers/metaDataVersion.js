@@ -24,7 +24,7 @@ const updateMetaDataVersion = (state, action) => {
 const metaDataVersion = (state = initialState, action) => {
     if (action.type === UPD_MDV) {
         return updateMetaDataVersion(state, action);
-    } else if (action.type !== undefined) {
+    } else if (action.type !== undefined &&  ! ( /^UI.*/.test(action.type) ) ) {
         return new MetaDataVersion({
             ...state,
             standards       : standards(state.standards, action),

@@ -12,6 +12,7 @@ import CodedValueTable from 'tabs/codedValueTab.js';
 import DocumentTab from 'tabs/documentTab.js';
 import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme, withStyles } from '@material-ui/core/styles';
+import { changeTab } from 'actions/index.js';
 
 const theme = createMuiTheme({
     palette: {
@@ -30,10 +31,18 @@ const theme = createMuiTheme({
     },
 });
 
+// Redux functions
+const mapDispatchToProps = dispatch => {
+    return {
+        changeTab: (updateObj) => dispatch(changeTab(updateObj)),
+    };
+};
+
 const mapStateToProps = state => {
     return {
-        odm          : state.odm,
-        stdCodeLists : state.stdCodeLists,
+        itemGroupOrder : state.odm.study.metaDataVersion.itemGroupOrder,
+        codeLists      : state.odm.study.metaDataVersion.codeLists,
+        tabs           : state.ui.tabs,
     };
 };
 
@@ -58,44 +67,32 @@ const styles = theme => ({
 });
 
 class ConnectedEditorTabs extends React.Component {
-    constructor (props) {
-        super(props);
-        this.state = { value: 0 };
-        this.handleChange = this.handleChange.bind(this);
-        this.handleMdvChange = this.handleMdvChange.bind(this);
-        this.generateVariableTables = this.generateVariableTables.bind(this);
-    }
 
-    handleChange (event, value) {
-        this.setState({ value });
-    }
-
-    handleMdvChange (type, elementId, updateObj) {
-        let odm = Object.assign({},this.props.odm);
-        let mdv = odm.study.metaDataVersion;
-        if (type === 'Item') {
-            mdv.itemGroups[elementId.itemGroupOid].update(updateObj, mdv);
+    handleChange = (event, value) => {
+        if (value !== this.props.currentTab) {
+            let updateObj = {
+                selectedTab           : value,
+                currentScrollPosition : window.scrollY,
+            };
+            this.props.changeTab(updateObj);
         }
-
-        this.setState({odm: odm});
     }
 
-    generateVariableTables = (defineVersion) => {
+    generateVariableTables = () => {
         // Sort datasets according to the orderNumber
-        const mdv = this.props.odm.study.metaDataVersion;
-        let result = mdv.itemGroupOrder.map(itemGroupOid => {
+        let result = this.props.itemGroupOrder.map(itemGroupOid => {
             return (
                 <div key={itemGroupOid}>
-                    <VariableTable mdv={mdv} itemGroupOid={itemGroupOid} onMdvChange={this.handleMdvChange} defineVersion={defineVersion}/>
+                    <VariableTable itemGroupOid={itemGroupOid}/>
                 </div>
             );
         });
         return result;
     }
 
-    generateCodeListTables = (defineVersion) => {
+    generateCodeListTables = () => {
         // Sort codeLists according to the orderNumber
-        const codeLists = this.props.odm.study.metaDataVersion.codeLists;
+        const codeLists = this.props.codeLists;
         let codeListOids = Object.keys(codeLists);
         // Show only enumerated and decoded codelists
         let result = codeListOids
@@ -113,8 +110,7 @@ class ConnectedEditorTabs extends React.Component {
     render() {
 
         const { classes } = this.props;
-        const { value } = this.state;
-        const defineVersion = this.props.odm.study.metaDataVersion.defineVersion;
+        const currentTab = this.props.tabs.currentTab;
         // Remove whitespaces and make lowercase for ID values
         /* TODO: 'Methods', 'Comments', 'Where Conditions'*/
         let tabs = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents'];
@@ -122,9 +118,9 @@ class ConnectedEditorTabs extends React.Component {
         return (
             <MuiThemeProvider theme={theme}>
                 <div className={classes.root}>
-                    <AppBar position="sticky" color='default'>
+                    <AppBar position="fixed" color='default'>
                         <Tabs
-                            value={value}
+                            value={currentTab}
                             onChange={this.handleChange}
                             fullWidth
                             indicatorColor='primary'
@@ -139,14 +135,13 @@ class ConnectedEditorTabs extends React.Component {
                         </Tabs>
                     </AppBar>
                     <TabContainer>
-                        {tabs[value] === 'Standards' && <StandardTable/>}
-                        {tabs[value] === 'Datasets' && <DatasetTable
-                            defineVersion={defineVersion}
-                        />}
-                        {tabs[value] === 'Variables' && this.generateVariableTables(defineVersion)}
-                        {tabs[value] === 'Codelists' && <CodeListTable/>}
-                        {tabs[value] === 'Coded Values' && this.generateCodeListTables(defineVersion)}
-                        {tabs[value] === 'Documents' && <DocumentTab/>}
+                        <br/>
+                        {tabs[currentTab] === 'Standards' && <StandardTable/>}
+                        {tabs[currentTab] === 'Datasets' && <DatasetTable/>}
+                        {tabs[currentTab] === 'Variables' && this.generateVariableTables()}
+                        {tabs[currentTab] === 'Codelists' && <CodeListTable/>}
+                        {tabs[currentTab] === 'Coded Values' && this.generateCodeListTables()}
+                        {tabs[currentTab] === 'Documents' && <DocumentTab/>}
                     </TabContainer>
                 </div>
             </MuiThemeProvider>
@@ -155,10 +150,10 @@ class ConnectedEditorTabs extends React.Component {
 }
 
 ConnectedEditorTabs.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    odm          : PropTypes.object.isRequired,
-    stdCodeLists : PropTypes.object,
+    classes        : PropTypes.object.isRequired,
+    codeLists      : PropTypes.object.isRequired,
+    itemGroupOrder : PropTypes.array.isRequired,
 };
 
-const EditorTabs = connect(mapStateToProps)(ConnectedEditorTabs);
+const EditorTabs = connect(mapStateToProps, mapDispatchToProps)(ConnectedEditorTabs);
 export default withStyles(styles)(EditorTabs);

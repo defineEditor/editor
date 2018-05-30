@@ -1,16 +1,7 @@
-import {
-    UI_SELECTTAB,
-} from "../constants/action-types";
+import { combineReducers } from 'redux';
+import tabs from 'reducers/tabs.js';
 
-const initialState = {
-    currentTab: 'standards',
-};
+export default combineReducers({
+    tabs,
+});
 
-const ui = (state = initialState, action) => {
-    switch (action.type) {
-        default:
-            return state;
-    }
-};
-
-export default ui;

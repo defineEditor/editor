@@ -9,13 +9,16 @@ import React from 'react';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
+import IconButton from '@material-ui/core/IconButton';
 import deepEqual from 'fast-deep-equal';
-import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
-import AddVariableEditor from 'editors/addVariableEditor.js';
+import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import KeyOrderEditor from 'editors/keyOrderEditor.js';
+import ToggleRowSelect from 'utils/toggleRowSelect.js';
+import AddVariableEditor from 'editors/addVariableEditor.js';
 import DescriptionEditor from 'editors/descriptionEditor.js';
 import VariableOrderEditor from 'editors/variableOrderEditor.js';
 //import SimpleInputEditor from 'editors/simpleInputEditor.js';
@@ -53,15 +56,20 @@ const mapStateToProps = state => {
         mdv           : state.odm.study.metaDataVersion,
         dataTypes     : state.stdConstants.dataTypes,
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
+        tabs          : state.ui.tabs,
+        showRowSelect : state.ui.tabs.settings[state.ui.tabs.currentTab].rowSelect['overall'],
     };
 };
 
 // Debug options
-const hideMe = true;
+const hideMe = false;
 
 const styles = theme => ({
     button: {
         margin: theme.spacing.unit,
+    },
+    buttonGroup: {
+        marginLeft: theme.spacing.unit * 2,
     },
 });
 
@@ -272,6 +280,31 @@ class ConnectedVariableTable extends React.Component {
         };
     }
 
+    componentDidMount() {
+        let tabs = this.props.tabs;
+        // Restore previous tab scroll position;
+        if (tabs.settings[tabs.currentTab].scrollPosition !== 0) {
+            window.scrollTo(0, tabs.settings[tabs.currentTab].scrollPosition);
+        }
+    }
+
+    menuFormatter = (cell, row) => {
+        return (
+            <IconButton
+                onClick={this.handleMenuClick}
+                className={this.props.classes.menuButton}
+                color='default'
+            >
+                <MoreVertIcon/>
+            </IconButton>
+        );
+    }
+
+
+    handleMenuClick = () => {
+        //
+    }
+
     onBeforeSaveCell = (row, cellName, cellValue) => {
         // Update on if the value changed
         if (!deepEqual(row[cellName], cellValue)) {
@@ -406,28 +439,41 @@ class ConnectedVariableTable extends React.Component {
 
     createCustomButtonGroup = props => {
         return (
-            <ButtonGroup className='my-custom-class' sizeClass='btn-group-md'>
+            <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={16}>
                     <Grid item>
-                        { props.showSelectedOnlyBtn }
+                        <ToggleRowSelect oid='overall'/>
                     </Grid>
                     <Grid item>
                         <AddVariableEditor itemGroupOid={this.props.itemGroupOid}/>
                     </Grid>
                     <Grid item>
-                        <Button color='default' mini onClick={console.log}
+                        <Button color='default' mini onClick={console.log} disabled={!this.props.showRowSelect}
                             variant='raised'>
                             Copy
                         </Button>
                     </Grid>
                     <Grid item>
-                        <Button color='default' mini onClick={console.log}
-                            variant='raised'>
+                        <Button
+                            color='default'
+                            mini
+                            onClick={console.log}
+                            disabled={!this.props.showRowSelect}
+                            variant='raised'
+                        >
                             Update
                         </Button>
                     </Grid>
                     <Grid item>
-                        { props.deleteBtn }
+                        <Button
+                            color='secondary'
+                            mini
+                            onClick={this.deleteRows}
+                            disabled={!this.props.showRowSelect}
+                            variant='raised'
+                        >
+                            Delete
+                        </Button>
                     </Grid>
                     <Grid item>
                         <VariableOrderEditor itemGroupOid={this.props.itemGroupOid}/>
@@ -481,12 +527,6 @@ class ConnectedVariableTable extends React.Component {
     deleteRows = () => {
         let deleteObj = getItemRefsRelatedOids(this.props.mdv, this.props.itemGroupOid, this.state.selectedRows, this.state.selectedVlmRows);
         this.props.deleteVariables({itemGroupOid: this.props.itemGroupOid}, deleteObj);
-    }
-
-    createCustomDeleteButton = (onBtnClick) => {
-        return (
-            <Button color='secondary' mini onClick={this.deleteRows} variant='raised'>Delete</Button>
-        );
     }
 
     highLightVlmRows = (row, rowIndex) => {
@@ -573,11 +613,16 @@ class ConnectedVariableTable extends React.Component {
             beforeSaveCell : this.onBeforeSaveCell
         };
 
-        const selectRowProp = {
-            mode        : 'checkbox',
-            onSelect    : this.onRowSelected,
-            onSelectAll : this.onAllRowSelected,
-        };
+        let selectRowProp;
+        if (this.props.showRowSelect) {
+            selectRowProp = {
+                mode        : 'checkbox',
+                onSelect    : this.onRowSelected,
+                onSelectAll : this.onAllRowSelected,
+            };
+        } else {
+            selectRowProp = undefined;
+        }
 
         const options = {
             toolBar   : this.createCustomToolBar,
@@ -592,6 +637,15 @@ class ConnectedVariableTable extends React.Component {
                 hidden    : true,
                 text      : 'OID',
                 editable  : false
+            },
+            {
+                dataField  : 'menu',
+                hidden     : this.props.showRowSelect,
+                dataFormat : this.menuFormatter,
+                text       : '',
+                width      : '48px',
+                editable   : false,
+                tdStyle    : { padding: '0px' },
             },
             {
                 dataField    : 'keyOrder',

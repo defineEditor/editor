@@ -56,6 +56,7 @@ const mapStateToProps = state => {
         lang            : state.odm.study.metaDataVersion.lang,
         stdConstants    : state.stdConstants,
         stdCodeLists    : state.stdCodeLists,
+        tabs            : state.ui.tabs,
         mdvAttrs,
         comments,
         defineVersion,
@@ -72,6 +73,14 @@ class ConnectedStandardTable extends React.Component {
             controlledTerminologyEdit : false,
             standardEdit              : false,
         };
+    }
+
+    componentDidMount() {
+        let tabs = this.props.tabs;
+        // Restore previous tab scroll position;
+        if (tabs.settings[tabs.currentTab].scrollPosition !== 0) {
+            window.scrollTo(0, tabs.settings[tabs.currentTab].scrollPosition);
+        }
     }
 
     handleChange = (name) => (updateObj) => {

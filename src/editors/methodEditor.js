@@ -175,7 +175,6 @@ class ConnectedMethodEditor extends React.Component {
         const { classes } = this.props;
         let method = this.props.stateless === true ? this.props.defaultValue : this.state.method;
         const methodTypeList = ['Imputation', 'Computation'];
-        let methodText = method.getDescription();
         let methodName, autoMethodName, methodType, formalExpressionExists;
         if (method !== undefined) {
             methodName = method.name || '';
@@ -332,7 +331,7 @@ class ConnectedMethodEditor extends React.Component {
                                         multiline
                                         fullWidth
                                         autoFocus
-                                        value={methodText}
+                                        value={method.getDescription()}
                                         onBlur={this.handleChange('textUpdate')}
                                         margin="normal"
                                     />

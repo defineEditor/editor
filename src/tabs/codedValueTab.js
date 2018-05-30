@@ -49,6 +49,7 @@ const mapStateToProps = state => {
         stdCodeLists  : state.stdCodeLists,
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
         lang          : state.odm.study.metaDataVersion.lang,
+        tabs          : state.ui.tabs,
     };
 };
 
@@ -110,6 +111,14 @@ class ConnectedCodedValueTable extends React.Component {
             stdCodeList,
             selectedRows: [],
         };
+    }
+
+    componentDidMount() {
+        let tabs = this.props.tabs;
+        // Restore previous tab scroll position;
+        if (tabs.settings[tabs.currentTab].scrollPosition !== 0) {
+            window.scrollTo(0, tabs.settings[tabs.currentTab].scrollPosition);
+        }
     }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {

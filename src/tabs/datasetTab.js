@@ -76,6 +76,8 @@ const mapStateToProps = state => {
         itemDefs       : state.odm.study.metaDataVersion.itemDefs,
         comments       : state.odm.study.metaDataVersion.comments,
         leafs          : state.odm.study.metaDataVersion.leafs,
+        defineVersion  : state.odm.study.metaDataVersion.defineVersion,
+        tabs           : state.ui.tabs,
     };
 };
 
@@ -140,6 +142,14 @@ class ConnectedDatasetTable extends React.Component {
         this.state = {
             selectedRows: [],
         };
+    }
+
+    componentDidMount() {
+        let tabs = this.props.tabs;
+        // Restore previous tab scroll position;
+        if (tabs.settings[tabs.currentTab].scrollPosition !== 0) {
+            window.scrollTo(0, tabs.settings[tabs.currentTab].scrollPosition);
+        }
     }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
