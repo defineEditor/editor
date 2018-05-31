@@ -759,7 +759,7 @@ class ItemRef {
         this.itemOid = itemOid;
         this.whereClauseOid = whereClauseOid;
         // Non-define XML properties
-        this.oid = oid;
+        this.oid = oid || getOid(this.constructor.name);
     }
 }
 

@@ -20,6 +20,7 @@ export const UPD_ITEMREFORDER= "UPD_ITEMREFORDER";
 export const UPD_ITEMCLDF = "UPD_ITEMCLDF";
 export const UPD_ITEMDESCRIPTION = "UPD_ITEMDESCRIPTION";
 export const ADD_VAR = "ADD_VAR";
+export const ADD_VALUELIST = "ADD_VALUELIST";
 export const DEL_VARS = "DEL_VARS";
 export const ADD_CODELIST = "ADD_CODELIST";
 export const UPD_CODELIST = "UPD_CODELIST";

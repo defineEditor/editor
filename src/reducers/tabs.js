@@ -17,7 +17,7 @@ const generateInitialState = () => {
     }
 
     return {
-        currentTab: 0,
+        currentTab: 2,
         settings,
     };
 };

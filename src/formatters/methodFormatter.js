@@ -10,19 +10,22 @@ const styles = theme => ({
         color        : 'grey',
         marginBottom : theme.spacing.unit,
     },
+    methodText: {
+        whiteSpace: 'pre-wrap',
+    },
 });
 
 class MethodFormatter extends React.Component {
     render () {
-        let method = this.props.method;
+        const { classes, method } = this.props;
         let methodText = method.getDescription();
 
         return (
             <div key='methodDescription'>
                 { (!this.props.hideName) &&
-                        <div key='methodName' className={this.props.classes.methodName}>{this.props.method.name + ' (' + this.props.method.type + ')'}</div>
+                        <div key='methodName' className={classes.methodName}>{method.name + ' (' + this.props.method.type + ')'}</div>
                 }
-                <div key='methodText'>{methodText}</div>
+                <div key='methodText' className={classes.methodText}>{methodText}</div>
                 { (method.documents.length !== 0) &&
                         <DocumentFormatter documents={method.documents} leafs={this.props.leafs}/>
                 }

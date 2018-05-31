@@ -13,14 +13,6 @@ import {
     DEL_ITEMGROUPCOMMENT,
     UPD_ITEMGROUPCOMMENT,
     REP_ITEMGROUPCOMMENT,
-    UPD_ITEMDEF,
-    UPD_ITEMREF,
-    UPD_ITEMREFKEYORDER,
-    UPD_ITEMREFORDER,
-    UPD_ITEMCLDF,
-    UPD_ITEMDESCRIPTION,
-    ADD_VAR,
-    DEL_VARS,
     ADD_CODELIST,
     UPD_CODELIST,
     DEL_CODELISTS,
@@ -32,7 +24,6 @@ import {
     UPD_MDV,
     UPD_LEAFS,
     UPD_KEYOREDER,
-    UPD_NAMELABELWHERECLAUSE,
 } from "constants/action-types";
 
 // Core actions
@@ -117,86 +108,6 @@ export const replaceItemGroupComment = (source, newComment, oldCommentOid) => (
         source,
         newComment,
         oldCommentOid,
-    }
-);
-
-
-// Item Ref/Def actions
-export const updateItemDef = (oid, updateObj) => (
-    {
-        type      : UPD_ITEMDEF,
-        oid       : oid,
-        updateObj : updateObj,
-    }
-);
-
-export const updateItemRef = (source, updateObj) => (
-    {
-        type      : UPD_ITEMREF,
-        source    : source,
-        updateObj : updateObj,
-    }
-);
-
-export const updateItemRefKeyOrder = (source, updateObj, prevObj) => (
-    {
-        type      : UPD_ITEMREFKEYORDER,
-        source    : source,
-        updateObj : updateObj,
-        prevObj   : prevObj,
-    }
-);
-
-export const updateItemRefOrder = (itemGroupOid, itemRefOrder) => (
-    {
-        type: UPD_ITEMREFORDER,
-        itemGroupOid,
-        itemRefOrder,
-    }
-);
-
-export const updateItemCodeListDisplayFormat = (oid, updateObj, prevObj) => (
-    {
-        type      : UPD_ITEMCLDF,
-        oid       : oid,
-        updateObj : updateObj,
-        prevObj   : prevObj,
-    }
-);
-
-export const updateItemDescription = (source, updateObj, prevObj) => (
-    {
-        type      : UPD_ITEMDESCRIPTION,
-        source    : source,
-        updateObj : updateObj,
-        prevObj   : prevObj,
-    }
-);
-
-export const updateNameLabelWhereClause = (source, updateObj) => (
-    {
-        type: UPD_NAMELABELWHERECLAUSE,
-        source,
-        updateObj,
-    }
-);
-
-
-export const addVariable = (source, itemRef, itemDef, orderNumber) => (
-    {
-        type        : ADD_VAR,
-        source      : source,
-        itemRef     : itemRef,
-        itemDef     : itemDef,
-        orderNumber : orderNumber,
-    }
-);
-
-export const deleteVariables = (source, deleteObj) => (
-    {
-        type: DEL_VARS,
-        source,
-        deleteObj,
     }
 );
 
@@ -293,4 +204,5 @@ export const updateLeafs = (updateObj) => (
     }
 );
 
+export * from 'actions/item.js';
 export * from 'actions/ui.js';

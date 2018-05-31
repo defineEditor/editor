@@ -16,6 +16,7 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
+import ItemMenu from 'utils/itemMenu.js';
 import KeyOrderEditor from 'editors/keyOrderEditor.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import AddVariableEditor from 'editors/addVariableEditor.js';
@@ -275,6 +276,8 @@ class ConnectedVariableTable extends React.Component {
             vlmData         : vlmData,
             vlmState        : 'collaps',
             dataset         : dataset,
+            itemMenuParams  : {},
+            anchorEl        : null,
             selectedRows    : [],
             selectedVlmRows : {},
         };
@@ -289,9 +292,15 @@ class ConnectedVariableTable extends React.Component {
     }
 
     menuFormatter = (cell, row) => {
+        let itemMenuParams = {
+            oid          : row.oid,
+            itemGroupOid : row.itemGroupOid,
+            vlmLevel     : row.vlmLevel,
+            hasVlm       : (row.valueList !== undefined),
+        };
         return (
             <IconButton
-                onClick={this.handleMenuClick}
+                onClick={this.handleMenuOpen(itemMenuParams)}
                 className={this.props.classes.menuButton}
                 color='default'
             >
@@ -301,8 +310,12 @@ class ConnectedVariableTable extends React.Component {
     }
 
 
-    handleMenuClick = () => {
-        //
+    handleMenuOpen = (itemMenuParams) => (event) => {
+        this.setState({ itemMenuParams, anchorEl: event.currentTarget });
+    }
+
+    handleMenuClose = () => {
+        this.setState({ itemMenuParams: {}, anchorEl: null });
     }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
@@ -619,6 +632,7 @@ class ConnectedVariableTable extends React.Component {
                 mode        : 'checkbox',
                 onSelect    : this.onRowSelected,
                 onSelectAll : this.onAllRowSelected,
+                columnWidth : '48px',
             };
         } else {
             selectRowProp = undefined;
@@ -639,7 +653,7 @@ class ConnectedVariableTable extends React.Component {
                 editable  : false
             },
             {
-                dataField  : 'menu',
+                dataField  : 'oid',
                 hidden     : this.props.showRowSelect,
                 dataFormat : this.menuFormatter,
                 text       : '',
@@ -747,6 +761,7 @@ class ConnectedVariableTable extends React.Component {
                 >
                     {renderColumns(columns)}
                 </BootstrapTable>
+                <ItemMenu onClose={this.handleMenuClose} itemMenuParams={this.state.itemMenuParams} anchorEl={this.state.anchorEl}/>
             </React.Fragment>
         );
     }

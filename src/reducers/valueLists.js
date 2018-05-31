@@ -2,14 +2,24 @@ import {
     DEL_VARS,
     UPD_NAMELABELWHERECLAUSE,
     UPD_ITEMREF,
+    ADD_VALUELIST,
 } from "constants/action-types";
 import { ValueList, ItemRef } from 'elements.js';
 
-/*
 const addValueList = (state, action) => {
-    return { ...state, [action.valueList.oid]: action.valueList };
+    // Create a new ItemRef (valueList will contain 1 variable)
+    let itemRef = new ItemRef({itemOid: action.itemDefOid});
+    let itemRefs = { [itemRef.oid]: itemRef };
+    let itemRefOrder = [itemRef.oid];
+    let valueList = new ValueList(
+        {
+            oid     : action.valueListOid,
+            sources : {ItemDefs: [action.source.oid]},
+            itemRefs,
+            itemRefOrder,
+        });
+    return { ...state, [action.valueListOid]: valueList };
 };
-*/
 
 /*
 const deleteValueLists = (state, action) => {
@@ -198,6 +208,8 @@ const valueLists = (state = {}, action) => {
         case DEL_ITEMGROUPS:
             return deleteValueLists(state, action);
             */
+        case ADD_VALUELIST:
+            return addValueList(state, action);
         case UPD_NAMELABELWHERECLAUSE:
             return updateItemRefWhereClause(state, action);
         case DEL_VARS:

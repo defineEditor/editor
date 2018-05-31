@@ -6,6 +6,7 @@ import {
     ADD_VAR,
     DEL_VARS,
     DEL_CODELISTS,
+    ADD_VALUELIST,
 } from "constants/action-types";
 import { ItemDef } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -116,6 +117,21 @@ const deleteCodeLists = (state, action) => {
     return newState;
 };
 
+const handleAddValueList = (state, action) => {
+    // Create a new itemDef for the valueList
+    let newItemDef = new ItemDef({
+        oid              : action.itemDefOid,
+        sources          : {itemGroups: [], valueLists: [action.valueListOid]},
+        parentItemDefOid : action.source.oid,
+    });
+    // Update existing itemDef to reference VLM
+    let parentItemDef = new ItemDef({
+        ...state[action.source.oid],
+        valueListOid: action.valueListOid,
+    });
+    return { ...state, [action.itemDefOid]: newItemDef, [action.source.oid]: parentItemDef };
+};
+
 const itemDefs = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMDEF:
@@ -132,6 +148,8 @@ const itemDefs = (state = {}, action) => {
             return deleteVariables(state, action);
         case DEL_CODELISTS:
             return deleteCodeLists(state, action);
+        case ADD_VALUELIST:
+            return handleAddValueList(state, action);
         default:
             return state;
     }

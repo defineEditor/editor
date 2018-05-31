@@ -303,7 +303,12 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
 
     render() {
         const vlmLevel = this.props.row.vlmLevel;
-        const label = this.state.descriptions[0].value;
+        let label;
+        if (this.state.descriptions.length > 0) {
+            label = this.state.descriptions[0].value;
+        } else {
+            label = '';
+        }
 
         return (
             <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef}>
