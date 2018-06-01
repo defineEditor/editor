@@ -4,6 +4,7 @@ import {
     UPD_ITEMREF,
     UPD_ITEMREFKEYORDER,
     UPD_ITEMREFORDER,
+    UPD_VLMITEMREFORDER,
     UPD_ITEMCLDF,
     UPD_ITEMDESCRIPTION,
     ADD_VAR,
@@ -42,6 +43,14 @@ export const updateItemRefOrder = (itemGroupOid, itemRefOrder) => (
     {
         type: UPD_ITEMREFORDER,
         itemGroupOid,
+        itemRefOrder,
+    }
+);
+
+export const updateVlmItemRefOrder = (valueListOid, itemRefOrder) => (
+    {
+        type: UPD_VLMITEMREFORDER,
+        valueListOid,
         itemRefOrder,
     }
 );
@@ -90,11 +99,12 @@ export const deleteVariables = (source, deleteObj) => (
     }
 );
 
-export const addValueList = (source, valueListOid, itemDefOid) => (
+export const addValueList = (source, valueListOid, itemDefOid, whereClauseOid) => (
     {
         type: ADD_VALUELIST,
         source,
         valueListOid,
         itemDefOid,
+        whereClauseOid,
     }
 );

@@ -215,9 +215,10 @@ class ConnectedCommentEditor extends React.Component {
                                     fullWidth
                                     rowsMax="10"
                                     autoFocus={this.props.autoFocus}
-                                    value={comment.getDescription()}
+                                    key={comment.oid}
+                                    defaultValue={comment.getDescription()}
                                     className={classes.commentInput}
-                                    onChange={this.handleChange('textUpdate')}
+                                    onBlur={this.handleChange('textUpdate')}
                                 />
                                 <DocumentEditor
                                     parentObj={comment}

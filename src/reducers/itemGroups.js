@@ -208,42 +208,47 @@ const addVariable = (state, action) => {
 };
 
 const deleteVariables = (state, action) => {
-    // Check if order changed;
-    let ds = state[action.source.itemGroupOid];
-    let newItemRefs = Object.assign({}, ds.itemRefs);
-    action.deleteObj.itemRefOids.forEach( itemRefOid => {
-        if (newItemRefs.hasOwnProperty(itemRefOid)) {
-            delete newItemRefs[itemRefOid];
-        }
-    });
-    // Update itemRef order array
-    let newItemRefOrder = ds.itemRefOrder.slice();
-    action.deleteObj.itemRefOids.forEach( itemRefOid => {
-        if (newItemRefOrder.includes(itemRefOid)) {
-            newItemRefOrder.splice(newItemRefOrder.indexOf(itemRefOid),1);
-        }
-    });
-    // Check if there are any key variables removed;
-    let newKeyOrder;
-    let keysAreRemoved = action.deleteObj.itemRefOids.reduce( (includesKey, itemRefOid) => {
-        return includesKey || ds.keyOrder.includes(itemRefOid);
-    }, false);
-    if (keysAreRemoved) {
-        newKeyOrder = ds.keyOrder.slice();
+    // Some of the requests can contain only VLM records to remove, skip deleting in this case
+    if (action.deleteObj.itemRefOids.length > 0) {
+        // Check if order changed;
+        let ds = state[action.source.itemGroupOid];
+        let newItemRefs = Object.assign({}, ds.itemRefs);
         action.deleteObj.itemRefOids.forEach( itemRefOid => {
-            if (newKeyOrder.includes(itemRefOid)) {
-                newKeyOrder.splice(newKeyOrder.indexOf(itemRefOid),1);
+            if (newItemRefs.hasOwnProperty(itemRefOid)) {
+                delete newItemRefs[itemRefOid];
             }
         });
+        // Update itemRef order array
+        let newItemRefOrder = ds.itemRefOrder.slice();
+        action.deleteObj.itemRefOids.forEach( itemRefOid => {
+            if (newItemRefOrder.includes(itemRefOid)) {
+                newItemRefOrder.splice(newItemRefOrder.indexOf(itemRefOid),1);
+            }
+        });
+        // Check if there are any key variables removed;
+        let newKeyOrder;
+        let keysAreRemoved = action.deleteObj.itemRefOids.reduce( (includesKey, itemRefOid) => {
+            return includesKey || ds.keyOrder.includes(itemRefOid);
+        }, false);
+        if (keysAreRemoved) {
+            newKeyOrder = ds.keyOrder.slice();
+            action.deleteObj.itemRefOids.forEach( itemRefOid => {
+                if (newKeyOrder.includes(itemRefOid)) {
+                    newKeyOrder.splice(newKeyOrder.indexOf(itemRefOid),1);
+                }
+            });
+        } else {
+            newKeyOrder = ds.keyOrder;
+        }
+        let newItemGroup =  new ItemGroup({ ...state[action.source.itemGroupOid],
+            itemRefs     : newItemRefs,
+            itemRefOrder : newItemRefOrder,
+            keyOrder     : newKeyOrder,
+        });
+        return { ...state, [action.source.itemGroupOid]: newItemGroup };
     } else {
-        newKeyOrder = ds.keyOrder;
+        return state;
     }
-    let newItemGroup =  new ItemGroup({ ...state[action.source.itemGroupOid],
-        itemRefs     : newItemRefs,
-        itemRefOrder : newItemRefOrder,
-        keyOrder     : newKeyOrder,
-    });
-    return { ...state, [action.source.itemGroupOid]: newItemGroup };
 };
 
 const updateKeyOrder = (state, action) => {

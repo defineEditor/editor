@@ -2,6 +2,7 @@ import {
     DEL_VARS,
     DEL_ITEMGROUPS,
     UPD_NAMELABELWHERECLAUSE,
+    ADD_VALUELIST,
 } from "constants/action-types";
 import { WhereClause } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -120,6 +121,11 @@ const updateNameLabelWhereClause = (state, action) => {
     return newState;
 };
 
+const handleAddValueList = (state, action) => {
+    let newWhereClause = new WhereClause({ oid: action.whereClauseOid, sources: { valueLists: [action.valueListOid] } });
+    return { ...state, [action.whereClauseOid]: newWhereClause };
+};
+
 const whereClauses = (state = {}, action) => {
     switch (action.type) {
         case DEL_ITEMGROUPS:
@@ -129,6 +135,8 @@ const whereClauses = (state = {}, action) => {
             return deleteWhereClauseRefereces(state, action);
         case UPD_NAMELABELWHERECLAUSE:
             return updateNameLabelWhereClause(state, action);
+        case ADD_VALUELIST:
+            return handleAddValueList(state, action);
         default:
             return state;
     }

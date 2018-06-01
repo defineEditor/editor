@@ -102,7 +102,7 @@ class ConnectedMethodEditor extends React.Component {
             newMethod = method.clone();
             newMethod.autoMethodName = checked;
             if (checked) {
-                newMethod.name = methodName;
+                newMethod.name = 'Algorithm for ' + this.props.row.fullName;
             }
         } else if (name === 'addDocument') {
             newMethod = method.clone();
@@ -306,7 +306,7 @@ class ConnectedMethodEditor extends React.Component {
                                             >
                                                 <Switch
                                                     checked={autoMethodName}
-                                                    onChange={this.handleChange('autoMethodNameUpdate',methodName)}
+                                                    onChange={this.handleChange('autoMethodNameUpdate')}
                                                     color='primary'
                                                     className={classes.switch}
                                                 />
@@ -319,7 +319,7 @@ class ConnectedMethodEditor extends React.Component {
                                                 multiline
                                                 disabled={autoMethodName}
                                                 value={methodName}
-                                                onBlur={this.handleChange('nameUpdate')}
+                                                onChange={this.handleChange('nameUpdate')}
                                                 className={classes.methodName}
                                             />
                                         </Grid>
@@ -331,7 +331,8 @@ class ConnectedMethodEditor extends React.Component {
                                         multiline
                                         fullWidth
                                         autoFocus
-                                        value={method.getDescription()}
+                                        key={method.oid}
+                                        defaultValue={method.getDescription()}
                                         onBlur={this.handleChange('textUpdate')}
                                         margin="normal"
                                     />

@@ -3,22 +3,30 @@ import {
     UPD_NAMELABELWHERECLAUSE,
     UPD_ITEMREF,
     ADD_VALUELIST,
+    UPD_ITEMDESCRIPTION,
+    UPD_VLMITEMREFORDER,
 } from "constants/action-types";
 import { ValueList, ItemRef } from 'elements.js';
 
 const addValueList = (state, action) => {
     // Create a new ItemRef (valueList will contain 1 variable)
-    let itemRef = new ItemRef({itemOid: action.itemDefOid});
+    let itemRef = new ItemRef({ itemOid: action.itemDefOid, whereClauseOid: action.whereClauseOid });
     let itemRefs = { [itemRef.oid]: itemRef };
     let itemRefOrder = [itemRef.oid];
     let valueList = new ValueList(
         {
             oid     : action.valueListOid,
-            sources : {ItemDefs: [action.source.oid]},
+            sources : {itemDefs: [action.source.oid]},
             itemRefs,
             itemRefOrder,
         });
     return { ...state, [action.valueListOid]: valueList };
+};
+
+const updateItemRefOrder = (state, action) => {
+    // Check if order changed;
+    let newValueList =  new ValueList({ ...state[action.valueListOid], itemRefOrder: action.itemRefOrder });
+    return { ...state, [action.valueListOid]: newValueList };
 };
 
 /*
@@ -30,12 +38,6 @@ const deleteValueLists = (state, action) => {
     });
 
     return newState;
-};
-
-const updateItemRefOrder = (state, action) => {
-    // Check if order changed;
-    let newValueList =  new ValueList({ ...state[action.valueListOid], itemRefOrder: action.itemRefOrder });
-    return { ...state, [action.valueListOid]: newValueList };
 };
 
 const updateItemRefKeyOrder = (state, action) => {
@@ -107,25 +109,63 @@ const updateItemRef = (state, action) => {
     }
 };
 
+const updateItemDescription = (state, action) => {
+    // Skip update if this is not a VLM itemRef
+    if (!action.source.vlm) {
+        return state;
+    } else {
+        // Method
+        let previousMethodOid;
+        if (action.prevObj.method !== undefined) {
+            previousMethodOid = action.prevObj.method.oid;
+        }
+        let newMethodOid;
+        if (action.updateObj.method !== undefined) {
+            newMethodOid = action.updateObj.method.oid;
+        }
+        if (previousMethodOid !== newMethodOid) {
+            let newAction = {};
+            newAction.source = action.source;
+            newAction.updateObj = { methodOid: newMethodOid };
+            return updateItemRef(state, newAction);
+        } else {
+            return state;
+        }
+    }
+};
+
+const deleteValueList = (state, action) => {
+    let valueListOid = action.valueListOid;
+    let itemDefOid = action.source.oid;
+    if (state.hasOwnProperty(valueListOid)) {
+        let newState = { ...state };
+        let sourceItemDefs = newState[valueListOid].sources.itemDefs;
+        if (sourceItemDefs.length === 1 && sourceItemDefs[0] === itemDefOid) {
+            // Fully remove valueList
+            delete newState[valueListOid];
+        } else if (sourceItemDefs.includes(itemDefOid)) {
+            // Remove referece to the source OID from the list of valueList sources
+            let newSources = sourceItemDefs.slice();
+            newSources.splice(newSources.indexOf(itemDefOid),1);
+            let newValueList = new ValueList({ ...newState[valueListOid], sources: { itemDefs: newSources } });
+            newState = { ...newState, [newValueList.oid]: newValueList };
+        }
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const deleteVariables = (state, action) => {
     let newState = { ...state };
     // Delete valueLists which were completely removed
-    // Theoretically 2 ItemDefs can reference the same valueList 
+    // Theoretically 2 ItemDefs can reference the same valueList
     Object.keys(action.deleteObj.valueListOids).forEach( itemDefOid => {
         action.deleteObj.valueListOids[itemDefOid].forEach( valueListOid => {
-            if (newState.hasOwnProperty(valueListOid)) {
-                let sourceItemDefs = newState[valueListOid].sources.itemDefs;
-                if (sourceItemDefs.length === 1 && sourceItemDefs[0] === itemDefOid) {
-                    // Fully remove valueList
-                    delete newState[valueListOid];
-                } else if (sourceItemDefs.includes(itemDefOid)) {
-                    // Remove referece to the source OID from the list of valueList sources
-                    let newSources = sourceItemDefs.slice();
-                    newSources.splice(newSources.indexOf(itemDefOid),1);
-                    let newValueList = new ValueList({ ...newState[valueListOid], sources: { itemDefs: newSources } });
-                    newState = { ...newState, [newValueList.oid]: newValueList };
-                }
-            }
+            let subAction = { source: {} };
+            subAction.source.oid = itemDefOid;
+            subAction.valueListOid = valueListOid;
+            newState = deleteValueList(newState, subAction);
         });
     });
     // Delete individual itemRefs
@@ -160,18 +200,13 @@ const deleteVariables = (state, action) => {
             } else {
                 newKeyOrder = valueList.keyOrder;
             }
-            if (newItemRefOrder.length === 0) {
-                // If there are no more itemRefs left, delete the valueList
-                delete newState[valueListOid];
-            } else {
-                let newValueList =  new ValueList({ ...newState[valueListOid],
-                    itemRefs     : newItemRefs,
-                    itemRefOrder : newItemRefOrder,
-                    keyOrder     : newKeyOrder,
-                });
+            let newValueList =  new ValueList({ ...newState[valueListOid],
+                itemRefs     : newItemRefs,
+                itemRefOrder : newItemRefOrder,
+                keyOrder     : newKeyOrder,
+            });
 
-                newState = { ...newState, [valueListOid]: newValueList };
-            }
+            newState = { ...newState, [valueListOid]: newValueList };
         }
     });
     return newState;
@@ -210,12 +245,16 @@ const valueLists = (state = {}, action) => {
             */
         case ADD_VALUELIST:
             return addValueList(state, action);
+        case UPD_ITEMDESCRIPTION:
+            return updateItemDescription(state, action);
         case UPD_NAMELABELWHERECLAUSE:
             return updateItemRefWhereClause(state, action);
         case DEL_VARS:
             return deleteVariables(state, action);
         case UPD_ITEMREF:
             return updateItemRef(state, action);
+        case UPD_VLMITEMREFORDER:
+            return updateItemRefOrder(state, action);
         default:
             return state;
     }

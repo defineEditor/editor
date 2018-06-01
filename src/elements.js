@@ -450,7 +450,7 @@ class FormalExpression {
 
 class Method extends Comment {
     constructor ({
-        oid, name, type, autoMethodName, descriptions = [], documents = [], formalExpressions = [], sources,
+        oid, name = '', type = 'Computation', autoMethodName, descriptions = [], documents = [], formalExpressions = [], sources,
     } = {}) {
         let initialSources;
         if (sources !== undefined) {
@@ -644,7 +644,7 @@ class ItemGroup extends BasicFunctions {
     constructor ({
         oid, name, domain, datasetName, repeating, isReferenceData, purpose,
         structure, datasetClass, archiveLocationId, commentOid, isNotStandard,
-        standard, alias, leaf, parentItemDefOid,
+        standard, alias, leaf,
         descriptions = [],
         itemRefs = {},
         itemRefOrder = [],
@@ -674,8 +674,6 @@ class ItemGroup extends BasicFunctions {
         } else {
             this.leaf = new Leaf();
         }
-        // Non Define-XML properties
-        this.parentItemDefOid = parentItemDefOid;
     }
     addItemRef (oid, itemRef) {
         this.itemRefs[oid]= itemRef;
@@ -698,7 +696,7 @@ class ItemDef extends BasicFunctions {
         oid, name, dataType, length,
         fractionDigits, fieldName, displayFormat,
         commentOid, codeListOid, valueList, valueListOid, parent, note,
-        varLength, lengthAsData, lengthAsCodelist,
+        varLength, lengthAsData, lengthAsCodelist, parentItemDefOid,
         origins = [],
         descriptions = [],
         sources,
@@ -718,8 +716,8 @@ class ItemDef extends BasicFunctions {
         this.valueListOid = valueListOid;
         this.descriptions = descriptions;
         // Non-define XML properties
-        // Parent Item
-        this.parent = parent;
+        // Parent Item for VLM records
+        this.parentItemDefOid = parentItemDefOid;
         // Programming Note
         if (note === undefined) {
             this.note = note;
@@ -741,9 +739,6 @@ class ItemDef extends BasicFunctions {
     }
     addOrigin (origin) {
         this.origins.push(origin);
-    }
-    setParent (parent) {
-        this.parent = parent;
     }
 }
 

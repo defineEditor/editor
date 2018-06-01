@@ -214,9 +214,9 @@ function getTableData ({source, datasetName, itemDefs, codeLists, mdv, defineVer
             descriptions : originItemDef.descriptions,
             whereClause  : originVar.whereClauseOid !== undefined ? mdv.whereClauses[originVar.whereClauseOid] : undefined,
         };
-        if (originVar.whereClause !== undefined) {
+        if (originVar.whereClauseOid !== undefined) {
             // VLM itemRef
-            currentVar.fullName = datasetName + '.' + originItemDef.name + ' [' + originVar.whereClause.toString(mdv) + ']';
+            currentVar.fullName = datasetName + '.' + itemDefs[originItemDef.parentItemDefOid].name + '.' + originItemDef.name;
         } else {
             // Normal itemRef
             currentVar.fullName = datasetName + '.' + originItemDef.name;
@@ -293,10 +293,11 @@ class ConnectedVariableTable extends React.Component {
 
     menuFormatter = (cell, row) => {
         let itemMenuParams = {
-            oid          : row.oid,
-            itemGroupOid : row.itemGroupOid,
-            vlmLevel     : row.vlmLevel,
-            hasVlm       : (row.valueList !== undefined),
+            oid            : row.oid,
+            itemRefOid     : row.itemRefOid,
+            itemGroupVLOid : row.itemGroupOid,
+            vlmLevel       : row.vlmLevel,
+            hasVlm         : (row.valueList !== undefined),
         };
         return (
             <IconButton

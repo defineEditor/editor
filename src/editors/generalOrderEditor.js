@@ -78,7 +78,7 @@ class GeneralOrderEditor extends React.Component {
         super(props);
 
         this.state = {
-            dialogOpened : false,
+            dialogOpened : this.props.noButton ? true : false,
             items        : this.props.items,
         };
 
@@ -97,6 +97,9 @@ class GeneralOrderEditor extends React.Component {
 
     handleCancelAndClose = () => {
         this.resetState();
+        if (this.props.onCancel !== undefined) {
+            this.props.onCancel();
+        }
     }
 
     handleSaveAndClose = () => {
@@ -126,15 +129,17 @@ class GeneralOrderEditor extends React.Component {
 
         return (
             <React.Fragment>
-                <Button
-                    color="default"
-                    variant='fab'
-                    mini
-                    onClick={this.handleOpen}
-                    className={classes.editButton}
-                >
-                    <LowPriority/>
-                </Button>
+                { !this.props.noButton &&
+                        <Button
+                            color="default"
+                            variant='fab'
+                            mini
+                            onClick={this.handleOpen}
+                            className={classes.editButton}
+                        >
+                            <LowPriority/>
+                        </Button>
+                }
                 <Dialog
                     disableBackdropClick
                     disableEscapeKeyDown
@@ -168,10 +173,12 @@ class GeneralOrderEditor extends React.Component {
 }
 
 GeneralOrderEditor.propTypes = {
-    classes : PropTypes.object.isRequired,
-    items   : PropTypes.array.isRequired,
-    onSave  : PropTypes.func.isRequired,
-    title   : PropTypes.string.isRequired,
+    classes  : PropTypes.object.isRequired,
+    items    : PropTypes.array.isRequired,
+    onSave   : PropTypes.func.isRequired,
+    title    : PropTypes.string.isRequired,
+    noButton : PropTypes.bool,
+    onCancel : PropTypes.func,
 };
 
 export default withStyles(styles)(GeneralOrderEditor);
