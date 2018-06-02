@@ -110,10 +110,7 @@ class ConnectedEditorTabs extends React.Component {
     render() {
 
         const { classes } = this.props;
-        const currentTab = this.props.tabs.currentTab;
-        // Remove whitespaces and make lowercase for ID values
-        /* TODO: 'Methods', 'Comments', 'Where Conditions'*/
-        let tabs = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents'];
+        const { currentTab, tabNames } = this.props.tabs;
 
         return (
             <MuiThemeProvider theme={theme}>
@@ -128,7 +125,7 @@ class ConnectedEditorTabs extends React.Component {
                             scrollable
                             scrollButtons="auto"
                         >
-                            { tabs.map( tab => {
+                            { tabNames.map( tab => {
                                 return <Tab key={tab} label={tab} />;
                             })
                             }
@@ -136,12 +133,12 @@ class ConnectedEditorTabs extends React.Component {
                     </AppBar>
                     <TabContainer>
                         <br/>
-                        {tabs[currentTab] === 'Standards' && <StandardTable/>}
-                        {tabs[currentTab] === 'Datasets' && <DatasetTable/>}
-                        {tabs[currentTab] === 'Variables' && this.generateVariableTables()}
-                        {tabs[currentTab] === 'Codelists' && <CodeListTable/>}
-                        {tabs[currentTab] === 'Coded Values' && this.generateCodeListTables()}
-                        {tabs[currentTab] === 'Documents' && <DocumentTab/>}
+                        {tabNames[currentTab] === 'Standards' && <StandardTable/>}
+                        {tabNames[currentTab] === 'Datasets' && <DatasetTable/>}
+                        {tabNames[currentTab] === 'Variables' && this.generateVariableTables()}
+                        {tabNames[currentTab] === 'Codelists' && <CodeListTable/>}
+                        {tabNames[currentTab] === 'Coded Values' && this.generateCodeListTables()}
+                        {tabNames[currentTab] === 'Documents' && <DocumentTab/>}
                     </TabContainer>
                 </div>
             </MuiThemeProvider>

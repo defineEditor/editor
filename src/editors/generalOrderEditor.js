@@ -28,7 +28,6 @@ const styles = theme => ({
         overflowX     : 'none',
         maxHeight     : '90%',
         overflowY     : 'auto',
-        width         : '300px',
     },
     editButton: {
         transform: 'translate(0%, -6%)',
@@ -126,6 +125,7 @@ class GeneralOrderEditor extends React.Component {
 
     render() {
         const {classes} = this.props;
+        const paperWidth = this.props.width ? this.props.width : '300px';
 
         return (
             <React.Fragment>
@@ -144,7 +144,7 @@ class GeneralOrderEditor extends React.Component {
                     disableBackdropClick
                     disableEscapeKeyDown
                     open={this.state.dialogOpened}
-                    PaperProps={{className: classes.dialog}}
+                    PaperProps={{className: classes.dialog, style: {width: paperWidth}}}
                     onKeyDown={this.onKeyDown}
                     tabIndex='0'
                 >
@@ -177,6 +177,7 @@ GeneralOrderEditor.propTypes = {
     items    : PropTypes.array.isRequired,
     onSave   : PropTypes.func.isRequired,
     title    : PropTypes.string.isRequired,
+    width    : PropTypes.string,
     noButton : PropTypes.bool,
     onCancel : PropTypes.func,
 };

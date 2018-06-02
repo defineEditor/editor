@@ -9,7 +9,7 @@ import getOid from 'utils/getOid.js';
 import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
 import GeneralOrderEditor from 'editors/generalOrderEditor.js';
 import {
-    deleteVariables, addValueList, updateVlmItemRefOrder,
+    deleteVariables, addValueList, updateVlmItemRefOrder, insertVariable, insertValueLevel
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -24,6 +24,8 @@ const mapDispatchToProps = dispatch => {
         addValueList          : (source, valueListOid, itemDefOid, whereClauseOid) => dispatch(addValueList(source, valueListOid, itemDefOid, whereClauseOid)),
         deleteVariables       : (source, deleteObj) => dispatch(deleteVariables(source, deleteObj)),
         updateVlmItemRefOrder : (valueListOid, itemRefOrder) => dispatch(updateVlmItemRefOrder(valueListOid, itemRefOrder)),
+        insertVariable        : (itemGroupOid, itemDefOid, orderNumber) => dispatch(insertVariable(itemGroupOid, itemDefOid, orderNumber)),
+        insertValueLevel      : (valueListOid, itemDefOid, parentItemDefOid, whereClauseOid, orderNumber) => dispatch(insertValueLevel(valueListOid, itemDefOid, parentItemDefOid, whereClauseOid, orderNumber)),
     };
 };
 
@@ -62,12 +64,19 @@ class ConnectedItemMenu extends React.Component {
         this.props.onClose();
     }
 
-    insertAfter = () => {
-        //
-    }
-
-    insertBefore = () => {
-        //
+    insertRecord = (shift) => () => {
+        let itemDefOid = getOid('Item', undefined, Object.keys(this.props.itemDefs));
+        let params = this.props.itemMenuParams;
+        if (this.props.itemMenuParams.vlmLevel === 0) {
+            let orderNumber = this.props.mdv.itemGroups[params.itemGroupVLOid].itemRefOrder.indexOf(params.itemRefOid) + shift;
+            this.props.insertVariable(this.props.itemMenuParams.itemGroupVLOid, itemDefOid, orderNumber);
+        } else {
+            let whereClauseOid = getOid('WhereClause', undefined, Object.keys(this.props.whereClauses));
+            let parentItemDefOid = this.props.mdv.itemDefs[params.oid].parentItemDefOid;
+            let orderNumber = this.props.mdv.valueLists[params.itemGroupVLOid].itemRefOrder.indexOf(params.itemRefOid) + shift;
+            this.props.insertValueLevel(this.props.itemMenuParams.itemGroupVLOid, itemDefOid, parentItemDefOid, whereClauseOid, orderNumber);
+        }
+        this.props.onClose();
     }
 
     addVlm = () => {
@@ -113,7 +122,7 @@ class ConnectedItemMenu extends React.Component {
             let valueList = this.props.mdv.valueLists[valueListOid];
 
             valueList.itemRefOrder.forEach( itemRefOid => {
-                items.push({oid: itemRefOid, name: this.props.itemDefs[valueList.itemRefs[itemRefOid].itemOid].name});
+                items.push({oid: itemRefOid, name: this.props.mdv.whereClauses[valueList.itemRefs[itemRefOid].whereClauseOid].toString(this.props.mdv)});
             });
         }
         return (
@@ -122,17 +131,17 @@ class ConnectedItemMenu extends React.Component {
                     id="itemMenu"
                     anchorEl={this.props.anchorEl}
                     open={Boolean(this.props.anchorEl)}
-                    onClose={this.onClose}
+                    onClose={this.props.onClose}
                     PaperProps={{
                         style: {
                             width: 245,
                         },
                     }}
                 >
-                    <MenuItem key='InsertBefore' onClick={this.insertBefore}>
+                    <MenuItem key='InsertBefore' onClick={this.insertRecord(0)}>
                         Insert Before
                     </MenuItem>
-                    <MenuItem key='InsertAfter' onClick={this.insertAfter}>
+                    <MenuItem key='InsertAfter' onClick={this.insertRecord(1)}>
                         Insert After
                     </MenuItem>
                     <Divider/>
@@ -161,7 +170,13 @@ class ConnectedItemMenu extends React.Component {
                     }
                 </Menu>
                 { this.state.openVlmOrder &&
-                    <GeneralOrderEditor title='Value Level Order' items={items} onSave={this.orderVlm} onCancel={this.closeVlmOrder} noButton={true}/>
+                        <GeneralOrderEditor title='Value Level Order'
+                            items={items}
+                            onSave={this.orderVlm}
+                            onCancel={this.closeVlmOrder}
+                            noButton={true}
+                            width='700px'
+                        />
                 }
             </React.Fragment>
         );

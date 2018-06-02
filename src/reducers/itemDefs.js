@@ -7,6 +7,8 @@ import {
     DEL_VARS,
     DEL_CODELISTS,
     ADD_VALUELIST,
+    INSERT_VAR,
+    INSERT_VALLVL,
 } from "constants/action-types";
 import { ItemDef } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -132,6 +134,25 @@ const handleAddValueList = (state, action) => {
     return { ...state, [action.itemDefOid]: newItemDef, [action.source.oid]: parentItemDef };
 };
 
+const insertVariable = (state, action) => {
+    // Create a new itemDef
+    let newItemDef = new ItemDef({
+        oid     : action.itemDefOid,
+        sources : {itemGroups: [action.itemGroupOid], valueLists: []},
+    });
+    return { ...state, [action.itemDefOid]: newItemDef };
+};
+
+const insertValueLevel = (state, action) => {
+    // Create a new itemDef
+    let newItemDef = new ItemDef({
+        oid              : action.itemDefOid,
+        sources          : {itemGroups: [], valueLists: [action.valueListOid]},
+        parentItemDefOid : action.parentItemDefOid,
+    });
+    return { ...state, [action.itemDefOid]: newItemDef };
+};
+
 const itemDefs = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMDEF:
@@ -150,6 +171,10 @@ const itemDefs = (state = {}, action) => {
             return deleteCodeLists(state, action);
         case ADD_VALUELIST:
             return handleAddValueList(state, action);
+        case INSERT_VAR:
+            return insertVariable(state, action);
+        case INSERT_VALLVL:
+            return insertValueLevel(state, action);
         default:
             return state;
     }

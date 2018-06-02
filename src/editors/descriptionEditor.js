@@ -61,6 +61,10 @@ class DescriptionEditor extends React.Component {
         }
     }
 
+    componentDidMount() {
+        this.rootRef.current.focus();
+    }
+
     render () {
         const { classes } = this.props;
         let childProps = Object.assign({}, this.props);

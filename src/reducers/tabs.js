@@ -1,22 +1,30 @@
 import {
     UI_CHANGETAB,
     UI_TOGGLEROWSELECT,
+    UI_SETVLMSTATE,
 } from "../constants/action-types";
 
 const generateInitialState = () => {
+    /* TODO: 'Methods', 'Comments', 'Where Conditions'*/
+    let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents'];
+
     let setting = {
         scrollPosition: 0,
     };
 
     let settings = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < tabNames.length; i++) {
         settings[i] = setting;
-        if ([1,2,3,4].includes(i)) {
+        if (['Datasets', 'Variables', 'Codelists', 'Coded Values'].includes(tabNames[i])) {
             settings[i].rowSelect = {};
+        }
+        if (tabNames[i] === 'Variables') {
+            settings[i].vlmState = {vlmState: 'collaps', vlmData: {}};
         }
     }
 
     return {
+        tabNames,
         currentTab: 2,
         settings,
     };
@@ -35,6 +43,19 @@ const changeTab = (state, action) => {
         ...state,
         currentTab : action.updateObj.selectedTab,
         settings   : newSettings,
+    };
+};
+
+const setVlmState = (state, action) => {
+    // Update scroll position
+    let tabIndex = state.tabNames.indexOf('Varialbes');
+    let newSettings = state.settings.slice();
+    let newSetting = { ...state.settings[tabIndex], vlmState: action.vlmState };
+    newSettings.splice(tabIndex, 1, newSetting);
+
+    return {
+        ...state,
+        settings: newSettings,
     };
 };
 
@@ -65,6 +86,8 @@ const tabs = (state = initialState, action) => {
             return changeTab(state, action);
         case UI_TOGGLEROWSELECT:
             return toggleRowSelect(state, action);
+        case UI_SETVLMSTATE:
+            return setVlmState(state, action);
         default:
             return state;
     }

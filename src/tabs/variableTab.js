@@ -291,6 +291,11 @@ class ConnectedVariableTable extends React.Component {
         }
     }
 
+    componentWillUnmount() {
+        //
+    }
+
+
     menuFormatter = (cell, row) => {
         let itemMenuParams = {
             oid            : row.oid,
@@ -309,7 +314,6 @@ class ConnectedVariableTable extends React.Component {
             </IconButton>
         );
     }
-
 
     handleMenuOpen = (itemMenuParams) => (event) => {
         this.setState({ itemMenuParams, anchorEl: event.currentTarget });
@@ -718,7 +722,7 @@ class ConnectedVariableTable extends React.Component {
                 width        : '130px',
                 dataFormat   : variableCodeListFormatFormatter,
                 customEditor : {getElement: variableCodeListFormatEditor, customEditorParameters: {codeLists: mdv.codeLists}},
-                tdStyle      : { whiteSpace: 'normal', wordBreak: 'break-all' },
+                tdStyle      : { whiteSpace: 'normal', overFlowWrap: 'break-word', wordBreak: 'break-word' },
                 thStyle      : { whiteSpace: 'normal' }
             },
             {
@@ -755,7 +759,6 @@ class ConnectedVariableTable extends React.Component {
                     hover
                     version='4'
                     cellEdit={cellEditProp}
-                    keyBoardNav={{enterToEdit: true}}
                     headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
                     selectRow={selectRowProp}
                     trClassName={this.highLightVlmRows}

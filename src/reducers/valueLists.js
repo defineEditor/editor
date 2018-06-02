@@ -3,10 +3,12 @@ import {
     UPD_NAMELABELWHERECLAUSE,
     UPD_ITEMREF,
     ADD_VALUELIST,
+    INSERT_VALLVL,
     UPD_ITEMDESCRIPTION,
     UPD_VLMITEMREFORDER,
 } from "constants/action-types";
 import { ValueList, ItemRef } from 'elements.js';
+import getOid from 'utils/getOid.js';
 
 const addValueList = (state, action) => {
     // Create a new ItemRef (valueList will contain 1 variable)
@@ -228,14 +230,24 @@ const updateItemRefWhereClause = (state, action) => {
     }
 };
 
-/*
-const updateKeyOrder = (state, action) => {
-    // action.valueListOid
-    // action.keyOrder
-    let newValueList =  new ValueList({ ...state[action.valueListOid], keyOrder: action.keyOrder });
-    return { ...state, [action.valueListOid]: newValueList };
+const insertValueLevel = (state, action) => {
+    let itemRefOid = getOid('ItemRef', undefined, state[action.valueListOid].itemRefOrder);
+    let itemRef = new ItemRef({ oid: itemRefOid, itemOid: action.itemDefOid, whereClauseOid: action.whereClauseOid });
+    let itemRefs = { ...state[action.valueListOid].itemRefs, [itemRefOid]: itemRef };
+    let itemRefOrder = state[action.valueListOid].itemRefOrder.slice();
+    if (action.orderNumber === 0) {
+        itemRefOrder.unshift(itemRefOid);
+    } else {
+        itemRefOrder.splice(action.orderNumber, 0, itemRefOid);
+    }
+    let valueList = new ValueList(
+        {
+            ...state[action.valueListOid],
+            itemRefs,
+            itemRefOrder,
+        });
+    return { ...state, [action.valueListOid]: valueList };
 };
-*/
 
 const valueLists = (state = {}, action) => {
     switch (action.type) {
@@ -255,6 +267,8 @@ const valueLists = (state = {}, action) => {
             return updateItemRef(state, action);
         case UPD_VLMITEMREFORDER:
             return updateItemRefOrder(state, action);
+        case INSERT_VALLVL:
+            return insertValueLevel(state, action);
         default:
             return state;
     }

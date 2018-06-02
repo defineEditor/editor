@@ -9,6 +9,8 @@ import {
     UPD_ITEMDESCRIPTION,
     ADD_VAR,
     ADD_VALUELIST,
+    INSERT_VAR,
+    INSERT_VALLVL,
     DEL_VARS,
     UPD_NAMELABELWHERECLAUSE,
 } from "constants/action-types";
@@ -96,6 +98,26 @@ export const deleteVariables = (source, deleteObj) => (
         type: DEL_VARS,
         source,
         deleteObj,
+    }
+);
+
+export const insertVariable = (itemGroupOid, itemDefOid, orderNumber) => (
+    {
+        type: INSERT_VAR,
+        itemGroupOid,
+        itemDefOid,
+        orderNumber,
+    }
+);
+
+export const insertValueLevel = (valueListOid, itemDefOid, parentItemDefOid, whereClauseOid, orderNumber) => (
+    {
+        type: INSERT_VALLVL,
+        valueListOid,
+        itemDefOid,
+        parentItemDefOid,
+        whereClauseOid,
+        orderNumber,
     }
 );
 
