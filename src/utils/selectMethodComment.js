@@ -146,7 +146,7 @@ class ConnectedSelectMethodComment extends React.Component {
                 <DialogTitle>
                     <Grid container justify='space-between' alignItems='center'>
                         <Grid item xs={10}>
-                            Select Method
+                            {'Select ' + this.props.type}
                         </Grid>
                         <Grid item xs={2} className={classes.icon}>
                             <IconButton

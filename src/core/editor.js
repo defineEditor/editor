@@ -76,6 +76,7 @@ class ConnectedEditor extends React.Component {
         }
     });
     */
+        /*
         let mdv = odm.study.metaDataVersion;
         if (odm.study.metaDataVersion.itemGroups.hasOwnProperty('IG.ADQSADAS')) {
             Object.keys(odm.study.metaDataVersion.itemGroups['IG.ADQSADAS'].itemRefs).forEach( (item,index) => {
@@ -107,6 +108,7 @@ class ConnectedEditor extends React.Component {
                 }
             });
         }
+        */
         this.props.addOdm(odm);
     }
 

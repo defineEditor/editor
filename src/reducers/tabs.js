@@ -2,6 +2,7 @@ import {
     UI_CHANGETAB,
     UI_TOGGLEROWSELECT,
     UI_SETVLMSTATE,
+    UI_SELECTDATASET,
 } from "../constants/action-types";
 
 const generateInitialState = () => {
@@ -14,12 +15,13 @@ const generateInitialState = () => {
 
     let settings = [];
     for (let i = 0; i < tabNames.length; i++) {
-        settings[i] = setting;
+        settings[i] = { ...setting };
         if (['Datasets', 'Variables', 'Codelists', 'Coded Values'].includes(tabNames[i])) {
             settings[i].rowSelect = {};
         }
         if (tabNames[i] === 'Variables') {
             settings[i].vlmState = {};
+            settings[i].itemGroupOid = undefined;
         }
     }
 
@@ -60,6 +62,19 @@ const setVlmState = (state, action) => {
     };
 };
 
+const selectDataset = (state, action) => {
+    let tabIndex = state.tabNames.indexOf('Variables');
+    let newSettings = state.settings.slice();
+    let newSetting = { ...state.settings[tabIndex], itemGroupOid: action.updateObj.itemGroupOid };
+    newSettings.splice(tabIndex, 1, newSetting);
+
+    return {
+        ...state,
+        settings: newSettings,
+    };
+};
+
+
 const toggleRowSelect = (state, action) => {
     // Update scroll position
     let currentTab = state.currentTab;
@@ -89,6 +104,8 @@ const tabs = (state = initialState, action) => {
             return toggleRowSelect(state, action);
         case UI_SETVLMSTATE:
             return setVlmState(state, action);
+        case UI_SELECTDATASET:
+            return selectDataset(state, action);
         default:
             return state;
     }

@@ -17,6 +17,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import ItemMenu from 'utils/itemMenu.js';
+import getTableData from 'utils/getTableData.js';
 import KeyOrderEditor from 'editors/keyOrderEditor.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import AddVariableEditor from 'editors/addVariableEditor.js';
@@ -137,7 +138,11 @@ function keyOrderFormatter (cell, row) {
 function variableNameLabelWhereClauseFormatter (cell, row) {
     const hasVlm = (row.valueList !== undefined);
     if (hasVlm) {
-        const state = this.state.vlmData[row.oid].vlmState;
+        let itemVlmState = 'collaps';
+        let vlmState = this.props.tabSettings.vlmState[this.props.itemGroupOid];
+        if (vlmState !== undefined && vlmState.hasOwnProperty(row.oid)) {
+            itemVlmState = vlmState[row.oid];
+        }
         return (
             <VariableNameLabelWhereClauseFormatter
                 value={cell}
@@ -145,7 +150,7 @@ function variableNameLabelWhereClauseFormatter (cell, row) {
                 toggleVlmRow={this.toggleVlmRow}
                 itemOid={row.oid}
                 hasVlm={hasVlm}
-                state={state}
+                state={itemVlmState}
                 mdv={row.mdv}
             />
         );
@@ -165,128 +170,12 @@ function roleMandatoryFormatter (cell, row) {
     return (<RoleMandatoryFormatter value={cell} model={row.model}/>);
 }
 
-// Extract data required for the table;
-function getTableData ({source, datasetName, itemDefs, codeLists, mdv, defineVersion, vlmLevel}={}) {
-    let result = [];
-    Object.keys(source.itemRefs).forEach((itemRefOid, index) => {
-        const originVar = source.itemRefs[itemRefOid];
-        const originItemDef = itemDefs[originVar.itemOid];
-        let currentVar = {
-            itemGroupOid  : source.oid,
-            itemRefOid    : itemRefOid,
-            oid           : originItemDef.oid,
-            name          : originItemDef.name,
-            dataType      : originItemDef.dataType,
-            codeList      : originItemDef.codeListOid !== undefined ? codeLists[originItemDef.codeListOid] : undefined,
-            valueList     : originItemDef.valueListOid !== undefined ? mdv.valueLists[originItemDef.valueListOid] : undefined,
-            model         : mdv.model,
-            mdv           : mdv,
-            defineVersion : defineVersion,
-            vlmLevel      : vlmLevel,
-        };
-        currentVar.lengthAttrs = {
-            length           : originItemDef.length,
-            fractionDigits   : originItemDef.fractionDigits,
-            lengthAsData     : originItemDef.lengthAsData,
-            lengthAsCodelist : originItemDef.lengthAsCodelist,
-        };
-        currentVar.codeListFormatAttrs = {
-            codeListOid   : originItemDef.codeListOid,
-            displayFormat : originItemDef.displayFormat,
-            codeListLabel : originItemDef.codeListOid !== undefined && codeLists[originItemDef.codeListOid].name,
-            dataType      : originItemDef.dataType,
-        };
-        currentVar.description = {
-            comment : mdv.comments[originItemDef.commentOid],
-            method  : mdv.methods[originVar.methodOid],
-            origins : originItemDef.origins,
-            note    : originItemDef.note,
-            varName : originItemDef.name,
-            model   : mdv.model,
-        };
-        currentVar.nameLabelWhereClause = {
-            name         : originItemDef.name,
-            descriptions : originItemDef.descriptions,
-            whereClause  : originVar.whereClauseOid !== undefined ? mdv.whereClauses[originVar.whereClauseOid] : undefined,
-        };
-        if (originVar.whereClauseOid !== undefined) {
-            // VLM itemRef
-            currentVar.fullName = datasetName + '.' + itemDefs[originItemDef.parentItemDefOid].name + '.' + originItemDef.name;
-        } else {
-            // Normal itemRef
-            currentVar.fullName = datasetName + '.' + originItemDef.name;
-        }
-
-        let keySequence = source.keyOrder.includes(itemRefOid) ? source.keyOrder.indexOf(itemRefOid) + 1 : undefined;
-
-        currentVar.keyOrder = {
-            orderNumber : (source.itemRefOrder.indexOf(itemRefOid) + 1),
-            keySequence : keySequence,
-            itemGroup   : source,
-        };
-        currentVar.roleMandatory = {
-            mandatory    : originVar.mandatory,
-            role         : originVar.role,
-            roleCodeList : originVar.roleCodeList,
-        };
-        result[currentVar.keyOrder.orderNumber-1] = currentVar;
-    });
-    return result;
-}
-
 class ConnectedVariableTable extends React.Component {
     constructor(props) {
         super(props);
-        const mdv = this.props.mdv;
-        //const model = mdv.model;
-        const dataset = mdv.itemGroups[this.props.itemGroupOid];
-        // Get variable level metadata
-        let variables = getTableData({
-            source        : dataset,
-            datasetName   : dataset.name,
-            itemDefs      : mdv.itemDefs,
-            codeLists     : mdv.codeLists,
-            mdv           : this.props.mdv,
-            defineVersion : this.props.defineVersion,
-            vlmLevel      : 0,
-        });
-        // Get VLM metadata and set toggle status for each
-        let vlmData = {};
-        let vlmStateSettings;
-        if (this.props.tabSettings.vlmState.hasOwnProperty(this.props.itemGroupOid)) {
-            vlmStateSettings = this.props.tabSettings.vlmState[this.props.itemGroupOid];
-        }
-        let vlmState = vlmStateSettings ? vlmStateSettings.vlmState : 'collaps';
-
-        variables.filter( item => item.valueList !== undefined ).forEach( item => {
-            vlmData[item.oid] = {};
-            if (vlmStateSettings && vlmStateSettings.hasOwnProperty(item.oid)) {
-                vlmData[item.oid].vlmState = vlmStateSettings[item.oid];
-            } else {
-                vlmData[item.oid].vlmState = 'collaps';
-            }
-            vlmData[item.oid].data = getTableData({
-                source        : item.valueList,
-                datasetName   : dataset.name,
-                itemDefs      : mdv.itemDefs,
-                codeLists     : mdv.codeLists,
-                mdv           : mdv,
-                defineVersion : this.props.defineVersion,
-                vlmLevel      : 1,
-            });
-            // For all VLM which are expanded, add VLM data to Variables
-            if (vlmData[item.oid].vlmState === 'expand') {
-                let startIndex = variables.map(item => item.oid).indexOf(item.oid) + 1;
-                variables.splice.apply(variables, [startIndex, 0].concat(vlmData[item.oid].data));
-            }
-
-        });
+        // Set state of VLM variables (expanded/collapsed)
 
         this.state = {
-            variables,
-            vlmData,
-            vlmState,
-            dataset,
             itemMenuParams  : {},
             anchorEl        : null,
             selectedRows    : [],
@@ -304,14 +193,49 @@ class ConnectedVariableTable extends React.Component {
 
     componentWillUnmount() {
         // Save collapsed status of VLM items to store
-        // Delete all data from the vlmState
-        let vlmState = {vlmState: this.state.vlmState};
-        Object.keys(this.state.vlmData).forEach( itemOid => {
-            vlmState[itemOid] = this.state.vlmData[itemOid].vlmState;
-        });
+        let vlmState = { ... this.props.tabSettings.vlmState[this.props.itemGroupOid] };
         if (!deepEqual(this.props.tabSettings.vlmState[this.props.itemGroupOid], vlmState))  {
             this.props.setVlmState({ itemGroupOid: this.props.itemGroupOid }, { vlmState });
         }
+    }
+
+    getData = () => {
+        const mdv = this.props.mdv;
+        //const model = mdv.model;
+        const dataset = mdv.itemGroups[this.props.itemGroupOid];
+        // Get variable level metadata
+        let variables = getTableData({
+            source        : dataset,
+            datasetName   : dataset.name,
+            itemDefs      : mdv.itemDefs,
+            codeLists     : mdv.codeLists,
+            mdv           : this.props.mdv,
+            defineVersion : this.props.defineVersion,
+            vlmLevel      : 0,
+        });
+
+        // Get VLM metadata for items which are expanded
+        let vlmState = this.props.tabSettings.vlmState[this.props.itemGroupOid];
+        if (vlmState !== undefined) {
+            variables
+                .filter( item => (item.valueList !== undefined && vlmState[item.oid] === 'expand') )
+                .forEach( item => {
+                    let vlmData = getTableData({
+                        source        : item.valueList,
+                        datasetName   : dataset.name,
+                        itemDefs      : mdv.itemDefs,
+                        codeLists     : mdv.codeLists,
+                        mdv           : mdv,
+                        defineVersion : this.props.defineVersion,
+                        vlmLevel      : 1,
+                    });
+                    // For all VLM which are expanded, add VLM data to Variables
+                    let startIndex = variables.map(item => item.oid).indexOf(item.oid) + 1;
+                    variables.splice.apply(variables, [startIndex, 0].concat(vlmData));
+                });
+        }
+
+        return variables;
     }
 
     menuFormatter = (cell, row) => {
@@ -406,71 +330,52 @@ class ConnectedVariableTable extends React.Component {
         return true;
     }
 
-    toggleVlmAndVariablesData = (itemOid, variables, vlmData) => {
-        // This function is not pure
+    toggleVlmAndVariablesData = (itemOid, vlmState) => {
         // Toggle the vlm state
-        let startIndex = variables.map(item => item.oid).indexOf(itemOid) + 1;
-        if (vlmData[itemOid].vlmState === 'collaps') {
-            // Insert VLM rows
-            variables.splice.apply(variables, [startIndex, 0].concat(vlmData[itemOid].data));
-            vlmData[itemOid].vlmState = 'expand';
+        if (vlmState[itemOid] === 'expand') {
+            vlmState[itemOid] = 'collaps';
         } else {
-            // Remove VLM rows
-            variables.splice(startIndex, vlmData[itemOid].data.length);
-            vlmData[itemOid].vlmState = 'collaps';
+            vlmState[itemOid] = 'expand';
         }
     }
 
     toggleVlmRow = (itemOid) => () => {
-        // Shallow copy the state
-        let variables = this.state.variables.slice();
-        let vlmData = {};
-        Object.keys(this.state.vlmData).forEach( vlmItemOid => {
-            vlmData[vlmItemOid] = Object.assign({}, this.state.vlmData[vlmItemOid]);
-        });
+        // Copy the state
+        let vlmState = { ...this.props.tabSettings.vlmState[this.props.itemGroupOid] };
         // Update the state
-        this.toggleVlmAndVariablesData(itemOid, variables, vlmData);
-        // Final result
-        let result = {
-            variables : variables,
-            vlmData   : vlmData,
-        };
+        this.toggleVlmAndVariablesData(itemOid, vlmState);
         // Check if all of the states became collapsed/expanded;
-        if (Object.keys(vlmData).filter( vlm => vlmData[vlm].vlmState === 'collaps').length === 0) {
-            result.vlmState = 'expand';
-        } else if (Object.keys(vlmData).filter( vlm => vlmData[vlm].vlmState === 'expand').length === 0) {
-            result.vlmState = 'collaps';
+        if (Object.keys(vlmState)
+            .filter( vlm => (vlm !== 'global'))
+            .filter( vlm => vlmState[vlm] === 'collaps').length === 0) {
+            vlmState.global = 'expand';
+        } else if (Object.keys(vlmState)
+            .filter( vlm => (vlm !== 'global'))
+            .filter( vlm => vlmState[vlm] === 'expand').length === 0) {
+            vlmState.global = 'collaps';
         }
-        this.setState(result);
+        this.props.setVlmState({ itemGroupOid: this.props.itemGroupOid }, { vlmState });
     }
 
     toggleVlmRows = (type) => () => {
-        if (Object.keys(this.state.vlmData).length === 0) {
-            // If dataset has no VLM, exit;
-            return;
-        } else if (type === this.state.vlmState) {
+        let vlmState = { global: 'collaps' };
+        if (this.props.tabSettings.vlmState.hasOwnProperty(this.props.itemGroupOid)) {
+            vlmState = this.props.tabSettings.vlmState[this.props.itemGroupOid];
+        }
+        if (type === vlmState.global) {
             // If all are already collapsed or expanded
             return;
         }
-        // Shallow copy the state
-        let variables = this.state.variables.slice();
-        let vlmData = {};
-        Object.keys(this.state.vlmData).forEach( vlmItemOid => {
-            vlmData[vlmItemOid] = Object.assign({}, this.state.vlmData[vlmItemOid]);
-        });
-        // Update the state
-        Object.keys(this.state.vlmData).forEach( vlmItemOid => {
-            if (this.state.vlmData[vlmItemOid].vlmState !== type) {
-                this.toggleVlmAndVariablesData(vlmItemOid, variables, vlmData);
+        // Update the state for all items that have VLM
+        vlmState = { global: vlmState.global === 'expand' ? 'collaps' : 'expand' };
+        let dataset = this.props.mdv.itemGroups[this.props.itemGroupOid];
+        dataset.itemRefOrder.forEach( itemRefOid => {
+            let itemOid = dataset.itemRefs[itemRefOid].itemOid;
+            if (this.props.mdv.itemDefs[itemOid].valueListOid !== undefined) {
+                vlmState[itemOid] = type;
             }
         });
-        // Final result
-        let result = {
-            variables : variables,
-            vlmData   : vlmData,
-            vlmState  : type,
-        };
-        this.setState(result);
+        this.props.setVlmState({ itemGroupOid: this.props.itemGroupOid }, { vlmState });
     }
 
     createCustomButtonGroup = props => {
@@ -520,6 +425,19 @@ class ConnectedVariableTable extends React.Component {
     }
 
     createCustomToolBar = props => {
+        let vlmState = { global: 'collaps' };
+        if (this.props.tabSettings.vlmState.hasOwnProperty(this.props.itemGroupOid)) {
+            vlmState = this.props.tabSettings.vlmState[this.props.itemGroupOid];
+        }
+
+        let dataset = this.props.mdv.itemGroups[this.props.itemGroupOid];
+        let hasVlm = dataset.itemRefOrder.some( itemRefOid => {
+            let itemOid = dataset.itemRefs[itemRefOid].itemOid;
+            if (this.props.mdv.itemDefs[itemOid].valueListOid !== undefined) {
+                return true;
+            }
+        });
+
         return (
             <Grid container spacing={16} justify='space-between'>
                 <Grid item style={{paddingLeft: '8px'}}>
@@ -527,15 +445,15 @@ class ConnectedVariableTable extends React.Component {
                 </Grid>
                 <Grid item style={{paddingRight: '25px'}}>
                     <Grid container spacing={16} justify='flex-end'>
-                        { Object.keys(this.state.vlmData).length > 0 &&
+                        { hasVlm &&
                                 <Grid item>
                                     <Button
                                         variant="raised"
                                         color="default"
-                                        onClick={this.toggleVlmRows(this.state.vlmState === 'collaps' ? 'expand' : 'collaps')}
+                                        onClick={this.toggleVlmRows(vlmState.global === 'collaps' ? 'expand' : 'collaps')}
                                     >
-                                        {this.state.vlmState === 'collaps' ? 'Expand' : 'Collaps'} VLM
-                                        {this.state.vlmState === 'collaps' ? <ExpandMoreIcon style={{marginLeft: '7px'}}/> : <ExpandLessIcon style={{marginLeft: '7px'}}/>}
+                                        {vlmState.global === 'collaps' ? 'Expand' : 'Collaps'} VLM
+                                        {vlmState.global === 'collaps' ? <ExpandMoreIcon style={{marginLeft: '7px'}}/> : <ExpandLessIcon style={{marginLeft: '7px'}}/>}
                                     </Button>
                                 </Grid>
                         }
@@ -561,8 +479,10 @@ class ConnectedVariableTable extends React.Component {
     }
 
     deleteRows = () => {
-        let deleteObj = getItemRefsRelatedOids(this.props.mdv, this.props.itemGroupOid, this.state.selectedRows, this.state.selectedVlmRows);
-        this.props.deleteVariables({itemGroupOid: this.props.itemGroupOid}, deleteObj);
+        if (this.state.selectedRows.length > 0 || Object.keys(this.state.selectedVlmRows).length > 0) {
+            let deleteObj = getItemRefsRelatedOids(this.props.mdv, this.props.itemGroupOid, this.state.selectedRows, this.state.selectedVlmRows);
+            this.props.deleteVariables({itemGroupOid: this.props.itemGroupOid}, deleteObj);
+        }
     }
 
     highLightVlmRows = (row, rowIndex) => {
@@ -641,6 +561,8 @@ class ConnectedVariableTable extends React.Component {
         // Extract data required for the variable table
         const mdv = this.props.mdv;
         const model = mdv.model;
+        const variables = this.getData();
+        const dataset = this.props.mdv.itemGroups[this.props.itemGroupOid];
 
         // Editor settings
         const cellEditProp = {
@@ -662,9 +584,8 @@ class ConnectedVariableTable extends React.Component {
         }
 
         const options = {
-            toolBar   : this.createCustomToolBar,
-            deleteBtn : this.createCustomDeleteButton,
-            btnGroup  : this.createCustomButtonGroup
+            toolBar  : this.createCustomToolBar,
+            btnGroup : this.createCustomButtonGroup
         };
 
         const columns = [
@@ -700,7 +621,7 @@ class ConnectedVariableTable extends React.Component {
                 width        : '300px',
                 hidden       : hideMe,
                 dataFormat   : variableNameLabelWhereClauseFormatter.bind(this),
-                customEditor : {getElement: variableNameLabelWhereClauseEditor, customEditorParameters: {blueprint: mdv, dataset: this.state.dataset, mdv: mdv}},
+                customEditor : {getElement: variableNameLabelWhereClauseEditor, customEditorParameters: {blueprint: mdv, dataset: dataset, mdv: mdv}},
                 tdStyle      : { whiteSpace: 'normal' },
                 thStyle      : { whiteSpace: 'normal' }
             },
@@ -768,7 +689,7 @@ class ConnectedVariableTable extends React.Component {
                     {mdv.itemGroups[this.props.itemGroupOid].name + ' (' + mdv.itemGroups[this.props.itemGroupOid].getDescription() + ')'}
                 </h3>
                 <BootstrapTable
-                    data={this.state.variables}
+                    data={variables}
                     options={options}
                     search
                     deleteRow

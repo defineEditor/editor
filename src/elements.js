@@ -712,7 +712,6 @@ class ItemDef extends BasicFunctions {
         this.commentOid = commentOid;
         this.origins = origins;
         this.codeListOid = codeListOid;
-        this.valueList = valueList;
         this.valueListOid = valueListOid;
         this.descriptions = descriptions;
         // Non-define XML properties

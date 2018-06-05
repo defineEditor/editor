@@ -6,7 +6,7 @@ import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import StandardTable from 'tabs/standardTab.js';
 import DatasetTable from 'tabs/datasetTab.js';
-import VariableTable from 'tabs/variableTab.js';
+import VariableTab from 'tabs/variableTab.js';
 import CodeListTable from 'tabs/codeListTab.js';
 import CodedValueTable from 'tabs/codedValueTab.js';
 import DocumentTab from 'tabs/documentTab.js';
@@ -78,18 +78,6 @@ class ConnectedEditorTabs extends React.Component {
         }
     }
 
-    generateVariableTables = () => {
-        // Sort datasets according to the orderNumber
-        let result = this.props.itemGroupOrder.map(itemGroupOid => {
-            return (
-                <div key={itemGroupOid}>
-                    <VariableTable itemGroupOid={itemGroupOid}/>
-                </div>
-            );
-        });
-        return result;
-    }
-
     generateCodeListTables = () => {
         // Sort codeLists according to the orderNumber
         const codeLists = this.props.codeLists;
@@ -135,7 +123,7 @@ class ConnectedEditorTabs extends React.Component {
                         <br/>
                         {tabNames[currentTab] === 'Standards' && <StandardTable/>}
                         {tabNames[currentTab] === 'Datasets' && <DatasetTable/>}
-                        {tabNames[currentTab] === 'Variables' && this.generateVariableTables()}
+                        {tabNames[currentTab] === 'Variables' && <VariableTab/>}
                         {tabNames[currentTab] === 'Codelists' && <CodeListTable/>}
                         {tabNames[currentTab] === 'Coded Values' && this.generateCodeListTables()}
                         {tabNames[currentTab] === 'Documents' && <DocumentTab/>}

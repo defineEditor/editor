@@ -105,6 +105,15 @@ const deleteVariables = (state, action) => {
             }
         });
     });
+    // When only value level is removed, delete reference to it
+    Object.keys(action.deleteObj.valueListOids).forEach( itemDefOid => {
+        if (newState.hasOwnProperty(itemDefOid)) {
+            newState = {
+                ...newState,
+                [itemDefOid]: new ItemDef({ ...state[itemDefOid], valueListOid: undefined })
+            };
+        }
+    });
     return newState;
 };
 
