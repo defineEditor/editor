@@ -19,7 +19,7 @@ const generateInitialState = () => {
             settings[i].rowSelect = {};
         }
         if (tabNames[i] === 'Variables') {
-            settings[i].vlmState = {vlmState: 'collaps', vlmData: {}};
+            settings[i].vlmState = {};
         }
     }
 
@@ -48,9 +48,10 @@ const changeTab = (state, action) => {
 
 const setVlmState = (state, action) => {
     // Update scroll position
-    let tabIndex = state.tabNames.indexOf('Varialbes');
+    let tabIndex = state.tabNames.indexOf('Variables');
     let newSettings = state.settings.slice();
-    let newSetting = { ...state.settings[tabIndex], vlmState: action.vlmState };
+    let newVlmState = { ...state.settings[tabIndex].vlmState, [action.source.itemGroupOid]: action.updateObj.vlmState };
+    let newSetting = { ...state.settings[tabIndex], vlmState: newVlmState };
     newSettings.splice(tabIndex, 1, newSetting);
 
     return {

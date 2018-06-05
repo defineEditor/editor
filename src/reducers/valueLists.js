@@ -6,6 +6,7 @@ import {
     INSERT_VALLVL,
     UPD_ITEMDESCRIPTION,
     UPD_VLMITEMREFORDER,
+    UPD_ITEMREFKEYORDER,
 } from "constants/action-types";
 import { ValueList, ItemRef } from 'elements.js';
 import getOid from 'utils/getOid.js';
@@ -41,64 +42,52 @@ const deleteValueLists = (state, action) => {
 
     return newState;
 };
-
-const updateItemRefKeyOrder = (state, action) => {
-    // Check if order changed;
-    let ds = state[action.source.valueListOid];
-    let newItemRefOrder;
-    let newKeyOrder;
-    if (action.updateObj.orderNumber !== action.prevObj.orderNumber) {
-        newItemRefOrder = ds.itemRefOrder.slice();
-        // Delete element from the ordered array
-        newItemRefOrder.splice(newItemRefOrder.indexOf(action.source.itemRefOid),1);
-        // Insert it in the new place
-        if (action.updateObj.orderNumber !== ds.itemRefOrder.length) {
-            newItemRefOrder.splice(action.updateObj.orderNumber - 1, 0, action.source.itemRefOid);
-        } else {
-            newItemRefOrder.push(action.source.itemRefOid);
-        }
-    } else {
-        newItemRefOrder = ds.itemRefOrder;
-    }
-    if (action.updateObj.keySequence !== action.prevObj.keySequence) {
-        newKeyOrder = ds.keyOrder.slice();
-        // Delete element from the keys array if it was a key
-        if (ds.keyOrder.includes(action.source.itemRefOid)) {
-            newKeyOrder.splice(newKeyOrder.indexOf(action.source.itemRefOid),1);
-        }
-        // Insert it in the new place
-        if (action.updateObj.keySequence !== ds.keyOrder.length) {
-            newKeyOrder.splice(action.updateObj.keySequence - 1, 0, action.source.itemRefOid);
-        } else {
-            newKeyOrder.push(action.source.itemRefOid);
-        }
-
-    } else {
-        newKeyOrder = ds.keyOrder;
-    }
-    let newValueList =  new ValueList({ ...state[action.source.valueListOid],
-        itemRefOrder : newItemRefOrder,
-        keyOrder     : newKeyOrder,
-    });
-    return { ...state, [action.source.valueListOid]: newValueList };
-};
-
-const addVariable = (state, action) => {
-    // Check if order changed;
-    let ds = state[action.source.valueListOid];
-    let newItemRefOrder;
-    if (action.orderNumber - 1 <= ds.itemRefOrder.length) {
-        newItemRefOrder = ds.itemRefOrder.slice(0,action.orderNumber - 1).concat([action.itemRef.oid].concat(ds.itemRefOrder.slice(action.orderNumber - 1))) ;
-    } else {
-        newItemRefOrder = ds.itemRefOrder.slice().concat([action.itemRef.oid]);
-    }
-    let newValueList =  new ValueList({ ...state[action.source.valueListOid],
-        itemRefOrder : newItemRefOrder,
-        itemRefs     : { ...state[action.source.valueListOid].itemRefs, [action.itemRef.oid]: action.itemRef },
-    });
-    return { ...state, [action.source.valueListOid]: newValueList };
-};
 */
+const updateItemRefKeyOrder = (state, action) => {
+    if (!action.source.vlm) {
+        return state;
+    } else {
+        // Check if order changed;
+        let ds = state[action.source.itemGroupOid];
+        let newItemRefOrder;
+        let newKeyOrder;
+        if (action.updateObj.orderNumber !== action.prevObj.orderNumber) {
+            newItemRefOrder = ds.itemRefOrder.slice();
+            // Delete element from the ordered array
+            newItemRefOrder.splice(newItemRefOrder.indexOf(action.source.itemRefOid),1);
+            // Insert it in the new place
+            if (action.updateObj.orderNumber !== ds.itemRefOrder.length) {
+                newItemRefOrder.splice(action.updateObj.orderNumber - 1, 0, action.source.itemRefOid);
+            } else {
+                newItemRefOrder.push(action.source.itemRefOid);
+            }
+        } else {
+            newItemRefOrder = ds.itemRefOrder;
+        }
+        if (action.updateObj.keySequence !== action.prevObj.keySequence) {
+            newKeyOrder = ds.keyOrder.slice();
+            // Delete element from the keys array if it was a key
+            if (ds.keyOrder.includes(action.source.itemRefOid)) {
+                newKeyOrder.splice(newKeyOrder.indexOf(action.source.itemRefOid),1);
+            }
+            // Insert it in the new place
+            if (action.updateObj.keySequence !== ds.keyOrder.length) {
+                newKeyOrder.splice(action.updateObj.keySequence - 1, 0, action.source.itemRefOid);
+            } else {
+                newKeyOrder.push(action.source.itemRefOid);
+            }
+
+        } else {
+            newKeyOrder = ds.keyOrder;
+        }
+        let newValueList = new ValueList({ ...state[action.source.itemGroupOid],
+            itemRefOrder : newItemRefOrder,
+            keyOrder     : newKeyOrder,
+        });
+        return { ...state, [action.source.itemGroupOid]: newValueList };
+    }
+};
+
 const updateItemRef = (state, action) => {
     if (!action.source.vlm) {
         return state;
@@ -269,6 +258,8 @@ const valueLists = (state = {}, action) => {
             return updateItemRefOrder(state, action);
         case INSERT_VALLVL:
             return insertValueLevel(state, action);
+        case UPD_ITEMREFKEYORDER:
+            return updateItemRefKeyOrder(state, action);
         default:
             return state;
     }

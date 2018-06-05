@@ -19,9 +19,10 @@ export const toggleRowSelect = (source) => (
     }
 );
 
-export const setVlmState = (source, vlmState) => (
+export const setVlmState = (source, updateObj) => (
     {
         type: UI_SETVLMSTATE,
-        vlmState,
+        source,
+        updateObj,
     }
 );

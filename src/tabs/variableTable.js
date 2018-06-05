@@ -35,7 +35,7 @@ import VariableNameLabelWhereClauseEditor from 'editors/variableNameLabelWhereCl
 import VariableNameLabelWhereClauseFormatter from 'formatters/variableNameLabelWhereClauseFormatter.js';
 import {
     updateItemDef, updateItemRef, updateItemRefKeyOrder, updateItemCodeListDisplayFormat,
-    updateItemDescription, deleteVariables, updateNameLabelWhereClause,
+    updateItemDescription, deleteVariables, updateNameLabelWhereClause, setVlmState,
 } from 'actions/index.js';
 
 
@@ -49,6 +49,7 @@ const mapDispatchToProps = dispatch => {
         updateItemCodeListDisplayFormat : (oid, updateObj, prevObj) => dispatch(updateItemCodeListDisplayFormat(oid, updateObj, prevObj)),
         updateItemDescription           : (source, updateObj, prevObj) => dispatch(updateItemDescription(source, updateObj, prevObj)),
         deleteVariables                 : (source, deleteObj) => dispatch(deleteVariables(source, deleteObj)),
+        setVlmState                     : (source, updateObj) => dispatch(setVlmState(source, updateObj)),
     };
 };
 
@@ -57,7 +58,7 @@ const mapStateToProps = state => {
         mdv           : state.odm.study.metaDataVersion,
         dataTypes     : state.stdConstants.dataTypes,
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
-        tabs          : state.ui.tabs,
+        tabSettings   : state.ui.tabs.settings[state.ui.tabs.currentTab],
         showRowSelect : state.ui.tabs.settings[state.ui.tabs.currentTab].rowSelect['overall'],
     };
 };
@@ -78,12 +79,6 @@ const styles = theme => ({
 function descriptionEditor (onUpdate, props) {
     return (<DescriptionEditor onUpdate={ onUpdate } {...props}/>);
 }
-
-/*
-function simpleInputEditor (onUpdate, props) {
-    return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
-}
-*/
 
 function simpleSelectEditor (onUpdate, props) {
     return (<SimpleSelectEditor onUpdate={ onUpdate } {...props}/>);
@@ -142,7 +137,7 @@ function keyOrderFormatter (cell, row) {
 function variableNameLabelWhereClauseFormatter (cell, row) {
     const hasVlm = (row.valueList !== undefined);
     if (hasVlm) {
-        const state = this.state.vlmData[row.oid].state;
+        const state = this.state.vlmData[row.oid].vlmState;
         return (
             <VariableNameLabelWhereClauseFormatter
                 value={cell}
@@ -257,9 +252,19 @@ class ConnectedVariableTable extends React.Component {
         });
         // Get VLM metadata and set toggle status for each
         let vlmData = {};
+        let vlmStateSettings;
+        if (this.props.tabSettings.vlmState.hasOwnProperty(this.props.itemGroupOid)) {
+            vlmStateSettings = this.props.tabSettings.vlmState[this.props.itemGroupOid];
+        }
+        let vlmState = vlmStateSettings ? vlmStateSettings.vlmState : 'collaps';
+
         variables.filter( item => item.valueList !== undefined ).forEach( item => {
             vlmData[item.oid] = {};
-            vlmData[item.oid].state = 'collaps';
+            if (vlmStateSettings && vlmStateSettings.hasOwnProperty(item.oid)) {
+                vlmData[item.oid].vlmState = vlmStateSettings[item.oid];
+            } else {
+                vlmData[item.oid].vlmState = 'collaps';
+            }
             vlmData[item.oid].data = getTableData({
                 source        : item.valueList,
                 datasetName   : dataset.name,
@@ -269,13 +274,19 @@ class ConnectedVariableTable extends React.Component {
                 defineVersion : this.props.defineVersion,
                 vlmLevel      : 1,
             });
+            // For all VLM which are expanded, add VLM data to Variables
+            if (vlmData[item.oid].vlmState === 'expand') {
+                let startIndex = variables.map(item => item.oid).indexOf(item.oid) + 1;
+                variables.splice.apply(variables, [startIndex, 0].concat(vlmData[item.oid].data));
+            }
+
         });
 
         this.state = {
-            variables       : variables,
-            vlmData         : vlmData,
-            vlmState        : 'collaps',
-            dataset         : dataset,
+            variables,
+            vlmData,
+            vlmState,
+            dataset,
             itemMenuParams  : {},
             anchorEl        : null,
             selectedRows    : [],
@@ -284,17 +295,24 @@ class ConnectedVariableTable extends React.Component {
     }
 
     componentDidMount() {
-        let tabs = this.props.tabs;
+        let tabSettings = this.props.tabSettings;
         // Restore previous tab scroll position;
-        if (tabs.settings[tabs.currentTab].scrollPosition !== 0) {
-            window.scrollTo(0, tabs.settings[tabs.currentTab].scrollPosition);
+        if (tabSettings.scrollPosition !== 0) {
+            window.scrollTo(0, tabSettings.scrollPosition);
         }
     }
 
     componentWillUnmount() {
-        //
+        // Save collapsed status of VLM items to store
+        // Delete all data from the vlmState
+        let vlmState = {vlmState: this.state.vlmState};
+        Object.keys(this.state.vlmData).forEach( itemOid => {
+            vlmState[itemOid] = this.state.vlmData[itemOid].vlmState;
+        });
+        if (!deepEqual(this.props.tabSettings.vlmState[this.props.itemGroupOid], vlmState))  {
+            this.props.setVlmState({ itemGroupOid: this.props.itemGroupOid }, { vlmState });
+        }
     }
-
 
     menuFormatter = (cell, row) => {
         let itemMenuParams = {
@@ -392,14 +410,14 @@ class ConnectedVariableTable extends React.Component {
         // This function is not pure
         // Toggle the vlm state
         let startIndex = variables.map(item => item.oid).indexOf(itemOid) + 1;
-        if (vlmData[itemOid].state === 'collaps') {
+        if (vlmData[itemOid].vlmState === 'collaps') {
             // Insert VLM rows
             variables.splice.apply(variables, [startIndex, 0].concat(vlmData[itemOid].data));
-            vlmData[itemOid].state = 'expand';
+            vlmData[itemOid].vlmState = 'expand';
         } else {
             // Remove VLM rows
             variables.splice(startIndex, vlmData[itemOid].data.length);
-            vlmData[itemOid].state = 'collaps';
+            vlmData[itemOid].vlmState = 'collaps';
         }
     }
 
@@ -418,9 +436,9 @@ class ConnectedVariableTable extends React.Component {
             vlmData   : vlmData,
         };
         // Check if all of the states became collapsed/expanded;
-        if (Object.keys(vlmData).filter( vlm => vlmData[vlm].state === 'collaps').length === 0) {
+        if (Object.keys(vlmData).filter( vlm => vlmData[vlm].vlmState === 'collaps').length === 0) {
             result.vlmState = 'expand';
-        } else if (Object.keys(vlmData).filter( vlm => vlmData[vlm].state === 'expand').length === 0) {
+        } else if (Object.keys(vlmData).filter( vlm => vlmData[vlm].vlmState === 'expand').length === 0) {
             result.vlmState = 'collaps';
         }
         this.setState(result);
@@ -442,7 +460,7 @@ class ConnectedVariableTable extends React.Component {
         });
         // Update the state
         Object.keys(this.state.vlmData).forEach( vlmItemOid => {
-            if (this.state.vlmData[vlmItemOid].state !== type) {
+            if (this.state.vlmData[vlmItemOid].vlmState !== type) {
                 this.toggleVlmAndVariablesData(vlmItemOid, variables, vlmData);
             }
         });
