@@ -115,6 +115,9 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
             let value = updateObj.target.value;
             let descriptions = [new TranslatedText({lang, value})];
             this.setState({ descriptions });
+        } else if (name === 'name') {
+            // Upcase name value
+            this.setState({ [name]: updateObj.target.value.toUpperCase() });
         } else {
             this.setState({ [name]: updateObj.target.value });
         }

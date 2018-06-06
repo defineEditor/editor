@@ -77,10 +77,23 @@ class GeneralOrderEditor extends React.Component {
         super(props);
 
         this.state = {
-            dialogOpened : this.props.noButton ? true : false,
-            items        : this.props.items,
+            dialogOpened : props.noButton ? true : false,
+            items        : props.items,
+            initialItems : props.items,
         };
+    }
 
+    static getDerivedStateFromProps(nextProps, prevState) {
+        // Store prevUserId in state so we can compare when props change.
+        // Clear out any previously-loaded user data (so we don't render stale stuff).
+        if (!deepEqual(nextProps.items, prevState.initialItems)) {
+            return {
+                items        : nextProps.items,
+                initialItems : nextProps.items,
+            };
+        }
+
+        return null;
     }
 
     resetState = () => {

@@ -125,7 +125,9 @@ class OriginEditor extends React.Component {
             origin = this.props.defaultValue[0];
             if (origin) {
                 originType = origin.type || '';
-                originDescription = origin.getDescription();
+                if (origin.descriptions.length > 0) {
+                    originDescription = origin.getDescription();
+                }
             }
         }
 

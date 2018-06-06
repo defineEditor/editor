@@ -47,7 +47,7 @@ function createWindow () {
         mainWindow = null;
     });
     // Read and Send the define.xml to the renderer process
-    let xml = Promise.resolve(readXml('/home/nogi/nogi/nogi/data/define.adam.xml'));
+    let xml = Promise.resolve(readXml('/home/nogi/nogi/nogi/data/define.sdtm.xml'));
     let codeListSdtm = Promise.resolve(readXml('/home/nogi/nogi/nogi/data/SDTM Terminology.odm.xml'));
     let codeListAdam = Promise.resolve(readXml('/home/nogi/nogi/nogi/data/ADaM Terminology.odm.xml'));
 

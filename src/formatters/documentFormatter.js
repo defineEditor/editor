@@ -23,15 +23,16 @@ class DocumentFormatter extends React.Component {
                             pdfPageRefs.push(<a href={leafs[doc.leafId].href + '#' + pdfPageRef.pageRefs} key={pdfPageRef.pageRefs}>{pdfPageRef.pageRefs}</a>);
                         } else if (pdfPageRef.type === 'PhysicalRef') {
                             // It is expected that pages are separated by a space (as per Define-XML spec)
+                            let pageList = [];
                             pdfPageRef.pageRefs.split(' ').forEach( pageNumber => {
-                                pdfPageRefs.push(<a href={leafs[doc.leafId].href + '#' + pageNumber} key={pageNumber}>{pageNumber}</a>);
+                                pageList.push(<a href={leafs[doc.leafId].href + '#' + pageNumber} key={pageNumber}>{pageNumber}</a>);
                             });
+                            pdfPageRefs.push(pageList.reduce( (prev, cur) => ( [prev, ' ', cur] ) ));
                         }
                     } else if (pdfPageRef.firstPage !== undefined) {
-                        pdfPageRefs.push(
-                            <a href={leafs[doc.leafId].href + '#' + pdfPageRef.firstPage} key='first'>{pdfPageRef.firstPage}</a>-
-                            <a href={leafs[doc.leafId].href + '#' + pdfPageRef.lastPage} key='last'>{pdfPageRef.lastPage}</a>
-                        );
+                        pdfPageRefs.push(<a href={leafs[doc.leafId].href + '#' + pdfPageRef.firstPage} key='first'>{pdfPageRef.firstPage}</a>);
+                        pdfPageRefs.push(' - ');
+                        pdfPageRefs.push(<a href={leafs[doc.leafId].href + '#' + pdfPageRef.lastPage} key='last'>{pdfPageRef.lastPage}</a>);
                     }
                 });
                 if (pdfPageRefs.length > 0) {

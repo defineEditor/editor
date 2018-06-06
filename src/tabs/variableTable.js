@@ -193,7 +193,7 @@ class ConnectedVariableTable extends React.Component {
 
     componentWillUnmount() {
         // Save collapsed status of VLM items to store
-        let vlmState = { ... this.props.tabSettings.vlmState[this.props.itemGroupOid] };
+        let vlmState = { ...this.props.tabSettings.vlmState[this.props.itemGroupOid] };
         if (!deepEqual(this.props.tabSettings.vlmState[this.props.itemGroupOid], vlmState))  {
             this.props.setVlmState({ itemGroupOid: this.props.itemGroupOid }, { vlmState });
         }
@@ -436,6 +436,7 @@ class ConnectedVariableTable extends React.Component {
             if (this.props.mdv.itemDefs[itemOid].valueListOid !== undefined) {
                 return true;
             }
+            return false;
         });
 
         return (

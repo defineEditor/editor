@@ -81,7 +81,7 @@ class ConnectedVariableTab extends React.Component {
     }
 
     onKeyDown = (event)  => {
-        if (event.ctrlKey && (event.keyCode === 66)) {
+        if (event.ctrlKey && (event.keyCode === 192)) {
             this.toggleDrawer();
         }
     }
