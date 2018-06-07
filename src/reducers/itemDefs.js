@@ -58,8 +58,8 @@ const updateItemDescription = (state, action) => {
 };
 
 const updateNameLabel = (state, action) => {
-    let newItemDef = new ItemDef({...state[action.source.itemOid], ...action.updateObj});
-    return { ...state, [action.oid]: newItemDef };
+    let newItemDef = new ItemDef({...state[action.source.itemDefOid], ...action.updateObj});
+    return { ...state, [action.source.itemDefOid]: newItemDef };
 };
 
 const addVariable = (state, action) => {

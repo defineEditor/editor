@@ -20,6 +20,12 @@ const styles = theme => ({
     root: {
         outline: 'none',
     },
+    currentItem: {
+        fontWeight: 'bold',
+    },
+    currentLine: {
+        backgroundColor: '#EEEEEE',
+    },
 });
 
 // Redux functions
@@ -50,15 +56,24 @@ class ConnectedVariableTab extends React.Component {
     }
 
     componentDidMount() {
-        this.rootRef.current.focus();
+        window.addEventListener('keydown', this.onKeyDown);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('keydown', this.onKeyDown);
     }
 
     selectDataset = (itemGroupOid) => () => {
         if (this.props.itemGroupOid !== itemGroupOid) {
-            this.props.selectDataset({ itemGroupOid });
+            let scrollPosition = {};
+            if (this.props.itemGroupOid === undefined) {
+                scrollPosition = { [this.props.itemGroupOrder[0]]: window.scrollY };
+            } else {
+                scrollPosition = { [this.props.itemGroupOid]: window.scrollY };
+            }
+            this.props.selectDataset({ itemGroupOid, scrollPosition });
         }
         this.toggleDrawer(false);
-        this.rootRef.current.focus();
     }
 
     toggleDrawer = (drawerState) => {
@@ -71,17 +86,29 @@ class ConnectedVariableTab extends React.Component {
 
     getDatasetList = (currentItemGroupOid) => {
         let result = this.props.itemGroupOrder.map(itemGroupOid => {
-            return (
-                <ListItem button key={itemGroupOid} onClick={this.selectDataset(itemGroupOid)}>
-                    <ListItemText primary={this.props.itemGroups[itemGroupOid].name}/>
-                </ListItem>
-            );
+            if (itemGroupOid === currentItemGroupOid) {
+                return (
+                    <ListItem button key={itemGroupOid} onClick={this.selectDataset(itemGroupOid)} className={this.props.classes.currentLine}>
+                        <ListItemText primary={
+                            <span className={this.props.classes.currentItem}>
+                                {this.props.itemGroups[itemGroupOid].name}
+                            </span>
+                        }/>
+                    </ListItem>
+                );
+            } else {
+                return (
+                    <ListItem button key={itemGroupOid} onClick={this.selectDataset(itemGroupOid)}>
+                        <ListItemText primary={this.props.itemGroups[itemGroupOid].name}/>
+                    </ListItem>
+                );
+            }
         });
         return result;
     }
 
     onKeyDown = (event)  => {
-        if (event.ctrlKey && (event.keyCode === 192)) {
+        if (event.ctrlKey && (event.keyCode === 192 || event.keyCode === 66)) {
             this.toggleDrawer();
         }
     }
@@ -101,18 +128,17 @@ class ConnectedVariableTab extends React.Component {
             <React.Fragment>
                 { (itemGroupOid !== undefined) ? (
                     <div
-                        onKeyDown={this.onKeyDown}
                         tabIndex='0'
                         ref={this.rootRef}
                         className={classes.root}
                     >
-                        <Drawer open={this.state.drawerOpened}>
+                        <Drawer open={this.state.drawerOpened} onClose={() => this.toggleDrawer()}>
                             <div
                                 tabIndex={0}
                                 role="button"
                             >
                                 <div className={classes.list}>
-                                    <List subheader={<ListSubheader component="div">Datasets</ListSubheader>}>
+                                    <List subheader={<ListSubheader disableSticky>Datasets</ListSubheader>}>
                                         {this.getDatasetList(itemGroupOid)}
                                     </List>
                                 </div>

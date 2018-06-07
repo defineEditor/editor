@@ -68,12 +68,31 @@ const styles = theme => ({
 
 class ConnectedEditorTabs extends React.Component {
 
+
+    componentDidMount() {
+        window.addEventListener('keydown', this.onKeyDown);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('keydown', this.onKeyDown);
+    }
+
     handleChange = (event, value) => {
+        let tabs = this.props.tabs;
         if (value !== this.props.currentTab) {
-            let updateObj = {
-                selectedTab           : value,
-                currentScrollPosition : window.scrollY,
-            };
+            // Do not update scroll position for Variables and Coded Values as it is managed within those
+            // components for each Dataset/CodeList separately
+            let updateObj;
+            if (!['Variables', 'Coded Values'].includes(tabs.tabNames[tabs.currentTab])) {
+                updateObj = {
+                    selectedTab           : value,
+                    currentScrollPosition : window.scrollY,
+                };
+            } else {
+                updateObj = {
+                    selectedTab: value,
+                };
+            }
             this.props.changeTab(updateObj);
         }
     }
@@ -93,6 +112,31 @@ class ConnectedEditorTabs extends React.Component {
                 );
             });
         return result;
+    }
+
+    onKeyDown = (event)  => {
+        if (event.ctrlKey && (event.keyCode === 49)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Variables'));
+        } else if (event.ctrlKey && (event.keyCode === 50)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Coded Values'));
+        } else if (event.ctrlKey && (event.keyCode === 51)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Codelists'));
+        } else if (event.ctrlKey && (event.keyCode === 52)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Datasets'));
+        } else if (event.ctrlKey && (event.keyCode === 53)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Documents'));
+        } else if (event.ctrlKey && (event.keyCode === 54)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Standards'));
+        } else if (event.ctrlKey && (event.keyCode === 9)) {
+            // Change to the next tab
+            let currentTab = this.props.tabs.currentTab;
+            let tabCount = this.props.tabs.tabNames.length;
+            if (currentTab + 1 < tabCount) {
+                this.handleChange(undefined, currentTab + 1);
+            } else {
+                this.handleChange(undefined, 0);
+            }
+        }
     }
 
     render() {

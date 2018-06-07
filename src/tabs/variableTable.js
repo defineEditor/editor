@@ -64,9 +64,6 @@ const mapStateToProps = state => {
     };
 };
 
-// Debug options
-const hideMe = false;
-
 const styles = theme => ({
     button: {
         margin: theme.spacing.unit,
@@ -173,29 +170,156 @@ function roleMandatoryFormatter (cell, row) {
 class ConnectedVariableTable extends React.Component {
     constructor(props) {
         super(props);
+        const mdv = this.props.mdv;
+        const model = mdv.model;
         // Set state of VLM variables (expanded/collapsed)
+        let columns = {
+            oid: {
+                isKey    : true,
+                hidden   : this.props.showRowSelect,
+                text     : '',
+                width    : '48px',
+                editable : false,
+                tdStyle  : { padding: '0px' },
+            },
+            keyOrder: {
+                text    : 'Key, Position',
+                width   : '110px',
+                tdStyle : { whiteSpace: 'normal' },
+                thStyle : { whiteSpace: 'normal' }
+            },
+            nameLabelWhereClause: {
+                text    : 'Name, Label, Where Clause',
+                width   : '300px',
+                tdStyle : { whiteSpace: 'normal' },
+                thStyle : { whiteSpace: 'normal' }
+            },
+            dataType: {
+                text    : 'Type',
+                width   : '100px',
+                tdStyle : { whiteSpace: 'normal' },
+                thStyle : { whiteSpace: 'normal' }
+            },
+            lengthAttrs: {
+                text    : 'Length',
+                width   : '110px',
+                tdStyle : { whiteSpace: 'normal' },
+                thStyle : { whiteSpace: 'normal' }
+            },
+            roleMadatory: {
+                text    : model === 'ADaM' ? 'Mandatory' : 'Role, Mandatory',
+                width   : '110px',
+                tdStyle : { whiteSpace: 'normal' },
+                thStyle : { whiteSpace: 'normal' }
+            },
+            codeListFormatAttrs: {
+                text    : 'Codelist, Display Format',
+                width   : '130px',
+                tdStyle : { whiteSpace: 'normal', overFlowWrap: 'break-word', wordBreak: 'break-word' },
+                thStyle : { whiteSpace: 'normal' }
+            },
+            description: {
+                text    : 'Description',
+                width   : '40%',
+                tdStyle : { whiteSpace: 'normal' },
+                thStyle : { whiteSpace: 'normal' },
+            },
+        };
 
+        const editorFormatters = {
+            oid: {
+                dataFormat: this.menuFormatter,
+            },
+            keyOrder: {
+                dataFormat   : keyOrderFormatter,
+                customEditor : {getElement: keyOrderEditor},
+            },
+            nameLabelWhereClause: {
+                dataFormat   : variableNameLabelWhereClauseFormatter.bind(this),
+                customEditor : {getElement: variableNameLabelWhereClauseEditor},
+            },
+            dataType: {
+                customEditor: {getElement: simpleSelectEditor, customEditorParameters: {options: this.props.dataTypes, optional: true}},
+            },
+            lengthAttrs: {
+                dataFormat   : variableLengthFormatter,
+                customEditor : {getElement: variableLengthEditor},
+            },
+            roleMandatory: {
+                dataFormat   : roleMandatoryFormatter,
+                customEditor : {getElement: roleMandatoryEditor, customEditorParameters: {model: model}},
+            },
+            codeListFormatAttrs: {
+                dataFormat   : variableCodeListFormatFormatter,
+                customEditor : {getElement: variableCodeListFormatEditor, customEditorParameters: {codeLists: mdv.codeLists}},
+            },
+            description: {
+                dataFormat   : descriptionFormatter,
+                customEditor : {
+                    getElement             : descriptionEditor,
+                    customEditorParameters : {
+                        leafs         : mdv.leafs,
+                        model         : mdv.model,
+                        defineVersion : this.props.defineVersion,
+                    }
+                },
+            },
+        };
+
+        // Unite Columns with Editors and Formatters;
+        Object.keys(columns).forEach( id => {
+            columns[id] = { ...columns[id], ...editorFormatters[id] };
+        });
+
+        // ItemGroupOid is kept only for the getDerivedStateFromProps method
         this.state = {
+            columns,
+            editorFormatters,
             itemMenuParams  : {},
             anchorEl        : null,
             selectedRows    : [],
             selectedVlmRows : {},
+            itemGroupOid    : this.props.itemGroupOid,
+            setScrollY      : false,
         };
     }
 
-    componentDidMount() {
-        let tabSettings = this.props.tabSettings;
-        // Restore previous tab scroll position;
-        if (tabSettings.scrollPosition !== 0) {
-            window.scrollTo(0, tabSettings.scrollPosition);
+    static getDerivedStateFromProps(nextProps, prevState) {
+        // Store previous itemGroupOid in state so we can compare when props change.
+        if (!deepEqual(nextProps.itemGroupOid, prevState.itemGroupOid)) {
+            return {
+                itemGroupOid : nextProps.itemGroupOid,
+                setScrollY   : true,
+            };
         }
+        let columns = { ...prevState.columns };
+        // Handle switch between selection/no selection
+        if (nextProps.showRowSelect !== prevState.columns.oid.hidden) {
+            columns = { ...columns, oid: { ...columns.oid, hidden: nextProps.showRowSelect } };
+        }
+        Object.keys(nextProps.tabSettings.columns).forEach(id => {
+            let columnSettings = nextProps.tabSettings.columns[id];
+            if ( columns.hasOwnProperty(id) && columnSettings.hidden !== columns[id].hidden) {
+                columns = { ...columns, [id]: { ...columns[id], hidden: columnSettings.hidden } };
+            }
+        });
+
+        if (!deepEqual(columns, prevState.columns)) {
+            return { columns };
+        }
+        return null;
     }
 
-    componentWillUnmount() {
-        // Save collapsed status of VLM items to store
-        let vlmState = { ...this.props.tabSettings.vlmState[this.props.itemGroupOid] };
-        if (!deepEqual(this.props.tabSettings.vlmState[this.props.itemGroupOid], vlmState))  {
-            this.props.setVlmState({ itemGroupOid: this.props.itemGroupOid }, { vlmState });
+    componentDidUpdate() {
+        if (this.state.setScrollY) {
+            // Restore previous tab scroll position for a specific dataset
+            let tabSettings = this.props.tabSettings;
+            if (tabSettings.scrollPosition[this.props.itemGroupOid] !== undefined) {
+                window.scrollTo(0, tabSettings.scrollPosition[this.props.itemGroupOid]);
+            } else {
+                window.scrollTo(0, 0);
+            }
+            this.setState({ setScrollY: false });
         }
     }
 
@@ -207,6 +331,7 @@ class ConnectedVariableTable extends React.Component {
         let variables = getTableData({
             source        : dataset,
             datasetName   : dataset.name,
+            datasetOid    : dataset.oid,
             itemDefs      : mdv.itemDefs,
             codeLists     : mdv.codeLists,
             mdv           : this.props.mdv,
@@ -223,6 +348,7 @@ class ConnectedVariableTable extends React.Component {
                     let vlmData = getTableData({
                         source        : item.valueList,
                         datasetName   : dataset.name,
+                        datasetOid    : dataset.oid,
                         itemDefs      : mdv.itemDefs,
                         codeLists     : mdv.codeLists,
                         mdv           : mdv,
@@ -323,7 +449,7 @@ class ConnectedVariableTable extends React.Component {
                 } else {
                     updateObj.oldWcOid = row[cellName].whereClause.oid;
                     updateObj.oldWcCommentOid = row[cellName].whereClause.commentOid;
-                    this.props.updateNameLabelWhereClause({ oid: row.oid, itemRefOid: row.itemRefOid, valueListOid: row.itemGroupOid }, updateObj);
+                    this.props.updateNameLabelWhereClause({ itemDefOid: row.oid, itemRefOid: row.itemRefOid, valueListOid: row.itemGroupOid }, updateObj);
                 }
             }
         }
@@ -561,9 +687,7 @@ class ConnectedVariableTable extends React.Component {
     render () {
         // Extract data required for the variable table
         const mdv = this.props.mdv;
-        const model = mdv.model;
         const variables = this.getData();
-        const dataset = this.props.mdv.itemGroups[this.props.itemGroupOid];
 
         // Editor settings
         const cellEditProp = {
@@ -589,101 +713,6 @@ class ConnectedVariableTable extends React.Component {
             btnGroup : this.createCustomButtonGroup
         };
 
-        const columns = [
-            {
-                dataField : 'oid',
-                isKey     : true,
-                hidden    : true,
-                text      : 'OID',
-                editable  : false
-            },
-            {
-                dataField  : 'oid',
-                hidden     : this.props.showRowSelect,
-                dataFormat : this.menuFormatter,
-                text       : '',
-                width      : '48px',
-                editable   : false,
-                tdStyle    : { padding: '0px' },
-            },
-            {
-                dataField    : 'keyOrder',
-                text         : 'Key, Position',
-                hidden       : hideMe,
-                width        : '110px',
-                dataFormat   : keyOrderFormatter,
-                customEditor : {getElement: keyOrderEditor},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
-            },
-            {
-                dataField    : 'nameLabelWhereClause',
-                text         : 'Name, Label, Where Clause',
-                width        : '300px',
-                hidden       : hideMe,
-                dataFormat   : variableNameLabelWhereClauseFormatter.bind(this),
-                customEditor : {getElement: variableNameLabelWhereClauseEditor, customEditorParameters: {blueprint: mdv, dataset: dataset, mdv: mdv}},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
-            },
-            {
-                dataField    : 'dataType',
-                text         : 'Type',
-                width        : '100px',
-                hidden       : hideMe,
-                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: this.props.dataTypes, optional: true}},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
-            },
-            {
-                dataField    : 'lengthAttrs',
-                text         : 'Length',
-                hidden       : hideMe,
-                width        : '110px',
-                dataFormat   : variableLengthFormatter,
-                customEditor : {getElement: variableLengthEditor},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
-            },
-            {
-                dataField    : 'roleMandatory',
-                text         : model === 'ADaM' ? 'Mandatory' : 'Role, Mandatory',
-                hidden       : hideMe,
-                width        : '110px',
-                dataFormat   : roleMandatoryFormatter,
-                customEditor : {getElement: roleMandatoryEditor, customEditorParameters: {model: model}},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
-            },
-            {
-                dataField    : 'codeListFormatAttrs',
-                text         : 'Codelist, Display Format',
-                hidden       : hideMe,
-                width        : '130px',
-                dataFormat   : variableCodeListFormatFormatter,
-                customEditor : {getElement: variableCodeListFormatEditor, customEditorParameters: {codeLists: mdv.codeLists}},
-                tdStyle      : { whiteSpace: 'normal', overFlowWrap: 'break-word', wordBreak: 'break-word' },
-                thStyle      : { whiteSpace: 'normal' }
-            },
-            {
-                dataField    : 'description',
-                text         : 'Description',
-                hidden       : false,
-                width        : '40%',
-                dataFormat   : descriptionFormatter,
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' },
-                customEditor : {
-                    getElement             : descriptionEditor,
-                    customEditorParameters : {
-                        leafs         : mdv.leafs,
-                        model         : mdv.model,
-                        defineVersion : this.props.defineVersion,
-                    }
-                },
-            },
-        ];
-
         return (
             <React.Fragment>
                 <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
@@ -703,7 +732,7 @@ class ConnectedVariableTable extends React.Component {
                     selectRow={selectRowProp}
                     trClassName={this.highLightVlmRows}
                 >
-                    {renderColumns(columns)}
+                    {renderColumns(this.state.columns)}
                 </BootstrapTable>
                 <ItemMenu onClose={this.handleMenuClose} itemMenuParams={this.state.itemMenuParams} anchorEl={this.state.anchorEl}/>
             </React.Fragment>

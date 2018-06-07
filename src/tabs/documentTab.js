@@ -38,7 +38,7 @@ class ConnectedDocumentTable extends React.Component {
     componentDidMount() {
         let tabs = this.props.tabs;
         // Restore previous tab scroll position;
-        if (tabs.settings[tabs.currentTab].scrollPosition !== 0) {
+        if (tabs.settings[tabs.currentTab].scrollPosition !== undefined) {
             window.scrollTo(0, tabs.settings[tabs.currentTab].scrollPosition);
         }
     }

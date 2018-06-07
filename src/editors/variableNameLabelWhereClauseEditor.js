@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
 import Grid from '@material-ui/core/Grid';
 import VariableNameLabelEditor from 'editors/variableNameLabelEditor.js';
 import VariableWhereClauseEditor from 'editors/variableWhereClauseEditor.js';
@@ -12,6 +13,14 @@ const styles = theme => ({
     gridItem: {
     },
 });
+
+// Redux functions
+const mapStateToProps = state => {
+    return {
+        mdv       : state.odm.study.metaDataVersion,
+        blueprint : state.odm.study.metaDataVersion,
+    };
+};
 
 let wcRegex = {
     variable                : new RegExp('(?:\\w+\\.)?\\w+'),
@@ -50,7 +59,7 @@ wcRegex.whereClause = new RegExp(
 );
 
 
-class VariableNameLabelWhereClauseEditor extends React.Component {
+class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
     constructor (props) {
         super(props);
         let autoLabel;
@@ -76,6 +85,7 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
             wcComment     : wcComment,
             autoLabel     : autoLabel,
             wcEditingMode : 'interactive',
+            dataset       : this.props.mdv.itemGroups[this.props.row.datasetOid]
         };
     }
 
@@ -176,7 +186,7 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
                 }
             } else {
                 // If variable part does not contain dataset name, use the current dataset;
-                itemGroupOid = this.props.dataset.oid;
+                itemGroupOid = this.state.dataset.oid;
                 if (itemGroupOid !== undefined) {
                     itemOid = this.props.mdv.itemGroups[itemGroupOid].getOidByName(rangeCheckElements[0], this.props.mdv.itemDefs);
                 }
@@ -230,7 +240,7 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
                 }
             } else {
                 // If variable part does not contain dataset name, use the current dataset;
-                itemGroupOid = this.props.dataset.oid;
+                itemGroupOid = this.state.dataset.oid;
                 if (itemGroupOid !== undefined) {
                     itemOid = this.props.mdv.itemGroups[itemGroupOid].getOidByName(rangeCheckElements[0], this.props.mdv.itemDefs);
                 }
@@ -334,7 +344,7 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
                                         whereClause={this.state.whereClause}
                                         validationCheck={this.validateWhereClause}
                                         wcEditingMode={this.state.wcEditingMode}
-                                        dataset={this.props.dataset}
+                                        dataset={this.state.dataset}
                                         mdv={this.props.mdv}
                                     />
                                 </Grid>
@@ -357,14 +367,13 @@ class VariableNameLabelWhereClauseEditor extends React.Component {
     }
 }
 
-VariableNameLabelWhereClauseEditor.propTypes = {
+ConnectedVariableNameLabelWhereClauseEditor.propTypes = {
     classes      : PropTypes.object.isRequired,
     defaultValue : PropTypes.object.isRequired,
     onUpdate     : PropTypes.func.isRequired,
     blueprint    : PropTypes.object,
     mdv          : PropTypes.object,
-    dataset      : PropTypes.object,
 };
 
+const VariableNameLabelWhereClauseEditor = connect(mapStateToProps)(ConnectedVariableNameLabelWhereClauseEditor);
 export default withStyles(styles)(VariableNameLabelWhereClauseEditor);
-

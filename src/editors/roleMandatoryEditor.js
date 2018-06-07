@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Grid from '@material-ui/core/Grid';
 import { withStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
+import Grid from '@material-ui/core/Grid';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import SaveCancel from 'editors/saveCancel.js';
@@ -25,7 +26,14 @@ const styles = theme => ({
     },
 });
 
-class roleMandatoryEditor extends React.Component {
+// Redux functions
+const mapStateToProps = state => {
+    return {
+        model: state.odm.study.metaDataVersion.model,
+    };
+};
+
+class ConnectedRoleMandatoryEditor extends React.Component {
     constructor (props) {
         super(props);
         this.rootRef = React.createRef();
@@ -136,11 +144,12 @@ class roleMandatoryEditor extends React.Component {
     }
 }
 
-roleMandatoryEditor.propTypes = {
+ConnectedRoleMandatoryEditor.propTypes = {
     classes      : PropTypes.object.isRequired,
     defaultValue : PropTypes.object.isRequired,
     model        : PropTypes.string.isRequired,
     onUpdate     : PropTypes.func.isRequired,
 };
 
+const roleMandatoryEditor = connect(mapStateToProps)(ConnectedRoleMandatoryEditor);
 export default withStyles(styles)(roleMandatoryEditor);

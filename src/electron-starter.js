@@ -63,6 +63,19 @@ function createWindow () {
     codeListSdtm.then(sendToRender('stdCodeLists'));
     codeListAdam.then(sendToRender('stdCodeLists'));
 
+    mainWindow.on('close', function(e){
+        let choice = electron.dialog.showMessageBox(this,
+            {
+                type    : 'question',
+                buttons : ['Yes', 'No'],
+                title   : 'Closing Define-XML editor',
+                message : 'Are you sure you want to quit?'
+            });
+        if(choice == 1){
+            e.preventDefault();
+        }
+    });
+
 }
 
 // Add listener for Define-XML generation

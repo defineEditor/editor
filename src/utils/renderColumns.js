@@ -4,14 +4,14 @@ import {TableHeaderColumn} from 'react-bootstrap-table';
 // Transform columns object to Bootstrap-react-table column headers;
 function renderColumns (columns) {
     let result = [];
-    columns.forEach((column) => {
-        let colProps = {};
+    Object.keys(columns).forEach( id => {
+        let colProps = { dataField: id };
         let text = null;
-        Object.keys(column).forEach((key) => {
+        Object.keys(columns[id]).forEach((key) => {
             if (key !== 'text') {
-                colProps[key] = column[key];
+                colProps[key] = columns[id][key];
             } else {
-                text = column.text;
+                text = columns[id].text;
             }
         });
         result.push(<TableHeaderColumn key={text} {...colProps}>{text}</TableHeaderColumn>);

@@ -1,11 +1,15 @@
 // Extract data required for the table;
-function getTableData ({source, datasetName, itemDefs, codeLists, mdv, defineVersion, vlmLevel}={}) {
+function getTableData ({source, datasetName, datasetOid, itemDefs, codeLists, mdv, defineVersion, vlmLevel}={}) {
     let result = [];
     Object.keys(source.itemRefs).forEach((itemRefOid, index) => {
         const originVar = source.itemRefs[itemRefOid];
         const originItemDef = itemDefs[originVar.itemOid];
+        // Currently both valueListOid and itemGroupOid are stored in itemGroupOid
+        // datasetOid has always the itemGroupOid
+        // TODO: itemGroupOid should always store itemGroupOid, add valueListOid, remove datasetOid
         let currentVar = {
             itemGroupOid  : source.oid,
+            datasetOid    : datasetOid,
             itemRefOid    : itemRefOid,
             oid           : originItemDef.oid,
             name          : originItemDef.name,

@@ -19,9 +19,13 @@ const generateInitialState = () => {
         if (['Datasets', 'Variables', 'Codelists', 'Coded Values'].includes(tabNames[i])) {
             settings[i].rowSelect = {};
         }
-        if (tabNames[i] === 'Variables') {
+        if (['Variables', 'Coded Values'].includes(tabNames[i])) {
             settings[i].vlmState = {};
+            settings[i].scrollPosition = {};
             settings[i].itemGroupOid = undefined;
+        }
+        if (tabNames[i] === 'Variables') {
+            settings[i].columns = { description: {hidden: true} };
         }
     }
 
@@ -36,16 +40,23 @@ const initialState = generateInitialState();
 
 const changeTab = (state, action) => {
     // Update scroll position
-    let currentTab = state.currentTab;
-    let newSettings = state.settings.slice();
-    let newSetting = { ...state.settings[currentTab], scrollPosition: action.updateObj.currentScrollPosition };
-    newSettings.splice(currentTab, 1, newSetting);
+    if (action.updateObj.currentScrollPosition !== undefined) {
+        let currentTab = state.currentTab;
+        let newSettings = state.settings.slice();
+        let newSetting = { ...state.settings[currentTab], scrollPosition: action.updateObj.currentScrollPosition };
+        newSettings.splice(currentTab, 1, newSetting);
+        return {
+            ...state,
+            currentTab : action.updateObj.selectedTab,
+            settings   : newSettings,
+        };
+    } else {
+        return {
+            ...state,
+            currentTab: action.updateObj.selectedTab,
+        };
+    }
 
-    return {
-        ...state,
-        currentTab : action.updateObj.selectedTab,
-        settings   : newSettings,
-    };
 };
 
 const setVlmState = (state, action) => {
@@ -65,7 +76,8 @@ const setVlmState = (state, action) => {
 const selectDataset = (state, action) => {
     let tabIndex = state.tabNames.indexOf('Variables');
     let newSettings = state.settings.slice();
-    let newSetting = { ...state.settings[tabIndex], itemGroupOid: action.updateObj.itemGroupOid };
+    let newDatasetScrollPositions = { ...state.settings[tabIndex].scrollPosition, ...action.updateObj.scrollPosition };
+    let newSetting = { ...state.settings[tabIndex], itemGroupOid: action.updateObj.itemGroupOid, scrollPosition: newDatasetScrollPositions };
     newSettings.splice(tabIndex, 1, newSetting);
 
     return {

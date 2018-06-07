@@ -99,7 +99,7 @@ const updateWhereClause = (state, action) => {
 };
 
 const updateNameLabelWhereClause = (state, action) => {
-    // action.source = {oid, itemRefOid, valueListOid}
+    // action.source = {itemDefOid, itemRefOid, valueListOid}
     // action.updateObj = {name, description, whereClause, wcComment, oldWcCommentOid, oldWcOid}
     let newState = { ...state };
     let updateObj = action.updateObj;
