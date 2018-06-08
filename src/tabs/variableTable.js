@@ -1,29 +1,31 @@
-import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
+import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
+import deepEqual from 'fast-deep-equal';
+import clone from 'clone';
 import renderColumns from 'utils/renderColumns.js';
 import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
-import PropTypes from 'prop-types';
+import ItemMenu from 'utils/itemMenu.js';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import React from 'react';
-import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
-import { withStyles } from '@material-ui/core/styles';
+import indigo from '@material-ui/core/colors/indigo';
 import IconButton from '@material-ui/core/IconButton';
-import deepEqual from 'fast-deep-equal';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import OpenDrawer from '@material-ui/icons/SubdirectoryArrowLeft';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
-import ItemMenu from 'utils/itemMenu.js';
 import getTableData from 'utils/getTableData.js';
+import SelectColumns from 'utils/selectColumns.js';
 import KeyOrderEditor from 'editors/keyOrderEditor.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import AddVariableEditor from 'editors/addVariableEditor.js';
 import DescriptionEditor from 'editors/descriptionEditor.js';
 import VariableOrderEditor from 'editors/variableOrderEditor.js';
-//import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import RoleMandatoryEditor from 'editors/roleMandatoryEditor.js';
 import VariableLengthEditor from 'editors/variableLengthEditor.js';
@@ -39,6 +41,23 @@ import {
     updateItemDescription, deleteVariables, updateNameLabelWhereClause, setVlmState,
 } from 'actions/index.js';
 
+const styles = theme => ({
+    button: {
+        margin: theme.spacing.unit,
+    },
+    buttonGroup: {
+        marginLeft: theme.spacing.unit * 2,
+    },
+    drawerButton: {
+        marginLeft : theme.spacing.unit,
+        transform  : 'translate(0%, -6%)',
+    },
+    tableTitle: {
+        marginTop    : theme.spacing.unit * 2,
+        marginBottom : theme.spacing.unit * 2,
+        color        : grey[600]
+    },
+});
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
@@ -58,20 +77,12 @@ const mapStateToProps = state => {
     return {
         mdv           : state.odm.study.metaDataVersion,
         dataTypes     : state.stdConstants.dataTypes,
+        stdColumns    : state.stdConstants.columns.variables,
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
         tabSettings   : state.ui.tabs.settings[state.ui.tabs.currentTab],
         showRowSelect : state.ui.tabs.settings[state.ui.tabs.currentTab].rowSelect['overall'],
     };
 };
-
-const styles = theme => ({
-    button: {
-        margin: theme.spacing.unit,
-    },
-    buttonGroup: {
-        marginLeft: theme.spacing.unit * 2,
-    },
-});
 
 // Editors
 function descriptionEditor (onUpdate, props) {
@@ -172,59 +183,20 @@ class ConnectedVariableTable extends React.Component {
         super(props);
         const mdv = this.props.mdv;
         const model = mdv.model;
-        // Set state of VLM variables (expanded/collapsed)
-        let columns = {
-            oid: {
-                isKey    : true,
-                hidden   : this.props.showRowSelect,
-                text     : '',
-                width    : '48px',
-                editable : false,
-                tdStyle  : { padding: '0px' },
-            },
-            keyOrder: {
-                text    : 'Key, Position',
-                width   : '110px',
-                tdStyle : { whiteSpace: 'normal' },
-                thStyle : { whiteSpace: 'normal' }
-            },
-            nameLabelWhereClause: {
-                text    : 'Name, Label, Where Clause',
-                width   : '300px',
-                tdStyle : { whiteSpace: 'normal' },
-                thStyle : { whiteSpace: 'normal' }
-            },
-            dataType: {
-                text    : 'Type',
-                width   : '100px',
-                tdStyle : { whiteSpace: 'normal' },
-                thStyle : { whiteSpace: 'normal' }
-            },
-            lengthAttrs: {
-                text    : 'Length',
-                width   : '110px',
-                tdStyle : { whiteSpace: 'normal' },
-                thStyle : { whiteSpace: 'normal' }
-            },
-            roleMadatory: {
-                text    : model === 'ADaM' ? 'Mandatory' : 'Role, Mandatory',
-                width   : '110px',
-                tdStyle : { whiteSpace: 'normal' },
-                thStyle : { whiteSpace: 'normal' }
-            },
-            codeListFormatAttrs: {
-                text    : 'Codelist, Display Format',
-                width   : '130px',
-                tdStyle : { whiteSpace: 'normal', overFlowWrap: 'break-word', wordBreak: 'break-word' },
-                thStyle : { whiteSpace: 'normal' }
-            },
-            description: {
-                text    : 'Description',
-                width   : '40%',
-                tdStyle : { whiteSpace: 'normal' },
-                thStyle : { whiteSpace: 'normal' },
-            },
-        };
+        let columns = clone(this.props.stdColumns);
+
+        // Variables menu is not shown when selection is triggered
+        if (columns.hasOwnProperty('oid')) {
+            columns.oid.hidden = this.props.showRowSelect;
+        }
+        // Mandatory/Role depends on a model;
+        if (columns.hasOwnProperty('roleMandatory')) {
+            if (model === 'ADaM') {
+                columns.roleMandatory.text = 'Mandatory';
+            } else {
+                columns.roleMandatory.text = 'Role, Mandatory';
+            }
+        }
 
         const editorFormatters = {
             oid: {
@@ -274,13 +246,13 @@ class ConnectedVariableTable extends React.Component {
         // ItemGroupOid is kept only for the getDerivedStateFromProps method
         this.state = {
             columns,
-            editorFormatters,
-            itemMenuParams  : {},
-            anchorEl        : null,
-            selectedRows    : [],
-            selectedVlmRows : {},
-            itemGroupOid    : this.props.itemGroupOid,
-            setScrollY      : false,
+            itemMenuParams   : {},
+            anchorEl         : null,
+            showSelectColumn : false,
+            selectedRows     : [],
+            selectedVlmRows  : {},
+            itemGroupOid     : this.props.itemGroupOid,
+            setScrollY       : false,
         };
     }
 
@@ -297,10 +269,10 @@ class ConnectedVariableTable extends React.Component {
         if (nextProps.showRowSelect !== prevState.columns.oid.hidden) {
             columns = { ...columns, oid: { ...columns.oid, hidden: nextProps.showRowSelect } };
         }
-        Object.keys(nextProps.tabSettings.columns).forEach(id => {
-            let columnSettings = nextProps.tabSettings.columns[id];
-            if ( columns.hasOwnProperty(id) && columnSettings.hidden !== columns[id].hidden) {
-                columns = { ...columns, [id]: { ...columns[id], hidden: columnSettings.hidden } };
+        Object.keys(nextProps.tabSettings.columns).forEach(columnName => {
+            let columnSettings = nextProps.tabSettings.columns[columnName];
+            if ( columns.hasOwnProperty(columnName) && columnSettings.hidden !== columns[columnName].hidden) {
+                columns = { ...columns, [columnName]: { ...columns[columnName], hidden: columnSettings.hidden } };
             }
         });
 
@@ -375,7 +347,6 @@ class ConnectedVariableTable extends React.Component {
         return (
             <IconButton
                 onClick={this.handleMenuOpen(itemMenuParams)}
-                className={this.props.classes.menuButton}
                 color='default'
             >
                 <MoreVertIcon/>
@@ -591,7 +562,7 @@ class ConnectedVariableTable extends React.Component {
                             </Button>
                         </Grid>
                         <Grid item>
-                            <Button variant="raised" color="default">
+                            <Button variant="raised" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
                                 Columns
                                 <RemoveRedEyeIcon style={{marginLeft: '7px'}}/>
                             </Button>
@@ -715,17 +686,25 @@ class ConnectedVariableTable extends React.Component {
 
         return (
             <React.Fragment>
-                <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
+                <h3 className={this.props.classes.tableTitle}>
                     {mdv.itemGroups[this.props.itemGroupOid].name + ' (' + mdv.itemGroups[this.props.itemGroupOid].getDescription() + ')'}
+                    <Button
+                        color="default"
+                        variant='fab'
+                        mini
+                        onClick={this.props.openDrawer}
+                        className={this.props.classes.drawerButton}
+                    >
+                        <OpenDrawer/>
+                    </Button>
                 </h3>
                 <BootstrapTable
                     data={variables}
                     options={options}
                     search
-                    deleteRow
-                    insertRow
                     striped
                     hover
+                    keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}
                     version='4'
                     cellEdit={cellEditProp}
                     headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
@@ -735,6 +714,12 @@ class ConnectedVariableTable extends React.Component {
                     {renderColumns(this.state.columns)}
                 </BootstrapTable>
                 <ItemMenu onClose={this.handleMenuClose} itemMenuParams={this.state.itemMenuParams} anchorEl={this.state.anchorEl}/>
+                { this.state.showSelectColumn && (
+                    <SelectColumns
+                        onClose={ () => { this.setState({ showSelectColumn: false }); } }
+                    />
+                )
+                }
             </React.Fragment>
         );
     }

@@ -3,6 +3,7 @@ import {
     UI_TOGGLEROWSELECT,
     UI_SETVLMSTATE,
     UI_SELECTDATASET,
+    UI_SELECTCOLUMNS,
 } from "constants/action-types";
 
 
@@ -31,6 +32,13 @@ export const setVlmState = (source, updateObj) => (
 export const selectDataset = (updateObj) => (
     {
         type: UI_SELECTDATASET,
+        updateObj,
+    }
+);
+
+export const selectColumns = (updateObj) => (
+    {
+        type: UI_SELECTCOLUMNS,
         updateObj,
     }
 );

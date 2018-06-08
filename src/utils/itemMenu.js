@@ -117,7 +117,6 @@ class ConnectedItemMenu extends React.Component {
 
         let items = [];
         if (this.state.openVlmOrder) {
-            console.log(this.props);
             let valueListOid = this.props.itemDefs[this.props.itemMenuParams.oid].valueListOid;
             let valueList = this.props.mdv.valueLists[valueListOid];
 

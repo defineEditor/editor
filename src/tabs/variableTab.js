@@ -144,7 +144,7 @@ class ConnectedVariableTab extends React.Component {
                                 </div>
                             </div>
                         </Drawer>
-                        <VariableTable itemGroupOid={itemGroupOid}/>
+                        <VariableTable itemGroupOid={itemGroupOid} openDrawer={() => this.toggleDrawer()}/>
                     </div>
                 ) : (
                     <div>

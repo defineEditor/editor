@@ -1,6 +1,7 @@
 import {
     ADD_STDCONST
-} from "../constants/action-types";
+} from '../constants/action-types';
+import columns from 'constants/columns';
 
 const dataTypes = [
     'text',
@@ -19,7 +20,7 @@ const dataTypes = [
 const codeListTypes =  [
     {'enumerated': 'Enumeration'},
     {'decoded': 'Decoded'},
-    {'external': 'External Codelist'},
+    {'external': 'External'},
 ];
 
 const standardNames = {
@@ -65,6 +66,7 @@ const initialState = {
     codeListTypes,
     standardNames,
     documentTypes,
+    columns,
 };
 
 const stdConstants = (state = initialState, action) => {

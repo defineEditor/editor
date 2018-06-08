@@ -13,13 +13,6 @@ import {
     DEL_ITEMGROUPCOMMENT,
     UPD_ITEMGROUPCOMMENT,
     REP_ITEMGROUPCOMMENT,
-    ADD_CODELIST,
-    UPD_CODELIST,
-    DEL_CODELISTS,
-    UPD_CODELISTSTDOIDS,
-    UPD_CODEDVALUE,
-    ADD_CODEDVALUE,
-    DEL_CODEDVALUES,
     UPD_GLOBALVARS,
     UPD_MDV,
     UPD_LEAFS,
@@ -111,60 +104,6 @@ export const replaceItemGroupComment = (source, newComment, oldCommentOid) => (
     }
 );
 
-// Codelist actions
-export const updateCodeList = (oid, updateObj) => (
-    {
-        type: UPD_CODELIST,
-        oid,
-        updateObj,
-    }
-);
-
-export const addCodeList = (codeList) => (
-    {
-        type: ADD_CODELIST,
-        codeList,
-    }
-);
-
-export const deleteCodeLists = (deleteObj) => (
-    {
-        type: DEL_CODELISTS,
-        deleteObj,
-    }
-);
-
-export const updateCodeListStandardOids = (updateObj) => (
-    {
-        type: UPD_CODELISTSTDOIDS,
-        updateObj,
-    }
-);
-
-export const updateCodedValue = (source, updateObj) => (
-    {
-        type: UPD_CODEDVALUE,
-        source,
-        updateObj,
-    }
-);
-
-export const addCodedValue = (codeListOid, codedValue) => (
-    {
-        type: ADD_CODEDVALUE,
-        codeListOid,
-        codedValue,
-    }
-);
-
-export const deleteCodedValues = (codeListOid, deletedOids) => (
-    {
-        type: DEL_CODEDVALUES,
-        codeListOid,
-        deletedOids,
-    }
-);
-
 // Standard
 
 export const updateGlobalVariables = (updateObj) => (
@@ -204,5 +143,6 @@ export const updateLeafs = (updateObj) => (
     }
 );
 
+export * from 'actions/codeList.js';
 export * from 'actions/item.js';
 export * from 'actions/ui.js';

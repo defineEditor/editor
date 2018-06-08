@@ -9,9 +9,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import { addCodeList } from 'actions/index.js';
-import { CodeList } from 'elements.js';
 import SaveCancel from 'editors/saveCancel.js';
-import getOid from 'utils/getOid.js';
 import getSelectionList from 'utils/getSelectionList.js';
 
 const styles = theme => ({
@@ -56,7 +54,7 @@ class AddVariableEditorConnected extends React.Component {
         super(props);
         this.state = {
             name         : '',
-            codeListType : '',
+            codeListType : 'decoded',
             dialogOpened : false,
         };
 
@@ -65,7 +63,7 @@ class AddVariableEditorConnected extends React.Component {
     resetState = () => {
         this.setState({
             name         : '',
-            codeListType : '',
+            codeListType : 'decoded',
             dialogOpened : false,
         });
     }
@@ -88,14 +86,10 @@ class AddVariableEditorConnected extends React.Component {
 
     handleSaveAndClose = (updateObj) => {
         // Get all possible IDs
-        let codeListOids = Object.keys(this.props.codeLists);
-        let codeListOid = getOid('CodeList', undefined, codeListOids);
-        let codeList = new CodeList({
-            oid          : codeListOid,
+        this.props.addCodeList({
             name         : this.state.name,
             codeListType : this.state.codeListType,
         });
-        this.props.addCodeList(codeList);
         this.resetState();
     }
 
@@ -162,4 +156,3 @@ AddVariableEditorConnected.propTypes = {
 
 const AddVariableEditor = connect(mapStateToProps, mapDispatchToProps)(AddVariableEditorConnected);
 export default withStyles(styles)(AddVariableEditor);
-

@@ -29,6 +29,18 @@ class codeListFormatNameEditor extends React.Component {
         this.props.onUpdate(this.state.formatName);
     }
 
+    cancel = () => {
+        this.props.onUpdate(this.props.defaultValue);
+    }
+
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.cancel();
+        } else if (event.keyCode === 13) {
+            this.save();
+        }
+    }
+
     render() {
         const {classes} = this.props;
 
@@ -36,9 +48,11 @@ class codeListFormatNameEditor extends React.Component {
             <TextField
                 label='Display Format'
                 fullWidth
+                autoFocus
                 value={this.state.formatName}
                 onChange={this.handleChange('formatName')}
                 onBlur={this.save}
+                onKeyDown={this.onKeyDown}
                 className={classes.textField}
             />
         );

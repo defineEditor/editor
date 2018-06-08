@@ -166,16 +166,31 @@ const updateCodeList = (state, action) => {
 };
 
 const addCodeList = (state, action) => {
-    // action.codeList - codelist to add
-    return {...state, [action.codeList.oid]: action.codeList};
+    // action.updateObj - codelist attributes
+    let codeListOids = Object.keys(state);
+    let codeListOid = getOid('CodeList', undefined, codeListOids);
+    let codeList = new CodeList({
+        oid: codeListOid,
+        ...action.updateObj,
+    });
+    return {...state, [codeListOid]: codeList};
 };
 
 const deleteCodeLists = (state, action) => {
     // action.deleteObj.codeListOids - list of codeLists to remove
     let newState = { ...state };
     action.deleteObj.codeListOids.forEach( codeListOid => {
+        // If those codelists have a linked codelist, remove reference to it from the linked codelist
+        let linkedCodeListOid = state[codeListOid].linkedCodeListOid;
+        if (linkedCodeListOid !== undefined) {
+            let newLinkedCodeList = new CodeList({
+                ...state[linkedCodeListOid], linkedCodeListOid: undefined
+            });
+            newState = { ...newState, [linkedCodeListOid]: newLinkedCodeList };
+        }
         delete newState[codeListOid];
     });
+
     return newState;
 };
 

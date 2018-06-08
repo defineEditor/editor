@@ -56,7 +56,6 @@ class VariableCodeListFormatEditor extends React.Component {
         }
     }
 
-
     render() {
         const {classes} = this.props;
         const displayFormat = this.state.displayFormat || '';

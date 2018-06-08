@@ -307,6 +307,8 @@ function parseCodelists (codeListsRaw, mdv) {
                 args.codeListType = 'decoded';
             } else if (codeListRaw.hasOwnProperty('enumeratedItem')) {
                 args.codeListType = 'enumerated';
+            } else if (codeListRaw.hasOwnProperty('externalCodeList')) {
+                args.codeListType = 'external';
             }
             // Rename some of the properties to match class definitions
             if (args.hasOwnProperty('sASFormatName')) {
