@@ -644,7 +644,7 @@ class ItemGroup extends BasicFunctions {
     constructor ({
         oid, name, domain, datasetName, repeating, isReferenceData, purpose,
         structure, datasetClass, archiveLocationId, commentOid, isNotStandard,
-        standard, alias, leaf,
+        standardOid, alias, leaf,
         descriptions = [],
         itemRefs = {},
         itemRefOrder = [],
@@ -663,7 +663,7 @@ class ItemGroup extends BasicFunctions {
         this.archiveLocationId = archiveLocationId;
         this.commentOid = commentOid;
         this.isNotStandard = isNotStandard;
-        this.standard = standard;
+        this.standardOid = standardOid;
         this.descriptions = descriptions;
         this.itemRefs = itemRefs;
         this.itemRefOrder = itemRefOrder;

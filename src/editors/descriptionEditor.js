@@ -1,7 +1,8 @@
-import PropTypes from 'prop-types';
-import Divider from '@material-ui/core/Divider';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
+import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
 import CommentEditor from 'editors/commentEditor.js';
 import MethodEditor from 'editors/methodEditor.js';
@@ -23,7 +24,17 @@ const styles = theme => ({
     },
 });
 
-class DescriptionEditor extends React.Component {
+// Redux functions
+const mapStateToProps = state => {
+    return {
+        stdConstants  : state.stdConstants,
+        defineVersion : state.odm.study.metaDataVersion.defineVersion,
+        model         : state.odm.study.metaDataVersion.model,
+        leafs         : state.odm.study.metaDataVersion.leafs,
+    };
+};
+
+class ConnectedDescriptionEditor extends React.Component {
     constructor (props) {
         super(props);
         this.rootRef = React.createRef();
@@ -110,10 +121,11 @@ class DescriptionEditor extends React.Component {
     }
 }
 
-DescriptionEditor.propTypes = {
+ConnectedDescriptionEditor.propTypes = {
     defaultValue : PropTypes.object,
     leafs        : PropTypes.object.isRequired,
     model        : PropTypes.string.isRequired,
 };
 
+const DescriptionEditor = connect(mapStateToProps)(ConnectedDescriptionEditor);
 export default withStyles(styles)(DescriptionEditor);

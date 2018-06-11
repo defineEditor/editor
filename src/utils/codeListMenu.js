@@ -21,9 +21,6 @@ const mapStateToProps = state => {
 };
 
 class ConnectedCodeListMenu extends React.Component {
-    constructor (props) {
-        super(props);
-    }
 
     deleteCodeList = () => {
         let codeLists = this.props.codeLists;

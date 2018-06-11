@@ -1,10 +1,8 @@
-import IconButton from '@material-ui/core/IconButton';
-import PropTypes from 'prop-types';
-import TextField from '@material-ui/core/TextField';
-import DocumentEditor from 'editors/documentEditor.js';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import {Origin} from 'elements.js';
+import IconButton from '@material-ui/core/IconButton';
+import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
@@ -12,8 +10,10 @@ import DescriptionIcon from '@material-ui/icons/Description';
 import InsertLink from '@material-ui/icons/InsertLink';
 import AddIcon from '@material-ui/icons/AddCircle';
 import Tooltip from '@material-ui/core/Tooltip';
-import MenuItem from '@material-ui/core/MenuItem';
 import ClearIcon from '@material-ui/icons/Clear';
+import getSelectionList from 'utils/getSelectionList.js';
+import DocumentEditor from 'editors/documentEditor.js';
+import {Origin} from 'elements.js';
 
 const styles = theme => ({
     button: {
@@ -84,35 +84,10 @@ class OriginEditor extends React.Component {
         }
     }
 
-    getSelectionList = (list, optional) => {
-        let selectionList = [];
-        if (list.length < 1) {
-            throw Error('Blank value list provided for the ItemSelect element');
-        } else {
-            if (optional === true) {
-                selectionList.push(<MenuItem key='0' value=''><em>None</em></MenuItem>);
-            }
-            list.forEach( (value, index) => {
-                if (typeof value === 'object') {
-                    selectionList.push(<MenuItem key={index+1} value={Object.keys(value)[0]}>{value[Object.keys(value)[0]]}</MenuItem>);
-                } else {
-                    selectionList.push(<MenuItem key={index+1} value={value}>{value}</MenuItem>);
-                }
-            });
-        }
-        return selectionList;
-    }
-
     render () {
         const { classes } = this.props;
 
-        let originTypeList;
-        // TODO: Move constants out of the components
-        if (this.props.model === 'ADaM') {
-            originTypeList = ['Derived', 'Assigned', 'Predecessor'];
-        } else {
-            originTypeList = ['CRF', 'Derived', 'Assigned', 'Protocol', 'eDT', 'Predecessor'];
-        }
+        let originTypeList = this.props.stdConstants.originTypes[this.props.model];
         // Get the list of available documents
         let leafs = this.props.leafs;
         let documentList = [];
@@ -195,7 +170,7 @@ class OriginEditor extends React.Component {
                                             onChange={this.handleChange('type',0)}
                                             className={classes.originType}
                                         >
-                                            {this.getSelectionList(originTypeList)}
+                                            {getSelectionList(originTypeList)}
                                         </TextField>
                                     </Grid>
                                     { originDescription !== undefined &&

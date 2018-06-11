@@ -530,10 +530,6 @@ function parseItemGroups (itemGroupsRaw, mdv) {
     itemGroupsRaw.forEach(function (itemGroupRaw, index) {
         let args = itemGroupRaw['$'];
 
-        if (args.hasOwnProperty('standardOid')) {
-            args.standard = mdv.standards[args['standardOid']];
-            delete args['standardOid'];
-        }
         if (args.hasOwnProperty('sASDatasetName')) {
             args.datasetName = args['sASDatasetName'];
             delete args['sASDatasetName'];

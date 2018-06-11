@@ -18,6 +18,7 @@ import grey from '@material-ui/core/colors/grey';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import CodeListFormatNameEditor from 'editors/codeListFormatNameEditor.js';
+import CodeListStandardEditor from 'editors/codeListStandardEditor.js';
 import {
     updateCodeList,
     deleteCodeLists,
@@ -28,7 +29,6 @@ const styles = theme => ({
         marginLeft: theme.spacing.unit * 2,
     },
 });
-
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
@@ -51,7 +51,7 @@ const mapStateToProps = state => {
 
 // Editor functions
 function codeListStandardEditor (onUpdate, props) {
-    return ('');
+    return (<CodeListStandardEditor onUpdate={onUpdate} {...props}/>);
 }
 
 function codeListFormatNameEditor (onUpdate, props) {
@@ -317,7 +317,8 @@ class ConnectedCodeListTable extends React.Component {
                 stdConstants   : this.props.stdConstants,
             };
             currentCL.standardData = {
-                standard             : originCL.standard,
+                alias                : originCL.alias,
+                standardOid          : originCL.standardOid,
                 cdiscSubmissionValue : originCL.cdiscSubmissionValue,
             };
             // Get key variables

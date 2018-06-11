@@ -227,14 +227,7 @@ class ConnectedVariableTable extends React.Component {
             },
             description: {
                 dataFormat   : descriptionFormatter,
-                customEditor : {
-                    getElement             : descriptionEditor,
-                    customEditorParameters : {
-                        leafs         : mdv.leafs,
-                        model         : mdv.model,
-                        defineVersion : this.props.defineVersion,
-                    }
-                },
+                customEditor : {getElement: descriptionEditor},
             },
         };
 

@@ -44,6 +44,30 @@ const standardNames = {
     ],
 };
 
+const originTypes = {
+    'ADaM': [
+        'Derived',
+        'Assigned',
+        'Predecessor'
+    ],
+    'SDTM': [
+        'CRF',
+        'Derived',
+        'Assigned',
+        'Protocol',
+        'eDT',
+        'Predecessor'
+    ],
+    'SEND': [
+        'CRF',
+        'Derived',
+        'Assigned',
+        'Protocol',
+        'eDT',
+        'Predecessor'
+    ],
+};
+
 const typeLabel = {
     annotatedCrf    : 'Annotated CRF',
     supplementalDoc : 'Supplemental Document',
@@ -67,6 +91,7 @@ const initialState = {
     standardNames,
     documentTypes,
     columns,
+    originTypes,
 };
 
 const stdConstants = (state = initialState, action) => {
