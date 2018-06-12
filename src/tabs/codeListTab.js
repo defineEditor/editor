@@ -15,12 +15,16 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
+import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import CodeListFormatNameEditor from 'editors/codeListFormatNameEditor.js';
 import CodeListStandardEditor from 'editors/codeListStandardEditor.js';
+import SelectColumns from 'utils/selectColumns.js';
+import setScrollPosition from 'utils/setScrollPosition.js';
 import {
     updateCodeList,
+    updateCodeListStandard,
     deleteCodeLists,
 } from 'actions/index.js';
 
@@ -33,18 +37,21 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateCodeList  : (oid, updateObj) => dispatch(updateCodeList(oid, updateObj)),
-        deleteCodeLists : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
+        updateCodeList         : (oid, updateObj) => dispatch(updateCodeList(oid, updateObj)),
+        updateCodeListStandard : (oid, updateObj) => dispatch(updateCodeListStandard(oid, updateObj)),
+        deleteCodeLists        : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
         codeLists     : state.odm.study.metaDataVersion.codeLists,
+        standards     : state.odm.study.metaDataVersion.standards,
         stdCodeLists  : state.stdCodeLists,
         stdConstants  : state.stdConstants,
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
         tabs          : state.ui.tabs,
+        tabSettings   : state.ui.tabs.settings[state.ui.tabs.currentTab],
         showRowSelect : state.ui.tabs.settings[state.ui.tabs.currentTab].rowSelect['overall'],
     };
 };
@@ -68,8 +75,8 @@ function simpleSelectEditor (onUpdate, props) {
 
 // Formatter functions
 function codeListStandardFormatter (cell, row) {
-    if (cell.standard !== undefined) {
-        return (cell.standard.getDescription() + '\n' + cell.cdiscSubmissionValue);
+    if (row.standardDescription !== undefined) {
+        return (<div>{row.standardDescription} <br/> {cell.cdiscSubmissionValue}</div>);
     }
 }
 
@@ -142,6 +149,7 @@ class ConnectedCodeListTable extends React.Component {
             anchorEl           : null,
             selectedRows       : [],
             codeListMenuParams : {},
+            showSelectColumn   : false,
         };
     }
 
@@ -150,18 +158,22 @@ class ConnectedCodeListTable extends React.Component {
         // Handle switch between selection/no selection
         if (nextProps.showRowSelect !== prevState.columns.oid.hidden) {
             columns = { ...columns, oid: { ...columns.oid, hidden: nextProps.showRowSelect } };
+        }
+        Object.keys(nextProps.tabSettings.columns).forEach(columnName => {
+            let columnSettings = nextProps.tabSettings.columns[columnName];
+            if ( columns.hasOwnProperty(columnName) && columnSettings.hidden !== columns[columnName].hidden) {
+                columns = { ...columns, [columnName]: { ...columns[columnName], hidden: columnSettings.hidden } };
+            }
+        });
+
+        if (!deepEqual(columns, prevState.columns)) {
             return { columns };
         }
-
         return null;
     }
 
     componentDidMount() {
-        let tabs = this.props.tabs;
-        // Restore previous tab scroll position;
-        if (tabs.settings[tabs.currentTab].scrollPosition !== undefined) {
-            window.scrollTo(0, tabs.settings[tabs.currentTab].scrollPosition);
-        }
+        setScrollPosition(this.props.tabs);
     }
 
     menuFormatter = (cell, row) => {
@@ -203,11 +215,20 @@ class ConnectedCodeListTable extends React.Component {
                         return false;
                     }
                 });
+            } else if (cellName === 'standardData') {
+                if (!deepEqual(cellValue, row[cellName])) {
+                    updateObj = { ...cellValue };
+                    if (cellValue.standardOid !== undefined && cellValue.alias !== undefined) {
+                        let standardCodeListOid = this.props.stdCodeLists[cellValue.standardOid].nciCodeOids[cellValue.alias.name];
+                        updateObj.standardCodeList = this.props.stdCodeLists[cellValue.standardOid].codeLists[standardCodeListOid];
+                    }
+                    this.props.updateCodeListStandard(row.oid, updateObj);
+                }
             } else {
                 updateObj[cellName] = cellValue;
+                this.props.updateCodeList(row.oid, updateObj);
             }
 
-            this.props.updateCodeList(row.oid, updateObj);
         }
         return true;
     }
@@ -244,8 +265,18 @@ class ConnectedCodeListTable extends React.Component {
                 <Grid item style={{paddingLeft: '8px'}}>
                     { props.components.btnGroup }
                 </Grid>
-                <Grid item style={{paddingRight: '25px'}}>
-                    { props.components.searchPanel }
+                <Grid item>
+                    <Grid container spacing={16} justify='flex-end'>
+                        <Grid item>
+                            <Button variant="raised" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
+                                Columns
+                                <RemoveRedEyeIcon style={{marginLeft: '7px'}}/>
+                            </Button>
+                        </Grid>
+                        <Grid item style={{paddingRight: '25px'}}>
+                            { props.components.searchPanel }
+                        </Grid>
+                    </Grid>
                 </Grid>
             </Grid>
         );
@@ -321,8 +352,12 @@ class ConnectedCodeListTable extends React.Component {
                 standardOid          : originCL.standardOid,
                 cdiscSubmissionValue : originCL.cdiscSubmissionValue,
             };
-            // Get key variables
-            // TODO: When key is located in the SUPP dataset.
+            if (originCL.standardOid !== undefined && this.props.standards.hasOwnProperty(originCL.standardOid)) {
+                let standard = this.props.standards[originCL.standardOid];
+                currentCL.standardDescription = standard.name + ' ' + standard.publishingSet + ' ver. ' + standard.version;
+            } else {
+                currentCL.standardDescription = undefined;
+            }
             codeLists[index] = currentCL;
         });
 
@@ -368,6 +403,12 @@ class ConnectedCodeListTable extends React.Component {
                     {renderColumns(this.state.columns)}
                 </BootstrapTable>
                 <CodeListMenu onClose={this.handleMenuClose} codeListMenuParams={this.state.codeListMenuParams} anchorEl={this.state.anchorEl}/>
+                { this.state.showSelectColumn && (
+                    <SelectColumns
+                        onClose={ () => { this.setState({ showSelectColumn: false }); } }
+                    />
+                )
+                }
             </React.Fragment>
         );
     }

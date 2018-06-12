@@ -59,16 +59,14 @@ class ConnectedDescriptionEditor extends React.Component {
     }
 
     onKeyDown = (event)  => {
-        if (this.props.stateless !== true) {
-            if (event.key === 'Escape' || event.keyCode === 27) {
-                this.cancel();
-            } else if (event.ctrlKey && (event.keyCode === 83)) {
-                // Focusing on the root element to fire all onBlur events for input fields
-                this.rootRef.current.focus();
-                // Call save through dummy setState to verify all states were updated
-                // TODO Check if this guarantees that all onBlurs are finished, looks like it is not
-                this.setState({}, this.save);
-            }
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.cancel();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            // Focusing on the root element to fire all onBlur events for input fields
+            this.rootRef.current.focus();
+            // Call save through dummy setState to verify all states were updated
+            // TODO Check if this guarantees that all onBlurs are finished, looks like it is not
+            this.setState({}, this.save);
         }
     }
 

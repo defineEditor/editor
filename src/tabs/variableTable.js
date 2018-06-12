@@ -17,7 +17,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
-import OpenDrawer from '@material-ui/icons/SubdirectoryArrowLeft';
+import OpenDrawer from '@material-ui/icons/ArrowUpward';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import getTableData from 'utils/getTableData.js';
 import SelectColumns from 'utils/selectColumns.js';

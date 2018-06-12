@@ -2,6 +2,7 @@
 import {
     ADD_CODELIST,
     UPD_CODELIST,
+    UPD_CODELISTSTD,
     DEL_CODELISTS,
     UPD_CODELISTSTDOIDS,
     UPD_CODEDVALUE,
@@ -13,6 +14,14 @@ import {
 export const updateCodeList = (oid, updateObj) => (
     {
         type: UPD_CODELIST,
+        oid,
+        updateObj,
+    }
+);
+
+export const updateCodeListStandard = (oid, updateObj) => (
+    {
+        type: UPD_CODELISTSTD,
         oid,
         updateObj,
     }

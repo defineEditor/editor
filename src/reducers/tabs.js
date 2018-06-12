@@ -10,27 +10,30 @@ import stdColumns from 'constants/columns';
 const generateInitialState = () => {
     /* TODO: 'Methods', 'Comments', 'Where Conditions'*/
     let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents'];
-    let tabObjectNames = ['standards', 'datasets', 'variables', 'codelists', 'codedValues', 'documents'];
+    let tabObjectNames = ['standards', 'datasets', 'variables', 'codeLists', 'codedValues', 'documents'];
 
     let setting = {
-        scrollPosition: 0,
+        windowScrollPosition: 0,
     };
 
     let settings = [];
     for (let i = 0; i < tabNames.length; i++) {
+        let tabObjectName = tabObjectNames[i];
         settings[i] = { ...setting };
         if (['Datasets', 'Variables', 'Codelists', 'Coded Values'].includes(tabNames[i])) {
             settings[i].rowSelect = {};
         }
+        // When tab has multiple tables
         if (['Variables', 'Coded Values'].includes(tabNames[i])) {
             settings[i].vlmState = {};
             settings[i].scrollPosition = {};
             settings[i].itemGroupOid = undefined;
         }
-        if (tabNames[i] === 'Variables') {
+        // Column state
+        if (['Variables','Codelists'].includes(tabNames[i])) {
             settings[i].columns = {};
-            Object.keys(stdColumns.variables).forEach( columnName => {
-                settings[i].columns[columnName] = { hidden: stdColumns.variables[columnName].hidden };
+            Object.keys(stdColumns[tabObjectName]).forEach( columnName => {
+                settings[i].columns[columnName] = { hidden: stdColumns[tabObjectName][columnName].hidden };
             });
         }
     }
@@ -50,7 +53,7 @@ const changeTab = (state, action) => {
     if (action.updateObj.currentScrollPosition !== undefined) {
         let currentTab = state.currentTab;
         let newSettings = state.settings.slice();
-        let newSetting = { ...state.settings[currentTab], scrollPosition: action.updateObj.currentScrollPosition };
+        let newSetting = { ...state.settings[currentTab], windowScrollPosition: action.updateObj.currentScrollPosition };
         newSettings.splice(currentTab, 1, newSetting);
         return {
             ...state,
@@ -67,7 +70,6 @@ const changeTab = (state, action) => {
 };
 
 const setVlmState = (state, action) => {
-    // Update scroll position
     let tabIndex = state.tabNames.indexOf('Variables');
     let newSettings = state.settings.slice();
     let newVlmState = { ...state.settings[tabIndex].vlmState, [action.source.itemGroupOid]: action.updateObj.vlmState };
@@ -81,7 +83,6 @@ const setVlmState = (state, action) => {
 };
 
 const toggleRowSelect = (state, action) => {
-    // Update scroll position
     let currentTab = state.currentTab;
     let newSettings = state.settings.slice();
     let value;

@@ -1,6 +1,7 @@
 import {
     UPD_ITEMCLDF,
     UPD_CODELIST,
+    UPD_CODELISTSTD,
     ADD_CODELIST,
     DEL_CODELISTS,
     UPD_CODELISTSTDOIDS,
@@ -9,7 +10,7 @@ import {
     DEL_CODEDVALUES,
     DEL_VARS,
 } from "constants/action-types";
-import { CodeList, CodeListItem, EnumeratedItem } from 'elements.js';
+import { CodeList, CodeListItem, EnumeratedItem, Alias } from 'elements.js';
 import getOid from 'utils/getOid.js';
 
 
@@ -148,6 +149,24 @@ const updateCodeListType = (state, action) => {
         // Nothing changed
         return state;
     }
+};
+
+const updateCodeListStandard = (state, action) => {
+    // action.oid - codelist oid
+    // action.updateObj - standardOid, alias, cdiscSubmissionValue, standardCodeList
+    let alias;
+    if (action.updateObj.alias !== undefined) {
+        alias = new Alias({ ...action.updateObj.alias });
+    }
+    // TODO update coded values;
+    let newCodeList = new CodeList({
+        ...state[action.oid],
+        standardOid          : action.updateObj.standardOid,
+        cdiscSubmissionValue : action.updateObj.cdiscSubmissionValue,
+        alias                : alias,
+    });
+
+    return {...state, [action.oid]: newCodeList};
 };
 
 const updateCodeList = (state, action) => {
@@ -320,6 +339,8 @@ const codeLists = (state = {}, action) => {
             return deleteCodeLists(state, action);
         case UPD_CODELIST:
             return updateCodeList(state, action);
+        case UPD_CODELISTSTD:
+            return updateCodeListStandard(state, action);
         case UPD_ITEMCLDF:
             return handleItemDefUpdate(state, action);
         case UPD_CODELISTSTDOIDS:

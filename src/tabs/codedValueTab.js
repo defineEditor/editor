@@ -68,7 +68,14 @@ function codedValueEditor (onUpdate, props) {
         if (!props.stdCodeList.getCodedValuesAsArray().includes(props.defaultValue)) {
             options.push({ value: props.defaultValue, label: props.defaultValue });
         }
-        return (<ReactSelectEditor onUpdate={ onUpdate } {...props} options={options} extensible={props.stdCodeList.codeListExtensible === 'Yes'}/>);
+        return (
+            <ReactSelectEditor
+                handleChange={ onUpdate }
+                value={props.defaultValue}
+                options={options}
+                extensible={props.stdCodeList.codeListExtensible === 'Yes'}
+            />
+        );
     } else {
         return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
     }

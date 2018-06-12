@@ -11,6 +11,7 @@ import MetaDataVersionEditor from 'editors/metaDataVersionEditor.js';
 import GlobalVariablesEditor from 'editors/globalVariablesEditor.js';
 import ControlledTerminologyEditor from 'editors/controlledTerminologyEditor.js';
 import StandardEditor from 'editors/standardEditor.js';
+import setScrollPosition from 'utils/setScrollPosition.js';
 import {
     updateGlobalVariables,
     updateMetaDataVersion,
@@ -76,11 +77,7 @@ class ConnectedStandardTable extends React.Component {
     }
 
     componentDidMount() {
-        let tabs = this.props.tabs;
-        // Restore previous tab scroll position;
-        if (tabs.settings[tabs.currentTab].scrollPosition !== undefined) {
-            window.scrollTo(0, tabs.settings[tabs.currentTab].scrollPosition);
-        }
+        setScrollPosition(this.props.tabs);
     }
 
     handleChange = (name) => (updateObj) => {

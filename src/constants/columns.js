@@ -91,18 +91,20 @@ const codeLists = {
     formatName: {
         text    : 'Format Name',
         hidden  : false,
+        width   : '140px',
         tdStyle : { whiteSpace: 'normal' },
         thStyle : { whiteSpace: 'normal' },
     },
     linkedCodeList: {
         text    : 'Linked Codelist',
-        hidden  : false,
+        width   : '20%',
         tdStyle : { whiteSpace: 'normal' },
         thStyle : { whiteSpace: 'normal' },
     },
     standardData: {
         text    : 'Standard',
         hidden  : false,
+        width   : '20%',
         tdStyle : { whiteSpace: 'normal' },
         thStyle : { whiteSpace: 'normal' }
     },

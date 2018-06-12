@@ -5,6 +5,7 @@ import deepEqual from 'fast-deep-equal';
 import Grid from '@material-ui/core/Grid';
 import DocumentTableFormatter from 'formatters/documentTableFormatter.js';
 import DocumentTableEditor from 'editors/documentTableEditor.js';
+import setScrollPosition from 'utils/setScrollPosition.js';
 import {
     updateLeafs,
 } from 'actions/index.js';
@@ -36,11 +37,7 @@ class ConnectedDocumentTable extends React.Component {
     }
 
     componentDidMount() {
-        let tabs = this.props.tabs;
-        // Restore previous tab scroll position;
-        if (tabs.settings[tabs.currentTab].scrollPosition !== undefined) {
-            window.scrollTo(0, tabs.settings[tabs.currentTab].scrollPosition);
-        }
+        setScrollPosition(this.props.tabs);
     }
 
     handleChange = (name) => () => {

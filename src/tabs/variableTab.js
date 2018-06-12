@@ -6,8 +6,9 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
-import VariableTable from 'tabs/variableTable.js';
 import Drawer from '@material-ui/core/Drawer';
+import VariableTable from 'tabs/variableTable.js';
+import setScrollPosition from 'utils/setScrollPosition.js';
 
 import {
     selectDataset,
@@ -41,6 +42,7 @@ const mapStateToProps = state => {
         itemGroupOrder : state.odm.study.metaDataVersion.itemGroupOrder,
         itemGroups     : state.odm.study.metaDataVersion.itemGroups,
         itemGroupOid   : state.ui.tabs.settings[tabIndex].itemGroupOid,
+        tabs           : state.ui.tabs,
     };
 };
 
@@ -56,6 +58,7 @@ class ConnectedVariableTab extends React.Component {
     }
 
     componentDidMount() {
+        setScrollPosition(this.props.tabs);
         window.addEventListener('keydown', this.onKeyDown);
     }
 

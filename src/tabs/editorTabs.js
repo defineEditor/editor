@@ -78,21 +78,11 @@ class ConnectedEditorTabs extends React.Component {
     }
 
     handleChange = (event, value) => {
-        let tabs = this.props.tabs;
         if (value !== this.props.currentTab) {
-            // Do not update scroll position for Variables and Coded Values as it is managed within those
-            // components for each Dataset/CodeList separately
-            let updateObj;
-            if (!['Variables', 'Coded Values'].includes(tabs.tabNames[tabs.currentTab])) {
-                updateObj = {
-                    selectedTab           : value,
-                    currentScrollPosition : window.scrollY,
-                };
-            } else {
-                updateObj = {
-                    selectedTab: value,
-                };
-            }
+            let updateObj = {
+                selectedTab           : value,
+                currentScrollPosition : window.scrollY,
+            };
             this.props.changeTab(updateObj);
         }
     }

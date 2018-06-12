@@ -29,7 +29,7 @@ const styles = theme => ({
         overflowX     : 'auto',
         maxHeight     : '85%',
         overflowY     : 'auto',
-        width         : '90%',
+        width         : '400px',
     },
 });
 

@@ -19,6 +19,7 @@ import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import DatasetFlagsEditor from 'editors/datasetFlagsEditor.js';
 import DatasetFlagsFormatter from 'formatters/datasetFlagsFormatter.js';
 import CommentFormatter from 'formatters/commentFormatter.js';
+import setScrollPosition from 'utils/setScrollPosition.js';
 import {
     updateItemGroup,
     updateItemGroupComment,
@@ -145,11 +146,7 @@ class ConnectedDatasetTable extends React.Component {
     }
 
     componentDidMount() {
-        let tabs = this.props.tabs;
-        // Restore previous tab scroll position;
-        if (tabs.settings[tabs.currentTab].scrollPosition !== undefined) {
-            window.scrollTo(0, tabs.settings[tabs.currentTab].scrollPosition);
-        }
+        setScrollPosition(this.props.tabs);
     }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {

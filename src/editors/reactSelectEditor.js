@@ -234,13 +234,8 @@ const styles = theme => ({
 });
 
 class ReactSelectEditor extends React.Component {
-    state = {
-        single : this.props.defaultValue,
-        multi  : this.props.defaultValue,
-    };
-
     handleChangeSingle = single => {
-        this.props.onUpdate(single);
+        this.props.handleChange(single);
     };
 
     handleChangeMulti = multi => {
@@ -250,12 +245,13 @@ class ReactSelectEditor extends React.Component {
     };
 
     cancel = () => {
-        this.props.onUpdate(this.props.defaultValue);
+        this.props.handleChange(this.props.value);
     }
 
     render() {
         const { classes } = this.props;
-        const { single, multi } = this.state;
+        const single = this.props.value;
+        const multi = this.props.value;
 
         return (
             <div className={classes.root}>
@@ -274,7 +270,7 @@ class ReactSelectEditor extends React.Component {
                             name        : 'react-select-chip',
                             simpleValue : true,
                             options     : this.props.options,
-                            cancel      : this.props.cancel,
+                            cancel      : this.cancel,
                             extensible  : this.props.extensible,
                         }}
                     />
@@ -306,9 +302,9 @@ class ReactSelectEditor extends React.Component {
 ReactSelectEditor.propTypes = {
     classes      : PropTypes.object.isRequired,
     options      : PropTypes.array.isRequired,
-    onUpdate     : PropTypes.func.isRequired,
+    handleChange : PropTypes.func.isRequired,
     extensible   : PropTypes.bool,
-    defaultValue : PropTypes.string,
+    value        : PropTypes.string,
     optional     : PropTypes.bool,
     label        : PropTypes.string,
     multiSelect  : PropTypes.bool,
