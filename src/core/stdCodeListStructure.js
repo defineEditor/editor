@@ -98,6 +98,7 @@ class StdCodeList extends BasicFunctions {
         return this.codeListType;
     }
     getCodedValuesAsArray () {
+        // It is critical that order of items in the array is identical to the order of OIDs in the corresponding object
         if (this.codeListType === 'decoded') {
             return Object.keys(this.codeListItems).map( oid => (this.codeListItems[oid].codedValue) );
         } else if (this.codeListType === 'enumerated') {

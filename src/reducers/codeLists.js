@@ -12,6 +12,7 @@ import {
 } from "constants/action-types";
 import { CodeList, CodeListItem, EnumeratedItem, Alias } from 'elements.js';
 import getOid from 'utils/getOid.js';
+import deepEqual from 'fast-deep-equal';
 
 
 const handleItemDefUpdate = (state, action) => {
@@ -154,11 +155,36 @@ const updateCodeListType = (state, action) => {
 const updateCodeListStandard = (state, action) => {
     // action.oid - codelist oid
     // action.updateObj - standardOid, alias, cdiscSubmissionValue, standardCodeList
+    let codeList = state[action.oid];
     let alias;
     if (action.updateObj.alias !== undefined) {
         alias = new Alias({ ...action.updateObj.alias });
     }
-    // TODO update coded values;
+    // Update coded values;
+    let standardCodeList = action.updateObj.standardCodeList;
+    if (standardCodeList !== undefined) {
+        let standardCodedValues = standardCodeList.getCodedValuesAsArray();
+        if (codeList.codeListType === 'decoded') {
+            let newCodeListItems = {};
+            Object.keys(codeList.codeListItems).forEach( itemOid => {
+                if (standardCodedValues.includes(codeList.codeListItems[itemOid].codedValue)) {
+                    // Add alias from the standard codelist if it is different
+                    let standardItemOid = Object.keys(standardCodeList.codeListItems)[standardCodedValues.indexOf(codeList.codeListItems[itemOid].codedValue)];
+                    if (!deepEqual(codeList.codeListItems[itemOid].alias, standardCodeList.codeListItems[standardItemOid].alias)){
+                        newCodeListItems[itemOid] = new CodeListItem({
+                            ...codeList.codeListItems[itemOid],
+                            alias : new Alias({ ...standardCodeList.codeListItems[standardItemOid].alias }),
+                        });
+                    } else {
+                        newCodeListItems[itemOid] = codeList.codeListItems[itemOid];
+                    }
+                } else {
+                    newCodeListItems[itemOid] = codeList.codeListItems[itemOid];
+                }
+            });
+        }
+    }
+
     let newCodeList = new CodeList({
         ...state[action.oid],
         standardOid          : action.updateObj.standardOid,

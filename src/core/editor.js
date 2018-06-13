@@ -136,7 +136,7 @@ class ConnectedEditor extends React.Component {
             });
             // TODO: Move default standard population to standards tab and check if loaded standard impacts existing codelists
             // TODO: Debugging - remove later - add CTs to standards
-            let ctUpdateObj = {addedStandards: {'STD.adb3c1a4-9bf7-45aa': {oid: 'STD.adb3c1a4-9bf7-45aa',name: 'SDTM-IG',type: 'IG',version: '3.1.2',isDefault: 'Yes'},'CDISC_CT.ADaM.2017-09-29': {oid: 'CDISC_CT.ADaM.2017-09-29',name: 'CDISC/NCI',type: 'CT',publishingSet: 'ADaM',version: '2017-09-29'},'CDISC_CT.SDTM.2017-12-22': {oid: 'CDISC_CT.SDTM.2017-12-22',name: 'CDISC/NCI',type: 'CT',publishingSet: 'SDTM',version: '2017-12-22'}},removedStandardOids: [],updatedStandards: []};
+            let ctUpdateObj = {addedStandards: {'CDISC_CT.ADaM.2017-09-29': {oid: 'CDISC_CT.ADaM.2017-09-29',name: 'CDISC/NCI',type: 'CT',publishingSet: 'ADaM',version: '2017-09-29'},'CDISC_CT.SDTM.2017-12-22': {oid: 'CDISC_CT.SDTM.2017-12-22',name: 'CDISC/NCI',type: 'CT',publishingSet: 'SDTM',version: '2017-12-22'}},removedStandardOids: [],updatedStandards: []};
             Promise.resolve(this.props.addStdControlledTerminology(stdCodeListsOdm))
                 .then(this.props.updatedStandards(ctUpdateObj))
                 .then(this.props.updateCodeListStandardOids(updateObj));

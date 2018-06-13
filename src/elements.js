@@ -272,7 +272,13 @@ class CodeList extends BasicFunctions {
         this.alias = alias;
         this.descriptions = descriptions; // 2.1D
         this.enumeratedItems = enumeratedItems;
+        if (codeListType === 'enumerated' && enumeratedItems === undefined) {
+            this.enumeratedItems = {};
+        }
         this.codeListItems = codeListItems;
+        if (codeListType === 'decoded' && codeListItems === undefined) {
+            this.codeListItems = {};
+        }
         this.itemOrder = itemOrder;
         // Non-define XML properties
         this.codeListType = codeListType;
@@ -347,6 +353,7 @@ class CodeList extends BasicFunctions {
         }
     }
     getCodedValuesAsArray () {
+        // It is critical that order of items in the array is identical to the order of OIDs in the corresponding object
         if (this.codeListType === 'decoded') {
             return Object.keys(this.codeListItems).map( oid => (this.codeListItems[oid].codedValue) );
         } else if (this.codeListType === 'enumerated') {
