@@ -7,6 +7,7 @@ import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
 import renderColumns from 'utils/renderColumns.js';
 import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
+import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import ItemMenu from 'utils/itemMenu.js';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -250,29 +251,25 @@ class ConnectedVariableTable extends React.Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
-        // Store previous itemGroupOid in state so we can compare when props change.
-        if (!deepEqual(nextProps.itemGroupOid, prevState.itemGroupOid)) {
-            return {
-                itemGroupOid : nextProps.itemGroupOid,
-                setScrollY   : true,
-            };
+        let stateUpdate = {};
+        // Store previous itemGroupOid in state so it can be compared with when props change
+        if (nextProps.itemGroupOid !== prevState.itemGroupOid) {
+            stateUpdate.itemGroupOid = nextProps.itemGroupOid;
+            stateUpdate.setScrollY = true;
+            stateUpdate.selectedRows = [];
+            stateUpdate.selectedVlmRows = {};
         }
-        let columns = { ...prevState.columns };
-        // Handle switch between selection/no selection
-        if (nextProps.showRowSelect !== prevState.columns.oid.hidden) {
-            columns = { ...columns, oid: { ...columns.oid, hidden: nextProps.showRowSelect } };
-        }
-        Object.keys(nextProps.tabSettings.columns).forEach(columnName => {
-            let columnSettings = nextProps.tabSettings.columns[columnName];
-            if ( columns.hasOwnProperty(columnName) && columnSettings.hidden !== columns[columnName].hidden) {
-                columns = { ...columns, [columnName]: { ...columns[columnName], hidden: columnSettings.hidden } };
-            }
-        });
 
+        let columns = getColumnHiddenStatus(prevState.columns, nextProps.tabSettings.columns, nextProps.showRowSelect);
         if (!deepEqual(columns, prevState.columns)) {
-            return { columns };
+            stateUpdate.columns = columns;
         }
-        return null;
+
+        if (Object.keys(stateUpdate).length > 0) {
+            return ({ ...stateUpdate });
+        } else {
+            return null;
+        }
     }
 
     componentDidUpdate() {

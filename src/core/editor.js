@@ -126,7 +126,11 @@ class ConnectedEditor extends React.Component {
                     && codeLists[codeListOid].standardOid === undefined
                     && codeLists[codeListOid].alias.context === 'nci:ExtCodeID') {
                     if (Object.keys(stdCodeListsOdm.study.metaDataVersion.nciCodeOids).includes(codeLists[codeListOid].alias.name)) {
-                        updateObj[codeListOid] = stdCodeListsOdm.study.oid;
+                        let stdCodeListOid = stdCodeListsOdm.study.metaDataVersion.nciCodeOids[codeLists[codeListOid].alias.name];
+                        updateObj[codeListOid] = {
+                            standardOid          : stdCodeListsOdm.study.oid,
+                            cdiscSubmissionValue : stdCodeListsOdm.study.metaDataVersion.codeLists[stdCodeListOid].cdiscSubmissionValue,
+                        };
                     }
                 }
             });

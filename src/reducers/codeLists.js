@@ -214,10 +214,14 @@ const deleteCodeLists = (state, action) => {
 };
 
 const updateCodeListStandardOids = (state, action) => {
-    // action.updateObj.codeListOids - list of codeLists to update
+    // action.updateObj - object with a list of codeLists each corresponding to an object {standardOid, cdiscSubmissionValue}
     let newState = { ...state };
     Object.keys(action.updateObj).forEach( codeListOid => {
-        let newCodeList = new CodeList({...state[codeListOid], standardOid: action.updateObj[codeListOid]});
+        let newCodeList = new CodeList({
+            ...state[codeListOid],
+            standardOid          : action.updateObj[codeListOid].standardOid,
+            cdiscSubmissionValue : action.updateObj[codeListOid].cdiscSubmissionValue,
+        });
         newState = { ...newState, [codeListOid]: newCodeList };
     });
     return newState;

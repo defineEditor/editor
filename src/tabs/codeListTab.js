@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
 import CodeListMenu from 'utils/codeListMenu.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
+import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
 import renderColumns from 'utils/renderColumns.js';
@@ -154,17 +155,8 @@ class ConnectedCodeListTable extends React.Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
-        let columns = { ...prevState.columns };
-        // Handle switch between selection/no selection
-        if (nextProps.showRowSelect !== prevState.columns.oid.hidden) {
-            columns = { ...columns, oid: { ...columns.oid, hidden: nextProps.showRowSelect } };
-        }
-        Object.keys(nextProps.tabSettings.columns).forEach(columnName => {
-            let columnSettings = nextProps.tabSettings.columns[columnName];
-            if ( columns.hasOwnProperty(columnName) && columnSettings.hidden !== columns[columnName].hidden) {
-                columns = { ...columns, [columnName]: { ...columns[columnName], hidden: columnSettings.hidden } };
-            }
-        });
+
+        let columns = getColumnHiddenStatus(prevState.columns, nextProps.tabSettings.columns, nextProps.showRowSelect);
 
         if (!deepEqual(columns, prevState.columns)) {
             return { columns };

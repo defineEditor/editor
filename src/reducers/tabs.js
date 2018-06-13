@@ -105,8 +105,15 @@ const selectDataset = (state, action) => {
     let tabIndex = state.tabNames.indexOf('Variables');
     let newSettings = state.settings.slice();
     let newDatasetScrollPositions = { ...state.settings[tabIndex].scrollPosition, ...action.updateObj.scrollPosition };
-    let newSetting = { ...state.settings[tabIndex], itemGroupOid: action.updateObj.itemGroupOid, scrollPosition: newDatasetScrollPositions };
+    // Row select is disabled when dataset is changed. Otherwise old selection will be shown for the new dataset
+    let newSetting = {
+        ...state.settings[tabIndex],
+        itemGroupOid   : action.updateObj.itemGroupOid,
+        scrollPosition : newDatasetScrollPositions,
+        rowSelect      : { overall: false },
+    };
     newSettings.splice(tabIndex, 1, newSetting);
+
 
     return {
         ...state,
