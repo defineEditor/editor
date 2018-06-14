@@ -1,21 +1,21 @@
+import React from 'react';
 import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
-import '../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import { connect } from 'react-redux';
-import renderColumns from 'utils/renderColumns.js';
-import getCodeListData from 'utils/getCodeListData.js';
 import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import React from 'react';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
 import Chip from '@material-ui/core/Chip';
-import deepEqual from 'fast-deep-equal';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import ReactSelectEditor from 'editors/reactSelectEditor.js';
 import { TranslatedText } from 'elements.js';
+import renderColumns from 'utils/renderColumns.js';
+import getCodeListData from 'utils/getCodeListData.js';
+import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
+import deepEqual from 'fast-deep-equal';
 import {
     updateCodedValue,
     addCodedValue,
@@ -57,7 +57,7 @@ const mapStateToProps = state => {
 function codedValueEditor (onUpdate, props) {
     if (props.stdCodeList!== undefined) {
         let stdCodeListData = getCodeListData(props.stdCodeList).codeListTable;
-        let existingValues = props.codeList.getCodedValuesAsArray();
+        let existingValues = getCodedValuesAsArray(props.codeList);
         let options = stdCodeListData
             .filter( item => (!existingValues.includes(item.value) || item.value === props.defaultValue))
             .map( item => ({
@@ -65,7 +65,7 @@ function codedValueEditor (onUpdate, props) {
                 label : item.value + ' (' + item.decode + ')',
             }));
         // If current value is not from the standard codelist, still include it
-        if (!props.stdCodeList.getCodedValuesAsArray().includes(props.defaultValue)) {
+        if (!getCodedValuesAsArray(props.stdCodeList).includes(props.defaultValue)) {
             options.push({ value: props.defaultValue, label: props.defaultValue });
         }
         return (
@@ -136,7 +136,7 @@ class ConnectedCodedValueTable extends React.Component {
                 updateObj.codedValue = cellValue;
                 const codeList = this.props.codeLists[this.props.codeListOid];
                 // Check if the same value already exists in the codelist;
-                if (codeList.getCodedValuesAsArray().includes(cellValue)) {
+                if (getCodedValuesAsArray(codeList).includes(cellValue)) {
                     // TODO Warn users  that coded Value already exists in the codelist;
                     return false;
                 }

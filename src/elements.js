@@ -352,16 +352,6 @@ class CodeList extends BasicFunctions {
             return 1;
         }
     }
-    getCodedValuesAsArray () {
-        // It is critical that order of items in the array is identical to the order of OIDs in the corresponding object
-        if (this.codeListType === 'decoded') {
-            return Object.keys(this.codeListItems).map( oid => (this.codeListItems[oid].codedValue) );
-        } else if (this.codeListType === 'enumerated') {
-            return Object.keys(this.enumeratedItems).map( oid => (this.enumeratedItems[oid].codedValue) );
-        } else {
-            return undefined;
-        }
-    }
 }
 
 class EnumeratedItem {

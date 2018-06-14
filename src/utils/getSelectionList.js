@@ -18,7 +18,7 @@ function getSelectionList (rawList, optional) {
         throw Error('GetSelectionList: Blank value list provided for the ItemSelect element');
     } else {
         if (optional === true) {
-            selectionList.push(<MenuItem key='0' value=""></MenuItem>);
+            selectionList.push(<MenuItem key='0' value=''></MenuItem>);
         }
         list.forEach( (value, index) => {
             if (typeof value === 'object') {

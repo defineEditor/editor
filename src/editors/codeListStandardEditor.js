@@ -7,6 +7,7 @@ import Grid from '@material-ui/core/Grid';
 import SaveCancel from 'editors/saveCancel.js';
 import ReactSelectEditor from 'editors/reactSelectEditor.js';
 import getSelectionList from 'utils/getSelectionList.js';
+import deepEqual from 'fast-deep-equal';
 
 const styles = theme => ({
     selectStandard: {
@@ -78,26 +79,49 @@ class ConnectedCodeListStandardEditor extends React.Component {
 
     handleChange = (name) => (updateObj) => {
         if (name === 'standard') {
-            let standard = this.props.stdCodeLists[updateObj.target.value];
-            let codeListList = this.getCodeListList(standard);
-            let standardCodeListOid;
-            if (this.props.defaultValue.alias !== undefined && standard.nciCodeOids.hasOwnProperty(this.props.defaultValue.alias.name)) {
-                standardCodeListOid = standard.nciCodeOids[this.props.defaultValue.alias.name];
+            if (updateObj.target.value !== '') {
+                let standard = this.props.stdCodeLists[updateObj.target.value];
+                let codeListList = this.getCodeListList(standard);
+                let standardCodeListOid;
+                if (this.props.defaultValue.alias !== undefined && standard.nciCodeOids.hasOwnProperty(this.props.defaultValue.alias.name)) {
+                    standardCodeListOid = standard.nciCodeOids[this.props.defaultValue.alias.name];
+                }
+                this.setState( { standard, codeListList, standardCodeListOid });
+            } else {
+                // Standard is removed
+                this.setState( {
+                    standard: undefined,
+                    codeListList: undefined,
+                    standardCodeListOid: undefined
+                });
             }
-            this.setState( { standard, codeListList, standardCodeListOid });
         } else if (name === 'codeList') {
             this.setState( { standardCodeListOid: updateObj });
         }
     }
 
     save = () => {
-        if (this.state.standard !== undefined && this.state.standardCodeListOid !== undefined) {
+        if (this.state.standard !== undefined && this.state.standardCodeListOid !== undefined
+            && (this.state.standard.oid !== this.props.defaultValue.standardOid
+                || !deepEqual(this.props.defaultValue.alias, this.state.standard.codeLists[this.state.standardCodeListOid].alias)
+            )
+        ) {
+            // Standard was updated
             this.props.onUpdate({
                 standardOid          : this.state.standard.oid,
                 alias                : this.state.standard.codeLists[this.state.standardCodeListOid].alias,
                 cdiscSubmissionValue : this.state.standard.codeLists[this.state.standardCodeListOid].cdiscSubmissionValue,
             });
+        } else if (this.state.standard === undefined && this.props.defaultValue.standardOid !== undefined) {
+            // Standard was removed
+            this.props.onUpdate({
+                standardOid          : undefined,
+                alias                : undefined,
+                cdiscSubmissionValue : undefined,
+            });
+
         } else {
+            // No changes
             this.props.onUpdate(this.props.defaultValue);
         }
     }
@@ -137,7 +161,7 @@ class ConnectedCodeListStandardEditor extends React.Component {
                                 inputProps={{className: classes.standardInput}}
                                 className={classes.selectStandard}
                             >
-                                {getSelectionList(this.state.standardList)}
+                                {getSelectionList(this.state.standardList, true)}
                             </TextField>
                         </Grid>
                         {this.state.standard !== undefined &&
