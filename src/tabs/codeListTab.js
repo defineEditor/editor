@@ -19,6 +19,7 @@ import grey from '@material-ui/core/colors/grey';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
+import LinkedCodeListEditor from 'editors/linkedCodeListEditor.js';
 import CodeListFormatNameEditor from 'editors/codeListFormatNameEditor.js';
 import CodeListStandardEditor from 'editors/codeListStandardEditor.js';
 import SelectColumns from 'utils/selectColumns.js';
@@ -74,6 +75,10 @@ function simpleSelectEditor (onUpdate, props) {
     return (<SimpleSelectEditor onUpdate={onUpdate} {...props}/>);
 }
 
+function linkedCodeListEditor (onUpdate, props) {
+    return (<LinkedCodeListEditor onUpdate={onUpdate} {...props}/>);
+}
+
 // Formatter functions
 function codeListStandardFormatter (cell, row) {
     if (row.standardDescription !== undefined) {
@@ -98,14 +103,6 @@ function codeListTypeFormatter (cell, row) {
 class ConnectedCodeListTable extends React.Component {
     constructor(props) {
         super(props);
-
-        // Get list of codelists with decodes for linked codelist selection;
-        const codeListWithDecodes = Object.keys(props.codeLists).filter( codeListOid => {
-            return props.codeLists[codeListOid].getCodeListType() === 'decoded';
-        }).map( codeListOid => {
-            return props.codeLists[codeListOid].name;
-        });
-
 
         let columns = clone(props.stdConstants.columns.codeLists);
 
@@ -132,7 +129,7 @@ class ConnectedCodeListTable extends React.Component {
                 customEditor: {getElement: codeListFormatNameEditor},
             },
             linkedCodeList: {
-                customEditor: {getElement: simpleSelectEditor, customEditorParameters: {options: codeListWithDecodes, optional: true}},
+                customEditor: {getElement: linkedCodeListEditor},
             },
             standardData: {
                 dataFormat   : codeListStandardFormatter,
@@ -207,6 +204,7 @@ class ConnectedCodeListTable extends React.Component {
                         return false;
                     }
                 });
+                this.props.updateCodeList(row.oid, updateObj);
             } else if (cellName === 'standardData') {
                 if (!deepEqual(cellValue, row[cellName])) {
                     updateObj = { ...cellValue };
