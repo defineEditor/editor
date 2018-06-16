@@ -30,7 +30,7 @@ const generateInitialState = () => {
             settings[i].groupOid = undefined;
         }
         // Column state
-        if (['Variables','Codelists'].includes(tabNames[i])) {
+        if (['Datasets', 'Variables','Codelists','Coded Values'].includes(tabNames[i])) {
             settings[i].columns = {};
             Object.keys(stdColumns[tabObjectName]).forEach( columnName => {
                 settings[i].columns[columnName] = { hidden: stdColumns[tabObjectName][columnName].hidden };
@@ -41,7 +41,7 @@ const generateInitialState = () => {
     return {
         tabNames,
         tabObjectNames,
-        currentTab: 3,
+        currentTab: 4,
         settings,
     };
 };
@@ -102,6 +102,9 @@ const toggleRowSelect = (state, action) => {
 };
 
 const selectGroup = (state, action) => {
+    // action.updateObj.tabIndex - index on which the new group is selected (and changed to it if it was different)
+    // action.updateObj.groupOid - groupOid
+    // action.updateObj.scrollPosition - value of scrollPosition for the previous group
     let tabIndex = action.updateObj.tabIndex;
     let newSettings = state.settings.slice();
     let newScrollPositions = { ...state.settings[tabIndex].scrollPosition, ...action.updateObj.scrollPosition };
@@ -114,10 +117,10 @@ const selectGroup = (state, action) => {
     };
     newSettings.splice(tabIndex, 1, newSetting);
 
-
     return {
         ...state,
-        settings: newSettings,
+        currentTab : tabIndex,
+        settings   : newSettings,
     };
 };
 

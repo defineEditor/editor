@@ -99,25 +99,33 @@ class ConnectedVariableTab extends React.Component {
     }
 
     getGroupList = (currentGroupOid) => {
-        let result = this.props.groupOrder.map(groupOid => {
-            if (groupOid === currentGroupOid) {
-                return (
-                    <ListItem button key={groupOid} onClick={this.selectGroup(groupOid)} className={this.props.classes.currentLine}>
-                        <ListItemText primary={
-                            <span className={this.props.classes.currentItem}>
-                                {this.props.groups[groupOid].name}
-                            </span>
-                        }/>
-                    </ListItem>
-                );
-            } else {
-                return (
-                    <ListItem button key={groupOid} onClick={this.selectGroup(groupOid)}>
-                        <ListItemText primary={this.props.groups[groupOid].name}/>
-                    </ListItem>
-                );
-            }
-        });
+        let result = this.props.groupOrder
+            .filter(groupOid => {
+                if (this.props.groupClass === 'Coded Values') {
+                    return ['decoded','enumerated'].includes(this.props.groups[groupOid].codeListType);
+                } else {
+                    return true;
+                }
+            })
+            .map(groupOid => {
+                if (groupOid === currentGroupOid) {
+                    return (
+                        <ListItem button key={groupOid} onClick={this.selectGroup(groupOid)} className={this.props.classes.currentLine}>
+                            <ListItemText primary={
+                                <span className={this.props.classes.currentItem}>
+                                    {this.props.groups[groupOid].name}
+                                </span>
+                            }/>
+                        </ListItem>
+                    );
+                } else {
+                    return (
+                        <ListItem button key={groupOid} onClick={this.selectGroup(groupOid)}>
+                            <ListItemText primary={this.props.groups[groupOid].name}/>
+                        </ListItem>
+                    );
+                }
+            });
         return result;
     }
 

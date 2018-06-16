@@ -1,3 +1,14 @@
+const datasets = {
+    oid: {
+        isKey    : true,
+        text     : '',
+        width    : '48px',
+        editable : false,
+        hidden   : false,
+        tdStyle  : { padding: '0px' },
+    },
+};
+
 const variables = {
     oid: {
         isKey    : true,
@@ -110,9 +121,44 @@ const codeLists = {
     },
 };
 
+const codedValues = {
+    oid: {
+        isKey    : true,
+        text     : '',
+        width    : '48px',
+        editable : false,
+        hidden   : false,
+        tdStyle  : { padding: '0px' },
+    },
+    value: {
+        text    : 'Coded Value',
+        tdStyle : { whiteSpace: 'normal', width: '30px', overflow: 'inherit !important' },
+        thStyle : { whiteSpace: 'normal', width: '30px' },
+    },
+    decode: {
+        text    : 'Decode',
+        tdStyle : { whiteSpace: 'normal' },
+        thStyle : { whiteSpace: 'normal' }
+    },
+    rank: {
+        text    : 'Rank',
+        tdStyle : { whiteSpace: 'normal' },
+        thStyle : { whiteSpace: 'normal' },
+        hidden  : true,
+    },
+    ccode: {
+        text     : 'C-code',
+        tdStyle  : { whiteSpace: 'normal' },
+        thStyle  : { whiteSpace: 'normal' },
+        editable : false,
+    },
+};
+
 const columns = {
+    datasets,
     variables,
     codeLists,
+    codedValues,
 };
 
 export default columns;

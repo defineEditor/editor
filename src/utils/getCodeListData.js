@@ -46,7 +46,7 @@ function getCodeListData(codeList, defineVersion) {
 
     let codeListTitle;
     let description = [];
-    if (codeList.getDescription() !== undefined) {
+    if (codeList.getDescription() !== '') {
         description.push(codeList.getDescription());
     } else if (codeList.alias !== undefined) {
         description.push(codeList.alias.name);

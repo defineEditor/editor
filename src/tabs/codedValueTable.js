@@ -2,20 +2,28 @@ import React from 'react';
 import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import clone from 'clone';
+import deepEqual from 'fast-deep-equal';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
 import Chip from '@material-ui/core/Chip';
-import FilterListIcon from '@material-ui/icons/FilterList';
+import IconButton from '@material-ui/core/IconButton';
+import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import OpenDrawer from '@material-ui/icons/ArrowUpward';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
-import ReactSelectEditor from 'editors/reactSelectEditor.js';
+import CodedValueEditor from 'editors/codedValueEditor.js';
+import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import { TranslatedText } from 'elements.js';
+import SelectColumns from 'utils/selectColumns.js';
 import renderColumns from 'utils/renderColumns.js';
+import CodedValueMenu from 'utils/codedValueMenu.js';
 import getCodeListData from 'utils/getCodeListData.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
-import deepEqual from 'fast-deep-equal';
+import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import {
     updateCodedValue,
     addCodedValue,
@@ -23,12 +31,19 @@ import {
 } from 'actions/index.js';
 
 const styles = theme => ({
+    buttonGroup: {
+        marginLeft: theme.spacing.unit * 2,
+    },
     button: {
         margin: theme.spacing.unit,
     },
     chip: {
         verticalAlign : 'top',
         marginLeft    : theme.spacing.unit,
+    },
+    drawerButton: {
+        marginLeft : theme.spacing.unit,
+        transform  : 'translate(0%, -6%)',
     },
 });
 
@@ -47,43 +62,50 @@ const mapStateToProps = state => {
         itemDefs      : state.odm.study.metaDataVersion.itemDefs,
         itemGroups    : state.odm.study.metaDataVersion.itemGroups,
         stdCodeLists  : state.stdCodeLists,
+        stdColumns    : state.stdConstants.columns.codedValues,
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
         lang          : state.odm.study.metaDataVersion.lang,
-        tabs          : state.ui.tabs,
+        tabSettings   : state.ui.tabs.settings[state.ui.tabs.currentTab],
+        showRowSelect : state.ui.tabs.settings[state.ui.tabs.currentTab].rowSelect['overall'],
     };
 };
 
 // Editors
 function codedValueEditor (onUpdate, props) {
-    if (props.stdCodeList!== undefined) {
-        let stdCodeListData = getCodeListData(props.stdCodeList).codeListTable;
-        let existingValues = getCodedValuesAsArray(props.codeList);
-        let options = stdCodeListData
-            .filter( item => (!existingValues.includes(item.value) || item.value === props.defaultValue))
-            .map( item => ({
-                value : item.value,
-                label : item.value + ' (' + item.decode + ')',
-            }));
-        // If current value is not from the standard codelist, still include it
-        if (!getCodedValuesAsArray(props.stdCodeList).includes(props.defaultValue)) {
-            options.push({ value: props.defaultValue, label: props.defaultValue });
-        }
-        return (
-            <ReactSelectEditor
-                handleChange={ onUpdate }
-                value={props.defaultValue}
-                options={options}
-                extensible={props.stdCodeList.codeListExtensible === 'Yes'}
-            />
-        );
-    } else {
-        return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
-    }
+    return (<CodedValueEditor onUpdate={ onUpdate } {...props}/>);
 }
 
 function simpleInputEditor (onUpdate, props) {
     return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
 }
+const setColumnWidth = (columns) => {
+    // Dynamically get column width;
+    let widths = {};
+
+    if (columns.decode.hidden !== true) {
+        widths.decode = 50;
+    } else {
+        widths.decode = 0;
+    }
+    if (columns.rank.hidden !== true) {
+        widths.rank = 10;
+    } else {
+        widths.rank = 0;
+    }
+    if (columns.ccode.hidden !== true) {
+        widths.ccode = 10;
+    } else {
+        widths.ccode = 0;
+    }
+    if (columns.value.width === undefined) {
+        widths.value = 95 - widths.decode - widths.rank - widths.ccode;
+    }
+    Object.keys(columns).forEach(columnName => {
+        if (Object.keys(widths).includes(columnName)) {
+            columns[columnName].width = widths[columnName].toString() + '%';
+        }
+    });
+};
 
 class ConnectedCodedValueTable extends React.Component {
     constructor(props) {
@@ -112,20 +134,123 @@ class ConnectedCodedValueTable extends React.Component {
             let standard = this.props.stdCodeLists[codeList.standardOid];
             stdCodeList = standard.codeLists[standard.nciCodeOids[codeList.alias.name]];
         }
+
+        // Columns
+        let columns = clone(this.props.stdColumns);
+
+        // Variables menu is not shown when selection is triggered
+        if (columns.hasOwnProperty('oid')) {
+            columns.oid.hidden = this.props.showRowSelect;
+        }
+
+        const editorFormatters = {
+            oid: {
+                dataFormat: this.menuFormatter,
+            },
+            value: {
+                customEditor: { getElement: codedValueEditor },
+            },
+            decode: {
+                customEditor: { getElement: simpleInputEditor },
+            },
+            rank: {
+                customEditor: { getElement: simpleInputEditor },
+            },
+            ccode: {
+                customEditor: { getElement: simpleInputEditor },
+            },
+        };
+
+        // Unite Columns with Editors and Formatters;
+        Object.keys(columns).forEach( id => {
+            columns[id] = { ...columns[id], ...editorFormatters[id] };
+        });
+        // Hide decode and ccode if there are not applicable;
+        if (codeList.codeListType !== 'decoded') {
+            columns.decode.hidden = true;
+        }
+        if (codeList.standardOid === undefined) {
+            columns.ccode.hidden = true;
+        }
+
+        setColumnWidth(columns);
+
         // Standard codelist
         this.state = {
+            columns,
             codeListVariables,
             stdCodeList,
-            selectedRows: [],
+            selectedRows         : [],
+            showSelectColumn     : false,
+            codedValueMenuParams : {},
+            codeListOid          : this.props.codeListOid,
+            setScrollY           : false,
         };
     }
 
-    componentDidMount() {
-        let tabs = this.props.tabs;
-        // Restore previous tab scroll position;
-        if (tabs.settings[tabs.currentTab].scrollPosition !== 0) {
-            window.scrollTo(0, tabs.settings[tabs.currentTab].scrollPosition);
+    static getDerivedStateFromProps(nextProps, prevState) {
+        let stateUpdate = {};
+        // Store previous itemGroupOid in state so it can be compared with when props change
+        if (nextProps.codeListOid !== prevState.codeListOid) {
+            stateUpdate.codeListOid = nextProps.codeListOid;
+            stateUpdate.setScrollY = true;
+            stateUpdate.selectedRows = [];
         }
+
+        let columns = getColumnHiddenStatus(prevState.columns, nextProps.tabSettings.columns, nextProps.showRowSelect);
+        if (!deepEqual(columns, prevState.columns)) {
+            stateUpdate.columns = columns;
+            if (nextProps.codeLists[nextProps.codeListOid].codeListType !== 'decoded') {
+                stateUpdate.columns.decode.hidden = true;
+            }
+            if (nextProps.codeLists[nextProps.codeListOid].standardOid === undefined) {
+                stateUpdate.columns.ccode.hidden = true;
+            }
+
+            setColumnWidth(stateUpdate.columns);
+        }
+
+        if (Object.keys(stateUpdate).length > 0) {
+            return ({ ...stateUpdate });
+        } else {
+            return null;
+        }
+    }
+
+    componentDidUpdate() {
+        if (this.state.setScrollY) {
+            // Restore previous tab scroll position for a specific dataset
+            let tabSettings = this.props.tabSettings;
+            if (tabSettings.scrollPosition[this.props.codeListOid] !== undefined) {
+                window.scrollTo(0, tabSettings.scrollPosition[this.props.codeListOid]);
+            } else {
+                window.scrollTo(0, 0);
+            }
+            this.setState({ setScrollY: false });
+        }
+    }
+
+    menuFormatter = (cell, row) => {
+        let codedValueMenuParams = {
+            oid         : row.oid,
+            codeListOid : this.props.codeListOid
+        };
+        return (
+            <IconButton
+                onClick={this.handleMenuOpen(codedValueMenuParams)}
+                color='default'
+            >
+                <MoreVertIcon/>
+            </IconButton>
+        );
+    }
+
+    handleMenuOpen = (codedValueMenuParams) => (event) => {
+        this.setState({ codedValueMenuParams, anchorEl: event.currentTarget });
+    }
+
+    handleMenuClose = () => {
+        this.setState({ codedValueMenuParams: {}, anchorEl: null });
     }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
@@ -177,16 +302,16 @@ class ConnectedCodedValueTable extends React.Component {
 
     createCustomButtonGroup = props => {
         return (
-            <ButtonGroup className='my-custom-class' sizeClass='btn-group-md'>
+            <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={16}>
                     <Grid item>
-                        { props.showSelectedOnlyBtn }
+                        <ToggleRowSelect oid='overall'/>
                     </Grid>
                     <Grid item>
                         { props.insertBtn }
                     </Grid>
                     <Grid item>
-                        <Button color='default' mini onClick={console.log}
+                        <Button color='default' mini onClick={console.log} disabled={!this.props.showRowSelect}
                             variant='raised'>
                             Copy
                         </Button>
@@ -208,9 +333,9 @@ class ConnectedCodedValueTable extends React.Component {
                 <Grid item style={{paddingRight: '25px'}}>
                     <Grid container spacing={16} justify='flex-end'>
                         <Grid item>
-                            <Button variant="raised" color="default">
-                                Filter
-                                <FilterListIcon style={{marginLeft: '7px'}}/>
+                            <Button variant="raised" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
+                                Columns
+                                <RemoveRedEyeIcon style={{marginLeft: '7px'}}/>
                             </Button>
                         </Grid>
                         <Grid item>
@@ -278,25 +403,9 @@ class ConnectedCodedValueTable extends React.Component {
         // Extract data required for the variable table
         const codeList = this.props.codeLists[this.props.codeListOid];
         // Get codeList data
-        let {codeListTable, codeListTitle, isDecoded, isRanked, isCcoded} = getCodeListData(codeList, this.props.defineVersion);
+        let {codeListTable, codeListTitle} = getCodeListData(codeList, this.props.defineVersion);
         codeListTable.codeList = codeList;
-        // Dynamically get column width;
-        let width = {};
-        width.value = {percent: 95};
-        if (isDecoded) {
-            width.decode = {percent: 50};
-            width.value.percent -= 50;
-        }
-        if (isRanked) {
-            width.rank = {percent: 10};
-            width.value.percent -= 10;
-        }
-        if (isCcoded) {
-            width.ccode = {percent: 10};
-            width.value.percent -= 10;
-        }
-
-
+        codeListTable.stdCodeList = this.state.stdCodeList;
 
         // Editor settings
         const cellEditProp = {
@@ -305,12 +414,17 @@ class ConnectedCodedValueTable extends React.Component {
             beforeSaveCell : this.onBeforeSaveCell
         };
 
-        const selectRowProp = {
-            mode        : 'checkbox',
-            columnWidth : '35px',
-            onSelect    : this.onRowSelected,
-            onSelectAll : this.onAllRowSelected,
-        };
+        let selectRowProp;
+        if (this.props.showRowSelect) {
+            selectRowProp = {
+                mode        : 'checkbox',
+                onSelect    : this.onRowSelected,
+                onSelectAll : this.onAllRowSelected,
+                columnWidth : '48px',
+            };
+        } else {
+            selectRowProp = undefined;
+        }
 
         const options = {
             toolBar   : this.createCustomToolBar,
@@ -319,62 +433,20 @@ class ConnectedCodedValueTable extends React.Component {
             btnGroup  : this.createCustomButtonGroup
         };
 
-        let columns = [
-            {
-                dataField : 'oid',
-                isKey     : true,
-                hidden    : true,
-            },
-            {
-                dataField    : 'value',
-                text         : 'Coded Value',
-                width        : width.value.percent.toString() + '%',
-                customEditor : { getElement: codedValueEditor, customEditorParameters: {stdCodeList: this.state.stdCodeList, codeList: this.props.codeLists[this.props.codeListOid]} },
-                tdStyle      : { whiteSpace: 'normal', width: '30px', overflow: 'inherit !important' },
-                thStyle      : { whiteSpace: 'normal', width: '30px' },
-            }];
-        if (isDecoded) {
-            columns.push(
-                {
-                    dataField    : 'decode',
-                    text         : 'Decode',
-                    width        : width.decode.percent.toString() + '%',
-                    customEditor : {getElement: simpleInputEditor},
-                    tdStyle      : { whiteSpace: 'normal' },
-                    thStyle      : { whiteSpace: 'normal' }
-                }
-            );
-        }
-        if (isRanked) {
-            columns.push(
-                {
-                    dataField    : 'rank',
-                    text         : 'Rank',
-                    width        : width.rank.percent.toString() + '%',
-                    customEditor : {getElement: simpleInputEditor},
-                    tdStyle      : { whiteSpace: 'normal' },
-                    thStyle      : { whiteSpace: 'normal' }
-                }
-            );
-        }
-        if (isCcoded) {
-            columns.push(
-                {
-                    dataField    : 'ccode',
-                    text         : 'C-code',
-                    width        : width.ccode.percent.toString() + '%',
-                    customEditor : {getElement: simpleInputEditor},
-                    tdStyle      : { whiteSpace: 'normal' },
-                    thStyle      : { whiteSpace: 'normal' },
-                    editable     : false,
-                }
-            );
-        }
-
         return (
             <React.Fragment>
                 <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
-                    {codeListTitle} {this.state.codeListVariables}
+                    {codeListTitle} 
+                    <Button
+                        color="default"
+                        variant='fab'
+                        mini
+                        onClick={this.props.openDrawer}
+                        className={this.props.classes.drawerButton}
+                    >
+                        <OpenDrawer/>
+                    </Button>
+                    {this.state.codeListVariables}
                 </h3>
                 <BootstrapTable
                     data={codeListTable}
@@ -386,12 +458,19 @@ class ConnectedCodedValueTable extends React.Component {
                     hover
                     version='4'
                     cellEdit={cellEditProp}
-                    keyBoardNav={{enterToEdit: true}}
+                    keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}
                     headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
                     selectRow={selectRowProp}
                 >
-                    {renderColumns(columns)}
+                    {renderColumns(this.state.columns)}
                 </BootstrapTable>
+                <CodedValueMenu onClose={this.handleMenuClose} codedValueMenuParams={this.state.codedValueMenuParams} anchorEl={this.state.anchorEl}/>
+                { this.state.showSelectColumn && (
+                    <SelectColumns
+                        onClose={ () => { this.setState({ showSelectColumn: false }); } }
+                    />
+                )
+                }
             </React.Fragment>
         );
     }

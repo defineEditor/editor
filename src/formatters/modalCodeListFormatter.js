@@ -47,10 +47,15 @@ class ModalCodeListFormatter extends React.Component {
         this.setState({ open: false });
     };
 
+    onDoubleClick = (event)  => {
+        // Stop propagation as otherwise will result in cell editing
+        event.stopPropagation();
+    }
+
     render () {
         const { codeListLabel, codeListOid, classes } = this.props;
         return (
-            <div>
+            <div onDoubleClick={this.onDoubleClick}>
                 <ButtonBase
                     onClick={this.handleOpen}
                     className={classes.button}
@@ -63,7 +68,7 @@ class ModalCodeListFormatter extends React.Component {
                     onClose={this.handleClose}
                 >
                     <Paper className={classes.paper} elevation={5}>
-                        <CodeListFormatter codeListOid={codeListOid}/>
+                        <CodeListFormatter codeListOid={codeListOid} onClose={this.handleClose}/>
                     </Paper>
                 </Modal>
             </div>

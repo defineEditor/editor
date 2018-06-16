@@ -4,19 +4,22 @@ import { connect } from 'react-redux';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import {
-    deleteCodeLists
+    deleteCodeLists,
+    selectGroup
 } from 'actions/index.js';
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        deleteCodeLists: (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
+        deleteCodeLists : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
+        selectGroup     : (updateObj) => dispatch(selectGroup(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        codeLists: state.odm.study.metaDataVersion.codeLists,
+        codeLists           : state.odm.study.metaDataVersion.codeLists,
+        codedValuesTabIndex : state.ui.tabs.tabNames.indexOf('Coded Values'),
     };
 };
 
@@ -40,6 +43,16 @@ class ConnectedCodeListMenu extends React.Component {
         this.props.onClose();
     }
 
+    editCodeListValues = () => {
+        let updateObj = {
+            tabIndex       : this.props.codedValuesTabIndex,
+            groupOid       : this.props.codeListMenuParams.codeListOid,
+            scrollPosition : {},
+        };
+        this.props.selectGroup(updateObj);
+        this.props.onClose();
+    }
+
     render() {
 
         return (
@@ -57,6 +70,9 @@ class ConnectedCodeListMenu extends React.Component {
                 >
                     <MenuItem key='Delete' onClick={this.deleteCodeList}>
                         Delete
+                    </MenuItem>
+                    <MenuItem key='EditCodelistValues' onClick={this.editCodeListValues}>
+                        Edit Codelist Values
                     </MenuItem>
                 </Menu>
             </React.Fragment>

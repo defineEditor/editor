@@ -178,7 +178,7 @@ const updateCodeListStandard = (state, action) => {
                     if (!deepEqual(codeList.codeListItems[itemOid].alias, standardCodeList.codeListItems[standardItemOid].alias)){
                         newCodeListItems[itemOid] = new CodeListItem({
                             ...codeList.codeListItems[itemOid],
-                            alias : new Alias({ ...standardCodeList.codeListItems[standardItemOid].alias }),
+                            alias: new Alias({ ...standardCodeList.codeListItems[standardItemOid].alias }),
                         });
                     } else {
                         newCodeListItems[itemOid] = codeList.codeListItems[itemOid];
@@ -206,7 +206,7 @@ const updateCodeListStandard = (state, action) => {
                     if (!deepEqual(codeList.enumeratedItems[itemOid].alias, standardCodeList.codeListItems[standardItemOid].alias)){
                         newEnumeratedItems[itemOid] = new EnumeratedItem({
                             ...codeList.enumeratedItems[itemOid],
-                            alias : new Alias({ ...standardCodeList.codeListItems[standardItemOid].alias }),
+                            alias: new Alias({ ...standardCodeList.codeListItems[standardItemOid].alias }),
                         });
                     } else {
                         newEnumeratedItems[itemOid] = codeList.enumeratedItems[itemOid];
