@@ -529,6 +529,7 @@ class MetaDataVersion extends BasicFunctions {
         supplementalDoc = {},
         descriptions = [],
         itemGroupOrder = [],
+        codeListOrder = [],
     } = {}) {
         super();
         this.oid = oid || getOid(this.constructor.name);
@@ -550,6 +551,7 @@ class MetaDataVersion extends BasicFunctions {
         this.leafs = leafs;
         // Non-define XML properties
         this.itemGroupOrder = itemGroupOrder;
+        this.codeListOrder = codeListOrder;
         this.model = model;
         this.lang = lang;
     }
