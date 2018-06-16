@@ -2,7 +2,7 @@ import {
     UI_CHANGETAB,
     UI_TOGGLEROWSELECT,
     UI_SETVLMSTATE,
-    UI_SELECTDATASET,
+    UI_SELECTGROUP,
     UI_SELECTCOLUMNS,
 } from "constants/action-types";
 
@@ -29,9 +29,9 @@ export const setVlmState = (source, updateObj) => (
     }
 );
 
-export const selectDataset = (updateObj) => (
+export const selectGroup = (updateObj) => (
     {
-        type: UI_SELECTDATASET,
+        type: UI_SELECTGROUP,
         updateObj,
     }
 );

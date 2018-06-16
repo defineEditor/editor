@@ -195,15 +195,7 @@ class ConnectedCodeListTable extends React.Component {
             let updateObj = {};
             if (cellName === 'linkedCodeList') {
                 // Find codelistId by name
-                updateObj['linkedCodeListOid'] = undefined;
-                Object.keys(this.props.codeLists).some( codeListOid => {
-                    if (this.props.codeLists[codeListOid].name === cellValue) {
-                        updateObj['linkedCodeListOid'] = codeListOid;
-                        return true;
-                    } else {
-                        return false;
-                    }
-                });
+                updateObj['linkedCodeListOid'] = cellValue;
                 this.props.updateCodeList(row.oid, updateObj);
             } else if (cellName === 'standardData') {
                 if (!deepEqual(cellValue, row[cellName])) {

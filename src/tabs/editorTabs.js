@@ -6,9 +6,8 @@ import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import StandardTable from 'tabs/standardTab.js';
 import DatasetTable from 'tabs/datasetTab.js';
-import VariableTab from 'tabs/variableTab.js';
 import CodeListTable from 'tabs/codeListTab.js';
-import CodedValueTable from 'tabs/codedValueTab.js';
+import GroupTab from 'tabs/groupTab.js';
 import DocumentTab from 'tabs/documentTab.js';
 import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme, withStyles } from '@material-ui/core/styles';
@@ -87,23 +86,6 @@ class ConnectedEditorTabs extends React.Component {
         }
     }
 
-    generateCodeListTables = () => {
-        // Sort codeLists according to the orderNumber
-        const codeLists = this.props.codeLists;
-        let codeListOids = Object.keys(codeLists);
-        // Show only enumerated and decoded codelists
-        let result = codeListOids
-            .filter(codeListOid => (codeLists[codeListOid].codeListType !== 'external'))
-            .map(codeListOid => {
-                return (
-                    <div key={codeListOid}>
-                        <CodedValueTable codeListOid={codeListOid}/>
-                    </div>
-                );
-            });
-        return result;
-    }
-
     onKeyDown = (event)  => {
         if (event.ctrlKey && (event.keyCode === 49)) {
             this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Variables'));
@@ -157,9 +139,9 @@ class ConnectedEditorTabs extends React.Component {
                         <br/>
                         {tabNames[currentTab] === 'Standards' && <StandardTable/>}
                         {tabNames[currentTab] === 'Datasets' && <DatasetTable/>}
-                        {tabNames[currentTab] === 'Variables' && <VariableTab/>}
+                        {tabNames[currentTab] === 'Variables' && <GroupTab groupClass='Variables'/>}
                         {tabNames[currentTab] === 'Codelists' && <CodeListTable/>}
-                        {tabNames[currentTab] === 'Coded Values' && this.generateCodeListTables()}
+                        {tabNames[currentTab] === 'Coded Values' && <GroupTab groupClass='Coded Values'/>}
                         {tabNames[currentTab] === 'Documents' && <DocumentTab/>}
                     </TabContainer>
                 </div>

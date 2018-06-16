@@ -2,7 +2,7 @@ import {
     UI_CHANGETAB,
     UI_TOGGLEROWSELECT,
     UI_SETVLMSTATE,
-    UI_SELECTDATASET,
+    UI_SELECTGROUP,
     UI_SELECTCOLUMNS,
 } from "../constants/action-types";
 import stdColumns from 'constants/columns';
@@ -27,7 +27,7 @@ const generateInitialState = () => {
         if (['Variables', 'Coded Values'].includes(tabNames[i])) {
             settings[i].vlmState = {};
             settings[i].scrollPosition = {};
-            settings[i].itemGroupOid = undefined;
+            settings[i].groupOid = undefined;
         }
         // Column state
         if (['Variables','Codelists'].includes(tabNames[i])) {
@@ -101,15 +101,15 @@ const toggleRowSelect = (state, action) => {
     };
 };
 
-const selectDataset = (state, action) => {
-    let tabIndex = state.tabNames.indexOf('Variables');
+const selectGroup = (state, action) => {
+    let tabIndex = action.updateObj.tabIndex;
     let newSettings = state.settings.slice();
-    let newDatasetScrollPositions = { ...state.settings[tabIndex].scrollPosition, ...action.updateObj.scrollPosition };
-    // Row select is disabled when dataset is changed. Otherwise old selection will be shown for the new dataset
+    let newScrollPositions = { ...state.settings[tabIndex].scrollPosition, ...action.updateObj.scrollPosition };
+    // Row select is disabled when group is changed. Otherwise old selection will be shown for the new group.
     let newSetting = {
         ...state.settings[tabIndex],
-        itemGroupOid   : action.updateObj.itemGroupOid,
-        scrollPosition : newDatasetScrollPositions,
+        groupOid       : action.updateObj.groupOid,
+        scrollPosition : newScrollPositions,
         rowSelect      : { overall: false },
     };
     newSettings.splice(tabIndex, 1, newSetting);
@@ -145,8 +145,8 @@ const tabs = (state = initialState, action) => {
             return toggleRowSelect(state, action);
         case UI_SETVLMSTATE:
             return setVlmState(state, action);
-        case UI_SELECTDATASET:
-            return selectDataset(state, action);
+        case UI_SELECTGROUP:
+            return selectGroup(state, action);
         case UI_SELECTCOLUMNS:
             return selectColumns(state, action);
         default:

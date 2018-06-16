@@ -8,10 +8,11 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import Drawer from '@material-ui/core/Drawer';
 import VariableTable from 'tabs/variableTable.js';
+import CodedValueTable from 'tabs/codedValueTable.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 
 import {
-    selectDataset,
+    selectGroup,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -32,17 +33,27 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        selectDataset: (updateObj) => dispatch(selectDataset(updateObj)),
+        selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
     };
 };
 
-const mapStateToProps = state => {
-    let tabIndex = state.ui.tabs.tabNames.indexOf('Variables');
+const mapStateToProps = (state, props) => {
+    let tabIndex = state.ui.tabs.tabNames.indexOf(props.groupClass);
+    let groups;
+    let groupOrder;
+    if (props.groupClass === 'Coded Values') {
+        groupOrder = state.odm.study.metaDataVersion.codeListOrder;
+        groups = state.odm.study.metaDataVersion.codeLists;
+    } else if (props.groupClass === 'Variables') {
+        groupOrder = state.odm.study.metaDataVersion.itemGroupOrder;
+        groups = state.odm.study.metaDataVersion.itemGroups;
+    }
     return {
-        itemGroupOrder : state.odm.study.metaDataVersion.itemGroupOrder,
-        itemGroups     : state.odm.study.metaDataVersion.itemGroups,
-        itemGroupOid   : state.ui.tabs.settings[tabIndex].itemGroupOid,
-        tabs           : state.ui.tabs,
+        groups,
+        groupOrder,
+        tabIndex,
+        groupOid : state.ui.tabs.settings[tabIndex].groupOid,
+        tabs     : state.ui.tabs,
     };
 };
 
@@ -66,15 +77,15 @@ class ConnectedVariableTab extends React.Component {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
-    selectDataset = (itemGroupOid) => () => {
-        if (this.props.itemGroupOid !== itemGroupOid) {
+    selectGroup = (groupOid) => () => {
+        if (this.props.groupOid !== groupOid) {
             let scrollPosition = {};
-            if (this.props.itemGroupOid === undefined) {
-                scrollPosition = { [this.props.itemGroupOrder[0]]: window.scrollY };
+            if (this.props.groupOid === undefined) {
+                scrollPosition = { [this.props.groupOrder[0]]: window.scrollY };
             } else {
-                scrollPosition = { [this.props.itemGroupOid]: window.scrollY };
+                scrollPosition = { [this.props.groupOid]: window.scrollY };
             }
-            this.props.selectDataset({ itemGroupOid, scrollPosition });
+            this.props.selectGroup({ groupOid, scrollPosition, tabIndex: this.props.tabIndex });
         }
         this.toggleDrawer(false);
     }
@@ -87,22 +98,22 @@ class ConnectedVariableTab extends React.Component {
         }
     }
 
-    getDatasetList = (currentItemGroupOid) => {
-        let result = this.props.itemGroupOrder.map(itemGroupOid => {
-            if (itemGroupOid === currentItemGroupOid) {
+    getGroupList = (currentGroupOid) => {
+        let result = this.props.groupOrder.map(groupOid => {
+            if (groupOid === currentGroupOid) {
                 return (
-                    <ListItem button key={itemGroupOid} onClick={this.selectDataset(itemGroupOid)} className={this.props.classes.currentLine}>
+                    <ListItem button key={groupOid} onClick={this.selectGroup(groupOid)} className={this.props.classes.currentLine}>
                         <ListItemText primary={
                             <span className={this.props.classes.currentItem}>
-                                {this.props.itemGroups[itemGroupOid].name}
+                                {this.props.groups[groupOid].name}
                             </span>
                         }/>
                     </ListItem>
                 );
             } else {
                 return (
-                    <ListItem button key={itemGroupOid} onClick={this.selectDataset(itemGroupOid)}>
-                        <ListItemText primary={this.props.itemGroups[itemGroupOid].name}/>
+                    <ListItem button key={groupOid} onClick={this.selectGroup(groupOid)}>
+                        <ListItemText primary={this.props.groups[groupOid].name}/>
                     </ListItem>
                 );
             }
@@ -119,17 +130,17 @@ class ConnectedVariableTab extends React.Component {
     render() {
         const { classes } = this.props;
 
-        let itemGroupOid;
+        let groupOid;
 
-        if (this.props.itemGroupOid !== undefined && this.props.itemGroupOrder.includes(this.props.itemGroupOid)) {
-            itemGroupOid = this.props.itemGroupOid;
-        } else if (this.props.itemGroupOrder.length > 0) {
-            itemGroupOid = this.props.itemGroupOrder[0];
+        if (this.props.groupOid !== undefined && this.props.groupOrder.includes(this.props.groupOid)) {
+            groupOid = this.props.groupOid;
+        } else if (this.props.groupOrder.length > 0) {
+            groupOid = this.props.groupOrder[0];
         }
 
         return (
             <React.Fragment>
-                { (itemGroupOid !== undefined) ? (
+                { (groupOid !== undefined) ? (
                     <div
                         tabIndex='0'
                         ref={this.rootRef}
@@ -141,17 +152,27 @@ class ConnectedVariableTab extends React.Component {
                                 role="button"
                             >
                                 <div className={classes.list}>
-                                    <List subheader={<ListSubheader disableSticky>Datasets</ListSubheader>}>
-                                        {this.getDatasetList(itemGroupOid)}
+                                    <List subheader={<ListSubheader disableSticky>Codelists</ListSubheader>}>
+                                        {this.getGroupList(groupOid)}
                                     </List>
                                 </div>
                             </div>
                         </Drawer>
-                        <VariableTable itemGroupOid={itemGroupOid} openDrawer={() => this.toggleDrawer()}/>
+                        { this.props.groupClass === 'Variables' &&
+                            <VariableTable itemGroupOid={groupOid} openDrawer={() => this.toggleDrawer()}/>
+                        }
+                        { this.props.groupClass === 'Coded Values' &&
+                            <CodedValueTable codeListOid={groupOid} openDrawer={() => this.toggleDrawer()}/>
+                        }
                     </div>
                 ) : (
                     <div>
-                        No Datasets
+                        { this.props.groupClass === 'Variables' &&
+                                <div>No Datasets</div>
+                        }
+                        { this.props.groupClass === 'Coded Values' &&
+                                <div>No Codelists</div>
+                        }
                     </div>
                 )
                 }
@@ -161,9 +182,11 @@ class ConnectedVariableTab extends React.Component {
 }
 
 ConnectedVariableTab.propTypes = {
-    classes        : PropTypes.object.isRequired,
-    itemGroups     : PropTypes.object.isRequired,
-    itemGroupOrder : PropTypes.array.isRequired,
+    classes    : PropTypes.object.isRequired,
+    groups     : PropTypes.object.isRequired,
+    groupOrder : PropTypes.array.isRequired,
+    groupOid   : PropTypes.string,
+    groupClass : PropTypes.string.isRequired,
 };
 
 const VariableTab = connect(mapStateToProps, mapDispatchToProps)(ConnectedVariableTab);

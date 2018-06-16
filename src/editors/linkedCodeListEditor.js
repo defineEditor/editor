@@ -23,20 +23,21 @@ class ConnectedLinkedCodeListEditor extends React.Component {
         return Object.keys(this.props.codeLists).filter( codeListOid => {
             return this.props.codeLists[codeListOid].codeListType === linkedCodeListType;
         }).map( codeListOid => {
-            return this.props.codeLists[codeListOid].name;
+            if (this.props.codeLists[codeListOid].linkedCodeListOid !== undefined) {
+                return {[this.props.codeLists[codeListOid].oid]: this.props.codeLists[codeListOid].name + ' (Linked)'};
+            } else {
+                return {[this.props.codeLists[codeListOid].oid]: this.props.codeLists[codeListOid].name};
+            }
         });
     }
 
     render () {
+        // If it is not a enumeration or decoded codelist, just exit editing.
+        if (this.props.row.codeListType !== 'decoded' && this.props.row.codeListType !== 'enumerated') {
+            this.props.onUpdate(this.props.defaultValue);
+        }
         return (
-            <React.Fragment>
-                {(this.props.row.codeListType === 'decoded' || this.props.row.codeListType === 'enumerated') ? (
-                    <SimpleSelectEditor options={this.getLinkableCodelists(this.props.row.codeListType)} optional={true} onUpdate={this.props.onUpdate}/>
-                ) : (
-                    <div>Linked codelists are not applicable.</div>
-                )
-                }
-            </React.Fragment>
+            <SimpleSelectEditor options={this.getLinkableCodelists(this.props.row.codeListType)} optional={true} onUpdate={this.props.onUpdate}/>
         );
     }
 }
