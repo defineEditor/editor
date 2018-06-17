@@ -47,7 +47,33 @@ const updateLinkedCodeList = (state, action) => {
     let newState = { ...state };
     // Newly linked codeList;
     let linkedCodeListOid = action.updateObj.linkedCodeListOid;
-    let newCodeList = new CodeList({...state[action.oid], ...action.updateObj});
+    let newCodeList;
+    // If source codelist is an enumerated codelist, then updated all enumerated items using decodes of the linked codelist
+    if (state[action.oid].codeListType === 'enumerated' && linkedCodeListOid !== undefined) {
+        let linkedCodeList = state[linkedCodeListOid];
+        let newEnumeratedItems = {};
+        Object.keys(linkedCodeList.codeListItems).forEach( itemOid => {
+            let enumeratedItem = { ...linkedCodeList.codeListItems[itemOid] };
+            delete enumeratedItem.codedValue;
+            delete enumeratedItem.alias;
+            enumeratedItem.codedValue = enumeratedItem.decodes[0].value;
+            delete enumeratedItem.decodes;
+
+            newEnumeratedItems[itemOid] = new EnumeratedItem({ ...enumeratedItem });
+        });
+        // Populate alias, action.updateObj.standardCodelist always corresponds to a standard codeList of enumerated codelist in the linked pair
+        if (action.updateObj.standardCodeList !== undefined) {
+            newEnumeratedItems = getItemsWithAliasExtendedValue(newEnumeratedItems, action.updateObj.standardCodeList, 'enumerated');
+        }
+        newCodeList = new CodeList({
+            ...state[action.oid],
+            linkedCodeListOid,
+            enumeratedItems : newEnumeratedItems,
+            itemOrder       : linkedCodeList.itemOrder.slice()
+        });
+    } else {
+        newCodeList = new CodeList({...state[action.oid], linkedCodeListOid});
+    }
 
     // Previously linked codelist;
     let prevLinkedCodeListOid = state[action.oid].linkedCodeListOid;
@@ -83,7 +109,33 @@ const updateLinkedCodeList = (state, action) => {
             };
         }
         // Add backward link to the linked codelist
-        let newLinkedCodeList = new CodeList({...state[action.updateObj.linkedCodeListOid], linkedCodeListOid: action.oid});
+        // If linked codelist is an enumerated codelist, then updated all enumerated items using decodes of the source codelist
+        let newLinkedCodeList;
+        if (linkedCodeListOid !== undefined && state[linkedCodeListOid].codeListType === 'enumerated') {
+            let sourceCodeList = state[action.oid];
+            let newEnumeratedItems = {};
+            Object.keys(sourceCodeList.codeListItems).forEach( itemOid => {
+                let enumeratedItem = { ...sourceCodeList.codeListItems[itemOid] };
+                delete enumeratedItem.codedValue;
+                delete enumeratedItem.alias;
+                enumeratedItem.codedValue = enumeratedItem.decodes[0].value;
+                delete enumeratedItem.decodes;
+
+                newEnumeratedItems[itemOid] = new EnumeratedItem({ ...enumeratedItem });
+            });
+            // Populate alias, action.updateObj.standardCodelist always corresponds to a standard codeList of enumerated codelist in the linked pair
+            if (action.updateObj.standardCodeList !== undefined) {
+                newEnumeratedItems = getItemsWithAliasExtendedValue(newEnumeratedItems, action.updateObj.standardCodeList, 'enumerated');
+            }
+            newLinkedCodeList = new CodeList({
+                ...state[linkedCodeListOid],
+                linkedCodeListOid : action.oid,
+                enumeratedItems   : newEnumeratedItems,
+                itemOrder         : sourceCodeList.itemOrder.slice(),
+            });
+        } else {
+            newLinkedCodeList = new CodeList({...state[linkedCodeListOid], linkedCodeListOid: action.oid});
+        }
         return {
             ...newState,
             [action.oid]        : newCodeList,
@@ -153,6 +205,53 @@ const updateCodeListType = (state, action) => {
     }
 };
 
+const getItemsWithAliasExtendedValue = (sourceItems, standardCodeList, codeListType) => {
+    // Get enumeratedItems/codeListItems and populate Alias and ExtendedValue for each of the items
+    let newItems = {};
+    let standardCodedValues = getCodedValuesAsArray(standardCodeList);
+    Object.keys(sourceItems).forEach( itemOid => {
+        if (standardCodedValues.includes(sourceItems[itemOid].codedValue)) {
+            // Add alias from the standard codelist if it is different
+            let standardItemOid = Object.keys(standardCodeList.codeListItems)[standardCodedValues.indexOf(sourceItems[itemOid].codedValue)];
+            if (!deepEqual(sourceItems[itemOid].alias, standardCodeList.codeListItems[standardItemOid].alias)){
+                if (codeListType === 'enumerated') {
+                    newItems[itemOid] = new EnumeratedItem({
+                        ...sourceItems[itemOid],
+                        alias: new Alias({ ...standardCodeList.codeListItems[standardItemOid].alias }),
+                    });
+                } else if (codeListType === 'decoded') {
+                    newItems[itemOid] = new CodeListItem({
+                        ...sourceItems[itemOid],
+                        alias: new Alias({ ...standardCodeList.codeListItems[standardItemOid].alias }),
+                    });
+                }
+            } else {
+                newItems[itemOid] = sourceItems[itemOid];
+            }
+        } else {
+            // Check if the extendedValue attribute is set
+            if (sourceItems[itemOid].extendedValue === 'Y') {
+                newItems[itemOid] = sourceItems[itemOid];
+            } else {
+                if (codeListType === 'enumerated') {
+                    newItems[itemOid] = new EnumeratedItem({
+                        ...sourceItems[itemOid],
+                        alias         : undefined,
+                        extendedValue : 'Y',
+                    });
+                } else if (codeListType === 'decoded') {
+                    newItems[itemOid] = new CodeListItem({
+                        ...sourceItems[itemOid],
+                        alias         : undefined,
+                        extendedValue : 'Y',
+                    });
+                }
+            }
+        }
+    });
+    return newItems;
+};
+
 const updateCodeListStandard = (state, action) => {
     // action.oid - codelist oid
     // action.updateObj - standardOid, alias, cdiscSubmissionValue, standardCodeList
@@ -168,62 +267,10 @@ const updateCodeListStandard = (state, action) => {
     if (standardCodeList !== undefined) {
         // TODO: When classes are removed, the below fork for decoded/enumerated should be removed as in this case code for
         // codeListItems and enumeratedItems will be the same
-        let standardCodedValues = getCodedValuesAsArray(standardCodeList);
         if (codeList.codeListType === 'decoded') {
-            newCodeListItems = {};
-            Object.keys(codeList.codeListItems).forEach( itemOid => {
-                if (standardCodedValues.includes(codeList.codeListItems[itemOid].codedValue)) {
-                    // Add alias from the standard codelist if it is different
-                    let standardItemOid = Object.keys(standardCodeList.codeListItems)[standardCodedValues.indexOf(codeList.codeListItems[itemOid].codedValue)];
-                    if (!deepEqual(codeList.codeListItems[itemOid].alias, standardCodeList.codeListItems[standardItemOid].alias)){
-                        newCodeListItems[itemOid] = new CodeListItem({
-                            ...codeList.codeListItems[itemOid],
-                            alias: new Alias({ ...standardCodeList.codeListItems[standardItemOid].alias }),
-                        });
-                    } else {
-                        newCodeListItems[itemOid] = codeList.codeListItems[itemOid];
-                    }
-                } else {
-                    // Check if the extendedValue attribute is set
-                    if (codeList.codeListItems[itemOid].extendedValue === 'Y') {
-                        newCodeListItems[itemOid] = codeList.codeListItems[itemOid];
-                    } else {
-                        newCodeListItems[itemOid] = new CodeListItem({
-                            ...codeList.codeListItems[itemOid],
-                            alias         : undefined,
-                            extendedValue : 'Y',
-                        });
-                    }
-                    newCodeListItems[itemOid] = codeList.codeListItems[itemOid];
-                }
-            });
+            newCodeListItems = getItemsWithAliasExtendedValue(codeList.codeListItems, standardCodeList, codeList.codeListType);
         } else if (codeList.codeListType === 'enumerated') {
-            newEnumeratedItems = {};
-            Object.keys(codeList.enumeratedItems).forEach( itemOid => {
-                if (standardCodedValues.includes(codeList.enumeratedItems[itemOid].codedValue)) {
-                    // Add alias from the standard codelist if it is different
-                    let standardItemOid = Object.keys(standardCodeList.codeListItems)[standardCodedValues.indexOf(codeList.enumeratedItems[itemOid].codedValue)];
-                    if (!deepEqual(codeList.enumeratedItems[itemOid].alias, standardCodeList.codeListItems[standardItemOid].alias)){
-                        newEnumeratedItems[itemOid] = new EnumeratedItem({
-                            ...codeList.enumeratedItems[itemOid],
-                            alias: new Alias({ ...standardCodeList.codeListItems[standardItemOid].alias }),
-                        });
-                    } else {
-                        newEnumeratedItems[itemOid] = codeList.enumeratedItems[itemOid];
-                    }
-                } else {
-                    // Check if the extendedValue attribute is set
-                    if (codeList.enumeratedItems[itemOid].extendedValue === 'Y') {
-                        newEnumeratedItems[itemOid] = codeList.enumeratedItems[itemOid];
-                    } else {
-                        newEnumeratedItems[itemOid] = new EnumeratedItem({
-                            ...codeList.enumeratedItems[itemOid],
-                            alias         : undefined,
-                            extendedValue : 'Y',
-                        });
-                    }
-                }
-            });
+            newEnumeratedItems = getItemsWithAliasExtendedValue(codeList.enumeratedItems, standardCodeList, codeList.codeListType);
         }
     } else {
         // If the standard was removed, remove all alias/extendedValue elements
@@ -382,7 +429,7 @@ const addCodedValue = (state, action) => {
     return { ...state, [action.codeListOid]: newCodeList };
 };
 
-const deleteCodedValues = (state, action) => {
+const deleteCodedValues = (state, action, doNotRecurse) => {
     // action.codeListOid - OID of the codelist
     // action.deletedOids - list of OIDs which are removed
     let codeList = state[action.codeListOid];
@@ -391,7 +438,7 @@ const deleteCodedValues = (state, action) => {
         let newCodeListItems = { ...codeList.codeListItems };
         let newItemOrder = codeList.itemOrder.slice();
         action.deletedOids.forEach( deletedOid => {
-            delete newCodeListItems.deletedOid;
+            delete newCodeListItems[deletedOid];
             newItemOrder.splice(newItemOrder.indexOf(deletedOid),1);
         });
         newCodeList = new CodeList({ ...state[action.codeListOid], codeListItems: newCodeListItems, itemOrder: newItemOrder });
@@ -399,7 +446,7 @@ const deleteCodedValues = (state, action) => {
         let newEnumeratedItems = { ...codeList.enumeratedItems };
         let newItemOrder = codeList.itemOrder.slice();
         action.deletedOids.forEach( deletedOid => {
-            delete newEnumeratedItems.deletedOid;
+            delete newEnumeratedItems[deletedOid];
             newItemOrder.splice(newItemOrder.indexOf(deletedOid),1);
         });
         newCodeList = new CodeList({ ...state[action.codeListOid], enumeratedItems: newEnumeratedItems, itemOrder: newItemOrder });
@@ -408,7 +455,18 @@ const deleteCodedValues = (state, action) => {
         // No coded values for the external codelists
         return state;
     }
-    return { ...state, [action.codeListOid]: newCodeList };
+    // If there is a linked codelist, delete values from it as well
+    if (codeList.linkedCodeListOid !== undefined && doNotRecurse !== true) {
+        let subAction = {};
+        subAction.codeListOid = codeList.linkedCodeListOid;
+        // Linked codelists have identical OIDs for items
+        subAction.deletedOids = action.deletedOids;
+        let newState = deleteCodedValues(state, subAction, true);
+        return { ...newState, [action.codeListOid]: newCodeList };
+
+    } else {
+        return { ...state, [action.codeListOid]: newCodeList };
+    }
 };
 
 const deleteCodeListReferences = (state, action, type) => {
