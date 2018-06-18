@@ -51,7 +51,7 @@ const styles = theme => ({
 const mapDispatchToProps = dispatch => {
     return {
         updateCodedValue   : (source, updateObj) => dispatch(updateCodedValue(source, updateObj)),
-        addBlankCodedValue : (codeListOid) => dispatch(addCodedValue(codeListOid,'')),
+        addBlankCodedValue : (codeListOid) => dispatch(addCodedValue(codeListOid,{codedValue: '', orderNumber: undefined})),
         deleteCodedValues  : (codeListOid, deletedOids) => dispatch(deleteCodedValues(codeListOid, deletedOids)),
     };
 };
@@ -98,7 +98,7 @@ const setColumnWidth = (columns) => {
         widths.ccode = 0;
     }
     if (columns.value.width === undefined) {
-        widths.value = 95 - widths.decode - widths.rank - widths.ccode;
+        widths.value = 99 - widths.decode - widths.rank - widths.ccode;
     }
     Object.keys(columns).forEach(columnName => {
         if (Object.keys(widths).includes(columnName)) {
@@ -110,30 +110,7 @@ const setColumnWidth = (columns) => {
 class ConnectedCodedValueTable extends React.Component {
     constructor(props) {
         super(props);
-        const itemGroups = this.props.itemGroups;
         const codeList = this.props.codeLists[this.props.codeListOid];
-        // Get list of variables which are using the codelist;
-        let codeListVariables = [];
-
-        codeList.sources.itemDefs.forEach( itemDefOid => {
-            let itemDef = this.props.itemDefs[itemDefOid];
-            itemDef.sources.itemGroups.forEach(itemGroupOid => {
-                codeListVariables.push(
-                    <Chip
-                        label={itemGroups[itemGroupOid].name + '.' + itemDef.name}
-                        key={itemGroups[itemGroupOid].oid + '.' + itemDef.oid}
-                        className={this.props.classes.chip}
-                    />
-                );
-            });
-        });
-
-        // Get standard codelist
-        let stdCodeList;
-        if (codeList.alias !== undefined && codeList.standardOid !== undefined && codeList.alias.context === 'nci:ExtCodeID') {
-            let standard = this.props.stdCodeLists[codeList.standardOid];
-            stdCodeList = standard.codeLists[standard.nciCodeOids[codeList.alias.name]];
-        }
 
         // Columns
         let columns = clone(this.props.stdColumns);
@@ -178,8 +155,6 @@ class ConnectedCodedValueTable extends React.Component {
         // Standard codelist
         this.state = {
             columns,
-            codeListVariables,
-            stdCodeList,
             selectedRows         : [],
             showSelectColumn     : false,
             codedValueMenuParams : {},
@@ -317,7 +292,15 @@ class ConnectedCodedValueTable extends React.Component {
                         </Button>
                     </Grid>
                     <Grid item>
-                        { props.deleteBtn }
+                        <Button
+                            color='secondary'
+                            mini
+                            onClick={this.deleteRows}
+                            disabled={!this.props.showRowSelect}
+                            variant='raised'
+                        >
+                            Delete
+                        </Button>
                     </Grid>
                 </Grid>
             </ButtonGroup>
@@ -362,12 +345,6 @@ class ConnectedCodedValueTable extends React.Component {
         }
     }
 
-    createCustomDeleteButton = (onBtnClick) => {
-        return (
-            <Button color='secondary' mini onClick={this.deleteRows} variant='raised'>Delete</Button>
-        );
-    }
-
     // Row Selection functions
     onRowSelected = (row, isSelected, event) => {
         let selectedRows = this.state.selectedRows;
@@ -402,10 +379,35 @@ class ConnectedCodedValueTable extends React.Component {
     render () {
         // Extract data required for the variable table
         const codeList = this.props.codeLists[this.props.codeListOid];
+        const itemGroups = this.props.itemGroups;
+        // Get list of variables which are using the codelist;
+        let codeListVariables = [];
+
+        codeList.sources.itemDefs.forEach( itemDefOid => {
+            let itemDef = this.props.itemDefs[itemDefOid];
+            itemDef.sources.itemGroups.forEach(itemGroupOid => {
+                codeListVariables.push(
+                    <Chip
+                        label={itemGroups[itemGroupOid].name + '.' + itemDef.name}
+                        key={itemGroups[itemGroupOid].oid + '.' + itemDef.oid}
+                        className={this.props.classes.chip}
+                    />
+                );
+            });
+        });
+
+        // Get standard codelist
+        let stdCodeList;
+        if (codeList.alias !== undefined && codeList.standardOid !== undefined && codeList.alias.context === 'nci:ExtCodeID') {
+            let standard = this.props.stdCodeLists[codeList.standardOid];
+            stdCodeList = standard.codeLists[standard.nciCodeOids[codeList.alias.name]];
+        }
         // Get codeList data
         let {codeListTable, codeListTitle} = getCodeListData(codeList, this.props.defineVersion);
-        codeListTable.codeList = codeList;
-        codeListTable.stdCodeList = this.state.stdCodeList;
+        codeListTable.forEach(item => {
+            item.codeList = codeList;
+            item.stdCodeList = stdCodeList;
+        });
 
         // Editor settings
         const cellEditProp = {
@@ -429,7 +431,6 @@ class ConnectedCodedValueTable extends React.Component {
         const options = {
             toolBar   : this.createCustomToolBar,
             insertBtn : this.createCustomInsertButton,
-            deleteBtn : this.createCustomDeleteButton,
             btnGroup  : this.createCustomButtonGroup
         };
 
@@ -446,7 +447,7 @@ class ConnectedCodedValueTable extends React.Component {
                     >
                         <OpenDrawer/>
                     </Button>
-                    {this.state.codeListVariables}
+                    {codeListVariables}
                 </h3>
                 <BootstrapTable
                     data={codeListTable}

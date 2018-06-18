@@ -4,6 +4,7 @@ import {
     UPD_CODELIST,
     UPD_CODELISTSTD,
     DEL_CODELISTS,
+    UPD_CODELISTORDER,
     UPD_CODELISTSTDOIDS,
     UPD_CODEDVALUE,
     ADD_CODEDVALUE,
@@ -41,6 +42,13 @@ export const deleteCodeLists = (deleteObj) => (
     }
 );
 
+export const updateCodeListOrder = (codeListOrder) => (
+    {
+        type: UPD_CODELISTORDER,
+        codeListOrder,
+    }
+);
+
 export const updateCodeListStandardOids = (updateObj) => (
     {
         type: UPD_CODELISTSTDOIDS,
@@ -56,11 +64,11 @@ export const updateCodedValue = (source, updateObj) => (
     }
 );
 
-export const addCodedValue = (codeListOid, codedValue) => (
+export const addCodedValue = (codeListOid, updateObj) => (
     {
         type: ADD_CODEDVALUE,
         codeListOid,
-        codedValue,
+        updateObj,
     }
 );
 

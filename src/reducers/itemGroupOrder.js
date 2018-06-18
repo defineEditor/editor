@@ -15,7 +15,6 @@ const updateItemGroupOrder = (state, action) => {
     return newState;
 };
 
-
 const deleteItemGroups = (state, action) => {
     // action.deleteObj.itemGroupOids - oids to remove;
     let newItemGroupOrder = state.slice();

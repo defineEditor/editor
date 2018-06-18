@@ -3,6 +3,7 @@ import itemGroupOrder from 'reducers/itemGroupOrder.js';
 import itemDefs from 'reducers/itemDefs.js';
 import comments from 'reducers/comments.js';
 import codeLists from 'reducers/codeLists.js';
+import codeListOrder from 'reducers/codeListOrder.js';
 import methods from 'reducers/methods.js';
 import standards from 'reducers/standards.js';
 import supplementalDoc from 'reducers/supplementalDoc.js';
@@ -38,6 +39,7 @@ const metaDataVersion = (state = initialState, action) => {
             methods         : methods(state.methods, action),
             comments        : comments(state.comments, action),
             codeLists       : codeLists(state.codeLists, action),
+            codeListOrder   : codeListOrder(state.codeListOrder, action),
             leafs           : leafs(state.leafs, action),
         });
     } else {

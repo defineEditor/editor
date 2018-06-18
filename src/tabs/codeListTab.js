@@ -17,6 +17,7 @@ import IconButton from '@material-ui/core/IconButton';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
+import CodeListOrderEditor from 'editors/codeListOrderEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import LinkedCodeListEditor from 'editors/linkedCodeListEditor.js';
@@ -48,6 +49,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
     return {
         codeLists     : state.odm.study.metaDataVersion.codeLists,
+        codeListOrder : state.odm.study.metaDataVersion.codeListOrder,
         standards     : state.odm.study.metaDataVersion.standards,
         stdCodeLists  : state.stdCodeLists,
         stdConstants  : state.stdConstants,
@@ -255,6 +257,9 @@ class ConnectedCodeListTable extends React.Component {
                             Delete
                         </Button>
                     </Grid>
+                    <Grid item>
+                        <CodeListOrderEditor/>
+                    </Grid>
                 </Grid>
             </ButtonGroup>
         );
@@ -335,7 +340,7 @@ class ConnectedCodeListTable extends React.Component {
         let codeLists = [];
         // Extract data required for the dataset table
         const codeListsRaw = this.props.codeLists;
-        Object.keys(codeListsRaw).forEach((codeListOid, index) => {
+        this.props.codeListOrder.forEach((codeListOid, index) => {
             const originCL = codeListsRaw[codeListOid];
             let currentCL = {
                 oid            : originCL.oid,

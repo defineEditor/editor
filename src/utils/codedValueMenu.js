@@ -3,16 +3,25 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import Divider from '@material-ui/core/Divider';
 import {
-    deleteCodedValues,
+    deleteCodedValues, addCodedValue
 } from 'actions/index.js';
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        deleteCodedValues: (codeListOid, deletedOids) => dispatch(deleteCodedValues(codeListOid, deletedOids)),
+        deleteCodedValues : (codeListOid, deletedOids) => dispatch(deleteCodedValues(codeListOid, deletedOids)),
+        addCodedValue     : (codeListOid, updateObj) => dispatch(addCodedValue(codeListOid, updateObj)),
     };
 };
+
+const mapStateToProps = state => {
+    return {
+        codeLists: state.odm.study.metaDataVersion.codeLists,
+    };
+};
+
 
 class ConnectedCodedValueMenu extends React.Component {
 
@@ -21,6 +30,13 @@ class ConnectedCodedValueMenu extends React.Component {
         let deletedOids = [this.props.codedValueMenuParams.oid];
 
         this.props.deleteCodedValues(codeListOid, deletedOids);
+        this.props.onClose();
+    }
+
+    insertRecord = (shift) => () => {
+        let params = this.props.codedValueMenuParams;
+        let orderNumber = this.props.codeLists[params.codeListOid].itemOrder.indexOf(params.oid) + 1 + shift;
+        this.props.addCodedValue(params.codeListOid, { codedValue: '', orderNumber });
         this.props.onClose();
     }
 
@@ -39,6 +55,13 @@ class ConnectedCodedValueMenu extends React.Component {
                         },
                     }}
                 >
+                    <MenuItem key='InsertBefore' onClick={this.insertRecord(0)}>
+                        Insert Before
+                    </MenuItem>
+                    <MenuItem key='InsertAfter' onClick={this.insertRecord(1)}>
+                        Insert After
+                    </MenuItem>
+                    <Divider/>
                     <MenuItem key='Delete' onClick={this.deleteCodedValue}>
                         Delete
                     </MenuItem>
@@ -52,5 +75,5 @@ ConnectedCodedValueMenu.propTypes = {
     codedValueMenuParams: PropTypes.object.isRequired,
 };
 
-const CodedValueMenu = connect(undefined, mapDispatchToProps)(ConnectedCodedValueMenu);
+const CodedValueMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodedValueMenu);
 export default CodedValueMenu;

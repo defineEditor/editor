@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import SimpleInputEditor from 'editors/simpleSelectEditor.js';
+import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import ReactSelectEditor from 'editors/reactSelectEditor.js';
 import getCodeListData from 'utils/getCodeListData.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
@@ -38,7 +38,6 @@ class CodedValueEditor extends React.Component {
 }
 
 CodedValueEditor.propTypes = {
-    codeLists    : PropTypes.object.isRequired,
     defaultValue : PropTypes.string.isRequired,
     row          : PropTypes.object.isRequired,
     onUpdate     : PropTypes.func

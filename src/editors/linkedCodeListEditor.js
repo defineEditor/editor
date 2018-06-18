@@ -31,13 +31,21 @@ class ConnectedLinkedCodeListEditor extends React.Component {
         });
     }
 
+    handleChange = (updateObj) => {
+        if (updateObj === '') {
+            this.props.onUpdate(undefined);
+        } else {
+            this.props.onUpdate(updateObj);
+        }
+    }
+
     render () {
         // If it is not a enumeration or decoded codelist, just exit editing.
         if (this.props.row.codeListType !== 'decoded' && this.props.row.codeListType !== 'enumerated') {
             this.props.onUpdate(this.props.defaultValue);
         }
         return (
-            <SimpleSelectEditor options={this.getLinkableCodelists(this.props.row.codeListType)} optional={true} onUpdate={this.props.onUpdate}/>
+            <SimpleSelectEditor options={this.getLinkableCodelists(this.props.row.codeListType)} optional={true} onUpdate={this.handleChange}/>
         );
     }
 }

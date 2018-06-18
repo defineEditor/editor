@@ -197,7 +197,7 @@ const addVariable = (state, action) => {
     let ds = state[action.source.itemGroupOid];
     let newItemRefOrder;
     if (action.orderNumber - 1 <= ds.itemRefOrder.length) {
-        newItemRefOrder = ds.itemRefOrder.slice(0,action.orderNumber - 1).concat([action.itemRef.oid].concat(ds.itemRefOrder.slice(action.orderNumber - 1))) ;
+        newItemRefOrder = ds.itemRefOrder.slice(0, action.orderNumber - 1).concat([action.itemRef.oid].concat(ds.itemRefOrder.slice(action.orderNumber - 1))) ;
     } else {
         newItemRefOrder = ds.itemRefOrder.slice().concat([action.itemRef.oid]);
     }

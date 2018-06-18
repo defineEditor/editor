@@ -11,6 +11,7 @@ import Button from '@material-ui/core/Button';
 import { addCodeList } from 'actions/index.js';
 import SaveCancel from 'editors/saveCancel.js';
 import getSelectionList from 'utils/getSelectionList.js';
+import getOid from 'utils/getOid.js';
 
 const styles = theme => ({
     dialog: {
@@ -37,7 +38,7 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        addCodeList: (codeList) => dispatch(addCodeList(codeList)),
+        addCodeList: (updateObj) => dispatch(addCodeList(updateObj)),
     };
 };
 
@@ -85,8 +86,11 @@ class AddVariableEditorConnected extends React.Component {
     }
 
     handleSaveAndClose = (updateObj) => {
+        let codeListOids = Object.keys(this.props.codeLists);
+        let codeListOid = getOid('CodeList', undefined, codeListOids);
         // Get all possible IDs
         this.props.addCodeList({
+            oid          : codeListOid,
             name         : this.state.name,
             codeListType : this.state.codeListType,
         });
