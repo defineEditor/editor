@@ -8,6 +8,7 @@ import {
     UPD_CODEDVALUE,
     ADD_CODEDVALUE,
     DEL_CODEDVALUES,
+    UPD_CODEDVALUEORDER,
     DEL_VARS,
 } from "constants/action-types";
 import { CodeList, CodeListItem, EnumeratedItem, Alias } from 'elements.js';
@@ -550,6 +551,23 @@ const deleteCodeListReferences = (state, action, type) => {
     return newState;
 };
 
+const updateCodedValueOrder = (state, action, skipLinkedCodeListUpdate) => {
+    // action.codeListOid - linked codelist to update
+    // action.itemOrder - new item ord
+    let codeList = state[action.codeListOid];
+    let newCodeList = new CodeList({ ...state[action.codeListOid], itemOrder: action.itemOrder });
+    if (codeList.linkedCodeListOid !== undefined && skipLinkedCodeListUpdate !== true) {
+        let subAction = {};
+        subAction.codeListOid = codeList.linkedCodeListOid;
+        // Linked codelists have identical OIDs for items
+        subAction.itemOrder = action.itemOrder;
+        let newState = updateCodedValueOrder(state, subAction, true);
+        return { ...newState, [action.codeListOid]: newCodeList };
+
+    } else {
+        return { ...state, [action.codeListOid]: newCodeList };
+    }
+};
 
 const codeLists = (state = {}, action) => {
     switch (action.type) {
@@ -571,6 +589,8 @@ const codeLists = (state = {}, action) => {
             return addCodedValue(state, action);
         case DEL_CODEDVALUES:
             return deleteCodedValues(state, action);
+        case UPD_CODEDVALUEORDER:
+            return updateCodedValueOrder(state, action);
         case DEL_VARS:
             return deleteCodeListReferences(state, action);
         default:

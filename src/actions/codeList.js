@@ -9,6 +9,7 @@ import {
     UPD_CODEDVALUE,
     ADD_CODEDVALUE,
     DEL_CODEDVALUES,
+    UPD_CODEDVALUEORDER,
 } from "constants/action-types";
 
 // Codelist actions
@@ -77,5 +78,13 @@ export const deleteCodedValues = (codeListOid, deletedOids) => (
         type: DEL_CODEDVALUES,
         codeListOid,
         deletedOids,
+    }
+);
+
+export const updateCodedValueOrder = (codeListOid, itemOrder) => (
+    {
+        type: UPD_CODEDVALUEORDER,
+        codeListOid,
+        itemOrder,
     }
 );

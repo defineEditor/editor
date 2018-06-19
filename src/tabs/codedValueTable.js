@@ -14,8 +14,10 @@ import IconButton from '@material-ui/core/IconButton';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import OpenDrawer from '@material-ui/icons/ArrowUpward';
+import Typography from '@material-ui/core/Typography';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import CodedValueEditor from 'editors/codedValueEditor.js';
+import CodedValueOrderEditor from 'editors/codedValueOrderEditor.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import { TranslatedText } from 'elements.js';
 import SelectColumns from 'utils/selectColumns.js';
@@ -24,6 +26,7 @@ import CodedValueMenu from 'utils/codedValueMenu.js';
 import getCodeListData from 'utils/getCodeListData.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
+import CodedValueSelector from 'utils/codedValueSelector.js';
 import {
     updateCodedValue,
     addCodedValue,
@@ -155,11 +158,12 @@ class ConnectedCodedValueTable extends React.Component {
         // Standard codelist
         this.state = {
             columns,
-            selectedRows         : [],
-            showSelectColumn     : false,
-            codedValueMenuParams : {},
-            codeListOid          : this.props.codeListOid,
-            setScrollY           : false,
+            selectedRows           : [],
+            showSelectColumn       : false,
+            showCodedValueSelector : false,
+            codedValueMenuParams   : {},
+            codeListOid            : this.props.codeListOid,
+            setScrollY             : false,
         };
     }
 
@@ -286,12 +290,6 @@ class ConnectedCodedValueTable extends React.Component {
                         { props.insertBtn }
                     </Grid>
                     <Grid item>
-                        <Button color='default' mini onClick={console.log} disabled={!this.props.showRowSelect}
-                            variant='raised'>
-                            Copy
-                        </Button>
-                    </Grid>
-                    <Grid item>
                         <Button
                             color='secondary'
                             mini
@@ -301,6 +299,20 @@ class ConnectedCodedValueTable extends React.Component {
                         >
                             Delete
                         </Button>
+                    </Grid>
+                    <Grid item>
+                        <Button
+                            color='default'
+                            mini
+                            onClick={ () => { this.setState({ showCodedValueSelector: true }); } }
+                            disabled={this.props.codeLists[this.props.codeListOid].standardOid === undefined}
+                            variant='raised'
+                        >
+                            Add Std. Codes
+                        </Button>
+                    </Grid>
+                    <Grid item>
+                        <CodedValueOrderEditor codeListOid={this.props.codeListOid}/>
                     </Grid>
                 </Grid>
             </ButtonGroup>
@@ -395,6 +407,11 @@ class ConnectedCodedValueTable extends React.Component {
                 );
             });
         });
+        // If codelist is enumerated and linked, do not allow editing
+        let nonEditable = false;
+        if (codeList.codeListType === 'enumerated' && codeList.linkedCodeListOid !== undefined) {
+            nonEditable = true;
+        }
 
         // Get standard codelist
         let stdCodeList;
@@ -410,11 +427,15 @@ class ConnectedCodedValueTable extends React.Component {
         });
 
         // Editor settings
-        const cellEditProp = {
+        let cellEditProp = {
             mode           : 'dbclick',
             blurToSave     : true,
             beforeSaveCell : this.onBeforeSaveCell
         };
+
+        if (nonEditable) {
+            cellEditProp.nonEditableRows = function() { return codeList.itemOrder;};
+        }
 
         let selectRowProp;
         if (this.props.showRowSelect) {
@@ -437,7 +458,7 @@ class ConnectedCodedValueTable extends React.Component {
         return (
             <React.Fragment>
                 <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
-                    {codeListTitle} 
+                    {codeListTitle}
                     <Button
                         color="default"
                         variant='fab'
@@ -449,6 +470,15 @@ class ConnectedCodedValueTable extends React.Component {
                     </Button>
                     {codeListVariables}
                 </h3>
+                { nonEditable && (
+                    <React.Fragment>
+                        <Typography variant='subheading' color='primary'>
+                            This codelist is linked to {this.props.codeLists[codeList.linkedCodeListOid].name}.
+                            Update the linked codelist to change values of this codelist.
+                        </Typography>
+                        <br/>
+                    </React.Fragment>
+                )}
                 <BootstrapTable
                     data={codeListTable}
                     options={options}
@@ -470,8 +500,14 @@ class ConnectedCodedValueTable extends React.Component {
                     <SelectColumns
                         onClose={ () => { this.setState({ showSelectColumn: false }); } }
                     />
-                )
-                }
+                )}
+                { this.state.showCodedValueSelector && (
+                    <CodedValueSelector
+                        sourceCodeList={stdCodeList}
+                        codeList={codeList}
+                        onClose={ () => { this.setState({ showCodedValueSelector: false }); } }
+                    />
+                )}
             </React.Fragment>
         );
     }

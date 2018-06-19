@@ -87,7 +87,7 @@ function createMetaDataVersion (data, version) {
     let xmlRoot = xmlBuilder.create('MetaDataVersion');
     if (version === '2.0.0') {
         // MetaDataVersion
-        let description; 
+        let description;
         if (data.descriptions.length >= 1) {
             description = data.descriptions[0].value;
         }
@@ -147,36 +147,9 @@ function createMetaDataVersion (data, version) {
         });
         xmlRoot.ele(itemDefs);
         // CodeList
-        if (Object.keys(data.codeLists).length !== 0) {
+        if (data.codeListOrder.length !== 0) {
             let codeLists = {'CodeList': []};
-            // Codelists with EnumeratedItems
-            Object.keys(data.codeLists).filter(function (codeListOid) {
-                if (data.codeLists[codeListOid].enumeratedItems !== undefined) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }).forEach(function (codeListOid) {
-                codeLists['CodeList'].push(createCodeList(data.codeLists[codeListOid], version));
-            });
-            // Codelists with CodeListItem
-            Object.keys(data.codeLists).filter(function (codeListOid) {
-                if (data.codeLists[codeListOid].codeListItems !== undefined) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }).forEach(function (codeListOid) {
-                codeLists['CodeList'].push(createCodeList(data.codeLists[codeListOid], version));
-            });
-            // Codelists with ExternalCodeList
-            Object.keys(data.codeLists).filter(function (codeListOid) {
-                if (data.codeLists[codeListOid].externalCodeList !== undefined) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }).forEach(function (codeListOid) {
+            data.codeListOrder.forEach(function (codeListOid) {
                 codeLists['CodeList'].push(createCodeList(data.codeLists[codeListOid], version));
             });
             xmlRoot.ele(codeLists);
@@ -229,7 +202,7 @@ function createDocumentRef (data, version) {
                 for (let pdfPageAttr in pdfPageRef) {
                     if (pdfPageRef[pdfPageAttr] !== undefined) {
                         // Capitalize first letter of an attribute
-                        let uccPdfPageAttr = pdfPageAttr.charAt(0).toUpperCase() + pdfPageAttr.substr(1); 
+                        let uccPdfPageAttr = pdfPageAttr.charAt(0).toUpperCase() + pdfPageAttr.substr(1);
                         pdfPageRefObj['@' + uccPdfPageAttr] = pdfPageRef[pdfPageAttr];
                     }
                 }
