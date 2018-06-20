@@ -73,7 +73,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
     return {
         itemGroups     : state.odm.study.metaDataVersion.itemGroups,
-        itemGroupOrder : state.odm.study.metaDataVersion.itemGroupOrder,
+        itemGroupOrder : state.odm.study.metaDataVersion.order.itemGroupOrder,
         itemDefs       : state.odm.study.metaDataVersion.itemDefs,
         comments       : state.odm.study.metaDataVersion.comments,
         leafs          : state.odm.study.metaDataVersion.leafs,

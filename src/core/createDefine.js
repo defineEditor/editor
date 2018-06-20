@@ -136,7 +136,7 @@ function createMetaDataVersion (data, version) {
         }
         // ItemGroupDef
         let itemGroupDefs = {'ItemGroupDef': []};
-        data.itemGroupOrder.forEach(function (itemGroupOid) {
+        data.order.itemGroupOrder.forEach(function (itemGroupOid) {
             itemGroupDefs['ItemGroupDef'].push(createItemGroupDef(data.itemGroups[itemGroupOid], version));
         });
         xmlRoot.ele(itemGroupDefs);
@@ -147,9 +147,9 @@ function createMetaDataVersion (data, version) {
         });
         xmlRoot.ele(itemDefs);
         // CodeList
-        if (data.codeListOrder.length !== 0) {
+        if (data.order.codeListOrder.length !== 0) {
             let codeLists = {'CodeList': []};
-            data.codeListOrder.forEach(function (codeListOid) {
+            data.order.codeListOrder.forEach(function (codeListOid) {
                 codeLists['CodeList'].push(createCodeList(data.codeLists[codeListOid], version));
             });
             xmlRoot.ele(codeLists);
@@ -171,9 +171,9 @@ function createMetaDataVersion (data, version) {
             xmlRoot.ele(commentDefs);
         }
         // leaf
-        if (Object.keys(data.leafs).length !== 0) {
+        if (data.order.leafOrder.length !== 0) {
             let leaf = {'def:leaf': []};
-            Object.keys(data.leafs).forEach(function (leafOid) {
+            data.order.leafOrder.forEach(function (leafOid) {
                 leaf['def:leaf'].push(createLeaf(data.leafs[leafOid], version));
             });
             xmlRoot.ele(leaf);

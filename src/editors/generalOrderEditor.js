@@ -98,7 +98,7 @@ class GeneralOrderEditor extends React.Component {
 
     resetState = () => {
         this.setState({
-            dialogOpened : false,
+            dialogOpened : this.props.noButton ? true : false,
             items        : this.props.items,
         });
     }
@@ -119,7 +119,12 @@ class GeneralOrderEditor extends React.Component {
         if (!deepEqual(this.state.items, this.props.items)) {
             this.props.onSave(this.state.items);
         }
-        this.setState({ dialogOpened: false });
+        this.resetState();
+        if (this.props.noButton) {
+            // In case of noButton, open/close state is controlled outside
+            // and onCancel should be used as onClose in this case
+            this.props.onCancel();
+        }
     }
 
     handleChange = ({oldIndex, newIndex}) => {

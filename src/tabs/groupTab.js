@@ -42,10 +42,10 @@ const mapStateToProps = (state, props) => {
     let groups;
     let groupOrder;
     if (props.groupClass === 'Coded Values') {
-        groupOrder = state.odm.study.metaDataVersion.codeListOrder;
+        groupOrder = state.odm.study.metaDataVersion.order.codeListOrder;
         groups = state.odm.study.metaDataVersion.codeLists;
     } else if (props.groupClass === 'Variables') {
-        groupOrder = state.odm.study.metaDataVersion.itemGroupOrder;
+        groupOrder = state.odm.study.metaDataVersion.order.itemGroupOrder;
         groups = state.odm.study.metaDataVersion.itemGroups;
     }
     return {

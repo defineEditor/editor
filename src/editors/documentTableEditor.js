@@ -15,6 +15,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Leaf } from 'elements.js';
+import GeneralOrderEditor from 'editors/generalOrderEditor.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getOid from 'utils/getOid.js';
 
@@ -40,33 +41,34 @@ const styles = theme => ({
     },
 });
 
-class ControlledTerminologyEditor extends React.Component {
+class DocumentTableEditor extends React.Component {
 
     constructor (props) {
 
         super(props);
 
-        const compareDocTypes = (leafId1, leafId2) => {
-            return this.props.documentTypes.typeOrder[this.props.leafs[leafId1].type] - this.props.documentTypes.typeOrder[this.props.leafs[leafId2].type];
-        };
-
         // Clone leafs
         let leafs = {};
-        Object.keys(this.props.leafs)
-            .sort(compareDocTypes)
-            .forEach( leafId => {
-                leafs[leafId] = this.props.leafs[leafId].clone();
-            });
+        this.props.leafOrder.forEach( leafId => {
+            leafs[leafId] = this.props.leafs[leafId].clone();
+        });
+        let leafOrder = this.props.leafOrder.slice();
 
-        this.state = { leafs };
+        this.state = {
+            leafs,
+            leafOrder,
+            showDocumentOrderEditor: false
+        };
     }
 
     handleChange = (name, oid) => (event) => {
         if (name === 'addDoc') {
             let newLeafs = { ...this.state.leafs };
             let newOid = getOid('Leaf', undefined, Object.keys(this.state.leafs));
-            newLeafs[newOid] = new Leaf({ leafId: newOid, title: '', href: '', type: '' });
-            this.setState({ leafs: newLeafs });
+            let newLeafOrder = this.state.leafOrder.slice();
+            newLeafOrder.push(newOid);
+            newLeafs[newOid] = new Leaf({ leafId: newOid, title: '', href: '', type: 'other' });
+            this.setState({ leafs: newLeafs, leafOrder: newLeafOrder });
         } else if (name === 'type' || name === 'title' || name === 'href' ) {
             let newLeafs = { ...this.state.leafs } ;
             // Replace old leaf
@@ -76,7 +78,9 @@ class ControlledTerminologyEditor extends React.Component {
         } else if (name === 'deleteDoc') {
             let newLeafs = { ...this.state.leafs };
             delete newLeafs[oid];
-            this.setState({ leafs: newLeafs });
+            let newLeafOrder = this.state.leafOrder.slice();
+            newLeafOrder.splice(newLeafOrder.indexOf(oid), 1);
+            this.setState({ leafs: newLeafs, leafOrder: newLeafOrder });
         }
     }
 
@@ -88,7 +92,7 @@ class ControlledTerminologyEditor extends React.Component {
             return (
                 <TableRow key={leafId}>
                     <TableCell>
-                        <Tooltip title="Remove Controlled Terminology" placement="bottom-end">
+                        <Tooltip title="Remove Document" placement="bottom-end">
                             <IconButton
                                 color='secondary'
                                 onClick={this.handleChange('deleteDoc',leafId)}
@@ -130,22 +134,32 @@ class ControlledTerminologyEditor extends React.Component {
             );
         };
 
-        let docList = Object.keys(leafs)
-            .map(createRow);
+        let docList = this.state.leafOrder.map(createRow);
         return docList;
     }
 
     save = () => {
-        this.props.onSave(this.state);
+        this.props.onSave({ leafs: this.state.leafs, leafOrder: this.state.leafOrder });
+    }
+
+    showDocumentOrderEditor = () => {
+        this.setState({ showDocumentOrderEditor: true });
+    }
+
+    updateLeafOrder = (items) => {
+        this.setState({ leafOrder: items.map(item => (item.oid)) });
     }
 
     render () {
         const { classes } = this.props;
+        let leafItems = this.state.leafOrder.map( leafId => {
+            return { oid: leafId, name: this.state.leafs[leafId].title };
+        });
         return (
             <Paper className={classes.mainPart} elevation={4}>
                 <Typography variant="headline" component="h3">
                     Documents
-                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
+                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} onSort={this.showDocumentOrderEditor}/>
                 </Typography>
                 <Button
                     color='default'
@@ -169,13 +183,24 @@ class ControlledTerminologyEditor extends React.Component {
                         {this.getDocuments()}
                     </TableBody>
                 </Table>
+                { this.state.showDocumentOrderEditor && (
+                    <GeneralOrderEditor
+                        items={leafItems}
+                        onSave={this.updateLeafOrder}
+                        noButton={true}
+                        title='Document Order'
+                        width='500px'
+                        onCancel={() => this.setState({ showDocumentOrderEditor: false })}
+                    />
+                )}
             </Paper>
         );
     }
 }
 
-ControlledTerminologyEditor.propTypes = {
+DocumentTableEditor.propTypes = {
     leafs         : PropTypes.object.isRequired,
+    leafOrder     : PropTypes.array.isRequired,
     documentTypes : PropTypes.object.isRequired,
     classes       : PropTypes.object.isRequired,
     onSave        : PropTypes.func.isRequired,
@@ -184,4 +209,4 @@ ControlledTerminologyEditor.propTypes = {
     onComment     : PropTypes.func,
 };
 
-export default withStyles(styles)(ControlledTerminologyEditor);
+export default withStyles(styles)(DocumentTableEditor);

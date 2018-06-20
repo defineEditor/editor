@@ -1,9 +1,7 @@
 import itemGroups from 'reducers/itemGroups.js';
-import itemGroupOrder from 'reducers/itemGroupOrder.js';
 import itemDefs from 'reducers/itemDefs.js';
 import comments from 'reducers/comments.js';
 import codeLists from 'reducers/codeLists.js';
-import codeListOrder from 'reducers/codeListOrder.js';
 import methods from 'reducers/methods.js';
 import standards from 'reducers/standards.js';
 import supplementalDoc from 'reducers/supplementalDoc.js';
@@ -11,6 +9,7 @@ import annotatedCrf from 'reducers/annotatedCrf.js';
 import whereClauses from 'reducers/whereClauses.js';
 import valueLists from 'reducers/valueLists.js';
 import leafs from 'reducers/leafs.js';
+import order from 'reducers/order.js';
 import { MetaDataVersion } from 'elements.js';
 import {
     UPD_MDV,
@@ -34,13 +33,12 @@ const metaDataVersion = (state = initialState, action) => {
             annotatedCrf    : annotatedCrf(state.annotatedCrf, action),
             supplementalDoc : supplementalDoc(state.supplementalDoc, action),
             itemGroups      : itemGroups(state.itemGroups, action),
-            itemGroupOrder  : itemGroupOrder(state.itemGroupOrder, action),
             itemDefs        : itemDefs(state.itemDefs, action),
             methods         : methods(state.methods, action),
             comments        : comments(state.comments, action),
             codeLists       : codeLists(state.codeLists, action),
-            codeListOrder   : codeListOrder(state.codeListOrder, action),
             leafs           : leafs(state.leafs, action),
+            order           : order(state.order, action),
         });
     } else {
         return state;

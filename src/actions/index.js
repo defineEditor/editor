@@ -15,7 +15,6 @@ import {
     REP_ITEMGROUPCOMMENT,
     UPD_GLOBALVARS,
     UPD_MDV,
-    UPD_LEAFS,
     UPD_KEYOREDER,
 } from "constants/action-types";
 
@@ -134,15 +133,7 @@ export const updatedStandards = (updateObj) => (
     }
 );
 
-// Documents
-
-export const updateLeafs = (updateObj) => (
-    {
-        type: UPD_LEAFS,
-        updateObj,
-    }
-);
-
 export * from 'actions/codeList.js';
 export * from 'actions/item.js';
+export * from 'actions/leaf.js';
 export * from 'actions/ui.js';

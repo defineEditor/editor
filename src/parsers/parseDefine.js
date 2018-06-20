@@ -699,9 +699,12 @@ function parseMetaDataVersion (metadataRaw) {
     mdv.methods = parseMethods(metadataRaw['methodDef'], mdv);
     mdv.comments = parseComments(metadataRaw['commentDef'], mdv);
 
-    // Add itemGroupOrder, codeListOrder - not part of Define, but is required to properly sort datasets and codeLists;
-    mdv.itemGroupOrder = Object.keys(mdv.itemGroups);
-    mdv.codeListOrder = Object.keys(mdv.codeLists);
+    // Add itemGroupOrder, codeListOrder, ... - not part of Define, but is required to properly sort datasets, codeLists and etc.;
+    mdv.order = {
+        itemGroupOrder : Object.keys(mdv.itemGroups),
+        codeListOrder  : Object.keys(mdv.codeLists),
+        leafOrder      : Object.keys(mdv.leafs),
+    };
 
     let args = {
         oid             : metadataRaw['$']['oid'],
@@ -719,8 +722,7 @@ function parseMetaDataVersion (metadataRaw) {
         methods         : mdv.methods,
         comments        : mdv.comments,
         leafs           : mdv.leafs,
-        itemGroupOrder  : mdv.itemGroupOrder,
-        codeListOrder   : mdv.codeListOrder,
+        order           : mdv.order,
     };
 
     // Obtain CDISC model of the study from the default standard

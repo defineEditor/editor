@@ -7,20 +7,21 @@ import DocumentTableFormatter from 'formatters/documentTableFormatter.js';
 import DocumentTableEditor from 'editors/documentTableEditor.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import {
-    updateLeafs,
+    updateLeafs, updateLeafOrder,
 } from 'actions/index.js';
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateLeafs: (updateObj) => dispatch(updateLeafs(updateObj)),
+        updateLeafs     : (updateObj) => dispatch(updateLeafs(updateObj)),
+        updateLeafOrder : (leafOrder) => dispatch(updateLeafOrder(leafOrder)),
     };
 };
 
 const mapStateToProps = state => {
-
     return {
         leafs         : state.odm.study.metaDataVersion.leafs,
+        leafOrder     : state.odm.study.metaDataVersion.order.leafOrder,
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
         documentTypes : state.stdConstants.documentTypes,
         tabs          : state.ui.tabs,
@@ -82,6 +83,8 @@ class ConnectedDocumentTable extends React.Component {
                     updatedLeafs,
                 });
             }
+            // TODO: Dispatching 2 redux actions in 1 place, rewrite to only 1 action dispatch?
+            this.props.updateLeafOrder(returnValue.leafOrder);
             this.setState({documentEdit: false});
         }
     }
@@ -100,6 +103,7 @@ class ConnectedDocumentTable extends React.Component {
                     {  this.state.documentEdit === true ? (
                         <DocumentTableEditor
                             leafs={this.props.leafs}
+                            leafOrder={this.props.leafOrder}
                             documentTypes={this.props.documentTypes}
                             onSave={this.save('documents')}
                             onCancel={this.cancel('documents')}
@@ -107,6 +111,7 @@ class ConnectedDocumentTable extends React.Component {
                     ) : (
                         <DocumentTableFormatter
                             leafs={this.props.leafs}
+                            leafOrder={this.props.leafOrder}
                             documentTypes={this.props.documentTypes}
                             onEdit={this.handleChange('documentEdit')}
                         />

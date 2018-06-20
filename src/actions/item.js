@@ -1,4 +1,3 @@
-// src/js/actions/index.js
 import {
     UPD_ITEMDEF,
     UPD_ITEMREF,

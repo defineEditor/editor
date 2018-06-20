@@ -38,13 +38,7 @@ class DocumentTableFormatter extends React.Component {
             );
         };
 
-        const compareDocTypes = (leafId1, leafId2) => {
-            return this.props.documentTypes.typeOrder[leafs[leafId1].type] - this.props.documentTypes.typeOrder[leafs[leafId2].type];
-        };
-
-        let docList = Object.keys(leafs)
-            .sort(compareDocTypes)
-            .map(createRow);
+        let docList = this.props.leafOrder.map(createRow);
         return docList;
     };
 
@@ -75,6 +69,7 @@ class DocumentTableFormatter extends React.Component {
 
 DocumentTableFormatter.propTypes = {
     leafs         : PropTypes.object.isRequired,
+    leafOrder     : PropTypes.array.isRequired,
     documentTypes : PropTypes.object.isRequired,
     classes       : PropTypes.object.isRequired,
     onEdit        : PropTypes.func.isRequired,

@@ -5,6 +5,7 @@ import SaveIcon from '@material-ui/icons/Save';
 import ClearIcon from '@material-ui/icons/Clear';
 import HelpIcon from '@material-ui/icons/HelpOutline';
 import CommentIcon from '@material-ui/icons/Comment';
+import LowPriority from '@material-ui/icons/LowPriority';
 import IconButton from '@material-ui/core/IconButton';
 
 const styles = theme => ({
@@ -28,6 +29,11 @@ class editingControlIcons extends React.Component {
                 <IconButton color='default' onClick={this.props.onHelp} className={classes.icon}>
                     <HelpIcon/>
                 </IconButton>
+                { this.props.onSort !== undefined && (
+                    <IconButton color='default' onClick={this.props.onSort} className={classes.icon}>
+                        <LowPriority/>
+                    </IconButton>
+                )}
                 <IconButton color='secondary' onClick={this.props.onCancel} className={classes.icon}>
                     <ClearIcon/>
                 </IconButton>
@@ -41,6 +47,7 @@ editingControlIcons.propTypes = {
     onCancel  : PropTypes.func.isRequired,
     onHelp    : PropTypes.func,
     onComment : PropTypes.func,
+    onSort    : PropTypes.func,
 };
 
 export default withStyles(styles)(editingControlIcons);

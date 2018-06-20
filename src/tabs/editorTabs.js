@@ -39,9 +39,7 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        itemGroupOrder : state.odm.study.metaDataVersion.itemGroupOrder,
-        codeLists      : state.odm.study.metaDataVersion.codeLists,
-        tabs           : state.ui.tabs,
+        tabs: state.ui.tabs,
     };
 };
 
@@ -151,9 +149,8 @@ class ConnectedEditorTabs extends React.Component {
 }
 
 ConnectedEditorTabs.propTypes = {
-    classes        : PropTypes.object.isRequired,
-    codeLists      : PropTypes.object.isRequired,
-    itemGroupOrder : PropTypes.array.isRequired,
+    classes : PropTypes.object.isRequired,
+    tabs    : PropTypes.object.isRequired,
 };
 
 const EditorTabs = connect(mapStateToProps, mapDispatchToProps)(ConnectedEditorTabs);

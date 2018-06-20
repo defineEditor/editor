@@ -41,7 +41,7 @@ const generateInitialState = () => {
     return {
         tabNames,
         tabObjectNames,
-        currentTab: 4,
+        currentTab: 5,
         settings,
     };
 };

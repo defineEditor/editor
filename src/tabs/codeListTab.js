@@ -49,7 +49,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
     return {
         codeLists     : state.odm.study.metaDataVersion.codeLists,
-        codeListOrder : state.odm.study.metaDataVersion.codeListOrder,
+        codeListOrder : state.odm.study.metaDataVersion.order.codeListOrder,
         standards     : state.odm.study.metaDataVersion.standards,
         stdCodeLists  : state.stdCodeLists,
         stdConstants  : state.stdConstants,
