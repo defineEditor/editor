@@ -17,9 +17,9 @@ import MethodFormatter from 'formatters/methodFormatter.js';
 import CommentFormatter from 'formatters/commentFormatter.js';
 import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
+import Tooltip from '@material-ui/core/Tooltip';
 import getMethodSourceLabels from 'utils/getMethodSourceLabels.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
-import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
     dialog: {

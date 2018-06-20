@@ -12,6 +12,10 @@ import Typography from '@material-ui/core/Typography';
 import Checkbox from '@material-ui/core/Checkbox';
 import Paper from '@material-ui/core/Paper';
 import Modal from '@material-ui/core/Modal';
+import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
+import ClearIcon from '@material-ui/icons/Clear';
+import clone from 'clone';
 import getCodeListData from 'utils/getCodeListData.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
 import { addCodedValues } from 'actions/index.js';
@@ -47,13 +51,18 @@ const styles = theme => ({
     },
     icon: {
         transform: 'translate(0, -5%)',
-    }
+    },
+    iconButton: {
+        marginLeft   : '0px',
+        marginRight  : '0px',
+        marginBottom : '8px',
+    },
 });
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        addCodedValues: (updateObj) => dispatch(addCodedValues(updateObj)),
+        addCodedValues: (codeListOid, updateObj) => dispatch(addCodedValues(codeListOid, updateObj)),
     };
 };
 
@@ -71,7 +80,12 @@ class ConnectedCodedValueSelector extends React.Component {
         // Mark all items from the source codelist which are already present in the destination codelist
         let existingCodes = getCodedValuesAsArray(this.props.codeList);
         let disabledOids = this.props.sourceCodeList.itemOrder.filter(oid => {
-            let sourceItems = this.props.sourceCodeList.codeListItems;
+            let sourceItems;
+            if (this.props.sourceCodeList.codeListType === 'decoded') {
+                sourceItems = this.props.sourceCodeList.codeListItems;
+            } else if (this.props.sourceCodeList.codeListType === 'enumerated') {
+                sourceItems = this.props.sourceCodeList.enumeratedItems;
+            }
             if (existingCodes.includes(sourceItems[oid].codedValue)) {
                 return true;
             } else {
@@ -121,6 +135,22 @@ class ConnectedCodedValueSelector extends React.Component {
         this.setState({ selected: newSelected });
     };
 
+    handleAddCodedValues = () => {
+        // Get items which are copied from the standard
+        let sourceItems;
+        if (this.props.sourceCodeList.codeListType === 'decoded') {
+            sourceItems = this.props.sourceCodeList.codeListItems;
+        } else if (this.props.sourceCodeList.codeListType === 'enumerated') {
+            sourceItems = this.props.sourceCodeList.enumeratedItems;
+        }
+        let items = [];
+        this.state.selected.forEach( oid => {
+            items.push(clone(sourceItems[oid]));
+        });
+        this.props.addCodedValues(this.props.codeList.oid, { items, orderNumber: this.props.orderNumber });
+        this.props.onClose();
+    }
+
     getCodeListTable(codeList, defineVersion, classes) {
         let {codeListTable, isDecoded, isRanked, isCcoded} = getCodeListData(codeList, defineVersion);
 
@@ -130,15 +160,29 @@ class ConnectedCodedValueSelector extends React.Component {
         return(
             <Grid container spacing={0} className={classes.codeListTable}>
                 <Grid item xs={12}>
-                    {numSelected > 0 ? (
-                        <Typography color="inherit" variant="subheading">
-                            {numSelected} selected
-                        </Typography>
-                    ) : (
-                        <Typography variant="title">
-                            {codeList.name}
-                        </Typography>
-                    )}
+                    <Grid container spacing={0} justify='space-between' alignItems='center'>
+                        {numSelected > 0 ? (
+                                <Grid item>
+                                    <Button
+                                        onClick={this.handleAddCodedValues}
+                                        color='default'
+                                        mini
+                                        variant='raised'
+                                    >
+                                        Add {numSelected} items
+                                    </Button>
+                                </Grid>
+                        ) : (
+                            <Typography variant="title">
+                                {codeList.name}
+                            </Typography>
+                        )}
+                        <Grid item>
+                            <IconButton color='secondary' onClick={this.props.onClose} className={classes.icon}>
+                                <ClearIcon/>
+                            </IconButton>
+                        </Grid>
+                    </Grid>
                 </Grid>
                 <Grid item xs={12}>
                     <Table className={classes.table}>
@@ -206,6 +250,7 @@ class ConnectedCodedValueSelector extends React.Component {
 ConnectedCodedValueSelector.propTypes = {
     sourceCodeList : PropTypes.object.isRequired,
     codeList       : PropTypes.object.isRequired,
+    orderNumber    : PropTypes.number,
     defineVersion  : PropTypes.string.isRequired,
     addCodedValues : PropTypes.func.isRequired,
     onClose        : PropTypes.func.isRequired,

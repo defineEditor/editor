@@ -164,6 +164,7 @@ class ConnectedCodedValueTable extends React.Component {
             codedValueMenuParams   : {},
             codeListOid            : this.props.codeListOid,
             setScrollY             : false,
+            addStdCodesOrderNumber : undefined,
         };
     }
 
@@ -212,7 +213,8 @@ class ConnectedCodedValueTable extends React.Component {
     menuFormatter = (cell, row) => {
         let codedValueMenuParams = {
             oid         : row.oid,
-            codeListOid : this.props.codeListOid
+            codeListOid : this.props.codeListOid,
+            hasStandard : this.props.codeLists[this.props.codeListOid].standardOid !== undefined,
         };
         return (
             <IconButton
@@ -230,6 +232,10 @@ class ConnectedCodedValueTable extends React.Component {
 
     handleMenuClose = () => {
         this.setState({ codedValueMenuParams: {}, anchorEl: null });
+    }
+
+    handleShowCodedValueSelector = (orderNumber) => () => {
+        this.setState({ showCodedValueSelector: true, addStdCodesOrderNumber: orderNumber });
     }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
@@ -280,6 +286,13 @@ class ConnectedCodedValueTable extends React.Component {
     }
 
     createCustomButtonGroup = props => {
+        let codeList = this.props.codeLists[this.props.codeListOid];
+        let enumAndHasLinked = (codeList.codeListType === 'enumerated' && codeList.linkedCodeListOid !== undefined);
+
+        const handleClick = (event) => {
+            this.props.addBlankCodedValue(this.props.codeListOid);
+        };
+
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={16}>
@@ -287,14 +300,22 @@ class ConnectedCodedValueTable extends React.Component {
                         <ToggleRowSelect oid='overall'/>
                     </Grid>
                     <Grid item>
-                        { props.insertBtn }
+                        <Button
+                            color='primary'
+                            mini
+                            onClick={handleClick}
+                            variant='raised'
+                            disabled={enumAndHasLinked}
+                        >
+                            Add
+                        </Button>
                     </Grid>
                     <Grid item>
                         <Button
                             color='secondary'
                             mini
                             onClick={this.deleteRows}
-                            disabled={!this.props.showRowSelect}
+                            disabled={!this.props.showRowSelect || enumAndHasLinked}
                             variant='raised'
                         >
                             Delete
@@ -304,8 +325,8 @@ class ConnectedCodedValueTable extends React.Component {
                         <Button
                             color='default'
                             mini
-                            onClick={ () => { this.setState({ showCodedValueSelector: true }); } }
-                            disabled={this.props.codeLists[this.props.codeListOid].standardOid === undefined}
+                            onClick={ this.handleShowCodedValueSelector() }
+                            disabled={codeList.standardOid === undefined || enumAndHasLinked}
                             variant='raised'
                         >
                             Add Std. Codes
@@ -339,15 +360,6 @@ class ConnectedCodedValueTable extends React.Component {
                     </Grid>
                 </Grid>
             </Grid>
-        );
-    }
-
-    createCustomInsertButton = (openModal) => {
-        const handleClick = (event) => {
-            this.props.addBlankCodedValue(this.props.codeListOid);
-        };
-        return (
-            <Button color='primary' mini onClick={handleClick} variant='raised'>Add</Button>
         );
     }
 
@@ -450,9 +462,8 @@ class ConnectedCodedValueTable extends React.Component {
         }
 
         const options = {
-            toolBar   : this.createCustomToolBar,
-            insertBtn : this.createCustomInsertButton,
-            btnGroup  : this.createCustomButtonGroup
+            toolBar  : this.createCustomToolBar,
+            btnGroup : this.createCustomButtonGroup
         };
 
         return (
@@ -495,7 +506,12 @@ class ConnectedCodedValueTable extends React.Component {
                 >
                     {renderColumns(this.state.columns)}
                 </BootstrapTable>
-                <CodedValueMenu onClose={this.handleMenuClose} codedValueMenuParams={this.state.codedValueMenuParams} anchorEl={this.state.anchorEl}/>
+                <CodedValueMenu
+                    onClose={this.handleMenuClose}
+                    codedValueMenuParams={this.state.codedValueMenuParams}
+                    anchorEl={this.state.anchorEl}
+                    onShowCodedValueSelector={this.handleShowCodedValueSelector}
+                />
                 { this.state.showSelectColumn && (
                     <SelectColumns
                         onClose={ () => { this.setState({ showSelectColumn: false }); } }
@@ -505,6 +521,7 @@ class ConnectedCodedValueTable extends React.Component {
                     <CodedValueSelector
                         sourceCodeList={stdCodeList}
                         codeList={codeList}
+                        orderNumber={this.state.addStdCodesOrderNumber}
                         onClose={ () => { this.setState({ showCodedValueSelector: false }); } }
                     />
                 )}

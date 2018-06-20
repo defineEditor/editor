@@ -7,6 +7,7 @@ import {
     UPD_CODELISTSTDOIDS,
     UPD_CODEDVALUE,
     ADD_CODEDVALUE,
+    ADD_CODEDVALUES,
     DEL_CODEDVALUES,
     UPD_CODEDVALUEORDER,
     DEL_VARS,
@@ -15,6 +16,7 @@ import { CodeList, CodeListItem, EnumeratedItem, Alias } from 'elements.js';
 import getOid from 'utils/getOid.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
 import deepEqual from 'fast-deep-equal';
+import clone from 'clone';
 
 
 const handleItemDefUpdate = (state, action) => {
@@ -487,6 +489,91 @@ const addCodedValue = (state, action, skipLinkedCodeListUpdate) => {
     }
 };
 
+const addCodedValues = (state, action, skipLinkedCodeListUpdate) => {
+    // action.updateObj.items - new values
+    // action.updateObj.orderNumber - position to insert, if undefined insert to the end
+    // action.updateObj.itemsObject - new values as object with oids (used in case of a linked codelist update)
+    // action.codeListOid - OID of the codelist
+    let codeList = state[action.codeListOid];
+    let newCodeList;
+    // Convert array with items to object, if has not been already provided
+    let itemsObject = {};
+    if (action.updateObj.itemsObject !== undefined) {
+        itemsObject = action.updateObj.itemsObject;
+    } else {
+        action.updateObj.items.forEach( item => {
+            if (codeList.codeListType === 'decoded') {
+                let newOid = getOid('CodeListItem', undefined, Object.keys(codeList.codeListItems));
+                itemsObject[newOid] = item;
+            } else if (codeList.codeListType === 'enumerated') {
+                let newOid = getOid('CodeListItem', undefined, Object.keys(codeList.enumeratedItems));
+                itemsObject[newOid] = item;
+            }
+        });
+    }
+    // Update itemOrder
+    let newItemOrder;
+    let orderNumber = action.updateObj.orderNumber;
+    if (orderNumber === undefined || orderNumber > codeList.itemOrder.length) {
+        newItemOrder = codeList.itemOrder.slice().concat(Object.keys(itemsObject));
+    } else {
+        newItemOrder = codeList.itemOrder.slice(0, orderNumber - 1).concat(Object.keys(itemsObject).concat(codeList.itemOrder.slice(orderNumber - 1)));
+    }
+    // Update items
+    if (codeList.codeListType === 'decoded') {
+        let newCodeListItems = { ...codeList.codeListItems };
+        Object.keys(itemsObject).forEach( oid => {
+            newCodeListItems[oid] = new CodeListItem({ ...itemsObject[oid] });
+        });
+        newCodeList = new CodeList({ ...state[action.codeListOid], codeListItems: newCodeListItems, itemOrder: newItemOrder });
+    } else if (codeList.codeListType === 'enumerated') {
+        let newEnumeratedItems = { ...codeList.enumeratedItems };
+        Object.keys(itemsObject).forEach( oid => {
+            newEnumeratedItems[oid] = new EnumeratedItem({ ...itemsObject[oid] });
+        });
+        newCodeList = new CodeList({ ...state[action.codeListOid], enumeratedItems: newEnumeratedItems, itemOrder: newItemOrder });
+
+    } else if (codeList.codeListType === 'external') {
+        // No coded values for the external codelists
+        return state;
+    }
+    // If there is a linked codelist, add value to it as well
+    // It is expected that only decoded codelist are updated, and linked enumerated is updated automatically
+    if (codeList.linkedCodeListOid !== undefined && skipLinkedCodeListUpdate !== true
+        && state[codeList.linkedCodeListOid].codeListType === 'enumerated'
+    ) {
+        let subAction = {};
+        let linkedCodeList = state[codeList.linkedCodeListOid];
+        subAction.codeListOid = codeList.linkedCodeListOid;
+        let subActionItemsObject = {};
+        // Convert decodes to codes
+        Object.keys(itemsObject).forEach( oid => {
+            let item = clone(itemsObject[oid]);
+            if (item.hasOwnProperty('codedValue')) {
+                delete item.codedValue;
+            }
+            if (item.hasOwnProperty('decodes') && item.decodes.length > 0) {
+                item.codedValue = item.decodes[0].value;
+                delete item.decodes;
+            } else {
+                item.codedValue = '';
+            }
+            if (linkedCodeList.standardOid === undefined && item.hasOwnProperty('alias')) {
+                delete item.alias;
+            }
+            subActionItemsObject[oid] = item;
+        });
+
+        subAction.updateObj = ({ itemsObject: subActionItemsObject, orderNumber: action.updateObj.orderNumber });
+        let newState = addCodedValues(state, subAction, true);
+        return { ...newState, [action.codeListOid]: newCodeList };
+
+    } else {
+        return { ...state, [action.codeListOid]: newCodeList };
+    }
+};
+
+
 const deleteCodedValues = (state, action, skipLinkedCodeListUpdate) => {
     // action.codeListOid - OID of the codelist
     // action.deletedOids - list of OIDs which are removed
@@ -587,6 +674,8 @@ const codeLists = (state = {}, action) => {
             return updateCodedValue(state, action);
         case ADD_CODEDVALUE:
             return addCodedValue(state, action);
+        case ADD_CODEDVALUES:
+            return addCodedValues(state, action);
         case DEL_CODEDVALUES:
             return deleteCodedValues(state, action);
         case UPD_CODEDVALUEORDER:

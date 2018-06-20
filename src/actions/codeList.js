@@ -8,6 +8,7 @@ import {
     UPD_CODELISTSTDOIDS,
     UPD_CODEDVALUE,
     ADD_CODEDVALUE,
+    ADD_CODEDVALUES,
     DEL_CODEDVALUES,
     UPD_CODEDVALUEORDER,
 } from "constants/action-types";
@@ -68,6 +69,14 @@ export const updateCodedValue = (source, updateObj) => (
 export const addCodedValue = (codeListOid, updateObj) => (
     {
         type: ADD_CODEDVALUE,
+        codeListOid,
+        updateObj,
+    }
+);
+
+export const addCodedValues = (codeListOid, updateObj) => (
+    {
+        type: ADD_CODEDVALUES,
         codeListOid,
         updateObj,
     }
