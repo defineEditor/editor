@@ -7,13 +7,15 @@ import GlobalVariablesFormatter from 'formatters/globalVariablesFormatter.js';
 import MetaDataVersionFormatter from 'formatters/metaDataVersionFormatter.js';
 import ControlledTerminologyFormatter from 'formatters/controlledTerminologyFormatter.js';
 import StandardFormatter from 'formatters/standardFormatter.js';
+import OdmAttributesFormatter from 'formatters/odmAttributesFormatter.js';
 import MetaDataVersionEditor from 'editors/metaDataVersionEditor.js';
 import GlobalVariablesEditor from 'editors/globalVariablesEditor.js';
 import ControlledTerminologyEditor from 'editors/controlledTerminologyEditor.js';
+import OdmAttributesEditor from 'editors/odmAttributesEditor.js';
 import StandardEditor from 'editors/standardEditor.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import {
-    updateGlobalVariables,
+    updateGlobalVariablesAndStudyOid,
     updateMetaDataVersion,
     updateControlledTerminologies,
     updatedStandards,
@@ -23,10 +25,10 @@ import { TranslatedText } from 'elements.js';
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateGlobalVariables         : (updateObj) => dispatch(updateGlobalVariables(updateObj)),
-        updateMetaDataVersion         : (updateObj) => dispatch(updateMetaDataVersion(updateObj)),
-        updateControlledTerminologies : (updateObj) => dispatch(updateControlledTerminologies(updateObj)),
-        updatedStandards              : (updateObj) => dispatch(updatedStandards(updateObj)),
+        updateGlobalVariablesAndStudyOid : (updateObj) => dispatch(updateGlobalVariablesAndStudyOid(updateObj)),
+        updateMetaDataVersion            : (updateObj) => dispatch(updateMetaDataVersion(updateObj)),
+        updateControlledTerminologies    : (updateObj) => dispatch(updateControlledTerminologies(updateObj)),
+        updatedStandards                 : (updateObj) => dispatch(updatedStandards(updateObj)),
     };
 };
 
@@ -51,14 +53,22 @@ const mapStateToProps = state => {
         comment,
     };
 
+    const odmAttrs = {
+        fileOid      : state.odm.fileOid,
+        asOfDateTime : state.odm.asOfDateTime,
+        originator   : state.odm.originator,
+    };
+
     return {
         globalVariables : state.odm.study.globalVariables,
+        studyOid        : state.odm.study.oid,
         standards       : state.odm.study.metaDataVersion.standards,
         lang            : state.odm.study.metaDataVersion.lang,
         stdConstants    : state.stdConstants,
         stdCodeLists    : state.stdCodeLists,
         tabs            : state.ui.tabs,
         mdvAttrs,
+        odmAttrs,
         comments,
         defineVersion,
     };
@@ -73,6 +83,7 @@ class ConnectedStandardTable extends React.Component {
             globalVariablesEdit       : false,
             controlledTerminologyEdit : false,
             standardEdit              : false,
+            odmAttrsEdit              : false,
         };
     }
 
@@ -89,6 +100,8 @@ class ConnectedStandardTable extends React.Component {
             this.setState({controlledTerminologyEdit: true});
         } else if (name === 'standardEdit') {
             this.setState({standardEdit: true});
+        } else if (name === 'odmAttrsEdit') {
+            this.setState({odmAttrsEdit: true});
         }
     }
 
@@ -110,16 +123,18 @@ class ConnectedStandardTable extends React.Component {
                 this.props.updateMetaDataVersion(updateObj);
             }
             this.setState({metaDataEdit: false});
-        } else if (name === 'globalVariables') {
+        } else if (name === 'globalVariablesAndStudyOid') {
             // Check which properties changed;
             for (let prop in returnValue) {
-                if (this.props.globalVariables[prop] !== returnValue[prop]) {
+                if (prop !== 'studyOid' && this.props.globalVariables[prop] !== returnValue[prop]) {
+                    updateObj[prop] = returnValue[prop];
+                } else if (prop === 'studyOid' && this.props.studyOid !== returnValue[prop]) {
                     updateObj[prop] = returnValue[prop];
                 }
             }
 
             if (Object.keys(updateObj).length > 0) {
-                this.props.updateGlobalVariables(updateObj);
+                this.props.updateGlobalVariablesAndStudyOid(updateObj);
             }
             this.setState({globalVariablesEdit: false});
         } else if (name === 'controlledTerminology' || name === 'standard') {
@@ -191,12 +206,14 @@ class ConnectedStandardTable extends React.Component {
     cancel = (name) => () => {
         if (name === 'metaDataVersion') {
             this.setState({metaDataEdit: false});
-        } else if (name === 'globalVariables') {
+        } else if (name === 'globalVariablesAndStudyOid') {
             this.setState({globalVariablesEdit: false});
         } else if (name === 'controlledTerminology') {
             this.setState({controlledTerminologyEdit: false});
         } else if (name === 'standard') {
             this.setState({standardEdit: false});
+        } else if (name === 'odmAttrs') {
+            this.setState({odmAttrsEdit: false});
         }
     }
 
@@ -208,12 +225,14 @@ class ConnectedStandardTable extends React.Component {
                     { this.state.globalVariablesEdit === true ? (
                         <GlobalVariablesEditor
                             globalVariables={this.props.globalVariables}
-                            onSave={this.save('globalVariables')}
-                            onCancel={this.cancel('globalVariables')}
+                            studyOid={this.props.studyOid}
+                            onSave={this.save('globalVariablesAndStudyOid')}
+                            onCancel={this.cancel('globalVariablesAndStudyOid')}
                         />
                     ) : (
                         <GlobalVariablesFormatter
                             globalVariables={this.props.globalVariables}
+                            studyOid={this.props.studyOid}
                             onEdit={this.handleChange('globalVariablesEdit')}
                         />
                     )
@@ -273,6 +292,21 @@ class ConnectedStandardTable extends React.Component {
                     )
                     }
                 </Grid>
+                <Grid item xs={12}>
+                    {  this.state.odmAttrsEdit === true ? (
+                        <OdmAttributesEditor
+                            odmAttrs={this.props.odmAttrs}
+                            onSave={this.save('odmAttrs')}
+                            onCancel={this.cancel('odmAttrs')}
+                        />
+                    ) : (
+                        <OdmAttributesFormatter
+                            odmAttrs={this.props.odmAttrs}
+                            onEdit={this.handleChange('odmAttrsEdit')}
+                        />
+                    )
+                    }
+                </Grid>
             </Grid>
         );
     }
@@ -280,6 +314,7 @@ class ConnectedStandardTable extends React.Component {
 
 ConnectedStandardTable.propTypes = {
     globalVariables : PropTypes.object.isRequired,
+    studyOid        : PropTypes.string.isRequired,
     standards       : PropTypes.object.isRequired,
     comments        : PropTypes.object.isRequired,
     mdvAttrs        : PropTypes.object.isRequired,

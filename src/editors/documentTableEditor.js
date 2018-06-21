@@ -24,6 +24,9 @@ const styles = theme => ({
         padding   : 16,
         marginTop : theme.spacing.unit,
     },
+    button: {
+        marginBottom: theme.spacing.unit,
+    },
     delColumn: {
         width: '50px',
     },
@@ -40,6 +43,15 @@ const styles = theme => ({
         minWidth: '210px',
     },
 });
+
+const CustomTableCell = withStyles(theme => ({
+    head: {
+        backgroundColor : theme.palette.primary.main,
+        color           : '#EEEEEE',
+        fontSize        : 16,
+        fontWeight      : 'bold',
+    },
+}))(TableCell);
 
 class DocumentTableEditor extends React.Component {
 
@@ -91,7 +103,7 @@ class DocumentTableEditor extends React.Component {
         const createRow = (leafId) => {
             return (
                 <TableRow key={leafId}>
-                    <TableCell>
+                    <CustomTableCell>
                         <Tooltip title="Remove Document" placement="bottom-end">
                             <IconButton
                                 color='secondary'
@@ -100,8 +112,8 @@ class DocumentTableEditor extends React.Component {
                                 <RemoveIcon />
                             </IconButton>
                         </Tooltip>
-                    </TableCell>
-                    <TableCell>
+                    </CustomTableCell>
+                    <CustomTableCell>
                         <TextField
                             label='Type'
                             value={leafs[leafId].type}
@@ -111,8 +123,8 @@ class DocumentTableEditor extends React.Component {
                         >
                             {getSelectionList(typeLabelList)}
                         </TextField>
-                    </TableCell>
-                    <TableCell>
+                    </CustomTableCell>
+                    <CustomTableCell>
                         <TextField
                             label='Title'
                             value={leafs[leafId].title}
@@ -120,8 +132,8 @@ class DocumentTableEditor extends React.Component {
                             onChange={this.handleChange('title',leafId)}
                             className={this.props.classes.inputField}
                         />
-                    </TableCell>
-                    <TableCell>
+                    </CustomTableCell>
+                    <CustomTableCell>
                         <TextField
                             label='Location'
                             value={leafs[leafId].href}
@@ -129,7 +141,7 @@ class DocumentTableEditor extends React.Component {
                             onChange={this.handleChange('href',leafId)}
                             className={this.props.classes.inputField}
                         />
-                    </TableCell>
+                    </CustomTableCell>
                 </TableRow>
             );
         };
@@ -173,10 +185,10 @@ class DocumentTableEditor extends React.Component {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell className={classes.delColumn}></TableCell>
-                            <TableCell className={classes.typeColumn}>Type</TableCell>
-                            <TableCell className={classes.titleColumn}>Title</TableCell>
-                            <TableCell className={classes.locationColumn}>Location</TableCell>
+                            <CustomTableCell className={classes.delColumn}></CustomTableCell>
+                            <CustomTableCell className={classes.typeColumn}>Type</CustomTableCell>
+                            <CustomTableCell className={classes.titleColumn}>Title</CustomTableCell>
+                            <CustomTableCell className={classes.locationColumn}>Location</CustomTableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>

@@ -9,39 +9,35 @@ import ListItemText from '@material-ui/core/ListItemText';
 import FormattingControlIcons from 'formatters/formattingControlIcons.js';
 
 const styles = theme => ({
-    globalVariables: {
+    odmAttributes: {
         padding   : 16,
         marginTop : theme.spacing.unit * 3,
         width     : '100%',
     },
 });
 
-class GlobalVariablesFormatter extends React.Component {
+class OdmAttributesFormatter extends React.Component {
 
     render () {
-        const { classes, globalVariables, studyOid } = this.props;
-        const { protocolName, studyName, studyDescription } = globalVariables;
+        const { classes, odmAttrs } = this.props;
+        const { fileOid, asOfDateTime, originator } = odmAttrs;
         return (
-            <Paper className={classes.globalVariables} elevation={4}>
+            <Paper className={classes.odmAttributes} elevation={4}>
                 <Typography variant="headline" component="h3">
-                    Global Variables and Study OID
+                    ODM Attributes
                     <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>
                 <List>
                     <ListItem>
-                        <ListItemText primary='Study OID' secondary={studyOid}>
+                        <ListItemText primary='File OID' secondary={fileOid}>
                         </ListItemText>
                     </ListItem>
                     <ListItem>
-                        <ListItemText primary='Study Name' secondary={studyName}>
+                        <ListItemText primary='Sponsor Name' secondary={originator}>
                         </ListItemText>
                     </ListItem>
                     <ListItem>
-                        <ListItemText primary='Protocol Name' secondary={protocolName}>
-                        </ListItemText>
-                    </ListItem>
-                    <ListItem>
-                        <ListItemText primary='Study Description' secondary={studyDescription}>
+                        <ListItemText primary='Database Query Datetime' secondary={asOfDateTime}>
                         </ListItemText>
                     </ListItem>
                 </List>
@@ -50,11 +46,11 @@ class GlobalVariablesFormatter extends React.Component {
     }
 }
 
-GlobalVariablesFormatter.propTypes = {
-    globalVariables : PropTypes.object.isRequired,
-    classes         : PropTypes.object.isRequired,
-    onEdit          : PropTypes.func.isRequired,
-    onComment       : PropTypes.func,
+OdmAttributesFormatter.propTypes = {
+    odmAttrs  : PropTypes.object.isRequired,
+    classes   : PropTypes.object.isRequired,
+    onEdit    : PropTypes.func.isRequired,
+    onComment : PropTypes.func,
 };
 
-export default withStyles(styles)(GlobalVariablesFormatter);
+export default withStyles(styles)(OdmAttributesFormatter);

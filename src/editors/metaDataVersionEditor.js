@@ -14,6 +14,7 @@ const styles = theme => ({
         padding   : 16,
         marginTop : theme.spacing.unit * 3,
         width     : '100%',
+        outline   : 'none',
     },
     inputField: {
     },
@@ -41,10 +42,19 @@ class MetaDataVersionEditor extends React.Component {
         this.props.onCancel();
     }
 
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.cancel();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.save();
+        }
+    }
+
+
     render () {
         const { classes, defineVersion } = this.props;
         return (
-            <Paper className={classes.metaDataVersion} elevation={4}>
+            <Paper className={classes.metaDataVersion} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Typography variant="headline" component="h3">
                     Metadata Version
                     <EditingControlIcons onSave={this.save} onCancel={this.cancel}/>

@@ -3,8 +3,6 @@ import {
     ADD_ODM,
     ADD_STDCONST,
     LOAD_STDCT,
-    UPD_STDCT,
-    UPD_STD,
     UPD_ITEMGROUP,
     UPD_ITEMGROUPORDER,
     ADD_ITEMGROUP,
@@ -13,8 +11,6 @@ import {
     DEL_ITEMGROUPCOMMENT,
     UPD_ITEMGROUPCOMMENT,
     REP_ITEMGROUPCOMMENT,
-    UPD_GLOBALVARS,
-    UPD_MDV,
     UPD_KEYOREDER,
 } from "constants/action-types";
 
@@ -103,36 +99,7 @@ export const replaceItemGroupComment = (source, newComment, oldCommentOid) => (
     }
 );
 
-// Standard
-
-export const updateGlobalVariables = (updateObj) => (
-    {
-        type: UPD_GLOBALVARS,
-        updateObj,
-    }
-);
-
-export const updateMetaDataVersion = (updateObj) => (
-    {
-        type: UPD_MDV,
-        updateObj,
-    }
-);
-
-export const updateControlledTerminologies = (updateObj) => (
-    {
-        type: UPD_STDCT,
-        updateObj,
-    }
-);
-
-export const updatedStandards = (updateObj) => (
-    {
-        type: UPD_STD,
-        updateObj,
-    }
-);
-
+export * from 'actions/standard.js';
 export * from 'actions/codeList.js';
 export * from 'actions/item.js';
 export * from 'actions/leaf.js';

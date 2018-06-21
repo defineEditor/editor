@@ -17,8 +17,20 @@ const styles = theme => ({
     },
     typeColumn: {
         width: '20%',
-    }
+    },
 });
+
+const CustomTableCell = withStyles(theme => ({
+    head: {
+        backgroundColor : theme.palette.primary.main,
+        color           : '#EEEEEE',
+        fontSize        : 16,
+        fontWeight      : 'bold',
+    },
+    body: {
+        fontSize: 14,
+    },
+}))(TableCell);
 
 class DocumentTableFormatter extends React.Component {
 
@@ -28,12 +40,12 @@ class DocumentTableFormatter extends React.Component {
         const createRow = (leafId) => {
             return (
                 <TableRow key={leafId}>
-                    <TableCell>
+                    <CustomTableCell>
                         {this.props.documentTypes.typeLabel[leafs[leafId].type]}
-                    </TableCell>
-                    <TableCell>
+                    </CustomTableCell>
+                    <CustomTableCell>
                         <a href={'file://' + leafs[leafId].href}>{leafs[leafId].title}</a>
-                    </TableCell>
+                    </CustomTableCell>
                 </TableRow>
             );
         };
@@ -54,8 +66,8 @@ class DocumentTableFormatter extends React.Component {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell className={classes.typeColumn}>Type</TableCell>
-                            <TableCell>Document</TableCell>
+                            <CustomTableCell className={classes.typeColumn}>Type</CustomTableCell>
+                            <CustomTableCell>Document</CustomTableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>

@@ -19,16 +19,15 @@ const styles = theme => ({
     },
 });
 
-class GlobalVariablesEditor extends React.Component {
+class OdmAttributesEditor extends React.Component {
 
     constructor (props) {
 
         super(props);
 
-        const { globalVariables, studyOid } = this.props;
+        const { odmAttrs } = this.props;
         this.state = {
-            ...globalVariables,
-            studyOid,
+            ...odmAttrs,
         };
     }
 
@@ -59,39 +58,29 @@ class GlobalVariablesEditor extends React.Component {
                 <List>
                     <ListItem dense>
                         <TextField
-                            label='Study Name'
-                            value={this.state.studyOid}
+                            label='File OID'
+                            value={this.state.fileOid}
                             fullWidth
-                            onChange={this.handleChange('studyOid')}
+                            onChange={this.handleChange('fileOid')}
                             className={classes.inputField}
                         />
                     </ListItem>
                     <ListItem dense>
                         <TextField
-                            label='Study Name'
-                            value={this.state.studyName}
+                            label='Sponsor Name'
+                            value={this.state.originator}
                             fullWidth
                             autoFocus
-                            onChange={this.handleChange('studyName')}
+                            onChange={this.handleChange('originator')}
                             className={classes.inputField}
                         />
                     </ListItem>
                     <ListItem dense>
                         <TextField
-                            label='Protocol Name'
-                            value={this.state.protocolName}
+                            label='Database Query Datetime'
+                            value={this.state.asOfDateTime}
                             fullWidth
-                            onChange={this.handleChange('protocolName')}
-                            className={classes.inputField}
-                        />
-                    </ListItem>
-                    <ListItem dense>
-                        <TextField
-                            label='Study Description'
-                            value={this.state.studyDescription}
-                            fullWidth
-                            multiline
-                            onChange={this.handleChange('studyDescription')}
+                            onChange={this.handleChange('asOfDateTime')}
                             className={classes.inputField}
                         />
                     </ListItem>
@@ -101,13 +90,13 @@ class GlobalVariablesEditor extends React.Component {
     }
 }
 
-GlobalVariablesEditor.propTypes = {
-    globalVariables : PropTypes.object.isRequired,
-    classes         : PropTypes.object.isRequired,
-    onSave          : PropTypes.func.isRequired,
-    onCancel        : PropTypes.func.isRequired,
-    onHelp          : PropTypes.func,
-    onComment       : PropTypes.func,
+OdmAttributesEditor.propTypes = {
+    odmAttrs  : PropTypes.object.isRequired,
+    classes   : PropTypes.object.isRequired,
+    onSave    : PropTypes.func.isRequired,
+    onCancel  : PropTypes.func.isRequired,
+    onHelp    : PropTypes.func,
+    onComment : PropTypes.func,
 };
 
-export default withStyles(styles)(GlobalVariablesEditor);
+export default withStyles(styles)(OdmAttributesEditor);

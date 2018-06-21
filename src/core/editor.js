@@ -44,12 +44,21 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
+    let defineLoaded = false;
     let odmLoaded = false;
+    let mdv = state.odm.study.metaDataVersion;
     if (state.odm !== undefined && state.odm.odmVersion !== undefined) {
         odmLoaded = true;
     }
+    if (odmLoaded) {
+        // Check all standards were loaded
+        defineLoaded = Object.keys(mdv.standards)
+            .filter(standardOid => (mdv.standards[standardOid].type === 'CT'))
+            .every(standardOid => ( state.stdCodeLists.hasOwnProperty(standardOid) ))
+        ;
+    }
     return {
-        odmLoaded,
+        defineLoaded,
         codeLists: odmLoaded ? state.odm.study.metaDataVersion.codeLists : undefined,
     };
 };
@@ -111,7 +120,10 @@ class ConnectedEditor extends React.Component {
             });
         }
         */
-        this.props.addOdm(odm);
+        // TODO: Debugging - remove later - add CTs to standards
+        let ctUpdateObj = {addedStandards: {'CDISC_CT.ADaM.2017-09-29': {oid: 'CDISC_CT.ADaM.2017-09-29',name: 'CDISC/NCI',type: 'CT',publishingSet: 'ADaM',version: '2017-09-29'},'CDISC_CT.SDTM.2017-12-22': {oid: 'CDISC_CT.SDTM.2017-12-22',name: 'CDISC/NCI',type: 'CT',publishingSet: 'SDTM',version: '2017-12-22'}},removedStandardOids: [],updatedStandards: []};
+        Promise.resolve(this.props.addOdm(odm))
+            .then(this.props.updatedStandards(ctUpdateObj));
     }
 
     loadStdCodeLists = (error, data) => {
@@ -135,10 +147,7 @@ class ConnectedEditor extends React.Component {
                 }
             });
             // TODO: Move default standard population to standards tab and check if loaded standard impacts existing codelists
-            // TODO: Debugging - remove later - add CTs to standards
-            let ctUpdateObj = {addedStandards: {'CDISC_CT.ADaM.2017-09-29': {oid: 'CDISC_CT.ADaM.2017-09-29',name: 'CDISC/NCI',type: 'CT',publishingSet: 'ADaM',version: '2017-09-29'},'CDISC_CT.SDTM.2017-12-22': {oid: 'CDISC_CT.SDTM.2017-12-22',name: 'CDISC/NCI',type: 'CT',publishingSet: 'SDTM',version: '2017-12-22'}},removedStandardOids: [],updatedStandards: []};
             Promise.resolve(this.props.addStdControlledTerminology(stdCodeListsOdm))
-                .then(this.props.updatedStandards(ctUpdateObj))
                 .then(this.props.updateCodeListStandardOids(updateObj));
         }
     }
@@ -147,7 +156,7 @@ class ConnectedEditor extends React.Component {
         const { classes } = this.props;
         return (
             <React.Fragment>
-                {this.props.odmLoaded ? (
+                {this.props.defineLoaded ? (
                     <EditorTabs/>
                 ) : (
                     <div className={classes.loading}>
@@ -163,9 +172,9 @@ class ConnectedEditor extends React.Component {
 }
 
 ConnectedEditor.propTypes = {
-    odmLoaded : PropTypes.bool.isRequired,
-    classes   : PropTypes.object.isRequired,
-    codeLists : PropTypes.object,
+    defineLoaded : PropTypes.bool.isRequired,
+    classes      : PropTypes.object.isRequired,
+    codeLists    : PropTypes.object,
 };
 
 const Editor = connect(mapStateToProps, mapDispatchToProps)(ConnectedEditor);

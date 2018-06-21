@@ -19,6 +19,7 @@ const styles = theme => ({
     controlledTerminology: {
         padding   : 16,
         marginTop : theme.spacing.unit * 1,
+        outline   : 'none',
     },
     inputField: {
         minWidth: '450px',
@@ -111,10 +112,18 @@ class ControlledTerminologyEditor extends React.Component {
         this.props.onSave(this.state);
     }
 
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.props.onCancel();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.save();
+        }
+    }
+
     render () {
         const { classes } = this.props;
         return (
-            <Paper className={classes.controlledTerminology} elevation={4}>
+            <Paper className={classes.controlledTerminology} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Typography variant="headline" component="h3">
                     Controlled Terminology
                     <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
