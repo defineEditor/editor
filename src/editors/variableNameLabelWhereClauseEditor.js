@@ -7,6 +7,7 @@ import VariableNameLabelEditor from 'editors/variableNameLabelEditor.js';
 import VariableWhereClauseEditor from 'editors/variableWhereClauseEditor.js';
 import SaveCancel from 'editors/saveCancel.js';
 import CommentEditor from 'editors/commentEditor.js';
+import getOidByName from 'utils/getOidByName.js';
 import { WhereClause, RangeCheck, TranslatedText } from 'elements.js';
 
 const styles = theme => ({
@@ -180,15 +181,15 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
             let itemOid, itemGroupOid;
             if (/\./.test(rangeCheckElements[0])) {
                 // If variable part contains dataset name;
-                itemGroupOid = this.props.mdv.getOidByName('itemGroups',rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$1'));
+                itemGroupOid = getOidByName(this.props.mdv, 'itemGroups',rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$1'));
                 if (itemGroupOid !== undefined) {
-                    itemOid = this.props.mdv.itemGroups[itemGroupOid].getOidByName(rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$2'), this.props.mdv.itemDefs);
+                    itemOid = getOidByName(this.props.mdv, 'ItemRefs', rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$2'), itemGroupOid);
                 }
             } else {
                 // If variable part does not contain dataset name, use the current dataset;
                 itemGroupOid = this.state.dataset.oid;
                 if (itemGroupOid !== undefined) {
-                    itemOid = this.props.mdv.itemGroups[itemGroupOid].getOidByName(rangeCheckElements[0], this.props.mdv.itemDefs);
+                    itemOid = getOidByName(this.props.mdv, 'ItemRefs', rangeCheckElements[0], itemGroupOid);
                 }
             }
             if (itemOid !== undefined && itemGroupOid !== undefined) {
@@ -234,15 +235,15 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
             let itemOid, itemGroupOid;
             if (/\./.test(rangeCheckElements[0])) {
                 // If variable part contains dataset name;
-                itemGroupOid = this.props.mdv.getOidByName('itemGroups',rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$1'));
+                itemGroupOid = getOidByName(this.props.mdv, 'itemGroups',rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$1'));
                 if (itemGroupOid !== undefined) {
-                    itemOid = this.props.mdv.itemGroups[itemGroupOid].getOidByName(rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$2'), this.props.mdv.itemDefs);
+                    itemOid = getOidByName(this.props.mdv, 'ItemRefs', rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$2'), itemGroupOid);
                 }
             } else {
                 // If variable part does not contain dataset name, use the current dataset;
                 itemGroupOid = this.state.dataset.oid;
                 if (itemGroupOid !== undefined) {
-                    itemOid = this.props.mdv.itemGroups[itemGroupOid].getOidByName(rangeCheckElements[0], this.props.mdv.itemDefs);
+                    itemOid = getOidByName(this.props.mdv, 'ItemRefs', rangeCheckElements[0], itemGroupOid);
                 }
             }
             let comparator = rangeCheckElements[1].toUpperCase();

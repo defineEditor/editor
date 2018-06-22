@@ -513,7 +513,7 @@ class Method extends Comment {
 
 class MetaDataVersion extends BasicFunctions {
     constructor ({
-        oid, name, defineVersion, commentOid,
+        oid, name, defineVersion, commentOid, description,
         standards = {},
         valueLists = {},
         whereClauses = {},
@@ -527,16 +527,15 @@ class MetaDataVersion extends BasicFunctions {
         lang = 'en',
         annotatedCrf = {},
         supplementalDoc = {},
-        descriptions = [],
         order = { itemGroupOrder: [], codeListOrder: [], leafOrder: [] },
     } = {}) {
         super();
         this.oid = oid || getOid(this.constructor.name);
         this.name = name;
         this.defineVersion = defineVersion;
+        this.description = description;
         this.commentOid = commentOid; //2.1
         // Child elements
-        this.descriptions = descriptions;
         this.standards = standards;
         this.annotatedCrf = annotatedCrf;
         this.supplementalDoc = supplementalDoc;
@@ -558,17 +557,6 @@ class MetaDataVersion extends BasicFunctions {
     }
     addItemGroup (itemGroup) {
         this.itemGroups[itemGroup.oid] = itemGroup;
-    }
-    getOidByName (source, name) {
-        let result;
-        Object.keys(this[source]).some( oid => {
-            if (this[source][oid].name.toLowerCase() === name.toLowerCase()) {
-                result = oid;
-                return true;
-            }
-            return false;
-        });
-        return result;
     }
 }
 

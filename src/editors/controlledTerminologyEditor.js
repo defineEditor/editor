@@ -43,7 +43,7 @@ class ControlledTerminologyEditor extends React.Component {
         Object.keys(this.props.standards).forEach( standardOid => {
             standardsCopy[standardOid] = new Standard(this.props.standards[standardOid]);
         });
-        this.state = { standards: standardsCopy };
+        this.state = { standards: standardsCopy, standardOrder: this.props.standardOrder.slice() };
     }
 
     handleChange = (name, oid) => (event) => {
@@ -51,7 +51,8 @@ class ControlledTerminologyEditor extends React.Component {
             let newStandards = { ...this.state.standards };
             let newOid = getOid('Standard', undefined, Object.keys(this.state.standards));
             newStandards[newOid] = new Standard({ oid: newOid, name: 'CDISC/NCI', type: 'CT' });
-            this.setState({ standards: newStandards });
+            let newStandardOrder = this.state.standardOrder.slice().concat(newOid);
+            this.setState({ standards: newStandards, standardOrder: newStandardOrder });
         } else if (name === 'updateCt') {
             let newOid = event.target.value;
             if (oid !== newOid) {
@@ -68,7 +69,8 @@ class ControlledTerminologyEditor extends React.Component {
         } else if (name === 'deleteCt') {
             let newStandards = { ...this.state.standards };
             delete newStandards[oid];
-            this.setState({ standards: newStandards });
+            let newStandardOrder = this.state.standardOrder.slice().splice(this.state.standardOrder.indexOf(oid), 1);
+            this.setState({ standards: newStandards, standardOrder: newStandardOrder });
         }
     }
 
@@ -148,13 +150,14 @@ class ControlledTerminologyEditor extends React.Component {
 }
 
 ControlledTerminologyEditor.propTypes = {
-    standards    : PropTypes.object.isRequired,
-    stdCodeLists : PropTypes.object.isRequired,
-    classes      : PropTypes.object.isRequired,
-    onSave       : PropTypes.func.isRequired,
-    onCancel     : PropTypes.func.isRequired,
-    onHelp       : PropTypes.func,
-    onComment    : PropTypes.func,
+    standards     : PropTypes.object.isRequired,
+    standardOrder : PropTypes.array.isRequired,
+    stdCodeLists  : PropTypes.object.isRequired,
+    classes       : PropTypes.object.isRequired,
+    onSave        : PropTypes.func.isRequired,
+    onCancel      : PropTypes.func.isRequired,
+    onHelp        : PropTypes.func,
+    onComment     : PropTypes.func,
 };
 
 export default withStyles(styles)(ControlledTerminologyEditor);

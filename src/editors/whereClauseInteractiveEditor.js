@@ -9,6 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import getSelectionList from 'utils/getSelectionList.js';
 import SaveCancel from 'editors/saveCancel.js';
+import getOidByName from 'utils/getOidByName.js';
 import clone from 'clone';
 
 
@@ -167,11 +168,11 @@ class WhereClauseEditorInteractive extends React.Component {
                 return;
             }
             result[index].itemGroupName = updateObj.target.value;
-            result[index].itemGroupOid = this.props.mdv.getOidByName('itemGroups',updateObj.target.value);
+            result[index].itemGroupOid = getOidByName(this.props.mdv, 'itemGroups',updateObj.target.value);
             // Reset all other values
             let updatedListOfVariables = this.updateListOfVariables(result[index].itemGroupOid);
             result[index].itemName = updatedListOfVariables[result[index].itemGroupOid][0];
-            result[index].itemOid = this.props.mdv.getOidByName('itemDefs',result[index].itemName);
+            result[index].itemOid = getOidByName(this.props.mdv, 'itemDefs',result[index].itemName);
             result[index].comparator = 'EQ';
             result[index].checkValues = [''];
             this.setState({
@@ -184,7 +185,7 @@ class WhereClauseEditorInteractive extends React.Component {
                 return;
             }
             result[index].itemName = updateObj.target.value;
-            result[index].itemOid = this.props.mdv.getOidByName('itemDefs',updateObj.target.value);
+            result[index].itemOid = getOidByName(this.props.mdv, 'itemDefs',updateObj.target.value);
             // Reset all other values
             result[index].comparator = 'EQ';
             result[index].checkValues = [''];
@@ -224,11 +225,11 @@ class WhereClauseEditorInteractive extends React.Component {
             let newIndex = result.length;
             result[newIndex] = {};
             result[newIndex].itemGroupName = this.props.dataset.name;
-            result[newIndex].itemGroupOid = this.props.mdv.getOidByName('itemGroups',result[newIndex].itemGroupName);
+            result[newIndex].itemGroupOid = getOidByName(this.props.mdv, 'itemGroups',result[newIndex].itemGroupName);
             // Reset all other values
             let updatedListOfVariables = this.updateListOfVariables(result[newIndex].itemGroupOid);
             result[newIndex].itemName = updatedListOfVariables[result[newIndex].itemGroupOid][0];
-            result[newIndex].itemOid = this.props.mdv.getOidByName('itemDefs',result[newIndex].itemName);
+            result[newIndex].itemOid = getOidByName(this.props.mdv, 'itemDefs',result[newIndex].itemName);
             result[newIndex].comparator = 'EQ';
             result[newIndex].checkValues = [''];
             this.setState({

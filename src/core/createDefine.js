@@ -87,17 +87,15 @@ function createMetaDataVersion (data, version) {
     let xmlRoot = xmlBuilder.create('MetaDataVersion');
     if (version === '2.0.0') {
         // MetaDataVersion
-        let description;
-        if (data.descriptions.length >= 1) {
-            description = data.descriptions[0].value;
-        }
+        let standardName = data.standards[Object.keys(data.standards).filter(stdOid => (data.standards[stdOid].type !== 'CT'))[0]].name;
+        let standardVersion = data.standards[Object.keys(data.standards).filter(stdOid => (data.standards[stdOid].type !== 'CT'))[0]].version;
         let attributes = {
             'OID'                 : data.oid,
             'Name'                : data.name,
-            'Description'         : description,
+            'Description'         : data.description,
             'def:DefineVersion'   : version,
-            'def:StandardName'    : data.standards[Object.keys(data.standards)[0]].name,
-            'def:StandardVersion' : data.standards[Object.keys(data.standards)[0]].version
+            'def:StandardName'    : standardName,
+            'def:StandardVersion' : standardVersion,
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {

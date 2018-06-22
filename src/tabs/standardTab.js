@@ -18,9 +18,10 @@ import {
     updateGlobalVariablesAndStudyOid,
     updateMetaDataVersion,
     updateControlledTerminologies,
-    updatedStandards,
+    updateStandards,
+    updateOdmAttrs,
+    updateModel,
 } from 'actions/index.js';
-import { TranslatedText } from 'elements.js';
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
@@ -28,7 +29,9 @@ const mapDispatchToProps = dispatch => {
         updateGlobalVariablesAndStudyOid : (updateObj) => dispatch(updateGlobalVariablesAndStudyOid(updateObj)),
         updateMetaDataVersion            : (updateObj) => dispatch(updateMetaDataVersion(updateObj)),
         updateControlledTerminologies    : (updateObj) => dispatch(updateControlledTerminologies(updateObj)),
-        updatedStandards                 : (updateObj) => dispatch(updatedStandards(updateObj)),
+        updateStandards                  : (updateObj) => dispatch(updateStandards(updateObj)),
+        updateModel                      : (updateObj) => dispatch(updateModel(updateObj)),
+        updateOdmAttrs                   : (updateObj) => dispatch(updateOdmAttrs(updateObj)),
     };
 };
 
@@ -43,7 +46,7 @@ const mapStateToProps = state => {
         comment = comments[mdvCommentOid];
     }
 
-    let description = state.odm.study.metaDataVersion.getDescription();
+    let description = state.odm.study.metaDataVersion.description;
     if (description === undefined) {
         description = '';
     }
@@ -55,15 +58,17 @@ const mapStateToProps = state => {
 
     const odmAttrs = {
         fileOid      : state.odm.fileOid,
-        asOfDateTime : state.odm.asOfDateTime,
-        originator   : state.odm.originator,
+        asOfDateTime : state.odm.asOfDateTime !== undefined ? state.odm.asOfDateTime : '',
+        originator   : state.odm.originator !== undefined ? state.odm.originator: '',
     };
 
     return {
         globalVariables : state.odm.study.globalVariables,
         studyOid        : state.odm.study.oid,
         standards       : state.odm.study.metaDataVersion.standards,
+        standardOrder   : state.odm.study.metaDataVersion.order.standardOrder,
         lang            : state.odm.study.metaDataVersion.lang,
+        model           : state.odm.study.metaDataVersion.model,
         stdConstants    : state.stdConstants,
         stdCodeLists    : state.stdCodeLists,
         tabs            : state.ui.tabs,
@@ -113,10 +118,9 @@ class ConnectedStandardTable extends React.Component {
                 updateObj.name = returnValue.name;
             }
             if (returnValue.description === '') {
-                updateObj.descriptions = [];
+                updateObj.description = undefined;
             } else if (this.props.mdvAttrs.description !== returnValue.description) {
-                let newDescription = new TranslatedText({ value: returnValue.description, lang: this.props.lang });
-                updateObj.descriptions = [newDescription];
+                updateObj.description = returnValue.description;
             }
 
             if (Object.keys(updateObj).length > 0) {
@@ -192,7 +196,7 @@ class ConnectedStandardTable extends React.Component {
                     || Object.keys(addedStandards).length > 0
                     || removedStandardOids.length > 0
                 ) {
-                    this.props.updatedStandards({
+                    this.props.updateStandards({
                         addedStandards,
                         removedStandardOids,
                         updatedStandards,
@@ -200,6 +204,39 @@ class ConnectedStandardTable extends React.Component {
                 }
                 this.setState({standardEdit: false});
             }
+            // Check if the model changed;
+            if (name === 'standard') {
+                if (Object.keys(updatedStandards).filter(stdOid => (updatedStandards[stdOid].isDefault === 'Yes')).length > 0) {
+                    let newModel;
+                    let defaultStandardName = Object.keys(updatedStandards).filter(stdOid => (updatedStandards[stdOid].isDefault === 'Yes'))[0].name;
+                    if (/adam/i.test(defaultStandardName)) {
+                        newModel = 'ADaM';
+                    } else if (/sdtm/i.test(defaultStandardName)) {
+                        newModel = 'SDTM';
+                    } else if (/send/i.test(defaultStandardName)) {
+                        newModel = 'SEND';
+                    }
+                    if (newModel !== this.props.model) {
+                        this.props.updateModel({model: newModel});
+                    }
+                }
+            }
+        } else if (name === 'odmAttrs') {
+            // Check which properties changed;
+            for (let prop in returnValue) {
+                if (this.props.odmAttrs[prop] !== returnValue[prop]) {
+                    if (returnValue[prop].replace(/ /g,'') === '') {
+                        updateObj[prop] = undefined;
+                    } else {
+                        updateObj[prop] = returnValue[prop];
+                    }
+                }
+            }
+
+            if (Object.keys(updateObj).length > 0) {
+                this.props.updateOdmAttrs(updateObj);
+            }
+            this.setState({odmAttrsEdit: false});
         }
     }
 
@@ -277,6 +314,7 @@ class ConnectedStandardTable extends React.Component {
                     {  this.state.controlledTerminologyEdit === true ? (
                         <ControlledTerminologyEditor
                             standards={this.props.standards}
+                            standardOrder={this.props.standardOrder}
                             stdCodeLists={this.props.stdCodeLists}
                             defineVersion={this.props.defineVersion}
                             onSave={this.save('controlledTerminology')}
@@ -285,6 +323,7 @@ class ConnectedStandardTable extends React.Component {
                     ) : (
                         <ControlledTerminologyFormatter
                             standards={this.props.standards}
+                            standardOrder={this.props.standardOrder}
                             stdCodeLists={this.props.stdCodeLists}
                             defineVersion={this.props.defineVersion}
                             onEdit={this.handleChange('controlledTerminologyEdit')}
@@ -317,6 +356,7 @@ ConnectedStandardTable.propTypes = {
     studyOid        : PropTypes.string.isRequired,
     standards       : PropTypes.object.isRequired,
     comments        : PropTypes.object.isRequired,
+    model           : PropTypes.string.isRequired,
     mdvAttrs        : PropTypes.object.isRequired,
     defineVersion   : PropTypes.string.isRequired,
     stdConstants    : PropTypes.object.isRequired,

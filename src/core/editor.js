@@ -12,7 +12,7 @@ import {
     addStdControlledTerminology,
     addStdConstants,
     updateCodeListStandardOids,
-    updatedStandards,
+    updateStandards,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -39,7 +39,7 @@ const mapDispatchToProps = dispatch => {
         addStdControlledTerminology : codeListsOdm => dispatch(addStdControlledTerminology(codeListsOdm)),
         addStdConstants             : () => dispatch(addStdConstants()),
         updateCodeListStandardOids  : (updateObj) => dispatch(updateCodeListStandardOids(updateObj)),
-        updatedStandards            : (updateObj) => dispatch(updatedStandards(updateObj)),
+        updateStandards             : (updateObj) => dispatch(updateStandards(updateObj)),
     };
 };
 
@@ -123,7 +123,7 @@ class ConnectedEditor extends React.Component {
         // TODO: Debugging - remove later - add CTs to standards
         let ctUpdateObj = {addedStandards: {'CDISC_CT.ADaM.2017-09-29': {oid: 'CDISC_CT.ADaM.2017-09-29',name: 'CDISC/NCI',type: 'CT',publishingSet: 'ADaM',version: '2017-09-29'},'CDISC_CT.SDTM.2017-12-22': {oid: 'CDISC_CT.SDTM.2017-12-22',name: 'CDISC/NCI',type: 'CT',publishingSet: 'SDTM',version: '2017-12-22'}},removedStandardOids: [],updatedStandards: []};
         Promise.resolve(this.props.addOdm(odm))
-            .then(this.props.updatedStandards(ctUpdateObj));
+            .then(this.props.updateStandards(ctUpdateObj));
     }
 
     loadStdCodeLists = (error, data) => {

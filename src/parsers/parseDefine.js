@@ -704,11 +704,13 @@ function parseMetaDataVersion (metadataRaw) {
         itemGroupOrder : Object.keys(mdv.itemGroups),
         codeListOrder  : Object.keys(mdv.codeLists),
         leafOrder      : Object.keys(mdv.leafs),
+        standardOrder  : Object.keys(mdv.standards),
     };
 
     let args = {
         oid             : metadataRaw['$']['oid'],
         name            : metadataRaw['$']['name'],
+        description     : metadataRaw['$']['description'],
         defineVersion   : metadataRaw['$']['defineVersion'],
         commentOid      : metadataRaw['$']['commentOid'],
         standards       : mdv.standards,
@@ -742,10 +744,6 @@ function parseMetaDataVersion (metadataRaw) {
     });
 
     let metaDataVersion = new def.MetaDataVersion(args);
-
-    if (metadataRaw['$'].hasOwnProperty('description')) {
-        metaDataVersion.addDescription(new def.TranslatedText({value: metadataRaw['$'].description}));
-    }
 
     return metaDataVersion;
 }

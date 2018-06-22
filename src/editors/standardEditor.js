@@ -67,7 +67,7 @@ class StandardEditor extends React.Component {
                     <TableRow key={standardOid}>
                         { this.props.defineVersion === '2.1.0' &&
                             <TableCell>
-                                <Tooltip title="Remove Controlled Terminology" placement="bottom-end">
+                                <Tooltip title="Remove Standard" placement="bottom-end">
                                     <IconButton
                                         color='secondary'
                                         onClick={this.handleChange('deleteCt',standardOid)}
