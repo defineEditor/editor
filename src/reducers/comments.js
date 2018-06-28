@@ -132,6 +132,21 @@ const replaceComment = (state, action) => {
     return addComment(newState, subAction);
 };
 
+const deleteItemGroupCommentReferences = (state, action) => {
+    // action.deleteObj.commentOids contains:
+    // {commentOid1: [itemOid1, itemOid2], commentOid2: [itemOid3, itemOid1]}
+    // action.deleteObj.itemGroupData contains:
+    // {[itemGroupOid] : commentOids: { commentOid1: [itemOid1, itemOid2], commentOid2: [itemOid3, itemOid1]}}}
+    // Delete comments which were attached to the dataset;
+    let newState = deleteCommentRefereces(state, action, 'itemGroups');
+    // Delete comments which were attached to the variables;
+    Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
+        let subAction = {deleteObj: {}};
+        subAction.deleteObj.commentOids = action.deleteObj.itemGroupData[itemGroupOid].commentOids;
+        newState = deleteCommentRefereces(newState, subAction, 'itemDefs');
+    });
+    return newState;
+};
 
 const deleteCommentRefereces = (state, action, type) => {
     // action.deleteObj.commentOids contains:
@@ -163,7 +178,7 @@ const comments = (state = {}, action) => {
         case REP_ITEMGROUPCOMMENT:
             return replaceComment(state, action);
         case DEL_ITEMGROUPS:
-            return deleteCommentRefereces(state, action, 'itemGroups');
+            return deleteItemGroupCommentReferences(state, action);
         case DEL_VARS:
             return deleteCommentRefereces(state, action, 'itemDefs');
         default:

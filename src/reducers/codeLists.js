@@ -11,6 +11,7 @@ import {
     DEL_CODEDVALUES,
     UPD_CODEDVALUEORDER,
     DEL_VARS,
+    DEL_ITEMGROUPS,
 } from "constants/action-types";
 import { CodeList, CodeListItem, EnumeratedItem, Alias } from 'elements.js';
 import getOid from 'utils/getOid.js';
@@ -614,7 +615,7 @@ const deleteCodedValues = (state, action, skipLinkedCodeListUpdate) => {
     }
 };
 
-const deleteCodeListReferences = (state, action, type) => {
+const deleteCodeListReferences = (state, action) => {
     // action.deleteObj.codeListOids contains:
     // {codeListOid1: [itemOid1, itemOid2], codeListOid2: [itemOid3, itemOid1]}
     let newState = { ...state };
@@ -626,6 +627,8 @@ const deleteCodeListReferences = (state, action, type) => {
                 // If the item to which codeList is attached is the only one, keep it
                 // As codelists can be  created and worked on without any variables
                 // delete newState[codeList.oid];
+                let newCodeList = new CodeList({ ...codeList, sources: { ...codeList.sources, itemDefs: [] } });
+                newState = {...newState, [codeList.oid]: newCodeList};
             } else if (codeList.sources.itemDefs.includes(itemOid)){
                 // Remove  referece to the source OID from the list of codeList sources
                 let newSources = codeList.sources.itemDefs.slice();
@@ -656,6 +659,18 @@ const updateCodedValueOrder = (state, action, skipLinkedCodeListUpdate) => {
     }
 };
 
+const deleteItemGroups = (state, action) => {
+    // action.deleteObj.itemGroupData contains:
+    // {[itemGroupOid] : codeListOids: { [oid1 : {itemOid1, ..}, oid2: { ... }, ...]}}
+    let newState = { ...state };
+    Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
+        let subAction = {deleteObj: {}, source: { itemGroupOid }};
+        subAction.deleteObj.codeListOids = action.deleteObj.itemGroupData[itemGroupOid].codeListOids;
+        newState = deleteCodeListReferences(newState, subAction);
+    });
+    return newState;
+};
+
 const codeLists = (state = {}, action) => {
     switch (action.type) {
         case ADD_CODELIST:
@@ -682,6 +697,8 @@ const codeLists = (state = {}, action) => {
             return updateCodedValueOrder(state, action);
         case DEL_VARS:
             return deleteCodeListReferences(state, action);
+        case DEL_ITEMGROUPS:
+            return deleteItemGroups(state, action);
         default:
             return state;
     }

@@ -1,6 +1,7 @@
 import {
     UPD_ITEMDESCRIPTION,
     DEL_VARS,
+    DEL_ITEMGROUPS,
 } from "constants/action-types";
 import { Method } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -142,12 +143,28 @@ const deleteVariableMethods = (state, action) => {
     return newState;
 };
 
+const deleteItemGroups = (state, action) => {
+    // action.deleteObj.itemGroupData contains:
+    // {[itemGroupOid] : methodOids: { methodOid1: {}, methodOid2 : {}, ....]}}
+    // {[itemGroupOid] : vlmMethodOids: { ... }}
+    let newState = { ...state };
+    Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
+        let subAction = {deleteObj: {}, source: { itemGroupOid }};
+        subAction.deleteObj.methodOids = action.deleteObj.itemGroupData[itemGroupOid].methodOids;
+        subAction.deleteObj.vlmMethodOids = action.deleteObj.itemGroupData[itemGroupOid].vlmMethodOids;
+        newState = deleteVariableMethods(newState, subAction);
+    });
+    return newState;
+};
+
 const methods = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMDESCRIPTION:
             return handleItemDescriptionUpdate(state, action);
         case DEL_VARS:
             return deleteVariableMethods(state, action);
+        case DEL_ITEMGROUPS:
+            return deleteItemGroups(state, action);
         default:
             return state;
     }

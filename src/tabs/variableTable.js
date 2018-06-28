@@ -43,9 +43,6 @@ import {
 } from 'actions/index.js';
 
 const styles = theme => ({
-    menu: {
-        outline: 'none',
-    },
     button: {
         margin: theme.spacing.unit,
     },
@@ -341,7 +338,6 @@ class ConnectedVariableTable extends React.Component {
             <IconButton
                 onClick={this.handleMenuOpen(itemMenuParams)}
                 color='default'
-                className={this.props.classes.menu}
             >
                 <MoreVertIcon/>
             </IconButton>

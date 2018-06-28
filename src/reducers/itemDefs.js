@@ -6,6 +6,7 @@ import {
     ADD_VAR,
     DEL_VARS,
     DEL_CODELISTS,
+    DEL_ITEMGROUPS,
     ADD_VALUELIST,
     INSERT_VAR,
     INSERT_VALLVL,
@@ -117,6 +118,22 @@ const deleteVariables = (state, action) => {
     return newState;
 };
 
+const deleteItemGroups = (state, action) => {
+    // action.deleteObj.itemGroupData contains:
+    // {[itemGroupOid] : itemDefOids: { [itemOid1, itemOid2, ...]}}
+    // {[itemGroupOid] : vlmItemDefOids: { [itemOid1, itemOid2, ...]}}
+    // {[itemGroupOid] : valueListOids: { [vlOid1, vlOid2, ...]}}
+    let newState = { ...state };
+    Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
+        let subAction = {deleteObj: {}, source: { itemGroupOid }};
+        subAction.deleteObj.itemDefOids = action.deleteObj.itemGroupData[itemGroupOid].itemDefOids;
+        subAction.deleteObj.vlmItemDefOids = action.deleteObj.itemGroupData[itemGroupOid].vlmItemDefOids;
+        subAction.deleteObj.valueListOids = action.deleteObj.itemGroupData[itemGroupOid].valueListOids;
+        newState = deleteVariables(newState, subAction);
+    });
+    return newState;
+};
+
 const deleteCodeLists = (state, action) => {
     // action.deleteObj - array of itemOids for which codelists should be removed
     let newState = { ...state };
@@ -176,6 +193,8 @@ const itemDefs = (state = {}, action) => {
             return addVariable(state, action);
         case DEL_VARS:
             return deleteVariables(state, action);
+        case DEL_ITEMGROUPS:
+            return deleteItemGroups(state, action);
         case DEL_CODELISTS:
             return deleteCodeLists(state, action);
         case ADD_VALUELIST:

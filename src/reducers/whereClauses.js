@@ -7,30 +7,7 @@ import {
 } from "constants/action-types";
 import { WhereClause } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
-/*
-const addWhereClause = (state, action) => {
-    // Check if the item to which whereClause is attached is already referenced
-    // in the list of whereClause sources
-    if (action.whereClause.sources.hasOwnProperty(action.source.type)
-        && action.whereClause.sources[action.source.type].includes(action.source.oid)) {
-        return {...state, [action.whereClause.oid]: action.whereClause};
-    } else {
-        // Add source OID to the list of whereClause sources
-        let newSourcesForType;
-        if (action.whereClause.sources.hasOwnProperty(action.source.type)) {
-            newSourcesForType = [ ...action.whereClause.sources[action.source.type], action.source.oid ];
-        } else {
-            newSourcesForType = [ action.source.oid ];
-        }
-        let newWhereClause = new WhereClause({ ...action.whereClause, sources: { ...action.whereClause.sources, [action.source.type]: newSourcesForType } });
-        return {...state, [action.whereClause.oid]: newWhereClause};
-    }
-};
-const updateWhereClause = (state, action) => {
-    return {...state, [action.whereClause.oid]: action.whereClause};
-};
 
-*/
 const deleteWhereClause = (state, action) => {
     // Get number of sources for the whereClause;
     let sourceNum = [].concat.apply([],Object.keys(action.whereClause.sources).map(type => (action.whereClause.sources[type]))).length;
@@ -49,20 +26,6 @@ const deleteWhereClause = (state, action) => {
         return state;
     }
 };
-/*
-const replaceWhereClause = (state, action) => {
-    // action.newWhereClause
-    // action.oldWhereClauseOid
-    let subAction = {};
-    subAction.whereClause = state[action.oldWhereClauseOid];
-    subAction.source = action.source;
-    let newState = deleteWhereClause(state, subAction);
-    subAction = {};
-    subAction.whereClause = action.newWhereClause;
-    subAction.source = action.source;
-    return addWhereClause(newState, subAction);
-};
-*/
 
 const deleteWhereClauseRefereces = (state, action) => {
     // action.deleteObj.whereClauseOids contains:
@@ -127,11 +90,24 @@ const createNewWhereClause = (state, action) => {
     return { ...state, [action.whereClauseOid]: newWhereClause };
 };
 
+const deleteItemGroups = (state, action) => {
+    // action.deleteObj.itemGroupData contains:
+    // {[itemGroupOid] : whereClauseOids: { vlOid1: [wcOid1, ...], vlmOid2 : [...], ....]}}
+    // {[itemGroupOid] : valueListOids: { [vlOid1, vlOid2, ...]}}
+    let newState = { ...state };
+    Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
+        let subAction = {deleteObj: {}, source: { itemGroupOid }};
+        subAction.deleteObj.whereClauseOids = action.deleteObj.itemGroupData[itemGroupOid].whereClauseOids;
+        subAction.deleteObj.valueListOids = action.deleteObj.itemGroupData[itemGroupOid].valueListOids;
+        newState = deleteWhereClauseRefereces(newState, subAction);
+    });
+    return newState;
+};
+
 const whereClauses = (state = {}, action) => {
     switch (action.type) {
         case DEL_ITEMGROUPS:
-            //    return deleteWhereClauseRefereces(state, action);
-            return state;
+            return deleteItemGroups(state, action);
         case DEL_VARS:
             return deleteWhereClauseRefereces(state, action);
         case UPD_NAMELABELWHERECLAUSE:

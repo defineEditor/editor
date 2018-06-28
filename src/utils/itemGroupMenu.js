@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {
     deleteItemGroups,
     selectGroup
@@ -20,6 +21,7 @@ const mapStateToProps = state => {
     return {
         itemGroups       : state.odm.study.metaDataVersion.itemGroups,
         variableTabIndex : state.ui.tabs.tabNames.indexOf('Variables'),
+        mdv              : state.odm.study.metaDataVersion,
     };
 };
 
@@ -27,9 +29,7 @@ class ConnectedItemGroupMenu extends React.Component {
 
     deleteItemGroup = () => {
         let itemGroupOids = [this.props.itemGroupMenuParams.itemGroupOid];
-        let deleteObj = {
-            itemGroupOids,
-        };
+        const deleteObj = getItemGroupsRelatedOids(this.props.mdv, itemGroupOids);
         this.props.deleteItemGroups(deleteObj);
         this.props.onClose();
     }

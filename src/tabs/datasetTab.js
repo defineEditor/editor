@@ -28,6 +28,7 @@ import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import SelectColumns from 'utils/selectColumns.js';
 import ItemGroupMenu from 'utils/itemGroupMenu.js';
+import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {
     updateItemGroup,
     updateItemGroupComment,
@@ -68,6 +69,7 @@ const mapStateToProps = state => {
         itemDefs       : state.odm.study.metaDataVersion.itemDefs,
         comments       : state.odm.study.metaDataVersion.comments,
         leafs          : state.odm.study.metaDataVersion.leafs,
+        mdv            : state.odm.study.metaDataVersion,
         defineVersion  : state.odm.study.metaDataVersion.defineVersion,
         tabs           : state.ui.tabs,
         classTypes     : state.stdConstants.classTypes[model],
@@ -333,23 +335,7 @@ class ConnectedDatasetTable extends React.Component {
     }
 
     deleteRows = () => {
-        let itemGroups = this.props.itemGroups;
-        let itemGroupOids = this.state.selectedRows;
-        // Form an object of comments to remove {commentOid: [itemOid1, itemOid2, ...]}
-        let commentOids = {};
-        itemGroupOids.forEach( itemGroupOid => {
-            let commentOid = itemGroups[itemGroupOid].commentOid;
-            if (commentOid !== undefined) {
-                if (commentOids[commentOid] === undefined) {
-                    commentOids[commentOid] = [];
-                }
-                if (!commentOids[commentOid].includes[itemGroupOid]) {
-                    commentOids[commentOid].push(itemGroupOid);
-                }
-            }
-        });
-        // Form a list of itemRefs to delete;
-        const deleteObj = { itemGroupOids, commentOids };
+        const deleteObj = getItemGroupsRelatedOids(this.props.mdv, this.state.selectedRows);
         this.props.deleteItemGroups(deleteObj);
     }
 

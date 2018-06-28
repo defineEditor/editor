@@ -1,5 +1,6 @@
 import {
     DEL_VARS,
+    DEL_ITEMGROUPS,
     UPD_NAMELABELWHERECLAUSE,
     UPD_ITEMREF,
     ADD_VALUELIST,
@@ -32,17 +33,6 @@ const updateItemRefOrder = (state, action) => {
     return { ...state, [action.valueListOid]: newValueList };
 };
 
-/*
-const deleteValueLists = (state, action) => {
-    // action.deleteObj.valueListOids - oids to remove;
-    let newState = { ...state };
-    action.deleteObj.valueListOids.forEach( valueListOid => {
-        delete newState[valueListOid];
-    });
-
-    return newState;
-};
-*/
 const updateItemRefKeyOrder = (state, action) => {
     if (!action.source.vlm) {
         return state;
@@ -203,6 +193,20 @@ const deleteVariables = (state, action) => {
     return newState;
 };
 
+const deleteItemGroups = (state, action) => {
+    // action.deleteObj.itemGroupData contains:
+    // {[itemGroupOid] : vlmItemRefOids: { [itemOid1, itemOid2, ...]}}
+    // {[itemGroupOid] : valueListOids: { [vlOid1, vlOid2, ...]}}
+    let newState = { ...state };
+    Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
+        let subAction = {deleteObj: {}, source: { itemGroupOid }};
+        subAction.deleteObj.vlmItemRefOids = action.deleteObj.itemGroupData[itemGroupOid].vlmItemRefOids;
+        subAction.deleteObj.valueListOids = action.deleteObj.itemGroupData[itemGroupOid].valueListOids;
+        newState = deleteVariables(newState, subAction);
+    });
+    return newState;
+};
+
 const updateItemRefWhereClause = (state, action) => {
     // action.source = {oid, itemRefOid, valueListOid}
     // action.updateObj = {name, description, whereClause, wcComment, oldWcCommentOid, oldWcOid}
@@ -240,10 +244,6 @@ const insertValueLevel = (state, action) => {
 
 const valueLists = (state = {}, action) => {
     switch (action.type) {
-        /*
-        case DEL_ITEMGROUPS:
-            return deleteValueLists(state, action);
-            */
         case ADD_VALUELIST:
             return addValueList(state, action);
         case UPD_ITEMDESCRIPTION:
@@ -252,6 +252,8 @@ const valueLists = (state = {}, action) => {
             return updateItemRefWhereClause(state, action);
         case DEL_VARS:
             return deleteVariables(state, action);
+        case DEL_ITEMGROUPS:
+            return deleteItemGroups(state, action);
         case UPD_ITEMREF:
             return updateItemRef(state, action);
         case UPD_VLMITEMREFORDER:
