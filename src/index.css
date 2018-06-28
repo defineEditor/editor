@@ -5,7 +5,7 @@ body {
 }
 
 .vlmRow:nth-of-type(odd){
-    background-color: #E3F2FD !important; 
+    background-color: #E3F2FD !important;
 }
 
 .vlmRow:nth-of-type(odd):hover {
@@ -20,3 +20,7 @@ body {
     background-color: #B3E5FC !important;
 }
 
+.react-bs-container-body {
+  width    : 100%;
+  overflow : visible;
+}

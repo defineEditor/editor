@@ -13,9 +13,6 @@ import {
 } from 'actions/index.js';
 
 const styles = theme => ({
-    editButton: {
-        transform: 'translate(0%, -6%)',
-    },
 });
 
 // Redux functions

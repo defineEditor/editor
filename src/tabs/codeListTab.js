@@ -3,9 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
-import CodeListMenu from 'utils/codeListMenu.js';
-import ToggleRowSelect from 'utils/toggleRowSelect.js';
-import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
 import renderColumns from 'utils/renderColumns.js';
@@ -25,6 +22,9 @@ import CodeListFormatNameEditor from 'editors/codeListFormatNameEditor.js';
 import CodeListStandardEditor from 'editors/codeListStandardEditor.js';
 import SelectColumns from 'utils/selectColumns.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
+import CodeListMenu from 'utils/codeListMenu.js';
+import ToggleRowSelect from 'utils/toggleRowSelect.js';
+import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import {
     updateCodeList,
     updateCodeListStandard,

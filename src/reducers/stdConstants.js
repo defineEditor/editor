@@ -85,6 +85,27 @@ const documentTypes = {
     typeLabel,
 };
 
+const classTypes = {
+    'ADaM': {
+        'BASIC DATA STRUCTURE'                 : 'BDS',
+        'OCCURRENCE DATA STRUCTURE'            : 'OCCDS',
+        'SUBJECT LEVEL ANALYSIS DATASET'       : 'ADSL',
+        'ADAM OTHER'                           : 'Other',
+        'INTEGRATED BASIC DATA STRUCTURE'      : 'IBDS',
+        'INTEGRATED OCCURRENCE DATA STRUCTURE' : 'IOCCDS',
+        'INTEGRATED SUBJECT LEVEL'             : 'IADSL',
+    },
+    'SDTM': {
+        'TRIAL DESIGN'    : 'TD',
+        'SPECIAL PURPOSE' : 'SP',
+        'INTERVENTIONS'   : 'INTERV',
+        'EVENTS'          : 'EVENTS',
+        'FINDINGS'        : 'FIND',
+        'FINDINGS ABOOUT' : 'FA',
+        'RELATIONSHIP'    : 'REL',
+    }
+};
+
 const initialState = {
     dataTypes,
     codeListTypes,
@@ -92,6 +113,7 @@ const initialState = {
     documentTypes,
     columns,
     originTypes,
+    classTypes,
 };
 
 const stdConstants = (state = initialState, action) => {

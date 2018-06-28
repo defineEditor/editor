@@ -7,6 +7,52 @@ const datasets = {
         hidden   : false,
         tdStyle  : { padding: '0px' },
     },
+    name: {
+        text    : 'Name',
+        width   : '110px',
+        tdStyle : {whiteSpace: 'normal'},
+        thStyle : {whiteSpace: 'normal'}
+    },
+    description: {
+        text    : 'Description',
+        tdStyle : { whiteSpace: 'normal' },
+        thStyle : { whiteSpace: 'normal' }
+    },
+    datasetClass: {
+        text    : 'Class',
+        width   : '7%',
+        tdStyle : { whiteSpace: 'normal' },
+        thStyle : { whiteSpace: 'normal' },
+    },
+    flags: {
+        text    : 'Flags',
+        width   : '115px',
+        tdStyle : { whiteSpace: 'normal' },
+        thStyle : { whiteSpace: 'normal' },
+    },
+    structure: {
+        text    : 'Structure',
+        tdStyle : { whiteSpace: 'normal' },
+        thStyle : { whiteSpace: 'normal' },
+    },
+    keys: {
+        text    : 'Keys',
+        width   : '7%',
+        tdStyle : { whiteSpace: 'normal', overflowWrap: 'break-word' },
+        thStyle : { whiteSpace: 'normal' },
+    },
+    comment: {
+        text    : 'Comment',
+        width   : '35%',
+        tdStyle : { whiteSpace: 'pre-wrap' },
+        thStyle : { whiteSpace: 'normal' },
+    },
+    leaf: {
+        dataField : 'leaf',
+        text      : 'Location',
+        tdStyle   : { whiteSpace: 'normal' },
+        thStyle   : { whiteSpace: 'normal' }
+    }
 };
 
 const variables = {
@@ -62,7 +108,7 @@ const variables = {
     },
     description: {
         text    : 'Description',
-        width   : '100%',
+        width   : '99%',
         hidden  : false,
         tdStyle : { whiteSpace: 'normal' },
         thStyle : { whiteSpace: 'normal' },

@@ -1,14 +1,17 @@
-import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
-import '../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
-import renderColumns from 'utils/renderColumns.js';
+import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
+import clone from 'clone';
+import deepEqual from 'fast-deep-equal';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import React from 'react';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import IconButton from '@material-ui/core/IconButton';
+import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import CommentEditor from 'editors/commentEditor.js';
 import InteractiveKeyOrderEditor from 'editors/interactiveKeyOrderEditor.js';
 import AddDatasetEditor from 'editors/addDatasetEditor.js';
@@ -20,6 +23,11 @@ import DatasetFlagsEditor from 'editors/datasetFlagsEditor.js';
 import DatasetFlagsFormatter from 'formatters/datasetFlagsFormatter.js';
 import CommentFormatter from 'formatters/commentFormatter.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
+import renderColumns from 'utils/renderColumns.js';
+import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
+import ToggleRowSelect from 'utils/toggleRowSelect.js';
+import SelectColumns from 'utils/selectColumns.js';
+import ItemGroupMenu from 'utils/itemGroupMenu.js';
 import {
     updateItemGroup,
     updateItemGroupComment,
@@ -29,34 +37,16 @@ import {
     deleteItemGroups,
 } from 'actions/index.js';
 
-// Selector constants
-const classTypes = [
-    'BASIC DATA STRUCTURE',
-    'OCCURRENCE DATA STRUCTURE',
-    'SUBJECT LEVEL ANALYSIS DATASET',
-    'ADAM OTHER',
-    'INTEGRATED BASIC DATA STRUCTURE',
-    'INTEGRATED OCCURRENCE DATA STRUCTURE',
-    'INTEGRATED SUBJECT LEVEL',
-];
-const classTypeAbbreviations = {
-    'BASIC DATA STRUCTURE'                 : 'BDS',
-    'OCCURRENCE DATA STRUCTURE'            : 'OCCDS',
-    'SUBJECT LEVEL ANALYSIS DATASET'       : 'ADSL',
-    'ADAM OTHER'                           : 'Other',
-    'INTEGRATED BASIC DATA STRUCTURE'      : 'IBDS',
-    'INTEGRATED OCCURRENCE DATA STRUCTURE' : 'IOCCDS',
-    'INTEGRATED SUBJECT LEVEL'             : 'IADSL',
-};
-
 const styles = theme => ({
     tableHeader: {
         backgroundColor : indigo[500],
         color           : grey[200],
         fontSize        : '16px',
     },
+    buttonGroup: {
+        marginLeft: theme.spacing.unit * 2,
+    },
 });
-
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
@@ -71,6 +61,7 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
+    let model = state.odm.study.metaDataVersion.model;
     return {
         itemGroups     : state.odm.study.metaDataVersion.itemGroups,
         itemGroupOrder : state.odm.study.metaDataVersion.order.itemGroupOrder,
@@ -79,11 +70,12 @@ const mapStateToProps = state => {
         leafs          : state.odm.study.metaDataVersion.leafs,
         defineVersion  : state.odm.study.metaDataVersion.defineVersion,
         tabs           : state.ui.tabs,
+        classTypes     : state.stdConstants.classTypes[model],
+        stdConstants   : state.stdConstants,
+        tabSettings    : state.ui.tabs.settings[state.ui.tabs.currentTab],
+        showRowSelect  : state.ui.tabs.settings[state.ui.tabs.currentTab].rowSelect['overall'],
     };
 };
-
-// Debug options
-const hideMe = false;
 
 // Editor functions
 function commentEditor (onUpdate, props) {
@@ -132,7 +124,7 @@ function datasetFlagsFormatter (cell, row) {
 }
 
 function datasetClassFormatter (cell, row) {
-    let value = classTypeAbbreviations[cell];
+    let value = row.classTypes[cell];
     return (<span>{value}</span>);
 }
 
@@ -140,13 +132,98 @@ class ConnectedDatasetTable extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            selectedRows: [],
+        let classTypesArray = Object.keys(this.props.classTypes).map( classType => (classType));
+
+        let columns = clone(props.stdConstants.columns.datasets);
+
+        // Variables menu is not shown when selection is triggered
+        if (columns.hasOwnProperty('oid')) {
+            columns.oid.hidden = this.props.showRowSelect;
+        }
+
+        const editorFormatters = {
+            oid: {
+                dataFormat: this.menuFormatter,
+            },
+            name: {
+                customEditor: {getElement: simpleInputEditor},
+            },
+            description: {
+                customEditor: {getElement: simpleInputEditor},
+            },
+            datasetClass: {
+                dataFormat   : datasetClassFormatter,
+                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: classTypesArray}},
+            },
+            flags: {
+                dataFormat   : datasetFlagsFormatter,
+                customEditor : {getElement: datasetFlagsEditor},
+            },
+            structure: {
+                customEditor: {getElement: simpleInputEditor},
+            },
+            keys: {
+                customEditor: {getElement: interactiveKeyOrderEditor},
+            },
+            comment: {
+                dataFormat   : commentFormatter,
+                customEditor : { getElement: commentEditor }
+            },
+            leaf: {
+                dataFormat   : leafFormatter,
+                customEditor : {getElement: leafEditor},
+            }
         };
+
+        // Unite Columns with Editors and Formatters;
+        Object.keys(columns).forEach( id => {
+            columns[id] = { ...columns[id], ...editorFormatters[id] };
+        });
+
+        this.state = {
+            columns,
+            anchorEl            : null,
+            selectedRows        : [],
+            itemGroupMenuParams : {},
+            showSelectColumn    : false,
+        };
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+
+        let columns = getColumnHiddenStatus(prevState.columns, nextProps.tabSettings.columns, nextProps.showRowSelect);
+
+        if (!deepEqual(columns, prevState.columns)) {
+            return { columns };
+        }
+        return null;
     }
 
     componentDidMount() {
         setScrollPosition(this.props.tabs);
+    }
+
+    menuFormatter = (cell, row) => {
+        let itemGroupMenuParams = {
+            itemGroupOid: row.oid,
+        };
+        return (
+            <IconButton
+                onClick={this.handleMenuOpen(itemGroupMenuParams)}
+                className={this.props.classes.menuButton}
+                color='default'
+            >
+                <MoreVertIcon/>
+            </IconButton>
+        );
+    }
+
+    handleMenuOpen = (itemGroupMenuParams) => (event) => {
+        this.setState({ itemGroupMenuParams, anchorEl: event.currentTarget });
+    }
+
+    handleMenuClose = () => {
+        this.setState({ itemGroupMenuParams: {}, anchorEl: null });
     }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
@@ -183,28 +260,46 @@ class ConnectedDatasetTable extends React.Component {
 
     createCustomButtonGroup = props => {
         return (
-            <ButtonGroup className='my-custom-class' sizeClass='btn-group-md'>
+            <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={16}>
                     <Grid item>
-                        { props.showSelectedOnlyBtn }
+                        <ToggleRowSelect oid='overall'/>
                     </Grid>
                     <Grid item>
                         <AddDatasetEditor/>
                     </Grid>
                     <Grid item>
-                        <Button color='default' mini onClick={console.log}
-                            variant='raised'>
+                        <Button
+                            color='default'
+                            mini
+                            onClick={console.log}
+                            disabled={!this.props.showRowSelect}
+                            variant='raised'
+                        >
                             Copy
                         </Button>
                     </Grid>
                     <Grid item>
-                        <Button color='default' mini onClick={console.log}
-                            variant='raised'>
+                        <Button
+                            color='default'
+                            mini
+                            onClick={console.log}
+                            variant='raised'
+                            disabled={!this.props.showRowSelect}
+                        >
                             Update
                         </Button>
                     </Grid>
                     <Grid item>
-                        { props.deleteBtn }
+                        <Button
+                            color='secondary'
+                            mini
+                            onClick={this.deleteRows}
+                            disabled={!this.props.showRowSelect}
+                            variant='raised'
+                        >
+                            Delete
+                        </Button>
                     </Grid>
                     <Grid item>
                         <DatasetOrderEditor/>
@@ -221,21 +316,19 @@ class ConnectedDatasetTable extends React.Component {
                     { props.components.btnGroup }
                 </Grid>
                 <Grid item style={{paddingRight: '25px'}}>
-                    { props.components.searchPanel }
+                    <Grid container spacing={16} justify='flex-end'>
+                        <Grid item>
+                            <Button variant="raised" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
+                                Columns
+                                <RemoveRedEyeIcon style={{marginLeft: '7px'}}/>
+                            </Button>
+                        </Grid>
+                        <Grid item style={{paddingRight: '25px'}}>
+                            { props.components.searchPanel }
+                        </Grid>
+                    </Grid>
                 </Grid>
             </Grid>
-        );
-    }
-
-    createCustomInsertButton = (openModal) => {
-        return (
-            <Button color='primary' mini onClick={openModal} variant='raised'>Add</Button>
-        );
-    }
-
-    createCustomDeleteButton = (onBtnClick) => {
-        return (
-            <Button color='secondary' mini onClick={this.deleteRows} variant='raised'>Delete</Button>
         );
     }
 
@@ -304,6 +397,7 @@ class ConnectedDatasetTable extends React.Component {
                 structure     : originDs.structure,
                 defineVersion : this.props.defineVersion,
                 leafs         : this.props.leafs,
+                classTypes    : this.props.classTypes,
             };
             currentDs.description = originDs.getDescription();
             currentDs.comment = originDs.commentOid === undefined ? undefined : this.props.comments[originDs.commentOid];
@@ -328,130 +422,65 @@ class ConnectedDatasetTable extends React.Component {
             beforeSaveCell : this.onBeforeSaveCell
         };
 
-        const selectRowProp = {
-            mode        : 'checkbox',
-            onSelect    : this.onRowSelected,
-            onSelectAll : this.onAllRowSelected,
-        };
+        let selectRowProp;
+        if (this.props.showRowSelect) {
+            selectRowProp = {
+                mode        : 'checkbox',
+                onSelect    : this.onRowSelected,
+                onSelectAll : this.onAllRowSelected,
+                columnWidth : '48px',
+            };
+        } else {
+            selectRowProp = undefined;
+        }
 
         const options = {
-            toolBar   : this.createCustomToolBar,
-            deleteBtn : this.createCustomDeleteButton,
-            btnGroup  : this.createCustomButtonGroup
+            toolBar  : this.createCustomToolBar,
+            btnGroup : this.createCustomButtonGroup
         };
-
-        const columns = [
-            {
-                dataField : 'oid',
-                isKey     : true,
-                hidden    : true,
-                text      : 'OID',
-                editable  : false
-            },
-            {
-                dataField    : 'name',
-                text         : 'Name',
-                width        : '110px',
-                hidden       : hideMe,
-                customEditor : {getElement: simpleInputEditor},
-                tdStyle      : {whiteSpace: 'normal'},
-                thStyle      : {whiteSpace: 'normal'}
-            },
-            {
-                dataField    : 'description',
-                text         : 'Description',
-                hidden       : hideMe,
-                customEditor : {getElement: simpleInputEditor},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
-            },
-            {
-                dataField    : 'datasetClass',
-                text         : 'Class',
-                hidden       : hideMe,
-                width        : '7%',
-                dataFormat   : datasetClassFormatter,
-                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: classTypes}},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' },
-            },
-            {
-                dataField    : 'flags',
-                text         : 'Flags',
-                hidden       : hideMe,
-                width        : '115px',
-                dataFormat   : datasetFlagsFormatter,
-                customEditor : {getElement: datasetFlagsEditor},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' },
-            },
-            {
-                dataField    : 'structure',
-                text         : 'Structure',
-                hidden       : hideMe,
-                customEditor : {getElement: simpleInputEditor},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' },
-                editable     : { type: 'textarea' }
-            },
-            {
-                dataField    : 'keys',
-                text         : 'Keys',
-                width        : '7%',
-                hidden       : hideMe,
-                tdStyle      : { whiteSpace: 'normal', overflowWrap: 'break-word' },
-                thStyle      : { whiteSpace: 'normal' },
-                customEditor : {getElement: interactiveKeyOrderEditor},
-            },
-            {
-                dataField    : 'comment',
-                text         : 'Comment',
-                width        : '35%',
-                tdStyle      : { whiteSpace: 'pre-wrap' },
-                thStyle      : { whiteSpace: 'normal' },
-                dataFormat   : commentFormatter,
-                customEditor : { getElement: commentEditor }
-            },
-            {
-                dataField    : 'leaf',
-                text         : 'Location',
-                hidden       : hideMe,
-                dataFormat   : leafFormatter,
-                customEditor : {getElement: leafEditor},
-                tdStyle      : { whiteSpace: 'normal' },
-                thStyle      : { whiteSpace: 'normal' }
-            }
-
-        ];
 
         const {classes} = this.props;
 
         return (
-            <BootstrapTable
-                data={datasets}
-                options={options}
-                search
-                deleteRow
-                insertRow
-                striped
-                hover
-                version='4'
-                cellEdit={cellEditProp}
-                keyBoardNav={{enterToEdit: true}}
-                tableHeaderClass={classes.tableHeader}
-                selectRow={selectRowProp}
-            >
-                {renderColumns(columns)}
-            </BootstrapTable>
+            <React.Fragment>
+                <BootstrapTable
+                    data={datasets}
+                    options={options}
+                    search
+                    deleteRow
+                    insertRow
+                    striped
+                    hover
+                    version='4'
+                    cellEdit={cellEditProp}
+                    keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}
+                    tableHeaderClass={classes.tableHeader}
+                    selectRow={selectRowProp}
+                >
+                    {renderColumns(this.state.columns)}
+                </BootstrapTable>
+                <ItemGroupMenu onClose={this.handleMenuClose} itemGroupMenuParams={this.state.itemGroupMenuParams} anchorEl={this.state.anchorEl}/>
+                { this.state.showSelectColumn && (
+                    <SelectColumns
+                        onClose={ () => { this.setState({ showSelectColumn: false }); } }
+                    />
+                )
+                }
+            </React.Fragment>
         );
     }
 }
 
 ConnectedDatasetTable.propTypes = {
-    itemGroups    : PropTypes.object.isRequired,
-    itemDefs      : PropTypes.object.isRequired,
-    comments      : PropTypes.object.isRequired,
-    defineVersion : PropTypes.string.isRequired,
+    itemGroups     : PropTypes.object.isRequired,
+    itemDefs       : PropTypes.object.isRequired,
+    comments       : PropTypes.object.isRequired,
+    defineVersion  : PropTypes.string.isRequired,
+    itemGroupOrder : PropTypes.array.isRequired,
+    leafs          : PropTypes.object.isRequired,
+    tabs           : PropTypes.object.isRequired,
+    classTypes     : PropTypes.object.isRequired,
+    showRowSelect  : PropTypes.bool,
 };
 
 const DatasetTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedDatasetTable);
