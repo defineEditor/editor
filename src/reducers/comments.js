@@ -132,6 +132,21 @@ const replaceComment = (state, action) => {
     return addComment(newState, subAction);
 };
 
+const deleteCommentRefereces = (state, action, type) => {
+    // action.deleteObj.commentOids contains:
+    // {commentOid1: [itemOid1, itemOid2], commentOid2: [itemOid3, itemOid1]}
+    let newState = { ...state };
+    Object.keys(action.deleteObj.commentOids).forEach( commentOid => {
+        action.deleteObj.commentOids[commentOid].forEach(itemOid => {
+            let subAction = {};
+            subAction.comment = newState[commentOid];
+            subAction.source ={ type, oid: itemOid };
+            newState = deleteComment(newState, subAction);
+        });
+    });
+    return newState;
+};
+
 const deleteItemGroupCommentReferences = (state, action) => {
     // action.deleteObj.commentOids contains:
     // {commentOid1: [itemOid1, itemOid2], commentOid2: [itemOid3, itemOid1]}
@@ -144,21 +159,6 @@ const deleteItemGroupCommentReferences = (state, action) => {
         let subAction = {deleteObj: {}};
         subAction.deleteObj.commentOids = action.deleteObj.itemGroupData[itemGroupOid].commentOids;
         newState = deleteCommentRefereces(newState, subAction, 'itemDefs');
-    });
-    return newState;
-};
-
-const deleteCommentRefereces = (state, action, type) => {
-    // action.deleteObj.commentOids contains:
-    // {commentOid1: [itemOid1, itemOid2], commentOid2: [itemOid3, itemOid1]}
-    let newState = { ...state };
-    Object.keys(action.deleteObj.commentOids).forEach( commentOid => {
-        action.deleteObj.commentOids[commentOid].forEach(itemOid => {
-            let subAction = {};
-            subAction.comment = newState[commentOid];
-            subAction.source ={ type, oid: itemOid };
-            newState = deleteComment(newState, subAction);
-        });
     });
     return newState;
 };

@@ -113,6 +113,7 @@ class InteractiveKeyOrderEditorConnected extends React.Component {
 
     handleCancelAndClose = () => {
         this.setState({ dialogOpened: false });
+        this.props.onFinished();
     }
 
     handleKeyChange = (keyVariables) => {
@@ -128,6 +129,7 @@ class InteractiveKeyOrderEditorConnected extends React.Component {
             this.props.updateKeyOrder(this.props.row.oid, newKeyOrder);
         }
         this.setState({ dialogOpened: false });
+        this.props.onFinished();
     }
 
     handleChange = ({oldIndex, newIndex}) => {
@@ -188,6 +190,7 @@ class InteractiveKeyOrderEditorConnected extends React.Component {
 InteractiveKeyOrderEditorConnected.propTypes = {
     row        : PropTypes.object.isRequired,
     itemGroups : PropTypes.object.isRequired,
+    onFinished : PropTypes.func.isRequired,
 };
 
 const InteractiveKeyOrderEditor = connect(mapStateToProps, mapDispatchToProps)(InteractiveKeyOrderEditorConnected);

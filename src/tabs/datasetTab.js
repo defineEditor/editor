@@ -20,6 +20,7 @@ import LeafEditor from 'editors/leafEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import DatasetFlagsEditor from 'editors/datasetFlagsEditor.js';
+import DatasetDomainEditor from 'editors/datasetDomainEditor.js';
 import DatasetFlagsFormatter from 'formatters/datasetFlagsFormatter.js';
 import CommentFormatter from 'formatters/commentFormatter.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
@@ -85,11 +86,15 @@ function commentEditor (onUpdate, props) {
 }
 
 function interactiveKeyOrderEditor(onUpdate, props) {
-    return (<InteractiveKeyOrderEditor onUpdate={ onUpdate } {...props}/>);
+    return (<InteractiveKeyOrderEditor onFinished={ onUpdate } {...props}/>);
 }
 
 function leafEditor (onUpdate, props) {
     return (<LeafEditor onUpdate={ onUpdate } {...props}/>);
+}
+
+function datasetDomainEditor (onUpdate, props) {
+    return (<DatasetDomainEditor itemGroupOid={props.row.oid} domainAttrs={props.defaultValue} onFinished={onUpdate}/>);
 }
 
 function datasetFlagsEditor (onUpdate, props) {
@@ -130,6 +135,25 @@ function datasetClassFormatter (cell, row) {
     return (<span>{value}</span>);
 }
 
+function datasetDomainFormatter (cell, row) {
+    if (cell !== undefined && cell !== '') {
+        let parentDomainDescription;
+        if (cell.alias !== undefined && cell.alias.context === 'DomainDescription') {
+            parentDomainDescription = cell.alias.name;
+        } else {
+            parentDomainDescription = '';
+        }
+        return (
+            <div>
+                <div>{cell.domain}</div>
+                <div>{parentDomainDescription}</div>
+            </div>
+        );
+    } else {
+        return;
+    }
+}
+
 class ConnectedDatasetTable extends React.Component {
     constructor(props) {
         super(props);
@@ -152,6 +176,10 @@ class ConnectedDatasetTable extends React.Component {
             },
             description: {
                 customEditor: {getElement: simpleInputEditor},
+            },
+            domainAttrs: {
+                dataFormat   : datasetDomainFormatter,
+                customEditor : {getElement: datasetDomainEditor},
             },
             datasetClass: {
                 dataFormat   : datasetClassFormatter,
@@ -229,6 +257,10 @@ class ConnectedDatasetTable extends React.Component {
     }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
+        if (['domainAttrs'].includes(cellName)) {
+            // For this cells reducers are called within the editor
+            return true;
+        }
         // Update on if the value changed
         if (row[cellName] !== cellValue) {
             let updateObj = {};
@@ -393,10 +425,11 @@ class ConnectedDatasetTable extends React.Component {
                 repeating       : originDs.repeating,
                 isReferenceData : originDs.isReferenceData,
             };
-            currentDs.domainAlias = {
+            currentDs.domainAttrs = {
                 domain : originDs.domain,
                 alias  : originDs.alias,
-            }
+            };
+
             // Get key variables
             // TODO: When key is located in the SUPP dataset.
             currentDs.keys = originDs.keyOrder.map( keyOid => {

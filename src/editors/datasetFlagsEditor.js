@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-//import IconButton from '@material-ui/core/IconButton';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -13,15 +12,23 @@ const styles = theme => ({
         whiteSpace   : 'normal',
         overflowWrap : 'break-word',
     },
+    root: {
+        outline: 'none',
+    },
 });
 
 class DatasetFlagsEditor extends React.Component {
     constructor (props) {
         super(props);
+        this.rootRef = React.createRef();
         this.state = {
             repeating       : this.props.defaultValue.repeating === 'Yes',
             isReferenceData : this.props.defaultValue.isReferenceData === 'Yes',
         };
+    }
+
+    componentDidMount() {
+        this.rootRef.current.focus();
     }
 
     handleChange = name => event => {
@@ -51,39 +58,46 @@ class DatasetFlagsEditor extends React.Component {
     render() {
         const {classes} = this.props;
         return (
-            <Grid container spacing={0} onKeyDown={this.onKeyDown} tabIndex='0'>
-                <Grid item xs={12}>
-                    <FormGroup>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={this.state.repeating}
-                                    color='primary'
-                                    onChange={this.handleChange('repeating')}
-                                    value="Repeating"
-                                />
-                            }
-                            label="Repeating"
-                            className={classes.formControl}
-                        />
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={this.state.isReferenceData}
-                                    color='primary'
-                                    onChange={this.handleChange('isReferenceData')}
-                                    value="isReferenceData"
-                                />
-                            }
-                            label="Reference Data"
-                            className={classes.formControl}
-                        />
-                    </FormGroup>
+            <div
+                onKeyDown={this.onKeyDown}
+                tabIndex='0'
+                ref={this.rootRef}
+                className={classes.root}
+            >
+                <Grid container spacing={0}>
+                    <Grid item xs={12}>
+                        <FormGroup>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={this.state.repeating}
+                                        color='primary'
+                                        onChange={this.handleChange('repeating')}
+                                        value="Repeating"
+                                    />
+                                }
+                                label="Repeating"
+                                className={classes.formControl}
+                            />
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={this.state.isReferenceData}
+                                        color='primary'
+                                        onChange={this.handleChange('isReferenceData')}
+                                        value="isReferenceData"
+                                    />
+                                }
+                                label="Reference Data"
+                                className={classes.formControl}
+                            />
+                        </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <SaveCancel mini icon save={this.save} cancel={this.cancel}/>
+                    </Grid>
                 </Grid>
-                <Grid item xs={12}>
-                    <SaveCancel mini icon save={this.save} cancel={this.cancel}/>
-                </Grid>
-            </Grid>
+            </div>
         );
     }
 }

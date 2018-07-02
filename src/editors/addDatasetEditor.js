@@ -53,17 +53,31 @@ const mapStateToProps = state => {
 class AddDatasetEditorConnected extends React.Component {
     constructor (props) {
         super(props);
+        let purpose;
+        if (this.props.model === 'ADaM') {
+            purpose = 'Analysis';
+        } else {
+            purpose = 'Tabulation';
+        }
         this.state = {
             name         : '',
             dialogOpened : false,
+            purpose,
         };
 
     }
 
     resetState = () => {
+        let purpose;
+        if (this.props.model === 'ADaM') {
+            purpose = 'Analysis';
+        } else {
+            purpose = 'Tabulation';
+        }
         this.setState({
             name         : '',
             dialogOpened : false,
+            purpose,
         });
     }
 

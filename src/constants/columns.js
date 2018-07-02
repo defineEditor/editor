@@ -24,9 +24,9 @@ const datasets = {
         tdStyle : { whiteSpace: 'normal' },
         thStyle : { whiteSpace: 'normal' },
     },
-    domainAlias: {
-        text    : 'Domain, Parent',
-        width   : '7%',
+    domainAttrs: {
+        text    : 'Domain',
+        width   : '115px',
         tdStyle : { whiteSpace: 'normal' },
         thStyle : { whiteSpace: 'normal' },
     },
