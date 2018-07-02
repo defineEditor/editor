@@ -393,6 +393,10 @@ class ConnectedDatasetTable extends React.Component {
                 repeating       : originDs.repeating,
                 isReferenceData : originDs.isReferenceData,
             };
+            currentDs.domainAlias = {
+                domain : originDs.domain,
+                alias  : originDs.alias,
+            }
             // Get key variables
             // TODO: When key is located in the SUPP dataset.
             currentDs.keys = originDs.keyOrder.map( keyOid => {

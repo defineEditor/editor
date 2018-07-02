@@ -64,6 +64,18 @@ class AddVariableEditorConnected extends React.Component {
 
     }
 
+    static getDerivedStateFromProps(nextProps, prevState) {
+        let maxOrderNum = nextProps.itemGroups[nextProps.itemGroupOid].itemRefOrder.length + 1;
+        if ( maxOrderNum !== prevState.maxOrderNum) {
+            return ({
+                orderNumber : maxOrderNum,
+                maxOrderNum : maxOrderNum,
+            });
+        } else {
+            return null;
+        }
+    }
+
     resetState = () => {
         this.setState({
             name         : '',
