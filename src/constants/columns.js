@@ -98,8 +98,15 @@ const variables = {
         tdStyle : { whiteSpace: 'normal' },
         thStyle : { whiteSpace: 'normal' }
     },
-    roleMandatory: {
-        text    : 'Role, Mandatory',
+    role: {
+        text    : 'Role',
+        width   : '150px',
+        hidden  : false,
+        tdStyle : { whiteSpace: 'normal' },
+        thStyle : { whiteSpace: 'normal' }
+    },
+    mandatory: {
+        text    : 'Mandatory',
         width   : '110px',
         hidden  : false,
         tdStyle : { whiteSpace: 'normal' },

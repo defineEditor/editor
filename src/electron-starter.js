@@ -47,7 +47,7 @@ function createWindow () {
         mainWindow = null;
     });
     // Read and Send the define.xml to the renderer process
-    let xml = Promise.resolve(readXml('data/define.adam.xml'));
+    let xml = Promise.resolve(readXml('data/define.sdtm.xml'));
     let codeListSdtm = Promise.resolve(readXml('data/SDTM Terminology.odm.xml'));
     let codeListAdam = Promise.resolve(readXml('data/ADaM Terminology.odm.xml'));
 

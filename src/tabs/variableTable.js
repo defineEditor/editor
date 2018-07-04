@@ -28,10 +28,11 @@ import AddVariableEditor from 'editors/addVariableEditor.js';
 import DescriptionEditor from 'editors/descriptionEditor.js';
 import VariableOrderEditor from 'editors/variableOrderEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
-import RoleMandatoryEditor from 'editors/roleMandatoryEditor.js';
+import RoleEditor from 'editors/roleEditor.js';
+import MandatoryEditor from 'editors/mandatoryEditor.js';
 import VariableLengthEditor from 'editors/variableLengthEditor.js';
 import DescriptionFormatter from 'formatters/descriptionFormatter.js';
-import RoleMandatoryFormatter from 'formatters/roleMandatoryFormatter.js';
+import RoleFormatter from 'formatters/roleFormatter.js';
 import VariableLengthFormatter from 'formatters/variableLengthFormatter.js';
 import VariableCodeListFormatEditor from 'editors/variableCodeListFormatEditor.js';
 import VariableCodeListFormatFormatter from 'formatters/variableCodeListFormatFormatter.js';
@@ -110,8 +111,17 @@ function keyOrderEditor (onUpdate, props) {
     return (<KeyOrderEditor onUpdate={ onUpdate } {...props}/>);
 }
 
-function roleMandatoryEditor (onUpdate, props) {
-    return (<RoleMandatoryEditor onUpdate={ onUpdate } {...props}/>);
+function roleEditor (onUpdate, props) {
+    return (<RoleEditor onUpdate={ onUpdate } {...props}/>);
+}
+
+function mandatoryEditor (onUpdate, props) {
+    let source = {
+        itemGroupOid : props.row.itemGroupOid,
+        itemRefOid   : props.row.itemRefOid,
+        vlm          : (props.row.vlmLevel === 1),
+    };
+    return (<MandatoryEditor onFinished={ onUpdate } mandatory={props.defaultValue} source={source}/>);
 }
 
 // Formatters
@@ -175,28 +185,19 @@ function variableNameLabelWhereClauseFormatter (cell, row) {
     }
 }
 
-function roleMandatoryFormatter (cell, row) {
-    return (<RoleMandatoryFormatter value={cell} model={row.model}/>);
+function roleFormatter (cell, row) {
+    return (<RoleFormatter value={cell}/>);
 }
 
 class ConnectedVariableTable extends React.Component {
     constructor(props) {
         super(props);
         const mdv = this.props.mdv;
-        const model = mdv.model;
         let columns = clone(this.props.stdColumns);
 
         // Variables menu is not shown when selection is triggered
         if (columns.hasOwnProperty('oid')) {
             columns.oid.hidden = this.props.showRowSelect;
-        }
-        // Mandatory/Role depends on a model;
-        if (columns.hasOwnProperty('roleMandatory')) {
-            if (model === 'ADaM') {
-                columns.roleMandatory.text = 'Mandatory';
-            } else {
-                columns.roleMandatory.text = 'Role, Mandatory';
-            }
         }
 
         const editorFormatters = {
@@ -218,9 +219,12 @@ class ConnectedVariableTable extends React.Component {
                 dataFormat   : variableLengthFormatter,
                 customEditor : {getElement: variableLengthEditor},
             },
-            roleMandatory: {
-                dataFormat   : roleMandatoryFormatter,
-                customEditor : {getElement: roleMandatoryEditor, customEditorParameters: {model: model}},
+            role: {
+                dataFormat   : roleFormatter,
+                customEditor : {getElement: roleEditor},
+            },
+            mandatory: {
+                customEditor: {getElement: mandatoryEditor},
             },
             codeListFormatAttrs: {
                 dataFormat   : variableCodeListFormatFormatter,
@@ -374,7 +378,7 @@ class ConnectedVariableTable extends React.Component {
                     updateObj,
                     row.description,
                 );
-            } else if (cellName === 'roleMandatory') {
+            } else if (cellName === 'mandatory' || cellName === 'role') {
                 this.props.updateItemRef({
                     itemGroupOid : row.itemGroupOid,
                     itemRefOid   : row.itemRefOid,

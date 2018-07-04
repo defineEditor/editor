@@ -16,6 +16,7 @@ function getTableData ({source, datasetName, datasetOid, itemDefs, codeLists, md
             dataType      : originItemDef.dataType,
             codeList      : originItemDef.codeListOid !== undefined ? codeLists[originItemDef.codeListOid] : undefined,
             valueList     : originItemDef.valueListOid !== undefined ? mdv.valueLists[originItemDef.valueListOid] : undefined,
+            mandatory     : originVar.mandatory,
             model         : mdv.model,
             mdv           : mdv,
             defineVersion : defineVersion,
@@ -61,8 +62,7 @@ function getTableData ({source, datasetName, datasetOid, itemDefs, codeLists, md
             keySequence : keySequence,
             itemGroup   : source,
         };
-        currentVar.roleMandatory = {
-            mandatory    : originVar.mandatory,
+        currentVar.role= {
             role         : originVar.role,
             roleCodeList : originVar.roleCodeList,
         };

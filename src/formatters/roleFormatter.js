@@ -29,7 +29,6 @@ class RoleMandatoryFormatter extends React.Component {
 RoleMandatoryFormatter.propTypes = {
     classes : PropTypes.object.isRequired,
     value   : PropTypes.object.isRequired,
-    model   : PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(RoleMandatoryFormatter);
