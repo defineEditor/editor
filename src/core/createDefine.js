@@ -249,7 +249,7 @@ function createItemRef (data, version) {
             'KeySequence'     : data.keySequence,
             'MethodOID'       : data.methodOid,
             'Role'            : data.role,
-            'RoleCodeListOID' : data.roleCodeList
+            'RoleCodeListOID' : data.roleCodeListOid,
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {

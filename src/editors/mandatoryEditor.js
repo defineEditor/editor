@@ -14,7 +14,7 @@ const styles = theme => ({
         width  : '40px',
         height : '20px',
     },
-    gridItemADaM: {
+    gridItem: {
         flexBasis : 'unset',
         textAlign : 'center',
         height    : '20px',
@@ -90,7 +90,7 @@ class ConnectedMandatoryEditor extends React.Component {
                     <Grid
                         item
                         xs={12}
-                        className={classes.gridItemADaM}
+                        className={classes.gridItem}
                     >
                         <FormControlLabel
                             control={

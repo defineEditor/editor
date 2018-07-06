@@ -106,6 +106,18 @@ const classTypes = {
     }
 };
 
+const variableRoles = [
+    'Identifier',
+    'Topic',
+    'Timing',
+    'Grouping Qualifier',
+    'Result Qualifier',
+    'Synonym Qualifier',
+    'Record Qualifier',
+    'Variable Qualifier',
+    'Rule',
+];
+
 const initialState = {
     dataTypes,
     codeListTypes,
@@ -114,6 +126,7 @@ const initialState = {
     columns,
     originTypes,
     classTypes,
+    variableRoles,
 };
 
 const stdConstants = (state = initialState, action) => {

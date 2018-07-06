@@ -728,13 +728,13 @@ class ItemDef extends BasicFunctions {
 
 class ItemRef {
     constructor ({
-        mandatory, methodOid, oid, role, roleCodeList, itemOid, isNotStandatd, whereClauseOid
+        mandatory, methodOid, oid, role, roleCodeListOid, itemOid, isNotStandatd, whereClauseOid
     } = {}) {
         this.mandatory = mandatory;
         this.methodOid = methodOid;
         this.isNotStandard = isNotStandatd;
         this.role = role;
-        this.roleCodeList = roleCodeList;
+        this.roleCodeListOid = roleCodeListOid;
         this.itemOid = itemOid;
         this.whereClauseOid = whereClauseOid;
         // Non-define XML properties

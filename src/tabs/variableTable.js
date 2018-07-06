@@ -112,7 +112,12 @@ function keyOrderEditor (onUpdate, props) {
 }
 
 function roleEditor (onUpdate, props) {
-    return (<RoleEditor onUpdate={ onUpdate } {...props}/>);
+    let source = {
+        itemGroupOid : props.row.itemGroupOid,
+        itemRefOid   : props.row.itemRefOid,
+        vlm          : (props.row.vlmLevel === 1),
+    };
+    return (<RoleEditor onFinished={ onUpdate } roleAttrs={props.defaultValue} source={source}/>);
 }
 
 function mandatoryEditor (onUpdate, props) {
@@ -186,7 +191,7 @@ function variableNameLabelWhereClauseFormatter (cell, row) {
 }
 
 function roleFormatter (cell, row) {
-    return (<RoleFormatter value={cell}/>);
+    return (<RoleFormatter roleAttrs={cell}/>);
 }
 
 class ConnectedVariableTable extends React.Component {
@@ -219,7 +224,7 @@ class ConnectedVariableTable extends React.Component {
                 dataFormat   : variableLengthFormatter,
                 customEditor : {getElement: variableLengthEditor},
             },
-            role: {
+            roleAttrs: {
                 dataFormat   : roleFormatter,
                 customEditor : {getElement: roleEditor},
             },
@@ -357,6 +362,10 @@ class ConnectedVariableTable extends React.Component {
     }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
+        if (['roleAttrs'].includes(cellName)) {
+            // For this cells reducers are called within the editor
+            return true;
+        }
         // Update on if the value changed
         if (!deepEqual(row[cellName], cellValue)) {
 
@@ -378,7 +387,7 @@ class ConnectedVariableTable extends React.Component {
                     updateObj,
                     row.description,
                 );
-            } else if (cellName === 'mandatory' || cellName === 'role') {
+            } else if (cellName === 'mandatory') {
                 this.props.updateItemRef({
                     itemGroupOid : row.itemGroupOid,
                     itemRefOid   : row.itemRefOid,
@@ -698,6 +707,7 @@ class ConnectedVariableTable extends React.Component {
                     search
                     striped
                     hover
+                    remote={ true }
                     keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}
                     version='4'
                     cellEdit={cellEditProp}

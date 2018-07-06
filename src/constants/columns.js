@@ -98,7 +98,7 @@ const variables = {
         tdStyle : { whiteSpace: 'normal' },
         thStyle : { whiteSpace: 'normal' }
     },
-    role: {
+    roleAttrs: {
         text    : 'Role',
         width   : '150px',
         hidden  : false,

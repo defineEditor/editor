@@ -514,10 +514,6 @@ function parseItemDefs (itemDefsRaw, mdv) {
 function parseItemRef (itemRefRaw, oid, mdv) {
     let args = itemRefRaw['$'];
     args.oid = oid;
-    if (args.hasOwnProperty('roleCodeListOid')) {
-        args.roleCodeListOid = args['roleCodeListOid'];
-        delete args['roleCodeListOid'];
-    }
     if (itemRefRaw.hasOwnProperty('whereClauseRef')) {
         args.whereClauseOid = itemRefRaw['whereClauseRef'][0]['$']['whereClauseOid'];
     }

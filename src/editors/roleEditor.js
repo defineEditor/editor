@@ -3,24 +3,14 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import Grid from '@material-ui/core/Grid';
-import Checkbox from '@material-ui/core/Checkbox';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import SaveCancel from 'editors/saveCancel.js';
-import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
+import RoleEditorView from 'editors/view/roleEditorView.js';
+import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
+import {
+    updateItemRef
+} from 'actions/index.js';
 
 const styles = theme => ({
-    textField: {
-        width  : '40px',
-        height : '20px',
-    },
-    gridItemADaM: {
-        flexBasis : 'unset',
-        textAlign : 'center',
-        height    : '20px',
-    },
-    checkbox: {
-        margin: 'none',
-    },
     root: {
         outline: 'none',
     },
@@ -29,70 +19,103 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        model: state.odm.study.metaDataVersion.model,
+        variableRoles : state.stdConstants.variableRoles,
+        codeLists     : state.odm.study.metaDataVersion.codeLists,
     };
 };
 
-class ConnectedRoleMandatoryEditor extends React.Component {
+const mapDispatchToProps = dispatch => {
+    return {
+        updateItemRef: (source, updateObj) => dispatch(updateItemRef(source, updateObj)),
+    };
+};
+
+class ConnectedRoleEditor extends React.Component {
     constructor (props) {
         super(props);
-        this.rootRef = React.createRef();
-        if (props.model === 'SDTM' || props.model === 'SEND') {
-            this.state = {
-                role          : this.props.defaultValue.role,
-                roleCodeList  : this.props.defaultValue.roleCodeList,
-                mandatoryFlag : this.props.defaultValue.mandatory === 'Yes' ? true : false,
-            };
+
+        let role;
+        if (props.roleAttrs.role === undefined) {
+            role = '';
         } else {
-            this.state = {
-                mandatoryFlag: this.props.defaultValue.mandatory === 'Yes' ? true : false,
-            };
+            role = props.roleAttrs.role;
         }
+
+        let roleCodeListOid;
+        if (props.roleAttrs.roleCodeListOid === undefined) {
+            roleCodeListOid = '';
+        } else {
+            roleCodeListOid = props.roleAttrs.roleCodeListOid;
+        }
+
+        let variableRoles;
+        if (roleCodeListOid !== '' && Object.keys(props.codeLists).includes(props.roleAttrs.roleCodeListOid)) {
+            variableRoles = getCodedValuesAsArray(props.codeLists[props.roleAttrs.roleCodeListOid]);
+        } else {
+            variableRoles = props.variableRoles;
+        }
+
+        // Get a list of all codeLists;
+        let codeListList = {};
+        Object.keys(props.codeLists).map( codeListOid => {
+            if (props.codeLists[codeListOid].dataType === 'text') {
+                codeListList[codeListOid] = props.codeLists[codeListOid].name + ' (' + codeListOid + ')';
+            }
+        });
+
+        this.state = {
+            role,
+            roleCodeListOid,
+            variableRoles,
+            codeListList,
+        };
     }
 
-    handleChange = name => event => {
-        if (this.props.model === 'ADaM') {
-            if (name === 'mandatoryFlag') {
-                this.setState({[name]: event.target.checked}, this.save);
+    handleChange = name => value => {
+        if (name === 'role') {
+            this.setState({[name]: value});
+        } else if (name === 'roleCodeListOid') {
+            let roleCodeListOid = value;
+            let variableRoles;
+            if (roleCodeListOid !== undefined && Object.keys(this.props.codeLists).includes(roleCodeListOid)) {
+                variableRoles = getCodedValuesAsArray(this.props.codeLists[roleCodeListOid]);
+            } else {
+                variableRoles = this.props.variableRoles;
             }
-        } else {
-            if (name === 'mandatoryFlag') {
-                this.setState({[name]: event.target.checked});
-            }
+            this.setState({
+                roleCodeListOid,
+                variableRoles,
+            });
         }
     };
 
     save = () => {
-        let result = {};
-        if (this.props.model === 'SDTM' || this.props.model === 'SEND') {
-            result.role = this.state.role;
-            result.roleCodeList = this.state.roleCodeList;
-            result.mandatory = this.state.mandatoryFlag ? 'Yes' : 'No';
+        let updateObj = {};
+        if (this.state.role !== '') {
+            updateObj.role = this.state.role;
+            // Per ODM 1.3.2 roleCodeListOid is provided only if the role is populated
+            if (this.state.roleCodeListOid !== '') {
+                updateObj.roleCodeListOid = this.state.roleCodeListOid;
+            } else {
+                updateObj.roleCodeListOid = undefined;
+            }
         } else {
-            result.mandatory = this.state.mandatoryFlag ? 'Yes' : 'No';
+            updateObj.role = undefined;
         }
-        this.props.onUpdate(result);
+        this.props.updateItemRef(this.props.source, updateObj);
+        this.props.onFinished();
     }
 
     cancel = () => {
-        this.props.onUpdate(this.props.defaultValue);
+        this.props.onFinished();
     }
 
     onKeyDown = (event)  => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.cancel();
-        } else if (event.keyCode === 13) {
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
             this.save();
-        } else if (event.keyCode === 32) {
-            if (this.props.model === 'ADaM') {
-                event.preventDefault();
-                this.setState({mandatoryFlag: !this.state.mandatoryFlag});
-            }
         }
-    }
-
-    componentDidMount() {
-        this.rootRef.current.focus();
     }
 
     render () {
@@ -102,54 +125,34 @@ class ConnectedRoleMandatoryEditor extends React.Component {
             <div
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
-                ref={this.rootRef}
                 className={classes.root}
             >
-                <Grid
-                    container
-                    spacing={0}
-                >
-                    <Grid
-                        item
-                        xs={12}
-                        className={this.props.model === 'ADaM' ? classes.gridItemADaM : false}
-                    >
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={this.state.mandatoryFlag}
-                                    onChange={this.handleChange('mandatoryFlag')}
-                                    value='Mandatory'
-                                    color='primary'
-                                    className={classes.checkbox}
-                                />
-                            }
-                            label={this.props.model === 'ADaM' ? false : "Mandatory"}
-                            className={classes.textField}
+                <Grid container spacing={8} alignItems='center'>
+                    <Grid item xs={12}>
+                        <RoleEditorView
+                            role={this.state.role}
+                            roleCodeListOid={this.state.roleCodeListOid}
+                            variableRoles={this.state.variableRoles}
+                            codeListList={this.state.codeListList}
+                            onChange={this.handleChange}
                         />
                     </Grid>
-                    {(this.props.model === 'SDTM' || this.props.model === 'SEND') &&
-                            <React.Fragment>
-                                <Grid item xs={12}>
-                                    <SimpleSelectEditor/>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <SaveCancel mini icon save={this.save} cancel={this.cancel}/>
-                                </Grid>
-                            </React.Fragment>
-                    }
+                    <Grid item xs={12}>
+                        <SaveCancel mini icon save={this.save} cancel={this.cancel} />
+                    </Grid>
                 </Grid>
             </div>
         );
     }
 }
 
-ConnectedRoleMandatoryEditor.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    defaultValue : PropTypes.object.isRequired,
-    model        : PropTypes.string.isRequired,
-    onUpdate     : PropTypes.func.isRequired,
+ConnectedRoleEditor.propTypes = {
+    classes       : PropTypes.object.isRequired,
+    roleAttrs     : PropTypes.object.isRequired,
+    source        : PropTypes.object.isRequired,
+    variableRoles : PropTypes.array.isRequired,
+    onFinished    : PropTypes.func.isRequired,
 };
 
-const roleMandatoryEditor = connect(mapStateToProps)(ConnectedRoleMandatoryEditor);
-export default withStyles(styles)(roleMandatoryEditor);
+const RoleEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedRoleEditor);
+export default withStyles(styles)(RoleEditor);

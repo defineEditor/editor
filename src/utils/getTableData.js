@@ -62,9 +62,9 @@ function getTableData ({source, datasetName, datasetOid, itemDefs, codeLists, md
             keySequence : keySequence,
             itemGroup   : source,
         };
-        currentVar.role= {
-            role         : originVar.role,
-            roleCodeList : originVar.roleCodeList,
+        currentVar.roleAttrs= {
+            role            : originVar.role,
+            roleCodeListOid : originVar.roleCodeListOid,
         };
         result[currentVar.keyOrder.orderNumber-1] = currentVar;
     });
