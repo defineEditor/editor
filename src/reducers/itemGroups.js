@@ -149,11 +149,13 @@ const updateItemRefKeyOrder = (state, action) => {
             if (ds.keyOrder.includes(action.source.itemRefOid)) {
                 newKeyOrder.splice(newKeyOrder.indexOf(action.source.itemRefOid),1);
             }
-            // Insert it in the new place
-            if (action.updateObj.keySequence !== ds.keyOrder.length) {
-                newKeyOrder.splice(action.updateObj.keySequence - 1, 0, action.source.itemRefOid);
-            } else {
-                newKeyOrder.push(action.source.itemRefOid);
+            if (action.updateObj.keySequence !== undefined) {
+                // Insert it in the new place
+                if (action.updateObj.keySequence !== ds.keyOrder.length) {
+                    newKeyOrder.splice(action.updateObj.keySequence - 1, 0, action.source.itemRefOid);
+                } else {
+                    newKeyOrder.push(action.source.itemRefOid);
+                }
             }
 
         } else {

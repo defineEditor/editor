@@ -92,7 +92,7 @@ function descriptionEditor (onUpdate, props) {
 }
 
 function simpleSelectEditor (onUpdate, props) {
-    return (<SimpleSelectEditor onUpdate={ onUpdate } {...props}/>);
+    return (<SimpleSelectEditor onUpdate={ onUpdate } {...props} autoFocus={true}/>);
 }
 
 function variableNameLabelWhereClauseEditor (onUpdate, props) {
@@ -487,12 +487,6 @@ class ConnectedVariableTable extends React.Component {
                     </Grid>
                     <Grid item>
                         <AddVariableEditor itemGroupOid={this.props.itemGroupOid}/>
-                    </Grid>
-                    <Grid item>
-                        <Button color='default' mini onClick={console.log} disabled={!this.props.showRowSelect}
-                            variant='raised'>
-                            Copy
-                        </Button>
                     </Grid>
                     <Grid item>
                         <Button

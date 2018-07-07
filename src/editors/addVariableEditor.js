@@ -120,6 +120,14 @@ class AddVariableEditorConnected extends React.Component {
         this.resetState();
     }
 
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.handleCancelAndClose();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.handleSaveAndClose();
+        }
+    }
+
     render() {
         const {classes} = this.props;
 
@@ -142,7 +150,7 @@ class AddVariableEditorConnected extends React.Component {
                 >
                     <DialogTitle>Add New Variable</DialogTitle>
                     <DialogContent>
-                        <Grid container spacing={8} alignItems='flex-end'>
+                        <Grid container spacing={8} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
                             <Grid item xs={12}>
                                 <TextField
                                     label='Name'

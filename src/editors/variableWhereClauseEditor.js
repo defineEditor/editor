@@ -24,7 +24,7 @@ const styles = theme => ({
         top           : '20%',
         transform     : 'translate(0%, calc(-20%+0.5px))',
         overflowX     : 'auto',
-        maxHeight     : '90%',
+        maxHeight     : '80%',
         width         : '90%',
         overflowY     : 'auto',
     },

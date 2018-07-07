@@ -4,7 +4,7 @@ import {
     UI_SETVLMSTATE,
     UI_SELECTGROUP,
     UI_SELECTCOLUMNS,
-} from "../constants/action-types";
+} from "constants/action-types";
 import stdColumns from 'constants/columns';
 
 const generateInitialState = () => {

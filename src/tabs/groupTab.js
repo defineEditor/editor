@@ -10,7 +10,6 @@ import Drawer from '@material-ui/core/Drawer';
 import VariableTable from 'tabs/variableTable.js';
 import CodedValueTable from 'tabs/codedValueTable.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
-
 import {
     selectGroup,
 } from 'actions/index.js';

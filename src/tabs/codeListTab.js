@@ -74,7 +74,7 @@ function simpleInputEditor (onUpdate, props) {
 }
 
 function simpleSelectEditor (onUpdate, props) {
-    return (<SimpleSelectEditor onUpdate={onUpdate} {...props}/>);
+    return (<SimpleSelectEditor onUpdate={onUpdate} {...props} autoFocus={true}/>);
 }
 
 function linkedCodeListEditor (onUpdate, props) {

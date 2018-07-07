@@ -45,7 +45,12 @@ class ConnectedLinkedCodeListEditor extends React.Component {
             this.props.onUpdate(this.props.defaultValue);
         }
         return (
-            <SimpleSelectEditor options={this.getLinkableCodelists(this.props.row.codeListType)} optional={true} onUpdate={this.handleChange}/>
+            <SimpleSelectEditor
+                options={this.getLinkableCodelists(this.props.row.codeListType)}
+                optional={true}
+                onUpdate={this.handleChange}
+                autoFocus={true}
+            />
         );
     }
 }

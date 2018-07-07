@@ -28,6 +28,9 @@ const styles = theme => ({
     },
     icon: {
         transform: 'translate(0, -5%)',
+    },
+    title: {
+        flexWrap: 'nowrap',
     }
 });
 
@@ -65,7 +68,7 @@ class ConnectedCodeListFormatter extends React.Component {
         return(
             <Grid container spacing={0} className={classes.codeListTable}>
                 <Grid item xs={12}>
-                    <Grid container spacing={0} alignItems='center'>
+                    <Grid container spacing={0} alignItems='center' className={classes.title}>
                         <Grid item>
                             <Typography variant="title">
                                 {codeListTitle}

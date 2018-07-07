@@ -26,7 +26,7 @@ function getTableData ({source, datasetName, datasetOid, itemDefs, codeLists, md
             length           : originItemDef.length,
             fractionDigits   : originItemDef.fractionDigits,
             lengthAsData     : originItemDef.lengthAsData,
-            lengthAsCodelist : originItemDef.lengthAsCodelist,
+            lengthAsCodeList : originItemDef.lengthAsCodeList,
         };
         currentVar.codeListFormatAttrs = {
             codeListOid   : originItemDef.codeListOid,

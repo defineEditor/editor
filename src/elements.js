@@ -681,7 +681,7 @@ class ItemDef extends BasicFunctions {
         oid, name, dataType, length,
         fractionDigits, fieldName, displayFormat,
         commentOid, codeListOid, valueList, valueListOid, parent, note,
-        varLength, lengthAsData, lengthAsCodelist, parentItemDefOid,
+        varLength, lengthAsData, lengthAsCodeList, parentItemDefOid,
         origins = [],
         descriptions = [],
         sources,
@@ -710,7 +710,7 @@ class ItemDef extends BasicFunctions {
         }
         // Length derived from data/codelist
         this.lengthAsData = lengthAsData;
-        this.lengthAsCodelist = lengthAsCodelist;
+        this.lengthAsCodeList = lengthAsCodeList;
         // List of itemGroups from which the itemDef is linked
         if (sources !== undefined) {
             this.sources = sources;

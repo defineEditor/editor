@@ -106,7 +106,7 @@ function simpleInputEditor (onUpdate, props) {
 }
 
 function simpleSelectEditor (onUpdate, props) {
-    return (<SimpleSelectEditor onUpdate={ onUpdate } {...props}/>);
+    return (<SimpleSelectEditor onUpdate={ onUpdate } {...props} autoFocus={true}/>);
 }
 
 // Formatter functions
@@ -301,17 +301,6 @@ class ConnectedDatasetTable extends React.Component {
                     </Grid>
                     <Grid item>
                         <AddDatasetEditor/>
-                    </Grid>
-                    <Grid item>
-                        <Button
-                            color='default'
-                            mini
-                            onClick={console.log}
-                            disabled={!this.props.showRowSelect}
-                            variant='raised'
-                        >
-                            Copy
-                        </Button>
                     </Grid>
                     <Grid item>
                         <Button

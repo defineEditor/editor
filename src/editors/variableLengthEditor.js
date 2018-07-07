@@ -26,17 +26,17 @@ class VariableLengthEditor extends React.Component {
             length           : this.props.defaultValue.length,
             fractionDigits   : this.props.defaultValue.fractionDigits,
             lengthAsData     : this.props.defaultValue.lengthAsData ? true : false,
-            lengthAsCodelist : this.props.defaultValue.lengthAsCodelist ? true : false,
+            lengthAsCodeList : this.props.defaultValue.lengthAsCodeList ? true : false,
         };
     }
 
     handleChange = name => event => {
         if (name === 'lengthAsData') {
             this.setState({ [name]: event.target.checked });
-            if (this.state.lengthAsCodelist === true) {
-                this.setState({lengthAsCodelist: false});
+            if (this.state.lengthAsCodeList === true) {
+                this.setState({lengthAsCodeList: false});
             }
-        } else if (name === 'lengthAsCodelist') {
+        } else if (name === 'lengthAsCodeList') {
             this.setState({ [name]: event.target.checked });
             if (this.state.lengthAsData === true) {
                 this.setState({lengthAsData: false});
@@ -65,7 +65,7 @@ class VariableLengthEditor extends React.Component {
     render() {
         const {classes} = this.props;
         const lengthAsData = this.state.lengthAsData;
-        const lengthAsCodelist = this.state.lengthAsCodelist;
+        const lengthAsCodeList = this.state.lengthAsCodeList;
         const hasCodeList = this.props.row.codeList !== undefined;
         const dataType = this.props.row.dataType;
         const lengthNotApplicable = (['float','text','integer'].indexOf(dataType) === -1);
@@ -73,7 +73,7 @@ class VariableLengthEditor extends React.Component {
         let length;
         if (lengthAsData) {
             length = 'No Data';
-        } else if (lengthAsCodelist && hasCodeList) {
+        } else if (lengthAsCodeList && hasCodeList) {
             length = this.props.row.codeList.getMaxLength();
         } else if (lengthNotApplicable) {
             length = 'Not Applicable';
@@ -103,8 +103,8 @@ class VariableLengthEditor extends React.Component {
                                     control={
                                         <Switch
                                             color='primary'
-                                            checked={this.state.lengthAsCodelist}
-                                            onChange={this.handleChange('lengthAsCodelist')}
+                                            checked={this.state.lengthAsCodeList}
+                                            onChange={this.handleChange('lengthAsCodeList')}
                                             className={classes.switch}
                                         />
                                     }
@@ -122,7 +122,7 @@ class VariableLengthEditor extends React.Component {
                         value={length}
                         onChange={this.handleChange('length')}
                         className={classes.textField}
-                        disabled={lengthAsData || lengthAsCodelist || lengthNotApplicable}
+                        disabled={lengthAsData || lengthAsCodeList || lengthNotApplicable}
                     />
                 </Grid>
                 { dataType === 'float' &&

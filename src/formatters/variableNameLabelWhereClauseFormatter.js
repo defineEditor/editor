@@ -11,6 +11,9 @@ const styles = theme => ({
     main: {
         whiteSpace: 'normal',
     },
+    nameLabel: {
+        flexWrap: 'nowrap',
+    },
     expandIcon: {
         marginLeft: theme.spacing.unit,
     }
@@ -49,23 +52,25 @@ class VariableNameLabelWhereClauseFormatter extends React.Component {
 
         return (
             <Grid container spacing={8} justify='space-between' alignItems='flex-end' className={classes.main}>
-                <Grid item>
-                    {nameLabel}
-                </Grid>
-                {hasVlm &&
-                        <Grid item>
-                            <Button
-                                variant='fab'
-                                mini
-                                color='default'
-                                onClick={this.props.toggleVlmRow(this.props.itemOid)}
-                                className={classes.expandIcon}
-                            >
-                                {state === 'collaps' ? <ExpandMoreIcon/> : <ExpandLessIcon/>}
-                            </Button>
+                <Grid container justify='space-between' className={classes.nameLabel}>
+                    <Grid item>
+                        {nameLabel}
+                    </Grid>
+                    {hasVlm &&
+                            <Grid item>
+                                <Button
+                                    variant='fab'
+                                    mini
+                                    color='default'
+                                    onClick={this.props.toggleVlmRow(this.props.itemOid)}
+                                    className={classes.expandIcon}
+                                >
+                                    {state === 'collaps' ? <ExpandMoreIcon/> : <ExpandLessIcon/>}
+                                </Button>
 
-                        </Grid>
-                }
+                            </Grid>
+                    }
+                </Grid>
                 {isVlm &&
                         <Grid item xs={12}>
                             {whereClauseLine}

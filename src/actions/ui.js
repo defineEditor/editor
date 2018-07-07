@@ -4,6 +4,8 @@ import {
     UI_SETVLMSTATE,
     UI_SELECTGROUP,
     UI_SELECTCOLUMNS,
+    UI_TOGGLEMAINMENU,
+    UI_SETCURRENTPAGE,
 } from "constants/action-types";
 
 
@@ -39,6 +41,19 @@ export const selectGroup = (updateObj) => (
 export const selectColumns = (updateObj) => (
     {
         type: UI_SELECTCOLUMNS,
+        updateObj,
+    }
+);
+
+export const toggleMainMenu = () => (
+    {
+        type: UI_TOGGLEMAINMENU,
+    }
+);
+
+export const setCurrentPage = (updateObj) => (
+    {
+        type: UI_SETCURRENTPAGE,
         updateObj,
     }
 );

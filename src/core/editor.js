@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import EditorTabs from 'tabs/editorTabs.js';
 import parseDefine from 'parsers/parseDefine.js';
-import { withStyles } from '@material-ui/core/styles';
 import parseStdCodeLists from 'parsers/parseStdCodeLists.js';
 import { connect } from 'react-redux';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import {
     addOdm,
     addStdControlledTerminology,
@@ -29,7 +29,7 @@ const styles = theme => ({
         left      : '47%',
         transform : 'translate(-47%, -47%)',
         textAlign : 'center',
-    }
+    },
 });
 
 const mapDispatchToProps = dispatch => {

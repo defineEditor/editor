@@ -20,10 +20,18 @@ const updateItemDef = (state, action) => {
 };
 
 const updateItemCodeListDisplayFormat = (state, action) => {
+    // If the codeList was removed and lengthAsCodeList is true, set it to false
+    let lengthAsCodeList;
+    if (action.updateObj.codeListOid === undefined && state[action.oid].lengthAsCodeList === true) {
+        lengthAsCodeList = false;
+    } else {
+        lengthAsCodeList = state[action.oid].lengthAsCodeList;
+    }
     let newItemDef = new ItemDef({
         ...state[action.oid],
         codeListOid   : action.updateObj.codeListOid,
-        displayFormat : action.updateObj.displayFormat
+        displayFormat : action.updateObj.displayFormat,
+        lengthAsCodeList
     });
     return { ...state, [action.oid]: newItemDef };
 };

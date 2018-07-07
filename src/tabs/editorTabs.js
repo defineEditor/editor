@@ -4,6 +4,8 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
 import StandardTable from 'tabs/standardTab.js';
 import DatasetTable from 'tabs/datasetTab.js';
 import CodeListTable from 'tabs/codeListTab.js';
@@ -11,7 +13,7 @@ import GroupTab from 'tabs/groupTab.js';
 import DocumentTab from 'tabs/documentTab.js';
 import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme, withStyles } from '@material-ui/core/styles';
-import { changeTab } from 'actions/index.js';
+import { changeTab, toggleMainMenu } from 'actions/index.js';
 
 const theme = createMuiTheme({
     palette: {
@@ -30,10 +32,24 @@ const theme = createMuiTheme({
     },
 });
 
+const styles = theme => ({
+    root: {
+        flexGrow        : 1,
+        marginTop       : theme.spacing.unit * 3,
+        backgroundColor : theme.palette.background.paper,
+    },
+    menuToggle: {
+        marginTop : '-23px',
+        position  : 'fixed',
+        zIndex    : '9000',
+    },
+});
+
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        changeTab: (updateObj) => dispatch(changeTab(updateObj)),
+        toggleMainMenu : () => dispatch(toggleMainMenu()),
+        changeTab      : (updateObj) => dispatch(changeTab(updateObj)),
     };
 };
 
@@ -54,14 +70,6 @@ function TabContainer(props) {
 TabContainer.propTypes = {
     children: PropTypes.node.isRequired,
 };
-
-const styles = theme => ({
-    root: {
-        flexGrow        : 1,
-        marginTop       : theme.spacing.unit * 3,
-        backgroundColor : theme.palette.background.paper,
-    },
-});
 
 class ConnectedEditorTabs extends React.Component {
 
@@ -117,6 +125,13 @@ class ConnectedEditorTabs extends React.Component {
         return (
             <MuiThemeProvider theme={theme}>
                 <div className={classes.root}>
+                    <IconButton
+                        color='default'
+                        onClick={this.props.toggleMainMenu}
+                        className={classes.menuToggle}
+                    >
+                        <MenuIcon/>
+                    </IconButton>
                     <AppBar position="fixed" color='default'>
                         <Tabs
                             value={currentTab}
@@ -149,8 +164,10 @@ class ConnectedEditorTabs extends React.Component {
 }
 
 ConnectedEditorTabs.propTypes = {
-    classes : PropTypes.object.isRequired,
-    tabs    : PropTypes.object.isRequired,
+    classes        : PropTypes.object.isRequired,
+    tabs           : PropTypes.object.isRequired,
+    toggleMainMenu : PropTypes.func.isRequired,
+    changeTab      : PropTypes.func.isRequired,
 };
 
 const EditorTabs = connect(mapStateToProps, mapDispatchToProps)(ConnectedEditorTabs);

@@ -101,7 +101,7 @@ const variables = {
     roleAttrs: {
         text    : 'Role',
         width   : '150px',
-        hidden  : false,
+        hidden  : true,
         tdStyle : { whiteSpace: 'normal' },
         thStyle : { whiteSpace: 'normal' }
     },
