@@ -171,8 +171,8 @@ class ConnectedEditor extends React.Component {
 }
 
 ConnectedEditor.propTypes = {
-    defineLoaded : PropTypes.bool.isRequired,
     classes      : PropTypes.object.isRequired,
+    defineLoaded : PropTypes.bool.isRequired,
     codeLists    : PropTypes.object,
 };
 

@@ -2,7 +2,7 @@ import { Leaf } from 'elements.js';
 import getOid from 'utils/getOid.js';
 import {
     UPD_LEAFS,
-} from "../constants/action-types";
+} from "constants/action-types";
 
 const initialState = new Leaf({oid: getOid('Leaf')});
 

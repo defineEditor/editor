@@ -1,6 +1,6 @@
 import {
     LOAD_STDCT
-} from "../constants/action-types";
+} from "constants/action-types";
 
 const initialState = {};
 

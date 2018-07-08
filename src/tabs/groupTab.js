@@ -27,6 +27,9 @@ const styles = theme => ({
     currentLine: {
         backgroundColor: '#EEEEEE',
     },
+    drawer: {
+        zIndex: 9001,
+    },
 });
 
 // Redux functions
@@ -144,6 +147,12 @@ class ConnectedVariableTab extends React.Component {
         } else if (this.props.groupOrder.length > 0) {
             groupOid = this.props.groupOrder[0];
         }
+        let groupName;
+        if (this.props.groupClass === 'Coded Values') {
+            groupName = 'Codelists';
+        } else if (this.props.groupClass === 'Variables') {
+            groupName = 'Datasets';
+        }
 
         return (
             <React.Fragment>
@@ -153,13 +162,13 @@ class ConnectedVariableTab extends React.Component {
                         ref={this.rootRef}
                         className={classes.root}
                     >
-                        <Drawer open={this.state.drawerOpened} onClose={() => this.toggleDrawer()}>
+                        <Drawer open={this.state.drawerOpened} onClose={() => this.toggleDrawer()} className={classes.drawer}>
                             <div
                                 tabIndex={0}
                                 role="button"
                             >
                                 <div className={classes.list}>
-                                    <List subheader={<ListSubheader disableSticky>Codelists</ListSubheader>}>
+                                    <List subheader={<ListSubheader disableSticky>{groupName}</ListSubheader>}>
                                         {this.getGroupList(groupOid)}
                                     </List>
                                 </div>

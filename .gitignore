@@ -1,6 +1,7 @@
 data
 node_modules
 src/temp
+src/static
 *.swp
 *.log
 .tern-project

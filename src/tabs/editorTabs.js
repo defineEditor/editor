@@ -12,25 +12,8 @@ import CodeListTable from 'tabs/codeListTab.js';
 import GroupTab from 'tabs/groupTab.js';
 import DocumentTab from 'tabs/documentTab.js';
 import { connect } from 'react-redux';
-import { MuiThemeProvider, createMuiTheme, withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import { changeTab, toggleMainMenu } from 'actions/index.js';
-
-const theme = createMuiTheme({
-    palette: {
-        primary: {
-            light        : '#757ce8',
-            main         : '#3f50b5',
-            dark         : '#002884',
-            contrastText : '#fff',
-        },
-        secondary: {
-            light        : '#ff7961',
-            main         : '#f44336',
-            dark         : '#ba000d',
-            contrastText : '#000',
-        },
-    },
-});
 
 const styles = theme => ({
     root: {
@@ -72,7 +55,6 @@ TabContainer.propTypes = {
 };
 
 class ConnectedEditorTabs extends React.Component {
-
 
     componentDidMount() {
         window.addEventListener('keydown', this.onKeyDown);
@@ -123,42 +105,40 @@ class ConnectedEditorTabs extends React.Component {
         const { currentTab, tabNames } = this.props.tabs;
 
         return (
-            <MuiThemeProvider theme={theme}>
-                <div className={classes.root}>
-                    <IconButton
-                        color='default'
-                        onClick={this.props.toggleMainMenu}
-                        className={classes.menuToggle}
+            <div className={classes.root}>
+                <IconButton
+                    color='default'
+                    onClick={this.props.toggleMainMenu}
+                    className={classes.menuToggle}
+                >
+                    <MenuIcon/>
+                </IconButton>
+                <AppBar position="fixed" color='default'>
+                    <Tabs
+                        value={currentTab}
+                        onChange={this.handleChange}
+                        fullWidth
+                        indicatorColor='primary'
+                        textColor='primary'
+                        scrollable
+                        scrollButtons="auto"
                     >
-                        <MenuIcon/>
-                    </IconButton>
-                    <AppBar position="fixed" color='default'>
-                        <Tabs
-                            value={currentTab}
-                            onChange={this.handleChange}
-                            fullWidth
-                            indicatorColor='primary'
-                            textColor='primary'
-                            scrollable
-                            scrollButtons="auto"
-                        >
-                            { tabNames.map( tab => {
-                                return <Tab key={tab} label={tab} />;
-                            })
-                            }
-                        </Tabs>
-                    </AppBar>
-                    <TabContainer>
-                        <br/>
-                        {tabNames[currentTab] === 'Standards' && <StandardTable/>}
-                        {tabNames[currentTab] === 'Datasets' && <DatasetTable/>}
-                        {tabNames[currentTab] === 'Variables' && <GroupTab groupClass='Variables'/>}
-                        {tabNames[currentTab] === 'Codelists' && <CodeListTable/>}
-                        {tabNames[currentTab] === 'Coded Values' && <GroupTab groupClass='Coded Values'/>}
-                        {tabNames[currentTab] === 'Documents' && <DocumentTab/>}
-                    </TabContainer>
-                </div>
-            </MuiThemeProvider>
+                        { tabNames.map( tab => {
+                            return <Tab key={tab} label={tab} />;
+                        })
+                        }
+                    </Tabs>
+                </AppBar>
+                <TabContainer>
+                    <br/>
+                    {tabNames[currentTab] === 'Standards' && <StandardTable/>}
+                    {tabNames[currentTab] === 'Datasets' && <DatasetTable/>}
+                    {tabNames[currentTab] === 'Variables' && <GroupTab groupClass='Variables'/>}
+                    {tabNames[currentTab] === 'Codelists' && <CodeListTable/>}
+                    {tabNames[currentTab] === 'Coded Values' && <GroupTab groupClass='Coded Values'/>}
+                    {tabNames[currentTab] === 'Documents' && <DocumentTab/>}
+                </TabContainer>
+            </div>
         );
     }
 }

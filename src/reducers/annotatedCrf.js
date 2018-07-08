@@ -1,7 +1,7 @@
 import { Document } from 'elements.js';
 import {
     UPD_LEAFS,
-} from "../constants/action-types";
+} from "constants/action-types";
 
 // This reducer does not bring additional value as there is a non-standard type attribute added for leafs, which controls whether
 // a document is SupplementalDoc or AnnotatedCRF. So this object duplicates this information.

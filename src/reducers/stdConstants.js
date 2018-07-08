@@ -1,6 +1,6 @@
 import {
     ADD_STDCONST
-} from '../constants/action-types';
+} from 'constants/action-types';
 import columns from 'constants/columns';
 
 const dataTypes = [

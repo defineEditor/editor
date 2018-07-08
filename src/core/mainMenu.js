@@ -19,17 +19,18 @@ import {
     setCurrentPage,
 } from 'actions/index.js';
 
-const styles = {
+const styles = theme => ({
     drawer: {
         zIndex: 9001,
     },
     drawerHeader: {
-        display        : 'flex',
-        alignItems     : 'center',
-        justifyContent : 'flex-end',
-        padding        : '0 8px',
+        display         : 'flex',
+        alignItems      : 'center',
+        justifyContent  : 'flex-end',
+        padding         : '0 8px',
+        backgroundColor : theme.palette.primary.main,
     },
-};
+});
 
 // Redux functions
 const mapStateToProps = state => {

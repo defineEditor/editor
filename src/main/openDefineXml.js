@@ -10,8 +10,10 @@ function sendToRender (mainWindow) {
 }
 
 const readDefineXml = (mainWindow) => (pathToDefineXml) => {
-    let xml = Promise.resolve(readXml(pathToDefineXml[0]));
-    xml.then(sendToRender(mainWindow));
+    if (pathToDefineXml !== undefined && pathToDefineXml.length > 0) {
+        let xml = Promise.resolve(readXml(pathToDefineXml[0]));
+        xml.then(sendToRender(mainWindow));
+    }
 };
 
 function openDefineXml (mainWindow) {

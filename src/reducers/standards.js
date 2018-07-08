@@ -3,7 +3,7 @@ import getOid from 'utils/getOid.js';
 import {
     UPD_STDCT,
     UPD_STD,
-} from "../constants/action-types";
+} from "constants/action-types";
 
 const initialOid = getOid('Standard');
 const initialState = { [initialOid]: new Standard({ oid: initialOid }) };

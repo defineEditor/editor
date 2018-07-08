@@ -9,6 +9,7 @@ const url = require('url');
 const readXml = require('./utils/readXml.js');
 const saveAs = require('./main/saveAs.js');
 const openDefineXml = require('./main/openDefineXml.js');
+const selectFolder = require('./main/selectFolder.js');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -85,6 +86,10 @@ ipcMain.on('DefineObject', (event, odm) => {
 // Add listener for Define-XML open
 ipcMain.on('OpenDefineXml', (event) => {
     openDefineXml(mainWindow);
+});
+// Add listener for folder selector
+ipcMain.on('selectFolder', (event, title) => {
+    selectFolder(mainWindow, title);
 });
 
 // This method will be called when Electron has finished

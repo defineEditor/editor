@@ -104,3 +104,4 @@ export * from 'actions/codeList.js';
 export * from 'actions/item.js';
 export * from 'actions/leaf.js';
 export * from 'actions/ui.js';
+export * from 'actions/settings.js';

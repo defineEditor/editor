@@ -1,6 +1,6 @@
 import {
     UPD_GLOBALVARSSTOID
-} from "../constants/action-types";
+} from "constants/action-types";
 
 const initialState = {
     studyName        : '',

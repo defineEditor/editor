@@ -5,8 +5,8 @@ import {
 
 const generateInitialState = () => {
     return {
-        mainMenuOpened : true,
-        currentPage    : 'editor',
+        mainMenuOpened : false,
+        currentPage    : 'settings',
     };
 };
 
