@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import MainMenu from 'core/mainMenu.js';
 import Editor from 'core/editor.js';
 import Settings from 'core/settings.js';
-import MainMenu from 'core/mainMenu.js';
+import Studies from 'core/studies.js';
 
 const theme = createMuiTheme({
     palette: {
@@ -35,6 +36,7 @@ class ConnectedApp extends Component {
         return (
             <MuiThemeProvider theme={theme}>
                 <MainMenu/>
+                { this.props.currentPage === 'studies' && <Studies/> }
                 { this.props.currentPage === 'editor' && <Editor/> }
                 { this.props.currentPage === 'settings' && <Settings/> }
             </MuiThemeProvider>

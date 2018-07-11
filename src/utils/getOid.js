@@ -13,6 +13,7 @@ function getOid (type, suffix, existingOids = []) {
         Leaf            : 'LF.',
         ItemRef         : 'NG.IR.',
         CodeListItem    : 'NG.CI.',
+        Study           : 'NG.SDY.',
     };
     if (suffix !== undefined) {
         oid = prefix[type] + suffix;
@@ -26,8 +27,10 @@ function getOid (type, suffix, existingOids = []) {
         });
     }
     // Check if the OID is not unique
-    if (existingOids.includes(oid)) {
+    if (existingOids.includes(oid) && suffix === undefined) {
         return getOid(type, suffix, existingOids);
+    } else if (existingOids.includes(oid) && suffix !== undefined) {
+        throw 'getOid: OID already exists.';
     } else {
         return oid;
     }

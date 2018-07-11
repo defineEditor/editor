@@ -6,7 +6,7 @@ import {
 const generateInitialState = () => {
     return {
         mainMenuOpened : false,
-        currentPage    : 'settings',
+        currentPage    : 'studies',
     };
 };
 
