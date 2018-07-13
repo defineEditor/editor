@@ -57,7 +57,7 @@ class ConnectedRoleEditor extends React.Component {
 
         // Get a list of all codeLists;
         let codeListList = {};
-        Object.keys(props.codeLists).map( codeListOid => {
+        Object.keys(props.codeLists).forEach( codeListOid => {
             if (props.codeLists[codeListOid].dataType === 'text') {
                 codeListList[codeListOid] = props.codeLists[codeListOid].name + ' (' + codeListOid + ')';
             }

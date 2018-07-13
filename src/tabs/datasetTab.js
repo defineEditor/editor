@@ -463,7 +463,7 @@ class ConnectedDatasetTable extends React.Component {
                     insertRow
                     striped
                     hover
-                    remote = { true }
+                    remote={ true }
                     version='4'
                     cellEdit={cellEditProp}
                     keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}

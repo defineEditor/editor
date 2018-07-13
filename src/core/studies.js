@@ -22,7 +22,7 @@ const styles = theme => ({
         justifyContent  : 'flex-start',
         alignItems      : 'flex-start',
         backgroundColor : theme.palette.grey[50],
-        minHeight          : 'calc(100vh -  ' + (theme.spacing.unit * 7).toString() + 'px)',
+        minHeight       : 'calc(100vh -  ' + (theme.spacing.unit * 7).toString() + 'px)',
         marginTop       : theme.spacing.unit * 7,
     },
     gridList: {
@@ -55,7 +55,8 @@ class ConnectedStudies extends React.Component {
 
     addStudy = () => {
         let id = getOid('Study', undefined, this.props.studies.studyOrder);
-        let study = new Study({id, name: ''});
+        let name = 'Study ' + (this.props.studies.studyOrder.length + 1).toString();
+        let study = new Study({id, name});
         this.props.addStudy({ ...study });
     }
 
@@ -87,16 +88,15 @@ class ConnectedStudies extends React.Component {
 
         return (
             <React.Fragment>
-                <NavigationBar/>
+                <NavigationBar>
+                    <Button size="small" variant='raised' onClick={this.addStudy}>Add New Study</Button>
+                </NavigationBar>
                 <div className={classes.root}>
                     <GridList cellHeight={200} className={classes.gridList} cols={cols} spacing={8}>
-                        <GridListTile key='subheader' style={{ height: '40px', textAlign: 'center' }} cols={cols}>
+                        <GridListTile key='subheader' style={{ height: '60px', textAlign: 'center' }} cols={cols}>
                             <ListSubheader component="div">{subHeaderText}</ListSubheader>
                         </GridListTile>
                         {this.getStudies()}
-                        <GridListTile key='addStudy'>
-                            <Button size="small" onClick={this.addStudy}>Add New Study</Button>
-                        </GridListTile>
                     </GridList>
                 </div>
             </React.Fragment>

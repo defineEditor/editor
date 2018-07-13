@@ -38,7 +38,7 @@ class ConnectedStudyTile extends React.Component {
     }
 
     updateStudy = () => {
-        this.props.updateStudy({ studyId: this.props.study.id, properties: { ... this.state.study } });
+        this.props.updateStudy({ studyId: this.props.study.id, properties: { ...this.state.study } });
     }
 
     render() {
@@ -56,7 +56,7 @@ class ConnectedStudyTile extends React.Component {
                             {this.state.study.name}
                         </Typography>
                         <Typography color="textSecondary" component='p'>
-                            Last changed: {this.state.study.lastChanged.toString()}
+                            Last changed: {this.state.study.lastChanged.toISOString().substr(0,16).replace('T',' ')}
                         </Typography>
                         <Typography variant="headline" component='p'>
                             Summary

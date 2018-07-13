@@ -30,7 +30,7 @@ function getOid (type, suffix, existingOids = []) {
     if (existingOids.includes(oid) && suffix === undefined) {
         return getOid(type, suffix, existingOids);
     } else if (existingOids.includes(oid) && suffix !== undefined) {
-        throw 'getOid: OID already exists.';
+        throw new Error('getOid: OID already exists.');
     } else {
         return oid;
     }

@@ -6,6 +6,7 @@ import {
     UI_SELECTCOLUMNS,
     UI_TOGGLEMAINMENU,
     UI_SETCURRENTPAGE,
+    UI_SETSTUDYORDERTYPE,
 } from "constants/action-types";
 
 
@@ -54,6 +55,13 @@ export const toggleMainMenu = () => (
 export const setCurrentPage = (updateObj) => (
     {
         type: UI_SETCURRENTPAGE,
+        updateObj,
+    }
+);
+
+export const setStudyOrderType = (updateObj) => (
+    {
+        type: UI_SETSTUDYORDERTYPE,
         updateObj,
     }
 );

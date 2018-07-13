@@ -15,6 +15,9 @@ const styles = theme => ({
     menuToggle: {
         marginLeft: theme.spacing.unit,
     },
+    navBarItem: {
+        marginTop: theme.spacing.unit,
+    },
     avatar: {
         margin      : 10,
         marginRight : theme.spacing.unit * 2,
@@ -29,7 +32,14 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-class ConnectedSettings extends React.Component {
+class ConnectedNavigationBar extends React.Component {
+    renderChildElements = () => {
+        return React.Children.map(this.props.children, (child) => (
+            <Grid item className={this.props.classes.navBarItem}>
+                {child}
+            </Grid>
+        ));
+    }
     render() {
         const { classes } = this.props;
         return (
@@ -44,6 +54,13 @@ class ConnectedSettings extends React.Component {
                             <MenuIcon/>
                         </IconButton>
                     </Grid>
+                    {this.props.children !== undefined && (
+                        <Grid item xs={10}>
+                            <Grid container justify='flex-start' alignItems='center'>
+                                {this.renderChildElements()}
+                            </Grid>
+                        </Grid>
+                    )}
                     <Grid item>
                         <img
                             alt="User"
@@ -57,10 +74,10 @@ class ConnectedSettings extends React.Component {
     }
 }
 
-ConnectedSettings.propTypes = {
+ConnectedNavigationBar.propTypes = {
     classes        : PropTypes.object.isRequired,
     toggleMainMenu : PropTypes.func.isRequired,
 };
 
-const Settings = connect(undefined, mapDispatchToProps)(ConnectedSettings);
-export default withStyles(styles)(Settings);
+const NavigationBar = connect(undefined, mapDispatchToProps)(ConnectedNavigationBar);
+export default withStyles(styles)(NavigationBar);
