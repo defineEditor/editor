@@ -7,6 +7,7 @@ import {
     UI_TOGGLEMAINMENU,
     UI_SETCURRENTPAGE,
     UI_SETSTUDYORDERTYPE,
+    UI_TOGGLEADDDEFINEFORM
 } from "constants/action-types";
 
 
@@ -62,6 +63,13 @@ export const setCurrentPage = (updateObj) => (
 export const setStudyOrderType = (updateObj) => (
     {
         type: UI_SETSTUDYORDERTYPE,
+        updateObj,
+    }
+);
+
+export const toggleAddDefineForm = (updateObj) => (
+    {
+        type: UI_TOGGLEADDDEFINEFORM,
         updateObj,
     }
 );

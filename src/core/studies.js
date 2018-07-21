@@ -10,6 +10,7 @@ import withWidth from '@material-ui/core/withWidth';
 import NavigationBar from 'core/navigationBar.js';
 import StudyTile from 'core/studyTile.js';
 import { Study } from 'core/mainStructure.js';
+import AddDefineForm from 'core/addDefineForm.js';
 import getOid from 'utils/getOid.js';
 import {
     addStudy,
@@ -41,7 +42,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        addStudy: (study) => dispatch(addStudy(study)),
+        addStudy: (updateObj) => dispatch(addStudy(updateObj)),
     };
 };
 
@@ -54,10 +55,10 @@ const widthCols = {
 class ConnectedStudies extends React.Component {
 
     addStudy = () => {
-        let id = getOid('Study', undefined, this.props.studies.studyOrder);
-        let name = 'Study ' + (this.props.studies.studyOrder.length + 1).toString();
+        let id = getOid('Study', undefined, this.props.studies.allIds);
+        let name = 'Study ' + (this.props.studies.allIds.length + 1).toString();
         let study = new Study({id, name});
-        this.props.addStudy({ ...study });
+        this.props.addStudy({ study: {...study} });
     }
 
     getStudies = (asses) => {
@@ -89,7 +90,7 @@ class ConnectedStudies extends React.Component {
         return (
             <React.Fragment>
                 <NavigationBar>
-                    <Button size="small" variant='raised' onClick={this.addStudy}>Add New Study</Button>
+                    <Button size="small" variant='raised' onClick={this.addStudy}>New Study</Button>
                 </NavigationBar>
                 <div className={classes.root}>
                     <GridList cellHeight={200} className={classes.gridList} cols={cols} spacing={8}>
@@ -99,6 +100,7 @@ class ConnectedStudies extends React.Component {
                         {this.getStudies()}
                     </GridList>
                 </div>
+                <AddDefineForm />
             </React.Fragment>
         );
     }

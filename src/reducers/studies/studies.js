@@ -5,26 +5,26 @@ import {
 } from "constants/action-types";
 
 const initialState = {
-    byId       : {},
-    studyOrder : [],
+    byId   : {},
+    allIds : [],
 };
 
 const addStudy = (state, action) => {
     return {
-        byId       : { ...state.byId, [action.study.id]: action.study },
-        studyOrder : [...state.studyOrder, action.study.id],
+        byId   : { ...state.byId, [action.updateObj.study.id]: action.updateObj.study },
+        allIds : [...state.allIds, action.updateObj.study.id],
     };
 };
 
 const deleteStudy = (state, action) => {
-    if (state.byId.hasOwnProperty(action.studyId)) {
+    if (state.byId.hasOwnProperty(action.deleteObj.studyId)) {
         let newState = {
-            byId       : {...state.byId},
-            studyOrder : [ ...state.studyOrder ],
+            byId   : {...state.byId},
+            allIds : [ ...state.allIds ],
         };
 
-        delete newState.byId[action.studyId];
-        newState.studyOrder.splice(newState.studyOrder.indexOf(action.studyId),1);
+        delete newState.byId[action.deleteObj.studyId];
+        newState.allIds.splice(newState.allIds.indexOf(action.deleteObj.studyId),1);
 
         return newState;
     } else {

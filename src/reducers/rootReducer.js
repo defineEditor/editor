@@ -5,7 +5,8 @@ import stdConstants from 'reducers/stdConstants.js';
 import ui from 'reducers/ui/ui.js';
 import settings from 'reducers/settings/settings.js';
 import studies from 'reducers/studies/studies.js';
+import defines from 'reducers/defines/defines.js';
 
-const rootReducer = combineReducers({odm, stdCodeLists, stdConstants, ui, settings, studies});
+const rootReducer = combineReducers({odm, stdCodeLists, stdConstants, ui, settings, studies, defines});
 
 export default rootReducer;

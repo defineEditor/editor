@@ -1,11 +1,12 @@
 class Study {
     constructor ({
         id, name, image, lastChanged,
-        defines = [],
+        defineIds = [],
     } = {}) {
         this.id = id;
         this.name = name;
         this.image = image;
+        this.defineIds = defineIds;
         if (lastChanged !== undefined) {
             this.lastChanged = lastChanged;
         } else {
@@ -17,7 +18,6 @@ class Study {
 class Define {
     constructor ({
         id, name, image, lastChanged,
-        defines = [],
     } = {}) {
         this.id = id;
         this.name = name;

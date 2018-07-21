@@ -548,9 +548,22 @@ class MetaDataVersion extends BasicFunctions {
         this.comments = comments;
         this.leafs = leafs;
         // Non-define XML properties
-        this.order = order;
         this.model = model;
-        this.lang = lang;
+        if (order !== undefined) {
+            this.order = order;
+        } else {
+            this.order = {
+                itemGroupOrder : {},
+                codeListOrder  : {},
+                leafOrder      : {},
+                standardOrder  : {},
+            };
+        }
+        if (lang !== undefined) {
+            this.lang = lang;
+        } else {
+            this.lang = 'en';
+        }
     }
     addStandard (standard) {
         this.standards[standard.oid] = standard;

@@ -84,7 +84,7 @@ ipcMain.on('DefineObject', (event, odm) => {
     saveAs(mainWindow, odm);
 });
 // Add listener for Define-XML open
-ipcMain.on('OpenDefineXml', (event) => {
+ipcMain.on('openDefineXml', (event) => {
     openDefineXml(mainWindow);
 });
 // Add listener for folder selector

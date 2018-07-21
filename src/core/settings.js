@@ -64,7 +64,7 @@ class ConnectedSettings extends React.Component {
         window.ipcRenderer.on('selectedFolder', this.setCTLocation);
     }
 
-    componentwillunmount() {
+    componentWillUnmount() {
         window.ipcRenderer.removeListener('selectedFolder', this.setCTLocation);
     }
 
@@ -139,7 +139,6 @@ class ConnectedSettings extends React.Component {
                                 <IconButton
                                     color='default'
                                     onClick={this.selectControlledTerminologyLocation}
-                                    className={classes.menuToggle}
                                 >
                                     <FolderOpen/>
                                 </IconButton>

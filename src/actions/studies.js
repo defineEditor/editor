@@ -4,17 +4,17 @@ import {
     STUDY_UPD,
 } from "constants/action-types";
 
-export const addStudy = (study) => (
+export const addStudy = (updateObj) => (
     {
         type: STUDY_ADD,
-        study,
+        updateObj,
     }
 );
 
-export const deleteStudy = (studyId) => (
+export const deleteStudy = (deleteObj) => (
     {
         type: STUDY_DEL,
-        studyId,
+        deleteObj,
     }
 );
 

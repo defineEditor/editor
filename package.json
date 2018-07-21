@@ -23,6 +23,7 @@
     "bootstrap": "^4.1.1",
     "clone": "^2.1.2",
     "downshift": "^1.31.16",
+    "electron-unhandled": "^1.1.0",
     "fast-deep-equal": "^1.1.0",
     "jquery": "^3.3.1",
     "prop-types": "^15.6.2",

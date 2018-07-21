@@ -1,9 +1,8 @@
 import def from 'elements.js';
 import getOid from 'utils/getOid.js';
+import getModelFromStandard from 'utils/getModelFromStandard.js';
 
-/*
- * Auxiliary functions
- */
+// Auxiliary functions
 
 // Remove namespace from attribute names
 function removeNamespace (obj) {
@@ -94,9 +93,7 @@ function getListOfSourceIds(source, targetName, targetId) {
     }
 }
 
-/*
- * Parse functions
- */
+// Parse functions
 function parseLeafs (leafsRaw, mdv) {
     let leafs = {};
     leafsRaw.forEach(function (leafRaw) {
@@ -726,14 +723,8 @@ function parseMetaDataVersion (metadataRaw) {
     // Obtain CDISC model of the study from the default standard
     Object.keys(args.standards).forEach((standardOid) => {
         if (args.standards[standardOid].isDefault === 'Yes') {
-            let name = args.standards[standardOid].name;
-            if (/adam/i.test(name)) {
-                args.model = 'ADaM';
-            } else if (/sdtm/i.test(name)) {
-                args.model = 'SDTM';
-            } else if (/send/i.test(name)) {
-                args.model = 'SEND';
-            } else {
+            args.model = getModelFromStandard(args.standards[standardOid].name);
+            if (args.model === undefined) {
                 // TODO: Throw an exception if the model is not determined
             }
         }

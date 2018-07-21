@@ -106,3 +106,4 @@ export * from 'actions/leaf.js';
 export * from 'actions/ui.js';
 export * from 'actions/settings.js';
 export * from 'actions/studies.js';
+export * from 'actions/defines.js';
