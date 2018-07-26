@@ -4,6 +4,7 @@ dll
 releases
 resources
 test
+flow-types
 app/temp
 app/static
 *.swp
