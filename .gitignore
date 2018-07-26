@@ -1,7 +1,11 @@
 data
 node_modules
-src/temp
-src/static
+dll
+releases
+resources
+test
+app/temp
+app/static
 *.swp
 *.log
 .tern-project

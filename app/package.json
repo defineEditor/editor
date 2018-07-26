@@ -1,0 +1,19 @@
+{
+  "name": "defineEditor",
+  "productName": "defineEditor",
+  "private": "true",
+  "version": "0.1.0",
+  "description": "Define-XML Editor",
+  "main": "./main.prod.js",
+  "author": {
+    "name": "",
+    "email": "",
+    "url": ""
+  },
+  "scripts": {
+    "electron-rebuild": "node -r babel-register ../internals/scripts/ElectronRebuild.js",
+    "postinstall": "npm run electron-rebuild"
+  },
+  "license": "GPL-3.0",
+  "dependencies": {}
+}
