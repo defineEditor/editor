@@ -1,12 +1,14 @@
 data
 node_modules
 dll
-releases
+release*
+app/dist
 resources
 test
-flow-types
+flow-typed/npm
 app/temp
 app/static
+app/main.prod*
 *.swp
 *.log
 .tern-project

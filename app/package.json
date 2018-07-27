@@ -6,8 +6,8 @@
   "description": "Define-XML Editor",
   "main": "./main.prod.js",
   "author": {
-    "name": "",
-    "email": "",
+    "name": "Dmitry Kolosov",
+    "email": "dmitry.m.kolosov@gmail.com",
     "url": ""
   },
   "scripts": {
