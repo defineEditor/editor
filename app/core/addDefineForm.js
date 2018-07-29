@@ -54,7 +54,8 @@ const mapStateToProps = state => {
     study,
     defineForm: state.ui.studies.defineForm,
     defines: state.defines,
-    standardNames: state.stdConstants.standardNames
+    standardNames: state.stdConstants.standardNames,
+    settings: state.settings.define
   };
 };
 
@@ -197,6 +198,7 @@ class ConnectedAddDefineForm extends React.Component {
               onNext={this.handleNext}
               onBack={this.handleBack}
               onCancel={this.handleCancel}
+              settings={this.props.settings}
               study={this.props.study}
               defineData={this.state.defineData}
               standardNames={this.props.standardNames}

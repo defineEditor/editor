@@ -19,8 +19,3 @@ body {
 .vlmRow:nth-of-type(even):hover {
     background-color: #B3E5FC !important;
 }
-
-.react-bs-container-body {
-  width    : 100%;
-  overflow : visible;
-}
