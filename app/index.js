@@ -33,3 +33,16 @@ ReactDOM.render(
     </AppContainer>,
     document.getElementById('root')
 );
+
+if (module.hot) {
+    module.hot.accept('core/app.js', () => {
+        const App = require('core/app.js'); // eslint-disable-line global-require
+        ReactDOM.render(
+            <AppContainer>
+                <Provider store={store}>
+                    <App />
+                </Provider>
+            </AppContainer>,
+        );
+    });
+}

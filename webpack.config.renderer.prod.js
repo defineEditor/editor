@@ -14,147 +14,147 @@ import CheckNodeEnv from './internals/scripts/CheckNodeEnv';
 CheckNodeEnv('production');
 
 export default merge.smart(baseConfig, {
-  devtool: 'source-map',
+    devtool: 'source-map',
 
-  mode: 'production',
+    mode: 'production',
 
-  target: 'electron-renderer',
+    target: 'electron-renderer',
 
-  entry: './app/index',
+    entry: './app/index',
 
-  output: {
-    path: path.join(__dirname, 'app/dist'),
-    publicPath: './dist/',
-    filename: 'renderer.prod.js'
-  },
+    output: {
+        path: path.join(__dirname, 'app/dist'),
+        publicPath: './dist/',
+        filename: 'renderer.prod.js'
+    },
 
-  module: {
-    rules: [
-      // Extract all .global.css to style.css as is
-      {
-        test: /\.global\.css$/,
-        use: ExtractTextPlugin.extract({
-          publicPath: './',
-          use: {
-            loader: 'css-loader',
-            options: {
-              minimize: true
-            }
-          },
-          fallback: 'style-loader'
-        })
-      },
-      // Pipe other styles through css modules and append to style.css
-      {
-        test: /^((?!\.global).)*\.css$/,
-        use: ExtractTextPlugin.extract({
-          use: {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-              minimize: true,
-              importLoaders: 1,
-              localIdentName: '[name]__[local]__[hash:base64:5]'
-            }
-          }
-        })
-      },
-      // Add SASS support  - compile all .global.scss files and pipe it to style.css
-      {
-        test: /\.global\.(scss|sass)$/,
-        use: ExtractTextPlugin.extract({
-          use: [
+    module: {
+        rules: [
+            // Extract all .global.css to style.css as is
             {
-              loader: 'css-loader',
-              options: {
-                minimize: true
-              }
+                test: /\.global\.css$/,
+                use: ExtractTextPlugin.extract({
+                    publicPath: './',
+                    use: {
+                        loader: 'css-loader',
+                        options: {
+                            minimize: true
+                        }
+                    },
+                    fallback: 'style-loader'
+                })
             },
+            // Pipe other styles through css modules and append to style.css
             {
-              loader: 'sass-loader'
-            }
-          ],
-          fallback: 'style-loader'
-        })
-      },
-      // Add SASS support  - compile all other .scss files and pipe it to style.css
-      {
-        test: /^((?!\.global).)*\.(scss|sass)$/,
-        use: ExtractTextPlugin.extract({
-          use: [
-            {
-              loader: 'css-loader',
-              options: {
-                modules: true,
-                minimize: true,
-                importLoaders: 1,
-                localIdentName: '[name]__[local]__[hash:base64:5]'
-              }
+                test: /^((?!\.global).)*\.css$/,
+                use: ExtractTextPlugin.extract({
+                    use: {
+                        loader: 'css-loader',
+                        options: {
+                            modules: true,
+                            minimize: true,
+                            importLoaders: 1,
+                            localIdentName: '[name]__[local]__[hash:base64:5]'
+                        }
+                    }
+                })
             },
+            // Add SASS support  - compile all .global.scss files and pipe it to style.css
             {
-              loader: 'sass-loader'
+                test: /\.global\.(scss|sass)$/,
+                use: ExtractTextPlugin.extract({
+                    use: [
+                        {
+                            loader: 'css-loader',
+                            options: {
+                                minimize: true
+                            }
+                        },
+                        {
+                            loader: 'sass-loader'
+                        }
+                    ],
+                    fallback: 'style-loader'
+                })
+            },
+            // Add SASS support  - compile all other .scss files and pipe it to style.css
+            {
+                test: /^((?!\.global).)*\.(scss|sass)$/,
+                use: ExtractTextPlugin.extract({
+                    use: [
+                        {
+                            loader: 'css-loader',
+                            options: {
+                                modules: true,
+                                minimize: true,
+                                importLoaders: 1,
+                                localIdentName: '[name]__[local]__[hash:base64:5]'
+                            }
+                        },
+                        {
+                            loader: 'sass-loader'
+                        }
+                    ]
+                })
+            },
+            // WOFF Font
+            {
+                test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
+                use: {
+                    loader: 'url-loader',
+                    options: {
+                        limit: 10000,
+                        mimetype: 'application/font-woff'
+                    }
+                }
+            },
+            // WOFF2 Font
+            {
+                test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/,
+                use: {
+                    loader: 'url-loader',
+                    options: {
+                        limit: 10000,
+                        mimetype: 'application/font-woff'
+                    }
+                }
+            },
+            // TTF Font
+            {
+                test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
+                use: {
+                    loader: 'url-loader',
+                    options: {
+                        limit: 10000,
+                        mimetype: 'application/octet-stream'
+                    }
+                }
+            },
+            // EOT Font
+            {
+                test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
+                use: 'file-loader'
+            },
+            // SVG Font
+            {
+                test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+                use: {
+                    loader: 'url-loader',
+                    options: {
+                        limit: 10000,
+                        mimetype: 'image/svg+xml'
+                    }
+                }
+            },
+            // Common Image Formats
+            {
+                test: /\.(?:ico|gif|png|jpg|jpeg|webp)$/,
+                use: 'url-loader'
             }
-          ]
-        })
-      },
-      // WOFF Font
-      {
-        test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
-        use: {
-          loader: 'url-loader',
-          options: {
-            limit: 10000,
-            mimetype: 'application/font-woff'
-          }
-        }
-      },
-      // WOFF2 Font
-      {
-        test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/,
-        use: {
-          loader: 'url-loader',
-          options: {
-            limit: 10000,
-            mimetype: 'application/font-woff'
-          }
-        }
-      },
-      // TTF Font
-      {
-        test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-        use: {
-          loader: 'url-loader',
-          options: {
-            limit: 10000,
-            mimetype: 'application/octet-stream'
-          }
-        }
-      },
-      // EOT Font
-      {
-        test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-        use: 'file-loader'
-      },
-      // SVG Font
-      {
-        test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        use: {
-          loader: 'url-loader',
-          options: {
-            limit: 10000,
-            mimetype: 'image/svg+xml'
-          }
-        }
-      },
-      // Common Image Formats
-      {
-        test: /\.(?:ico|gif|png|jpg|jpeg|webp)$/,
-        use: 'url-loader'
-      }
-    ]
-  },
+        ]
+    },
 
-  plugins: [
+    plugins: [
     /**
      * Create global constants which can be configured at compile time.
      *
@@ -164,21 +164,21 @@ export default merge.smart(baseConfig, {
      * NODE_ENV should be production so that modules do not perform certain
      * development checks
      */
-    new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production'
-    }),
+        new webpack.EnvironmentPlugin({
+            NODE_ENV: 'production'
+        }),
 
-    new UglifyJSPlugin({
-      parallel: true,
-      sourceMap: true
-    }),
+        new UglifyJSPlugin({
+            parallel: true,
+            sourceMap: true
+        }),
 
-    new ExtractTextPlugin('style.css'),
+        new ExtractTextPlugin('style.css'),
 
-    new BundleAnalyzerPlugin({
-      analyzerMode:
+        new BundleAnalyzerPlugin({
+            analyzerMode:
         process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
-      openAnalyzer: process.env.OPEN_ANALYZER === 'true'
-    })
-  ]
+            openAnalyzer: process.env.OPEN_ANALYZER === 'true'
+        })
+    ]
 });

@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'production') {
 
 if (
     process.env.NODE_ENV === 'development' ||
-  process.env.DEBUG_PROD === 'true'
+    process.env.DEBUG_PROD === 'true'
 ) {
     require('electron-debug')();
     const p = path.join(__dirname, '..', 'app', 'node_modules');
@@ -36,6 +36,7 @@ const installExtensions = async () => {
 function createWindow() {
     mainWindow = new BrowserWindow({
         fullscreen: true,
+        show: false,
         width: 1024,
         height: 728
     });
@@ -47,7 +48,7 @@ function createWindow() {
             throw new Error('"mainWindow" is not defined');
         }
         mainWindow.show();
-        mainWindow.focus();
+        //mainWindow.focus();
     });
     // Set the menu
     Menu.setApplicationMenu(createMenu(mainWindow));
@@ -108,14 +109,6 @@ ipcMain.on('writeDefineObject', (event, defineObject) => {
     writeDefineObject(defineObject);
 });
 
-app.on('activate', () => {
-    // On OS X it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (mainWindow === null) {
-        createWindow();
-    }
-});
-
 app.on('window-all-closed', () => {
     // Respect the OSX convention of having the application in memory even
     // after all windows have been closed
@@ -127,7 +120,7 @@ app.on('window-all-closed', () => {
 app.on('ready', async () => {
     if (
         process.env.NODE_ENV === 'development' ||
-    process.env.DEBUG_PROD === 'true'
+        process.env.DEBUG_PROD === 'true'
     ) {
         await installExtensions();
     }
