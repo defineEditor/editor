@@ -35,7 +35,7 @@ const installExtensions = async () => {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    show: false,
+    fullscreen: true,
     width: 1024,
     height: 728
   });

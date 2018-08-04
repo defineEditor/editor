@@ -1,3 +1,4 @@
+import { remote } from 'electron';
 import { STG_UPDATESETTINGS } from 'constants/action-types';
 
 const general = {
@@ -10,8 +11,8 @@ const editor = {};
 const define = {
   schemaLocation200: 'http://www.cdisc.org/ns/def/v2.0/define2-0-0.xsd',
   schemaLocation210: 'http://www.cdisc.org/ns/def/v2.1/define2-1-0.xsd',
-  sourceSystem: 'Define-XML Editor',
-  sourceSystemVersion: '0.1.0',
+  sourceSystem: remote.app.getName(),
+  sourceSystemVersion: remote.app.getVersion(),
   stylesheetLocation: './stylesheet/define2-0-0.xsl'
 };
 

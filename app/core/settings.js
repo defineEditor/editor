@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import { ipcRenderer } from 'electron';
+import { remote, ipcRenderer } from 'electron';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import FolderOpen from '@material-ui/icons/FolderOpen';
@@ -182,7 +182,7 @@ class ConnectedSettings extends React.Component {
               <Grid item xs={12}>
                 <TextField
                   label="Schema Location (v2.0)"
-                  value={this.state.define.schemaLocation['2.0']}
+                  value={this.state.define.schemaLocation200}
                   onChange={this.handleChange('define', 'schemaLocation200')}
                   className={classes.textField}
                 />
@@ -190,7 +190,7 @@ class ConnectedSettings extends React.Component {
               <Grid item xs={12}>
                 <TextField
                   label="Schema Location (v2.1)"
-                  value={this.state.define.schemaLocation['2.1']}
+                  value={this.state.define.schemaLocation210}
                   onChange={this.handleChange('define', 'schemaLocation210')}
                   className={classes.textField}
                 />
@@ -206,6 +206,9 @@ class ConnectedSettings extends React.Component {
               <Grid item>
                 <TextField
                   label="Source System Version"
+                  disabled={
+                    this.state.define.sourceSystem === remote.app.getName()
+                  }
                   value={this.state.define.sourceSystemVersion}
                   onChange={this.handleChange('define', 'sourceSystemVersion')}
                   className={classes.sourceSystemVersion}

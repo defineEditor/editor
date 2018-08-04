@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import { hot } from 'react-hot-loader';
 import MainMenu from 'core/mainMenu.js';
 import Editor from 'core/editor.js';
 import Settings from 'core/settings.js';
@@ -50,4 +49,4 @@ ConnectedApp.propTypes = {
 };
 
 const App = connect(mapStateToProps)(ConnectedApp);
-export default hot(module)(App);
+export default App;

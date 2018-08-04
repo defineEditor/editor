@@ -96,6 +96,7 @@ class AddDefineFormStep2 extends React.Component {
               <Grid item xs={12} />
               <TextField
                 label="Define Version"
+                disabled={true}
                 value={this.state.defineVersion}
                 id="version"
                 select
