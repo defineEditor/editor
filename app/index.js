@@ -15,8 +15,8 @@ import 'typeface-roboto-mono/index.css';
 
 // Stardard events
 const sendDefineObject = (error, data) => {
-  let odm = store.getState().odm;
-  window.ipcRenderer.send('DefineObject', odm);
+    let odm = store.getState().odm;
+    window.ipcRenderer.send('DefineObject', odm);
 };
 
 ipcRenderer.on('SendDefineObjectToMain', sendDefineObject);
@@ -26,10 +26,10 @@ ipcRenderer.on('saveState', saveState);
 unhandled();
 
 ReactDOM.render(
-  <AppContainer>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </AppContainer>,
-  document.getElementById('root')
+    <AppContainer>
+        <Provider store={store}>
+            <App />
+        </Provider>
+    </AppContainer>,
+    document.getElementById('root')
 );
