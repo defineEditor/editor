@@ -7,6 +7,7 @@ import { AppContainer } from 'react-hot-loader';
 import store from 'store/index.js';
 import App from 'core/app.js';
 import saveState from 'utils/saveState.js';
+import sendDefineObject from 'utils/sendDefineObject.js';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import '../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import 'css/index.css';
@@ -14,13 +15,8 @@ import 'css/app.global.css';
 import 'typeface-roboto-mono/index.css';
 
 // Stardard events
-const sendDefineObject = (error, data) => {
-    let odm = store.getState().odm;
-    window.ipcRenderer.send('DefineObject', odm);
-};
-
-ipcRenderer.on('SendDefineObjectToMain', sendDefineObject);
-ipcRenderer.on('saveState', saveState);
+ipcRenderer.on('sendDefineObjectToMain', sendDefineObject);
+ipcRenderer.on('saveState', () => { saveState(store.getState()); });
 
 // Handle unhandled errors;
 unhandled();

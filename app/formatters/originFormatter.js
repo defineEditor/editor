@@ -3,6 +3,7 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import DocumentFormatter from 'formatters/documentFormatter.js';
+import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     text: {
@@ -12,7 +13,7 @@ const styles = theme => ({
 class OriginFormatter extends React.Component {
     render () {
         let origin = this.props.origin;
-        let originText = origin.getDescription();
+        let originText = getDescription(origin);
 
         return (
             <div key='originDescription'>

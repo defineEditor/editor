@@ -30,6 +30,7 @@ const mapStateToProps = state => {
         stdConstants  : state.stdConstants,
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
         model         : state.odm.study.metaDataVersion.model,
+        lang          : state.odm.study.metaDataVersion.lang,
         leafs         : state.odm.study.metaDataVersion.leafs,
     };
 };
@@ -89,7 +90,7 @@ class ConnectedDescriptionEditor extends React.Component {
             >
                 <Grid container spacing={8} alignItems='center'>
                     <Grid item xs={12} className={classes.gridItem}>
-                        <OriginEditor {...childProps} defaultValue={this.state.origins} onUpdate={this.handleChange('origins')}/>
+                        <OriginEditor {...childProps} defaultValue={this.state.origins} onUpdate={this.handleChange('origins')} lang={this.props.lang}/>
                     </Grid>
                     <Grid item xs={12} className={classes.gridItem}>
                         <Divider/>
@@ -122,6 +123,7 @@ class ConnectedDescriptionEditor extends React.Component {
 ConnectedDescriptionEditor.propTypes = {
     defaultValue : PropTypes.object,
     leafs        : PropTypes.object.isRequired,
+    lang         : PropTypes.string.isRequired,
     model        : PropTypes.string.isRequired,
 };
 

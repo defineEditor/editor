@@ -10,7 +10,6 @@ import { connect } from 'react-redux';
 import {
     addOdm,
     addStdControlledTerminology,
-    addStdConstants,
     updateCodeListStandardOids,
     updateStandards
 } from 'actions/index.js';
@@ -38,7 +37,6 @@ const mapDispatchToProps = dispatch => {
         addOdm: odm => dispatch(addOdm(odm)),
         addStdControlledTerminology: codeListsOdm =>
             dispatch(addStdControlledTerminology(codeListsOdm)),
-        addStdConstants: () => dispatch(addStdConstants()),
         updateCodeListStandardOids: updateObj =>
             dispatch(updateCodeListStandardOids(updateObj)),
         updateStandards: updateObj => dispatch(updateStandards(updateObj))
@@ -68,7 +66,6 @@ class ConnectedEditor extends React.Component {
     componentDidMount() {
         ipcRenderer.on('define', this.loadDefine);
         ipcRenderer.on('stdCodeLists', this.loadStdCodeLists);
-        this.props.addStdConstants();
     }
 
     componentWillUnmount() {

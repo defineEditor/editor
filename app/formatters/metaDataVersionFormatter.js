@@ -7,6 +7,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import FormattingControlIcons from 'formatters/formattingControlIcons.js';
+import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     metaDataVersion: {
@@ -36,7 +37,7 @@ class MetaDataVersionFormatter extends React.Component {
                     </ListItem>
                     { defineVersion === '2.1.0' &&
                     <ListItem>
-                        <ListItemText primary='Comment' secondary={comment.getDescription()}/>
+                        <ListItemText primary='Comment' secondary={getDescription(comment)}/>
                     </ListItem>
                     }
                 </List>

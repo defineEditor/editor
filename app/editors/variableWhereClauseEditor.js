@@ -11,6 +11,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import WhereClauseInteractiveEditor from 'editors/whereClauseInteractiveEditor.js';
 import Button from '@material-ui/core/Button';
+import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     dialog: {
@@ -47,12 +48,12 @@ class VariableWhereClauseEditor extends React.Component {
         super(props);
         this.state = {
             dialogOpened: false,
-            whereClauseLine: this.props.whereClause.toString(this.props.mdv)
+            whereClauseLine: getWhereClauseAsText(this.props.whereClause, this.props.mdv)
         };
     }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
-        let newWhereClauseLine = nextProps.whereClause.toString(this.props.mdv);
+        let newWhereClauseLine = getWhereClauseAsText(nextProps.whereClause, this.props.mdv);
         if (newWhereClauseLine !== this.state.whereClauseLine) {
             this.setState({
                 whereClauseLine: newWhereClauseLine

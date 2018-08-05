@@ -7,6 +7,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Grid from '@material-ui/core/Grid';
 import SaveCancel from 'editors/saveCancel.js';
 import TextField from '@material-ui/core/TextField';
+import { getMaxLength } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     formControl: {
@@ -74,7 +75,7 @@ class VariableLengthEditor extends React.Component {
         if (lengthAsData) {
             length = 'No Data';
         } else if (lengthAsCodeList && hasCodeList) {
-            length = this.props.row.codeList.getMaxLength();
+            length = getMaxLength(this.props.row.codeList);
         } else if (lengthNotApplicable) {
             length = 'Not Applicable';
         } else {

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import clone from 'clone';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
@@ -62,7 +63,7 @@ class DocumentTableEditor extends React.Component {
         // Clone leafs
         let leafs = {};
         this.props.leafOrder.forEach( leafId => {
-            leafs[leafId] = this.props.leafs[leafId].clone();
+            leafs[leafId] = clone(this.props.leafs[leafId]);
         });
         let leafOrder = this.props.leafOrder.slice();
 

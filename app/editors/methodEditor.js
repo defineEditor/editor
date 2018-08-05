@@ -1,13 +1,13 @@
-import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import clone from 'clone';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
 import DocumentEditor from 'editors/documentEditor.js';
 import FormalExpressionEditor from 'editors/formalExpressionEditor.js';
-import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import {Method, TranslatedText} from 'elements.js';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
@@ -22,6 +22,8 @@ import getOid from 'utils/getOid.js';
 import SelectMethodComment from 'utils/selectMethodComment.js';
 import getMethodSourceLabels from 'utils/getMethodSourceLabels.js';
 import SelectMethodIcon from '@material-ui/icons/OpenInNew';
+import { Method, TranslatedText, FormalExpression } from 'elements.js';
+import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     button: {
@@ -55,6 +57,7 @@ const mapStateToProps = state => {
         leafs   : state.odm.study.metaDataVersion.leafs,
         mdv     : state.odm.study.metaDataVersion,
         methods : state.odm.study.metaDataVersion.methods,
+        lang    : state.odm.study.metaDataVersion.lang,
     };
 };
 
@@ -86,44 +89,44 @@ class ConnectedMethodEditor extends React.Component {
         let method = this.props.stateless === true ? this.props.defaultValue : this.state.method;
         if (name === 'addMethod') {
             let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
-            newMethod = new Method({ oid: methodOid, descriptions: [new TranslatedText({lang: 'en', value: ''})] });
+            newMethod = { ...new Method({ oid: methodOid, descriptions: [ { ...new TranslatedText({lang: this.props.lang, value: ''}) } ] }) };
         } else if (name === 'deleteMethod') {
             newMethod = undefined;
         } else if (name === 'textUpdate') {
-            newMethod = method.clone();
-            newMethod.setDescription(updateObj.target.value);
+            newMethod = clone(method);
+            setDescription(newMethod, updateObj.target.value);
         } else if (name === 'typeUpdate') {
-            newMethod = method.clone();
+            newMethod = clone(method);
             newMethod.type = updateObj.target.value;
         } else if (name === 'nameUpdate') {
-            newMethod = method.clone();
+            newMethod = clone(method);
             newMethod.name = updateObj.target.value;
         } else if (name === 'autoMethodNameUpdate') {
-            newMethod = method.clone();
+            newMethod = clone(method);
             newMethod.autoMethodName = checked;
             if (checked) {
                 newMethod.name = 'Algorithm for ' + this.props.row.fullName;
             }
         } else if (name === 'addDocument') {
-            newMethod = method.clone();
-            newMethod.addDocument();
+            newMethod = clone(method);
+            addDocument(newMethod);
         } else if (name === 'updateDocument') {
             newMethod = updateObj;
         } else if (name === 'addFormalExpression') {
-            newMethod = method.clone();
-            newMethod.addFormalExpression();
+            newMethod = clone(method);
+            newMethod.formalExpressions.push({ ...new FormalExpression() });
         } else if (name === 'deleteFormalExpression') {
-            newMethod = method.clone();
+            newMethod = clone(method);
             newMethod.formalExpressions = [];
         } else if (name === 'updateFormalExpression') {
-            newMethod = method.clone();
+            newMethod = clone(method);
             newMethod.formalExpressions[0] = updateObj;
         } else if (name === 'selectMethod') {
             newMethod = updateObj;
             this.setState({selectMethodOpened: false});
         } else if (name === 'copyMethod') {
             let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
-            newMethod = new Method({ ...updateObj.clone(), oid: methodOid, sources: undefined });
+            newMethod = { ...new Method({ ...clone(updateObj), oid: methodOid, sources: undefined }) };
             this.setState({selectMethodOpened: false});
         }
 
@@ -332,7 +335,7 @@ class ConnectedMethodEditor extends React.Component {
                                         fullWidth
                                         autoFocus
                                         key={method.oid}
-                                        defaultValue={method.getDescription()}
+                                        defaultValue={getDescription(method)}
                                         onBlur={this.handleChange('textUpdate')}
                                         margin="normal"
                                     />
@@ -367,11 +370,12 @@ class ConnectedMethodEditor extends React.Component {
 
 ConnectedMethodEditor.propTypes = {
     defaultValue: PropTypes.oneOfType([
-        PropTypes.instanceOf(Method),
+        PropTypes.object,
         PropTypes.oneOf([""]),
     ]),
     mdv       : PropTypes.object.isRequired,
     leafs     : PropTypes.object.isRequired,
+    lang      : PropTypes.string.isRequired,
     methods   : PropTypes.object.isRequired,
     onUpdate  : PropTypes.func,
     stateless : PropTypes.bool,

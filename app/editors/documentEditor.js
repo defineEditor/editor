@@ -1,13 +1,16 @@
 import IconButton from '@material-ui/core/IconButton';
 import PropTypes from 'prop-types';
-import ItemSelect from 'itemSelect.js';
 import PdfPageEditor from 'editors/pdfPageEditor.js';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import PictureAsPdf from '@material-ui/icons/PictureAsPdf';
 import Grid from '@material-ui/core/Grid';
-import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
+import React from 'react';
+import clone from 'clone';
+import ItemSelect from 'utils/itemSelect.js';
+import { addDocument } from 'utils/defineStructureUtils.js';
+import { PdfPageRef } from 'elements.js';
 
 const styles = theme => ({
     button: {
@@ -20,7 +23,7 @@ const styles = theme => ({
 
 class DocumentEditor extends React.Component {
     handleChange = (name, documentId, pdfPageRefId) => event => {
-        let newObject =this.props.parentObj.clone();
+        let newObject = clone(this.props.parentObj);
         if (name === 'updateDocument') {
             let newDocuments = newObject.documents.slice();
             newDocuments[documentId].leafId = event.target.value;
@@ -32,10 +35,10 @@ class DocumentEditor extends React.Component {
             newObject.documents = newDocuments;
         }
         if (name === 'newDocument') {
-            newObject.addDocument();
+            addDocument(newObject);
         }
         if (name === 'newPdfPageRef') {
-            let addedIndex = newObject.documents[documentId].addPdfPageRef();
+            let addedIndex = newObject.documents[documentId].pdfPageRefs.push({ ...new PdfPageRef() }) - 1;
             // Default to PhysicalRef
             newObject.documents[documentId].pdfPageRefs[addedIndex].type = 'PhysicalRef';
 

@@ -10,6 +10,7 @@ import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import getSelectionList from 'utils/getSelectionList.js';
 import SaveCancel from 'editors/saveCancel.js';
 import getOidByName from 'utils/getOidByName.js';
+import { getDecode } from 'utils/defineStructureUtils.js';
 import clone from 'clone';
 
 
@@ -96,14 +97,14 @@ class WhereClauseEditorInteractive extends React.Component {
             let currentItemOid = rangeCheck.itemOid;
             let currentCodeList = this.props.mdv.codeLists[this.props.mdv.itemDefs[currentItemOid].codeListOid];
             if (currentCodeList !== undefined) {
-                if (currentCodeList.getCodeListType() !== 'external') {
+                if (currentCodeList.codeListType !== 'external') {
                     listOfCodeValues[currentItemOid] = [];
-                    if (currentCodeList.getCodeListType() === 'decoded') {
+                    if (currentCodeList.codeListType === 'decoded') {
                         Object.keys(currentCodeList.codeListItems).forEach( itemOid => {
                             let item = currentCodeList.codeListItems[itemOid];
-                            listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue + ' (' + item.getDecode() + ')'});
+                            listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue + ' (' + getDecode(item) + ')'});
                         });
-                    } else if (currentCodeList.getCodeListType() === 'enumerated') {
+                    } else if (currentCodeList.codeListType === 'enumerated') {
                         Object.keys(currentCodeList.enumeratedItems).forEach( itemOid => {
                             let item = currentCodeList.enumeratedItems[itemOid];
                             listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue});
@@ -141,10 +142,10 @@ class WhereClauseEditorInteractive extends React.Component {
             let currentCodeList = this.props.mdv.codeLists[this.props.mdv.itemDefs[itemOid].codeListOid];
             if (currentCodeList !== undefined) {
                 result[itemOid] = [];
-                if (currentCodeList.getCodeListType() === 'decoded') {
+                if (currentCodeList.codeListType === 'decoded') {
                     Object.keys(currentCodeList.codeListItems).forEach( oid => {
                         let item = currentCodeList.codeListItems[oid];
-                        result[itemOid].push({[item.codedValue]: item.codedValue + ' (' + item.getDecode() + ')'});
+                        result[itemOid].push({[item.codedValue]: item.codedValue + ' (' + getDecode(item) + ')'});
                     });
                 } else {
                     Object.keys(currentCodeList.enumeratedItems).forEach( oid => {

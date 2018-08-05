@@ -19,6 +19,7 @@ import SaveIcon from '@material-ui/icons/Save';
 import AddIcon from '@material-ui/icons/Add';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
+import { ipcRenderer } from 'electron';
 import {
     updateStudy,
     deleteStudy,
@@ -105,12 +106,18 @@ class ConnectedStudyTile extends React.Component {
   deleteDefine = defineId => {
       this.props.deleteDefine({ defineId, studyId: this.props.study.id });
       this.handleMenuClose();
+      // Delete associated file from the storage
+      ipcRenderer.send('deleteDefineObject', defineId);
+  };
+
+  loadDefineObject = defineId => {
+      ipcRenderer.send('loadDefineObject', defineId);
   };
 
   getDefines = classes => {
       return this.state.study.defineIds.map(defineId => (
           <MenuItem
-              onClick={this.handleMenuClose}
+              onClick={() => { this.loadDefineObject(defineId); }}
               className={classes.menu}
               key={defineId}
           >
@@ -229,7 +236,6 @@ class ConnectedStudyTile extends React.Component {
                       <Typography color="textSecondary" component="p">
               Last changed:{' '}
                           {this.state.study.lastChanged
-                              .toISOString()
                               .substr(0, 16)
                               .replace('T', ' ')}
                       </Typography>

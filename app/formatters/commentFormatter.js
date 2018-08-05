@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import DocumentFormatter from 'formatters/documentFormatter.js';
+import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     text: {
@@ -12,7 +13,7 @@ const styles = theme => ({
 class CommentFormatter extends React.Component {
     render () {
         let comment = this.props.comment;
-        let commentText = comment.getDescription();
+        let commentText = getDescription(comment);
 
         return (
             <div key='commentDescription'>

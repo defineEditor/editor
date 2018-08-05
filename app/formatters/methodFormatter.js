@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import DocumentFormatter from 'formatters/documentFormatter.js';
 import FormalExpressionFormatter from 'formatters/formalExpressionFormatter.js';
+import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     methodName: {
@@ -18,7 +19,7 @@ const styles = theme => ({
 class MethodFormatter extends React.Component {
     render () {
         const { classes, method } = this.props;
-        let methodText = method.getDescription();
+        let methodText = getDescription(method);
 
         return (
             <div key='methodDescription'>

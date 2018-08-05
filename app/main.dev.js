@@ -6,6 +6,8 @@ import saveAs from './main/saveAs.js';
 import openDefineXml from './main/openDefineXml.js';
 import selectFolder from './main/selectFolder.js';
 import writeDefineObject from './main/writeDefineObject.js';
+import loadDefineObject from './main/loadDefineObject.js';
+import deleteDefineObject from './main/deleteDefineObject.js';
 
 let mainWindow = null;
 
@@ -75,14 +77,21 @@ function createWindow() {
     codeListAdam.then(sendToRender('stdCodeLists'));
 
     mainWindow.on('close', function(e) {
-        const choice = electron.dialog.showMessageBox(this, {
-            type: 'question',
-            buttons: ['Yes', 'No'],
-            title: 'Closing Define-XML editor',
-            message: 'Are you sure you want to quit?'
-        });
-        if (choice === 1) {
-            e.preventDefault();
+        if (
+            process.env.NODE_ENV !== 'development' &&
+            process.env.DEBUG_PROD !== 'true'
+        ) {
+            const choice = electron.dialog.showMessageBox(this, {
+                type: 'question',
+                buttons: ['Yes', 'No'],
+                title: 'Closing Define-XML editor',
+                message: 'Are you sure you want to quit?'
+            });
+            if (choice === 1) {
+                e.preventDefault();
+            } else {
+                mainWindow = null;
+            }
         } else {
             mainWindow = null;
         }
@@ -93,8 +102,8 @@ function createWindow() {
  * Add event listeners...
  */
 // Add listener for Define-XML generation
-ipcMain.on('DefineObject', (event, odm) => {
-    saveAs(mainWindow, odm);
+ipcMain.on('defineObject', (event, data) => {
+    saveAs(mainWindow, data);
 });
 // Add listener for Define-XML open
 ipcMain.on('openDefineXml', () => {
@@ -108,6 +117,15 @@ ipcMain.on('selectFolder', (event, title) => {
 ipcMain.on('writeDefineObject', (event, defineObject) => {
     writeDefineObject(defineObject);
 });
+
+ipcMain.on('deleteDefineObject', (event, defineId) => {
+    deleteDefineObject(defineId);
+});
+
+ipcMain.on('loadDefineObject', (event, defineId) => {
+    loadDefineObject(defineId);
+});
+
 
 app.on('window-all-closed', () => {
     // Respect the OSX convention of having the application in memory even

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
-import {FormalExpression} from 'elements.js';
+import clone from 'clone';
 
 const styles = theme => ({
     context: {
@@ -18,7 +18,7 @@ const styles = theme => ({
 class FormalExpressionEditor extends React.Component {
 
     handleChange = name => event => {
-        let newFormalExpression = this.props.value.clone();
+        let newFormalExpression = clone(this.props.value);
         // Overwrite the updated property
         newFormalExpression[name] = event.target.value;
         // Lift the state up
@@ -57,7 +57,7 @@ class FormalExpressionEditor extends React.Component {
 
 FormalExpressionEditor.propTypes = {
     classes      : PropTypes.object.isRequired,
-    value        : PropTypes.instanceOf(FormalExpression),
+    value        : PropTypes.object,
     handleChange : PropTypes.func.isRequired,
 };
 

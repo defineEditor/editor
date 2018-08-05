@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
+import clone from 'clone';
 import Typography from '@material-ui/core/Typography';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import DescriptionIcon from '@material-ui/icons/Description';
@@ -13,7 +14,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import ClearIcon from '@material-ui/icons/Clear';
 import getSelectionList from 'utils/getSelectionList.js';
 import DocumentEditor from 'editors/documentEditor.js';
-import {Origin} from 'elements.js';
+import { Origin, TranslatedText } from 'elements.js';
+import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     button: {
@@ -41,40 +43,40 @@ class OriginEditor extends React.Component {
         let origins = this.props.defaultValue;
         let origin = origins[originId];
         let newOrigin;
-        let newOrigins = origins.map( origin => (origin.clone()));
+        let newOrigins = origins.map( origin => (clone(origin)));
 
         if (name === 'deleteOrigin') {
             newOrigins.splice(originId, 1);
             this.props.onUpdate(newOrigins);
         } else {
             if (name === 'addOrigin') {
-                newOrigin = new Origin();
+                newOrigin = { ...new Origin() };
             }
             if (name === 'type') {
                 // TODO: If the selected TYPE is CRF, check if there is CRF document attached to the origin
                 // If not, create it with PhysicalRef type
                 // TODO: If the selected TYPE is Predecessor, check if there is a description
                 // If not, create it
-                newOrigin = origin.clone();
+                newOrigin = clone(origin);
                 newOrigin.type = updateObj.target.value;
             }
             if (name === 'addDescription') {
-                newOrigin = origin.clone();
-                newOrigin.addDescription();
+                newOrigin = clone(origin);
+                newOrigin.descriptions.push({ ...new TranslatedText({ value: '', lang: this.props.lang }) });
             }
             if (name === 'updateDescription') {
                 // TODO: this is slow as each keypress updates the upstate
                 // Consider changing to local state or ref
-                newOrigin = origin.clone();
-                newOrigin.setDescription(updateObj.target.value);
+                newOrigin = clone(origin);
+                setDescription(newOrigin, updateObj.target.value);
             }
             if (name === 'deleteDescription') {
-                newOrigin = origin.clone();
+                newOrigin = clone(origin);
                 newOrigin.descriptions = [];
             }
             if (name === 'addDocument') {
-                newOrigin = origin.clone();
-                newOrigin.addDocument();
+                newOrigin = clone(origin);
+                addDocument(newOrigin);
             }
             if (name === 'updateDocument') {
                 newOrigin = updateObj;
@@ -101,7 +103,7 @@ class OriginEditor extends React.Component {
             if (origin) {
                 originType = origin.type || '';
                 if (origin.descriptions.length > 0) {
-                    originDescription = origin.getDescription();
+                    originDescription = getDescription(origin);
                 }
             }
         }
@@ -201,6 +203,7 @@ class OriginEditor extends React.Component {
 OriginEditor.propTypes = {
     defaultValue : PropTypes.array.isRequired,
     leafs        : PropTypes.object.isRequired,
+    lang         : PropTypes.string.isRequired,
     onUpdate     : PropTypes.func
 };
 

@@ -8,6 +8,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import TextField from '@material-ui/core/TextField';
 import EditingControlIcons from 'editors/editingControlIcons.js';
+import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     metaDataVersion: {
@@ -82,7 +83,7 @@ class MetaDataVersionEditor extends React.Component {
                     </ListItem>
                     { defineVersion === '2.1.0' &&
                     <ListItem>
-                        <ListItemText primary='Comment' secondary={this.state.comment.getDescription()}/>
+                        <ListItemText primary='Comment' secondary={getDescription(this.state.comment)}/>
                     </ListItem>
                     }
                 </List>

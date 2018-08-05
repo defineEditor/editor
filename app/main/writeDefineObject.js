@@ -17,10 +17,7 @@ function writeDefineObject(defineObject) {
                 streamFiles: true,
                 compression: 'DEFLATE'
             })
-            .pipe(fs.createWriteStream(outputFile))
-            .on('finish', function() {
-                console.log('Define written.');
-            });
+            .pipe(fs.createWriteStream(outputFile));
     }
 
     fs.mkdir(pathToDefines, function(err) {

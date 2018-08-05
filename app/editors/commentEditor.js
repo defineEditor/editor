@@ -1,10 +1,11 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { withStyles } from '@material-ui/core/styles';
+import clone from 'clone';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
 import DocumentEditor from 'editors/documentEditor.js';
-import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
@@ -17,6 +18,7 @@ import getOid from 'utils/getOid.js';
 import SelectMethodComment from 'utils/selectMethodComment.js';
 import SaveCancel from 'editors/saveCancel.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
+import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     iconButton: {
@@ -41,6 +43,7 @@ const mapStateToProps = state => {
         leafs    : state.odm.study.metaDataVersion.leafs,
         comments : state.odm.study.metaDataVersion.comments,
         mdv      : state.odm.study.metaDataVersion,
+        lang     : state.odm.study.metaDataVersion.lang,
     };
 };
 
@@ -55,7 +58,7 @@ class ConnectedCommentEditor extends React.Component {
             if (this.props.comment === '') {
                 comment = undefined;
             } else {
-                comment = this.props.comment.clone();
+                comment = clone(this.props.comment);
             }
             this.state = {
                 comment             : comment,
@@ -73,15 +76,15 @@ class ConnectedCommentEditor extends React.Component {
         let comment = this.props.stateless === true ? this.props.comment : this.state.comment;
         if (name === 'addComment') {
             let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
-            newComment = new Comment({oid: commentOid, descriptions: [new TranslatedText({lang: 'en', value: ''})]});
+            newComment = { ...new Comment({oid: commentOid, descriptions: [ { ...new TranslatedText({lang: this.props.lang, value: ''}) } ]}) };
         } else if (name === 'deleteComment') {
             newComment = undefined;
         } else if (name === 'textUpdate') {
-            newComment = comment.clone();
-            newComment.setDescription(updateObj.target.value);
+            newComment = clone(comment);
+            setDescription(newComment, updateObj.target.value);
         } else if (name === 'addDocument') {
-            newComment = comment.clone();
-            newComment.addDocument();
+            newComment = clone(comment);
+            addDocument(newComment);
         } else if (name === 'updateDocument') {
             newComment = updateObj;
         } else if (name === 'selectComment') {
@@ -89,7 +92,7 @@ class ConnectedCommentEditor extends React.Component {
             this.setState({selectCommentOpened: false});
         } else if (name === 'copyComment') {
             let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
-            newComment = new Comment({ ...updateObj.clone(), oid: commentOid, sources: undefined });
+            newComment = { ...new Comment({ ...clone(updateObj), oid: commentOid, sources: undefined }) };
             this.setState({selectCommentOpened: false});
         }
 
@@ -216,7 +219,7 @@ class ConnectedCommentEditor extends React.Component {
                                     rowsMax="10"
                                     autoFocus={this.props.autoFocus}
                                     key={comment.oid}
-                                    defaultValue={comment.getDescription()}
+                                    defaultValue={getDescription(comment)}
                                     className={classes.commentInput}
                                     onBlur={this.handleChange('textUpdate')}
                                 />
@@ -241,10 +244,11 @@ class ConnectedCommentEditor extends React.Component {
 
 ConnectedCommentEditor.propTypes = {
     comment: PropTypes.oneOfType([
-        PropTypes.instanceOf(Comment),
+        PropTypes.object,
         PropTypes.oneOf([""]),
     ]),
     leafs     : PropTypes.object.isRequired,
+    lang      : PropTypes.string.isRequired,
     mdv       : PropTypes.object.isRequired,
     onUpdate  : PropTypes.func,
     autoFocus : PropTypes.bool,

@@ -38,6 +38,7 @@ import VariableCodeListFormatEditor from 'editors/variableCodeListFormatEditor.j
 import VariableCodeListFormatFormatter from 'formatters/variableCodeListFormatFormatter.js';
 import VariableNameLabelWhereClauseEditor from 'editors/variableNameLabelWhereClauseEditor.js';
 import VariableNameLabelWhereClauseFormatter from 'formatters/variableNameLabelWhereClauseFormatter.js';
+import { getDescription } from 'utils/defineStructureUtils.js';
 import {
     updateItemDef, updateItemRef, updateItemRefKeyOrder, updateItemCodeListDisplayFormat,
     updateItemDescription, deleteVariables, updateNameLabelWhereClause, setVlmState,
@@ -684,7 +685,7 @@ class ConnectedVariableTable extends React.Component {
         return (
             <React.Fragment>
                 <h3 className={this.props.classes.tableTitle}>
-                    {mdv.itemGroups[this.props.itemGroupOid].name + ' (' + mdv.itemGroups[this.props.itemGroupOid].getDescription() + ')'}
+                    {mdv.itemGroups[this.props.itemGroupOid].name + ' (' + getDescription(mdv.itemGroups[this.props.itemGroupOid]) + ')'}
                     <Button
                         color="default"
                         variant='fab'

@@ -26,6 +26,7 @@ import CodedValueMenu from 'utils/codedValueMenu.js';
 import getCodeListData from 'utils/getCodeListData.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
+import { getDecode } from 'utils/defineStructureUtils.js';
 import CodedValueSelector from 'utils/codedValueSelector.js';
 import {
     updateCodedValue,
@@ -256,10 +257,10 @@ class ConnectedCodedValueTable extends React.Component {
                     // Search for the value in the standard codelist items
                     let itemFound = Object.keys(stdCodeList.codeListItems).some( itemOid => {
                         if (stdCodeList.codeListItems[itemOid].codedValue === cellValue) {
-                            updateObj.alias = stdCodeList.codeListItems[itemOid].alias.clone();
+                            updateObj.alias = clone(stdCodeList.codeListItems[itemOid].alias);
                             // If the decode is not blank, set it
-                            if (codeList.codeListType === 'decoded' && stdCodeList.codeListItems[itemOid].getDecode() !== undefined) {
-                                updateObj.decodes = [stdCodeList.codeListItems[itemOid].decodes[0].clone()];
+                            if (codeList.codeListType === 'decoded' && getDecode(stdCodeList.codeListItems[itemOid]) !== undefined) {
+                                updateObj.decodes = [clone(stdCodeList.codeListItems[itemOid].decodes[0])];
                             }
                             return true;
                         } else {
@@ -273,7 +274,7 @@ class ConnectedCodedValueTable extends React.Component {
                     }
                 }
             } else if (cellName === 'decode') {
-                updateObj.decodes = [new TranslatedText({value: cellValue, lang: this.props.lang})];
+                updateObj.decodes = [{ ...new TranslatedText({value: cellValue, lang: this.props.lang}) }];
             } else {
                 updateObj[cellName] = cellValue;
             }

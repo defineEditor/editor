@@ -1,5 +1,7 @@
+import { getDescription, getDecode } from 'utils/defineStructureUtils.js';
+
 function getCodeListData(codeList, defineVersion) {
-    const isDecoded = (codeList.getCodeListType() === 'decoded');
+    const isDecoded = (codeList.codeListType === 'decoded');
 
     let codeListTable;
     if (isDecoded) {
@@ -16,7 +18,7 @@ function getCodeListData(codeList, defineVersion) {
             return ({
                 oid    : itemOid,
                 value  : item.codedValue,
-                decode : item.getDecode(),
+                decode : getDecode(item),
                 ccode  : ccode,
                 rank   : item.rank,
             });
@@ -46,8 +48,8 @@ function getCodeListData(codeList, defineVersion) {
 
     let codeListTitle;
     let description = [];
-    if (codeList.getDescription() !== '') {
-        description.push(codeList.getDescription());
+    if (getDescription(codeList) !== '') {
+        description.push(getDescription(codeList));
     } else if (codeList.alias !== undefined) {
         description.push(codeList.alias.name);
     }

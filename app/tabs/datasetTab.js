@@ -29,6 +29,7 @@ import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import SelectColumns from 'utils/selectColumns.js';
 import ItemGroupMenu from 'utils/itemGroupMenu.js';
+import { getDescription } from 'utils/defineStructureUtils.js';
 import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {
     updateItemGroup,
@@ -406,9 +407,9 @@ class ConnectedDatasetTable extends React.Component {
                 leafs         : this.props.leafs,
                 classTypes    : this.props.classTypes,
             };
-            currentDs.description = originDs.getDescription();
+            currentDs.description = getDescription(originDs);
             currentDs.comment = originDs.commentOid === undefined ? undefined : this.props.comments[originDs.commentOid];
-            currentDs.leaf = originDs.leaf === undefined ? undefined : originDs.leaf.clone();
+            currentDs.leaf = originDs.leaf === undefined ? undefined : clone(originDs.leaf);
             // Group Repeating/IsReferenceData/isStandard
             currentDs.flags = {
                 repeating       : originDs.repeating,

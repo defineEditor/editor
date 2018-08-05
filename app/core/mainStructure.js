@@ -10,7 +10,7 @@ class Study {
         if (lastChanged !== undefined) {
             this.lastChanged = lastChanged;
         } else {
-            this.lastChanged = new Date();
+            this.lastChanged = new Date().toISOString();
         }
     }
 }
@@ -24,7 +24,7 @@ class Define {
         if (lastChanged !== undefined) {
             this.lastChanged = lastChanged;
         } else {
-            this.lastChanged = new Date();
+            this.lastChanged = new Date().toISOString();
         }
     }
 }

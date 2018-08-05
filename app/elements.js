@@ -367,11 +367,11 @@ class CodeList extends BasicFunctions {
             maxLength = (max, value) =>
                 value.codedValue.length > max ? value.codedValue.length : max;
         }
-        if (this.getCodeListType() === 'decoded') {
+        if (this.codeListType === 'decoded') {
             return Object.keys(this.codeListItems)
                 .map(itemOid => this.codeListItems[itemOid])
                 .reduce(maxLength, 1);
-        } else if (this.getCodeListType() === 'enumerated') {
+        } else if (this.codeListType === 'enumerated') {
             return Object.keys(this.enumeratedItems)
                 .map(itemOid => this.enumeratedItems[itemOid])
                 .reduce(maxLength, 1);
@@ -437,18 +437,6 @@ class Comment extends BasicFunctions {
                 metaDataVersion: []
             };
         }
-    }
-    getText(leafs) {
-        let result = this.getDescription();
-        if (this.documents.length > 0) {
-            this.documents.forEach(doc => {
-                if (leafs.hasOwnProperty(doc.leafId)) {
-                    result +=
-            '\n' + leafs[doc.leafId].title + '(' + leafs[doc.leafId].href + ')';
-                }
-            });
-        }
-        return result;
     }
     clone() {
         let descriptions = this.descriptions.map(description =>

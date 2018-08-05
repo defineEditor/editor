@@ -6,6 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import CommentFormatter from 'formatters/commentFormatter.js';
+import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     main: {
@@ -36,7 +37,7 @@ class VariableNameLabelWhereClauseFormatter extends React.Component {
         let whereClauseLine;
         let comment;
         if (isVlm) {
-            whereClauseLine = this.props.value.whereClause.toString(this.props.mdv);
+            whereClauseLine = getWhereClauseAsText(this.props.value.whereClause, this.props.mdv);
             if (this.props.value.whereClause.commentOid !== undefined) {
                 comment = this.props.mdv.comments[this.props.value.whereClause.commentOid];
             }

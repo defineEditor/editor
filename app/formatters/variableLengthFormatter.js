@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import { getMaxLength } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     div: {
@@ -21,7 +22,7 @@ class VariableLengthFormatter extends React.Component {
         if (lengthAsData) {
             length = 'No Data';
         } else if (lengthAsCodeList && this.props.row.codeList !== undefined) {
-            length = <abbr title='Derived from the codelist'>{this.props.row.codeList.getMaxLength()}</abbr>;
+            length = <abbr title='Derived from the codelist'>{getMaxLength(this.props.row.codeList)}</abbr>;
         } else if (lengthNotApplicable) {
             length = <abbr title='Not applicable'>NA</abbr>;
         } else if (lengthAsData) {
