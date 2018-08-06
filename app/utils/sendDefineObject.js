@@ -2,7 +2,7 @@ import { ipcRenderer } from 'electron';
 import store from 'store/index.js';
 import { getMaxLength } from 'utils/defineStructureUtils.js';
 
-function sendDefineObject (error, data) {
+function sendDefineObject (event, data) {
     let odm = store.getState().odm;
 
     // Update the data;

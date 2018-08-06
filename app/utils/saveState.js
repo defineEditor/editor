@@ -1,15 +1,18 @@
-import eStore from 'electron-store';
+import EStore from 'electron-store';
 import { ipcRenderer } from 'electron';
+import store from 'store/index.js';
 
-function saveState(state) {
-    const store = new eStore({
+function saveState() {
+    const eStore = new EStore({
         name: 'state',
     });
 
+    let state = store.getState();
     let stateToSave = { ...state, ui: { ...state.ui } };
     // Save current Define
     if (stateToSave.ui.main.currentDefineId !== '') {
         ipcRenderer.send('writeDefineObject', {
+            id: stateToSave.odm.defineId,
             tabs: stateToSave.ui.tabs,
             odm: stateToSave.odm,
         });
@@ -20,8 +23,8 @@ function saveState(state) {
     delete stateToSave.stdCodeLists;
     delete stateToSave.ui.tabs;
 
-    store.clear();
-    store.set(stateToSave);
+    eStore.clear();
+    eStore.set(stateToSave);
 }
 
 export default saveState;

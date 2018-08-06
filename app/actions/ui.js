@@ -6,9 +6,9 @@ import {
     UI_SELECTGROUP,
     UI_SELECTCOLUMNS,
     UI_TOGGLEMAINMENU,
-    UI_SETCURRENTPAGE,
     UI_SETSTUDYORDERTYPE,
-    UI_TOGGLEADDDEFINEFORM
+    UI_TOGGLEADDDEFINEFORM,
+    UI_LOADTABS,
 } from 'constants/action-types';
 
 export const changeTab = updateObj => ({
@@ -46,11 +46,6 @@ export const toggleMainMenu = () => ({
     type: UI_TOGGLEMAINMENU
 });
 
-export const setCurrentPage = updateObj => ({
-    type: UI_SETCURRENTPAGE,
-    updateObj
-});
-
 export const setStudyOrderType = updateObj => ({
     type: UI_SETSTUDYORDERTYPE,
     updateObj
@@ -58,5 +53,10 @@ export const setStudyOrderType = updateObj => ({
 
 export const toggleAddDefineForm = updateObj => ({
     type: UI_TOGGLEADDDEFINEFORM,
+    updateObj
+});
+
+export const loadTabs = updateObj => ({
+    type: UI_LOADTABS,
     updateObj
 });

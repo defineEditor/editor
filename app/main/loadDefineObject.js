@@ -6,7 +6,7 @@ import { promisify } from 'util';
 
 const readFile = promisify(fs.readFile);
 
-async function loadDefineObject(defineId) {
+async function loadDefineObject(mainWindow, defineId) {
     let pathToDefines = path.join(app.getPath('userData'), 'defines');
     let file = path.join(pathToDefines, defineId + '.nogz');
 
@@ -21,10 +21,12 @@ async function loadDefineObject(defineId) {
 
     await Promise.all(files.map(async (file) => {
         let contents = await zip.file(file).async('string');
-        result[file] = JSON.parse(contents);
+        result[file.replace(/\.json$/,'')] = JSON.parse(contents);
     }));
 
-    return 'hello';
+    mainWindow.webContents.send('loadDefineObjectToRender', result);
+
+    return undefined;
 }
 
 module.exports = loadDefineObject;

@@ -1,7 +1,8 @@
 import {
     UI_TOGGLEMAINMENU,
-    UI_SETCURRENTPAGE,
-    UI_CHANGEPAGE
+    UI_CHANGEPAGE,
+    STUDY_DEL,
+    DEFINE_DEL,
 } from 'constants/action-types';
 
 const generateInitialState = () => {
@@ -21,31 +22,60 @@ const toggleMainMenu = (state, action) => {
     };
 };
 
-const setCurrentPage = (state, action) => {
-    // After the page is selected, close main menu
-    return {
-        ...state,
-        mainMenuOpened: false,
-        currentPage: action.updateObj
-    };
-};
-
 const changePage = (state, action) => {
     // After the page is selected, close main menu
-    return {
-        ...state,
-        currentPage: action.updateObj.page
-    };
+    if (action.updateObj.page === 'editor' && action.updateObj.defineId) {
+        return {
+            ...state,
+            mainMenuOpened: false,
+            currentPage: action.updateObj.page,
+            currentDefineId: action.updateObj.defineId,
+        };
+    } else {
+        return {
+            ...state,
+            mainMenuOpened: false,
+            currentPage: action.updateObj.page
+        };
+    }
+};
+
+const handleDefineDelete = (state, action) => {
+    // If Define or study is removed and it is a current define, set currentDefineId to blank
+    if (action.deleteObj.defineId === state.currentDefineId) {
+        return {
+            ...state,
+            currentDefineId: '',
+        };
+    } else {
+        return state;
+    }
+};
+
+const handleStudyDelete = (state, action) => {
+    let idExists = action.deleteObj.defineIds.some(defineId => {
+        return state.currentDefineId === defineId;
+    });
+    if (idExists) {
+        return {
+            ...state,
+            currentDefineId: '',
+        };
+    } else {
+        return state;
+    }
 };
 
 const main = (state = initialState, action) => {
     switch (action.type) {
         case UI_TOGGLEMAINMENU:
             return toggleMainMenu(state, action);
-        case UI_SETCURRENTPAGE:
-            return setCurrentPage(state, action);
         case UI_CHANGEPAGE:
             return changePage(state, action);
+        case DEFINE_DEL:
+            return handleDefineDelete(state, action);
+        case STUDY_DEL:
+            return handleStudyDelete(state, action);
         default:
             return state;
     }

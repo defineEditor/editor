@@ -24,6 +24,7 @@ import {
     updateStudy,
     deleteStudy,
     deleteDefine,
+    changePage,
     toggleAddDefineForm
 } from 'actions/index.js';
 
@@ -51,6 +52,7 @@ const mapDispatchToProps = dispatch => {
         updateStudy: updateObj => dispatch(updateStudy(updateObj)),
         deleteStudy: deleteObj => dispatch(deleteStudy(deleteObj)),
         deleteDefine: deleteObj => dispatch(deleteDefine(deleteObj)),
+        changePage: updateObj => dispatch(changePage(updateObj)),
         toggleAddDefineForm: updateObj => dispatch(toggleAddDefineForm(updateObj))
     };
 };
@@ -112,6 +114,8 @@ class ConnectedStudyTile extends React.Component {
 
   loadDefineObject = defineId => {
       ipcRenderer.send('loadDefineObject', defineId);
+      this.handleMenuClose();
+      this.props.changePage({ page: 'editor', defineId });
   };
 
   getDefines = classes => {
@@ -139,6 +143,9 @@ class ConnectedStudyTile extends React.Component {
       this.props.deleteStudy({
           studyId: this.props.study.id,
           defineIds: this.props.study.defineIds
+      });
+      this.props.study.defineIds.forEach( defineId => {
+          ipcRenderer.send('deleteDefineObject', defineId);
       });
   };
 

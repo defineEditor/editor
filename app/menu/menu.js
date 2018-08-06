@@ -55,10 +55,6 @@ const createMenu = mainWindow => {
             ]
         },
         {
-            role: 'window',
-            submenu: [{ role: 'minimize' }, { role: 'close' }]
-        },
-        {
             role: 'help',
             submenu: [
                 {
@@ -89,8 +85,6 @@ const createMenu = mainWindow => {
 
         // Window menu
         template[3].submenu = [
-            { role: 'close' },
-            { role: 'minimize' },
             { role: 'zoom' },
             { type: 'separator' },
             { role: 'front' }

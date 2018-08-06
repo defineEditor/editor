@@ -756,8 +756,9 @@ function parseStudy (studyRaw) {
     return new def.Study(args);
 }
 
-function parseOdm (odmRaw) {
+function parseOdm (odmRaw, stylesheetLocation) {
     let args = odmRaw['$'];
+    args.stylesheetLocation = stylesheetLocation;
 
     args.study = parseStudy(odmRaw.study[0]);
 
@@ -765,11 +766,11 @@ function parseOdm (odmRaw) {
 }
 
 function parseDefine (result) {
-    removeNamespace(result);
-    convertAttrsToLCC(result);
+    removeNamespace(result.data);
+    convertAttrsToLCC(result.data);
 
     // Parse Study
-    let odm = parseOdm(result.odm);
+    let odm = parseOdm(result.data.odm, result.stylesheetLocation);
 
     return odm;
 }

@@ -146,24 +146,20 @@ class ConnectedItemMenu extends React.Component {
                     </MenuItem>
                     <Divider/>
                     { hasVlm && (
-                        <React.Fragment>
-                            <MenuItem key='OrderVlm' onClick={this.openVlmOrder}>
-                                Order VLM
-                            </MenuItem>
-                            <MenuItem key='DeleteVlm' onClick={this.deleteVlm}>
-                                Delete VLM
-                            </MenuItem>
-                        </React.Fragment>
-                    )
-                    }
+                        <MenuItem key='OrderVlm' onClick={this.openVlmOrder}>
+                            Order VLM
+                        </MenuItem>
+                    )}
+                    { hasVlm && (
+                        <MenuItem key='DeleteVlm' onClick={this.deleteVlm}>
+                            Delete VLM
+                        </MenuItem>
+                    )}
                     { (!hasVlm && vlmLevel === 0) && (
-                        <React.Fragment>
-                            <MenuItem key='AddVlm' onClick={this.addVlm}>
-                                Add VLM
-                            </MenuItem>
-                        </React.Fragment>
-                    )
-                    }
+                        <MenuItem key='AddVlm' onClick={this.addVlm}>
+                            Add VLM
+                        </MenuItem>
+                    )}
                 </Menu>
                 { this.state.openVlmOrder &&
                         <GeneralOrderEditor title='Value Level Order'

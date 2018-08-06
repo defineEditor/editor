@@ -4,6 +4,7 @@ import {
     UI_SETVLMSTATE,
     UI_SELECTGROUP,
     UI_SELECTCOLUMNS,
+    UI_LOADTABS,
 } from "constants/action-types";
 import stdColumns from 'constants/columns';
 
@@ -140,6 +141,12 @@ const selectColumns = (state, action) => {
     };
 };
 
+const loadTabs = (state, action) => {
+    return {
+        ...action.updateObj,
+    };
+};
+
 const tabs = (state = initialState, action) => {
     switch (action.type) {
         case UI_CHANGETAB:
@@ -152,6 +159,8 @@ const tabs = (state = initialState, action) => {
             return selectGroup(state, action);
         case UI_SELECTCOLUMNS:
             return selectColumns(state, action);
+        case UI_LOADTABS:
+            return loadTabs(state, action);
         default:
             return state;
     }

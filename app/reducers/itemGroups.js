@@ -39,18 +39,9 @@ const updateItemGroup = (state, action) => {
     let updateObj = Object.assign({}, action.updateObj);
 
     if (updateObj.hasOwnProperty('name')) {
-        // Check if a dataset with the same name already exists
-        newOid = getOid('ItemGroup',updateObj.name);
-        if (state.hasOwnProperty(newOid)) {
-            throw Error('Dataset with name ' + updateObj.name + ' already exists.');
-        } else if (action.oid !== newOid){
-            // Remove itemGroup with the old OID
-            delete newState[action.oid];
-            // Update datasetName and leafId together with the name
-            updateObj.datasetName = action.updateObj.name;
-            updateObj.oid = newOid;
-            newLeafOid = getOid('Leaf',updateObj.name);
-        }
+        // Update datasetName and leafId together with the name
+        updateObj.datasetName = action.updateObj.name;
+        newLeafOid = getOid('Leaf',updateObj.name);
     }
 
     if (updateObj.hasOwnProperty('description')) {

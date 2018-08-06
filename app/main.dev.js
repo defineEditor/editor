@@ -123,7 +123,7 @@ ipcMain.on('deleteDefineObject', (event, defineId) => {
 });
 
 ipcMain.on('loadDefineObject', (event, defineId) => {
-    loadDefineObject(defineId);
+    loadDefineObject(mainWindow, defineId);
 });
 
 

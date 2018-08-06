@@ -17,7 +17,8 @@ function getEmptyDefineXml({ standard, defineVersion, study, settings } = {}) {
         fileType: 'Snapshot',
         fileOid: '',
         creationDateTime: new Date().toISOString().replace(/(.*)\..*/, '$1'),
-        originator: ''
+        originator: '',
+        stylesheetLocation: settings.stylesheetLocation,
     };
 
     if (

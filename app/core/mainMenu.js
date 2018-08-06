@@ -16,7 +16,7 @@ import Public from '@material-ui/icons/Public';
 import Divider from '@material-ui/core/Divider';
 import {
     toggleMainMenu,
-    setCurrentPage,
+    changePage,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -42,11 +42,25 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         toggleMainMenu : () => dispatch(toggleMainMenu()),
-        setCurrentPage : (updateObj) => dispatch(setCurrentPage(updateObj)),
+        changePage : (updateObj) => dispatch(changePage(updateObj)),
     };
 };
 
 class ConnectedMainMenu extends React.Component {
+
+    componentDidMount() {
+        window.addEventListener('keydown', this.onKeyDown);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('keydown', this.onKeyDown);
+    }
+
+    onKeyDown = (event)  => {
+        if (event.ctrlKey && (event.keyCode === 77)) {
+            this.props.toggleMainMenu();
+        }
+    }
 
     render() {
         const { classes } = this.props;
@@ -64,25 +78,25 @@ class ConnectedMainMenu extends React.Component {
                     <Divider/>
                     <div className={classes.list}>
                         <List>
-                            <ListItem button key='studies' onClick={() => this.props.setCurrentPage('studies')}>
+                            <ListItem button key='studies' onClick={() => this.props.changePage({ page: 'studies' })}>
                                 <ListItemIcon>
                                     <Assignment/>
                                 </ListItemIcon>
                                 <ListItemText primary='Studies'/>
                             </ListItem>
-                            <ListItem button key='editor' onClick={() => this.props.setCurrentPage('editor')}>
+                            <ListItem button key='editor' onClick={() => this.props.changePage({ page: 'editor' })}>
                                 <ListItemIcon>
                                     <Edit/>
                                 </ListItemIcon>
                                 <ListItemText primary='Editor'/>
                             </ListItem>
-                            <ListItem button key='controlledTerminology' onClick={() => this.props.setCurrentPage('controlledTeminology')}>
+                            <ListItem button key='controlledTerminology' onClick={() => this.props.changePage({ page: 'controlledTeminology' })}>
                                 <ListItemIcon>
                                     <Public/>
                                 </ListItemIcon>
                                 <ListItemText primary='Controlled Teminology'/>
                             </ListItem>
-                            <ListItem button key='settings' onClick={() => this.props.setCurrentPage('settings')}>
+                            <ListItem button key='settings' onClick={() => this.props.changePage({ page: 'settings' })}>
                                 <ListItemIcon>
                                     <Settings/>
                                 </ListItemIcon>
@@ -100,7 +114,7 @@ ConnectedMainMenu.propTypes = {
     classes        : PropTypes.object.isRequired,
     mainMenuOpened : PropTypes.bool.isRequired,
     toggleMainMenu : PropTypes.func.isRequired,
-    setCurrentPage : PropTypes.func.isRequired,
+    changePage     : PropTypes.func.isRequired,
 };
 
 const MainMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedMainMenu);

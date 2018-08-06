@@ -4,7 +4,6 @@ import { ipcRenderer } from 'electron';
 import { withStyles } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import EditorTabs from 'tabs/editorTabs.js';
-//import parseDefine from 'parsers/parseDefine.js';
 import parseStdCodeLists from 'parsers/parseStdCodeLists.js';
 import { connect } from 'react-redux';
 import {
@@ -58,6 +57,7 @@ const mapStateToProps = state => {
     }
     return {
         defineLoaded,
+        currentDefineId: state.ui.main.currentDefineId,
         codeLists: odmLoaded ? state.odm.study.metaDataVersion.codeLists : undefined
     };
 };
@@ -165,14 +165,18 @@ class ConnectedEditor extends React.Component {
       const { classes } = this.props;
       return (
           <React.Fragment>
-              {this.props.defineLoaded ? (
-                  <EditorTabs />
-              ) : (
+              {!this.props.currentDefineId && (
+                  <div>No Define-XML documentes were chosen for editing. Select a Define-XML document to edit on the Studies tab.</div>
+              )}
+              {this.props.currentDefineId && !this.props.defineLoaded && (
                   <div className={classes.loading}>
-            Loading Define-XML
+                      Loading Define-XML
                       <br />
                       <CircularProgress className={classes.progress} />
                   </div>
+              )}
+              {this.props.defineLoaded && (
+                  <EditorTabs />
               )}
           </React.Fragment>
       );
@@ -182,6 +186,7 @@ class ConnectedEditor extends React.Component {
 ConnectedEditor.propTypes = {
     classes: PropTypes.object.isRequired,
     defineLoaded: PropTypes.bool.isRequired,
+    currentDefineId: PropTypes.string.isRequired,
     codeLists: PropTypes.object
 };
 

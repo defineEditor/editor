@@ -667,7 +667,9 @@ class Odm {
         xlink,
         def,
         xmlns,
-        xsi
+        xsi,
+        stylesheetLocation,
+        defineId,
     } = {}) {
         this.schemaLocation = schemaLocation;
         this.odmVersion = odmVersion;
@@ -688,6 +690,9 @@ class Odm {
         } else {
             this.study = study;
         }
+        // Non-define XML properties
+        this.stylesheetLocation = stylesheetLocation;
+        this.defineId = defineId;
     }
 }
 

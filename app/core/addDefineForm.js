@@ -83,16 +83,15 @@ class ConnectedAddDefineForm extends React.Component {
         };
     }
 
-  saveDefineAsObject = () => {
-      let id = getOid('Define', undefined, this.props.defines.allIds);
+  saveDefineAsObject = (id, defineData) => {
       let define = {
           ...new Define({
               id,
-              name: this.state.defineData.study.metaDataVersion.model
+              name: defineData.study.metaDataVersion.model
           })
       };
       this.props.addDefine({ define, studyId: this.props.study.id });
-      ipcRenderer.send('writeDefineObject', { odm: this.state.defineData, id });
+      ipcRenderer.send('writeDefineObject', { odm: defineData, id });
   };
 
   handleNext = data => {
@@ -130,11 +129,14 @@ class ConnectedAddDefineForm extends React.Component {
               defineCreationMethod: 'new',
               defineData: null
           });
-          this.saveDefineAsObject();
+          let id = getOid('Define', undefined, this.props.defines.allIds);
+          let defineData = this.state.defineData;
+          defineData.defineId = id;
+          this.saveDefineAsObject(id, defineData);
           this.props.toggleAddDefineForm({});
           if (data.edit) {
-              this.props.addOdm(this.state.defineData);
-              this.props.changePage({ page: 'editor' });
+              this.props.addOdm(defineData);
+              this.props.changePage({ page: 'editor', defineId: id });
           }
       }
   };

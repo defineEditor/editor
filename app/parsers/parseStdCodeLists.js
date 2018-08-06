@@ -193,11 +193,11 @@ function parseOdm (odmRaw) {
 }
 
 function parseStdCodeLists (result) {
-    removeNamespace(result);
-    convertAttrsToLCC(result);
+    removeNamespace(result.data);
+    convertAttrsToLCC(result.data);
 
     // Parse Study
-    let odm = parseOdm(result.odm);
+    let odm = parseOdm(result.data.odm);
 
     return odm;
 }

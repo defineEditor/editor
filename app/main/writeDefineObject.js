@@ -9,6 +9,9 @@ function writeDefineObject(defineObject) {
 
     var zip = new jszip();
     zip.file('odm.json', JSON.stringify(defineObject.odm));
+    if (defineObject.hasOwnProperty('tabs')) {
+        zip.file('tabs.json', JSON.stringify(defineObject.tabs));
+    }
 
     function saveFile() {
         zip
