@@ -3,19 +3,3 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
-
-.vlmRow:nth-of-type(odd){
-    background-color: #E3F2FD !important;
-}
-
-.vlmRow:nth-of-type(odd):hover {
-    background-color: #BBDEFB !important;
-}
-
-.vlmRow:nth-of-type(even){
-    background-color: #E1F5FE !important;
-}
-
-.vlmRow:nth-of-type(even):hover {
-    background-color: #B3E5FC !important;
-}

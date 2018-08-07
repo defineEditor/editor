@@ -35,10 +35,10 @@ class DescriptionFormatter extends React.Component {
             result.push(
                 <Grid item key='method' xs={12}>
                     <Typography variant="caption" gutterBottom>
-                        Method
+                        Method: {this.props.value.method.name} ({this.props.value.method.type})
                     </Typography>
                     <Grid item xs={12}>
-                        <MethodFormatter method={this.props.value.method} leafs={this.props.leafs}/>
+                        <MethodFormatter method={this.props.value.method} leafs={this.props.leafs} hideName/>
                     </Grid>
                 </Grid>
             );

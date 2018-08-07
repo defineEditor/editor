@@ -19,12 +19,11 @@ import SaveIcon from '@material-ui/icons/Save';
 import AddIcon from '@material-ui/icons/Add';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
-import { ipcRenderer } from 'electron';
 import {
     updateStudy,
-    deleteStudy,
     deleteDefine,
     changePage,
+    openModal,
     toggleAddDefineForm
 } from 'actions/index.js';
 
@@ -50,8 +49,8 @@ const styles = theme => ({
 const mapDispatchToProps = dispatch => {
     return {
         updateStudy: updateObj => dispatch(updateStudy(updateObj)),
-        deleteStudy: deleteObj => dispatch(deleteStudy(deleteObj)),
         deleteDefine: deleteObj => dispatch(deleteDefine(deleteObj)),
+        openModal: updateObj => dispatch(openModal(updateObj)),
         changePage: updateObj => dispatch(changePage(updateObj)),
         toggleAddDefineForm: updateObj => dispatch(toggleAddDefineForm(updateObj))
     };
@@ -69,13 +68,13 @@ class ConnectedStudyTile extends React.Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
-    // Check if defineIds changed
+        // Check if defineIds changed
         let allPresent = prevState.study.defineIds.every(defineId =>
             nextProps.study.defineIds.includes(defineId)
         );
         if (
             nextProps.study.defineIds.length !== prevState.study.defineIds.length ||
-      !allPresent
+            !allPresent
         ) {
             return { study: nextProps.study };
         } else {
@@ -83,191 +82,208 @@ class ConnectedStudyTile extends React.Component {
         }
     }
 
-  handleChange = name => event => {
-      this.setState({
-          study: { ...this.state.study, [name]: event.target.value }
-      });
-  };
+    handleChange = name => event => {
+        this.setState({
+            study: { ...this.state.study, [name]: event.target.value }
+        });
+    };
 
-  toggleEditMode = () => {
-      this.setState({ editMode: !this.state.editMode });
-  };
+    toggleEditMode = () => {
+        this.setState({ editMode: !this.state.editMode });
+    };
 
-  toggleAddDefineForm = () => {
-      this.props.toggleAddDefineForm({ studyId: this.props.study.id });
-  };
+    toggleAddDefineForm = () => {
+        this.props.toggleAddDefineForm({ studyId: this.props.study.id });
+    };
 
-  handleMenuClick = event => {
-      this.setState({ anchorEl: event.currentTarget });
-  };
+    handleMenuClick = event => {
+        this.setState({ anchorEl: event.currentTarget });
+    };
 
-  handleMenuClose = () => {
-      this.setState({ anchorEl: null });
-  };
+    handleMenuClose = () => {
+        this.setState({ anchorEl: null });
+    };
 
-  deleteDefine = defineId => {
-      this.props.deleteDefine({ defineId, studyId: this.props.study.id });
-      this.handleMenuClose();
-      // Delete associated file from the storage
-      ipcRenderer.send('deleteDefineObject', defineId);
-  };
+    deleteDefine = defineId => {
+        this.props.openModal({
+            type: 'DELETE_DEFINE',
+            props: {
+                studyId: this.props.study.id,
+                defineId: defineId,
+            }
+        });
+        this.handleMenuClose();
+    };
 
-  loadDefineObject = defineId => {
-      ipcRenderer.send('loadDefineObject', defineId);
-      this.handleMenuClose();
-      this.props.changePage({ page: 'editor', defineId });
-  };
+    selectDefine = defineId => {
+        if (this.props.currentDefineId === defineId) {
+            // If the current define is selected, simply change the page
+            this.handleMenuClose();
+            this.props.changePage({ page: 'editor' });
+        } else if (this.props.currentDefineId === '') {
+            // If no Define-XMLs are edited at the moment, specify the Define
+            this.handleMenuClose();
+            this.props.changePage({ page: 'editor', defineId });
+        } else {
+            this.props.openModal({
+                type: 'CHANGE_DEFINE',
+                props: {
+                    currentDefineId: this.props.currentDefineId,
+                    defineId,
+                }
+            });
+            this.handleMenuClose();
+        }
+    };
 
-  getDefines = classes => {
-      return this.state.study.defineIds.map(defineId => (
-          <MenuItem
-              onClick={() => { this.loadDefineObject(defineId); }}
-              className={classes.menu}
-              key={defineId}
-          >
-              <ListItemText primary={this.props.defines.byId[defineId].name} />
-              <ListItemSecondaryAction>
-                  <IconButton
-                      color="secondary"
-                      onClick={() => this.deleteDefine(defineId)}
-                      className={classes.icon}
-                  >
-                      <ClearIcon />
-                  </IconButton>
-              </ListItemSecondaryAction>
-          </MenuItem>
-      ));
-  };
+    getDefines = classes => {
+        return this.state.study.defineIds.map(defineId => (
+            <MenuItem
+                onClick={() => { this.selectDefine(defineId); }}
+                className={classes.menu}
+                key={defineId}
+            >
+                <ListItemText primary={this.props.defines.byId[defineId].name} />
+                <ListItemSecondaryAction>
+                    <IconButton
+                        color="secondary"
+                        onClick={() => this.deleteDefine(defineId)}
+                        className={classes.icon}
+                    >
+                        <ClearIcon />
+                    </IconButton>
+                </ListItemSecondaryAction>
+            </MenuItem>
+        ));
+    };
 
-  deleteStudy = () => {
-      this.props.deleteStudy({
-          studyId: this.props.study.id,
-          defineIds: this.props.study.defineIds
-      });
-      this.props.study.defineIds.forEach( defineId => {
-          ipcRenderer.send('deleteDefineObject', defineId);
-      });
-  };
+    deleteStudy = () => {
+        this.props.openModal({
+            type: 'DELETE_STUDY',
+            props: {
+                studyId: this.props.study.id,
+                defineIds: this.props.study.defineIds
+            }
+        });
+    };
 
-  onSave = () => {
-      this.toggleEditMode();
-      this.props.updateStudy({
-          studyId: this.props.study.id,
-          properties: { ...this.state.study }
-      });
-  };
+    onSave = () => {
+        this.toggleEditMode();
+        this.props.updateStudy({
+            studyId: this.props.study.id,
+            properties: { ...this.state.study }
+        });
+    };
 
-  onCancel = () => {
-      this.setState({ study: { ...this.props.study }, editMode: false });
-  };
+    onCancel = () => {
+        this.setState({ study: { ...this.props.study }, editMode: false });
+    };
 
-  render() {
-      const { classes } = this.props;
-      const { anchorEl } = this.state;
+    render() {
+        const { classes } = this.props;
+        const { anchorEl } = this.state;
 
-      let definesNum = this.state.study.defineIds.length;
+        let definesNum = this.state.study.defineIds.length;
 
-      return (
-          <div className={classes.root}>
-              <Card className={classes.card} raised={true}>
-                  <CardActions className={classes.actions}>
-                      {this.state.editMode ? (
-                          <Grid container justify="flex-start">
-                              <Grid item>
-                                  <IconButton
-                                      color="primary"
-                                      onClick={this.onSave}
-                                      className={classes.icon}
-                                  >
-                                      <SaveIcon />
-                                  </IconButton>
-                                  <IconButton
-                                      color="secondary"
-                                      onClick={this.onCancel}
-                                      className={classes.icon}
-                                  >
-                                      <ClearIcon />
-                                  </IconButton>
-                              </Grid>
-                          </Grid>
-                      ) : (
-                          <Grid container justify="space-between">
-                              <Grid item>
-                                  <Grid container justify="flex-start">
-                                      <Grid item>
-                                          <IconButton
-                                              color="default"
-                                              onClick={this.toggleEditMode}
-                                              className={classes.icon}
-                                          >
-                                              <EditIcon />
-                                          </IconButton>
-                                      </Grid>
-                                      <Grid item>
-                                          <IconButton
-                                              color="primary"
-                                              onClick={this.toggleAddDefineForm}
-                                              className={classes.icon}
-                                          >
-                                              <AddIcon />
-                                          </IconButton>
-                                      </Grid>
-                                  </Grid>
-                              </Grid>
-                              <Grid item>
-                                  <IconButton
-                                      color="default"
-                                      onClick={this.deleteStudy}
-                                      className={classes.icon}
-                                  >
-                                      <DeleteIcon />
-                                  </IconButton>
-                              </Grid>
-                          </Grid>
-                      )}
-                  </CardActions>
-                  <CardContent className={classes.content}>
-                      {this.state.editMode ? (
-                          <TextField
-                              label="Name"
-                              autoFocus
-                              fullWidth
-                              value={this.state.study.name}
-                              onChange={this.handleChange('name')}
-                          />
-                      ) : (
-                          <Typography className={classes.title} component="h2">
-                              {this.state.study.name}
-                          </Typography>
-                      )}
-                      <Typography color="textSecondary" component="p">
-              Last changed:{' '}
-                          {this.state.study.lastChanged
-                              .substr(0, 16)
-                              .replace('T', ' ')}
-                      </Typography>
-                      <Typography component="p">Summary</Typography>
-                      <Button
-                          aria-owns={anchorEl ? 'simple-menu' : null}
-                          aria-haspopup="true"
-                          disabled={definesNum === 0}
-                          onClick={this.handleMenuClick}
-                      >
-                          {definesNum} Define-XML
-                      </Button>
-                  </CardContent>
-              </Card>
-              <Menu
-                  id="simple-menu"
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={this.handleMenuClose}
-              >
-                  {this.getDefines(classes)}
-              </Menu>
-          </div>
-      );
-  }
+        return (
+            <div className={classes.root}>
+                <Card className={classes.card} raised={true}>
+                    <CardActions className={classes.actions}>
+                        {this.state.editMode ? (
+                            <Grid container justify="flex-start">
+                                <Grid item>
+                                    <IconButton
+                                        color="primary"
+                                        onClick={this.onSave}
+                                        className={classes.icon}
+                                    >
+                                        <SaveIcon />
+                                    </IconButton>
+                                    <IconButton
+                                        color="secondary"
+                                        onClick={this.onCancel}
+                                        className={classes.icon}
+                                    >
+                                        <ClearIcon />
+                                    </IconButton>
+                                </Grid>
+                            </Grid>
+                        ) : (
+                            <Grid container justify="space-between">
+                                <Grid item>
+                                    <Grid container justify="flex-start">
+                                        <Grid item>
+                                            <IconButton
+                                                color="default"
+                                                onClick={this.toggleEditMode}
+                                                className={classes.icon}
+                                            >
+                                                <EditIcon />
+                                            </IconButton>
+                                        </Grid>
+                                        <Grid item>
+                                            <IconButton
+                                                color="primary"
+                                                onClick={this.toggleAddDefineForm}
+                                                className={classes.icon}
+                                            >
+                                                <AddIcon />
+                                            </IconButton>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                                <Grid item>
+                                    <IconButton
+                                        color="default"
+                                        onClick={this.deleteStudy}
+                                        className={classes.icon}
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </Grid>
+                            </Grid>
+                        )}
+                    </CardActions>
+                    <CardContent className={classes.content}>
+                        {this.state.editMode ? (
+                            <TextField
+                                label="Name"
+                                autoFocus
+                                fullWidth
+                                value={this.state.study.name}
+                                onChange={this.handleChange('name')}
+                            />
+                        ) : (
+                            <Typography className={classes.title} component="h2">
+                                {this.state.study.name}
+                            </Typography>
+                        )}
+                        <Typography color="textSecondary" component="p">
+                            Last changed:{' '}
+                            {this.state.study.lastChanged.substr(0, 16).replace('T', ' ')}
+                        </Typography>
+                        <Typography component="p">Summary</Typography>
+                        <Button
+                            aria-owns={anchorEl ? 'simple-menu' : null}
+                            aria-haspopup="true"
+                            disabled={definesNum === 0}
+                            onClick={this.handleMenuClick}
+                        >
+                            {definesNum} Define-XML
+                        </Button>
+                    </CardContent>
+                </Card>
+                <Menu
+                    id="simple-menu"
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={this.handleMenuClose}
+                >
+                    {this.getDefines(classes)}
+                </Menu>
+            </div>
+        );
+    }
 }
 
 ConnectedStudyTile.propTypes = {
@@ -275,8 +291,7 @@ ConnectedStudyTile.propTypes = {
     study: PropTypes.object.isRequired,
     defines: PropTypes.object.isRequired,
     updateStudy: PropTypes.func.isRequired,
-    deleteStudy: PropTypes.func.isRequired,
-    deleteDefine: PropTypes.func.isRequired
+    openModal: PropTypes.func.isRequired,
 };
 
 const StudyTile = connect(undefined, mapDispatchToProps)(ConnectedStudyTile);

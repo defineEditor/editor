@@ -5,7 +5,7 @@ import { app } from 'electron';
 
 function writeDefineObject(defineObject) {
     let pathToDefines = path.join(app.getPath('userData'), 'defines');
-    let outputFile = path.join(pathToDefines, defineObject.id + '.nogz');
+    let outputFile = path.join(pathToDefines, defineObject.defineId + '.nogz');
 
     var zip = new jszip();
     zip.file('odm.json', JSON.stringify(defineObject.odm));

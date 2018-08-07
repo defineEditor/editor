@@ -12,7 +12,7 @@ function saveState() {
     // Save current Define
     if (stateToSave.ui.main.currentDefineId !== '') {
         ipcRenderer.send('writeDefineObject', {
-            id: stateToSave.odm.defineId,
+            defineId: stateToSave.odm.defineId,
             tabs: stateToSave.ui.tabs,
             odm: stateToSave.odm,
         });

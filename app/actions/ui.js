@@ -9,6 +9,8 @@ import {
     UI_SETSTUDYORDERTYPE,
     UI_TOGGLEADDDEFINEFORM,
     UI_LOADTABS,
+    UI_OPENMODAL,
+    UI_CLOSEMODAL,
 } from 'constants/action-types';
 
 export const changeTab = updateObj => ({
@@ -59,4 +61,13 @@ export const toggleAddDefineForm = updateObj => ({
 export const loadTabs = updateObj => ({
     type: UI_LOADTABS,
     updateObj
+});
+
+export const openModal = updateObj => ({
+    type: UI_OPENMODAL,
+    updateObj
+});
+
+export const closeModal = () => ({
+    type: UI_CLOSEMODAL,
 });

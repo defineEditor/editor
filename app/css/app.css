@@ -22,7 +22,3 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-
-.react-bs-container-body {
-  width: 100%;
-}

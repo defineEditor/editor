@@ -35,7 +35,8 @@ const styles = theme => ({
 const mapStateToProps = state => {
     return {
         studies: state.studies,
-        defines: state.defines
+        defines: state.defines,
+        currentDefineId: state.ui.main.currentDefineId,
     };
 };
 
@@ -67,7 +68,7 @@ class ConnectedStudies extends React.Component {
           let study = studies[studyId];
           return (
               <GridListTile key={study.id} className={this.props.classes.gridTile}>
-                  <StudyTile study={study} defines={this.props.defines} />
+                  <StudyTile study={study} defines={this.props.defines} currentDefineId={this.props.currentDefineId} />
               </GridListTile>
           );
       });
@@ -122,6 +123,7 @@ ConnectedStudies.propTypes = {
     studies: PropTypes.object.isRequired,
     defines: PropTypes.object.isRequired,
     width: PropTypes.string.isRequired,
+    currentDefineId: PropTypes.string.isRequired,
     addStudy: PropTypes.func.isRequired
 };
 

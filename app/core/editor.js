@@ -43,10 +43,12 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
+    let currentDefineId = state.ui.main.currentDefineId;
+    let loadedDefineId = state.odm !== undefined && state.odm.defineId;
     let defineLoaded = false;
     let odmLoaded = false;
     let mdv = state.odm.study.metaDataVersion;
-    if (state.odm !== undefined && state.odm.odmVersion !== undefined) {
+    if (state.odm !== undefined && state.odm.odmVersion !== undefined && loadedDefineId === currentDefineId) {
         odmLoaded = true;
     }
     if (odmLoaded) {
@@ -57,7 +59,8 @@ const mapStateToProps = state => {
     }
     return {
         defineLoaded,
-        currentDefineId: state.ui.main.currentDefineId,
+        loadedDefineId,
+        currentDefineId,
         codeLists: odmLoaded ? state.odm.study.metaDataVersion.codeLists : undefined
     };
 };
@@ -66,6 +69,10 @@ class ConnectedEditor extends React.Component {
     componentDidMount() {
         ipcRenderer.on('define', this.loadDefine);
         ipcRenderer.on('stdCodeLists', this.loadStdCodeLists);
+        if (this.props.currentDefineId !== this.props.loadedDefineId && this.props.currentDefineId) {
+            // If the currently loaded define is different, load the correct one
+            ipcRenderer.send('loadDefineObject', this.props.currentDefineId);
+        }
     }
 
     componentWillUnmount() {
