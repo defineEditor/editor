@@ -36,7 +36,7 @@ const styles = theme => ({
         margin: theme.spacing.unit
     },
     ctLocation: {
-        minWidth: 300,
+        minWidth: 500,
         margin: theme.spacing.unit
     }
 });
@@ -74,7 +74,7 @@ class ConnectedSettings extends React.Component {
   };
 
   selectControlledTerminologyLocation = () => {
-      ipcRenderer.send('selectFolder', 'Select Controlled Terminology Folder');
+      ipcRenderer.send('selectFolder', 'Select Controlled Terminology Folder', this.props.settings.general.controlledTerminologyLocation);
   };
 
   handleChange = (category, name) => event => {

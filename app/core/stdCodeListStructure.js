@@ -1,4 +1,4 @@
-import getOid from 'utils/getOid.js';
+import getOid from '../utils/getOid.js';
 
 class Alias {
     constructor ({

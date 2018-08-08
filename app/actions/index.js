@@ -107,3 +107,4 @@ export * from 'actions/ui.js';
 export * from 'actions/settings.js';
 export * from 'actions/studies.js';
 export * from 'actions/defines.js';
+export * from 'actions/controlledTerminology.js';

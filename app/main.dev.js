@@ -8,6 +8,7 @@ import selectFolder from './main/selectFolder.js';
 import writeDefineObject from './main/writeDefineObject.js';
 import loadDefineObject from './main/loadDefineObject.js';
 import deleteDefineObject from './main/deleteDefineObject.js';
+import scanControlledTerminologyFolder from './main/scanControlledTerminologyFolder.js';
 
 let mainWindow = null;
 
@@ -110,8 +111,8 @@ ipcMain.on('openDefineXml', () => {
     openDefineXml(mainWindow);
 });
 // Add listener for folder selector
-ipcMain.on('selectFolder', (event, title) => {
-    selectFolder(mainWindow, title);
+ipcMain.on('selectFolder', (event, title, initialFolder) => {
+    selectFolder(mainWindow, title, initialFolder);
 });
 // Saving internal representation of Define-XML to disk
 ipcMain.on('writeDefineObject', (event, defineObject) => {
@@ -124,6 +125,10 @@ ipcMain.on('deleteDefineObject', (event, defineId) => {
 
 ipcMain.on('loadDefineObject', (event, defineId) => {
     loadDefineObject(mainWindow, defineId);
+});
+// Scan the controlled terminology folder
+ipcMain.on('scanControlledTerminologyFolder', (event, controlledTerminologyLocation) => {
+    scanControlledTerminologyFolder(mainWindow, controlledTerminologyLocation);
 });
 
 

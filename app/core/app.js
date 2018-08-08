@@ -5,6 +5,7 @@ import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import ModalRoot from 'utils/modalRoot.js';
 import MainMenu from 'core/mainMenu.js';
 import Editor from 'core/editor.js';
+import ControlledTerminology from 'core/controlledTerminology.js';
 import Settings from 'core/settings.js';
 import Studies from 'core/studies.js';
 
@@ -39,6 +40,7 @@ class ConnectedApp extends Component {
                 <MainMenu />
                 {this.props.currentPage === 'studies' && <Studies />}
                 {this.props.currentPage === 'editor' && <Editor />}
+                {this.props.currentPage === 'controlledTerminology' && <ControlledTerminology />}
                 {this.props.currentPage === 'settings' && <Settings />}
                 <ModalRoot />
             </MuiThemeProvider>

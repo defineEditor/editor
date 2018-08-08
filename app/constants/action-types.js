@@ -60,3 +60,6 @@ export const STUDY_DEL = 'STUDY_DEL';
 export const STUDY_UPD = 'STUDY_UPD';
 export const DEFINE_ADD = 'DEFINE_ADD';
 export const DEFINE_DEL = 'DEFINE_DEL';
+export const CT_ADD = 'CT_ADD';
+export const CT_REPLACE = 'CT_REPLACE';
+export const CT_UPD = 'CT_UPD';

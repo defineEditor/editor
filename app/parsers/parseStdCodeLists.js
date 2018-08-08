@@ -1,4 +1,4 @@
-const stdCL = require('core/stdCodeListStructure.js');
+import stdCL from '../core/stdCodeListStructure.js';
 
 /*
  * Auxiliary functions
@@ -84,11 +84,15 @@ function parseTranslatedText (item) {
     return new stdCL.TranslatedText(args);
 }
 
-function parseCodeLists (codeListsRaw, mdv) {
+function parseCodeLists (codeListsRaw, mdv, quickParse) {
     let codeLists = {};
     codeListsRaw.forEach(function (codeListRaw) {
-        if (codeListRaw.hasOwnProperty('$')) {
+        let codeList;
+        if (quickParse) {
+            codeList = { oid: 'someCodeList' };
+        } else if (codeListRaw.hasOwnProperty('$')) {
             let args = codeListRaw['$'];
+            // QuickParse is used when a folder with CTs is parsed, no need to parse individual codes;
             // Create an Alias
             args.alias = new stdCL.Alias({
                 context : 'nci:ExtCodeID',
@@ -98,9 +102,9 @@ function parseCodeLists (codeListsRaw, mdv) {
             if (codeListRaw.hasOwnProperty('cDISCSubmissionValue')) {
                 args.cdiscSubmissionValue = codeListRaw['cDISCSubmissionValue'][0];
             }
-            // CodeList type is always set to decoded 
+            // CodeList type is always set to decoded
             args.codeListType = 'decoded';
-            var codeList = new stdCL.StdCodeList(args);
+            codeList = new stdCL.StdCodeList(args);
 
             let itemOrder = [];
             // Parse enumerated items
@@ -133,16 +137,18 @@ function parseCodeLists (codeListsRaw, mdv) {
     return codeLists;
 }
 
-function parseMetaDataVersion (metadataRaw) {
+function parseMetaDataVersion (metadataRaw, quickParse) {
     // Parse the MetadataVersion element
 
     var mdv = {};
-    mdv.codeLists = parseCodeLists(metadataRaw['codeList'], mdv);
+    mdv.codeLists = parseCodeLists(metadataRaw['codeList'], mdv, quickParse);
     // Connect NCI codes with CodeList IDs
     let nciCodeOids = {};
-    Object.keys(mdv.codeLists).forEach( codeListOid => {
-        nciCodeOids[mdv.codeLists[codeListOid].alias.name] = codeListOid;
-    });
+    if (!quickParse) {
+        Object.keys(mdv.codeLists).forEach( codeListOid => {
+            nciCodeOids[mdv.codeLists[codeListOid].alias.name] = codeListOid;
+        });
+    }
 
     let args = {
         oid       : metadataRaw['$']['oid'],
@@ -175,29 +181,29 @@ function parseGlobalVariables (globalVariablesRaw) {
     return new stdCL.GlobalVariables(args);
 }
 
-function parseStudy (studyRaw) {
+function parseStudy (studyRaw, quickParse) {
     let args = studyRaw['$'];
 
-    args.metaDataVersion = parseMetaDataVersion(studyRaw.metaDataVersion[0]);
+    args.metaDataVersion = parseMetaDataVersion(studyRaw.metaDataVersion[0], quickParse);
     args.globalVariables = parseGlobalVariables(studyRaw.globalVariables[0]);
 
     return new stdCL.Study(args);
 }
 
-function parseOdm (odmRaw) {
+function parseOdm (odmRaw, quickParse) {
     let args = odmRaw['$'];
 
-    args.study = parseStudy(odmRaw.study[0]);
+    args.study = parseStudy(odmRaw.study[0], quickParse);
 
     return new stdCL.Odm(args);
 }
 
-function parseStdCodeLists (result) {
+function parseStdCodeLists (result, quickParse) {
     removeNamespace(result.data);
     convertAttrsToLCC(result.data);
 
     // Parse Study
-    let odm = parseOdm(result.data.odm);
+    let odm = parseOdm(result.data.odm, quickParse);
 
     return odm;
 }

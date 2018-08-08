@@ -90,7 +90,7 @@ class ConnectedMainMenu extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary='Editor'/>
                             </ListItem>
-                            <ListItem button key='controlledTerminology' onClick={() => this.props.changePage({ page: 'controlledTeminology' })}>
+                            <ListItem button key='controlledTerminology' onClick={() => this.props.changePage({ page: 'controlledTerminology' })}>
                                 <ListItemIcon>
                                     <Public/>
                                 </ListItemIcon>
