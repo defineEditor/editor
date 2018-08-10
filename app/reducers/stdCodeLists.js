@@ -1,38 +1,41 @@
 import {
-    LOAD_STDCT
+    LOAD_STDCDL
 } from "constants/action-types";
+import getCtPublishingSet from 'utils/getCtPublishingSet.js';
 
 const initialState = {};
 
-const addStdControlledTerminology = (state, action) => {
+const loadStdCodeLists = (state, action) => {
 
-    // Extract model name;
-    let protocolName = action.codeListsOdm.study.globalVariables.protocolName;
-    let fileOid = action.codeListsOdm.fileOid;
-    let model;
+    let newState = { ...state };
+    Object.keys(action.updateObj.ctList).forEach( ctId => {
+        // Extract model name;
+        let ct = action.updateObj.ctList[ctId];
+        if (typeof ct === 'object') {
+            let model;
 
-    if (/^CDISC (.+) Controlled Terminology$/.test(protocolName)) {
-        model = protocolName.replace(/CDISC (.+) Controlled Terminology/,'$1');
-    } else if (/^CDISC_CT\.(.+)\.\d{4}-\d{2}-\d{2}$/.test(fileOid)) {
-        model = fileOid.replace(/CDISC_CT\.(.+)\..*/,'$1');
-    }
+            if (/^CDISC_CT/.test(ct.fileOid)) {
+                model = getCtPublishingSet(ct.fileOid);
+            }
+            let controlledTerminology = {
+                codeLists   : ct.study.metaDataVersion.codeLists,
+                description : ct.study.globalVariables.studyDescription,
+                nciCodeOids : ct.study.metaDataVersion.nciCodeOids,
+                version     : ct.sourceSystemVersion,
+                oid         : ct.fileOid,
+                model,
+            };
+            newState = { ...newState, [action.oid]: controlledTerminology };
+        }
+    });
 
-    let controlledTerminology = {
-        codeLists   : action.codeListsOdm.study.metaDataVersion.codeLists,
-        description : action.codeListsOdm.study.globalVariables.studyDescription,
-        nciCodeOids : action.codeListsOdm.study.metaDataVersion.nciCodeOids,
-        version     : action.codeListsOdm.sourceSystemVersion,
-        oid         : action.codeListsOdm.study.oid,
-        model,
-    };
-
-    return { ...state, [action.oid]: controlledTerminology };
+    return newState;
 };
 
 const stdCodeLists = (state = initialState, action) => {
     switch (action.type) {
-        case LOAD_STDCT:
-            return addStdControlledTerminology(state, action);
+        case LOAD_STDCDL:
+            return loadStdCodeLists(state, action);
         default:
             return state;
     }

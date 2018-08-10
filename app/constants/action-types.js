@@ -1,6 +1,6 @@
 export const ADD_ODM = 'ADD_ODM';
 export const ADD_STDCONST = 'ADD_STDCONST';
-export const LOAD_STDCT = 'LOAD_STDCT';
+export const LOAD_STDCDL = 'LOAD_STDCDL';
 export const UPD_STDCT = 'UPD_STDCT';
 export const UPD_STD = 'UPD_STD';
 export const UPD_MODEL = 'UPD_MODEL';
@@ -61,5 +61,5 @@ export const STUDY_UPD = 'STUDY_UPD';
 export const DEFINE_ADD = 'DEFINE_ADD';
 export const DEFINE_DEL = 'DEFINE_DEL';
 export const CT_ADD = 'CT_ADD';
-export const CT_REPLACE = 'CT_REPLACE';
 export const CT_UPD = 'CT_UPD';
+export const CT_RELOAD = 'CT_RELOAD';

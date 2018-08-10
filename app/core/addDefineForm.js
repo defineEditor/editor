@@ -55,7 +55,8 @@ const mapStateToProps = state => {
         defineForm: state.ui.studies.defineForm,
         defines: state.defines,
         standardNames: state.stdConstants.standardNames,
-        settings: state.settings.define
+        settings: state.settings.define,
+        controlledTerminology: state.controlledTerminology,
     };
 };
 
@@ -206,6 +207,7 @@ class ConnectedAddDefineForm extends React.Component {
                           study={this.props.study}
                           defineData={this.state.defineData}
                           standardNames={this.props.standardNames}
+                          controlledTerminology={this.props.controlledTerminology}
                       />
                   )}
                   {activeStep === 3 && (
@@ -228,6 +230,8 @@ ConnectedAddDefineForm.propTypes = {
     standardNames: PropTypes.object.isRequired,
     study: PropTypes.object.isRequired,
     defines: PropTypes.object.isRequired,
+    settings: PropTypes.object.isRequired,
+    controlledTerminology: PropTypes.object.isRequired,
     defineForm: PropTypes.bool.isRequired,
     toggleAddDefineForm: PropTypes.func.isRequired
 };

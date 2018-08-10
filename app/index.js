@@ -9,6 +9,7 @@ import App from 'core/app.js';
 import saveState from 'utils/saveState.js';
 import sendDefineObject from 'utils/sendDefineObject.js';
 import loadDefineObject from 'utils/loadDefineObject.js';
+import loadControlledTerminology from 'utils/loadControlledTerminology.js';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import '../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import 'css/index.css';
@@ -18,6 +19,7 @@ import 'typeface-roboto-mono/index.css';
 // Stardard events
 ipcRenderer.on('sendDefineObjectToMain', sendDefineObject);
 ipcRenderer.on('loadDefineObjectToRender', loadDefineObject);
+ipcRenderer.on('loadControlledTerminologyToRender', loadControlledTerminology);
 ipcRenderer.on('saveState', saveState);
 
 // Handle unhandled errors;

@@ -66,7 +66,8 @@ class AddDefineFormStep2 extends React.Component {
           study: this.props.study,
           standard: this.state.standard,
           defineVersion: this.state.defineVersion,
-          settings: this.props.settings
+          settings: this.props.settings,
+          controlledTerminology: this.props.controlledTerminology,
       });
       this.props.onNext({ defineData });
   };

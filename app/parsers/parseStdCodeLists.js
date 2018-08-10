@@ -89,7 +89,7 @@ function parseCodeLists (codeListsRaw, mdv, quickParse) {
     codeListsRaw.forEach(function (codeListRaw) {
         let codeList;
         if (quickParse) {
-            codeList = { oid: 'someCodeList' };
+            codeList = { oid: codeListRaw['$'].oid };
         } else if (codeListRaw.hasOwnProperty('$')) {
             let args = codeListRaw['$'];
             // QuickParse is used when a folder with CTs is parsed, no need to parse individual codes;

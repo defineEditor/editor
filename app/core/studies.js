@@ -50,8 +50,8 @@ const widthCols = {
     xs: 2,
     sm: 3,
     md: 4,
-    lg: 6,
-    xl: 8
+    lg: 5,
+    xl: 7
 };
 
 class ConnectedStudies extends React.Component {

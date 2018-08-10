@@ -6,9 +6,10 @@ import {
     Standard
 } from 'elements.js';
 import getOid from 'utils/getOid.js';
+import getCtPublishingSet from 'utils/getCtPublishingSet.js';
 import getModelFromStandard from 'utils/getModelFromStandard.js';
 
-function getEmptyDefineXml({ standard, defineVersion, study, settings } = {}) {
+function getEmptyDefineXml({ standard, defineVersion, study, settings, controlledTerminology } = {}) {
     let defaultOdmAttrs = {
         xlink: 'http://www.w3.org/1999/xlink',
         def: 'http://www.cdisc.org/ns/def/v2.0',
@@ -37,16 +38,39 @@ function getEmptyDefineXml({ standard, defineVersion, study, settings } = {}) {
     }
 
     let standardOid = getOid('Standard');
+    let standards =  {
+        [standardOid]: { ...new Standard({ name: standard, type: 'IG', isDefault: 'Yes' }) }
+    };
+
+    controlledTerminology.allIds.forEach( ctId => {
+        let ct = controlledTerminology.byId[ctId];
+        if (ct.isDefault) {
+            let publishingSet;
+            if (ct.isCdiscNci) {
+                publishingSet = getCtPublishingSet(ct.id);
+            }
+
+            standards = {
+                ...standards,
+                [ct.id]: { ...new Standard({
+                    oid: ct.id,
+                    type: 'CT',
+                    publishingSet,
+                    name: ct.isCdiscNci ? 'CDISC/NCI' : ct.name,
+                    version: ct.version,
+                    status: ct.isCdiscNci ? 'Final' : undefined,
+
+                })}
+            };
+        }
+    });
+
     let model = getModelFromStandard(standard);
     let metaDataVersion = {
         ...new MetaDataVersion({
             defineVersion,
             model,
-            standards: {
-                [standardOid]: {
-                    ...new Standard({ name: standard, type: 'IG', isDefault: 'Yes' })
-                }
-            }
+            standards,
         })
     };
     metaDataVersion.order.standardOrder = [standardOid];

@@ -1,7 +1,7 @@
 import {
     CT_ADD,
-    CT_REPLACE,
     CT_UPD,
+    CT_RELOAD,
 } from "constants/action-types";
 
 export const addControlledTerminology = (updateObj) => (
@@ -11,16 +11,16 @@ export const addControlledTerminology = (updateObj) => (
     }
 );
 
-export const replateControlledTerminology = (updateObj) => (
+export const updateControlledTerminology = (updateObj) => (
     {
-        type: CT_REPLACE,
+        type: CT_UPD,
         updateObj,
     }
 );
 
-export const updateControlledTerminology = (updateObj) => (
+export const reloadControlledTerminology = (updateObj) => (
     {
-        type: CT_UPD,
+        type: CT_RELOAD,
         updateObj,
     }
 );

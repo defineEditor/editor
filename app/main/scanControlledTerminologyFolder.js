@@ -45,10 +45,11 @@ async function readContents (pathToDir) {
             let id = stdCodeListOdm.fileOid;
             stdCodeLists[id] = {
                 id,
-                file: path.join(pathToDir, file),
                 version: stdCodeListOdm.sourceSystemVersion,
                 name: stdCodeListOdm.study.globalVariables.studyName,
+                pathToFile: path.join(pathToDir, file),
                 codeListCount: Object.keys(stdCodeListOdm.study.metaDataVersion.codeLists).length,
+                isCdiscNci: stdCodeListOdm.sourceSystem === 'NCI Thesaurus' ? true : false,
             };
         } else {
             let fileStat = await stat(path.join(pathToDir, file));

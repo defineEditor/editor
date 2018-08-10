@@ -3,40 +3,55 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
+import Typography from '@material-ui/core/Typography';
+import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import withWidth from '@material-ui/core/withWidth';
 import NavigationBar from 'core/navigationBar.js';
-import { addStudy } from 'actions/index.js';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import { updateControlledTerminology, reloadControlledTerminology } from 'actions/index.js';
+import { ControlledTerminology } from 'core/mainStructure.js';
 
 const styles = theme => ({
     root: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        backgroundColor: theme.palette.grey[50],
-        minHeight: 'calc(100vh -  ' + (theme.spacing.unit * 7).toString() + 'px)',
-        marginTop: theme.spacing.unit * 7
+        marginTop: theme.spacing.unit * 7,
+        marginLeft: theme.spacing.unit,
+        marginRight: theme.spacing.unit,
     },
-    gridList: {
-        width: '100%'
+    header: {
+        marginBottom: theme.spacing.unit * 2,
     },
-    gridTile: {
-        width: 100
-    }
 });
 
 const mapStateToProps = state => {
     return {
         controlledTerminologyLocation: state.settings.general.controlledTerminologyLocation,
+        controlledTerminology: state.controlledTerminology,
     };
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        addStudy: updateObj => dispatch(addStudy(updateObj))
+        updateControlledTerminology: updateObj => dispatch(updateControlledTerminology(updateObj)),
+        reloadControlledTerminology: updateObj => dispatch(reloadControlledTerminology(updateObj)),
     };
 };
+
+const CustomTableCell = withStyles(theme => ({
+    head: {
+        backgroundColor : theme.palette.primary.main,
+        color           : '#EEEEEE',
+        fontSize        : 16,
+        fontWeight      : 'bold',
+    },
+    body: {
+        fontSize: 14,
+    },
+}))(TableCell);
 
 class ConnectedControlledTerminology extends React.Component {
 
@@ -49,15 +64,58 @@ class ConnectedControlledTerminology extends React.Component {
     }
 
     loadControlledTerminology = (event, data) => {
-        console.log(data);
+        let ctList = {};
+        Object.keys(data).forEach( ctId => {
+            let ct = data[ctId];
+            ctList[ct.id] = { ...new ControlledTerminology ({ ...ct }) };
+        });
+        this.props.reloadControlledTerminology({ ctList });
     }
 
     scanControlledTerminologyFolder = () => {
         ipcRenderer.send('scanControlledTerminologyFolder', this.props.controlledTerminologyLocation);
     }
 
+    toggleDefault = (ctId) => () => {
+        let currentCt = this.props.controlledTerminology.byId[ctId];
+        let updatedCt = { ...currentCt, isDefault: !currentCt.isDefault };
+        this.props.updateControlledTerminology({ ctList: { [ctId]: updatedCt } });
+    }
+    getControlledTerminologies = () => {
+        let ctList = this.props.controlledTerminology.byId;
+        let ctIds = this.props.controlledTerminology.allIds;
+
+        const sortByVersion = (ct1, ct2) => {
+            return ctList[ct1].version > ctList[ct2].version ? -1 : 1;
+        };
+
+        return ctIds.sort(sortByVersion).map(ctId => {
+            return (
+                <TableRow key={ctId}>
+                    <CustomTableCell>
+                        {ctList[ctId].name}
+                    </CustomTableCell>
+                    <CustomTableCell>
+                        {ctList[ctId].version}
+                    </CustomTableCell>
+                    <CustomTableCell>
+                        {ctList[ctId].codeListCount}
+                    </CustomTableCell>
+                    <CustomTableCell>
+                        <Checkbox
+                            checked={ctList[ctId].isDefault}
+                            onChange={this.toggleDefault(ctId)}
+                            color="primary"
+                        />
+                    </CustomTableCell>
+                </TableRow>
+            );
+        });
+    };
+
     render() {
         const { classes } = this.props;
+        let ctNum = this.props.controlledTerminology.allIds.length;
         return (
             <React.Fragment>
                 <NavigationBar>
@@ -66,6 +124,33 @@ class ConnectedControlledTerminology extends React.Component {
                     </Button>
                 </NavigationBar>
                 <div className={classes.root}>
+                    { ctNum === 0 ? (
+                        <Typography variant="display1" gutterBottom>
+                            There is no Controlled Terminology available. Download the NCI/CDISC CT in XML format, specify the folder in settings and press the &nbsp;
+                            <Button size="small" variant="raised" onClick={this.scanControlledTerminologyFolder}>
+                                Scan CT Folder
+                            </Button> &nbsp; button
+                        </Typography>
+                    ) : (
+                        <React.Fragment>
+                            <Typography variant="headline" component="h3" className={classes.header}>
+                                Controlled Terminology
+                            </Typography>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <CustomTableCell>Name</CustomTableCell>
+                                        <CustomTableCell>Version</CustomTableCell>
+                                        <CustomTableCell># Codelists</CustomTableCell>
+                                        <CustomTableCell>Added by Default</CustomTableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {this.getControlledTerminologies()}
+                                </TableBody>
+                            </Table>
+                        </React.Fragment>
+                    )}
                 </div>
             </React.Fragment>
         );
@@ -74,12 +159,9 @@ class ConnectedControlledTerminology extends React.Component {
 
 ConnectedControlledTerminology.propTypes = {
     classes: PropTypes.object.isRequired,
-    studies: PropTypes.object.isRequired,
-    defines: PropTypes.object.isRequired,
-    width: PropTypes.string.isRequired,
-    currentDefineId: PropTypes.string.isRequired,
-    addStudy: PropTypes.func.isRequired
+    updateControlledTerminology: PropTypes.func.isRequired,
+    controlledTerminology: PropTypes.object.isRequired,
 };
 
-const ControlledTerminology = connect(mapStateToProps, mapDispatchToProps)(ConnectedControlledTerminology);
-export default withWidth()(withStyles(styles)(ControlledTerminology));
+const ControlledTerminologyPage = connect(mapStateToProps, mapDispatchToProps)(ConnectedControlledTerminology);
+export default withWidth()(withStyles(styles)(ControlledTerminologyPage));

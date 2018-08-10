@@ -29,7 +29,29 @@ class Define {
     }
 }
 
+class ControlledTerminology {
+    constructor ({
+        id, name, version, codeListCount, pathToFile, isDefault, sources, isCdiscNci,
+    } = {}) {
+        this.id = id;
+        this.name = name;
+        this.version = version;
+        this.codeListCount = codeListCount;
+        this.pathToFile = pathToFile;
+        this.isDefault = isDefault || false;
+        this.isCdiscNci = isCdiscNci;
+        if (sources === undefined) {
+            this.sources = {
+                defineIds: [],
+            };
+        } else {
+            this.sources = sources;
+        }
+    }
+}
+
 module.exports = {
     Study,
     Define,
+    ControlledTerminology,
 };
