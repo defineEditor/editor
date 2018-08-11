@@ -1,12 +1,12 @@
 import electron, { app, BrowserWindow, Menu, ipcMain } from 'electron';
 import path from 'path';
 import createMenu from './menu/menu.js';
-import readXml from './utils/readXml.js';
 import saveAs from './main/saveAs.js';
 import openDefineXml from './main/openDefineXml.js';
 import selectFolder from './main/selectFolder.js';
 import writeDefineObject from './main/writeDefineObject.js';
 import loadDefineObject from './main/loadDefineObject.js';
+import loadControlledTerminology from './main/loadControlledTerminology.js';
 import deleteDefineObject from './main/deleteDefineObject.js';
 import scanControlledTerminologyFolder from './main/scanControlledTerminologyFolder.js';
 
@@ -41,7 +41,8 @@ function createWindow() {
         fullscreen: true,
         show: false,
         width: 1024,
-        height: 728
+        height: 728,
+        icon: __dirname + '/static/images/avatars/fox.png',
     });
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);
@@ -55,27 +56,6 @@ function createWindow() {
     });
     // Set the menu
     Menu.setApplicationMenu(createMenu(mainWindow));
-
-    // Read and Send the define.xml to the renderer process
-    const xml = Promise.resolve(readXml('data/define.sdtm.xml'));
-    const codeListSdtm = Promise.resolve(
-        readXml('data/SDTM Terminology.odm.xml')
-    );
-    const codeListAdam = Promise.resolve(
-        readXml('data/ADaM Terminology.odm.xml')
-    );
-
-    function sendToRender(eventName) {
-        return function(data) {
-            mainWindow.webContents.on('did-finish-load', () => {
-                mainWindow.webContents.send(eventName, data);
-            });
-        };
-    }
-
-    xml.then(sendToRender('define'));
-    codeListSdtm.then(sendToRender('stdCodeLists'));
-    codeListAdam.then(sendToRender('stdCodeLists'));
 
     mainWindow.on('close', function(e) {
         if (
@@ -118,17 +98,21 @@ ipcMain.on('selectFolder', (event, title, initialFolder) => {
 ipcMain.on('writeDefineObject', (event, defineObject) => {
     writeDefineObject(defineObject);
 });
-
+// Delete a nogz file
 ipcMain.on('deleteDefineObject', (event, defineId) => {
     deleteDefineObject(defineId);
 });
-
+// Extract data from nogz
 ipcMain.on('loadDefineObject', (event, defineId) => {
     loadDefineObject(mainWindow, defineId);
 });
 // Scan the controlled terminology folder
 ipcMain.on('scanControlledTerminologyFolder', (event, controlledTerminologyLocation) => {
     scanControlledTerminologyFolder(mainWindow, controlledTerminologyLocation);
+});
+// Load requested CT
+ipcMain.on('loadControlledTerminology', (event, ctToLoad) => {
+    loadControlledTerminology(mainWindow, ctToLoad);
 });
 
 

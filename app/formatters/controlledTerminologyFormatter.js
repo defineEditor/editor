@@ -27,6 +27,7 @@ class ControlledTerminologyFormatter extends React.Component {
                 return (standards[standardOid].name === 'CDISC/NCI' && standards[standardOid].type === 'CT');
             })
             .map(standardOid => {
+                let codeListCount = stdCodeLists.hasOwnProperty(standardOid) ? Object.keys(stdCodeLists[standardOid].nciCodeOids).length : 'Not loaded';
                 return (
                     <TableRow key={standardOid}>
                         <TableCell>
@@ -36,7 +37,7 @@ class ControlledTerminologyFormatter extends React.Component {
                             {standards[standardOid].version}
                         </TableCell>
                         <TableCell>
-                            {Object.keys(stdCodeLists[standardOid].nciCodeOids).length}
+                            {codeListCount}
                         </TableCell>
                     </TableRow>
                 );

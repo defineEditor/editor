@@ -41,7 +41,7 @@ class ControlledTerminologyEditor extends React.Component {
         // Clone standards
         let standardsCopy = {};
         Object.keys(this.props.standards).forEach( standardOid => {
-            standardsCopy[standardOid] = new Standard(this.props.standards[standardOid]);
+            standardsCopy[standardOid] = { ...new Standard(this.props.standards[standardOid]) };
         });
         this.state = { standards: standardsCopy, standardOrder: this.props.standardOrder.slice() };
     }
@@ -59,10 +59,15 @@ class ControlledTerminologyEditor extends React.Component {
                 let newStandards = { ...this.state.standards };
                 // Replace old OID with a new one
                 delete newStandards[oid];
-                if (this.props.stdCodeLists.hasOwnProperty(newOid)) {
-                    let publishingSet = this.props.stdCodeLists[newOid].model;
-                    let version = this.props.stdCodeLists[newOid].version;
-                    newStandards[newOid] = new Standard({ oid: newOid, name: 'CDISC/NCI', type: 'CT', publishingSet, version });
+                if (this.props.controlledTerminology.allIds.includes(newOid)) {
+                    let newCt = this.props.controlledTerminology.byId[newOid];
+                    newStandards[newOid] = { ...new Standard({
+                        oid: newOid,
+                        name: newCt.isCdiscNci ? 'CDISC/NCI' : newCt.name,
+                        type: 'CT',
+                        publishingSet: newCt.publishingSet,
+                        version: newCt.version,
+                    }) };
                     this.setState({ standards: newStandards });
                 }
             }
@@ -76,10 +81,10 @@ class ControlledTerminologyEditor extends React.Component {
 
     getControlledTerminologies = () => {
         let standards = this.state.standards;
-        let descriptionList = Object.keys(this.props.stdCodeLists).map( ctOid => {
-            return {[ctOid]: this.props.stdCodeLists[ctOid].description};
+        let ctList = this.props.controlledTerminology.allIds.map( ctOid => {
+            return {[ctOid]: this.props.controlledTerminology.byId[ctOid].name};
         });
-        let ctList = Object.keys(standards)
+        let studyCtList = Object.keys(standards)
             .filter(standardOid => {
                 return (standards[standardOid].name === 'CDISC/NCI' && standards[standardOid].type === 'CT');
             })
@@ -97,17 +102,17 @@ class ControlledTerminologyEditor extends React.Component {
                         </Tooltip>
                         <TextField
                             label='Controlled Terminology'
-                            value={standards[standardOid].oid}
+                            value={standardOid}
                             select
                             onChange={this.handleChange('updateCt',standardOid)}
                             className={this.props.classes.inputField}
                         >
-                            {getSelectionList(descriptionList)}
+                            {getSelectionList(ctList)}
                         </TextField>
                     </ListItem>
                 );
             });
-        return ctList;
+        return studyCtList;
     };
 
     save = () => {
@@ -150,14 +155,14 @@ class ControlledTerminologyEditor extends React.Component {
 }
 
 ControlledTerminologyEditor.propTypes = {
-    standards     : PropTypes.object.isRequired,
-    standardOrder : PropTypes.array.isRequired,
-    stdCodeLists  : PropTypes.object.isRequired,
-    classes       : PropTypes.object.isRequired,
-    onSave        : PropTypes.func.isRequired,
-    onCancel      : PropTypes.func.isRequired,
-    onHelp        : PropTypes.func,
-    onComment     : PropTypes.func,
+    standards             : PropTypes.object.isRequired,
+    standardOrder         : PropTypes.array.isRequired,
+    controlledTerminology : PropTypes.object.isRequired,
+    classes               : PropTypes.object.isRequired,
+    onSave                : PropTypes.func.isRequired,
+    onCancel              : PropTypes.func.isRequired,
+    onHelp                : PropTypes.func,
+    onComment             : PropTypes.func,
 };
 
 export default withStyles(styles)(ControlledTerminologyEditor);

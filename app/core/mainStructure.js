@@ -31,7 +31,7 @@ class Define {
 
 class ControlledTerminology {
     constructor ({
-        id, name, version, codeListCount, pathToFile, isDefault, sources, isCdiscNci,
+        id, name, version, codeListCount, pathToFile, isDefault, sources, isCdiscNci, publishingSet
     } = {}) {
         this.id = id;
         this.name = name;
@@ -40,6 +40,7 @@ class ControlledTerminology {
         this.pathToFile = pathToFile;
         this.isDefault = isDefault || false;
         this.isCdiscNci = isCdiscNci;
+        this.publishingSet = publishingSet;
         if (sources === undefined) {
             this.sources = {
                 defineIds: [],

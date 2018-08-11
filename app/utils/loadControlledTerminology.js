@@ -1,11 +1,11 @@
 import store from 'store/index.js';
 import {
-    loadStdControlledTerminology,
+    loadStdCodeLists,
 } from 'actions/index.js';
 
 function loadControlledTerminology(event, data) {
-    if (data.hasOwnProperty('ctList')) {
-        store.dispatch(loadStdControlledTerminology({ ctList: data.ctList }));
+    if (Object.keys(data).length > 0) {
+        store.dispatch(loadStdCodeLists({ ctList: data }));
     }
 }
 

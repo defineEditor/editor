@@ -221,7 +221,7 @@ class ConnectedCodeListTable extends React.Component {
             } else if (cellName === 'standardData') {
                 if (!deepEqual(cellValue, row[cellName])) {
                     updateObj = { ...cellValue };
-                    if (cellValue.standardOid !== undefined && cellValue.alias !== undefined) {
+                    if (cellValue.standardOid !== undefined && cellValue.alias !== undefined && this.props.stdCodeLists.hasOwnProperty(cellValue.standardOid)) {
                         let standardCodeListOid = this.props.stdCodeLists[cellValue.standardOid].nciCodeOids[cellValue.alias.name];
                         updateObj.standardCodeList = this.props.stdCodeLists[cellValue.standardOid].codeLists[standardCodeListOid];
                     }

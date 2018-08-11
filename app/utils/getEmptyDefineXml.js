@@ -73,7 +73,7 @@ function getEmptyDefineXml({ standard, defineVersion, study, settings, controlle
             standards,
         })
     };
-    metaDataVersion.order.standardOrder = [standardOid];
+    metaDataVersion.order.standardOrder = Object.keys(standards);
     let newStudy = {
         ...new Study({
             metaDataVersion,

@@ -14,19 +14,19 @@ async function loadControlledTerminology(mainWindow, ctToLoad) {
 
     let stdCodeLists = {};
 
-    await Promise.all(files.map(async (file) => {
+    await Promise.all(Object.keys(files).map(async (ctId) => {
         let stdCodeListOdm;
+        let file = files[ctId];
         try {
             let xmlData = await readFile(file);
             let parsedXml = await parseString(xmlData);
             stdCodeListOdm = parseStdCodeLists(parsedXml);
         } catch (error) {
-            stdCodeLists[id] = 'Error while reading the file. ' + error;
+            stdCodeLists[ctId] = 'Error while reading the file. ' + error;
             return;
         }
 
-        let id = stdCodeListOdm.fileOid;
-        stdCodeLists[id] = stdCodeListOdm;
+        stdCodeLists[ctId] = stdCodeListOdm;
     }));
 
     mainWindow.send('loadControlledTerminologyToRender', stdCodeLists);

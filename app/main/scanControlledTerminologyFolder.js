@@ -3,22 +3,12 @@ import xml2js from 'xml2js';
 import path from 'path';
 import { promisify } from 'util';
 import parseStdCodeLists from '../parsers/parseStdCodeLists.js';
+import getCtPublishingSet from '../utils/getCtPublishingSet.js';
 
 const readFile = promisify(fs.readFile);
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
-
-function parseXml (xmlData) {
-    return new Promise(function (resolve, reject) {
-        let parser = new xml2js.Parser();
-        parser.parseString(xmlData, function (err, data) {
-            if (err !== null) {
-                return reject(err);
-            }
-            resolve( { data });
-        });
-    });
-}
+const parseString = promisify(xml2js.parseString);
 
 async function readContents (pathToDir) {
     let files;
@@ -34,7 +24,8 @@ async function readContents (pathToDir) {
         if (/\.xml$/.test(file)) {
             let stdCodeListOdm;
             try {
-                let parsedXml = await readFile(path.join(pathToDir,file)).then(parseXml);
+                let xmlData = await readFile(path.join(pathToDir,file));
+                let parsedXml = await parseString(xmlData);
                 // Second argument enables quickParse
                 stdCodeListOdm = parseStdCodeLists(parsedXml, true);
             } catch (error) {
@@ -50,6 +41,7 @@ async function readContents (pathToDir) {
                 pathToFile: path.join(pathToDir, file),
                 codeListCount: Object.keys(stdCodeListOdm.study.metaDataVersion.codeLists).length,
                 isCdiscNci: stdCodeListOdm.sourceSystem === 'NCI Thesaurus' ? true : false,
+                publishingSet: stdCodeListOdm.sourceSystem === 'NCI Thesaurus' ? getCtPublishingSet(id) : undefined,
             };
         } else {
             let fileStat = await stat(path.join(pathToDir, file));

@@ -1,6 +1,7 @@
 export const ADD_ODM = 'ADD_ODM';
 export const ADD_STDCONST = 'ADD_STDCONST';
 export const LOAD_STDCDL = 'LOAD_STDCDL';
+export const DEL_STDCDL = 'DEL_STDCDL';
 export const UPD_STDCT = 'UPD_STDCT';
 export const UPD_STD = 'UPD_STD';
 export const UPD_MODEL = 'UPD_MODEL';

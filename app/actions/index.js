@@ -2,7 +2,6 @@
 import {
     ADD_ODM,
     ADD_STDCONST,
-    LOAD_STDCDL,
     UPD_ITEMGROUP,
     UPD_ITEMGROUPORDER,
     ADD_ITEMGROUP,
@@ -18,13 +17,6 @@ import {
 export const addOdm = odm => ({ type: ADD_ODM, odm: odm });
 
 export const addStdConstants = () => ({ type: ADD_STDCONST });
-
-export const loadStdCodeLists = updateObj => (
-    {
-        type : LOAD_STDCDL,
-        updateObj,
-    }
-);
 
 // Item Group actions
 export const updateItemGroup = (oid, updateObj) => (
@@ -107,3 +99,4 @@ export * from 'actions/settings.js';
 export * from 'actions/studies.js';
 export * from 'actions/defines.js';
 export * from 'actions/controlledTerminology.js';
+export * from 'actions/stdCodeLists.js';

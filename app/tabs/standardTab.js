@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import React from 'react';
 import deepEqual from 'fast-deep-equal';
 import Grid from '@material-ui/core/Grid';
+import { ipcRenderer } from 'electron';
 import GlobalVariablesFormatter from 'formatters/globalVariablesFormatter.js';
 import MetaDataVersionFormatter from 'formatters/metaDataVersionFormatter.js';
 import ControlledTerminologyFormatter from 'formatters/controlledTerminologyFormatter.js';
@@ -21,6 +22,7 @@ import {
     updateStandards,
     updateOdmAttrs,
     updateModel,
+    deleteStdCodeLists,
 } from 'actions/index.js';
 
 // Redux functions
@@ -32,6 +34,7 @@ const mapDispatchToProps = dispatch => {
         updateStandards                  : (updateObj) => dispatch(updateStandards(updateObj)),
         updateModel                      : (updateObj) => dispatch(updateModel(updateObj)),
         updateOdmAttrs                   : (updateObj) => dispatch(updateOdmAttrs(updateObj)),
+        deleteStdCodeLists               : (updateObj) => dispatch(deleteStdCodeLists(updateObj)),
     };
 };
 
@@ -63,15 +66,16 @@ const mapStateToProps = state => {
     };
 
     return {
-        globalVariables : state.odm.study.globalVariables,
-        studyOid        : state.odm.study.oid,
-        standards       : state.odm.study.metaDataVersion.standards,
-        standardOrder   : state.odm.study.metaDataVersion.order.standardOrder,
-        lang            : state.odm.study.metaDataVersion.lang,
-        model           : state.odm.study.metaDataVersion.model,
-        stdConstants    : state.stdConstants,
-        stdCodeLists    : state.stdCodeLists,
-        tabs            : state.ui.tabs,
+        globalVariables       : state.odm.study.globalVariables,
+        studyOid              : state.odm.study.oid,
+        standards             : state.odm.study.metaDataVersion.standards,
+        standardOrder         : state.odm.study.metaDataVersion.order.standardOrder,
+        lang                  : state.odm.study.metaDataVersion.lang,
+        model                 : state.odm.study.metaDataVersion.model,
+        stdConstants          : state.stdConstants,
+        controlledTerminology : state.controlledTerminology,
+        stdCodeLists          : state.stdCodeLists,
+        tabs                  : state.ui.tabs,
         mdvAttrs,
         odmAttrs,
         comments,
@@ -189,6 +193,24 @@ class ConnectedStandardTable extends React.Component {
                         removedStandardOids,
                         updatedStandards,
                     });
+                    // Update stdCodeLists part of the state
+                    let ctToLoad = {};
+                    let currentStdCodeListIds = Object.keys(this.props.stdCodeLists);
+                    let controlledTerminology = this.props.controlledTerminology;
+                    let standards = newStandards;
+                    let ctIds = Object.keys(standards).filter( stdId => (standards[stdId].type === 'CT'));
+                    ctIds.forEach( ctId => {
+                        if (!currentStdCodeListIds.includes(ctId) && controlledTerminology.allIds.includes(ctId)) {
+                            ctToLoad[ctId] = controlledTerminology.byId[ctId];
+                        }
+                    });
+                    // Emit event to the main process to read the CTs
+                    ipcRenderer.send('loadControlledTerminology', ctToLoad);
+                    // Remove CT from stdCodeLists which are not required by this ODM
+                    let ctIdsToRemove = currentStdCodeListIds.filter( ctId => (!ctIds.includes[ctId]) );
+                    if (ctIdsToRemove.length > 0) {
+                        this.props.deleteStdCodeLists({ ctIds: ctIdsToRemove });
+                    }
                 }
                 this.setState({controlledTerminologyEdit: false});
             } else if (name === 'standard') {
@@ -315,7 +337,7 @@ class ConnectedStandardTable extends React.Component {
                         <ControlledTerminologyEditor
                             standards={this.props.standards}
                             standardOrder={this.props.standardOrder}
-                            stdCodeLists={this.props.stdCodeLists}
+                            controlledTerminology={this.props.controlledTerminology}
                             defineVersion={this.props.defineVersion}
                             onSave={this.save('controlledTerminology')}
                             onCancel={this.cancel('controlledTerminology')}

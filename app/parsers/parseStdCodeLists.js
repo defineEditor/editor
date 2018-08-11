@@ -198,12 +198,12 @@ function parseOdm (odmRaw, quickParse) {
     return new stdCL.Odm(args);
 }
 
-function parseStdCodeLists (result, quickParse) {
-    removeNamespace(result.data);
-    convertAttrsToLCC(result.data);
+function parseStdCodeLists (data, quickParse) {
+    removeNamespace(data);
+    convertAttrsToLCC(data);
 
     // Parse Study
-    let odm = parseOdm(result.data.odm, quickParse);
+    let odm = parseOdm(data.odm, quickParse);
 
     return odm;
 }
