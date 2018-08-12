@@ -7,18 +7,17 @@ function loadState() {
         name: 'state',
     });
 
-    let state = store.get();
+    let state = { ...store.get() };
 
     // Load constants
     state.stdConstants = stdConstants;
 
-    // Load current ODM. Just send a request. The ODM data will be loaded at a late stage
+    // Load current Define-XML file
     state.odm = {};
-    if (state.ui.main.currentDefineId) {
+    if (state.hasOwnProperty('ui') && state.ui.main.currentDefineId) {
         ipcRenderer.send('loadDefineObject', state.ui.main.currentDefineId);
     }
 
-    // Load CT for the ODM
     state.stdCodeLists = {};
     //delete stateToSave.odm;
     //delete stateToSave.stdConstants;

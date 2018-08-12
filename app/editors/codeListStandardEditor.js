@@ -34,7 +34,7 @@ class ConnectedCodeListStandardEditor extends React.Component {
 
         let standardList = {};
         Object.keys(props.standards).forEach( standardOid => {
-            if (props.standards[standardOid].type === 'CT') {
+            if (props.stdCodeLists.hasOwnProperty(standardOid) && props.standards[standardOid].type === 'CT') {
                 standardList[standardOid] = props.stdCodeLists[standardOid].description;
             }
         });

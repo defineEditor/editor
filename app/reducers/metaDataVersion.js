@@ -31,7 +31,7 @@ const metaDataVersion = (state = { ...initialState }, action) => {
         return updateMetaDataVersion(state, action);
     } else if (action.type === UPD_MODEL) {
         return updateModel(state, action);
-    } else if (action.type !== undefined &&  ! ( /^UI.*/.test(action.type) ) ) {
+    } else {
         return {
             ...state,
             standards       : standards(state.standards, action),
@@ -47,8 +47,6 @@ const metaDataVersion = (state = { ...initialState }, action) => {
             leafs           : leafs(state.leafs, action),
             order           : order(state.order, action),
         };
-    } else {
-        return state;
     }
 };
 

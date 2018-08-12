@@ -1,6 +1,6 @@
 import {
-    LOAD_STDCDL,
-    DEL_STDCDL,
+    STDCDL_LOAD,
+    STDCDL_DEL,
 } from "constants/action-types";
 import getCtPublishingSet from 'utils/getCtPublishingSet.js';
 
@@ -46,9 +46,9 @@ const deleteStdCodeLists = (state, action) => {
 
 const stdCodeLists = (state = initialState, action) => {
     switch (action.type) {
-        case LOAD_STDCDL:
+        case STDCDL_LOAD:
             return loadStdCodeLists(state, action);
-        case DEL_STDCDL:
+        case STDCDL_DEL:
             return deleteStdCodeLists(state, action);
         default:
             return state;

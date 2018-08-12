@@ -251,7 +251,11 @@ class ConnectedCodedValueTable extends React.Component {
                     // TODO Warn users  that coded Value already exists in the codelist;
                     return false;
                 }
-                if (codeList.alias !== undefined && codeList.standardOid !== undefined && codeList.alias.context === 'nci:ExtCodeID') {
+                if (codeList.alias !== undefined
+                    && codeList.standardOid !== undefined
+                    && codeList.alias.context === 'nci:ExtCodeID'
+                    && this.props.stdCodeLists.hasOwnProperty(codeList.standardOid)
+                ) {
                     let standard = this.props.stdCodeLists[codeList.standardOid];
                     let stdCodeList = standard.codeLists[standard.nciCodeOids[codeList.alias.name]];
                     // Search for the value in the standard codelist items
@@ -428,7 +432,11 @@ class ConnectedCodedValueTable extends React.Component {
 
         // Get standard codelist
         let stdCodeList;
-        if (codeList.alias !== undefined && codeList.standardOid !== undefined && codeList.alias.context === 'nci:ExtCodeID') {
+        if (codeList.alias !== undefined
+            && codeList.standardOid !== undefined
+            && codeList.alias.context === 'nci:ExtCodeID'
+            && this.props.stdCodeLists.hasOwnProperty(codeList.standardOid)
+        ) {
             let standard = this.props.stdCodeLists[codeList.standardOid];
             stdCodeList = standard.codeLists[standard.nciCodeOids[codeList.alias.name]];
         }

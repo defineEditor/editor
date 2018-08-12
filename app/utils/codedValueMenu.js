@@ -77,15 +77,15 @@ class ConnectedCodedValueMenu extends React.Component {
             Insert After
                   </MenuItem>
                   {hasStandard && (
-                      <React.Fragment>
-                          <Divider />
-                          <MenuItem key="InsertStdBefore" onClick={this.insertStdRecord(0)}>
+                      [
+                          <Divider key='Divider' />,
+                          <MenuItem key='InsertStdBefore' onClick={this.insertStdRecord(0)}>
                 Insert Std. Codes Before
-                          </MenuItem>
-                          <MenuItem key="InsertStdAfter" onClick={this.insertStdRecord(1)}>
+                          </MenuItem>,
+                          <MenuItem key='InsertStdAfter' onClick={this.insertStdRecord(1)}>
                 Insert Std. Codes After
                           </MenuItem>
-                      </React.Fragment>
+                      ]
                   )}
                   <Divider />
                   <MenuItem key="Delete" onClick={this.deleteCodedValue}>

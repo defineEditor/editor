@@ -42,8 +42,13 @@ const odm = (state = initialState, action) => {
             return handleDefineDelete(state, action);
         case STUDY_DEL:
             return handleStudyDelete(state, action);
-        default:
-            return {...state, study: study(state.study, action)};
+        default: {
+            if (action.type !== undefined &&  /^(ADD|UPD|DEL|REP|INSERT)_.*/.test(action.type) ) {
+                return {...state, study: study(state.study, action)};
+            } else {
+                return state;
+            }
+        }
     }
 };
 

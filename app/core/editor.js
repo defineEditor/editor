@@ -4,13 +4,15 @@ import { ipcRenderer } from 'electron';
 import { withStyles } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import EditorTabs from 'tabs/editorTabs.js';
-import parseStdCodeLists from 'parsers/parseStdCodeLists.js';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';
 import {
     addOdm,
     addStdControlledTerminology,
     updateCodeListStandardOids,
-    updateStandards
+    updateStandards,
+    changePage,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -21,6 +23,12 @@ const styles = theme => ({
     },
     progress: {
         margin: theme.spacing.unit * 2
+    },
+    noDefineMessage: {
+        position: 'absolute',
+        marginLeft: theme.spacing.unit * 2,
+        top: '47%',
+        transform: 'translate(0%, -47%)',
     },
     loading: {
         position: 'absolute',
@@ -36,7 +44,8 @@ const mapDispatchToProps = dispatch => {
         addOdm: odm => dispatch(addOdm(odm)),
         addStdControlledTerminology: codeListsOdm => dispatch(addStdControlledTerminology(codeListsOdm)),
         updateCodeListStandardOids: updateObj => dispatch(updateCodeListStandardOids(updateObj)),
-        updateStandards: updateObj => dispatch(updateStandards(updateObj))
+        updateStandards: updateObj => dispatch(updateStandards(updateObj)),
+        changePage : (updateObj) => dispatch(changePage(updateObj)),
     };
 };
 
@@ -63,47 +72,21 @@ class ConnectedEditor extends React.Component {
         }
     }
 
-    loadStdCodeLists = (error, data) => {
-        let stdCodeListsOdm = parseStdCodeLists(data);
-
-        // Check if any codelist with alias, but without a standard assigned matches the loaded standard
-        let codeLists = this.props.codeLists;
-        if (codeLists !== undefined) {
-            let updateObj = {};
-            Object.keys(codeLists).forEach(codeListOid => {
-                if (
-                    codeLists[codeListOid].alias !== undefined &&
-                    codeLists[codeListOid].standardOid === undefined &&
-                    codeLists[codeListOid].alias.context === 'nci:ExtCodeID'
-                ) {
-                    if (
-                        Object.keys(
-                            stdCodeListsOdm.study.metaDataVersion.nciCodeOids
-                        ).includes(codeLists[codeListOid].alias.name)
-                    ) {
-                        let stdCodeListOid =
-                            stdCodeListsOdm.study.metaDataVersion.nciCodeOids[codeLists[codeListOid].alias.name];
-                        updateObj[codeListOid] = {
-                            standardOid: stdCodeListsOdm.study.oid,
-                            cdiscSubmissionValue:
-                            stdCodeListsOdm.study.metaDataVersion.codeLists[stdCodeListOid].cdiscSubmissionValue
-                        };
-                    }
-                }
-            });
-            // TODO: Move default standard population to standards tab and check if loaded standard impacts existing codelists
-            Promise.resolve(
-                this.props.addStdControlledTerminology(stdCodeListsOdm)
-            ).then(this.props.updateCodeListStandardOids(updateObj));
-        }
-    };
+    changePageToStudies = () => {
+        this.props.changePage({ page: 'studies' });
+    }
 
     render() {
         const { classes } = this.props;
         return (
             <React.Fragment>
                 {!this.props.currentDefineId && (
-                    <div>No Define-XML documentes were chosen for editing. Select a Define-XML document to edit on the Studies tab.</div>
+                    <Typography variant="display1" gutterBottom className={classes.noDefineMessage}>
+                        No Define-XML documents are selected for editing. Select a Define-XML document to edit on the &nbsp;
+                        <Button onClick={this.changePageToStudies} variant='raised'>
+                            Studies
+                        </Button> &nbsp; page.
+                    </Typography>
                 )}
                 {this.props.currentDefineId && !this.props.odmLoaded && (
                     <div className={classes.loading}>
@@ -124,6 +107,7 @@ ConnectedEditor.propTypes = {
     classes: PropTypes.object.isRequired,
     odmLoaded: PropTypes.bool.isRequired,
     currentDefineId: PropTypes.string.isRequired,
+    changePage: PropTypes.func.isRequired,
     codeLists: PropTypes.object
 };
 

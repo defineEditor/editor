@@ -135,10 +135,6 @@ class ConnectedAddDefineForm extends React.Component {
           defineData.defineId = defineId;
           this.saveDefineAsObject(defineId, defineData);
           this.props.toggleAddDefineForm({});
-          if (data.edit) {
-              this.props.addOdm(defineData);
-              this.props.changePage({ page: 'editor', defineId });
-          }
       }
   };
 

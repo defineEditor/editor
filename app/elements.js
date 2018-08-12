@@ -670,6 +670,7 @@ class Odm {
         xsi,
         stylesheetLocation,
         defineId,
+        isSaved,
     } = {}) {
         this.schemaLocation = schemaLocation;
         this.odmVersion = odmVersion;

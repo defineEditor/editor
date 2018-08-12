@@ -31,13 +31,13 @@ class SaveClose extends React.Component {
                 {mini !== true &&
                         <Grid container spacing={0} justify={justify}>
                             <Grid item>
-                                <Button color='primary' size='small' onClick={this.props.save} variant='raised' className={style}>
+                                <Button color='primary' size='small' onClick={this.props.save} variant='raised' className={style} disabled={this.props.disabled}>
                                     { this.props.icon && <SaveIcon className={classes.icon}/>}
                                     Save
                                 </Button>
                             </Grid>
                             <Grid item>
-                                <Button color='secondary' size='small' onClick={this.props.cancel} variant='raised' className={style}>
+                                <Button color='secondary' size='small' onClick={this.props.cancel} variant='raised' className={style} disabled={this.props.disabled}>
                                     { this.props.icon && <ClearIcon className={classes.icon}/>}
                                     Cancel
                                 </Button>
@@ -47,12 +47,12 @@ class SaveClose extends React.Component {
                 {mini === true &&
                         <Grid container spacing={0} justify={justify}>
                             <Grid item xs={6}>
-                                <IconButton color='primary' onClick={this.props.save} className={style}>
+                                <IconButton color='primary' onClick={this.props.save} className={style} disabled={this.props.disabled}>
                                     <SaveIcon/>
                                 </IconButton>
                             </Grid>
                             <Grid item xs={6}>
-                                <IconButton color='secondary' onClick={this.props.cancel} className={style}>
+                                <IconButton color='secondary' onClick={this.props.cancel} className={style} disabled={this.props.disabled}>
                                     <ClearIcon/>
                                 </IconButton>
                             </Grid>
@@ -68,6 +68,7 @@ SaveClose.propTypes = {
     icon    : PropTypes.bool,
     save    : PropTypes.func.isRequired,
     cancel  : PropTypes.func.isRequired,
+    disabled: PropTypes.bool,
     justify : PropTypes.string,
 };
 

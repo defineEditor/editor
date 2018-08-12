@@ -9,7 +9,9 @@ import FolderOpen from '@material-ui/icons/FolderOpen';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import clone from 'clone';
+import deepEqual from 'fast-deep-equal';
 import NavigationBar from 'core/navigationBar.js';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import SaveCancel from 'editors/saveCancel.js';
 import { updateSettings } from 'actions/index.js';
 
@@ -36,7 +38,7 @@ const styles = theme => ({
         margin: theme.spacing.unit
     },
     ctLocation: {
-        minWidth: 500,
+        width: '90%',
         margin: theme.spacing.unit
     }
 });
@@ -121,6 +123,7 @@ class ConnectedSettings extends React.Component {
 
   render() {
       const { classes } = this.props;
+      let settingsNotChanged = deepEqual(this.state, this.props.settings);
       return (
           <React.Fragment>
               <NavigationBar />
@@ -150,13 +153,19 @@ class ConnectedSettings extends React.Component {
                                   value={this.state.general.controlledTerminologyLocation}
                                   disabled={true}
                                   className={classes.ctLocation}
+                                  InputProps={{
+                                      startAdornment: (
+                                          <InputAdornment position="start">
+                                              <IconButton
+                                                  color="default"
+                                                  onClick={this.selectControlledTerminologyLocation}
+                                              >
+                                                  <FolderOpen />
+                                              </IconButton>
+                                          </InputAdornment>
+                                      )
+                                  }}
                               />
-                              <IconButton
-                                  color="default"
-                                  onClick={this.selectControlledTerminologyLocation}
-                              >
-                                  <FolderOpen />
-                              </IconButton>
                           </Grid>
                       </Grid>
                   </Grid>
@@ -172,7 +181,7 @@ class ConnectedSettings extends React.Component {
                       <Grid container>
                           <Grid item xs={12}>
                               <TextField
-                                  label="Stylesheet Location"
+                                  label="Default Stylesheet Location"
                                   value={this.state.define.stylesheetLocation}
                                   onChange={this.handleChange('define', 'stylesheetLocation')}
                                   helperText="This is a relative location to a Define-XML file, not an absolute path"
@@ -217,7 +226,7 @@ class ConnectedSettings extends React.Component {
                       </Grid>
                   </Grid>
                   <Grid item xs={12}>
-                      <SaveCancel save={this.save} cancel={this.cancel} />
+                      <SaveCancel save={this.save} cancel={this.cancel} disabled={settingsNotChanged} />
                   </Grid>
               </Grid>
           </React.Fragment>

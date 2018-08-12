@@ -18,8 +18,8 @@ const styles = theme => ({
 });
 
 class AddDefineFormStep3 extends React.Component {
-  handleNext = edit => event => {
-      this.props.onNext({ edit });
+  handleNext = event => {
+      this.props.onNext();
   };
 
   render() {
@@ -111,18 +111,10 @@ class AddDefineFormStep3 extends React.Component {
                   <Button
                       variant="contained"
                       color="primary"
-                      onClick={this.handleNext(false)}
+                      onClick={this.handleNext}
                       className={classes.button}
                   >
             Finish
-                  </Button>
-                  <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={this.handleNext(true)}
-                      className={classes.button}
-                  >
-            Finish & Edit
                   </Button>
               </Grid>
           </Grid>

@@ -25,6 +25,12 @@ const styles = theme => ({
     header: {
         marginBottom: theme.spacing.unit * 2,
     },
+    noCTMessage: {
+        position: 'absolute',
+        marginLeft: theme.spacing.unit * 2,
+        top: '47%',
+        transform: 'translate(0%, -47%)',
+    },
 });
 
 const mapStateToProps = state => {
@@ -125,7 +131,7 @@ class ConnectedControlledTerminology extends React.Component {
                 </NavigationBar>
                 <div className={classes.root}>
                     { ctNum === 0 ? (
-                        <Typography variant="display1" gutterBottom>
+                        <Typography variant="display1" gutterBottom className={classes.noCTMessage}>
                             There is no Controlled Terminology available. Download the NCI/CDISC CT in XML format, specify the folder in settings and press the &nbsp;
                             <Button size="small" variant="raised" onClick={this.scanControlledTerminologyFolder}>
                                 Scan CT Folder
@@ -142,7 +148,7 @@ class ConnectedControlledTerminology extends React.Component {
                                         <CustomTableCell>Name</CustomTableCell>
                                         <CustomTableCell>Version</CustomTableCell>
                                         <CustomTableCell># Codelists</CustomTableCell>
-                                        <CustomTableCell>Added by Default</CustomTableCell>
+                                        <CustomTableCell>Add by Default</CustomTableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>

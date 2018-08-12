@@ -1,18 +1,18 @@
 import {
-    LOAD_STDCDL,
-    DEL_STDCDL,
+    STDCDL_LOAD,
+    STDCDL_DEL,
 } from "constants/action-types";
 
 export const loadStdCodeLists = updateObj => (
     {
-        type : LOAD_STDCDL,
+        type : STDCDL_LOAD,
         updateObj,
     }
 );
 
 export const deleteStdCodeLists = deleteObj => (
     {
-        type : DEL_STDCDL,
+        type : STDCDL_DEL,
         deleteObj,
     }
 );

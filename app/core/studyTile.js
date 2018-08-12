@@ -120,7 +120,7 @@ class ConnectedStudyTile extends React.Component {
             // If the current define is selected, simply change the page
             this.handleMenuClose();
             this.props.changePage({ page: 'editor' });
-        } else if (this.props.currentDefineId === '') {
+        } else if (this.props.currentDefineId === '' || this.props.isCurrentDefineSaved) {
             // If no Define-XMLs are edited at the moment, specify the Define
             this.handleMenuClose();
             this.props.changePage({ page: 'editor', defineId });
@@ -291,6 +291,8 @@ ConnectedStudyTile.propTypes = {
     study: PropTypes.object.isRequired,
     defines: PropTypes.object.isRequired,
     updateStudy: PropTypes.func.isRequired,
+    currentDefineId: PropTypes.string.isRequired,
+    isCurrentDefineSaved: PropTypes.bool.isRequired,
     openModal: PropTypes.func.isRequired,
 };
 

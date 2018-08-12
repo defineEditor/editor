@@ -10,6 +10,7 @@ const generateInitialState = () => {
         mainMenuOpened: false,
         currentPage: 'studies',
         currentDefineId: '',
+        isCurrentDefineSaved: true,
     };
 };
 
@@ -30,6 +31,7 @@ const changePage = (state, action) => {
             mainMenuOpened: false,
             currentPage: action.updateObj.page,
             currentDefineId: action.updateObj.defineId,
+            isCurrentDefineSaved: true,
         };
     } else {
         return {
@@ -46,6 +48,7 @@ const handleDefineDelete = (state, action) => {
         return {
             ...state,
             currentDefineId: '',
+            isCurrentDefineSaved: true,
         };
     } else {
         return state;
@@ -60,6 +63,7 @@ const handleStudyDelete = (state, action) => {
         return {
             ...state,
             currentDefineId: '',
+            isCurrentDefineSaved: true,
         };
     } else {
         return state;
@@ -76,8 +80,16 @@ const main = (state = initialState, action) => {
             return handleDefineDelete(state, action);
         case STUDY_DEL:
             return handleStudyDelete(state, action);
-        default:
-            return state;
+        default: {
+            if (action.type !== undefined
+                && state.isCurrentDefineSaved
+                && /^(ADD|UPD|DEL|REP|INSERT)_.*/.test(action.type)
+                && action.type !== 'ADD_ODM') {
+                return { ...state, isCurrentDefineSaved: false };
+            } else {
+                return state;
+            }
+        }
     }
 };
 
