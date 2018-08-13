@@ -9,6 +9,7 @@ import renderColumns from 'utils/renderColumns.js';
 import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import ItemMenu from 'utils/itemMenu.js';
+import VariableTabFilter from 'utils/variableTabFilter.js';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import grey from '@material-ui/core/colors/grey';
@@ -253,6 +254,7 @@ class ConnectedVariableTable extends React.Component {
             itemMenuParams   : {},
             anchorEl         : null,
             showSelectColumn : false,
+            showFilter       : false,
             selectedRows     : [],
             selectedVlmRows  : {},
             itemGroupOid     : this.props.itemGroupOid,
@@ -556,7 +558,7 @@ class ConnectedVariableTable extends React.Component {
                         <Grid item>
                             <Button variant="raised" color="default">
                                 Filter
-                                <FilterListIcon style={{marginLeft: '7px'}}/>
+                                <FilterListIcon style={{marginLeft: '7px'}} onClick={ () => { this.setState({ showFilter: true }); } }/>
                             </Button>
                         </Grid>
                         <Grid item>
@@ -713,6 +715,11 @@ class ConnectedVariableTable extends React.Component {
                     {renderColumns(this.state.columns)}
                 </BootstrapTable>
                 <ItemMenu onClose={this.handleMenuClose} itemMenuParams={this.state.itemMenuParams} anchorEl={this.state.anchorEl}/>
+                <VariableTabFilter
+                    open={this.state.showFilter}
+                    data={variables}
+                    onClose={ () => { this.setState({ showFilter: false }); } }
+                />
                 { this.state.showSelectColumn && (
                     <SelectColumns
                         onClose={ () => { this.setState({ showSelectColumn: false }); } }

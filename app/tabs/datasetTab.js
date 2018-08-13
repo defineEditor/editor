@@ -33,10 +33,6 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {
     updateItemGroup,
-    updateItemGroupComment,
-    replaceItemGroupComment,
-    addItemGroupComment,
-    deleteItemGroupComment,
     deleteItemGroups,
 } from 'actions/index.js';
 
@@ -54,12 +50,8 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateItemGroup         : (oid, updateObj) => dispatch(updateItemGroup(oid, updateObj)),
-        addItemGroupComment     : (source, comment) => dispatch(addItemGroupComment(source, comment)),
-        updateItemGroupComment  : (source, comment) => dispatch(updateItemGroupComment(source, comment)),
-        replaceItemGroupComment : (source, comment, oldCommentOid) => dispatch(replaceItemGroupComment(source, comment, oldCommentOid)),
-        deleteItemGroupComment  : (source, comment) => dispatch(deleteItemGroupComment(source, comment)),
-        deleteItemGroups        : (deleteObj) => dispatch(deleteItemGroups(deleteObj)),
+        updateItemGroup  : (oid, updateObj) => dispatch(updateItemGroup(oid, updateObj)),
+        deleteItemGroups : (deleteObj) => dispatch(deleteItemGroups(deleteObj)),
     };
 };
 
@@ -258,12 +250,12 @@ class ConnectedDatasetTable extends React.Component {
     }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
-        if (['domainAttrs'].includes(cellName)) {
+        if (['domainAttrs', 'comment'].includes(cellName)) {
             // For this cells reducers are called within the editor
             return true;
         }
         // Update on if the value changed
-        if (row[cellName] !== cellValue) {
+        if (!deepEqual(row[cellName],cellValue)) {
             let updateObj = {};
             if (cellName === 'flags'){
                 updateObj = cellValue;
@@ -271,22 +263,8 @@ class ConnectedDatasetTable extends React.Component {
                 updateObj[cellName] = cellValue;
             }
 
-            if (cellName === 'comment') {
-                if (cellValue === undefined) {
-                    // If comment was removed
-                    this.props.deleteItemGroupComment({type: 'itemGroups', oid: row.oid}, row.comment);
-                } else if (row[cellName] === undefined) {
-                    // If comment was added
-                    this.props.addItemGroupComment({type: 'itemGroups', oid: row.oid}, cellValue);
-                } else if (row[cellName].oid !== cellValue.oid) {
-                    // If comment was replaced
-                    this.props.replaceItemGroupComment({type: 'itemGroups', oid: row.oid}, cellValue, row[cellName].oid);
-                } else {
-                    this.props.updateItemGroupComment({type: 'itemGroups', oid: row.oid}, cellValue);
-                }
-            } else {
-                this.props.updateItemGroup(row.oid,updateObj);
-            }
+
+            this.props.updateItemGroup(row.oid,updateObj);
             return true;
         } else {
             return false;

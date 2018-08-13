@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import clone from 'clone';
+import deepEqual from 'fast-deep-equal';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
 import DocumentEditor from 'editors/documentEditor.js';
@@ -19,6 +20,12 @@ import SelectMethodComment from 'utils/selectMethodComment.js';
 import SaveCancel from 'editors/saveCancel.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
 import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
+import {
+    updateItemGroupComment,
+    addItemGroupComment,
+    deleteItemGroupComment,
+    replaceItemGroupComment,
+} from 'actions/index.js';
 
 const styles = theme => ({
     iconButton: {
@@ -44,6 +51,15 @@ const mapStateToProps = state => {
         comments : state.odm.study.metaDataVersion.comments,
         mdv      : state.odm.study.metaDataVersion,
         lang     : state.odm.study.metaDataVersion.lang,
+    };
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+        updateItemGroupComment: (source, comment) => dispatch(updateItemGroupComment(source, comment)),
+        addItemGroupComment: (source, comment) => dispatch(addItemGroupComment(source, comment)),
+        deleteItemGroupComment: (source, comment) => dispatch(deleteItemGroupComment(source, comment)),
+        replaceItemGroupComment: (source, newComment, oldCommentOid) => dispatch(replaceItemGroupComment(source, newComment, oldCommentOid)),
     };
 };
 
@@ -114,11 +130,27 @@ class ConnectedCommentEditor extends React.Component {
     }
 
     save = () => {
-        this.props.onUpdate(this.state.comment);
+        let row = this.props.row;
+        let oldComment = row['comment'];
+        if (!deepEqual(this.state.comment, oldComment)) {
+            if (this.state.comment === undefined) {
+                // If comment was removed
+                this.props.deleteItemGroupComment({type: 'itemGroups', oid: row.oid}, row.comment);
+            } else if (oldComment === undefined) {
+                // If comment was added
+                this.props.addItemGroupComment({type: 'itemGroups', oid: row.oid}, this.state.comment);
+            } else if (oldComment.oid !== this.state.comment.oid) {
+                // If comment was replaced
+                this.props.replaceItemGroupComment({type: 'itemGroups', oid: row.oid}, this.state.comment, oldComment.oid);
+            } else {
+                this.props.updateItemGroupComment({type: 'itemGroups', oid: row.oid}, this.state.comment);
+            }
+        }
+        this.props.onUpdate();
     }
 
     cancel = () => {
-        this.props.onUpdate(this.props.comment);
+        this.props.onUpdate();
     }
 
     onKeyDown = (event)  => {
@@ -255,5 +287,5 @@ ConnectedCommentEditor.propTypes = {
     stateless : PropTypes.bool,
 };
 
-const CommentEditor = connect(mapStateToProps)(ConnectedCommentEditor);
+const CommentEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedCommentEditor);
 export default withStyles(styles)(CommentEditor);
