@@ -69,7 +69,7 @@ class VariableLengthEditor extends React.Component {
         const lengthAsCodeList = this.state.lengthAsCodeList;
         const hasCodeList = this.props.row.codeList !== undefined;
         const dataType = this.props.row.dataType;
-        const lengthNotApplicable = (['float','text','integer'].indexOf(dataType) === -1);
+        const lengthNotApplicable = (['float','text','integer'].indexOf(dataType) === -1) && !this.state.length;
 
         let length;
         if (lengthAsData) {

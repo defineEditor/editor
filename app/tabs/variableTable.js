@@ -22,6 +22,8 @@ import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import OpenDrawer from '@material-ui/icons/ArrowUpward';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import getTableData from 'utils/getTableData.js';
+import getTableDataForFilter from 'utils/getTableDataForFilter.js';
+import applyFilter from 'utils/applyFilter.js';
 import SelectColumns from 'utils/selectColumns.js';
 import KeyOrderEditor from 'editors/keyOrderEditor.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
@@ -85,6 +87,7 @@ const mapStateToProps = state => {
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
         tabSettings   : state.ui.tabs.settings[state.ui.tabs.currentTab],
         showRowSelect : state.ui.tabs.settings[state.ui.tabs.currentTab].rowSelect['overall'],
+        filter        : state.ui.tabs.filter,
     };
 };
 
@@ -299,8 +302,21 @@ class ConnectedVariableTable extends React.Component {
 
     getData = () => {
         const mdv = this.props.mdv;
-        //const model = mdv.model;
         const dataset = mdv.itemGroups[this.props.itemGroupOid];
+        let filteredOids;
+        if (this.props.filter.isEnabled) {
+            let data = getTableDataForFilter({
+                source        : dataset,
+                datasetName   : dataset.name,
+                datasetOid    : dataset.oid,
+                itemDefs      : mdv.itemDefs,
+                codeLists     : mdv.codeLists,
+                mdv           : mdv,
+                defineVersion : this.props.defineVersion,
+                vlmLevel      : 0,
+            });
+            filteredOids = applyFilter(data, this.props.filter);
+        }
         // Get variable level metadata
         let variables = getTableData({
             source        : dataset,
@@ -308,9 +324,10 @@ class ConnectedVariableTable extends React.Component {
             datasetOid    : dataset.oid,
             itemDefs      : mdv.itemDefs,
             codeLists     : mdv.codeLists,
-            mdv           : this.props.mdv,
+            mdv           : mdv,
             defineVersion : this.props.defineVersion,
             vlmLevel      : 0,
+            filteredOids,
         });
 
         // Get VLM metadata for items which are expanded
@@ -556,9 +573,9 @@ class ConnectedVariableTable extends React.Component {
                                 </Grid>
                         }
                         <Grid item>
-                            <Button variant="raised" color="default">
+                            <Button variant="raised" color={this.props.filter.isEnabled ? 'primary' : 'default'} onClick={ () => { this.setState({ showFilter: true }); } }>
                                 Filter
-                                <FilterListIcon style={{marginLeft: '7px'}} onClick={ () => { this.setState({ showFilter: true }); } }/>
+                                <FilterListIcon style={{marginLeft: '7px'}}/>
                             </Button>
                         </Grid>
                         <Grid item>
@@ -715,11 +732,12 @@ class ConnectedVariableTable extends React.Component {
                     {renderColumns(this.state.columns)}
                 </BootstrapTable>
                 <ItemMenu onClose={this.handleMenuClose} itemMenuParams={this.state.itemMenuParams} anchorEl={this.state.anchorEl}/>
-                <VariableTabFilter
-                    open={this.state.showFilter}
-                    data={variables}
-                    onClose={ () => { this.setState({ showFilter: false }); } }
-                />
+                { this.state.showFilter &&
+                        <VariableTabFilter
+                            itemGroupOid={this.props.itemGroupOid}
+                            onClose={ () => { this.setState({ showFilter: false }); } }
+                        />
+                }
                 { this.state.showSelectColumn && (
                     <SelectColumns
                         onClose={ () => { this.setState({ showSelectColumn: false }); } }
@@ -732,9 +750,22 @@ class ConnectedVariableTable extends React.Component {
 }
 
 ConnectedVariableTable.propTypes = {
-    mdv           : PropTypes.object.isRequired,
-    itemGroupOid  : PropTypes.string.isRequired,
-    defineVersion : PropTypes.string.isRequired,
+    mdv                             : PropTypes.object.isRequired,
+    itemGroupOid                    : PropTypes.string.isRequired,
+    defineVersion                   : PropTypes.string.isRequired,
+    dataTypes                       : PropTypes.array.isRequired,
+    stdColumns                      : PropTypes.object.isRequired,
+    tabSettings                     : PropTypes.object.isRequired,
+    filter                          : PropTypes.object.isRequired,
+    showRowSelect                   : PropTypes.bool,
+    updateItemDef                   : PropTypes.func.isRequired,
+    updateItemRef                   : PropTypes.func.isRequired,
+    updateNameLabelWhereClause      : PropTypes.func.isRequired,
+    updateItemRefKeyOrder           : PropTypes.func.isRequired,
+    updateItemCodeListDisplayFormat : PropTypes.func.isRequired,
+    updateItemDescription           : PropTypes.func.isRequired,
+    deleteVariables                 : PropTypes.func.isRequired,
+    setVlmState                     : PropTypes.func.isRequired,
 };
 
 const VariableTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedVariableTable);

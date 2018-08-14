@@ -1,9 +1,13 @@
 // Extract data required for the table;
-function getTableData ({source, datasetName, datasetOid, itemDefs, codeLists, mdv, defineVersion, vlmLevel}={}) {
+function getTableData ({source, datasetName, datasetOid, itemDefs, codeLists, mdv, defineVersion, vlmLevel, filteredOids}={}) {
     let result = [];
     Object.keys(source.itemRefs).forEach((itemRefOid, index) => {
         const originVar = source.itemRefs[itemRefOid];
         const originItemDef = itemDefs[originVar.itemOid];
+        // If the filter is enabled, proceed only for filtered items
+        if (filteredOids !== undefined && !filteredOids.includes(originItemDef.oid)) {
+            return;
+        }
         // Currently both valueListOid and itemGroupOid are stored in itemGroupOid
         // datasetOid has always the itemGroupOid
         // TODO: itemGroupOid should always store itemGroupOid, add valueListOid, remove datasetOid

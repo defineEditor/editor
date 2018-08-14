@@ -4,6 +4,7 @@ import {
     UI_SETVLMSTATE,
     UI_SELECTGROUP,
     UI_SELECTCOLUMNS,
+    UI_UPDATEFILTER,
     UI_LOADTABS,
 } from "constants/action-types";
 import stdColumns from 'constants/columns';
@@ -44,6 +45,11 @@ const generateInitialState = () => {
         tabObjectNames,
         currentTab: 2,
         settings,
+        filter: {
+            isEnabled: false,
+            conditions: [],
+            connectors: [],
+        }
     };
 };
 
@@ -141,10 +147,21 @@ const selectColumns = (state, action) => {
     };
 };
 
-const loadTabs = (state, action) => {
+const updateFilter = (state, action) => {
     return {
-        ...action.updateObj,
+        ...state,
+        filter: { ...state.filter, ...action.updateObj },
     };
+};
+
+const loadTabs = (state, action) => {
+    if (action.updateObj !== undefined) {
+        return {
+            ...action.updateObj,
+        };
+    } else {
+        return initialState;
+    }
 };
 
 const tabs = (state = initialState, action) => {
@@ -159,6 +176,8 @@ const tabs = (state = initialState, action) => {
             return selectGroup(state, action);
         case UI_SELECTCOLUMNS:
             return selectColumns(state, action);
+        case UI_UPDATEFILTER:
+            return updateFilter(state, action);
         case UI_LOADTABS:
             return loadTabs(state, action);
         default:

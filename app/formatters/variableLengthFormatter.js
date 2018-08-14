@@ -16,7 +16,7 @@ class VariableLengthFormatter extends React.Component {
         const lengthAsData = this.props.value.lengthAsData;
         const lengthAsCodeList = this.props.value.lengthAsCodeList;
         const dataType = this.props.dataType;
-        const lengthNotApplicable = (['float','text','integer'].indexOf(dataType) === -1);
+        const lengthNotApplicable = (['float','text','integer'].indexOf(dataType) === -1) && !this.props.value.length;
 
         let length;
         if (lengthAsData) {

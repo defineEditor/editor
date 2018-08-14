@@ -34,6 +34,9 @@ function loadDefineObject (event, data) {
 
     if (data.hasOwnProperty('tabs')) {
         store.dispatch(loadTabs(data.tabs));
+    } else {
+        // Load default tabs
+        store.dispatch(loadTabs());
     }
 }
 

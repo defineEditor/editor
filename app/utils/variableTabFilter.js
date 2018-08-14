@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
 import Grid from '@material-ui/core/Grid';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -11,8 +12,11 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import getSelectionList from 'utils/getSelectionList.js';
-import SaveCancel from 'editors/saveCancel.js';
+import getTableDataForFilter from 'utils/getTableDataForFilter.js';
 import clone from 'clone';
+import {
+    updateFilter
+} from 'actions/index.js';
 
 
 const styles = theme => ({
@@ -28,7 +32,7 @@ const styles = theme => ({
         transform: 'translate(0%, calc(-20%+0.5px))',
         overflowX: 'auto',
         maxHeight: '80%',
-        width: '90%',
+        width: '60%',
         overflowY: 'auto'
     },
     textField: {
@@ -53,14 +57,19 @@ const styles = theme => ({
         marginBottom : theme.spacing.unit * 2,
     },
     connector: {
+        marginLeft : theme.spacing.unit * 7,
+        marginTop  : theme.spacing.unit * 2,
+    },
+    firstRangeCheck: {
         marginLeft : theme.spacing.unit * 8,
         marginTop  : theme.spacing.unit * 2,
     },
     button: {
         marginLeft: theme.spacing.unit,
     },
-    saveCancelButtons: {
+    controlButtons: {
         marginTop: theme.spacing.unit * 4,
+        marginLeft: theme.spacing.unit,
     },
     chips: {
         display  : 'flex',
@@ -71,45 +80,79 @@ const styles = theme => ({
     },
 });
 
+// Redux functions
+const mapDispatchToProps = dispatch => {
+    return {
+        updateFilter: (oid, updateObj) => dispatch(updateFilter(oid, updateObj)),
+    };
+};
 
-const comparators = ['EQ','NE','LT','LE','GT','GE','IN','NOTIN','STARTS','ENDS','CONTAINS'];
-const comparatorsLimited = ['EQ','NE','LT','LE','GT','GE','STARTS','ENDS','CONTAINS'];
+const mapStateToProps = state => {
+    return {
+        mdv           : state.odm.study.metaDataVersion,
+        defineVersion : state.odm.study.metaDataVersion.defineVersion,
+        tabSettings   : state.ui.tabs.settings[state.ui.tabs.currentTab],
+        filter        : state.ui.tabs.filter,
+    };
+};
+
+const comparators = {
+    string : ['IN','NOTIN','STARTS','ENDS','CONTAINS','REGEX','REGEXI'],
+    number : ['<','<=','>','>=','IN','NOTIN'],
+    flag : ['IN','NOTIN'],
+};
 const filterFields = {
-    'name' : 'Name',
-    'dataType' : 'Data Type',
+    'name'     : { label: 'Name', type: 'string' },
+    'label'     : { label: 'Label', type: 'string' },
+    'dataType' : { label: 'Data Type', type: 'string' },
+    'codeList'  : { label: 'Codelist', type: 'string' },
+    'origin'  : { label: 'Origin', type: 'string' },
+    'length'  : { label: 'Length', type: 'number' },
+    'method'   : { label: 'Method', type: 'string' },
+    'comment'  : { label: 'Comment', type: 'string' },
+    'mandatory'  : { label: 'Mandatory', type: 'flag' },
+    'displayFormat'  : { label: 'Display Format', type: 'string' },
+    'role'  : { label: 'Role', type: 'string' },
+    'hasVlm'  : { label: 'Has VLM', type: 'flag' },
 };
 
 
-class VariableTabFilter extends React.Component {
+class ConnectedVariableTabFilter extends React.Component {
     constructor (props) {
         super(props);
-        let rangeChecks = [];
-        if (this.props.filter !== undefined) {
-            rangeChecks = clone(this.props.tab.filter);
+        let conditions;
+        let connectors;
+        if (this.props.filter.conditions.length !== 0) {
+            conditions = clone(this.props.filter.conditions);
+            connectors = clone(this.props.filter.connectors);
+        } else {
+            conditions = [{field: Object.keys(filterFields)[0], comparator: 'IN', selectedValues: []}];
+            connectors = [];
         }
-        let connectors = [];
+        // Get the whole table
+        let data = this.getData();
         // Get possible values for all of the fields
         let values = {};
         Object.keys(filterFields).forEach( field => {
-            let allValues = props.data.map(row => row[field]);
+            let allValues = data.map(row => row[field]);
             values[field] = [];
             allValues.forEach( value => {
-                if (!values[field].includes[value]) {
+                if (!values[field].includes(value)) {
                     values[field].push(value);
                 }
             });
         });
 
         this.state = {
-            rangeChecks,
+            conditions,
             connectors,
             values,
         };
     }
 
     handleChange = (name, index, connector) => (updateObj) => {
-        let result = { ...this.state.rangeChecks };
-        result[index] = { ...this.state.rangeChecks[index] };
+        let result = [ ...this.state.conditions ];
+        result[index] = { ...this.state.conditions[index] };
         if (name === 'field') {
             // Do nothing if name did not change
             if (result[index].field === updateObj.target.event) {
@@ -117,10 +160,10 @@ class VariableTabFilter extends React.Component {
             }
             result[index].field = updateObj.target.value;
             // Reset all other values
-            result[index].comparator = 'EQ';
-            result[index].checkValues = [''];
+            result[index].comparator = 'IN';
+            result[index].selectedValues = [];
             this.setState({
-                rangeChecks      : result,
+                conditions      : result,
             });
         } else if (name === 'comparator') {
             if (result[index].comparator === updateObj.target.event) {
@@ -128,27 +171,27 @@ class VariableTabFilter extends React.Component {
             }
             result[index].comparator = updateObj.target.value;
             // Reset check values if there are multiple values selected and changing from IN/NOT to a comparator with a single value
-            if (['NOTIN','IN'].indexOf(this.state.rangeChecks[index].comparator) >= 0
+            if (['NOTIN','IN'].indexOf(this.state.conditions[index].comparator) >= 0
                 &&
                 ['NOTIN','IN'].indexOf(result[index].comparator) < 0
                 &&
-                result[index].checkValues.length > 1
+                result[index].selectedValues.length > 1
             ) {
-                result[index].checkValues = [''];
+                result[index].selectedValues = [];
             }
             this.setState({
-                rangeChecks: result,
+                conditions: result,
             });
-        } else if (name === 'checkValues') {
+        } else if (name === 'selectedValues') {
             if (typeof updateObj.target.value === 'object') {
                 // Fix an issue when a blank values appreas when keyboard is used
                 // TODO: Investigate issue, see https://trello.com/c/GVhBqI4W/65
-                result[index].checkValues = updateObj.target.value.filter(value => value !== '');
+                result[index].selectedValues = updateObj.target.value.filter(value => value !== '');
             } else {
-                result[index].checkValues = [updateObj.target.value];
+                result[index].selectedValues = [updateObj.target.value];
             }
             this.setState({
-                rangeChecks: result,
+                conditions: result,
             });
         } else if (name === 'addRangeCheck') {
             let newIndex = result.length;
@@ -156,11 +199,11 @@ class VariableTabFilter extends React.Component {
             connectors.push(connector);
             result[newIndex] = {};
             // Reset all other values
-            result[newIndex].field = '';
-            result[newIndex].comparator = 'EQ';
-            result[newIndex].checkValues = [''];
+            result[newIndex].field = 'name';
+            result[newIndex].comparator = 'IN';
+            result[newIndex].selectedValues = [''];
             this.setState({
-                rangeChecks: result,
+                conditions: result,
                 connectors,
             });
         } else if (name === 'deleteRangeCheck') {
@@ -170,13 +213,59 @@ class VariableTabFilter extends React.Component {
                 connectors.splice(index-1,1);
             }
             this.setState({
-                rangeChecks: result,
+                conditions: result,
                 connectors,
             });
         }
     }
 
-    save = () => {
+    getData = () => {
+        const mdv = this.props.mdv;
+        const dataset = mdv.itemGroups[this.props.itemGroupOid];
+        // Get variable level metadata
+        let variables = getTableDataForFilter({
+            source        : dataset,
+            datasetName   : dataset.name,
+            datasetOid    : dataset.oid,
+            itemDefs      : mdv.itemDefs,
+            codeLists     : mdv.codeLists,
+            mdv           : mdv,
+            defineVersion : this.props.defineVersion,
+            vlmLevel      : 0,
+        });
+
+        // Get VLM metadata for items which are expanded
+        let vlmState = this.props.tabSettings.vlmState[this.props.itemGroupOid];
+        if (vlmState !== undefined) {
+            variables
+                .filter( item => (item.valueList !== undefined && vlmState[item.oid] === 'expand') )
+                .forEach( item => {
+                    let vlmData = getTableDataForFilter({
+                        source        : item.valueList,
+                        datasetName   : dataset.name,
+                        datasetOid    : dataset.oid,
+                        itemDefs      : mdv.itemDefs,
+                        codeLists     : mdv.codeLists,
+                        mdv           : mdv,
+                        defineVersion : this.props.defineVersion,
+                        vlmLevel      : 1,
+                    });
+                    // For all VLM which are expanded, add VLM data to Variables
+                    let startIndex = variables.map(item => item.oid).indexOf(item.oid) + 1;
+                    variables.splice.apply(variables, [startIndex, 0].concat(vlmData));
+                });
+        }
+
+        return variables;
+    }
+
+    enable = () => {
+        this.props.updateFilter({isEnabled: true, conditions: this.state.conditions, connectors: this.state.connectors});
+        this.props.onClose();
+    }
+
+    disable = () => {
+        this.props.updateFilter({isEnabled: false, conditions: this.state.conditions, connectors: this.state.connectors});
         this.props.onClose();
     }
 
@@ -187,8 +276,92 @@ class VariableTabFilter extends React.Component {
     getRangeChecks = () => {
         const {classes} = this.props;
 
-        let result = [(
-            <Grid container spacing={8} key='buttonLine' alignItems='flex-end'>
+        let result = [];
+        this.state.conditions.forEach( (condition, index) => {
+            const multipleValuesSelect = (['IN','NOTIN'].indexOf(condition.comparator) >= 0);
+            const valueSelect = ['IN','NOTIN'].indexOf(condition.comparator) >= 0;
+            const value = multipleValuesSelect && valueSelect ? condition.selectedValues : condition.selectedValues[0];
+
+            result.push(
+                <Grid container spacing={8} key={index} alignItems='flex-end'>
+                    {index !== 0 &&
+                            [
+                                <Grid item xs={12} key='connector' className={classes.connector}>
+                                    <Typography variant="subheading" >
+                                        {this.state.connectors[index-1]}
+                                    </Typography>
+                                </Grid>
+                                ,
+                                <Grid item key='deleteButton'>
+                                    <IconButton
+                                        color='secondary'
+                                        onClick={this.handleChange('deleteRangeCheck',index)}
+                                        className={classes.button}
+                                    >
+                                        <RemoveIcon />
+                                    </IconButton>
+                                </Grid>
+                            ]
+                    }
+                    <Grid item className={index === 0 ? classes.firstRangeCheck : undefined}>
+                        <TextField
+                            label='Field'
+                            fullWidth
+                            autoFocus
+                            select={true}
+                            value={condition.field}
+                            onChange={this.handleChange('field', index)}
+                            className={classes.textField}
+                        >
+                            {getSelectionList(Object.keys(filterFields).map(field => ({[field] : filterFields[field].label})))}
+                        </TextField>
+                    </Grid>
+                    <Grid item>
+                        <TextField
+                            label='Comparator'
+                            fullWidth
+                            select={true}
+                            value={condition.comparator}
+                            onChange={this.handleChange('comparator', index)}
+                            className={classes.textFieldComparator}
+                        >
+                            {getSelectionList(comparators[filterFields[condition.field].type])}
+                        </TextField>
+                    </Grid>
+                    { valueSelect ? (
+                        <Grid item className={classes.valuesGridItem}>
+                            <TextField
+                                label='Values'
+                                select
+                                fullWidth
+                                multiline
+                                value={value}
+                                SelectProps={{multiple: multipleValuesSelect}}
+                                onChange={this.handleChange('selectedValues', index)}
+                                className={classes.textFieldValues}
+                            >
+                                {getSelectionList(this.state.values[condition.field])}
+                            </TextField>
+                        </Grid>
+                    ) : (
+                        <Grid item>
+                            <TextField
+                                label='Value'
+                                fullWidth
+                                multiline
+                                defaultValue={value}
+                                onBlur={this.handleChange('selectedValues', index)}
+                                className={classes.textFieldValues}
+                            />
+                        </Grid>
+                    )
+                    }
+                </Grid>
+            );
+
+        });
+        result.push(
+            <Grid container spacing={8} key='buttonLine' alignItems='flex-end' className={classes.connector}>
                 <Grid item xs={12} className={classes.buttonLine}>
                     <Button
                         color='default'
@@ -210,88 +383,7 @@ class VariableTabFilter extends React.Component {
                     </Button>
                 </Grid>
             </Grid>
-        )];
-        this.state.rangeChecks.forEach( (rangeCheck, index) => {
-            const hasCodeList = this.state.values[rangeCheck.field] !== undefined;
-            const multipleValuesSelect = (['IN','NOTIN'].indexOf(rangeCheck.comparator) >= 0);
-            const valueSelect = hasCodeList && ['EQ','NE','IN','NOTIN'].indexOf(rangeCheck.comparator) >= 0;
-            const value = multipleValuesSelect && valueSelect ? rangeCheck.checkValues : rangeCheck.checkValues[0];
-
-            result.push(
-                <Grid container spacing={8} key={index} alignItems='flex-end'>
-                    {index !== 0 &&
-                            <Grid item xs={12} className={classes.connector}>
-                                <Typography variant="subheading" >
-                                    {this.state.connectors[index]}
-                                </Typography>
-                            </Grid>
-                    }
-                    <Grid item>
-                        <IconButton
-                            color='secondary'
-                            onClick={this.handleChange('deleteRangeCheck',index)}
-                            className={classes.button}
-                        >
-                            <RemoveIcon />
-                        </IconButton>
-                    </Grid>
-                    <Grid item>
-                        <TextField
-                            label='Field'
-                            fullWidth
-                            autoFocus
-                            select={true}
-                            value={rangeCheck.field}
-                            onChange={this.handleChange('field', index)}
-                            className={classes.textField}
-                        >
-                            {getSelectionList(filterFields)}
-                        </TextField>
-                    </Grid>
-                    <Grid item>
-                        <TextField
-                            label='Comparator'
-                            fullWidth
-                            select={true}
-                            value={rangeCheck.comparator}
-                            onChange={this.handleChange('comparator', index)}
-                            className={classes.textFieldComparator}
-                        >
-                            {getSelectionList(hasCodeList ? comparators : comparatorsLimited)}
-                        </TextField>
-                    </Grid>
-                    { valueSelect ? (
-                        <Grid item className={classes.valuesGridItem}>
-                            <TextField
-                                label='Values'
-                                select
-                                fullWidth
-                                multiline
-                                value={value}
-                                SelectProps={{multiple: multipleValuesSelect}}
-                                onChange={this.handleChange('checkValues', index)}
-                                className={classes.textFieldValues}
-                            >
-                                {getSelectionList(this.state.values[rangeCheck.field])}
-                            </TextField>
-                        </Grid>
-                    ) : (
-                        <Grid item>
-                            <TextField
-                                label='Values'
-                                fullWidth
-                                multiline
-                                defaultValue={value}
-                                onBlur={this.handleChange('checkValues', index)}
-                                className={classes.textFieldValues}
-                            />
-                        </Grid>
-                    )
-                    }
-                </Grid>
-            );
-
-        });
+        );
         return result;
     }
 
@@ -302,17 +394,47 @@ class VariableTabFilter extends React.Component {
             <Dialog
                 disableBackdropClick
                 disableEscapeKeyDown
-                open={this.props.open}
+                open
                 PaperProps={{ className: classes.dialog }}
             >
                 <DialogTitle>Filter</DialogTitle>
                 <DialogContent>
                     <Grid container spacing={16} alignItems='flex-end'>
                         {this.getRangeChecks()}
-                        <Grid item xs={12} className={classes.saveCancelButtons}>
+                        <Grid item xs={12} className={classes.controlButtons}>
                             <Grid container spacing={16} justify='flex-start'>
                                 <Grid item>
-                                    <SaveCancel save={this.save} cancel={this.cancel}/>
+                                    <Button
+                                        color='primary'
+                                        size='small'
+                                        onClick={this.enable}
+                                        variant='raised'
+                                        className={classes.button}
+                                    >
+                                        Enable
+                                    </Button>
+                                </Grid>
+                                <Grid item>
+                                    <Button
+                                        color='default'
+                                        size='small'
+                                        onClick={this.disable}
+                                        variant='raised'
+                                        className={classes.button}
+                                    >
+                                        Disable
+                                    </Button>
+                                </Grid>
+                                <Grid item>
+                                    <Button
+                                        color='secondary'
+                                        size='small'
+                                        onClick={this.cancel}
+                                        variant='raised'
+                                        className={classes.button}
+                                    >
+                                        Cancel
+                                    </Button>
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -323,12 +445,17 @@ class VariableTabFilter extends React.Component {
     }
 }
 
-VariableTabFilter.propTypes = {
-    classes  : PropTypes.object.isRequired,
-    onClose  : PropTypes.func.isRequired,
-    open     : PropTypes.bool.isRequired,
-    data     : PropTypes.object.isRequired,
+ConnectedVariableTabFilter.propTypes = {
+    classes       : PropTypes.object.isRequired,
+    onClose       : PropTypes.func.isRequired,
+    mdv           : PropTypes.object.isRequired,
+    itemGroupOid  : PropTypes.string.isRequired,
+    defineVersion : PropTypes.string.isRequired,
+    tabSettings   : PropTypes.object.isRequired,
+    filter        : PropTypes.object.isRequired,
+    updateFilter  : PropTypes.func.isRequired,
 };
 
+const VariableTabFilter = connect(mapStateToProps, mapDispatchToProps)(ConnectedVariableTabFilter);
 export default withStyles(styles)(VariableTabFilter);
 

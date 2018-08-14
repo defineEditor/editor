@@ -8,6 +8,7 @@ import {
     UI_TOGGLEMAINMENU,
     UI_SETSTUDYORDERTYPE,
     UI_TOGGLEADDDEFINEFORM,
+    UI_UPDATEFILTER,
     UI_LOADTABS,
     UI_OPENMODAL,
     UI_CLOSEMODAL,
@@ -55,6 +56,11 @@ export const setStudyOrderType = updateObj => ({
 
 export const toggleAddDefineForm = updateObj => ({
     type: UI_TOGGLEADDDEFINEFORM,
+    updateObj
+});
+
+export const updateFilter = updateObj => ({
+    type: UI_UPDATEFILTER,
     updateObj
 });
 
