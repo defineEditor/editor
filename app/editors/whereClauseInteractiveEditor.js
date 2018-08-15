@@ -65,12 +65,13 @@ class WhereClauseEditorInteractive extends React.Component {
     constructor (props) {
         super(props);
         // Split into parts for visual editing
+        const mdv = this.props.mdv;
         let rangeChecks = [];
         this.props.whereClause.rangeChecks.forEach( rawRangeCheck => {
             let rangeCheck = clone(rawRangeCheck);
-            rangeCheck.itemName = this.props.mdv.itemDefs[rawRangeCheck.itemOid].name;
+            rangeCheck.itemName = mdv.itemDefs.hasOwnProperty(rawRangeCheck.itemOid) ? mdv.itemDefs[rawRangeCheck.itemOid].name : '';
             if (rawRangeCheck.itemGroupOid !== undefined) {
-                rangeCheck.itemGroupName = this.props.mdv.itemGroups[rawRangeCheck.itemGroupOid].name;
+                rangeCheck.itemGroupName = mdv.itemGroups[rawRangeCheck.itemGroupOid].name;
             } else {
                 rangeCheck.itemGroupName = this.props.dataset.name;
                 rangeCheck.itemGroupOid = this.props.dataset.oid;
@@ -79,23 +80,26 @@ class WhereClauseEditorInteractive extends React.Component {
         });
         // Get the list of datasets for drop-down selection
         let listOfDatasets = [];
-        Object.keys(this.props.mdv.itemGroups).forEach( itemGroupOid => {
-            listOfDatasets.push(this.props.mdv.itemGroups[itemGroupOid].name);
+        Object.keys(mdv.itemGroups).forEach( itemGroupOid => {
+            listOfDatasets.push(mdv.itemGroups[itemGroupOid].name);
         });
         // Get the list of varialbes for each dataset in range checks for drop-down selection
         let listOfVariables = {};
         rangeChecks.forEach( rangeCheck => {
             let currentItemGroupOid = rangeCheck.itemGroupOid;
             listOfVariables[currentItemGroupOid] = [];
-            Object.keys(this.props.mdv.itemGroups[currentItemGroupOid].itemRefs).forEach( itemRefOid => {
-                listOfVariables[currentItemGroupOid].push(this.props.mdv.itemDefs[this.props.mdv.itemGroups[currentItemGroupOid].itemRefs[itemRefOid].itemOid].name);
+            Object.keys(mdv.itemGroups[currentItemGroupOid].itemRefs).forEach( itemRefOid => {
+                listOfVariables[currentItemGroupOid].push(mdv.itemDefs[mdv.itemGroups[currentItemGroupOid].itemRefs[itemRefOid].itemOid].name);
             });
         });
         // Get codelist for all of the variables in range checks
         let listOfCodeValues = {};
         rangeChecks.forEach( rangeCheck => {
             let currentItemOid = rangeCheck.itemOid;
-            let currentCodeList = this.props.mdv.codeLists[this.props.mdv.itemDefs[currentItemOid].codeListOid];
+            let currentCodeList;
+            if (mdv.itemDefs.hasOwnProperty(currentItemOid) && mdv.codeLists.hasOwnProperty(mdv.itemDefs[currentItemOid].codeListOid)) {
+                currentCodeList =  mdv.codeLists[mdv.itemDefs[currentItemOid].codeListOid];
+            }
             if (currentCodeList !== undefined) {
                 if (currentCodeList.codeListType !== 'external') {
                     listOfCodeValues[currentItemOid] = [];

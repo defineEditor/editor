@@ -142,6 +142,17 @@ class ConnectedVariableTabFilter extends React.Component {
                 }
             });
         });
+        // As filters are cross-dataset, it is possible that some of the values are not in the new dataset
+        // add all values which are already in the IN and NOTIN filters
+        conditions.forEach(condition => {
+            if (['IN','NOTIN'].includes(condition.comparator)) {
+                condition.selectedValues.forEach( selectedValue => {
+                    if (!values[condition.field].includes(selectedValue)) {
+                        values[condition.field].push(selectedValue);
+                    }
+                });
+            }
+        });
 
         this.state = {
             conditions,

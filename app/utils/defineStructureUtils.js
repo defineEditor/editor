@@ -73,7 +73,7 @@ const surroundWithQuotes = (value) => {
 
 const getRangeCheckAsText = (object, mdv) => {
     let result;
-    let itemName = mdv.itemDefs[object.itemOid].name;
+    let itemName = mdv.itemDefs.hasOwnProperty(object.itemOid) ? mdv.itemDefs[object.itemOid].name : '';
     if (object.itemGroupOid !== undefined) {
         let itemGroupName = mdv.itemGroups[object.itemGroupOid].name;
         result = itemGroupName + '.' + itemName + ' ' + object.comparator + ' ';
