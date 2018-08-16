@@ -38,13 +38,14 @@ class Note {
 }
 
 class Leaf {
-    constructor({ id, href, title, isPdf, type } = {}) {
+    constructor({ id, href, title, isPdf, type, baseFolder } = {}) {
         this.id = id;
         this.href = href;
         this.title = title;
         // Non-define XML properties
         this.isPdf = isPdf;
         this.type = type;
+        this.baseFolder = baseFolder;
     }
     clone() {
         return new Leaf(this);

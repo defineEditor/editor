@@ -333,11 +333,26 @@ class ConnectedVariableTable extends React.Component {
         // Get VLM metadata for items which are expanded
         let vlmState = this.props.tabSettings.vlmState[this.props.itemGroupOid];
         if (vlmState !== undefined) {
-            variables
-                .filter( item => (item.valueList !== undefined && vlmState[item.oid] === 'expand') )
-                .forEach( item => {
+            Object.keys(dataset.itemRefs)
+                .filter( itemRefOid => (mdv.itemDefs[dataset.itemRefs[itemRefOid].itemOid].valueListOid !== undefined && vlmState[dataset.itemRefs[itemRefOid].itemOid] === 'expand') )
+                .forEach( itemRefOid => {
+                    let itemOid = dataset.itemRefs[itemRefOid].itemOid;
+                    let vlmFilteredOids;
+                    if (this.props.filter.isEnabled && this.props.filter.applyToVlm) {
+                        let data = getTableDataForFilter({
+                            source        : mdv.valueLists[mdv.itemDefs[itemOid].valueListOid],
+                            datasetName   : dataset.name,
+                            datasetOid    : dataset.oid,
+                            itemDefs      : mdv.itemDefs,
+                            codeLists     : mdv.codeLists,
+                            mdv           : mdv,
+                            defineVersion : this.props.defineVersion,
+                            vlmLevel      : 1,
+                        });
+                        vlmFilteredOids = applyFilter(data, this.props.filter);
+                    }
                     let vlmData = getTableData({
-                        source        : item.valueList,
+                        source        : mdv.valueLists[mdv.itemDefs[itemOid].valueListOid],
                         datasetName   : dataset.name,
                         datasetOid    : dataset.oid,
                         itemDefs      : mdv.itemDefs,
@@ -345,14 +360,16 @@ class ConnectedVariableTable extends React.Component {
                         mdv           : mdv,
                         defineVersion : this.props.defineVersion,
                         vlmLevel      : 1,
+                        filteredOids  : vlmFilteredOids,
                     });
                     // For all VLM which are expanded, add VLM data to Variables
-                    let startIndex = variables.map(item => item.oid).indexOf(item.oid) + 1;
-                    variables.splice.apply(variables, [startIndex, 0].concat(vlmData));
+                    // If  there is no parent variable (in case of filter), add VLM for that parent at the end
+                    let startIndex = variables.map(item => item.oid).indexOf(itemOid) + 1;
+                    variables.splice.apply(variables, [startIndex === 0 ? variables.length : startIndex, 0].concat(vlmData));
                 });
         }
-
-        return variables;
+        // During filtering it is possible that some of the elements will be undefined or empty
+        return variables.filter( el => (el != undefined));
     }
 
     menuFormatter = (cell, row) => {

@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import unhandled from 'electron-unhandled';
 import { ipcRenderer } from 'electron';
 import { AppContainer } from 'react-hot-loader';
 import store from 'store/index.js';
@@ -21,9 +20,6 @@ ipcRenderer.on('sendDefineObjectToMain', sendDefineObject);
 ipcRenderer.on('loadDefineObjectToRender', loadDefineObject);
 ipcRenderer.on('loadControlledTerminologyToRender', loadControlledTerminology);
 ipcRenderer.on('saveState', saveState);
-
-// Handle unhandled errors;
-unhandled();
 
 ReactDOM.render(
     <AppContainer>

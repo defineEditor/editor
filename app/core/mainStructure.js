@@ -17,10 +17,20 @@ class Study {
 
 class Define {
     constructor ({
-        id, name, image, lastChanged,
+        id, name, image, lastChanged, stats, pathToFile,
     } = {}) {
         this.id = id;
         this.name = name;
+        this.pathToFile = pathToFile;
+        if (stats !== undefined) {
+            this.stats = stats;
+        } else {
+            this.stats = {
+                datasets : 0,
+                variables : 0,
+                codeLists : 0,
+            };
+        }
         if (lastChanged !== undefined) {
             this.lastChanged = lastChanged;
         } else {

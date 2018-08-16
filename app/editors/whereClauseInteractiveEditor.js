@@ -70,7 +70,7 @@ class WhereClauseEditorInteractive extends React.Component {
         this.props.whereClause.rangeChecks.forEach( rawRangeCheck => {
             let rangeCheck = clone(rawRangeCheck);
             rangeCheck.itemName = mdv.itemDefs.hasOwnProperty(rawRangeCheck.itemOid) ? mdv.itemDefs[rawRangeCheck.itemOid].name : '';
-            if (rawRangeCheck.itemGroupOid !== undefined) {
+            if (rawRangeCheck.itemGroupOid !== undefined && mdv.itemGroups.hasOwnProperty(rawRangeCheck.itemGroupOid)) {
                 rangeCheck.itemGroupName = mdv.itemGroups[rawRangeCheck.itemGroupOid].name;
             } else {
                 rangeCheck.itemGroupName = this.props.dataset.name;
@@ -144,7 +144,7 @@ class WhereClauseEditorInteractive extends React.Component {
         // Update the list only if the codes are not yet present
         if (Object.keys(result).indexOf(itemOid) < 0) {
             let currentCodeList = this.props.mdv.codeLists[this.props.mdv.itemDefs[itemOid].codeListOid];
-            if (currentCodeList !== undefined) {
+            if (currentCodeList !== undefined && currentCodeList.codeListType !== 'external') {
                 result[itemOid] = [];
                 if (currentCodeList.codeListType === 'decoded') {
                     Object.keys(currentCodeList.codeListItems).forEach( oid => {

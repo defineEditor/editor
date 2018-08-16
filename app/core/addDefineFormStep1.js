@@ -32,6 +32,7 @@ class AddDefineFormStep1 extends React.Component {
         this.state = {
             defineCreationMethod : this.props.defineCreationMethod,
             defineData           : this.props.defineData,
+            pathToDefineXml      : this.props.pathToDefineXml,
         };
     }
 
@@ -43,11 +44,11 @@ class AddDefineFormStep1 extends React.Component {
         ipcRenderer.removeListener('define', this.loadDefine);
     }
 
-    loadDefine = (error, data) => {
+    loadDefine = (error, data, pathToDefineXml) => {
         let defineData;
         try {
             defineData = parseDefine(data);
-            this.setState({ defineData });
+            this.setState({ defineData, pathToDefineXml });
         }
         catch (error) {
             throw new Error('Could not process the Define-XML file.\nVerify a valid Define-XML file is selected.');

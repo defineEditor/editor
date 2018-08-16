@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import path from 'path';
 import { connect } from 'react-redux';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -80,15 +81,31 @@ class ConnectedAddDefineForm extends React.Component {
         this.state = {
             activeStep: 1,
             defineCreationMethod: 'new',
-            defineData: null
+            defineData: null,
+            pathToDefineXml: '',
         };
     }
 
-  saveDefineAsObject = (defineId, defineData) => {
+  saveDefineAsObject = (defineId, defineData, pathToDefineXml) => {
+      // Calculate define Stats
+      let stats = {};
+      stats.datasets = Object.keys(defineData.study.metaDataVersion.itemGroups).length;
+      stats.codeLists = Object.keys(defineData.study.metaDataVersion.codeLists).length;
+      const countVariables = (varNum, itemDefOid) => {
+          let item = defineData.study.metaDataVersion.itemDefs[itemDefOid];
+          let varCount = varNum;
+          Object.keys(item.sources).forEach( sourceType => {
+              varCount += item.sources[sourceType].length;
+          });
+          return varCount;
+      };
+      stats.variables = Object.keys(defineData.study.metaDataVersion.itemDefs).reduce(countVariables,0);
       let define = {
           ...new Define({
               id: defineId,
-              name: defineData.study.metaDataVersion.model
+              name: defineData.study.metaDataVersion.model,
+              pathToFile: pathToDefineXml,
+              stats,
           })
       };
       this.props.addDefine({ define, studyId: this.props.study.id });
@@ -114,7 +131,8 @@ class ConnectedAddDefineForm extends React.Component {
               this.setState({
                   activeStep: 3,
                   defineCreationMethod: 'import',
-                  defineData: data.defineData
+                  defineData: data.defineData,
+                  pathToDefineXml : data.pathToDefineXml,
               });
           }
       } else if (activeStep === 2) {
@@ -133,7 +151,10 @@ class ConnectedAddDefineForm extends React.Component {
           let defineId = getOid('Define', undefined, this.props.defines.allIds);
           let defineData = this.state.defineData;
           defineData.defineId = defineId;
-          this.saveDefineAsObject(defineId, defineData);
+          Object.keys(defineData.study.metaDataVersion.leafs).forEach( leafOid => {
+              defineData.study.metaDataVersion.leafs[leafOid].baseFolder = path.dirname(this.state.pathToDefineXml);
+          });
+          this.saveDefineAsObject(defineId, defineData, this.state.pathToDefineXml);
           this.props.toggleAddDefineForm({});
       }
   };

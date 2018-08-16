@@ -24,6 +24,7 @@ const mapStateToProps = state => {
         leafOrder     : state.odm.study.metaDataVersion.order.leafOrder,
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
         documentTypes : state.stdConstants.documentTypes,
+        pathToDefine  : state.defines.byId[state.odm.defineId].pathToFile,
         tabs          : state.ui.tabs,
     };
 };
@@ -84,7 +85,13 @@ class ConnectedDocumentTable extends React.Component {
                 });
             }
             // TODO: Dispatching 2 redux actions in 1 place, rewrite to only 1 action dispatch?
-            this.props.updateLeafOrder(returnValue.leafOrder);
+            let leafOrderChanged = returnValue.leafOrder.length !== this.props.leafOrder.length;
+            if (leafOrderChanged === false) {
+                leafOrderChanged = returnValue.leafOrder.some( (leafId, index) => (returnValue.leafOrder[index] !== this.props.leafOrder[index]));
+            }
+            if (leafOrderChanged) {
+                this.props.updateLeafOrder(returnValue.leafOrder);
+            }
             this.setState({documentEdit: false});
         }
     }
@@ -105,6 +112,7 @@ class ConnectedDocumentTable extends React.Component {
                             leafs={this.props.leafs}
                             leafOrder={this.props.leafOrder}
                             documentTypes={this.props.documentTypes}
+                            pathToDefine={this.props.pathToDefine}
                             onSave={this.save('documents')}
                             onCancel={this.cancel('documents')}
                         />

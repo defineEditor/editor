@@ -81,7 +81,7 @@ function convertAttrsToLCC (obj) {
     }
 }
 
-// Get an array of IDs using a specific comment;
+// Get an array of IDs using a specific target ID;
 // Source is an object, with IDs as property names
 function getListOfSourceIds(source, targetName, targetId) {
     if (source !== undefined) {
@@ -91,6 +91,48 @@ function getListOfSourceIds(source, targetName, targetId) {
     } else {
         return [];
     }
+}
+
+// Get ItemGroupOids for where clauses
+function populateItemGroupOidInWhereClause(mdv) {
+    Object.keys(mdv.whereClauses).forEach(whereClauseOid => {
+        let wc = mdv.whereClauses[whereClauseOid];
+        // Get source datasets for the WhereClause
+        let sourceItemGroups = [];
+        wc.sources.valueLists.forEach( vlOid => {
+            mdv.valueLists[vlOid].sources.itemDefs.forEach( itemDefOid => {
+                mdv.itemDefs[itemDefOid].sources.itemGroups.forEach ( itemGroupOid => {
+                    if (!sourceItemGroups.includes(itemGroupOid)) {
+                        sourceItemGroups.push(itemGroupOid);
+                    }
+
+                });
+            });
+        });
+        wc.rangeChecks.forEach( rangeCheck => {
+            if (rangeCheck.itemGroupOid === undefined && rangeCheck.itemOid !==undefined) {
+                // If itemOid has only 1 source dataset, use it
+                if (!mdv.itemDefs.hasOwnProperty(rangeCheck.itemOid)) {
+                    throw new Error(' Item ' + rangeCheck.itemOid + ' referenced in WhereClause ' + wc.oid +  ' does not exist.');
+                }
+                if (mdv.itemDefs[rangeCheck.itemOid].sources.itemGroups.length === 1) {
+                    rangeCheck.itemGroupOid = mdv.itemDefs[rangeCheck.itemOid].sources.itemGroups[0];
+                } else {
+                    // Check if the dataset(s) using the WC has the variable
+                    let itemGroupOids = [];
+                    sourceItemGroups.forEach( itemGroupOid => {
+                        if (mdv.itemDefs[rangeCheck.itemOid].sources.itemGroups.includes(itemGroupOid)) {
+                            itemGroupOids.push(itemGroupOid);
+                        }
+                    });
+                    // If there is only one match, safely assume that it is the one to use
+                    if (itemGroupOids.length === 1) {
+                        rangeCheck.itemGroup = itemGroupOids[0];
+                    }
+                }
+            }
+        });
+    });
 }
 
 // Parse functions
@@ -691,6 +733,9 @@ function parseMetaDataVersion (metadataRaw) {
     mdv.codeLists = parseCodelists(metadataRaw['codeList'], mdv);
     mdv.methods = parseMethods(metadataRaw['methodDef'], mdv);
     mdv.comments = parseComments(metadataRaw['commentDef'], mdv);
+
+    // Add itemGroupOid link in where clauses
+    populateItemGroupOidInWhereClause(mdv);
 
     // Add itemGroupOrder, codeListOrder, ... - not part of Define, but is required to properly sort datasets, codeLists and etc.;
     mdv.order = {

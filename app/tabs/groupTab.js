@@ -155,6 +155,7 @@ class ConnectedVariableTab extends React.Component {
     getFilteredGroupOids = () => {
         let result=[];
         const mdv = this.props.mdv;
+        console.time('filter');
         this.props.groupOrder.forEach( groupId => {
             const dataset = mdv.itemGroups[groupId];
             let data = getTableDataForFilter({
@@ -170,8 +171,31 @@ class ConnectedVariableTab extends React.Component {
             let filteredOids = applyFilter(data, this.props.filter);
             if (filteredOids.length > 0) {
                 result.push(groupId);
+            } else if (this.props.filter.applyToVlm) {
+                // Search in VLM
+                let vlmData = [];
+                data
+                    .filter( item => (item.valueListOid !== undefined) )
+                    .forEach( item => {
+                        let vlmDataPart = getTableDataForFilter({
+                            source        : mdv.valueLists[item.valueListOid],
+                            datasetName   : dataset.name,
+                            datasetOid    : dataset.oid,
+                            itemDefs      : mdv.itemDefs,
+                            codeLists     : mdv.codeLists,
+                            mdv           : mdv,
+                            defineVersion : this.props.defineVersion,
+                            vlmLevel      : 1,
+                        });
+                        vlmData = vlmData.concat(vlmDataPart);
+                    });
+                let vlmFilteredOids = applyFilter(vlmData, this.props.filter);
+                if (vlmFilteredOids.length > 0) {
+                    result.push(groupId);
+                }
             }
         });
+        console.timeEnd('filter');
         return result;
     }
 

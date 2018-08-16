@@ -9,6 +9,7 @@ import loadDefineObject from './main/loadDefineObject.js';
 import loadControlledTerminology from './main/loadControlledTerminology.js';
 import deleteDefineObject from './main/deleteDefineObject.js';
 import scanControlledTerminologyFolder from './main/scanControlledTerminologyFolder.js';
+import openPdf from './main/openPdf.js';
 
 let mainWindow = null;
 
@@ -40,8 +41,6 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         fullscreen: true,
         show: false,
-        width: 1024,
-        height: 728,
         icon: __dirname + '/static/images/avatars/fox.png',
     });
 
@@ -52,7 +51,6 @@ function createWindow() {
             throw new Error('"mainWindow" is not defined');
         }
         mainWindow.show();
-        //mainWindow.focus();
     });
     // Set the menu
     Menu.setApplicationMenu(createMenu(mainWindow));
@@ -113,6 +111,10 @@ ipcMain.on('scanControlledTerminologyFolder', (event, controlledTerminologyLocat
 // Load requested CT
 ipcMain.on('loadControlledTerminology', (event, ctToLoad) => {
     loadControlledTerminology(mainWindow, ctToLoad);
+});
+// Open PDF file
+ipcMain.on('openPdf', (event, defineLocation, pdfLink) => {
+    openPdf(mainWindow, defineLocation, pdfLink);
 });
 
 

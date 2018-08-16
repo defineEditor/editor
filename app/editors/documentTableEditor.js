@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import clone from 'clone';
+import path from 'path';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
@@ -79,13 +80,22 @@ class DocumentTableEditor extends React.Component {
             let newLeafs = { ...this.state.leafs };
             let newOid = getOid('Leaf', undefined, Object.keys(this.state.leafs));
             let newLeafOrder = this.state.leafOrder.slice();
+            let isPdf = 'false';
             newLeafOrder.push(newOid);
-            newLeafs[newOid] = new Leaf({ leafId: newOid, title: '', href: '', type: 'other' });
+            newLeafs[newOid] = { ...new Leaf({ leafId: newOid, title: '', href: '', type: 'other', baseFolder: path.dirname(this.props.pathToDefine), isPdf }) };
             this.setState({ leafs: newLeafs, leafOrder: newLeafOrder });
         } else if (name === 'type' || name === 'title' || name === 'href' ) {
             let newLeafs = { ...this.state.leafs } ;
             // Replace old leaf
-            let newLeaf = new Leaf({ ...newLeafs[oid], [name]: event.target.value });
+            let isPdf;
+            if (name === 'href') {
+                if (/.pdf\s*$/i.test(event.target.value)) {
+                    isPdf = true;
+                } else {
+                    isPdf = false;
+                }
+            }
+            let newLeaf = { ...new Leaf({ ...newLeafs[oid], [name]: event.target.value, isPdf }) };
             newLeafs[oid] = newLeaf;
             this.setState({ leafs: newLeafs });
         } else if (name === 'deleteDoc') {

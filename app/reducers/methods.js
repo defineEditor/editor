@@ -51,10 +51,10 @@ const deleteMethod = (state, action) => {
         delete newState[action.method.oid];
         return newState;
     } else if (action.method.sources[action.source.type][action.source.typeOid].includes(action.source.oid)){
-        // Remove  referece to the source OID from the list of method sources
+        // Remove referece to the source OID from the list of method sources
         let newSourcesForType = { ...action.method.sources[action.source.type] };
         let newSourcesForTypeGroup = newSourcesForType[action.source.typeOid].slice();
-        newSourcesForTypeGroup.splice(newSourcesForType.indexOf(action.source.oid),1);
+        newSourcesForTypeGroup.splice(newSourcesForTypeGroup.indexOf(action.source.oid),1);
         if (newSourcesForTypeGroup.length === 0) {
             delete newSourcesForType[action.source.typeOid];
         } else {

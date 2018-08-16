@@ -6,6 +6,10 @@ import Grid from '@material-ui/core/Grid';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import FormControl from '@material-ui/core/FormControl';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
 import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
@@ -110,10 +114,13 @@ const filterFields = {
     'length'  : { label: 'Length', type: 'number' },
     'method'   : { label: 'Method', type: 'string' },
     'comment'  : { label: 'Comment', type: 'string' },
+    'hasDocument' : { label: 'Has Document', type: 'flag' },
     'mandatory'  : { label: 'Mandatory', type: 'flag' },
     'displayFormat'  : { label: 'Display Format', type: 'string' },
-    'role'  : { label: 'Role', type: 'string' },
-    'hasVlm'  : { label: 'Has VLM', type: 'flag' },
+    'role'  : { label: 'Role', type: 'flag' },
+    'isVlm' : { label: 'Is VLM', type: 'flag' },
+    'parentItemDef' : { label: 'Parent Variable', type: 'string' },
+    'hasVlm' : { label: 'Has VLM', type: 'flag' },
 };
 
 
@@ -158,6 +165,7 @@ class ConnectedVariableTabFilter extends React.Component {
             conditions,
             connectors,
             values,
+            applyToVlm: this.props.filter.applyToVlm,
         };
     }
 
@@ -245,38 +253,33 @@ class ConnectedVariableTabFilter extends React.Component {
             vlmLevel      : 0,
         });
 
-        // Get VLM metadata for items which are expanded
-        let vlmState = this.props.tabSettings.vlmState[this.props.itemGroupOid];
-        if (vlmState !== undefined) {
-            variables
-                .filter( item => (item.valueList !== undefined && vlmState[item.oid] === 'expand') )
-                .forEach( item => {
-                    let vlmData = getTableDataForFilter({
-                        source        : item.valueList,
-                        datasetName   : dataset.name,
-                        datasetOid    : dataset.oid,
-                        itemDefs      : mdv.itemDefs,
-                        codeLists     : mdv.codeLists,
-                        mdv           : mdv,
-                        defineVersion : this.props.defineVersion,
-                        vlmLevel      : 1,
-                    });
-                    // For all VLM which are expanded, add VLM data to Variables
-                    let startIndex = variables.map(item => item.oid).indexOf(item.oid) + 1;
-                    variables.splice.apply(variables, [startIndex, 0].concat(vlmData));
+        variables
+            .filter( item => (item.valueListOid !== undefined) )
+            .forEach( item => {
+                let vlmData = getTableDataForFilter({
+                    source        : mdv.valueLists[item.valueListOid],
+                    datasetName   : dataset.name,
+                    datasetOid    : dataset.oid,
+                    itemDefs      : mdv.itemDefs,
+                    codeLists     : mdv.codeLists,
+                    mdv           : mdv,
+                    defineVersion : this.props.defineVersion,
+                    vlmLevel      : 1,
                 });
-        }
+                let startIndex = variables.map(item => item.oid).indexOf(item.oid) + 1;
+                variables.splice.apply(variables, [startIndex, 0].concat(vlmData));
+            });
 
         return variables;
     }
 
     enable = () => {
-        this.props.updateFilter({isEnabled: true, conditions: this.state.conditions, connectors: this.state.connectors});
+        this.props.updateFilter({isEnabled: true, conditions: this.state.conditions, connectors: this.state.connectors, applyToVlm: this.state.applyToVlm});
         this.props.onClose();
     }
 
     disable = () => {
-        this.props.updateFilter({isEnabled: false, conditions: this.state.conditions, connectors: this.state.connectors});
+        this.props.updateFilter({isEnabled: false, conditions: this.state.conditions, connectors: this.state.connectors, applyToVlm: this.state.applyToVlm});
         this.props.onClose();
     }
 
@@ -412,6 +415,22 @@ class ConnectedVariableTabFilter extends React.Component {
                 <DialogContent>
                     <Grid container spacing={16} alignItems='flex-end'>
                         {this.getRangeChecks()}
+                        <Grid item xs={12} className={classes.vlmSwitch}>
+                            <FormControl component="fieldset">
+                                <FormGroup>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.applyToVlm}
+                                                onChange={() => {this.setState({ applyToVlm: !this.state.applyToVlm });}}
+                                                color='primary'
+                                            />
+                                        }
+                                        label='Apply Filter to VLM'
+                                    />
+                                </FormGroup>
+                            </FormControl>
+                        </Grid>
                         <Grid item xs={12} className={classes.controlButtons}>
                             <Grid container spacing={16} justify='flex-start'>
                                 <Grid item>

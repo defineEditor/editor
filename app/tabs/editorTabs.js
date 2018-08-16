@@ -64,6 +64,10 @@ class ConnectedEditorTabs extends React.Component {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
+    componentDidCatch(error, info) {
+        console.log(error, info);
+    }
+
     handleChange = (event, value) => {
         if (value !== this.props.currentTab) {
             let updateObj = {

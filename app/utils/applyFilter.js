@@ -3,19 +3,19 @@ function applyFilter (data, filter) {
     // Apply filter for each column
     filter.conditions.forEach((condition,index) => {
         if (condition.comparator === 'IN') {
-            result[index] = data.map( row => (condition.selectedValues.includes(row[condition.field])));
+            result[index] = data.map( row => (condition.selectedValues.includes((row[condition.field] || ''))));
         } else if (condition.comparator === 'NOTIN') {
-            result[index] = data.map( row => (!condition.selectedValues.includes(row[condition.field])));
+            result[index] = data.map( row => (!condition.selectedValues.includes((row[condition.field] || ''))));
         } else if (condition.comparator === 'CONTAINS') {
-            result[index] = data.map( row => (row[condition.field].toLowerCase().includes(condition.selectedValues[0].toLowerCase())));
+            result[index] = data.map( row => ((row[condition.field] || '').toLowerCase().includes(condition.selectedValues[0].toLowerCase())));
         } else if (condition.comparator === 'STARTS') {
-            result[index] = data.map( row => (row[condition.field].toLowerCase().startsWith(condition.selectedValues[0].toLowerCase())));
+            result[index] = data.map( row => ((row[condition.field] || '').toLowerCase().startsWith(condition.selectedValues[0].toLowerCase())));
         } else if (condition.comparator === 'ENDS') {
-            result[index] = data.map( row => (row[condition.field].toLowerCase().endsWith(condition.selectedValues[0].toLowerCase())));
+            result[index] = data.map( row => ((row[condition.field] || '').toLowerCase().endsWith(condition.selectedValues[0].toLowerCase())));
         } else if (condition.comparator === 'REGEX') {
-            result[index] = data.map( row => (new RegExp(condition.selectedValues[0]).test(row[condition.field])));
+            result[index] = data.map( row => (new RegExp(condition.selectedValues[0]).test((row[condition.field] || ''))));
         } else if (condition.comparator === 'REGEXI') {
-            result[index] = data.map( row => (new RegExp(condition.selectedValues[0],'i').test(row[condition.field])));
+            result[index] = data.map( row => (new RegExp(condition.selectedValues[0],'i').test((row[condition.field] || ''))));
         } else if (condition.comparator === '>') {
             result[index] = data.map( row => (parseInt(row[condition.field]) > parseInt(condition.selectedValues[0])));
         } else if (condition.comparator === '>=') {
