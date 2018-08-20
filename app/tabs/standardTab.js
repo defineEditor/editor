@@ -9,10 +9,12 @@ import MetaDataVersionFormatter from 'formatters/metaDataVersionFormatter.js';
 import ControlledTerminologyFormatter from 'formatters/controlledTerminologyFormatter.js';
 import StandardFormatter from 'formatters/standardFormatter.js';
 import OdmAttributesFormatter from 'formatters/odmAttributesFormatter.js';
+import OtherAttributesFormatter from 'formatters/otherAttributesFormatter.js';
 import MetaDataVersionEditor from 'editors/metaDataVersionEditor.js';
 import GlobalVariablesEditor from 'editors/globalVariablesEditor.js';
 import ControlledTerminologyEditor from 'editors/controlledTerminologyEditor.js';
 import OdmAttributesEditor from 'editors/odmAttributesEditor.js';
+import OtherAttributesEditor from 'editors/otherAttributesEditor.js';
 import StandardEditor from 'editors/standardEditor.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import {
@@ -21,6 +23,7 @@ import {
     updateControlledTerminologies,
     updateStandards,
     updateOdmAttrs,
+    updateDefine,
     updateModel,
     deleteStdCodeLists,
 } from 'actions/index.js';
@@ -35,6 +38,7 @@ const mapDispatchToProps = dispatch => {
         updateModel                      : (updateObj) => dispatch(updateModel(updateObj)),
         updateOdmAttrs                   : (updateObj) => dispatch(updateOdmAttrs(updateObj)),
         deleteStdCodeLists               : (updateObj) => dispatch(deleteStdCodeLists(updateObj)),
+        updateDefine                     : (updateObj) => dispatch(updateDefine(updateObj)),
     };
 };
 
@@ -63,7 +67,15 @@ const mapStateToProps = state => {
         fileOid      : state.odm.fileOid,
         asOfDateTime : state.odm.asOfDateTime !== undefined ? state.odm.asOfDateTime : '',
         originator   : state.odm.originator !== undefined ? state.odm.originator: '',
+        stylesheetLocation   : state.odm.stylesheetLocation !== undefined ? state.odm.stylesheetLocation: '',
     };
+
+    const defineId = state.odm.defineId;
+
+    let otherAttrs = {};
+    if (state.defines.allIds.includes(defineId)) {
+        otherAttrs = state.defines.byId[defineId];
+    }
 
     return {
         globalVariables       : state.odm.study.globalVariables,
@@ -80,6 +92,8 @@ const mapStateToProps = state => {
         odmAttrs,
         comments,
         defineVersion,
+        defineId,
+        otherAttrs,
     };
 };
 
@@ -93,6 +107,7 @@ class ConnectedStandardTable extends React.Component {
             controlledTerminologyEdit : false,
             standardEdit              : false,
             odmAttrsEdit              : false,
+            otherAttrsEdit            : false,
         };
     }
 
@@ -111,6 +126,8 @@ class ConnectedStandardTable extends React.Component {
             this.setState({standardEdit: true});
         } else if (name === 'odmAttrsEdit') {
             this.setState({odmAttrsEdit: true});
+        } else if (name === 'otherAttrsEdit') {
+            this.setState({otherAttrsEdit: true});
         }
     }
 
@@ -259,6 +276,24 @@ class ConnectedStandardTable extends React.Component {
                 this.props.updateOdmAttrs(updateObj);
             }
             this.setState({odmAttrsEdit: false});
+        } else if (name === 'otherAttrs') {
+            updateObj.defineId = this.props.defineId;
+            updateObj.properties = {};
+            // Check which properties changed;
+            for (let prop in returnValue) {
+                if (this.props.otherAttrs[prop] !== returnValue[prop]) {
+                    if (returnValue[prop].replace(/ /g,'') === '') {
+                        updateObj.properties[prop] = undefined;
+                    } else {
+                        updateObj.properties[prop] = returnValue[prop];
+                    }
+                }
+            }
+
+            if (Object.keys(updateObj.properties).length > 0) {
+                this.props.updateDefine(updateObj);
+            }
+            this.setState({otherAttrsEdit: false});
         }
     }
 
@@ -273,6 +308,8 @@ class ConnectedStandardTable extends React.Component {
             this.setState({standardEdit: false});
         } else if (name === 'odmAttrs') {
             this.setState({odmAttrsEdit: false});
+        } else if (name === 'otherAttrs') {
+            this.setState({otherAttrsEdit: false});
         }
     }
 
@@ -364,6 +401,21 @@ class ConnectedStandardTable extends React.Component {
                         <OdmAttributesFormatter
                             odmAttrs={this.props.odmAttrs}
                             onEdit={this.handleChange('odmAttrsEdit')}
+                        />
+                    )
+                    }
+                </Grid>
+                <Grid item xs={12}>
+                    {  this.state.otherAttrsEdit === true ? (
+                        <OtherAttributesEditor
+                            otherAttrs={this.props.otherAttrs}
+                            onSave={this.save('otherAttrs')}
+                            onCancel={this.cancel('otherAttrs')}
+                        />
+                    ) : (
+                        <OtherAttributesFormatter
+                            otherAttrs={this.props.otherAttrs}
+                            onEdit={this.handleChange('otherAttrsEdit')}
                         />
                     )
                     }

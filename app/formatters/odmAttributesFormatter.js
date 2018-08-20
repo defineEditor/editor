@@ -20,11 +20,11 @@ class OdmAttributesFormatter extends React.Component {
 
     render () {
         const { classes, odmAttrs } = this.props;
-        const { fileOid, asOfDateTime, originator } = odmAttrs;
+        const { fileOid, asOfDateTime, originator, stylesheetLocation } = odmAttrs;
         return (
             <Paper className={classes.odmAttributes} elevation={4}>
                 <Typography variant="headline" component="h3">
-                    ODM Attributes
+                    ODM Attributes &amp; Stylesheet location
                     <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>
                 <List>
@@ -38,6 +38,10 @@ class OdmAttributesFormatter extends React.Component {
                     </ListItem>
                     <ListItem>
                         <ListItemText primary='Database Query Datetime' secondary={asOfDateTime}>
+                        </ListItemText>
+                    </ListItem>
+                    <ListItem>
+                        <ListItemText primary='Stylesheet location' secondary={stylesheetLocation}>
                         </ListItemText>
                     </ListItem>
                 </List>

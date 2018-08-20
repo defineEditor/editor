@@ -87,6 +87,12 @@ class ConnectedCommentEditor extends React.Component {
         }
     }
 
+    componentDidMount() {
+        if (!this.props.stateless) {
+            this.rootRef.current.focus();
+        }
+    }
+
     handleChange = (name) => (updateObj) => {
         let newComment;
         let comment = this.props.stateless === true ? this.props.comment : this.state.comment;
@@ -190,7 +196,7 @@ class ConnectedCommentEditor extends React.Component {
                     <Grid item xs={12}>
                         <Typography variant="subheading">
                             Comment
-                            <Tooltip title={comment === undefined ? 'Add Comment' : 'Remove Comment'} placement='bottom'>
+                            <Tooltip title={comment === undefined ? 'Add Comment' : 'Remove Comment'} placement='bottom' enterDelay='1000'>
                                 <span>
                                     <IconButton
                                         onClick={comment === undefined ? this.handleChange('addComment') : this.handleChange('deleteComment')}
@@ -201,7 +207,7 @@ class ConnectedCommentEditor extends React.Component {
                                     </IconButton>
                                 </span>
                             </Tooltip>
-                            <Tooltip title='Add Link to Document' placement='bottom'>
+                            <Tooltip title='Add Link to Document' placement='bottom' enterDelay='1000'>
                                 <span>
                                     <IconButton
                                         onClick={this.handleChange('addDocument')}
@@ -213,7 +219,7 @@ class ConnectedCommentEditor extends React.Component {
                                     </IconButton>
                                 </span>
                             </Tooltip>
-                            <Tooltip title='Select Comment' placement='bottom'>
+                            <Tooltip title='Select Comment' placement='bottom' enterDelay='1000'>
                                 <span>
                                     <IconButton
                                         onClick={this.handleSelectDialog('openSelectComment')}

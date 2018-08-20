@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {dialog, BrowserWindow} from 'electron';
 
-async function openPdf (mainWindow, defineLocation, pdfLink) {
+async function openDocument (mainWindow, defineLocation, pdfLink) {
     // Check the file exists
     let fullPdfLink = path.join(defineLocation, pdfLink);
     // It is possible that link contains a page number of named destination, remove it before checking
@@ -29,4 +29,4 @@ async function openPdf (mainWindow, defineLocation, pdfLink) {
     }
 }
 
-export default openPdf;
+export default openDocument;

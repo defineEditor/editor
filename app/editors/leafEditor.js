@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import { withStyles } from '@material-ui/core/styles';
-import {Leaf} from 'elements.js';
+import { Leaf } from 'elements.js';
 import SaveCancel from 'editors/saveCancel.js';
 
 const styles = theme => ({
@@ -23,7 +23,7 @@ class LeafEditor extends React.Component {
         let args = {id: this.state.leaf.id, title: this.state.leaf.title, href: this.state.leaf.href};
         // Overwrite args with the updated value
         args[name] = event.target.value;
-        let newLeaf = new Leaf(args);
+        let newLeaf = { ...new Leaf(args) };
         this.setState({leaf: newLeaf});
     };
 

@@ -1,7 +1,15 @@
 import {
+    DEFINE_UPD,
     DEFINE_ADD,
     DEFINE_DEL,
 } from "constants/action-types";
+
+export const updateDefine = (updateObj) => (
+    {
+        type: DEFINE_UPD,
+        updateObj,
+    }
+);
 
 export const addDefine = (updateObj) => (
     {

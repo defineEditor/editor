@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
+import path from 'path';
 import clone from 'clone';
 import deepEqual from 'fast-deep-equal';
 import Grid from '@material-ui/core/Grid';
@@ -23,6 +24,7 @@ import DatasetFlagsEditor from 'editors/datasetFlagsEditor.js';
 import DatasetDomainEditor from 'editors/datasetDomainEditor.js';
 import DatasetFlagsFormatter from 'formatters/datasetFlagsFormatter.js';
 import CommentFormatter from 'formatters/commentFormatter.js';
+import LeafFormatter from 'formatters/leafFormatter.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import renderColumns from 'utils/renderColumns.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
@@ -57,6 +59,7 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     let model = state.odm.study.metaDataVersion.model;
+    let pathToDefine = path.dirname(state.defines.byId[state.odm.defineId].pathToFile);
     return {
         itemGroups     : state.odm.study.metaDataVersion.itemGroups,
         itemGroupOrder : state.odm.study.metaDataVersion.order.itemGroupOrder,
@@ -70,6 +73,7 @@ const mapStateToProps = state => {
         stdConstants   : state.stdConstants,
         tabSettings    : state.ui.tabs.settings[state.ui.tabs.currentTab],
         showRowSelect  : state.ui.tabs.settings[state.ui.tabs.currentTab].rowSelect['overall'],
+        pathToDefine,
     };
 };
 
@@ -113,9 +117,9 @@ function commentFormatter (cell, row) {
 
 function leafFormatter (cell, row) {
     if (cell !== undefined && cell !== '') {
-        return (<a href={'file://' + cell.href}>{cell.title}</a>);
+        return (<LeafFormatter leaf={cell} />);
     } else {
-        return;
+        return null;
     }
 }
 
@@ -387,7 +391,7 @@ class ConnectedDatasetTable extends React.Component {
             };
             currentDs.description = getDescription(originDs);
             currentDs.comment = originDs.commentOid === undefined ? undefined : this.props.comments[originDs.commentOid];
-            currentDs.leaf = originDs.leaf === undefined ? undefined : clone(originDs.leaf);
+            currentDs.leaf = originDs.leaf === undefined ? undefined : { ...originDs.leaf, baseFolder: this.props.pathToDefine };
             // Group Repeating/IsReferenceData/isStandard
             currentDs.flags = {
                 repeating       : originDs.repeating,

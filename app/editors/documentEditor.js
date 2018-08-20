@@ -81,7 +81,7 @@ class DocumentEditor extends React.Component {
             return (
                 <Grid container justify='flex-start' alignItems='flex-end' spacing={8} key={index}>
                     <Grid item>
-                        <Tooltip title="Remove Document" placement="bottom-end">
+                        <Tooltip title="Remove Document" placement="bottom-end" enterDelay='1000'>
                             <IconButton
                                 color='secondary'
                                 onClick={this.handleChange('deleteDocument',index)}
@@ -100,7 +100,7 @@ class DocumentEditor extends React.Component {
                         />
                     </Grid>
                     <Grid item>
-                        <Tooltip title="Add PDF Page Referece" placement="bottom">
+                        <Tooltip title="Add PDF Page Referece" placement="bottom" enterDelay='1000'>
                             <span>
                                 <IconButton
                                     disabled={!isPdf}

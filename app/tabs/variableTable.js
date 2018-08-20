@@ -87,7 +87,7 @@ const mapStateToProps = state => {
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
         tabSettings   : state.ui.tabs.settings[state.ui.tabs.currentTab],
         showRowSelect : state.ui.tabs.settings[state.ui.tabs.currentTab].rowSelect['overall'],
-        filter        : state.ui.tabs.filter,
+        filter        : state.ui.tabs.settings[state.ui.tabs.currentTab].filter,
     };
 };
 
@@ -752,6 +752,7 @@ class ConnectedVariableTable extends React.Component {
                 { this.state.showFilter &&
                         <VariableTabFilter
                             itemGroupOid={this.props.itemGroupOid}
+                            filter={this.props.filter}
                             onClose={ () => { this.setState({ showFilter: false }); } }
                         />
                 }

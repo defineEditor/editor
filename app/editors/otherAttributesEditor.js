@@ -19,15 +19,15 @@ const styles = theme => ({
     },
 });
 
-class OdmAttributesEditor extends React.Component {
+class OtherAttributesEditor extends React.Component {
 
     constructor (props) {
 
         super(props);
 
-        const { odmAttrs } = this.props;
+        const { otherAttrs } = this.props;
         this.state = {
-            ...odmAttrs,
+            ...otherAttrs,
         };
     }
 
@@ -49,49 +49,29 @@ class OdmAttributesEditor extends React.Component {
 
     render () {
         const { classes } = this.props;
-        let asOfDateTimeValidation = !(/^$|(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/.test(this.state.asOfDateTime));
         return (
             <Paper className={classes.root} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Typography variant="headline" component="h3">
-                    ODM Attributes &amp; Stylesheet location
+                    Other Attributes
                     <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
                 </Typography>
                 <List>
                     <ListItem dense>
                         <TextField
-                            label='File OID'
-                            value={this.state.fileOid}
-                            fullWidth
-                            onChange={this.handleChange('fileOid')}
-                            className={classes.inputField}
-                        />
-                    </ListItem>
-                    <ListItem dense>
-                        <TextField
-                            label='Sponsor Name'
-                            value={this.state.originator}
-                            fullWidth
+                            label='Name'
+                            value={this.state.name}
                             autoFocus
-                            onChange={this.handleChange('originator')}
+                            fullWidth
+                            onChange={this.handleChange('name')}
                             className={classes.inputField}
                         />
                     </ListItem>
                     <ListItem dense>
                         <TextField
-                            label='Database Query Datetime'
-                            value={this.state.asOfDateTime}
+                            label='Define Location'
+                            value={this.state.pathToFile}
                             fullWidth
-                            error={asOfDateTimeValidation}
-                            onChange={this.handleChange('asOfDateTime')}
-                            className={classes.inputField}
-                        />
-                    </ListItem>
-                    <ListItem dense>
-                        <TextField
-                            label='Stylesheet location'
-                            value={this.state.stylesheetLocation}
-                            fullWidth
-                            onChange={this.handleChange('stylesheetLocation')}
+                            onChange={this.handleChange('pathToFile')}
                             className={classes.inputField}
                         />
                     </ListItem>
@@ -101,13 +81,13 @@ class OdmAttributesEditor extends React.Component {
     }
 }
 
-OdmAttributesEditor.propTypes = {
-    odmAttrs  : PropTypes.object.isRequired,
-    classes   : PropTypes.object.isRequired,
-    onSave    : PropTypes.func.isRequired,
-    onCancel  : PropTypes.func.isRequired,
-    onHelp    : PropTypes.func,
-    onComment : PropTypes.func,
+OtherAttributesEditor.propTypes = {
+    otherAttrs : PropTypes.object.isRequired,
+    classes    : PropTypes.object.isRequired,
+    onSave     : PropTypes.func.isRequired,
+    onCancel   : PropTypes.func.isRequired,
+    onHelp     : PropTypes.func,
+    onComment  : PropTypes.func,
 };
 
-export default withStyles(styles)(OdmAttributesEditor);
+export default withStyles(styles)(OtherAttributesEditor);

@@ -1,4 +1,9 @@
-import { DEFINE_ADD, DEFINE_DEL, STUDY_DEL } from 'constants/action-types';
+import {
+    DEFINE_ADD,
+    DEFINE_DEL,
+    DEFINE_UPD,
+    STUDY_DEL
+} from 'constants/action-types';
 
 const initialState = {
     byId: {},
@@ -38,6 +43,22 @@ const deleteStudy = (state, action) => {
     }
 };
 
+const updateDefine = (state, action) => {
+    if (state.byId.hasOwnProperty(action.updateObj.defineId)) {
+        let newState = { ...state };
+        newState.byId = {
+            ...newState.byId,
+            [action.updateObj.defineId]: {
+                ...newState.byId[action.updateObj.defineId],
+                ...action.updateObj.properties
+            }
+        };
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const deleteDefine = (state, action) => {
     if (state.allIds.includes(action.deleteObj.defineId)) {
         let newState = {
@@ -61,6 +82,8 @@ const studies = (state = initialState, action) => {
     switch (action.type) {
         case DEFINE_ADD:
             return addDefine(state, action);
+        case DEFINE_UPD:
+            return updateDefine(state, action);
         case DEFINE_DEL:
             return deleteDefine(state, action);
         case STUDY_DEL:

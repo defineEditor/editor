@@ -215,7 +215,7 @@ class ConnectedMethodEditor extends React.Component {
                             </Typography>
                         </Grid>
                         <Grid item>
-                            <Tooltip title={method === undefined ? 'Add Method' : 'Remove Method'} placement='bottom'>
+                            <Tooltip title={method === undefined ? 'Add Method' : 'Remove Method'} placement='bottom' enterDelay='1000'>
                                 <span>
                                     <IconButton
                                         onClick={method === undefined ? this.handleChange('addMethod') : this.handleChange('deleteMethod')}
@@ -228,7 +228,7 @@ class ConnectedMethodEditor extends React.Component {
                             </Tooltip>
                         </Grid>
                         <Grid item>
-                            <Tooltip title='Add Link to Document' placement='bottom'>
+                            <Tooltip title='Add Link to Document' placement='bottom' enterDelay='1000'>
                                 <span>
                                     <IconButton
                                         onClick={this.handleChange('addDocument')}
@@ -242,7 +242,7 @@ class ConnectedMethodEditor extends React.Component {
                             </Tooltip>
                         </Grid>
                         <Grid item>
-                            <Tooltip title={formalExpressionExists === false ? 'Add Formal Expression' : 'Remove Formal Expression'} placement='bottom'>
+                            <Tooltip title={formalExpressionExists === false ? 'Add Formal Expression' : 'Remove Formal Expression'} placement='bottom' enterDelay='1000'>
                                 <span>
                                     <IconButton
                                         onClick={formalExpressionExists === false ? this.handleChange('addFormalExpression',0) : this.handleChange('deleteFormalExpression',0)}
@@ -256,7 +256,7 @@ class ConnectedMethodEditor extends React.Component {
                             </Tooltip>
                         </Grid>
                         <Grid item>
-                            <Tooltip title='Select Method' placement='bottom'>
+                            <Tooltip title='Select Method' placement='bottom' enterDelay='1000'>
                                 <span>
                                     <IconButton
                                         onClick={this.handleSelectDialog('openSelectMethod')}
@@ -306,6 +306,7 @@ class ConnectedMethodEditor extends React.Component {
                                             <Tooltip
                                                 title={autoMethodName ? 'Set Method Name Automatically' : 'Set Method Name Manually'}
                                                 placement='bottom'
+                                                enterDelay='1000'
                                             >
                                                 <Switch
                                                     checked={autoMethodName}

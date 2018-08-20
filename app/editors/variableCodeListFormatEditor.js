@@ -19,6 +19,19 @@ const styles = theme => ({
     },
 });
 
+const sortCodeLists = (codeLists) => {
+    const sortCLIds = (id1, id2) => {
+        if (codeLists[id1].name > codeLists[id2].name) {
+            return 1;
+        } else if (codeLists[id1].name < codeLists[id2].name) {
+            return -1;
+        } else {
+            return 0;
+        }
+    };
+    return Object.keys(codeLists).sort(sortCLIds);
+};
+
 class VariableCodeListFormatEditor extends React.Component {
     constructor (props) {
         super(props);
@@ -61,7 +74,8 @@ class VariableCodeListFormatEditor extends React.Component {
         const displayFormat = this.state.displayFormat || '';
         const codeListOid = this.state.codeListOid || '';
         // Get list of codeLists
-        let codeLists = Object.keys(this.props.codeLists).map( codeListOid => {
+        let sortedCodeListIds = sortCodeLists(this.props.codeLists);
+        let codeLists = sortedCodeListIds.map( codeListOid => {
             let result = {};
             if (this.props.defaultValue.dataType === undefined || this.props.defaultValue.dataType === this.props.codeLists[codeListOid].dataType) {
                 result[codeListOid] = this.props.codeLists[codeListOid].name + ' (' + codeListOid + ')';

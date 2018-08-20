@@ -30,6 +30,11 @@ const generateInitialState = () => {
             settings[i].vlmState = {};
             settings[i].scrollPosition = {};
             settings[i].groupOid = undefined;
+            settings[i].filter = {
+                isEnabled: false,
+                conditions: [],
+                connectors: [],
+            };
         }
         // Column state
         if (['Datasets', 'Variables','Codelists','Coded Values'].includes(tabNames[i])) {
@@ -45,11 +50,6 @@ const generateInitialState = () => {
         tabObjectNames,
         currentTab: 2,
         settings,
-        filter: {
-            isEnabled: false,
-            conditions: [],
-            connectors: [],
-        }
     };
 };
 
@@ -148,9 +148,14 @@ const selectColumns = (state, action) => {
 };
 
 const updateFilter = (state, action) => {
+    let tabIndex = state.currentTab;
+    let newSettings = state.settings.slice();
+    let newSetting = { ...state.settings[tabIndex], filter: { ...state.settings[tabIndex].filter, ...action.updateObj } };
+    newSettings.splice(tabIndex, 1, newSetting);
+
     return {
         ...state,
-        filter: { ...state.filter, ...action.updateObj },
+        settings: newSettings,
     };
 };
 

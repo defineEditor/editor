@@ -43,7 +43,12 @@ const styles = theme => ({
     },
     menu: {
         width: 200
-    }
+    },
+    summary: {
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis',
+        overflow: 'hidden',
+    },
 });
 
 const mapDispatchToProps = dispatch => {
@@ -167,6 +172,22 @@ class ConnectedStudyTile extends React.Component {
         });
     };
 
+    getSummary = () => {
+        let totalSummary = { datasets: 0, variables: 0, codeLists: 0 };
+        this.state.study.defineIds.forEach( defineId => {
+            let stats = this.props.defines.byId[defineId].stats;
+            if (stats) {
+                Object.keys(stats).forEach( stat => {
+                    totalSummary[stat] += stats[stat];
+                });
+            }
+        });
+        return  totalSummary.datasets + ' dataset' + (totalSummary.datasets !== 0 ? 's, ' : ', ')
+                + totalSummary.variables + ' variable' + (totalSummary.variables !== 0 ? 's, ' : ', ')
+                + totalSummary.codeLists + ' codelist' + (totalSummary.codeLists !== 0 ? 's.' : '.')
+        ;
+    };
+
     onSave = () => {
         this.toggleEditMode();
         this.props.updateStudy({
@@ -262,7 +283,7 @@ class ConnectedStudyTile extends React.Component {
                             Last changed:{' '}
                             {this.state.study.lastChanged.substr(0, 16).replace('T', ' ')}
                         </Typography>
-                        <Typography component="p">Summary</Typography>
+                        <Typography component="p" className={classes.summary}>{this.getSummary()}</Typography>
                         <Button
                             aria-owns={anchorEl ? 'simple-menu' : null}
                             aria-haspopup="true"

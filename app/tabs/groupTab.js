@@ -66,7 +66,7 @@ const mapStateToProps = (state, props) => {
         tabs          : state.ui.tabs,
         mdv           : state.odm.study.metaDataVersion,
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
-        filter        : state.ui.tabs.filter,
+        filter        : state.ui.tabs.settings[tabIndex].filter,
     };
 };
 
@@ -155,7 +155,6 @@ class ConnectedVariableTab extends React.Component {
     getFilteredGroupOids = () => {
         let result=[];
         const mdv = this.props.mdv;
-        console.time('filter');
         this.props.groupOrder.forEach( groupId => {
             const dataset = mdv.itemGroups[groupId];
             let data = getTableDataForFilter({
@@ -195,7 +194,6 @@ class ConnectedVariableTab extends React.Component {
                 }
             }
         });
-        console.timeEnd('filter');
         return result;
     }
 

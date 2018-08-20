@@ -118,7 +118,7 @@ class OriginEditor extends React.Component {
                             </Typography>
                         </Grid>
                         <Grid item>
-                            <Tooltip title={origin === undefined ? 'Add Origin' : 'Remove Origin'} placement='bottom'>
+                            <Tooltip title={origin === undefined ? 'Add Origin' : 'Remove Origin'} placement='bottom' enterDelay='1000'>
                                 <span>
                                     <IconButton
                                         onClick={origin === undefined ? this.handleChange('addOrigin',0) : this.handleChange('deleteOrigin',0)}
@@ -131,7 +131,7 @@ class OriginEditor extends React.Component {
                             </Tooltip>
                         </Grid>
                         <Grid item>
-                            <Tooltip title='Add Link to Document' placement='bottom'>
+                            <Tooltip title='Add Link to Document' placement='bottom' enterDelay='1000'>
                                 <span>
                                     <IconButton
                                         onClick={this.handleChange('addDocument',0)}
@@ -145,7 +145,7 @@ class OriginEditor extends React.Component {
                             </Tooltip>
                         </Grid>
                         <Grid item>
-                            <Tooltip title={originDescription === undefined ? 'Add Description' : 'Remove Description'} placement='bottom'>
+                            <Tooltip title={originDescription === undefined ? 'Add Description' : 'Remove Description'} placement='bottom' enterDelay='1000'>
                                 <span>
                                     <IconButton
                                         onClick={originDescription === undefined ? this.handleChange('addDescription',0) : this.handleChange('deleteDescription',0)}

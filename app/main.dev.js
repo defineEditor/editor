@@ -9,7 +9,8 @@ import loadDefineObject from './main/loadDefineObject.js';
 import loadControlledTerminology from './main/loadControlledTerminology.js';
 import deleteDefineObject from './main/deleteDefineObject.js';
 import scanControlledTerminologyFolder from './main/scanControlledTerminologyFolder.js';
-import openPdf from './main/openPdf.js';
+import openDocument from './main/openDocument.js';
+import openFileInExternalApp from './main/openFileInExternalApp.js';
 
 let mainWindow = null;
 
@@ -112,9 +113,13 @@ ipcMain.on('scanControlledTerminologyFolder', (event, controlledTerminologyLocat
 ipcMain.on('loadControlledTerminology', (event, ctToLoad) => {
     loadControlledTerminology(mainWindow, ctToLoad);
 });
-// Open PDF file
-ipcMain.on('openPdf', (event, defineLocation, pdfLink) => {
-    openPdf(mainWindow, defineLocation, pdfLink);
+// Open Document file
+ipcMain.on('openDocument', (event, defineLocation, pdfLink) => {
+    openDocument(mainWindow, defineLocation, pdfLink);
+});
+// Open file using external application
+ipcMain.on('openFileInExternalApp', (event, defineLocation, fileLink) => {
+    openFileInExternalApp(mainWindow, defineLocation, fileLink);
 });
 
 
