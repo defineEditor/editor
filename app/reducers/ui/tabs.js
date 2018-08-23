@@ -32,6 +32,7 @@ const generateInitialState = () => {
             settings[i].groupOid = undefined;
             settings[i].filter = {
                 isEnabled: false,
+                applyToVlm: true,
                 conditions: [],
                 connectors: [],
             };

@@ -75,13 +75,6 @@ const styles = theme => ({
         marginTop: theme.spacing.unit * 4,
         marginLeft: theme.spacing.unit,
     },
-    chips: {
-        display  : 'flex',
-        flexWrap : 'wrap',
-    },
-    chip: {
-        margin: theme.spacing.unit / 4,
-    },
 });
 
 // Redux functions
@@ -104,6 +97,7 @@ const comparators = {
     number : ['<','<=','>','>=','IN','NOTIN'],
     flag : ['IN','NOTIN'],
 };
+
 const filterFields = {
     'name'          : { label: 'Name', type: 'string' },
     'label'         : { label: 'Label', type: 'string' },
@@ -123,7 +117,6 @@ const filterFields = {
     'dataset'       : { label: 'Dataset', type: 'flag' },
 };
 
-
 class ConnectedVariableTabFilter extends React.Component {
     constructor (props) {
         super(props);
@@ -141,6 +134,11 @@ class ConnectedVariableTabFilter extends React.Component {
         let values = {};
         if (this.props.itemGroupOid) {
             values = this.getValues(this.props.itemGroupOid);
+        } else {
+            values = this.getValuesForItemGroups(conditions[0].selectedValues);
+            let itemGroups = this.props.mdv.itemGroups;
+            // Get the list of all datasets
+            values.dataset = Object.keys(itemGroups).map( itemGroupOid => (itemGroups[itemGroupOid].name));
         }
         // As filters are cross-dataset, it is possible that some of the values are not in the new dataset
         // add all values which are already in the IN and NOTIN filters
@@ -205,10 +203,24 @@ class ConnectedVariableTabFilter extends React.Component {
             } else {
                 result[index].selectedValues = [updateObj.target.value];
             }
-            // If dataset is selected, update values
+            // If dataset is selected, update possible values
             if (result[index].field === 'dataset') {
-                // TODO: Continue
-
+                let newValues = this.getValuesForItemGroups(updateObj.target.value);
+                newValues.dataset = this.state.values.dataset;
+                // Add values from existing conditions
+                this.state.conditions.forEach(condition => {
+                    if (['IN','NOTIN'].includes(condition.comparator)) {
+                        condition.selectedValues.forEach( selectedValue => {
+                            if (!newValues[condition.field].includes(selectedValue)) {
+                                newValues[condition.field].push(selectedValue);
+                            }
+                        });
+                    }
+                });
+                this.setState({
+                    conditions: result,
+                    values: newValues,
+                });
             } else {
                 this.setState({
                     conditions: result,
@@ -238,6 +250,37 @@ class ConnectedVariableTabFilter extends React.Component {
                 connectors,
             });
         }
+    }
+
+    getValuesForItemGroups = itemGroupNames => {
+        // Get itemGroupOids from name
+        let itemGroupOids = [];
+        Object.keys(this.props.mdv.itemGroups).forEach( itemGroupOid => {
+            if (itemGroupNames.includes(this.props.mdv.itemGroups[itemGroupOid].name)) {
+                itemGroupOids.push(itemGroupOid);
+            }
+        });
+        // Default values
+        let values = {};
+        Object.keys(filterFields).forEach( field => {
+            values[field] = [];
+        });
+        // Extract values for each dataset
+        itemGroupOids.forEach( itemGroupOid => {
+            let itemGroupValues = this.getValues(itemGroupOid);
+            Object.keys(itemGroupValues).forEach( field => {
+                if (values.hasOwnProperty(field)) {
+                    itemGroupValues[field].forEach( value => {
+                        if (!values[field].includes(value)) {
+                            values[field].push(value);
+                        }
+                    });
+                } else {
+                    values[field] = itemGroupValues[field];
+                }
+            });
+        });
+        return values;
     }
 
     getData = (itemGroupOid) => {
@@ -277,7 +320,7 @@ class ConnectedVariableTabFilter extends React.Component {
 
     getValues = (itemGroupOid) => {
         let data = this.getData(itemGroupOid);
-        let values;
+        let values = {};
         Object.keys(filterFields)
             .filter( field => (field !== 'dataset') )
             .forEach( field => {
@@ -303,6 +346,11 @@ class ConnectedVariableTabFilter extends React.Component {
         this.props.onClose();
     }
 
+    save = () => {
+        this.props.onUpdate({isEnabled: true, conditions: this.state.conditions, connectors: this.state.connectors, applyToVlm: this.state.applyToVlm});
+        this.props.onClose();
+    }
+
     cancel = () => {
         this.props.onClose();
     }
@@ -316,9 +364,10 @@ class ConnectedVariableTabFilter extends React.Component {
             const valueSelect = ['IN','NOTIN'].indexOf(condition.comparator) >= 0;
             const value = multipleValuesSelect && valueSelect ? condition.selectedValues : condition.selectedValues[0];
             // In case itemGroupOid is provided, exclude dataset from the list of fields
-            const fields = Object.keys(filterFields)
+            const fields = {};
+            Object.keys(filterFields)
                 .filter( field => (!this.props.itemGroupOid || field !== 'dataset' ) )
-                .map(field => ({[field] : filterFields[field].label}))
+                .forEach(field => { fields[field] = filterFields[field].label;})
             ;
 
             result.push(
@@ -379,7 +428,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                 onChange={this.handleChange('selectedValues', index)}
                                 className={classes.textFieldValues}
                             >
-                                {getSelectionList(this.state.values[condition.field])}
+                                {getSelectionList(this.state.values[condition.field], this.state.values[condition.field].length === 0)}
                             </TextField>
                         </Grid>
                     ) : (
@@ -415,6 +464,7 @@ class ConnectedVariableTabFilter extends React.Component {
                         color='default'
                         size='small'
                         variant='raised'
+                        disabled={this.props.itemGroupOid === undefined && this.state.conditions.length === 1}
                         onClick={this.handleChange('addRangeCheck',0,'OR')}
                         className={classes.button}
                     >
@@ -440,7 +490,7 @@ class ConnectedVariableTabFilter extends React.Component {
                 <DialogContent>
                     <Grid container spacing={16} alignItems='flex-end'>
                         {this.getRangeChecks()}
-                        <Grid item xs={12} className={classes.vlmSwitch}>
+                        <Grid item xs={12}>
                             <FormControl component="fieldset">
                                 <FormGroup>
                                     <FormControlLabel
@@ -458,28 +508,44 @@ class ConnectedVariableTabFilter extends React.Component {
                         </Grid>
                         <Grid item xs={12} className={classes.controlButtons}>
                             <Grid container spacing={16} justify='flex-start'>
-                                <Grid item>
-                                    <Button
-                                        color='primary'
-                                        size='small'
-                                        onClick={this.enable}
-                                        variant='raised'
-                                        className={classes.button}
-                                    >
-                                        Enable
-                                    </Button>
-                                </Grid>
-                                <Grid item>
-                                    <Button
-                                        color='default'
-                                        size='small'
-                                        onClick={this.disable}
-                                        variant='raised'
-                                        className={classes.button}
-                                    >
-                                        Disable
-                                    </Button>
-                                </Grid>
+                                { this.props.onUpdate === undefined ? (
+                                    <React.Fragment>
+                                        <Grid item>
+                                            <Button
+                                                color='primary'
+                                                size='small'
+                                                onClick={this.enable}
+                                                variant='raised'
+                                                className={classes.button}
+                                            >
+                                                Enable
+                                            </Button>
+                                        </Grid>
+                                        <Grid item>
+                                            <Button
+                                                color='default'
+                                                size='small'
+                                                onClick={this.disable}
+                                                variant='raised'
+                                                className={classes.button}
+                                            >
+                                                Disable
+                                            </Button>
+                                        </Grid>
+                                    </React.Fragment>
+                                ) : (
+                                    <Grid item>
+                                        <Button
+                                            color='primary'
+                                            size='small'
+                                            onClick={this.save}
+                                            variant='raised'
+                                            className={classes.button}
+                                        >
+                                            Save
+                                        </Button>
+                                    </Grid>
+                                )}
                                 <Grid item>
                                     <Button
                                         color='secondary'
@@ -504,11 +570,12 @@ ConnectedVariableTabFilter.propTypes = {
     classes       : PropTypes.object.isRequired,
     onClose       : PropTypes.func.isRequired,
     mdv           : PropTypes.object.isRequired,
-    itemGroupOid  : PropTypes.string.isRequired,
+    itemGroupOid  : PropTypes.string,
     defineVersion : PropTypes.string.isRequired,
     tabSettings   : PropTypes.object.isRequired,
     filter        : PropTypes.object.isRequired,
     updateFilter  : PropTypes.func.isRequired,
+    onUpdate      : PropTypes.func,
 };
 
 const VariableTabFilter = connect(mapStateToProps, mapDispatchToProps)(ConnectedVariableTabFilter);

@@ -10,6 +10,7 @@ import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import ItemMenu from 'utils/itemMenu.js';
 import VariableTabFilter from 'utils/variableTabFilter.js';
+import VariableTabUpdate from 'utils/variableTabUpdate.js';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import grey from '@material-ui/core/colors/grey';
@@ -527,11 +528,9 @@ class ConnectedVariableTable extends React.Component {
                     </Grid>
                     <Grid item>
                         <Button
-                            color='default'
-                            mini
-                            onClick={console.log}
-                            disabled={!this.props.showRowSelect}
                             variant='raised'
+                            color='default'
+                            onClick={ () => { this.setState({ showUpdate: true }); } }
                         >
                             Update
                         </Button>
@@ -590,7 +589,11 @@ class ConnectedVariableTable extends React.Component {
                                 </Grid>
                         }
                         <Grid item>
-                            <Button variant="raised" color={this.props.filter.isEnabled ? 'primary' : 'default'} onClick={ () => { this.setState({ showFilter: true }); } }>
+                            <Button
+                                variant="raised"
+                                color={this.props.filter.isEnabled ? 'primary' : 'default'}
+                                onClick={ () => { this.setState({ showFilter: true }); } }
+                            >
                                 Filter
                                 <FilterListIcon style={{marginLeft: '7px'}}/>
                             </Button>
@@ -660,7 +663,7 @@ class ConnectedVariableTable extends React.Component {
 
     onAllRowSelected = (isSelected, rows, event) => {
         let selectedRows;
-        let selectedVlmRows;
+        let selectedVlmRows = {};
         // (De)select all simple variables
         if (isSelected === true) {
             // If all rows are going to be selected;
@@ -677,9 +680,9 @@ class ConnectedVariableTable extends React.Component {
                 .forEach( row => {
                     const valueListOid = row.itemGroupOid;
                     if (selectedVlmRows.hasOwnProperty(valueListOid)) {
-                        selectedRows[valueListOid].push(row.itemRefOid);
+                        selectedVlmRows[valueListOid].push(row.itemRefOid);
                     } else {
-                        selectedRows[valueListOid] = [row.itemRefOid];
+                        selectedVlmRows[valueListOid] = [row.itemRefOid];
                     }
                 });
         } else {
@@ -718,6 +721,24 @@ class ConnectedVariableTable extends React.Component {
             btnGroup : this.createCustomButtonGroup
         };
 
+        let selectedItems;
+        // Prepate selected records for the Update Form
+        if (this.state.showUpdate || this.state.showSelectColumn) {
+            if (this.state.selectedRows.length > 0 || Object.keys(this.state.selectedVlmRows).length > 0) {
+                let dataset = mdv.itemGroups[this.props.itemGroupOid];
+                selectedItems = [];
+                this.state.selectedRows.forEach( itemRefOid => {
+                    selectedItems.push({ itemGroupOid: this.props.itemGroupOid, itemDefOid: dataset.itemRefs[itemRefOid].itemOid });
+                });
+                Object.keys(this.state.selectedVlmRows).forEach( valueListOid => {
+                    let valueList = mdv.valueLists[valueListOid];
+                    this.state.selectedVlmRows[valueListOid].forEach( itemRefOid => {
+                        selectedItems.push({ itemGroupOid: this.props.itemGroupOid, valueListOid, itemDefOid: valueList.itemRefs[itemRefOid].itemOid });
+                    });
+                });
+            }
+        }
+
         return (
             <React.Fragment>
                 <h3 className={this.props.classes.tableTitle}>
@@ -754,6 +775,13 @@ class ConnectedVariableTable extends React.Component {
                             itemGroupOid={this.props.itemGroupOid}
                             filter={this.props.filter}
                             onClose={ () => { this.setState({ showFilter: false }); } }
+                        />
+                }
+                { this.state.showUpdate &&
+                        <VariableTabUpdate
+                            selectedItems={selectedItems}
+                            itemGroupOid={this.props.itemGroupOid}
+                            onClose={ () => { this.setState({ showUpdate: false }); } }
                         />
                 }
                 { this.state.showSelectColumn && (
