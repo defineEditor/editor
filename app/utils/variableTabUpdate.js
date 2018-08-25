@@ -7,24 +7,17 @@ import Popover from '@material-ui/core/Popover';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import FormControl from '@material-ui/core/FormControl';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import VariableTabFilter from 'utils/variableTabFilter.js';
-import Switch from '@material-ui/core/Switch';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-//import TextField from '@material-ui/core/TextField';
-//import IconButton from '@material-ui/core/IconButton';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-//import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
-//import getSelectionList from 'utils/getSelectionList.js';
+import getSelectionList from 'utils/getSelectionList.js';
+import VariableTabUpdateField from 'utils/variableTabUpdateField.js';
 import getTableDataForFilter from 'utils/getTableDataForFilter.js';
 import applyFilter from 'utils/applyFilter.js';
-//import clone from 'clone';
 import {
     updateFilter
 } from 'actions/index.js';
@@ -105,25 +98,19 @@ const mapStateToProps = state => {
     };
 };
 
-/*const updateFields = {
-    'dataset'       : { label: 'Dataset', type: 'flag' },
-    'name'          : { label: 'Name', type: 'string' },
-    'label'         : { label: 'Label', type: 'string' },
-    'dataType'      : { label: 'Data Type', type: 'string' },
-    'codeList'      : { label: 'Codelist', type: 'string' },
-    'origin'        : { label: 'Origin', type: 'string' },
-    'length'        : { label: 'Length', type: 'number' },
-    'method'        : { label: 'Method', type: 'string' },
-    'comment'       : { label: 'Comment', type: 'string' },
-    'hasDocument'   : { label: 'Has Document', type: 'flag' },
-    'mandatory'     : { label: 'Mandatory', type: 'flag' },
-    'displayFormat' : { label: 'Display Format', type: 'string' },
-    'role'          : { label: 'Role', type: 'flag' },
-    'isVlm'         : { label: 'Is VLM', type: 'flag' },
-    'parentItemDef' : { label: 'Parent Variable', type: 'string' },
-    'hasVlm'        : { label: 'Has VLM', type: 'flag' },
+const updateAttrs = {
+    'name'          : { label: 'Name', editor: 'TextField' },
+    'label'         : { label: 'Label', editor: 'TextField' },
+    'dataType'      : { label: 'Data Type', editor: 'SimpleSelectEditor' },
+    'codeList'      : { label: 'Codelist', editor: 'SimpleSelectEditor' },
+    'origin'        : { label: 'Origin', editor: 'SimpleSelectEditor' },
+    'length'        : { label: 'Length', editor: 'TextField' },
+    'method'        : { label: 'Method', editor: 'MethodEditor' },
+    'comment'       : { label: 'Comment', editor: 'CommentEditor' },
+    'mandatory'     : { label: 'Mandatory', editor: 'SimpleSelectEditor' },
+    'displayFormat' : { label: 'Display Format', editor: 'TextField' },
+    'role'          : { label: 'Role', editor: 'SimpleSelectEditor' },
 };
-*/
 
 class ConnectedVariableTabUpdate extends React.Component {
     constructor (props) {
@@ -139,46 +126,44 @@ class ConnectedVariableTabUpdate extends React.Component {
 
         this.state = {
             selectedItems,
-            field : 'dataset',
-            updateType: 'set',
-            updateObj: {},
+            fields :[{
+                attr: 'name',
+                updateType: 'set',
+                updateObj: { name: '' },
+            }],
             anchorEl: null,
             showFilter: false,
             filter,
         };
     }
 
-    handleChange = (name, index, connector) => (updateObj) => {
-        let result = [ ...this.state.conditions ];
-        result[index] = { ...this.state.conditions[index] };
-        if (name === 'field') {
+    handleChange = (index) => (name) => (updateObj) => {
+        let result = [ ...this.state.fields ];
+        result[index] = { ...this.state.fields[index] };
+        if (name === 'attr') {
             // Do nothing if name did not change
-            if (result[index].field === updateObj.target.event) {
+            if (result[index].attr === updateObj.target.event) {
                 return;
             }
-            result[index].field = updateObj.target.value;
-            // Reset all other values
-            result[index].comparator = 'IN';
-            result[index].selectedValues = [];
-            this.setState({
-                conditions      : result,
-            });
-        } else if (name === 'comparator') {
-            if (result[index].comparator === updateObj.target.event) {
-                return;
-            }
-            result[index].comparator = updateObj.target.value;
-            // Reset check values if there are multiple values selected and changing from IN/NOT to a comparator with a single value
-            if (['NOTIN','IN'].indexOf(this.state.conditions[index].comparator) >= 0
-                &&
-                ['NOTIN','IN'].indexOf(result[index].comparator) < 0
-                &&
-                result[index].selectedValues.length > 1
+            result[index].attr = updateObj.target.value;
+            // Reset all other values if editor is not TextField or the new attr has a different editor
+            if (this.state.fields[index].editor !== updateAttrs[updateObj.target.value].editor
+                || updateAttrs[updateObj.target.value].editor !== 'TextField'
             ) {
-                result[index].selectedValues = [];
+                result[index].updateType = 'set';
+                result[index].updateObj = {};
             }
             this.setState({
-                conditions: result,
+                fields: result,
+            });
+        } else if (name === 'updateType') {
+            if (result[index].updateType === updateObj.target.value) {
+                return;
+            }
+            result[index].updateType = updateObj.target.value;
+            result[index].updateObj = {};
+            this.setState({
+                fields: result,
             });
         } else if (name === 'selectedValues') {
             if (typeof updateObj.target.value === 'object') {
@@ -314,6 +299,30 @@ class ConnectedVariableTabUpdate extends React.Component {
         this.setState({ filter, selectedItems });
     }
 
+    getUpdateFields = () => {
+        let result = [];
+        let updateTypeList = getSelectionList({
+            set: 'Set',
+            replace: 'Replace',
+        });
+        let attrList = getSelectionList(
+            Object.keys(updateAttrs).map(attr => ({ [attr]: updateAttrs[attr].label }))
+        );
+        this.state.fields.forEach( (field, index) => {
+            result.push(
+                <VariableTabUpdateField
+                    field={field}
+                    updateAttrs={updateAttrs}
+                    updateTypeList={updateTypeList}
+                    attrList={attrList}
+                    onChange={this.handleChange(index)}
+                />
+            );
+
+        });
+        return result;
+    }
+
     handlePopoverOpen = event => {
         this.setState({ anchorEl: event.currentTarget });
     };
@@ -394,21 +403,8 @@ class ConnectedVariableTabUpdate extends React.Component {
                                 </Button>
                             </Typography>
                         </Grid>
-                        <Grid item xs={12}>
-                            <FormControl component="fieldset">
-                                <FormGroup>
-                                    <FormControlLabel
-                                        control={
-                                            <Switch
-                                                checked={this.state.applyToVlm}
-                                                onChange={() => {this.setState({ applyToVlm: !this.state.applyToVlm });}}
-                                                color='primary'
-                                            />
-                                        }
-                                        label='Apply Update to VLM'
-                                    />
-                                </FormGroup>
-                            </FormControl>
+                        <Grid item xs={12} className={classes.controlButtons}>
+                            {this.getUpdateFields()}
                         </Grid>
                         <Grid item xs={12} className={classes.controlButtons}>
                             <Grid container spacing={16} justify='flex-start'>
@@ -418,6 +414,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                                         size='small'
                                         onClick={this.apply}
                                         variant='raised'
+                                        disabled={itemNum < 1}
                                         className={classes.button}
                                     >
                                         Update

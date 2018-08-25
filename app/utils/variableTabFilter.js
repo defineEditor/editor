@@ -165,7 +165,7 @@ class ConnectedVariableTabFilter extends React.Component {
         result[index] = { ...this.state.conditions[index] };
         if (name === 'field') {
             // Do nothing if name did not change
-            if (result[index].field === updateObj.target.event) {
+            if (result[index].field === updateObj.target.value) {
                 return;
             }
             result[index].field = updateObj.target.value;
@@ -179,7 +179,7 @@ class ConnectedVariableTabFilter extends React.Component {
                 conditions      : result,
             });
         } else if (name === 'comparator') {
-            if (result[index].comparator === updateObj.target.event) {
+            if (result[index].comparator === updateObj.target.value) {
                 return;
             }
             result[index].comparator = updateObj.target.value;

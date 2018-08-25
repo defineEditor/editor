@@ -4,8 +4,16 @@ function getOidByName (mdv, source, name, itemGroupOid) {
     if (source !== 'ItemRefs') {
         Object.keys(mdv[source]).some( oid => {
             if (mdv[source][oid].name.toLowerCase() === name.toLowerCase()) {
-                result = oid;
-                return true;
+                // If itemGroupOid is provided, check the the item belongs to it
+                if (itemGroupOid) {
+                    if (mdv[source][oid].sources.itemGroups.includes(itemGroupOid)) {
+                        result = oid;
+                        return true;
+                    }
+                } else {
+                    result = oid;
+                    return true;
+                }
             }
             return false;
         });

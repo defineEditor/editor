@@ -186,11 +186,11 @@ class WhereClauseEditorInteractive extends React.Component {
             });
         } else if (name === 'item') {
             // Do nothing if name did not change
-            if (result[index].itemName === updateObj.target.event) {
+            if (result[index].itemName === updateObj.target.value) {
                 return;
             }
             result[index].itemName = updateObj.target.value;
-            result[index].itemOid = getOidByName(this.props.mdv, 'itemDefs',updateObj.target.value);
+            result[index].itemOid = getOidByName(this.props.mdv, 'itemDefs', updateObj.target.value, result[index].itemGroupOid);
             // Reset all other values
             result[index].comparator = 'EQ';
             result[index].checkValues = [''];
@@ -199,7 +199,7 @@ class WhereClauseEditorInteractive extends React.Component {
                 listOfCodeValues : this.updateListOfCodeValues(result[index].itemOid)
             });
         } else if (name === 'comparator') {
-            if (result[index].comparator === updateObj.target.event) {
+            if (result[index].comparator === updateObj.target.value) {
                 return;
             }
             result[index].comparator = updateObj.target.value;

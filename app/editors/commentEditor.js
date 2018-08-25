@@ -196,7 +196,7 @@ class ConnectedCommentEditor extends React.Component {
                     <Grid item xs={12}>
                         <Typography variant="subheading">
                             Comment
-                            <Tooltip title={comment === undefined ? 'Add Comment' : 'Remove Comment'} placement='bottom' enterDelay='1000'>
+                            <Tooltip title={comment === undefined ? 'Add Comment' : 'Remove Comment'} placement='bottom' enterDelay={1000}>
                                 <span>
                                     <IconButton
                                         onClick={comment === undefined ? this.handleChange('addComment') : this.handleChange('deleteComment')}
@@ -207,7 +207,7 @@ class ConnectedCommentEditor extends React.Component {
                                     </IconButton>
                                 </span>
                             </Tooltip>
-                            <Tooltip title='Add Link to Document' placement='bottom' enterDelay='1000'>
+                            <Tooltip title='Add Link to Document' placement='bottom' enterDelay={1000}>
                                 <span>
                                     <IconButton
                                         onClick={this.handleChange('addDocument')}
@@ -219,7 +219,7 @@ class ConnectedCommentEditor extends React.Component {
                                     </IconButton>
                                 </span>
                             </Tooltip>
-                            <Tooltip title='Select Comment' placement='bottom' enterDelay='1000'>
+                            <Tooltip title='Select Comment' placement='bottom' enterDelay={1000}>
                                 <span>
                                     <IconButton
                                         onClick={this.handleSelectDialog('openSelectComment')}
