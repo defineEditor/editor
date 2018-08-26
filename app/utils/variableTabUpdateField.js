@@ -7,6 +7,10 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
+import getSelectionList from 'utils/getSelectionList.js';
+import CommentEditor from 'editors/commentEditor.js';
+import MethodEditor from 'editors/methodEditor.js';
+import OriginEditor from 'editors/originEditor.js';
 
 const styles = theme => ({
     textField: {
@@ -22,12 +26,18 @@ const styles = theme => ({
 
 class VariableTabUpdateField extends React.Component {
 
-    handleUpdateObjChange = (event) => {
-        this.props.onChange('updateObj')({ [this.props.field.attr]: event.target.value });
+    handleUpdateValueChange = (event) => {
+        if  (['comment', 'method', 'origin'].includes(this.props.field.attr) ) {
+            this.props.onChange('updateValue')({ value: event });
+        } else {
+            this.props.onChange('updateValue')({ value: event.target.value });
+        }
     }
 
     render() {
-        const { classes } = this.props;
+        const { classes, field, updateAttrs } = this.props;
+        const updateType = field.updateType;
+        const editor = updateAttrs[field.attr].editor;
         return (
             <Grid container spacing={8}>
                 <Grid item xs={12}>
@@ -35,7 +45,7 @@ class VariableTabUpdateField extends React.Component {
                         label='Field'
                         autoFocus
                         select={true}
-                        value={this.props.field.attr}
+                        value={field.attr}
                         onChange={this.props.onChange('attr')}
                         className={classes.textField}
                     >
@@ -48,7 +58,7 @@ class VariableTabUpdateField extends React.Component {
                         name="updateType"
                         row
                         className={classes.updateType}
-                        value={this.props.field.updateType}
+                        value={field.updateType}
                         onChange={this.props.onChange('updateType')}
                     >
                         <FormControlLabel value="set" control={<Radio color="primary"/>} label="Set" />
@@ -56,12 +66,44 @@ class VariableTabUpdateField extends React.Component {
                     </RadioGroup>
                 </FormControl>
                 <Grid item xs={12}>
-                    {this.props.updateAttrs[this.props.field.attr].editor === 'TextField' && (
+                    { updateType === 'set' && editor === 'TextField' && (
                         <TextField
                             label='Value'
-                            value={this.props.field.updateObj[this.props.field]}
-                            onChange={this.handleUpdateObjChange}
+                            value={field.updateValue.value}
+                            onChange={this.handleUpdateValueChange}
                             className={classes.textField}
+                        />
+                    )}
+                    { updateType === 'set' && editor === 'Select' && (
+                        <TextField
+                            label='Value'
+                            select
+                            value={field.updateValue.value}
+                            onChange={this.handleUpdateValueChange}
+                            className={classes.textField}
+                        >
+                            {getSelectionList(this.props.values[field.attr], true)}
+                        </TextField>
+                    )}
+                    { updateType === 'set' && editor === 'CommentEditor' && (
+                        <CommentEditor
+                            comment={field.updateValue.value}
+                            onUpdate={this.handleUpdateValueChange}
+                            stateless
+                        />
+                    )}
+                    { updateType === 'set' && editor === 'MethodEditor' && (
+                        <MethodEditor
+                            method={field.updateValue.value}
+                            onUpdate={this.handleUpdateValueChange}
+                            stateless
+                        />
+                    )}
+                    { updateType === 'set' && editor === 'OriginEditor' && (
+                        <OriginEditor
+                            origins={field.updateValue.value}
+                            onUpdate={this.handleUpdateValueChange}
+                            stateless
                         />
                     )}
                 </Grid>
@@ -71,12 +113,12 @@ class VariableTabUpdateField extends React.Component {
 }
 
 VariableTabUpdateField.propTypes = {
-    classes         : PropTypes.object.isRequired,
-    onChange        : PropTypes.func.isRequired,
-    attrList        : PropTypes.array.isRequired,
-    updateTypeList  : PropTypes.array.isRequired,
-    updateAttrs     : PropTypes.object.isRequired,
-    field           : PropTypes.object.isRequired,
+    classes     : PropTypes.object.isRequired,
+    onChange    : PropTypes.func.isRequired,
+    attrList    : PropTypes.array.isRequired,
+    updateAttrs : PropTypes.object.isRequired,
+    field       : PropTypes.object.isRequired,
+    values      : PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(VariableTabUpdateField);

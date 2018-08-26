@@ -68,10 +68,10 @@ class ConnectedMethodEditor extends React.Component {
         // Catching this and resetting to undefined in case it is an empty string
         let defaultValue;
         if (this.props.stateless !== true) {
-            if (this.props.defaultValue === '') {
+            if (this.props.method === '') {
                 defaultValue = undefined;
             } else {
-                defaultValue = this.props.defaultValue;
+                defaultValue = this.props.method;
             }
             this.state = {
                 method             : defaultValue,
@@ -86,7 +86,7 @@ class ConnectedMethodEditor extends React.Component {
 
     handleChange = (name, methodName) => (updateObj, checked) => {
         let newMethod;
-        let method = this.props.stateless === true ? this.props.defaultValue : this.state.method;
+        let method = this.props.stateless === true ? this.props.method : this.state.method;
         if (name === 'addMethod') {
             let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
             newMethod = { ...new Method({ oid: methodOid, descriptions: [ { ...new TranslatedText({lang: this.props.lang, value: ''}) } ] }) };
@@ -105,7 +105,7 @@ class ConnectedMethodEditor extends React.Component {
             newMethod = clone(method);
             newMethod.autoMethodName = checked;
             if (checked) {
-                newMethod.name = 'Algorithm for ' + this.props.row.fullName;
+                newMethod.name = 'Algorithm for ' + this.props.fullName;
             }
         } else if (name === 'addDocument') {
             newMethod = clone(method);
@@ -171,12 +171,12 @@ class ConnectedMethodEditor extends React.Component {
     }
 
     cancel = () => {
-        this.props.onUpdate(this.props.defaultValue);
+        this.props.onUpdate(this.props.method);
     }
 
     render () {
         const { classes } = this.props;
-        let method = this.props.stateless === true ? this.props.defaultValue : this.state.method;
+        let method = this.props.stateless === true ? this.props.method : this.state.method;
         const methodTypeList = ['Imputation', 'Computation'];
         let methodName, autoMethodName, methodType, formalExpressionExists;
         if (method !== undefined) {
@@ -193,7 +193,7 @@ class ConnectedMethodEditor extends React.Component {
         }
 
         if (autoMethodName) {
-            methodName = 'Algorithm for ' + this.props.row.fullName;
+            methodName = 'Algorithm for ' + this.props.fullName;
         }
 
         let usedBy;
@@ -215,7 +215,7 @@ class ConnectedMethodEditor extends React.Component {
                             </Typography>
                         </Grid>
                         <Grid item>
-                            <Tooltip title={method === undefined ? 'Add Method' : 'Remove Method'} placement='bottom' enterDelay='1000'>
+                            <Tooltip title={method === undefined ? 'Add Method' : 'Remove Method'} placement='bottom' enterDelay={1000}>
                                 <span>
                                     <IconButton
                                         onClick={method === undefined ? this.handleChange('addMethod') : this.handleChange('deleteMethod')}
@@ -228,7 +228,7 @@ class ConnectedMethodEditor extends React.Component {
                             </Tooltip>
                         </Grid>
                         <Grid item>
-                            <Tooltip title='Add Link to Document' placement='bottom' enterDelay='1000'>
+                            <Tooltip title='Add Link to Document' placement='bottom' enterDelay={1000}>
                                 <span>
                                     <IconButton
                                         onClick={this.handleChange('addDocument')}
@@ -242,7 +242,7 @@ class ConnectedMethodEditor extends React.Component {
                             </Tooltip>
                         </Grid>
                         <Grid item>
-                            <Tooltip title={formalExpressionExists === false ? 'Add Formal Expression' : 'Remove Formal Expression'} placement='bottom' enterDelay='1000'>
+                            <Tooltip title={formalExpressionExists === false ? 'Add Formal Expression' : 'Remove Formal Expression'} placement='bottom' enterDelay={1000}>
                                 <span>
                                     <IconButton
                                         onClick={formalExpressionExists === false ? this.handleChange('addFormalExpression',0) : this.handleChange('deleteFormalExpression',0)}
@@ -256,7 +256,7 @@ class ConnectedMethodEditor extends React.Component {
                             </Tooltip>
                         </Grid>
                         <Grid item>
-                            <Tooltip title='Select Method' placement='bottom' enterDelay='1000'>
+                            <Tooltip title='Select Method' placement='bottom' enterDelay={1000}>
                                 <span>
                                     <IconButton
                                         onClick={this.handleSelectDialog('openSelectMethod')}
@@ -306,11 +306,12 @@ class ConnectedMethodEditor extends React.Component {
                                             <Tooltip
                                                 title={autoMethodName ? 'Set Method Name Automatically' : 'Set Method Name Manually'}
                                                 placement='bottom'
-                                                enterDelay='1000'
+                                                enterDelay={1000}
                                             >
                                                 <Switch
                                                     checked={autoMethodName}
                                                     onChange={this.handleChange('autoMethodNameUpdate')}
+                                                    disabled={this.props.fullName === undefined}
                                                     color='primary'
                                                     className={classes.switch}
                                                 />
@@ -370,7 +371,7 @@ class ConnectedMethodEditor extends React.Component {
 }
 
 ConnectedMethodEditor.propTypes = {
-    defaultValue: PropTypes.oneOfType([
+    method: PropTypes.oneOfType([
         PropTypes.object,
         PropTypes.oneOf([""]),
     ]),
@@ -378,6 +379,7 @@ ConnectedMethodEditor.propTypes = {
     leafs     : PropTypes.object.isRequired,
     lang      : PropTypes.string.isRequired,
     methods   : PropTypes.object.isRequired,
+    fullName  : PropTypes.string,
     onUpdate  : PropTypes.func,
     stateless : PropTypes.bool,
 };

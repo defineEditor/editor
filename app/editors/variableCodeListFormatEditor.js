@@ -5,6 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import SaveCancel from 'editors/saveCancel.js';
 import TextField from '@material-ui/core/TextField';
 import getSelectionList from 'utils/getSelectionList.js';
+import sortCodeLists from 'utils/sortCodeLists.js';
 
 const styles = theme => ({
     textField: {
@@ -18,19 +19,6 @@ const styles = theme => ({
         outline: 'none',
     },
 });
-
-const sortCodeLists = (codeLists) => {
-    const sortCLIds = (id1, id2) => {
-        if (codeLists[id1].name > codeLists[id2].name) {
-            return 1;
-        } else if (codeLists[id1].name < codeLists[id2].name) {
-            return -1;
-        } else {
-            return 0;
-        }
-    };
-    return Object.keys(codeLists).sort(sortCLIds);
-};
 
 class VariableCodeListFormatEditor extends React.Component {
     constructor (props) {

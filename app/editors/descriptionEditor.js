@@ -27,11 +27,8 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        stdConstants  : state.stdConstants,
-        defineVersion : state.odm.study.metaDataVersion.defineVersion,
-        model         : state.odm.study.metaDataVersion.model,
+        // TODO : remove mapStateToProps and add mapDispatchToProps
         lang          : state.odm.study.metaDataVersion.lang,
-        leafs         : state.odm.study.metaDataVersion.leafs,
     };
 };
 
@@ -77,9 +74,7 @@ class ConnectedDescriptionEditor extends React.Component {
 
     render () {
         const { classes } = this.props;
-        let childProps = Object.assign({}, this.props);
         const originType = this.state.origins.length > 0 && this.state.origins[0].type;
-        delete childProps.classes;
 
         return (
             <div
@@ -90,7 +85,7 @@ class ConnectedDescriptionEditor extends React.Component {
             >
                 <Grid container spacing={8} alignItems='center'>
                     <Grid item xs={12} className={classes.gridItem}>
-                        <OriginEditor {...childProps} defaultValue={this.state.origins} onUpdate={this.handleChange('origins')} lang={this.props.lang}/>
+                        <OriginEditor origins={this.state.origins} onUpdate={this.handleChange('origins')}/>
                     </Grid>
                     <Grid item xs={12} className={classes.gridItem}>
                         <Divider/>
@@ -98,7 +93,7 @@ class ConnectedDescriptionEditor extends React.Component {
                     {(['Derived','Assigned'].includes(originType) || this.state.method !== undefined) &&
                             <React.Fragment>
                                 <Grid item xs={12} className={classes.gridItem}>
-                                    <MethodEditor {...childProps} defaultValue={this.state.method} onUpdate={this.handleChange('method')} stateless={true}/>
+                                    <MethodEditor method={this.state.method} onUpdate={this.handleChange('method')} stateless={true} fullName={this.props.row.fullName}/>
                                 </Grid>
                                 <Grid item xs={12} className={classes.gridItem}>
                                     <Divider/>
@@ -106,7 +101,7 @@ class ConnectedDescriptionEditor extends React.Component {
                             </React.Fragment>
                     }
                     <Grid item xs={12} className={classes.gridItem}>
-                        <CommentEditor {...childProps} comment={this.state.comment} onUpdate={this.handleChange('comment')} stateless={true}/>
+                        <CommentEditor comment={this.state.comment} onUpdate={this.handleChange('comment')} stateless={true}/>
                     </Grid>
                     <Grid item xs={12} className={classes.gridItem}>
                         <Divider/>
@@ -122,9 +117,6 @@ class ConnectedDescriptionEditor extends React.Component {
 
 ConnectedDescriptionEditor.propTypes = {
     defaultValue : PropTypes.object,
-    leafs        : PropTypes.object.isRequired,
-    lang         : PropTypes.string.isRequired,
-    model        : PropTypes.string.isRequired,
 };
 
 const DescriptionEditor = connect(mapStateToProps)(ConnectedDescriptionEditor);

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
@@ -37,10 +38,20 @@ const styles = theme => ({
     },
 });
 
-class OriginEditor extends React.Component {
+const mapStateToProps = state => {
+    return {
+        leafs         : state.odm.study.metaDataVersion.leafs,
+        lang          : state.odm.study.metaDataVersion.lang,
+        model         : state.odm.study.metaDataVersion.model,
+        stdConstants  : state.stdConstants,
+        defineVersion : state.odm.study.metaDataVersion.defineVersion,
+    };
+};
+
+class ConnectedOriginEditor extends React.Component {
 
     handleChange = (name, originId) => (updateObj) => {
-        let origins = this.props.defaultValue;
+        let origins = this.props.origins;
         let origin = origins[originId];
         let newOrigin;
         let newOrigins = origins.map( origin => (clone(origin)));
@@ -99,7 +110,7 @@ class OriginEditor extends React.Component {
 
         let origin, originType, originDescription;
         if (this.props.defineVersion === '2.0.0'){
-            origin = this.props.defaultValue[0];
+            origin = this.props.origins[0];
             if (origin) {
                 originType = origin.type || '';
                 if (origin.descriptions.length > 0) {
@@ -118,7 +129,7 @@ class OriginEditor extends React.Component {
                             </Typography>
                         </Grid>
                         <Grid item>
-                            <Tooltip title={origin === undefined ? 'Add Origin' : 'Remove Origin'} placement='bottom' enterDelay='1000'>
+                            <Tooltip title={origin === undefined ? 'Add Origin' : 'Remove Origin'} placement='bottom' enterDelay={1000}>
                                 <span>
                                     <IconButton
                                         onClick={origin === undefined ? this.handleChange('addOrigin',0) : this.handleChange('deleteOrigin',0)}
@@ -131,7 +142,7 @@ class OriginEditor extends React.Component {
                             </Tooltip>
                         </Grid>
                         <Grid item>
-                            <Tooltip title='Add Link to Document' placement='bottom' enterDelay='1000'>
+                            <Tooltip title='Add Link to Document' placement='bottom' enterDelay={1000}>
                                 <span>
                                     <IconButton
                                         onClick={this.handleChange('addDocument',0)}
@@ -145,7 +156,7 @@ class OriginEditor extends React.Component {
                             </Tooltip>
                         </Grid>
                         <Grid item>
-                            <Tooltip title={originDescription === undefined ? 'Add Description' : 'Remove Description'} placement='bottom' enterDelay='1000'>
+                            <Tooltip title={originDescription === undefined ? 'Add Description' : 'Remove Description'} placement='bottom' enterDelay={1000}>
                                 <span>
                                     <IconButton
                                         onClick={originDescription === undefined ? this.handleChange('addDescription',0) : this.handleChange('deleteDescription',0)}
@@ -200,11 +211,15 @@ class OriginEditor extends React.Component {
     }
 }
 
-OriginEditor.propTypes = {
-    defaultValue : PropTypes.array.isRequired,
-    leafs        : PropTypes.object.isRequired,
-    lang         : PropTypes.string.isRequired,
-    onUpdate     : PropTypes.func
+ConnectedOriginEditor.propTypes = {
+    origins       : PropTypes.array.isRequired,
+    leafs         : PropTypes.object.isRequired,
+    stdConstants  : PropTypes.object.isRequired,
+    defineVersion : PropTypes.string.isRequired,
+    model         : PropTypes.string.isRequired,
+    lang          : PropTypes.string.isRequired,
+    onUpdate      : PropTypes.func
 };
 
+const OriginEditor = connect(mapStateToProps)(ConnectedOriginEditor);
 export default withStyles(styles)(OriginEditor);

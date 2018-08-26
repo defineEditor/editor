@@ -288,6 +288,7 @@ ConnectedCommentEditor.propTypes = {
     leafs     : PropTypes.object.isRequired,
     lang      : PropTypes.string.isRequired,
     mdv       : PropTypes.object.isRequired,
+    comments  : PropTypes.object.isRequired,
     onUpdate  : PropTypes.func,
     autoFocus : PropTypes.bool,
     stateless : PropTypes.bool,

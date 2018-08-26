@@ -18,6 +18,7 @@ import getSelectionList from 'utils/getSelectionList.js';
 import VariableTabUpdateField from 'utils/variableTabUpdateField.js';
 import getTableDataForFilter from 'utils/getTableDataForFilter.js';
 import applyFilter from 'utils/applyFilter.js';
+import sortCodeLists from 'utils/sortCodeLists.js';
 import {
     updateFilter
 } from 'actions/index.js';
@@ -95,21 +96,22 @@ const mapStateToProps = state => {
     return {
         mdv           : state.odm.study.metaDataVersion,
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
+        stdConstants  : state.stdConstants,
     };
 };
 
 const updateAttrs = {
     'name'          : { label: 'Name', editor: 'TextField' },
     'label'         : { label: 'Label', editor: 'TextField' },
-    'dataType'      : { label: 'Data Type', editor: 'SimpleSelectEditor' },
-    'codeList'      : { label: 'Codelist', editor: 'SimpleSelectEditor' },
-    'origin'        : { label: 'Origin', editor: 'SimpleSelectEditor' },
+    'dataType'      : { label: 'Data Type', editor: 'Select' },
+    'codeList'      : { label: 'Codelist', editor: 'Select' },
+    'origin'        : { label: 'Origin', editor: 'OriginEditor' },
     'length'        : { label: 'Length', editor: 'TextField' },
     'method'        : { label: 'Method', editor: 'MethodEditor' },
     'comment'       : { label: 'Comment', editor: 'CommentEditor' },
-    'mandatory'     : { label: 'Mandatory', editor: 'SimpleSelectEditor' },
+    'mandatory'     : { label: 'Mandatory', editor: 'Select' },
     'displayFormat' : { label: 'Display Format', editor: 'TextField' },
-    'role'          : { label: 'Role', editor: 'SimpleSelectEditor' },
+    'role'          : { label: 'Role', editor: 'Select' },
 };
 
 class ConnectedVariableTabUpdate extends React.Component {
@@ -123,16 +125,30 @@ class ConnectedVariableTabUpdate extends React.Component {
             conditions : [{field: 'dataset', comparator: 'IN', selectedValues: [this.props.mdv.itemGroups[this.props.itemGroupOid].name]}],
             connectors: [],
         };
+        // Get value lists for select editors
+        let sortedCodeListIds = sortCodeLists(this.props.mdv.codeLists);
+        let codeLists = {}; 
+        sortedCodeListIds.forEach( codeListOid => {
+            codeLists[codeListOid] = this.props.mdv.codeLists[codeListOid].name + ' (' + codeListOid + ')';
+        });
+        let values = {
+            dataType: this.props.stdConstants.dataTypes,
+            origin: this.props.stdConstants.originTypes[this.props.mdv.model],
+            role: this.props.stdConstants.variableRoles,
+            mandatory: {Y: 'Yes'},
+            codeList: codeLists,
+        };
 
         this.state = {
             selectedItems,
             fields :[{
                 attr: 'name',
                 updateType: 'set',
-                updateObj: { name: '' },
+                updateValue: { value: '' },
             }],
             anchorEl: null,
             showFilter: false,
+            values,
             filter,
         };
     }
@@ -151,32 +167,28 @@ class ConnectedVariableTabUpdate extends React.Component {
                 || updateAttrs[updateObj.target.value].editor !== 'TextField'
             ) {
                 result[index].updateType = 'set';
-                result[index].updateObj = {};
+                if (updateObj.target.value === 'origin') {
+                    result[index].updateValue = {value: []};
+                } else {
+                    result[index].updateValue = {};
+                }
             }
-            this.setState({
-                fields: result,
-            });
         } else if (name === 'updateType') {
             if (result[index].updateType === updateObj.target.value) {
                 return;
             }
             result[index].updateType = updateObj.target.value;
-            result[index].updateObj = {};
-            this.setState({
-                fields: result,
-            });
-        } else if (name === 'selectedValues') {
-            if (typeof updateObj.target.value === 'object') {
-                // Fix an issue when a blank values appreas when keyboard is used
-                // TODO: Investigate issue, see https://trello.com/c/GVhBqI4W/65
-                result[index].selectedValues = updateObj.target.value.filter(value => value !== '');
+            if (updateObj.target.value === 'origin') {
+                result[index].updateValue = {value: []};
             } else {
-                result[index].selectedValues = [updateObj.target.value];
+                result[index].updateValue = {};
             }
-            this.setState({
-                conditions: result,
-            });
+        } else if (name === 'updateValue') {
+            result[index].updateValue = updateObj;
         }
+        this.setState({
+            fields: result,
+        });
     }
 
     getData = () => {
@@ -301,10 +313,6 @@ class ConnectedVariableTabUpdate extends React.Component {
 
     getUpdateFields = () => {
         let result = [];
-        let updateTypeList = getSelectionList({
-            set: 'Set',
-            replace: 'Replace',
-        });
         let attrList = getSelectionList(
             Object.keys(updateAttrs).map(attr => ({ [attr]: updateAttrs[attr].label }))
         );
@@ -312,8 +320,8 @@ class ConnectedVariableTabUpdate extends React.Component {
             result.push(
                 <VariableTabUpdateField
                     field={field}
+                    values={this.state.values}
                     updateAttrs={updateAttrs}
-                    updateTypeList={updateTypeList}
                     attrList={attrList}
                     onChange={this.handleChange(index)}
                 />
