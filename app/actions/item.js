@@ -12,6 +12,7 @@ import {
     INSERT_VALLVL,
     DEL_VARS,
     UPD_NAMELABELWHERECLAUSE,
+    UPD_ITEMSBULK,
 } from "constants/action-types";
 
 // Item Ref/Def actions
@@ -19,6 +20,13 @@ export const updateItemDef = (oid, updateObj) => (
     {
         type      : UPD_ITEMDEF,
         oid       : oid,
+        updateObj : updateObj,
+    }
+);
+
+export const updateItemsBulk = (updateObj) => (
+    {
+        type      : UPD_ITEMSBULK,
         updateObj : updateObj,
     }
 );

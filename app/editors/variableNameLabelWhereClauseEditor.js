@@ -102,20 +102,20 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
         } else if (name === 'whereClauseInteractive') {
             let rangeChecks = [];
             updateObj.forEach( rawRangeCheck => {
-                rangeChecks.push(new RangeCheck(rawRangeCheck));
+                rangeChecks.push({ ...new RangeCheck(rawRangeCheck) });
             });
             this.setState({
-                whereClause: new WhereClause({
+                whereClause: { ...new WhereClause({
                     ...this.state.whereClause,
                     rangeChecks: rangeChecks,
-                })
+                }) }
             });
         } else if (name === 'comment') {
             this.setState({
-                whereClause: new WhereClause({
+                whereClause:{ ...new WhereClause({
                     ...this.state.whereClause,
                     commentOid: updateObj.oid,
-                }),
+                }) },
                 wcComment: updateObj,
             });
         } else if (name === 'autoLabel') {
@@ -124,7 +124,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
             // Create a new description;
             let lang = 'en';
             let value = updateObj.target.value;
-            let descriptions = [new TranslatedText({lang, value})];
+            let descriptions = [{ ...new TranslatedText({lang, value}) }];
             this.setState({ descriptions });
         } else if (name === 'name') {
             // Upcase name value
@@ -272,19 +272,19 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
                     return checkValue;
                 }
             });
-            rangeChecks.push(new RangeCheck({
+            rangeChecks.push({ ...new RangeCheck({
                 comparator   : comparator,
                 itemOid      : itemOid,
                 itemGroupOid : itemGroupOid,
                 checkValues  : checkValues
-            }));
+            }) });
         });
         // Create and set the new WhereClause
         this.setState({
-            whereClause: new WhereClause({
+            whereClause: { ...new WhereClause({
                 ...this.state.whereClause,
                 rangeChecks: rangeChecks,
-            })
+            }) }
         });
     }
 

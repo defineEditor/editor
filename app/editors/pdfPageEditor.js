@@ -23,6 +23,9 @@ const styles = theme => ({
     select: {
         marginTop: theme.spacing.unit * 2,
     },
+    textField: {
+        width: '100px',
+    },
     textFieldFirst: {
         width: '80px',
     },
@@ -78,7 +81,7 @@ class PdfPageEditor extends React.Component {
         if (type === 'PhysicalRef') {
             result.push(
                 <Grid item key='switch'>
-                    <Tooltip title={!this.state.pageRangeFlag ? 'Enable Range of Pages' : 'Disable Range of Pages'} placement='bottom' enterDelay='1000'>
+                    <Tooltip title={!this.state.pageRangeFlag ? 'Enable Range of Pages' : 'Disable Range of Pages'} placement='bottom' enterDelay={1000}>
                         <Switch
                             checked={this.state.pageRangeFlag}
                             onChange={(event, checked) => this.setState({ pageRangeFlag: checked })}
@@ -152,7 +155,7 @@ class PdfPageEditor extends React.Component {
         return (
             <Grid container spacing={8} alignItems='center'>
                 <Grid item>
-                    <Tooltip title='Remove PDF Page Reference' placement='bottom-end' enterDelay='1000'>
+                    <Tooltip title='Remove PDF Page Reference' placement='bottom-end' enterDelay={1000}>
                         <IconButton
                             color='secondary'
                             onClick={this.props.handleChange('deletePdfPageRef',this.props.documentId,this.props.pdfPageRefId)}

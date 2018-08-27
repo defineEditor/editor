@@ -1,6 +1,7 @@
 import {
     UPD_ITEMDEF,
     UPD_ITEMCLDF,
+    UPD_ITEMSBULK,
     UPD_ITEMDESCRIPTION,
     UPD_NAMELABELWHERECLAUSE,
     ADD_VAR,
@@ -11,11 +12,11 @@ import {
     INSERT_VAR,
     INSERT_VALLVL,
 } from "constants/action-types";
-import { ItemDef } from 'elements.js';
+import { ItemDef, TranslatedText } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
 
 const updateItemDef = (state, action) => {
-    let newItemDef = new ItemDef({...state[action.oid], ...action.updateObj});
+    let newItemDef = { ...new ItemDef({...state[action.oid], ...action.updateObj}) };
     return { ...state, [action.oid]: newItemDef };
 };
 
@@ -27,12 +28,12 @@ const updateItemCodeListDisplayFormat = (state, action) => {
     } else {
         lengthAsCodeList = state[action.oid].lengthAsCodeList;
     }
-    let newItemDef = new ItemDef({
+    let newItemDef = { ...new ItemDef({
         ...state[action.oid],
         codeListOid   : action.updateObj.codeListOid,
         displayFormat : action.updateObj.displayFormat,
         lengthAsCodeList
-    });
+    }) };
     return { ...state, [action.oid]: newItemDef };
 };
 
@@ -50,12 +51,12 @@ const updateItemDescription = (state, action) => {
         newCommentOid = action.updateObj.comment.oid;
     }
     if (previousCommentOid !== newCommentOid) {
-        newState = { ...state, [action.source.oid]: new ItemDef({ ...newState[action.source.oid], commentOid: newCommentOid }) };
+        newState = { ...state, [action.source.oid]: { ...new ItemDef({ ...newState[action.source.oid], commentOid: newCommentOid }) } };
         changedFlag = true;
     }
     // Origin
     if (!deepEqual(action.updateObj.origins, action.prevObj.origins)) {
-        newState = { ...state, [action.source.oid]: new ItemDef({ ...newState[action.source.oid], origins: action.updateObj.origins }) };
+        newState = { ...state, [action.source.oid]: { ...new ItemDef({ ...newState[action.source.oid], origins: action.updateObj.origins }) } };
         changedFlag = true;
     }
 
@@ -67,7 +68,7 @@ const updateItemDescription = (state, action) => {
 };
 
 const updateNameLabel = (state, action) => {
-    let newItemDef = new ItemDef({...state[action.source.itemDefOid], ...action.updateObj});
+    let newItemDef = { ...new ItemDef({...state[action.source.itemDefOid], ...action.updateObj}) };
     return { ...state, [action.source.itemDefOid]: newItemDef };
 };
 
@@ -90,7 +91,7 @@ const deleteVariables = (state, action) => {
             // Delete the dataset from the sources
             let newSourcesForType = state[itemDefOid].sources.itemGroups.slice();
             newSourcesForType.splice(newSourcesForType.indexOf(action.source.itemGroupOid),1);
-            newState = { ...newState, [itemDefOid]: new ItemDef({ ...state[itemDefOid], sources: { ...state[itemDefOid].sources, itemGroups: newSourcesForType } }) };
+            newState = { ...newState, [itemDefOid]: { ...new ItemDef({ ...state[itemDefOid], sources: { ...state[itemDefOid].sources, itemGroups: newSourcesForType } }) } };
         }
     });
     // Remove value levels
@@ -107,9 +108,9 @@ const deleteVariables = (state, action) => {
                 newSourcesForType.splice(newSourcesForType.indexOf(valueListOid),1);
                 newState = {
                     ...newState,
-                    [itemDefOid]: new ItemDef({ ...state[itemDefOid],
+                    [itemDefOid]: { ...new ItemDef({ ...state[itemDefOid],
                         sources: { ...state[itemDefOid].sources, valueLists: newSourcesForType }
-                    })
+                    }) }
                 };
             }
         });
@@ -119,7 +120,7 @@ const deleteVariables = (state, action) => {
         if (newState.hasOwnProperty(itemDefOid)) {
             newState = {
                 ...newState,
-                [itemDefOid]: new ItemDef({ ...state[itemDefOid], valueListOid: undefined })
+                [itemDefOid]: { ...new ItemDef({ ...state[itemDefOid], valueListOid: undefined }) }
             };
         }
     });
@@ -146,7 +147,7 @@ const deleteCodeLists = (state, action) => {
     // action.deleteObj - array of itemOids for which codelists should be removed
     let newState = { ...state };
     action.deleteObj.itemDefOids.forEach( itemDefOid => {
-        let newItemDef = new ItemDef({ ...state[itemDefOid], codeListOid: undefined });
+        let newItemDef = { ...new ItemDef({ ...state[itemDefOid], codeListOid: undefined }) };
         newState = { ...newState, [itemDefOid]: newItemDef };
     });
 
@@ -155,36 +156,123 @@ const deleteCodeLists = (state, action) => {
 
 const handleAddValueList = (state, action) => {
     // Create a new itemDef for the valueList
-    let newItemDef = new ItemDef({
+    let newItemDef = { ...new ItemDef({
         oid              : action.itemDefOid,
         sources          : {itemGroups: [], valueLists: [action.valueListOid]},
         parentItemDefOid : action.source.oid,
-    });
+    }) };
     // Update existing itemDef to reference VLM
-    let parentItemDef = new ItemDef({
+    let parentItemDef = { ...new ItemDef({
         ...state[action.source.oid],
         valueListOid: action.valueListOid,
-    });
+    }) };
     return { ...state, [action.itemDefOid]: newItemDef, [action.source.oid]: parentItemDef };
 };
 
 const insertVariable = (state, action) => {
     // Create a new itemDef
-    let newItemDef = new ItemDef({
+    let newItemDef = { ...new ItemDef({
         oid     : action.itemDefOid,
         sources : {itemGroups: [action.itemGroupOid], valueLists: []},
-    });
+    }) };
     return { ...state, [action.itemDefOid]: newItemDef };
 };
 
 const insertValueLevel = (state, action) => {
     // Create a new itemDef
-    let newItemDef = new ItemDef({
+    let newItemDef = { ...new ItemDef({
         oid              : action.itemDefOid,
         sources          : {itemGroups: [], valueLists: [action.valueListOid]},
         parentItemDefOid : action.parentItemDefOid,
-    });
+    }) };
     return { ...state, [action.itemDefOid]: newItemDef };
+};
+
+const updateItemsBulk = (state, action) => {
+    // Check if the Bulk update is performed for one of the ItemDef attributes
+    let field = action.updateObj.fields[0];
+    // Get all itemDefs for update.
+    let itemDefOids = action.updateObj.selectedItems.map( item => (item.itemDefOid) );
+    if (['name', 'label', 'dataType', 'codeListOid', 'origins', 'length', 'displayFormat'].includes(field.attr)) {
+        let newState = { ...state };
+        const { regex, matchCase, wholeWord, source, target, value } = field.updateValue;
+        let regExp;
+        let escapedTarget;
+        // Create RegExp for the replacement
+        if (field.updateType === 'replace' && regex === true) {
+            regExp = new RegExp(source, matchCase ? '' : 'i');
+        } else if (field.updateType === 'replace') {
+            let escapedSource = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            if (wholeWord === true) {
+                escapedSource = '\\b' + escapedSource + '\\b';
+            }
+            escapedTarget = target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            regExp = new RegExp(escapedSource, matchCase ? '' : 'i');
+        }
+        itemDefOids.forEach( itemDefOid => {
+            let updatedItemDefs = {};
+            if (field.updateType === 'set') {
+                if (['name', 'dataType', 'codeListOid', 'length', 'displayFormat', 'origins'].includes(field.attr)) {
+                    // For those attributes it is a simple set
+                    updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], [field.attr]: value }) };
+                } else if (field.attr === 'label') {
+                    let descriptions = [{ ...new TranslatedText({ lang: action.updateObj.lang, value }) }];
+                    updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], descriptions }) };
+                }
+            } else if (field.updateType === 'replace') {
+                if (['name', 'dataType', 'codeListOid', 'length', 'displayFormat'].includes(field.attr)) {
+                    let value = state[itemDefOid][field.attr] || '';
+                    if (regex === false && regExp !== undefined && regExp.test(value)) {
+                        updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], [field.attr]: value.replace(regExp, escapedTarget) }) };
+                    } else if (regex === true && regExp.test(value)) {
+                        updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], [field.attr]: value.replace(regExp, target) }) };
+                    }
+                } else if (field.attr === 'label') {
+                    let newDescriptions = state[itemDefOid].descriptions.slice();
+                    let updated = false;
+                    state[itemDefOid].descriptions
+                        .filter(description => (description.lang === action.updateObj.lang || description.lang === undefined))
+                        .forEach( (description, index) => {
+                            let value =  description.value || '';
+                            if (regex === false && regExp !== undefined && regExp.test(value)) {
+                                let newDescription = { ...new TranslatedText({ lang: action.updateObj.lang, value: value.replace(regExp, escapedTarget) }) };
+                                newDescriptions.splice(index, 1, newDescription);
+                                updated = true;
+                            } else if (regex === true && regExp.test(value)) {
+                                let newDescription = { ...new TranslatedText({ lang: action.updateObj.lang, value: value.replace(regExp, target) }) };
+                                newDescriptions.splice(index, 1, newDescription);
+                                updated = true;
+                            }
+                        });
+                    if (updated === true) {
+                        updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], descriptions: newDescriptions }) };
+                    }
+                } else if (field.attr === 'origins') {
+                    // TODO
+                    updatedItemDefs[itemDefOid] = {};
+                }
+            }
+            newState = { ...newState, ...updatedItemDefs };
+        });
+        return newState;
+    } else if (field.attr === 'comment' && field.updateType === 'set') {
+        let newState = { ...state };
+        let updatedItemDefs = {};
+        itemDefOids.forEach( itemDefOid => {
+            // Check if comment OID has changed
+            if (field.updateValue.value !== undefined && state[itemDefOid].commentOid !== field.updateValue.value.oid) {
+                updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], commentOid: field.updateValue.value.oid }) };
+            }
+            // Check if comment was removed
+            if (field.updateValue.value === undefined && state[itemDefOid].commentOid !== undefined) {
+                updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], commentOid: undefined }) };
+            }
+            newState = { ...newState, ...updatedItemDefs };
+        });
+        return newState;
+    } else {
+        return state;
+    }
 };
 
 const itemDefs = (state = {}, action) => {
@@ -197,6 +285,8 @@ const itemDefs = (state = {}, action) => {
             return updateItemDescription(state, action);
         case UPD_NAMELABELWHERECLAUSE:
             return updateNameLabel(state, action);
+        case UPD_ITEMSBULK:
+            return updateItemsBulk(state, action);
         case ADD_VAR:
             return addVariable(state, action);
         case DEL_VARS:

@@ -7,6 +7,8 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
+import FormGroup from '@material-ui/core/FormGroup';
+import Checkbox from '@material-ui/core/Checkbox';
 import getSelectionList from 'utils/getSelectionList.js';
 import CommentEditor from 'editors/commentEditor.js';
 import MethodEditor from 'editors/methodEditor.js';
@@ -16,28 +18,44 @@ const styles = theme => ({
     textField: {
         whiteSpace : 'normal',
         minWidth   : '200px',
-        marginLeft : theme.spacing.unit,
-    },
-    updateType: {
-        marginLeft : theme.spacing.unit,
+        marginRight : theme.spacing.unit,
     },
 });
 
 
 class VariableTabUpdateField extends React.Component {
 
-    handleUpdateValueChange = (event) => {
-        if  (['comment', 'method', 'origin'].includes(this.props.field.attr) ) {
+    handleChange = (name) => (event) => {
+        if (name === 'setObject') {
             this.props.onChange('updateValue')({ value: event });
-        } else {
+        } else if (name === 'setTextField') {
             this.props.onChange('updateValue')({ value: event.target.value });
+        } else if (name === 'replaceSource') {
+            this.props.onChange('updateSource')(event.target.value);
+        } else if (name === 'replaceTarget') {
+            this.props.onChange('updateTarget')(event.target.value);
+        } else if (name === 'toggleRegex') {
+            this.props.onChange('toggleRegex')();
+        } else if (name === 'toggleMatchCase') {
+            this.props.onChange('toggleMatchCase')();
+        } else if (name === 'toggleWholeWord') {
+            this.props.onChange('toggleWholeWord')();
         }
     }
 
     render() {
         const { classes, field, updateAttrs } = this.props;
-        const updateType = field.updateType;
+        const { updateType, attr, updateValue } = field;
         const editor = updateAttrs[field.attr].editor;
+
+        let value = updateValue.value;
+        if (updateType === 'set' && value === undefined) {
+            if (attr === 'origins') {
+                value = [];
+            } else if (editor === 'TextField' || editor === 'Select') {
+                value = '';
+            }
+        }
         return (
             <Grid container spacing={8}>
                 <Grid item xs={12}>
@@ -45,7 +63,7 @@ class VariableTabUpdateField extends React.Component {
                         label='Field'
                         autoFocus
                         select={true}
-                        value={field.attr}
+                        value={attr}
                         onChange={this.props.onChange('attr')}
                         className={classes.textField}
                     >
@@ -57,8 +75,7 @@ class VariableTabUpdateField extends React.Component {
                         aria-label="UpdateType"
                         name="updateType"
                         row
-                        className={classes.updateType}
-                        value={field.updateType}
+                        value={updateType}
                         onChange={this.props.onChange('updateType')}
                     >
                         <FormControlLabel value="set" control={<Radio color="primary"/>} label="Set" />
@@ -69,8 +86,8 @@ class VariableTabUpdateField extends React.Component {
                     { updateType === 'set' && editor === 'TextField' && (
                         <TextField
                             label='Value'
-                            value={field.updateValue.value}
-                            onChange={this.handleUpdateValueChange}
+                            value={value}
+                            onChange={this.handleChange('setTextField')}
                             className={classes.textField}
                         />
                     )}
@@ -78,8 +95,8 @@ class VariableTabUpdateField extends React.Component {
                         <TextField
                             label='Value'
                             select
-                            value={field.updateValue.value}
-                            onChange={this.handleUpdateValueChange}
+                            value={value}
+                            onChange={this.handleChange('setTextField')}
                             className={classes.textField}
                         >
                             {getSelectionList(this.props.values[field.attr], true)}
@@ -87,24 +104,109 @@ class VariableTabUpdateField extends React.Component {
                     )}
                     { updateType === 'set' && editor === 'CommentEditor' && (
                         <CommentEditor
-                            comment={field.updateValue.value}
-                            onUpdate={this.handleUpdateValueChange}
+                            comment={value}
+                            onUpdate={this.handleChange('setObject')}
                             stateless
                         />
                     )}
                     { updateType === 'set' && editor === 'MethodEditor' && (
                         <MethodEditor
-                            method={field.updateValue.value}
-                            onUpdate={this.handleUpdateValueChange}
+                            method={value}
+                            onUpdate={this.handleChange('setObject')}
                             stateless
                         />
                     )}
                     { updateType === 'set' && editor === 'OriginEditor' && (
                         <OriginEditor
-                            origins={field.updateValue.value}
-                            onUpdate={this.handleUpdateValueChange}
+                            origins={value}
+                            onUpdate={this.handleChange('setObject')}
                             stateless
                         />
+                    )}
+                    { updateType === 'replace' && ['TextField', 'MethodEditor', 'CommentEditor'].includes(editor)  && (
+                        <Grid container spacing={8} alignItems='flex-start'>
+                            <Grid item>
+                                <TextField
+                                    label='Find What'
+                                    value={field.updateValue.source}
+                                    onChange={this.handleChange('replaceSource')}
+                                    className={classes.textField}
+                                />
+                            </Grid>
+                            <Grid item>
+                                <TextField
+                                    label='Replace With'
+                                    value={field.updateValue.target}
+                                    onChange={this.handleChange('replaceTarget')}
+                                    className={classes.textField}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <FormGroup row>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={field.updateValue.regex}
+                                                onChange={this.handleChange('toggleRegex')}
+                                                color='primary'
+                                                disabled={field.updateValue.wholeWord}
+                                                value='regex'
+                                            />
+                                        }
+                                        label="Regex"
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={field.updateValue.matchCase}
+                                                onChange={this.handleChange('toggleMatchCase')}
+                                                color='primary'
+                                                value='matchCase'
+                                            />
+                                        }
+                                        label="Match Case"
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={field.updateValue.wholeWord}
+                                                onChange={this.handleChange('toggleWholeWord')}
+                                                color='primary'
+                                                disabled={field.updateValue.regex}
+                                                value='wholeWord'
+                                            />
+                                        }
+                                        label="Whole Word"
+                                    />
+                                </FormGroup>
+                            </Grid>
+                        </Grid>
+                    )}
+                    { updateType === 'replace' && ['Select', 'OriginEditor'].includes(editor) && (
+                        <Grid container spacing={8} alignItems='flex-start'>
+                            <Grid item>
+                                <TextField
+                                    label='Find What'
+                                    select
+                                    value={field.updateValue.source}
+                                    onChange={this.handleChange('replaceSource')}
+                                    className={classes.textField}
+                                >
+                                    {getSelectionList(this.props.values[field.attr], true)}
+                                </TextField>
+                            </Grid>
+                            <Grid item>
+                                <TextField
+                                    label='Replace With'
+                                    select
+                                    value={field.updateValue.target}
+                                    onChange={this.handleChange('replaceTarget')}
+                                    className={classes.textField}
+                                >
+                                    {getSelectionList(this.props.values[field.attr], true)}
+                                </TextField>
+                            </Grid>
+                        </Grid>
                     )}
                 </Grid>
             </Grid>

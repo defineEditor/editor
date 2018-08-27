@@ -20,7 +20,7 @@ import getTableDataForFilter from 'utils/getTableDataForFilter.js';
 import applyFilter from 'utils/applyFilter.js';
 import sortCodeLists from 'utils/sortCodeLists.js';
 import {
-    updateFilter
+    updateItemsBulk
 } from 'actions/index.js';
 
 
@@ -88,7 +88,7 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateVariables: (oid, updateObj) => dispatch(updateFilter(oid, updateObj)),
+        updateItemsBulk: (updateObj) => dispatch(updateItemsBulk(updateObj)),
     };
 };
 
@@ -96,6 +96,7 @@ const mapStateToProps = state => {
     return {
         mdv           : state.odm.study.metaDataVersion,
         defineVersion : state.odm.study.metaDataVersion.defineVersion,
+        lang          : state.odm.study.metaDataVersion.lang,
         stdConstants  : state.stdConstants,
     };
 };
@@ -104,8 +105,8 @@ const updateAttrs = {
     'name'          : { label: 'Name', editor: 'TextField' },
     'label'         : { label: 'Label', editor: 'TextField' },
     'dataType'      : { label: 'Data Type', editor: 'Select' },
-    'codeList'      : { label: 'Codelist', editor: 'Select' },
-    'origin'        : { label: 'Origin', editor: 'OriginEditor' },
+    'codeListOid'   : { label: 'Codelist', editor: 'Select' },
+    'origins'       : { label: 'Origin', editor: 'OriginEditor' },
     'length'        : { label: 'Length', editor: 'TextField' },
     'method'        : { label: 'Method', editor: 'MethodEditor' },
     'comment'       : { label: 'Comment', editor: 'CommentEditor' },
@@ -127,16 +128,16 @@ class ConnectedVariableTabUpdate extends React.Component {
         };
         // Get value lists for select editors
         let sortedCodeListIds = sortCodeLists(this.props.mdv.codeLists);
-        let codeLists = {}; 
+        let codeLists = {};
         sortedCodeListIds.forEach( codeListOid => {
             codeLists[codeListOid] = this.props.mdv.codeLists[codeListOid].name + ' (' + codeListOid + ')';
         });
         let values = {
             dataType: this.props.stdConstants.dataTypes,
-            origin: this.props.stdConstants.originTypes[this.props.mdv.model],
+            origins: this.props.stdConstants.originTypes[this.props.mdv.model],
             role: this.props.stdConstants.variableRoles,
             mandatory: {Y: 'Yes'},
-            codeList: codeLists,
+            codeListOid: codeLists,
         };
 
         this.state = {
@@ -144,7 +145,7 @@ class ConnectedVariableTabUpdate extends React.Component {
             fields :[{
                 attr: 'name',
                 updateType: 'set',
-                updateValue: { value: '' },
+                updateValue: {},
             }],
             anchorEl: null,
             showFilter: false,
@@ -163,14 +164,13 @@ class ConnectedVariableTabUpdate extends React.Component {
             }
             result[index].attr = updateObj.target.value;
             // Reset all other values if editor is not TextField or the new attr has a different editor
-            if (this.state.fields[index].editor !== updateAttrs[updateObj.target.value].editor
+            if (updateAttrs[this.state.fields[index].attr].editor !== updateAttrs[updateObj.target.value].editor
                 || updateAttrs[updateObj.target.value].editor !== 'TextField'
             ) {
-                result[index].updateType = 'set';
-                if (updateObj.target.value === 'origin') {
-                    result[index].updateValue = {value: []};
-                } else {
+                if (result[index].updateType === 'set') {
                     result[index].updateValue = {};
+                } else if (result[index].updateType === 'replace') {
+                    result[index].updateValue = {regex: false, matchCase: false, wholeWord: false, source: '', target: ''};
                 }
             }
         } else if (name === 'updateType') {
@@ -178,13 +178,23 @@ class ConnectedVariableTabUpdate extends React.Component {
                 return;
             }
             result[index].updateType = updateObj.target.value;
-            if (updateObj.target.value === 'origin') {
-                result[index].updateValue = {value: []};
-            } else {
+            if (result[index].updateType === 'set') {
                 result[index].updateValue = {};
+            } else if (result[index].updateType === 'replace') {
+                result[index].updateValue = {regex: false, matchCase: false, wholeWord: false, source: '', target: ''};
             }
         } else if (name === 'updateValue') {
             result[index].updateValue = updateObj;
+        } else if (name === 'updateSource') {
+            result[index].updateValue = { ...result[index].updateValue, source: updateObj } ;
+        } else if (name === 'updateTarget') {
+            result[index].updateValue = { ...result[index].updateValue, target: updateObj } ;
+        } else if (name === 'toggleRegex') {
+            result[index].updateValue = { ...result[index].updateValue, regex: !result[index].updateValue.regex } ;
+        } else if (name === 'toggleMatchCase') {
+            result[index].updateValue = { ...result[index].updateValue, matchCase: !result[index].updateValue.matchCase } ;
+        } else if (name === 'toggleWholeWord') {
+            result[index].updateValue = { ...result[index].updateValue, wholeWord: !result[index].updateValue.wholeWord } ;
         }
         this.setState({
             fields: result,
@@ -320,6 +330,7 @@ class ConnectedVariableTabUpdate extends React.Component {
             result.push(
                 <VariableTabUpdateField
                     field={field}
+                    key={index}
                     values={this.state.values}
                     updateAttrs={updateAttrs}
                     attrList={attrList}
@@ -367,8 +378,9 @@ class ConnectedVariableTabUpdate extends React.Component {
         );
     }
 
-    cancel = () => {
-        this.props.onClose();
+    update = () => {
+        // Lang is required when Label is set
+        this.props.updateItemsBulk({ selectedItems: this.state.selectedItems, fields: this.state.fields, lang: this.props.lang });
     }
 
     render() {
@@ -393,6 +405,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                                     aria-owns={showSelectedRecords ? 'selectedRecordsPopover' : null}
                                     aria-haspopup="true"
                                     variant='fab'
+                                    key='items'
                                     mini
                                     onClick={(event) => {event.preventDefault(); this.handlePopoverOpen(event);}}
                                     className={classes.filteredItemsCount}
@@ -404,6 +417,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                                 <Button
                                     color='default'
                                     variant='fab'
+                                    key='filter'
                                     mini
                                     onClick={ () => { this.setState({ showFilter: true }); } }
                                 >
@@ -420,7 +434,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                                     <Button
                                         color='primary'
                                         size='small'
-                                        onClick={this.apply}
+                                        onClick={this.update}
                                         variant='raised'
                                         disabled={itemNum < 1}
                                         className={classes.button}
@@ -432,11 +446,11 @@ class ConnectedVariableTabUpdate extends React.Component {
                                     <Button
                                         color='secondary'
                                         size='small'
-                                        onClick={this.cancel}
+                                        onClick={this.props.onClose}
                                         variant='raised'
                                         className={classes.button}
                                     >
-                                        Cancel
+                                        Close
                                     </Button>
                                 </Grid>
                             </Grid>
@@ -481,7 +495,8 @@ ConnectedVariableTabUpdate.propTypes = {
     selectedItems   : PropTypes.array,
     itemGroupOid    : PropTypes.string.isRequired,
     defineVersion   : PropTypes.string.isRequired,
-    updateVariables : PropTypes.func.isRequired,
+    lang            : PropTypes.string.isRequired,
+    updateItemsBulk : PropTypes.func.isRequired,
 };
 
 const VariableTabUpdate = connect(mapStateToProps, mapDispatchToProps)(ConnectedVariableTabUpdate);
