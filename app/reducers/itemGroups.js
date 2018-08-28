@@ -8,6 +8,7 @@ import {
     UPD_ITEMREFKEYORDER,
     UPD_ITEMREFORDER,
     UPD_ITEMDESCRIPTION,
+    UPD_ITEMSBULK,
     REP_ITEMGROUPCOMMENT,
     ADD_VAR,
     DEL_VARS,
@@ -51,7 +52,7 @@ const updateItemGroup = (state, action) => {
             delete updateObj.description;
         } else {
             // Otherwise update the description and set language to standard;
-            let newDescription = new TranslatedText({value: updateObj.description, lang: 'en'});
+            let newDescription = { ...new TranslatedText({value: updateObj.description, lang: 'en'}) };
             updateObj.descriptions = [newDescription];
         }
     }
@@ -68,27 +69,27 @@ const updateItemGroup = (state, action) => {
         }
     } else if (newLeafOid !== undefined && state[action.oid].leaf !== undefined) {
         // If the dataset name changed and the leaf exists, update the leaf id;
-        updateObj.leaf = new Leaf({...state[action.oid].leaf, id: newLeafOid});
+        updateObj.leaf = { ...new Leaf({...state[action.oid].leaf, id: newLeafOid}) };
     }
 
     // Add an updated itemGroup
-    let newItemGroup = new ItemGroup({ ...state[action.oid], ...updateObj });
+    let newItemGroup = { ...new ItemGroup({ ...state[action.oid], ...updateObj }) };
     return { ...newState, [newOid]: newItemGroup };
 };
 
 const addItemGroupComment = (state, action) => {
-    let newItemGroup = new ItemGroup({ ...state[action.source.oid], commentOid: action.comment.oid });
+    let newItemGroup = { ...new ItemGroup({ ...state[action.source.oid], commentOid: action.comment.oid }) };
     return { ...state, [action.source.oid]: newItemGroup };
 };
 
 const replaceItemGroupComment = (state, action) => {
-    let newItemGroup = new ItemGroup({ ...state[action.source.oid], commentOid: action.newComment.oid });
+    let newItemGroup = { ...new ItemGroup({ ...state[action.source.oid], commentOid: action.newComment.oid }) };
     return { ...state, [action.source.oid]: newItemGroup };
 };
 
 
 const deleteItemGroupComment = (state, action) => {
-    let newItemGroup = new ItemGroup({ ...state[action.source.oid], commentOid: undefined });
+    let newItemGroup = { ...new ItemGroup({ ...state[action.source.oid], commentOid: undefined }) };
     return { ...state, [action.source.oid]: newItemGroup };
 };
 
@@ -98,17 +99,17 @@ const updateItemRef = (state, action) => {
     if (action.source.vlm) {
         return state;
     } else {
-        let newItemRef = new ItemRef({ ...state[action.source.itemGroupOid].itemRefs[action.source.itemRefOid], ...action.updateObj });
-        let newItemGroup =  new ItemGroup({ ...state[action.source.itemGroupOid],
+        let newItemRef = { ...new ItemRef({ ...state[action.source.itemGroupOid].itemRefs[action.source.itemRefOid], ...action.updateObj }) };
+        let newItemGroup =  { ...new ItemGroup({ ...state[action.source.itemGroupOid],
             itemRefs: { ...state[action.source.itemGroupOid].itemRefs, [action.source.itemRefOid]: newItemRef }
-        });
+        }) };
         return { ...state, [action.source.itemGroupOid]: newItemGroup };
     }
 };
 
 const updateItemRefOrder = (state, action) => {
     // Check if order changed;
-    let newItemGroup =  new ItemGroup({ ...state[action.itemGroupOid], itemRefOrder: action.itemRefOrder });
+    let newItemGroup =  { ...new ItemGroup({ ...state[action.itemGroupOid], itemRefOrder: action.itemRefOrder }) };
     return { ...state, [action.itemGroupOid]: newItemGroup };
 };
 
@@ -152,10 +153,10 @@ const updateItemRefKeyOrder = (state, action) => {
         } else {
             newKeyOrder = ds.keyOrder;
         }
-        let newItemGroup =  new ItemGroup({ ...state[action.source.itemGroupOid],
+        let newItemGroup =  { ...new ItemGroup({ ...state[action.source.itemGroupOid],
             itemRefOrder : newItemRefOrder,
             keyOrder     : newKeyOrder,
-        });
+        }) };
         return { ...state, [action.source.itemGroupOid]: newItemGroup };
     }
 };
@@ -194,10 +195,10 @@ const addVariable = (state, action) => {
     } else {
         newItemRefOrder = ds.itemRefOrder.slice().concat([action.itemRef.oid]);
     }
-    let newItemGroup =  new ItemGroup({ ...state[action.source.itemGroupOid],
+    let newItemGroup =  { ...new ItemGroup({ ...state[action.source.itemGroupOid],
         itemRefOrder : newItemRefOrder,
         itemRefs     : { ...state[action.source.itemGroupOid].itemRefs, [action.itemRef.oid]: action.itemRef },
-    });
+    }) };
     return { ...state, [action.source.itemGroupOid]: newItemGroup };
 };
 
@@ -234,11 +235,11 @@ const deleteVariables = (state, action) => {
         } else {
             newKeyOrder = ds.keyOrder;
         }
-        let newItemGroup =  new ItemGroup({ ...state[action.source.itemGroupOid],
+        let newItemGroup =  { ...new ItemGroup({ ...state[action.source.itemGroupOid],
             itemRefs     : newItemRefs,
             itemRefOrder : newItemRefOrder,
             keyOrder     : newKeyOrder,
-        });
+        }) };
         return { ...state, [action.source.itemGroupOid]: newItemGroup };
     } else {
         return state;
@@ -248,13 +249,13 @@ const deleteVariables = (state, action) => {
 const updateKeyOrder = (state, action) => {
     // action.itemGroupOid
     // action.keyOrder
-    let newItemGroup =  new ItemGroup({ ...state[action.itemGroupOid], keyOrder: action.keyOrder });
+    let newItemGroup =  { ...new ItemGroup({ ...state[action.itemGroupOid], keyOrder: action.keyOrder }) };
     return { ...state, [action.itemGroupOid]: newItemGroup };
 };
 
 const insertVariable = (state, action) => {
     let itemRefOid = getOid('ItemRef', undefined, state[action.itemGroupOid].itemRefOrder);
-    let itemRef = new ItemRef({ oid: itemRefOid, itemOid: action.itemDefOid });
+    let itemRef = { ...new ItemRef({ oid: itemRefOid, itemOid: action.itemDefOid }) };
     let itemRefs = { ...state[action.itemGroupOid].itemRefs, [itemRefOid]: itemRef };
     let itemRefOrder = state[action.itemGroupOid].itemRefOrder.slice();
     if (action.orderNumber === 0) {
@@ -262,13 +263,85 @@ const insertVariable = (state, action) => {
     } else {
         itemRefOrder.splice(action.orderNumber, 0, itemRefOid);
     }
-    let itemGroup = new ItemGroup(
+    let itemGroup = { ...new ItemGroup(
         {
             ...state[action.itemGroupOid],
             itemRefs,
             itemRefOrder,
-        });
+        }) };
     return { ...state, [action.itemGroupOid]: itemGroup };
+};
+
+const handleItemsBulkUpdate = (state, action) => {
+    // Check if the Bulk update is performed for one of the ItemRef attributes
+    let field = action.updateObj.fields[0];
+    if (['mandatory', 'role', 'method'].includes(field.attr)) {
+        // Get itemRefs from itemOids
+        let itemOidItemRef = {};
+        let uniqueItemGroupOids = [];
+        action.updateObj.selectedItems
+            .filter( item => (item.itemGroupOid !== undefined) )
+            .forEach( item => {
+                if (!uniqueItemGroupOids.includes(item.itemGroupOid)) {
+                    uniqueItemGroupOids.push(item.itemGroupOid);
+                }
+            });
+        uniqueItemGroupOids.forEach( itemGroupOid => {
+            itemOidItemRef[itemGroupOid] = {};
+            Object.keys(state[itemGroupOid].itemRefs).forEach( itemRefOid => {
+                itemOidItemRef[itemGroupOid][state[itemGroupOid].itemRefs[itemRefOid].itemOid] = itemRefOid;
+            });
+        });
+
+        // Get all itemGroups and ItemRefs for update.
+        let itemGroupItemRefs = {};
+        action.updateObj.selectedItems
+            .filter( item => (item.itemGroupOid !== undefined && item.valueListOid === undefined) )
+            .forEach( item => {
+                if (itemGroupItemRefs.hasOwnProperty(item.itemGroupOid)) {
+                    itemGroupItemRefs[item.itemGroupOid].push(itemOidItemRef[item.itemGroupOid][item.itemDefOid]);
+                } else {
+                    itemGroupItemRefs[item.itemGroupOid] = [itemOidItemRef[item.itemGroupOid][item.itemDefOid]];
+                }
+            });
+
+        const { source, target, value } = field.updateValue;
+
+        let updatedItemGroups = {};
+        uniqueItemGroupOids.forEach( itemGroupOid => {
+            let updatedItemRefs = {};
+            itemGroupItemRefs[itemGroupOid].forEach( itemRefOid => {
+                let itemRef = state[itemGroupOid].itemRefs[itemRefOid];
+                if (field.updateType === 'set') {
+                    if (['mandatory', 'role'].includes(field.attr)) {
+                        updatedItemRefs[itemRefOid] = { ...new ItemRef({ ...itemRef, [field.attr]: value }) };
+                    } else if (field.attr === 'method') {
+                        if (value !== undefined && itemRef.methodOid !== value.oid) {
+                            // If method OID has changed
+                            updatedItemRefs[itemRefOid] = { ...new ItemRef({ ...itemRef, methodOid: value.oid }) };
+                        } else if (value === undefined && itemRef.methodOid !== undefined) {
+                            // If method was removed
+                            updatedItemRefs[itemRefOid] = { ...new ItemRef({ ...itemRef, methodOid: undefined }) };
+                        }
+                    }
+                } else if (field.updateType === 'replace') {
+                    if (itemRef[field.attr] === source) {
+                        updatedItemRefs[itemRefOid] = { ...new ItemRef({ ...itemRef, [field.attr]: target }) };
+                    }
+                }
+
+                if (Object.keys(updatedItemRefs).length > 0) {
+                    updatedItemGroups[itemGroupOid] = { ...new ItemGroup({
+                        ...state[itemGroupOid],
+                        itemRefs: { ...state[itemGroupOid].itemRefs, ...updatedItemRefs },
+                    }) };
+                }
+            });
+        });
+        return { ...state, ...updatedItemGroups };
+    } else {
+        return state;
+    }
 };
 
 const itemGroups = (state = {}, action) => {
@@ -293,6 +366,8 @@ const itemGroups = (state = {}, action) => {
             return updateItemRefOrder(state, action);
         case UPD_ITEMDESCRIPTION:
             return updateItemDescription(state, action);
+        case UPD_ITEMSBULK:
+            return handleItemsBulkUpdate(state, action);
         case ADD_VAR:
             return addVariable(state, action);
         case DEL_VARS:

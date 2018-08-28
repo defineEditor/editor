@@ -5,10 +5,11 @@ import {
     REP_ITEMGROUPCOMMENT,
     UPD_ITEMDESCRIPTION,
     UPD_NAMELABELWHERECLAUSE,
+    UPD_ITEMSBULK,
     DEL_VARS,
     DEL_ITEMGROUPS,
 } from "constants/action-types";
-import { Comment } from 'elements.js';
+import { Comment, TranslatedText } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
 
 const addComment = (state, action) => {
@@ -25,7 +26,7 @@ const addComment = (state, action) => {
         } else {
             newSourcesForType = [ action.source.oid ];
         }
-        let newComment = new Comment({ ...action.comment, sources: { ...action.comment.sources, [action.source.type]: newSourcesForType } });
+        let newComment = { ...new Comment({ ...action.comment, sources: { ...action.comment.sources, [action.source.type]: newSourcesForType } }) };
         return {...state, [action.comment.oid]: newComment};
     }
 };
@@ -46,7 +47,7 @@ const deleteComment = (state, action) => {
         // Remove  referece to the source OID from the list of comment sources
         let newSourcesForType = action.comment.sources[action.source.type].slice();
         newSourcesForType.splice(newSourcesForType.indexOf(action.source.oid),1);
-        let newComment = new Comment({ ...action.comment, sources: { ...action.comment.sources, [action.source.type]: newSourcesForType } });
+        let newComment = { ...new Comment({ ...action.comment, sources: { ...action.comment.sources, [action.source.type]: newSourcesForType } }) };
         return {...state, [action.comment.oid]: newComment};
     } else {
         return state;
@@ -163,6 +164,107 @@ const deleteItemGroupCommentReferences = (state, action) => {
     return newState;
 };
 
+const handleItemsBulkUpdate = (state, action) => {
+    let field = action.updateObj.fields[0];
+    if (field.attr === 'comment') {
+        // Get all itemDefs for update.
+        let itemDefOids = action.updateObj.selectedItems.map( item => (item.itemDefOid) );
+        let newState = { ...state };
+        const { regex, matchCase, wholeWord, source, target, value } = field.updateValue;
+        if (field.updateType === 'set') {
+            // Delete references to the itemDefs
+            let deleteOids = {};
+            Object.keys(state).forEach( commentOid => {
+                let comment = state[commentOid];
+                if (value !== undefined && value.oid === commentOid) {
+                    // Do not update the comment which is assigned
+                    return;
+                }
+                deleteOids[commentOid] = [];
+                itemDefOids.forEach(itemDefOid => {
+                    if (comment.sources.itemDefs.includes(itemDefOid)) {
+                        deleteOids[commentOid].push(itemDefOid);
+                    }
+                });
+                if (deleteOids[commentOid].length === 0) {
+                    delete deleteOids[commentOid];
+                }
+            });
+            if (Object.keys(deleteOids).length > 0) {
+                newState = deleteCommentRefereces(newState, { deleteObj: { commentOids: deleteOids } }, 'itemDefs');
+            }
+            // Add new or update source for the existing comment
+            if (value !== undefined) {
+                // If comment already exists update sources
+                if (Object.keys(newState).includes(value.oid)) {
+                    let comment = newState[value.oid];
+                    let newSources = value.sources.itemDefs.slice();
+                    itemDefOids.forEach( (itemDefOid) => {
+                        if (!newSources.includes(itemDefOid)) {
+                            newSources.push(itemDefOid);
+                        }
+                    });
+                    newState = { ...newState, [comment.oid] : { ...new Comment({ ...comment, sources: { ...comment.sources, itemDefs: newSources } }) } };
+                } else {
+                    // Add new comment
+                    newState = { ...newState, [value.oid] : { ...new Comment({ ...value, sources: { ...value.sources, itemDefs: itemDefOids } }) } };
+                }
+            }
+            return newState;
+        } else if (field.updateType === 'replace') {
+            let regExp;
+            let escapedTarget;
+            if (regex === true) {
+                regExp = new RegExp(source, matchCase ? 'g' : 'gi');
+            } else {
+                let escapedSource = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                if (wholeWord === true) {
+                    escapedSource = '\\b' + escapedSource + '\\b';
+                }
+                escapedTarget = target.replace(/[$]/g, '$$');
+                regExp = new RegExp(escapedSource, matchCase ? 'g' : 'gi');
+            }
+            // Replace is update of the comment text
+            let updatedComments = {};
+            Object.keys(state).forEach( commentOid => {
+                let comment = state[commentOid];
+                // Check if comment has selected sources
+                let updateNeeded = false;
+                itemDefOids.some(itemDefOid => {
+                    if (comment.sources.itemDefs.includes(itemDefOid)) {
+                        updateNeeded = true;
+                        return true;
+                    }
+                });
+                // If not, do not update it
+                if (updateNeeded === false) {
+                    return;
+                }
+                let newDescriptions = comment.descriptions.slice();
+                let updated = false;
+                comment.descriptions.forEach( (description, index) => {
+                    let currentValue =  description.value || '';
+                    if (regex === false && regExp !== undefined && regExp.test(currentValue)) {
+                        let newDescription = { ...new TranslatedText({ ...description, value: currentValue.replace(regExp, escapedTarget) }) };
+                        newDescriptions.splice(index, 1, newDescription);
+                        updated = true;
+                    } else if (regex === true && regExp.test(currentValue)) {
+                        let newDescription = { ...new TranslatedText({ ...description, value: currentValue.replace(regExp, target) }) };
+                        newDescriptions.splice(index, 1, newDescription);
+                        updated = true;
+                    }
+                });
+                if (updated === true) {
+                    updatedComments[commentOid] = { ...new Comment({ ...state[commentOid], descriptions: newDescriptions }) };
+                }
+            });
+            return { ...state, ...updatedComments };
+        }
+    } else {
+        return state;
+    }
+};
+
 const comments = (state = {}, action) => {
     switch (action.type) {
         case ADD_ITEMGROUPCOMMENT:
@@ -171,6 +273,8 @@ const comments = (state = {}, action) => {
             return updateComment(state, action);
         case UPD_ITEMDESCRIPTION:
             return handleItemDescriptionUpdate(state, action);
+        case UPD_ITEMSBULK:
+            return handleItemsBulkUpdate(state, action);
         case UPD_NAMELABELWHERECLAUSE:
             return handleNameLabelWhereClauseUpdate(state, action);
         case DEL_ITEMGROUPCOMMENT:

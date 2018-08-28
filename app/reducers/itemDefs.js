@@ -12,7 +12,7 @@ import {
     INSERT_VAR,
     INSERT_VALLVL,
 } from "constants/action-types";
-import { ItemDef, TranslatedText } from 'elements.js';
+import { ItemDef, TranslatedText, Origin } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
 
 const updateItemDef = (state, action) => {
@@ -200,14 +200,14 @@ const updateItemsBulk = (state, action) => {
         let escapedTarget;
         // Create RegExp for the replacement
         if (field.updateType === 'replace' && regex === true) {
-            regExp = new RegExp(source, matchCase ? '' : 'i');
+            regExp = new RegExp(source, matchCase ? 'g' : 'gi');
         } else if (field.updateType === 'replace') {
             let escapedSource = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             if (wholeWord === true) {
                 escapedSource = '\\b' + escapedSource + '\\b';
             }
-            escapedTarget = target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            regExp = new RegExp(escapedSource, matchCase ? '' : 'i');
+            escapedTarget = target.replace(/[$]/g, '$$');
+            regExp = new RegExp(escapedSource, matchCase ? 'g' : 'gi');
         }
         itemDefOids.forEach( itemDefOid => {
             let updatedItemDefs = {};
@@ -221,25 +221,24 @@ const updateItemsBulk = (state, action) => {
                 }
             } else if (field.updateType === 'replace') {
                 if (['name', 'dataType', 'codeListOid', 'length', 'displayFormat'].includes(field.attr)) {
-                    let value = state[itemDefOid][field.attr] || '';
-                    if (regex === false && regExp !== undefined && regExp.test(value)) {
-                        updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], [field.attr]: value.replace(regExp, escapedTarget) }) };
-                    } else if (regex === true && regExp.test(value)) {
-                        updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], [field.attr]: value.replace(regExp, target) }) };
+                    let currentValue = state[itemDefOid][field.attr] || '';
+                    if (regex === false && regExp !== undefined && regExp.test(currentValue)) {
+                        updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], [field.attr]: currentValue.replace(regExp, escapedTarget) }) };
+                    } else if (regex === true && regExp.test(currentValue)) {
+                        updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], [field.attr]: currentValue.replace(regExp, target) }) };
                     }
                 } else if (field.attr === 'label') {
                     let newDescriptions = state[itemDefOid].descriptions.slice();
                     let updated = false;
                     state[itemDefOid].descriptions
-                        .filter(description => (description.lang === action.updateObj.lang || description.lang === undefined))
                         .forEach( (description, index) => {
-                            let value =  description.value || '';
-                            if (regex === false && regExp !== undefined && regExp.test(value)) {
-                                let newDescription = { ...new TranslatedText({ lang: action.updateObj.lang, value: value.replace(regExp, escapedTarget) }) };
+                            let currentValue =  description.value || '';
+                            if (regex === false && regExp !== undefined && regExp.test(currentValue)) {
+                                let newDescription = { ...new TranslatedText({ ...description, value: currentValue.replace(regExp, escapedTarget) }) };
                                 newDescriptions.splice(index, 1, newDescription);
                                 updated = true;
-                            } else if (regex === true && regExp.test(value)) {
-                                let newDescription = { ...new TranslatedText({ lang: action.updateObj.lang, value: value.replace(regExp, target) }) };
+                            } else if (regex === true && regExp.test(currentValue)) {
+                                let newDescription = { ...new TranslatedText({ ...description, value: currentValue.replace(regExp, target) }) };
                                 newDescriptions.splice(index, 1, newDescription);
                                 updated = true;
                             }
@@ -248,8 +247,20 @@ const updateItemsBulk = (state, action) => {
                         updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], descriptions: newDescriptions }) };
                     }
                 } else if (field.attr === 'origins') {
-                    // TODO
-                    updatedItemDefs[itemDefOid] = {};
+                    // When replace is performed for origins, only types are replaced
+                    let newOrigins = state[itemDefOid].origins.slice();
+                    let updated = false;
+                    state[itemDefOid].origins.forEach( (origin, index) => {
+                        let value =  origin.type || '';
+                        if (regExp !== undefined && regExp.test(value)) {
+                            let newOrigin = { ...new Origin({ ...origin, type: value.replace(regExp, escapedTarget) }) };
+                            newOrigins.splice(index, 1, newOrigin);
+                            updated = true;
+                        }
+                    });
+                    if (updated === true) {
+                        updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], origins: newOrigins }) };
+                    }
                 }
             }
             newState = { ...newState, ...updatedItemDefs };

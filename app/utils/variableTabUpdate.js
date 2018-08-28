@@ -136,7 +136,7 @@ class ConnectedVariableTabUpdate extends React.Component {
             dataType: this.props.stdConstants.dataTypes,
             origins: this.props.stdConstants.originTypes[this.props.mdv.model],
             role: this.props.stdConstants.variableRoles,
-            mandatory: {Y: 'Yes'},
+            mandatory: {Yes: 'Yes'},
             codeListOid: codeLists,
         };
 
@@ -163,14 +163,20 @@ class ConnectedVariableTabUpdate extends React.Component {
                 return;
             }
             result[index].attr = updateObj.target.value;
-            // Reset all other values if editor is not TextField or the new attr has a different editor
-            if (updateAttrs[this.state.fields[index].attr].editor !== updateAttrs[updateObj.target.value].editor
-                || updateAttrs[updateObj.target.value].editor !== 'TextField'
-            ) {
+            let newEditor = updateAttrs[updateObj.target.value].editor;
+            let oldEditor = updateAttrs[this.state.fields[index].attr].editor;
+            // Reset all other values if editors are not compatible
+            if (oldEditor !== newEditor || newEditor !== 'TextField') {
                 if (result[index].updateType === 'set') {
                     result[index].updateValue = {};
                 } else if (result[index].updateType === 'replace') {
-                    result[index].updateValue = {regex: false, matchCase: false, wholeWord: false, source: '', target: ''};
+                    if (
+                        !['TextField', 'CommentEditor', 'MethodEditor'].includes(newEditor)
+                        ||
+                        !['TextField', 'CommentEditor', 'MethodEditor'].includes(oldEditor)
+                    ) {
+                        result[index].updateValue = {regex: false, matchCase: false, wholeWord: false, source: '', target: ''};
+                    }
                 }
             }
         } else if (name === 'updateType') {
