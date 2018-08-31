@@ -128,6 +128,7 @@ class VariableTabUpdateField extends React.Component {
                             <Grid item>
                                 <TextField
                                     label='Find What'
+                                    error={field.updateValue.regex === true && field.updateValue.regexIsValid === false}
                                     value={field.updateValue.source}
                                     onChange={this.handleChange('replaceSource')}
                                     className={classes.textField}

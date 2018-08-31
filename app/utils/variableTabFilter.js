@@ -364,9 +364,10 @@ class ConnectedVariableTabFilter extends React.Component {
             const valueSelect = ['IN','NOTIN'].indexOf(condition.comparator) >= 0;
             const value = multipleValuesSelect && valueSelect ? condition.selectedValues : condition.selectedValues[0];
             // In case itemGroupOid is provided, exclude dataset from the list of fields
+            // Allow dataset only for the first field
             const fields = {};
             Object.keys(filterFields)
-                .filter( field => (!this.props.itemGroupOid || field !== 'dataset' ) )
+                .filter( field => ((!this.props.itemGroupOid && index === 0) || field !== 'dataset'))
                 .forEach(field => { fields[field] = filterFields[field].label;})
             ;
 
@@ -397,6 +398,7 @@ class ConnectedVariableTabFilter extends React.Component {
                             fullWidth
                             autoFocus
                             select={true}
+                            disabled={condition.field === 'dataset'}
                             value={condition.field}
                             onChange={this.handleChange('field', index)}
                             className={classes.textField}

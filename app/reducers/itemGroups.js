@@ -277,19 +277,19 @@ const handleItemsBulkUpdate = (state, action) => {
     let field = action.updateObj.fields[0];
     if (['mandatory', 'role', 'method'].includes(field.attr)) {
         // Get itemRefs from itemOids
-        let itemOidItemRef = {};
+        let itemDefItemRefMap = {};
         let uniqueItemGroupOids = [];
         action.updateObj.selectedItems
-            .filter( item => (item.itemGroupOid !== undefined) )
+            .filter( item => (item.itemGroupOid !== undefined && item.valueListOid === undefined) )
             .forEach( item => {
                 if (!uniqueItemGroupOids.includes(item.itemGroupOid)) {
                     uniqueItemGroupOids.push(item.itemGroupOid);
                 }
             });
         uniqueItemGroupOids.forEach( itemGroupOid => {
-            itemOidItemRef[itemGroupOid] = {};
+            itemDefItemRefMap[itemGroupOid] = {};
             Object.keys(state[itemGroupOid].itemRefs).forEach( itemRefOid => {
-                itemOidItemRef[itemGroupOid][state[itemGroupOid].itemRefs[itemRefOid].itemOid] = itemRefOid;
+                itemDefItemRefMap[itemGroupOid][state[itemGroupOid].itemRefs[itemRefOid].itemOid] = itemRefOid;
             });
         });
 
@@ -299,9 +299,9 @@ const handleItemsBulkUpdate = (state, action) => {
             .filter( item => (item.itemGroupOid !== undefined && item.valueListOid === undefined) )
             .forEach( item => {
                 if (itemGroupItemRefs.hasOwnProperty(item.itemGroupOid)) {
-                    itemGroupItemRefs[item.itemGroupOid].push(itemOidItemRef[item.itemGroupOid][item.itemDefOid]);
+                    itemGroupItemRefs[item.itemGroupOid].push(itemDefItemRefMap[item.itemGroupOid][item.itemDefOid]);
                 } else {
-                    itemGroupItemRefs[item.itemGroupOid] = [itemOidItemRef[item.itemGroupOid][item.itemDefOid]];
+                    itemGroupItemRefs[item.itemGroupOid] = [itemDefItemRefMap[item.itemGroupOid][item.itemDefOid]];
                 }
             });
 

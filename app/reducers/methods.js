@@ -76,7 +76,7 @@ const deleteMethodRefereces = (state, action) => {
     Object.keys(action.deleteObj.methodOids).forEach( methodOid => {
         Object.keys(action.deleteObj.methodOids[methodOid]).forEach(type => {
             Object.keys(action.deleteObj.methodOids[methodOid][type]).forEach(groupOid => {
-                action.deleteObj.methodOids[methodOid].itemGroups[groupOid].forEach(itemRefOid => {
+                action.deleteObj.methodOids[methodOid][type][groupOid].forEach(itemRefOid => {
                     let subAction = {};
                     subAction.method = newState[methodOid];
                     subAction.source ={ type, oid: itemRefOid, typeOid: groupOid };
@@ -182,38 +182,22 @@ const handleItemsBulkUpdate = (state, action) => {
     let field = action.updateObj.fields[0];
     // Get all itemDefs for update.
     if (field.attr === 'method') {
-        // Get itemRefs from itemOids
-        let itemOidItemRef = {};
-        let uniqueItemGroupOids = [];
-        action.updateObj.selectedItems
-            .filter( item => (item.itemGroupOid !== undefined) )
-            .forEach( item => {
-                if (!uniqueItemGroupOids.includes(item.itemGroupOid)) {
-                    uniqueItemGroupOids.push(item.itemGroupOid);
-                }
-            });
-        uniqueItemGroupOids.forEach( itemGroupOid => {
-            itemOidItemRef[itemGroupOid] = {};
-            Object.keys(state[itemGroupOid].itemRefs).forEach( itemRefOid => {
-                itemOidItemRef[itemGroupOid][state[itemGroupOid].itemRefs[itemRefOid].itemOid] = itemRefOid;
-            });
-        });
-
         // Get all itemGroups, ValueLists and ItemRefs for update.
+        let itemDefItemRefMap = action.updateObj.itemDefItemRefMap;
         let itemGroupItemRefs = { valueLists: {}, itemGroups: {} };
         action.updateObj.selectedItems
             .forEach( item => {
-                if (item.valueList === undefined) {
+                if (item.valueListOid === undefined) {
                     if (itemGroupItemRefs.itemGroups.hasOwnProperty(item.itemGroupOid)) {
-                        itemGroupItemRefs.itemGroups[item.itemGroupOid].push(itemOidItemRef[item.itemGroupOid][item.itemDefOid]);
+                        itemGroupItemRefs.itemGroups[item.itemGroupOid].push(itemDefItemRefMap[item.itemGroupOid][item.itemDefOid]);
                     } else {
-                        itemGroupItemRefs.itemGroups[item.itemGroupOid] = [itemOidItemRef[item.itemGroupOid][item.itemDefOid]];
+                        itemGroupItemRefs.itemGroups[item.itemGroupOid] = [itemDefItemRefMap[item.itemGroupOid][item.itemDefOid]];
                     }
                 } else {
-                    if (itemGroupItemRefs.valueLists.hasOwnProperty(item.itemGroupOid)) {
-                        itemGroupItemRefs.valueLists[item.itemGroupOid].push(itemOidItemRef[item.itemGroupOid][item.itemDefOid]);
+                    if (itemGroupItemRefs.valueLists.hasOwnProperty(item.valueListOid)) {
+                        itemGroupItemRefs.valueLists[item.valueListOid].push(itemDefItemRefMap[item.valueListOid][item.itemDefOid]);
                     } else {
-                        itemGroupItemRefs.valueLists[item.itemGroupOid] = [itemOidItemRef[item.itemGroupOid][item.itemDefOid]];
+                        itemGroupItemRefs.valueLists[item.valueListOid] = [itemDefItemRefMap[item.valueListOid][item.itemDefOid]];
                     }
                 }
             });
@@ -280,7 +264,6 @@ const handleItemsBulkUpdate = (state, action) => {
             }
             return newState;
         } else if (field.updateType === 'replace') {
-            // TODO
             let regExp;
             let escapedTarget;
             if (regex === true) {
@@ -298,12 +281,14 @@ const handleItemsBulkUpdate = (state, action) => {
             Object.keys(state).forEach( methodOid => {
                 let method = state[methodOid];
                 // Check if method has selected sources
-                let updateNeeded = false;
-                itemGroupItemRefs.some(itemDefOid => {
-                    if (method.sources.itemDefs.includes(itemDefOid)) {
-                        updateNeeded = true;
-                        return true;
-                    }
+                let updateNeeded = itemGroupItemRefs.some(type => {
+                    return itemGroupItemRefs[type].some(groupOid => {
+                        return itemGroupItemRefs[type][groupOid].some(itemRefOid => {
+                            if (method.sources[type][groupOid].includes(itemRefOid)) {
+                                return true;
+                            }
+                        });
+                    });
                 });
                 // If not, do not update it
                 if (updateNeeded === false) {

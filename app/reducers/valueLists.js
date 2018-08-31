@@ -5,6 +5,7 @@ import {
     UPD_ITEMREF,
     ADD_VALUELIST,
     INSERT_VALLVL,
+    UPD_ITEMSBULK,
     UPD_ITEMDESCRIPTION,
     UPD_VLMITEMREFORDER,
     UPD_ITEMREFKEYORDER,
@@ -14,22 +15,22 @@ import getOid from 'utils/getOid.js';
 
 const addValueList = (state, action) => {
     // Create a new ItemRef (valueList will contain 1 variable)
-    let itemRef = new ItemRef({ itemOid: action.itemDefOid, whereClauseOid: action.whereClauseOid });
+    let itemRef = { ...new ItemRef({ itemOid: action.itemDefOid, whereClauseOid: action.whereClauseOid }) };
     let itemRefs = { [itemRef.oid]: itemRef };
     let itemRefOrder = [itemRef.oid];
-    let valueList = new ValueList(
+    let valueList = { ...new ValueList(
         {
             oid     : action.valueListOid,
             sources : {itemDefs: [action.source.oid]},
             itemRefs,
             itemRefOrder,
-        });
+        }) };
     return { ...state, [action.valueListOid]: valueList };
 };
 
 const updateItemRefOrder = (state, action) => {
     // Check if order changed;
-    let newValueList =  new ValueList({ ...state[action.valueListOid], itemRefOrder: action.itemRefOrder });
+    let newValueList =  { ...new ValueList({ ...state[action.valueListOid], itemRefOrder: action.itemRefOrder }) };
     return { ...state, [action.valueListOid]: newValueList };
 };
 
@@ -70,10 +71,10 @@ const updateItemRefKeyOrder = (state, action) => {
         } else {
             newKeyOrder = ds.keyOrder;
         }
-        let newValueList = new ValueList({ ...state[action.source.itemGroupOid],
+        let newValueList = { ...new ValueList({ ...state[action.source.itemGroupOid],
             itemRefOrder : newItemRefOrder,
             keyOrder     : newKeyOrder,
-        });
+        }) };
         return { ...state, [action.source.itemGroupOid]: newValueList };
     }
 };
@@ -82,10 +83,10 @@ const updateItemRef = (state, action) => {
     if (!action.source.vlm) {
         return state;
     } else {
-        let newItemRef = new ItemRef({ ...state[action.source.itemGroupOid].itemRefs[action.source.itemRefOid], ...action.updateObj });
-        let newValueList =  new ValueList({ ...state[action.source.itemGroupOid],
+        let newItemRef = { ...new ItemRef({ ...state[action.source.itemGroupOid].itemRefs[action.source.itemRefOid], ...action.updateObj }) };
+        let newValueList =  { ...new ValueList({ ...state[action.source.itemGroupOid],
             itemRefs: { ...state[action.source.itemGroupOid].itemRefs, [action.source.itemRefOid]: newItemRef }
-        });
+        }) };
         return { ...state, [action.source.itemGroupOid]: newValueList };
     }
 };
@@ -128,7 +129,7 @@ const deleteValueList = (state, action) => {
             // Remove referece to the source OID from the list of valueList sources
             let newSources = sourceItemDefs.slice();
             newSources.splice(newSources.indexOf(itemDefOid),1);
-            let newValueList = new ValueList({ ...newState[valueListOid], sources: { itemDefs: newSources } });
+            let newValueList = { ...new ValueList({ ...newState[valueListOid], sources: { itemDefs: newSources } }) };
             newState = { ...newState, [newValueList.oid]: newValueList };
         }
         return newState;
@@ -181,11 +182,11 @@ const deleteVariables = (state, action) => {
             } else {
                 newKeyOrder = valueList.keyOrder;
             }
-            let newValueList =  new ValueList({ ...newState[valueListOid],
+            let newValueList =  { ...new ValueList({ ...newState[valueListOid],
                 itemRefs     : newItemRefs,
                 itemRefOrder : newItemRefOrder,
                 keyOrder     : newKeyOrder,
-            });
+            }) };
 
             newState = { ...newState, [valueListOid]: newValueList };
         }
@@ -214,8 +215,8 @@ const updateItemRefWhereClause = (state, action) => {
     let valueList = state[action.source.valueListOid];
     let itemRef = valueList.itemRefs[action.source.itemRefOid];
     if (action.updateObj.whereClause.oid !== itemRef.whereClauseOid) {
-        let newItemRef =  new ItemRef({ ...itemRef, whereClauseOid: action.updateObj.whereClause.oid });
-        let newValueList =  new ValueList({ ...valueList, itemRefs: { ...valueList.itemRefs, [action.source.itemRefOid]: newItemRef } });
+        let newItemRef =  { ...new ItemRef({ ...itemRef, whereClauseOid: action.updateObj.whereClause.oid }) };
+        let newValueList =  { ...new ValueList({ ...valueList, itemRefs: { ...valueList.itemRefs, [action.source.itemRefOid]: newItemRef } }) };
         return { ...state, [action.source.valueListOid]: newValueList };
     }
     else {
@@ -225,7 +226,7 @@ const updateItemRefWhereClause = (state, action) => {
 
 const insertValueLevel = (state, action) => {
     let itemRefOid = getOid('ItemRef', undefined, state[action.valueListOid].itemRefOrder);
-    let itemRef = new ItemRef({ oid: itemRefOid, itemOid: action.itemDefOid, whereClauseOid: action.whereClauseOid });
+    let itemRef = { ...new ItemRef({ oid: itemRefOid, itemOid: action.itemDefOid, whereClauseOid: action.whereClauseOid }) };
     let itemRefs = { ...state[action.valueListOid].itemRefs, [itemRefOid]: itemRef };
     let itemRefOrder = state[action.valueListOid].itemRefOrder.slice();
     if (action.orderNumber === 0) {
@@ -233,13 +234,85 @@ const insertValueLevel = (state, action) => {
     } else {
         itemRefOrder.splice(action.orderNumber, 0, itemRefOid);
     }
-    let valueList = new ValueList(
+    let valueList = { ...new ValueList(
         {
             ...state[action.valueListOid],
             itemRefs,
             itemRefOrder,
-        });
+        }) };
     return { ...state, [action.valueListOid]: valueList };
+};
+
+const handleItemsBulkUpdate = (state, action) => {
+    // Check if the Bulk update is performed for one of the ItemRef attributes
+    let field = action.updateObj.fields[0];
+    if (['mandatory', 'role', 'method'].includes(field.attr)) {
+        // Get itemRefs from itemOids
+        let itemDefItemRefMap = {};
+        let uniqueValueListOids = [];
+        action.updateObj.selectedItems
+            .filter( item => (item.valueListOid !== undefined) )
+            .forEach( item => {
+                if (!uniqueValueListOids.includes(item.valueListOid)) {
+                    uniqueValueListOids.push(item.valueListOid);
+                }
+            });
+        uniqueValueListOids.forEach( valueListOid => {
+            itemDefItemRefMap[valueListOid] = {};
+            Object.keys(state[valueListOid].itemRefs).forEach( itemRefOid => {
+                itemDefItemRefMap[valueListOid][state[valueListOid].itemRefs[itemRefOid].itemOid] = itemRefOid;
+            });
+        });
+
+        // Get all valueLists and ItemRefs for update.
+        let valueListItemRefs = {};
+        action.updateObj.selectedItems
+            .filter( item => (item.valueListOid !== undefined) )
+            .forEach( item => {
+                if (valueListItemRefs.hasOwnProperty(item.valueListOid)) {
+                    valueListItemRefs[item.valueListOid].push(itemDefItemRefMap[item.valueListOid][item.itemDefOid]);
+                } else {
+                    valueListItemRefs[item.valueListOid] = [itemDefItemRefMap[item.valueListOid][item.itemDefOid]];
+                }
+            });
+
+        const { source, target, value } = field.updateValue;
+
+        let updatedValueLists = {};
+        uniqueValueListOids.forEach( valueListOid => {
+            let updatedItemRefs = {};
+            valueListItemRefs[valueListOid].forEach( itemRefOid => {
+                let itemRef = state[valueListOid].itemRefs[itemRefOid];
+                if (field.updateType === 'set') {
+                    if (['mandatory', 'role'].includes(field.attr)) {
+                        updatedItemRefs[itemRefOid] = { ...new ItemRef({ ...itemRef, [field.attr]: value }) };
+                    } else if (field.attr === 'method') {
+                        if (value !== undefined && itemRef.methodOid !== value.oid) {
+                            // If method OID has changed
+                            updatedItemRefs[itemRefOid] = { ...new ItemRef({ ...itemRef, methodOid: value.oid }) };
+                        } else if (value === undefined && itemRef.methodOid !== undefined) {
+                            // If method was removed
+                            updatedItemRefs[itemRefOid] = { ...new ItemRef({ ...itemRef, methodOid: undefined }) };
+                        }
+                    }
+                } else if (field.updateType === 'replace') {
+                    if (itemRef[field.attr] === source) {
+                        updatedItemRefs[itemRefOid] = { ...new ItemRef({ ...itemRef, [field.attr]: target }) };
+                    }
+                }
+
+                if (Object.keys(updatedItemRefs).length > 0) {
+                    updatedValueLists[valueListOid] = { ...new ValueList({
+                        ...state[valueListOid],
+                        itemRefs: { ...state[valueListOid].itemRefs, ...updatedItemRefs },
+                    }) };
+                }
+            });
+        });
+        return { ...state, ...updatedValueLists };
+    } else {
+        return state;
+    }
 };
 
 const valueLists = (state = {}, action) => {
@@ -256,6 +329,8 @@ const valueLists = (state = {}, action) => {
             return deleteItemGroups(state, action);
         case UPD_ITEMREF:
             return updateItemRef(state, action);
+        case UPD_ITEMSBULK:
+            return handleItemsBulkUpdate(state, action);
         case UPD_VLMITEMREFORDER:
             return updateItemRefOrder(state, action);
         case INSERT_VALLVL:

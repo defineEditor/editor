@@ -3,9 +3,9 @@ function applyFilter (data, filter) {
     // Apply filter for each column
     filter.conditions.forEach((condition,index) => {
         if (condition.comparator === 'IN') {
-            result[index] = data.map( row => (condition.selectedValues.includes((row[condition.field] || ''))));
+            result[index] = data.map( row => (condition.selectedValues.includes((row[condition.field]))));
         } else if (condition.comparator === 'NOTIN') {
-            result[index] = data.map( row => (!condition.selectedValues.includes((row[condition.field] || ''))));
+            result[index] = data.map( row => (!condition.selectedValues.includes((row[condition.field]))));
         } else if (condition.comparator === 'CONTAINS') {
             result[index] = data.map( row => ((row[condition.field] || '').toLowerCase().includes(condition.selectedValues[0].toLowerCase())));
         } else if (condition.comparator === 'STARTS') {

@@ -151,6 +151,7 @@ class ConnectedVariableTabUpdate extends React.Component {
             showFilter: false,
             values,
             filter,
+            changedAfterUpdated: true,
         };
     }
 
@@ -187,16 +188,34 @@ class ConnectedVariableTabUpdate extends React.Component {
             if (result[index].updateType === 'set') {
                 result[index].updateValue = {};
             } else if (result[index].updateType === 'replace') {
-                result[index].updateValue = {regex: false, matchCase: false, wholeWord: false, source: '', target: ''};
+                result[index].updateValue = {regex: false, matchCase: false, wholeWord: false, source: '', target: '', regexIsValid: true};
             }
         } else if (name === 'updateValue') {
             result[index].updateValue = updateObj;
         } else if (name === 'updateSource') {
-            result[index].updateValue = { ...result[index].updateValue, source: updateObj } ;
+            // Validate regex
+            let regexIsValid = true;
+            if (result[index].updateValue.regex === true) {
+                try {
+                    new RegExp(updateObj);
+                } catch(e) {
+                    regexIsValid = false;
+                }
+            }
+            result[index].updateValue = { ...result[index].updateValue, source: updateObj, regexIsValid } ;
         } else if (name === 'updateTarget') {
             result[index].updateValue = { ...result[index].updateValue, target: updateObj } ;
         } else if (name === 'toggleRegex') {
-            result[index].updateValue = { ...result[index].updateValue, regex: !result[index].updateValue.regex } ;
+            // Validate regex
+            let regexIsValid = true;
+            if (result[index].updateValue.regex === false) {
+                try {
+                    new RegExp(result[index].updateValue.source);
+                } catch(e) {
+                    regexIsValid = false;
+                }
+            }
+            result[index].updateValue = { ...result[index].updateValue, regex: !result[index].updateValue.regex, regexIsValid } ;
         } else if (name === 'toggleMatchCase') {
             result[index].updateValue = { ...result[index].updateValue, matchCase: !result[index].updateValue.matchCase } ;
         } else if (name === 'toggleWholeWord') {
@@ -204,6 +223,7 @@ class ConnectedVariableTabUpdate extends React.Component {
         }
         this.setState({
             fields: result,
+            changedAfterUpdated: true,
         });
     }
 
@@ -386,7 +406,47 @@ class ConnectedVariableTabUpdate extends React.Component {
 
     update = () => {
         // Lang is required when Label is set
-        this.props.updateItemsBulk({ selectedItems: this.state.selectedItems, fields: this.state.fields, lang: this.props.lang });
+        // If methods are set, generated an ItemDefOid -> ItemRefOid map, as within method reducer there is no data for that
+        let methodSet = this.state.fields.some( field => ( field.attr === 'method' && field.updateType === 'set'));
+        if (methodSet === true) {
+            // Get itemRefs from itemOids
+            let itemDefItemRefMap = {};
+            // For ItemGroups
+            let uniqueItemGroupOids = [];
+            this.state.selectedItems
+                .filter( item => (item.itemGroupOid !== undefined && item.valueListOid === undefined) )
+                .forEach( item => {
+                    if (!uniqueItemGroupOids.includes(item.itemGroupOid)) {
+                        uniqueItemGroupOids.push(item.itemGroupOid);
+                    }
+                });
+            uniqueItemGroupOids.forEach( itemGroupOid => {
+                itemDefItemRefMap[itemGroupOid] = {};
+                Object.keys(this.props.mdv.itemGroups[itemGroupOid].itemRefs).forEach( itemRefOid => {
+                    itemDefItemRefMap[itemGroupOid][this.props.mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid] = itemRefOid;
+                });
+            });
+            // For ValueLists
+            let uniqueValueListOids = [];
+            this.state.selectedItems
+                .filter( item => (item.valueListOid !== undefined) )
+                .forEach( item => {
+                    if (!uniqueValueListOids.includes(item.valueListOid)) {
+                        uniqueValueListOids.push(item.valueListOid);
+                    }
+                });
+            uniqueValueListOids.forEach( valueListOid => {
+                itemDefItemRefMap[valueListOid] = {};
+                Object.keys(this.props.mdv.valueLists[valueListOid].itemRefs).forEach( itemRefOid => {
+                    itemDefItemRefMap[valueListOid][this.props.mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid] = itemRefOid;
+                });
+            });
+            this.props.updateItemsBulk({ selectedItems: this.state.selectedItems, fields: this.state.fields, lang: this.props.lang, itemDefItemRefMap });
+            this.setState({ changedAfterUpdated: false });
+        } else {
+            this.props.updateItemsBulk({ selectedItems: this.state.selectedItems, fields: this.state.fields, lang: this.props.lang });
+            this.setState({ changedAfterUpdated: false });
+        }
     }
 
     render() {
@@ -394,6 +454,7 @@ class ConnectedVariableTabUpdate extends React.Component {
         const itemNum = this.state.selectedItems.length;
         const { anchorEl } = this.state;
         const showSelectedRecords = Boolean(anchorEl);
+        const anyRegexIsNotValid = this.state.fields.some( field => (field.updateValue.regexIsValid === false));
 
         return (
             <Dialog
@@ -442,7 +503,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                                         size='small'
                                         onClick={this.update}
                                         variant='raised'
-                                        disabled={itemNum < 1}
+                                        disabled={itemNum < 1 || anyRegexIsNotValid || this.state.changedAfterUpdated === false}
                                         className={classes.button}
                                     >
                                         Update
@@ -507,4 +568,3 @@ ConnectedVariableTabUpdate.propTypes = {
 
 const VariableTabUpdate = connect(mapStateToProps, mapDispatchToProps)(ConnectedVariableTabUpdate);
 export default withStyles(styles)(VariableTabUpdate);
-
