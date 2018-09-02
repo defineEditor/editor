@@ -82,7 +82,7 @@ class ControlledTerminologyEditor extends React.Component {
     getControlledTerminologies = () => {
         let standards = this.state.standards;
         let ctList = this.props.controlledTerminology.allIds.map( ctOid => {
-            return {[ctOid]: this.props.controlledTerminology.byId[ctOid].name};
+            return {[ctOid]: this.props.controlledTerminology.byId[ctOid].name + ' ' +  this.props.controlledTerminology.byId[ctOid].version};
         });
         let studyCtList = Object.keys(standards)
             .filter(standardOid => {

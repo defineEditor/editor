@@ -68,11 +68,11 @@ class ConnectedCodeListMenu extends React.Component {
                         },
                     }}
                 >
-                    <MenuItem key='Delete' onClick={this.deleteCodeList}>
-                        Delete
-                    </MenuItem>
                     <MenuItem key='EditCodelistValues' onClick={this.editCodeListValues}>
                         Edit Codelist Values
+                    </MenuItem>
+                    <MenuItem key='Delete' onClick={this.deleteCodeList}>
+                        Delete
                     </MenuItem>
                 </Menu>
             </React.Fragment>

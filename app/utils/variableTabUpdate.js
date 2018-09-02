@@ -37,7 +37,7 @@ const styles = theme => ({
         transform: 'translate(0%, calc(-20%+0.5px))',
         overflowX: 'auto',
         maxHeight: '80%',
-        width: '60%',
+        width: '600px',
         overflowY: 'auto'
     },
     textField: {

@@ -1,0 +1,320 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { withStyles } from '@material-ui/core/styles';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import TablePagination from '@material-ui/core/TablePagination';
+import Grid from '@material-ui/core/Grid';
+import TextField from '@material-ui/core/TextField';
+import Checkbox from '@material-ui/core/Checkbox';
+import Button from '@material-ui/core/Button';
+import clone from 'clone';
+import getSelectionList from 'utils/getSelectionList.js';
+import getTableDataForImport from 'utils/getTableDataForImport.js';
+import DescriptionFormatter from 'formatters/descriptionFormatter.js';
+import { addCodedValues } from 'actions/index.js';
+
+const styles = theme => ({
+    root: {
+        width: '100%',
+        overflowX: 'auto'
+    },
+    table: {
+        minWidth: 100
+    },
+    datasetSelector: {
+        minWidth: 100
+    },
+    icon: {
+        transform: 'translate(0, -5%)',
+        marginLeft: theme.spacing.unit
+    },
+});
+
+// Redux functions
+const mapDispatchToProps = dispatch => {
+    return {
+        addCodedValues: (variableOid, updateObj) => dispatch(addCodedValues(variableOid, updateObj))
+    };
+};
+
+const mapStateToProps = (state, props) => {
+    if (props.mdv !== undefined) {
+        return {
+            defineVersion: state.odm.study.metaDataVersion.defineVersion
+        };
+    } else {
+        return {
+            defineVersion: state.odm.study.metaDataVersion.defineVersion,
+            mdv: state.odm.study.metaDataVersion,
+        };
+    }
+};
+
+class ConnectedCodedValueSelector extends React.Component {
+    constructor(props) {
+        super(props);
+
+        // Get a list of all datasets for selection
+        const itemGroupList = {};
+        props.mdv.order.itemGroupOrder.forEach( itemGroupOid => {
+            itemGroupList[itemGroupOid] = props.mdv.itemGroups[itemGroupOid].name;
+        });
+        // Get initial data
+        const itemGroupOid = Object.keys(itemGroupList)[0];
+        let itemGroupData = getTableDataForImport({
+            source: props.mdv.itemGroups[itemGroupOid],
+            datasetOid: itemGroupOid,
+            mdv: props.mdv,
+            defineVersion: props.defineVersion,
+            vlmLevel: 0,
+        });
+        // Mark all items from the source codelist which are already present in the destination codelist
+        this.state = {
+            selected: [],
+            searchString: '',
+            itemGroupList,
+            itemGroupOid,
+            itemGroupData,
+            rowsPerPage : 25,
+            page: 0,
+        };
+    }
+
+    handleSelectAllClick = (event, checked) => {
+        if (checked) {
+            const itemRefOids = this.props.mdv.itemGroups[this.state.itemGroupOid].itemRefOrder;
+            this.setState({ selected: itemRefOids });
+        } else {
+            this.setState({ selected: [] });
+        }
+    };
+
+    handleClick = (event, oid) => {
+        const { selected } = this.state;
+        const selectedIndex = selected.indexOf(oid);
+        let newSelected = [];
+
+        if (selectedIndex === -1) {
+            newSelected = newSelected.concat(selected, oid);
+        } else if (selectedIndex === 0) {
+            newSelected = newSelected.concat(selected.slice(1));
+        } else if (selectedIndex === selected.length - 1) {
+            newSelected = newSelected.concat(selected.slice(0, -1));
+        } else if (selectedIndex > 0) {
+            newSelected = newSelected.concat(
+                selected.slice(0, selectedIndex),
+                selected.slice(selectedIndex + 1)
+            );
+        }
+
+        this.setState({ selected: newSelected });
+    };
+
+    handleAddVariables = () => {
+        // Get items which are copied from the standard
+        let sourceItems;
+        if (this.props.sourceVariable.variableType === 'decoded') {
+            sourceItems = this.props.sourceVariable.variableItems;
+        } else if (this.props.sourceVariable.variableType === 'enumerated') {
+            sourceItems = this.props.sourceVariable.enumeratedItems;
+        }
+        let items = [];
+        this.state.selected.forEach(oid => {
+            items.push(clone(sourceItems[oid]));
+        });
+        this.props.addCodedValues(this.props.variable.oid, {
+            items,
+            orderNumber: this.props.orderNumber
+        });
+        this.props.onClose();
+    };
+
+    handleChangePage = (event, page) => {
+        this.setState({ page });
+    };
+
+    handleChangeRowsPerPage = event => {
+        this.setState({ rowsPerPage: event.target.value });
+    };
+
+    handleItemGroupChange = event => {
+        if (event.target.value !== this.state.itemGroupOid) {
+            let itemGroupOid = event.target.value;
+            let itemGroupData = getTableDataForImport({
+                source: this.props.mdv.itemGroups[itemGroupOid],
+                datasetOid: itemGroupOid,
+                mdv: this.props.mdv,
+                defineVersion: this.props.defineVersion,
+                vlmLevel: 0,
+            });
+            this.setState({
+                itemGroupOid: event.target.value,
+                itemGroupData,
+                selected: [],
+                page: 0,
+            });
+        }
+    };
+
+
+    handleChangeSearchString = event => {
+        this.setState({ searchString: event.target.value });
+    };
+
+    getVariableTable(defineVersion, classes) {
+        const { selected, page, rowsPerPage, searchString, itemGroupData } = this.state;
+
+        let data = itemGroupData.slice();
+
+        if (searchString !== '') {
+            data = data.filter( row => {
+                if (/[A-Z]/.test(searchString)) {
+                    return row.name.includes(searchString) || row.label.includes(searchString);
+                } else {
+                    return row.name.toLowerCase().includes(searchString.toLowerCase())
+                        || row.label.toLowerCase().includes(searchString.toLowerCase());
+                }
+            });
+        }
+
+
+        let numSelected = this.state.selected.length;
+
+        return (
+            <Grid container spacing={0}>
+                <Grid item xs={12}>
+                    <Grid
+                        container
+                        spacing={0}
+                        justify="space-between"
+                        alignItems="center"
+                    >
+                        {numSelected > 0 ? (
+                            <Grid item>
+                                <Button
+                                    onClick={this.handleAddVariables}
+                                    color="default"
+                                    mini
+                                    variant="raised"
+                                >
+                                    Add {numSelected} variables
+                                </Button>
+                            </Grid>
+                        ) : (
+                            <Grid item>
+                                <TextField
+                                    label='Dataset'
+                                    value={this.state.itemGroupOid}
+                                    onChange={this.handleItemGroupChange}
+                                    className={classes.datasetSelector}
+                                    select
+                                >
+                                    {getSelectionList(this.state.itemGroupList)}
+                                </TextField>
+                            </Grid>
+                        )}
+                        <Grid item>
+                            <TextField
+                                onChange={this.handleChangeSearchString}
+                                value={this.state.searchString}
+                                label='Search'
+                            />
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <Grid item xs={12}>
+                    <Table className={classes.table}>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell padding="checkbox">
+                                    <Checkbox
+                                        indeterminate={numSelected > 0 && numSelected < data.length}
+                                        checked={numSelected === data.length}
+                                        onChange={this.handleSelectAllClick}
+                                        color="primary"
+                                    />
+                                </TableCell>
+                                <TableCell>Name</TableCell>
+                                <TableCell>Label</TableCell>
+                                <TableCell>Description</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {data
+                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                .map(row => {
+                                    let isSelected = selected.includes(row.itemRefOid);
+                                    return (
+                                        <TableRow
+                                            key={row.itemRefOid}
+                                            onClick={ event => this.handleClick(event, row.itemRefOid) }
+                                            role="checkbox"
+                                            selected={isSelected}
+                                        >
+                                            <TableCell padding="checkbox">
+                                                <Checkbox
+                                                    checked={isSelected}
+                                                    color="primary"
+                                                />
+                                            </TableCell>
+                                            <TableCell>{row.name}</TableCell>
+                                            <TableCell>{row.label}</TableCell>
+                                            <TableCell>
+                                                <DescriptionFormatter model={this.props.mdv.model} leafs={this.props.mdv.leafs} value={row.description}/>
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })
+                            }
+                        </TableBody>
+                    </Table>
+                </Grid>
+                <Grid item xs={12}>
+                    <TablePagination
+                        component="div"
+                        count={this.state.itemGroupData.length}
+                        page={page}
+                        rowsPerPage={rowsPerPage}
+                        backIconButtonProps={{
+                            'aria-label': 'Previous Page',
+                        }}
+                        nextIconButtonProps={{
+                            'aria-label': 'Next Page',
+                        }}
+                        onChangePage={this.handleChangePage}
+                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                        rowsPerPageOptions={[25,50,100]}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }
+
+    render() {
+        const { defineVersion, classes } = this.props;
+        return (
+            <div className={classes.root}>
+                {this.getVariableTable(
+                    defineVersion,
+                    classes
+                )}
+            </div>
+        );
+    }
+}
+
+ConnectedCodedValueSelector.propTypes = {
+    classes: PropTypes.object.isRequired,
+    mdv: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+};
+
+const CodedValueSelector = connect(mapStateToProps, mapDispatchToProps)(
+    ConnectedCodedValueSelector
+);
+export default withStyles(styles)(CodedValueSelector);

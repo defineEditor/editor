@@ -59,9 +59,14 @@ class ConnectedModalChangeDefine extends React.Component {
     }
 
     onCancel = () => {
+        this.props.closeModal();
+    }
+
+    onDiscard = () => {
         this.props.changePage({ page: 'editor', defineId: this.props.defineId });
         this.props.closeModal();
     }
+
 
     onKeyDown = (event)  => {
         if (event.key === 'Escape' || event.keyCode === 27) {
@@ -96,6 +101,9 @@ class ConnectedModalChangeDefine extends React.Component {
                 <DialogActions>
                     <Button onClick={this.onSave} color="primary">
                         Save
+                    </Button>
+                    <Button onClick={this.onDiscard} color="primary">
+                       Discard
                     </Button>
                     <Button onClick={this.onCancel} color="primary">
                         Cancel

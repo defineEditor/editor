@@ -75,6 +75,7 @@ class DescriptionFormatter extends React.Component {
 }
 
 DescriptionFormatter.propTypes = {
+    classes : PropTypes.object.isRequired,
     value : PropTypes.object,
     model : PropTypes.string.isRequired,
 };

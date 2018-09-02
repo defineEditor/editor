@@ -11,7 +11,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import ArchiveIcon from '@material-ui/icons/Archive';
-import CopyIcon from '@material-ui/icons/ContentCopy';
+import CopyIcon from '@material-ui/icons/FileCopy';
 import CloseIcon from '@material-ui/icons/Close';
 import MethodFormatter from 'formatters/methodFormatter.js';
 import CommentFormatter from 'formatters/commentFormatter.js';

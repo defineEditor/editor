@@ -604,9 +604,6 @@ class ConnectedVariableTable extends React.Component {
                                 <RemoveRedEyeIcon style={{marginLeft: '7px'}}/>
                             </Button>
                         </Grid>
-                        <Grid item>
-                            { props.components.searchPanel }
-                        </Grid>
                     </Grid>
                 </Grid>
             </Grid>
