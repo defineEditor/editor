@@ -5,6 +5,7 @@ import {
     UPD_ITEMDESCRIPTION,
     UPD_NAMELABELWHERECLAUSE,
     ADD_VAR,
+    ADD_VARS,
     DEL_VARS,
     DEL_CODELISTS,
     DEL_ITEMGROUPS,
@@ -75,6 +76,11 @@ const updateNameLabel = (state, action) => {
 const addVariable = (state, action) => {
     return { ...state, [action.itemDef.oid]: action.itemDef };
 };
+
+const addVariables = (state, action) => {
+    return { ...state, ...action.updateObj.itemDefs };
+};
+
 
 const deleteVariables = (state, action) => {
     // action.deleteObj.itemDefOids: [itemDefOid1, itemDefOid2, ...]
@@ -300,6 +306,8 @@ const itemDefs = (state = {}, action) => {
             return updateItemsBulk(state, action);
         case ADD_VAR:
             return addVariable(state, action);
+        case ADD_VARS:
+            return addVariables(state, action);
         case DEL_VARS:
             return deleteVariables(state, action);
         case DEL_ITEMGROUPS:

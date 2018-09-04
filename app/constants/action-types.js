@@ -25,6 +25,7 @@ export const UPD_ITEMCLDF = 'UPD_ITEMCLDF';
 export const UPD_ITEMDESCRIPTION = 'UPD_ITEMDESCRIPTION';
 export const UPD_ITEMSBULK = 'UPD_ITEMSBULK';
 export const ADD_VAR = 'ADD_VAR';
+export const ADD_VARS = 'ADD_VARS';
 export const ADD_VALUELIST = 'ADD_VALUELIST';
 export const INSERT_VAR = 'INSERT_VAR';
 export const INSERT_VALLVL = 'INSERT_VALLVL';

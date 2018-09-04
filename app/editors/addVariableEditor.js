@@ -12,6 +12,8 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import ClearIcon from '@material-ui/icons/Clear';
 import { addVariable } from 'actions/index.js';
 import { ItemRef, ItemDef } from 'elements.js';
 import SaveCancel from 'editors/saveCancel.js';
@@ -26,7 +28,6 @@ const styles = theme => ({
         paddingBottom : theme.spacing.unit * 1,
         position      : 'absolute',
         borderRadius  : '10px',
-        border        : '2px solid',
         borderColor   : 'primary',
         top           : '10%',
         transform     : 'translate(0%, calc(-10%+0.5px))',
@@ -43,6 +44,7 @@ const styles = theme => ({
     },
     title: {
         marginTop: theme.spacing.unit * 5,
+        paddingBottom : 0,
     },
 });
 
@@ -124,11 +126,15 @@ class AddVariableEditorConnected extends React.Component {
         this.resetState();
     }
 
+    handleClose = () => {
+        this.resetState();
+    }
+
     handleSaveAndClose = (updateObj) => {
         // Get all possible IDs
         let itemDefOids = Object.keys(this.props.itemDefs);
         let itemRefOids = Object.keys(this.props.itemGroups[this.props.itemGroupOid].itemRefs);
-        let itemDefOid = getOid('Item', undefined, itemDefOids);
+        let itemDefOid = getOid('ItemDef', undefined, itemDefOids);
         let itemRefOid = getOid('ItemRef', undefined, itemRefOids);
         let itemDef = { ...new ItemDef({
             oid  : itemDefOid,
@@ -175,17 +181,30 @@ class AddVariableEditorConnected extends React.Component {
                     open={this.state.dialogOpened}
                     PaperProps={{className: classes.dialog}}
                 >
-                    <DialogTitle className={classes.title}>Add Variable</DialogTitle>
+                    <DialogTitle className={classes.title}>
+                        <Grid container spacing={0} justify='space-between' alignItems='center'>
+                            <Grid item>
+                                Add Variable
+                            </Grid>
+                            <Grid item>
+                                <IconButton
+                                    color="secondary"
+                                    onClick={this.handleClose}
+                                >
+                                    <ClearIcon />
+                                </IconButton>
+                            </Grid>
+                        </Grid>
+                    </DialogTitle>
                     <DialogContent>
-                        <AppBar position='absolute' color='default' className={classes.appBar}>
+                        <AppBar position='absolute' color='default'>
                             <Tabs
                                 value={currentTab}
                                 onChange={this.handleTabChange}
                                 fullWidth
+                                centered
                                 indicatorColor='primary'
                                 textColor='primary'
-                                scrollable
-                                scrollButtons="auto"
                             >
                                 { tabNames.map( tab => {
                                     return <Tab key={tab} label={tab} />;
@@ -221,7 +240,12 @@ class AddVariableEditorConnected extends React.Component {
                                     </Grid>
                                 </Grid>
                             )}
-                            {tabNames[currentTab] === 'This Define' && <AddVariableFromDefine/>}
+                            {tabNames[currentTab] === 'This Define' &&
+                                    <AddVariableFromDefine
+                                        itemGroupOid={this.props.itemGroupOid}
+                                        position={this.props.position}
+                                    />
+                            }
                             {tabNames[currentTab] === 'Another Define' &&  <AddVariableFromDefine/>}
                             {tabNames[currentTab] === 'Share API' && <AddVariableFromDefine/>}
                         </TabContainer>
@@ -239,6 +263,7 @@ AddVariableEditorConnected.propTypes = {
     itemDefs      : PropTypes.object.isRequired,
     itemGroups    : PropTypes.object.isRequired,
     defineVersion : PropTypes.string.isRequired,
+    position      : PropTypes.string,
 };
 
 const AddVariableEditor = connect(mapStateToProps, mapDispatchToProps)(AddVariableEditorConnected);

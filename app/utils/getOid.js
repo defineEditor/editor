@@ -6,7 +6,7 @@ function getOid(type, suffix, existingOids = []) {
         ValueList: 'VL.',
         WhereClause: 'WC.',
         ItemGroup: 'IG.',
-        Item: 'IT.',
+        ItemDef: 'IT.',
         CodeList: 'CL.',
         Method: 'MT.',
         Comment: 'COM.',

@@ -11,6 +11,7 @@ import {
     UPD_ITEMSBULK,
     REP_ITEMGROUPCOMMENT,
     ADD_VAR,
+    ADD_VARS,
     DEL_VARS,
     UPD_KEYOREDER,
     INSERT_VAR,
@@ -202,6 +203,22 @@ const addVariable = (state, action) => {
     return { ...state, [action.source.itemGroupOid]: newItemGroup };
 };
 
+const addVariables = (state, action) => {
+    if (Object.keys(action.updateObj.itemRefs).length > 0) {
+        let newState = { ...state };
+        Object.keys(action.updateObj.itemRefs).forEach( (itemRefOid, index) => {
+            newState = addVariable( newState, {
+                source: { itemGroupOid: action.updateObj.itemGroupOid },
+                orderNumber: action.updateObj.position + index,
+                itemRef: action.updateObj.itemRefs[itemRefOid],
+            });
+        });
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const deleteVariables = (state, action) => {
     // Some of the requests can contain only VLM records to remove, skip deleting in this case
     if (action.deleteObj.itemRefOids.length > 0) {
@@ -370,6 +387,8 @@ const itemGroups = (state = {}, action) => {
             return handleItemsBulkUpdate(state, action);
         case ADD_VAR:
             return addVariable(state, action);
+        case ADD_VARS:
+            return addVariables(state, action);
         case DEL_VARS:
             return deleteVariables(state, action);
         case UPD_KEYOREDER:

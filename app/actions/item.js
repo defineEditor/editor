@@ -7,6 +7,7 @@ import {
     UPD_ITEMCLDF,
     UPD_ITEMDESCRIPTION,
     ADD_VAR,
+    ADD_VARS,
     ADD_VALUELIST,
     INSERT_VAR,
     INSERT_VALLVL,
@@ -97,6 +98,13 @@ export const addVariable = (source, itemRef, itemDef, orderNumber) => (
         itemRef     : itemRef,
         itemDef     : itemDef,
         orderNumber : orderNumber,
+    }
+);
+
+export const addVariables = (updateObj) => (
+    {
+        type: ADD_VARS,
+        updateObj,
     }
 );
 

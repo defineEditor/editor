@@ -62,7 +62,7 @@ class ConnectedItemMenu extends React.Component {
     }
 
     insertRecord = (shift) => () => {
-        let itemDefOid = getOid('Item', undefined, Object.keys(this.props.itemDefs));
+        let itemDefOid = getOid('ItemDef', undefined, Object.keys(this.props.itemDefs));
         let params = this.props.itemMenuParams;
         if (this.props.itemMenuParams.vlmLevel === 0) {
             let orderNumber = this.props.mdv.itemGroups[params.itemGroupVLOid].itemRefOrder.indexOf(params.itemRefOid) + shift;
@@ -78,7 +78,7 @@ class ConnectedItemMenu extends React.Component {
 
     addVlm = () => {
         let valueListOid = getOid('ValueList', undefined, Object.keys(this.props.valueLists));
-        let itemDefOid = getOid('Item', undefined, Object.keys(this.props.itemDefs));
+        let itemDefOid = getOid('ItemDef', undefined, Object.keys(this.props.itemDefs));
         let whereClauseOid = getOid('WhereClause', undefined, Object.keys(this.props.whereClauses));
         let source = {
             oid: this.props.itemMenuParams.oid,
