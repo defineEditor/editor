@@ -4,6 +4,7 @@ import {
     UPD_NAMELABELWHERECLAUSE,
     ADD_VALUELIST,
     INSERT_VALLVL,
+    ADD_VARS,
 } from "constants/action-types";
 import { WhereClause } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -104,6 +105,14 @@ const deleteItemGroups = (state, action) => {
     return newState;
 };
 
+const handleAddVariables = (state, action) => {
+    if (Object.keys(action.updateObj.whereClauses).length > 0) {
+        return { ...state, ...action.updateObj.whereClauses };
+    } else {
+        return state;
+    }
+};
+
 const whereClauses = (state = {}, action) => {
     switch (action.type) {
         case DEL_ITEMGROUPS:
@@ -114,6 +123,8 @@ const whereClauses = (state = {}, action) => {
             return updateNameLabelWhereClause(state, action);
         case ADD_VALUELIST:
             return createNewWhereClause(state, action);
+        case ADD_VARS:
+            return handleAddVariables(state, action);
         case INSERT_VALLVL:
             return createNewWhereClause(state, action);
         default:

@@ -4,6 +4,7 @@ import {
     UPD_NAMELABELWHERECLAUSE,
     UPD_ITEMREF,
     ADD_VALUELIST,
+    ADD_VARS,
     INSERT_VALLVL,
     UPD_ITEMSBULK,
     UPD_ITEMDESCRIPTION,
@@ -315,6 +316,14 @@ const handleItemsBulkUpdate = (state, action) => {
     }
 };
 
+const addVariables = (state, action) => {
+    if (Object.keys(action.updateObj.valueLists).length > 0) {
+        return { ...state, ...action.updateObj.valueLists };
+    } else {
+        return state;
+    }
+};
+
 const valueLists = (state = {}, action) => {
     switch (action.type) {
         case ADD_VALUELIST:
@@ -329,6 +338,8 @@ const valueLists = (state = {}, action) => {
             return deleteItemGroups(state, action);
         case UPD_ITEMREF:
             return updateItemRef(state, action);
+        case ADD_VARS:
+            return addVariables(state, action);
         case UPD_ITEMSBULK:
             return handleItemsBulkUpdate(state, action);
         case UPD_VLMITEMREFORDER:

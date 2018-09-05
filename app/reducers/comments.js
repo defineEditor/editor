@@ -7,10 +7,12 @@ import {
     UPD_NAMELABELWHERECLAUSE,
     UPD_ITEMSBULK,
     DEL_VARS,
+    ADD_VARS,
     DEL_ITEMGROUPS,
 } from "constants/action-types";
 import { Comment, TranslatedText } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
+import clone from 'clone';
 
 const addComment = (state, action) => {
     // Check if the item to which comment is attached is already referenced
@@ -265,6 +267,76 @@ const handleItemsBulkUpdate = (state, action) => {
     }
 };
 
+const handleAddVariables = (state, action) => {
+    // Some of the comments can be just referenced and not copied
+    // Find all added ItemDefs with comment links, which do not link to any of the new comments
+    let commentSourceUpdated = {};
+    // For Item Defs
+    Object.keys(action.updateObj.itemDefs).forEach( itemDefOid => {
+        let itemDef = action.updateObj.itemDefs[itemDefOid];
+        if (itemDef.commentOid !== undefined
+            &&
+            !action.updateObj.comments.hasOwnProperty(itemDef.commentOid)
+            &&
+            state.hasOwnProperty(itemDef.commentOid)
+        ) {
+            if (commentSourceUpdated.hasOwnProperty(itemDef.commentOid)) {
+                commentSourceUpdated[itemDef.commentOid].itemDefs.push(itemDefOid);
+            } else {
+                commentSourceUpdated[itemDef.commentOid] = {
+                    itemDefs: [itemDefOid],
+                    itemGroups: [],
+                    whereClauses: [],
+                    codeLists: [],
+                    metaDataVersion: [],
+                };
+            }
+        }
+    });
+    // For Where Clauses
+    Object.keys(action.updateObj.whereClauses).forEach( whereClauseOid => {
+        let whereClause = action.updateObj.whereClauses[whereClauseOid];
+        if (whereClause.commentOid !== undefined
+            &&
+            !action.updateObj.comments.hasOwnProperty(whereClause.commentOid)
+            &&
+            state.hasOwnProperty(whereClause.commentOid)
+        ) {
+            if (commentSourceUpdated.hasOwnProperty(whereClause.commentOid)) {
+                commentSourceUpdated[whereClause.commentOid].whereClauses.push(whereClauseOid);
+            } else {
+                commentSourceUpdated[whereClause.commentOid] = {
+                    itemDefs: [],
+                    itemGroups: [],
+                    whereClauses: [whereClauseOid],
+                    codeLists: [],
+                    metaDataVersion: [],
+                };
+            }
+        }
+    });
+    // Add sources
+    let updatedComments = {};
+    Object.keys(commentSourceUpdated).forEach( commentOid => {
+        let comment = state[commentOid];
+        let newSources = clone(comment.sources);
+        Object.keys(commentSourceUpdated[commentOid]).forEach( type => {
+            if (newSources.hasOwnProperty(type)) {
+                newSources[type] = newSources[type].concat(commentSourceUpdated[commentOid][type]);
+            } else {
+                newSources[type] = commentSourceUpdated[commentOid][type].slice();
+            }
+        });
+        updatedComments[commentOid] = { ...new Comment({ ...state[commentOid], sources: newSources }) };
+    });
+
+    if (Object.keys(action.updateObj.comments).length > 0 || Object.keys(updatedComments).length > 0) {
+        return { ...state, ...action.updateObj.comments, ...updatedComments };
+    } else {
+        return state;
+    }
+};
+
 const comments = (state = {}, action) => {
     switch (action.type) {
         case ADD_ITEMGROUPCOMMENT:
@@ -285,6 +357,8 @@ const comments = (state = {}, action) => {
             return deleteItemGroupCommentReferences(state, action);
         case DEL_VARS:
             return deleteCommentRefereces(state, action, 'itemDefs');
+        case ADD_VARS:
+            return handleAddVariables(state, action);
         default:
             return state;
     }

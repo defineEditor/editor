@@ -11,6 +11,8 @@ import TablePagination from '@material-ui/core/TablePagination';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormGroup from '@material-ui/core/FormGroup';
 import Button from '@material-ui/core/Button';
 import getSelectionList from 'utils/getSelectionList.js';
 import getOid from 'utils/getOid.js';
@@ -18,6 +20,7 @@ import clone from 'clone';
 import getTableDataForImport from 'utils/getTableDataForImport.js';
 import compareCodeLists from 'utils/compareCodeLists.js';
 import compareMethods from 'utils/compareMethods.js';
+import compareComments from 'utils/compareComments.js';
 import DescriptionFormatter from 'formatters/descriptionFormatter.js';
 import { addVariables } from 'actions/index.js';
 import { ItemDef, ItemRef, ValueList, WhereClause } from 'elements.js';
@@ -38,6 +41,9 @@ const styles = theme => ({
         minWidth: 100,
         marginLeft: theme.spacing.unit * 2,
         marginBottom: theme.spacing.unit * 2,
+    },
+    checkBoxes: {
+        marginLeft: theme.spacing.unit * 2,
     },
     searchField: {
         width: 120,
@@ -74,9 +80,9 @@ const mapStateToProps = (state, props) => {
     }
 };
 
-const copyItems = (currentGroup, sourceGroup, mdv, sourceMdv, selected, vlm) => {
+const copyItems = ({currentGroup, sourceGroup, mdv, sourceMdv, selected, parentItemDefOid, copyVlm} = {}) => {
     let itemDefs = {};
-    let itemRefs = {};
+    let itemRefs = { [currentGroup.oid]: {} };
     let valueLists = {};
     let whereClauses = {};
     let currentItemDefs = Object.keys(mdv.itemDefs);
@@ -97,12 +103,13 @@ const copyItems = (currentGroup, sourceGroup, mdv, sourceMdv, selected, vlm) => 
                 oid: newWhereClauseOid,
                 sources: { valueLists: [currentGroup.oid] }
             }) };
+            itemRef.whereClauseOid = newWhereClauseOid;
         }
         currentItemRefs.push(newItemRefOid);
         currentItemDefs.push(newItemDefOid);
-        itemRefs[newItemRefOid] = { ...new ItemRef({ ...itemRef, oid: newItemRefOid, itemOid: newItemDefOid }) };
+        itemRefs[currentGroup.oid][newItemRefOid] = { ...new ItemRef({ ...itemRef, oid: newItemRefOid, itemOid: newItemDefOid }) };
         let sources;
-        if (vlm === true) {
+        if (parentItemDefOid !== undefined) {
             sources = {itemGroups: [], valueLists: [currentGroup.oid]};
         } else {
             sources = {itemGroups: [currentGroup.oid], valueLists: []};
@@ -110,26 +117,101 @@ const copyItems = (currentGroup, sourceGroup, mdv, sourceMdv, selected, vlm) => 
         itemDefs[newItemDefOid] = {...new ItemDef({
             ...clone(sourceMdv.itemDefs[itemRef.itemOid]),
             oid: newItemDefOid,
+            parentItemDefOid,
             sources})
         };
         // Check if VLM is attached
-        if (itemDefs[newItemDefOid].valueListOid !== undefined) {
+        if (copyVlm === true && itemDefs[newItemDefOid].valueListOid !== undefined) {
             let valueList = clone(sourceMdv.valueLists[itemDefs[newItemDefOid].valueListOid]);
             let newValueListOid = getOid('ValueList', undefined, currentValueLists);
+            itemDefs[newItemDefOid].valueListOid = newValueListOid;
             currentValueLists.push(newValueListOid);
             valueLists[newValueListOid] = { ...new ValueList({
                 ...valueList, itemRefs: {}, itemRefOrder: [], oid: newValueListOid, sources: {itemDefs: [newItemDefOid]}
             }) };
-            let vlCopy = copyItems(valueLists[newValueListOid], valueList, mdv, sourceMdv, valueList.itemRefOrder, true);
-            valueLists[newValueListOid].itemRefs = vlCopy.itemRefs;
-            valueLists[newValueListOid].itemRefOrder = Object.keys(vlCopy.itemRefs);
+            let vlCopy = copyItems({
+                currentGroup: valueLists[newValueListOid],
+                sourceGroup: valueList,
+                mdv,
+                sourceMdv,
+                selected: valueList.itemRefOrder,
+                parentItemDefOid: newItemDefOid,
+                copyVlm,
+            });
+            valueLists[newValueListOid].itemRefs = vlCopy.itemRefs[newValueListOid];
+            valueLists[newValueListOid].itemRefOrder = Object.keys(vlCopy.itemRefs[newValueListOid]);
+            // No need to update itemRefs as VLM itemRefs are  already included in ValueList
             itemDefs = { ...itemDefs, ...vlCopy.itemDefs };
-            itemRefs = { ...itemRefs, ...vlCopy.itemRefs };
             valueLists = { ...valueLists, ...vlCopy.valueLists };
             whereClauses = { ...whereClauses, ...vlCopy.whereClauses };
         }
     });
     return { itemDefs, itemRefs, valueLists, whereClauses };
+};
+
+const copyMethod = ({sourceMethodOid, mdv, sourceMdv, searchForDuplicate, groupOid, itemRefOid, vlm} = {}) => {
+    let method = clone(sourceMdv.methods[sourceMethodOid]);
+    let methodOids = Object.keys(mdv.methods);
+    let name = method.name;
+    let newMethodOid;
+    let duplicateFound = false;
+    // Perform deep compare of the methods in case methods are not detached and coming from a different Define-XML
+    if (searchForDuplicate === true) {
+        // Search for the same name in the existing methods
+        let matchingIds = [];
+        Object.keys(mdv.methods).forEach(methodOid => {
+            if (mdv.methods[methodOid].name === name) {
+                matchingIds.push(methodOid);
+            }
+        });
+        matchingIds.some( methodOid => {
+            if (compareMethods(mdv.methods[methodOid], method)) {
+                newMethodOid = methodOid;
+                duplicateFound = true;
+                return true;
+            }
+        });
+    }
+    if (!duplicateFound) {
+        newMethodOid = getOid('Method', undefined, methodOids);
+        if (vlm === true) {
+            method.sources = { itemGroups: {}, valueLists: { [groupOid]: [itemRefOid] } };
+        } else {
+            method.sources = { itemGroups: { [groupOid]: [itemRefOid] }, valueLists: {} };
+        }
+        method.oid = newMethodOid;
+    }
+    return { newMethodOid, method, duplicateFound };
+};
+
+const copyComment = ({sourceCommentOid, mdv, sourceMdv, searchForDuplicate, itemDefOid, whereClauseOid} = {}) => {
+    let comment = clone(sourceMdv.comments[sourceCommentOid]);
+    let commentOids = Object.keys(mdv.comments);
+    // Search for the same name in the existing comments
+    let newCommentOid;
+    let duplicateFound = false;
+    // Perform deep compare of the comments in case comments are not detached and coming from a different Define-XML
+    if (searchForDuplicate === true) {
+        Object.keys(mdv.comments).forEach(commentOid => {
+            if (compareComments(mdv.comments[commentOid], comment)) {
+                newCommentOid = commentOid;
+                duplicateFound = true;
+                return true;
+            }
+        });
+    }
+    if (!duplicateFound) {
+        newCommentOid = getOid('Comment', undefined, commentOids);
+        comment.sources = {
+            itemDefs: itemDefOid !== undefined ? [itemDefOid] : [],
+            itemGroups: [],
+            whereClauses: whereClauseOid !== undefined ? [whereClauseOid] : [],
+            codeLists: [],
+            metaDataVersion: [],
+        };
+        comment.oid = newCommentOid;
+    }
+    return { newCommentOid, comment, duplicateFound };
 };
 
 class ConnectedCodedValueSelector extends React.Component {
@@ -158,6 +240,8 @@ class ConnectedCodedValueSelector extends React.Component {
             sourceItemGroupOid,
             itemGroupData,
             detachMethods: true,
+            detachComments: true,
+            copyVlm: true,
             rowsPerPage : 25,
             page: 0,
         };
@@ -197,8 +281,15 @@ class ConnectedCodedValueSelector extends React.Component {
         // Get new OIDs for each of the variables (both ItemRef and ItemDef)
         let currentGroup = this.props.mdv.itemGroups[this.props.itemGroupOid];
         let sourceGroup = this.props.sourceMdv.itemGroups[this.state.sourceItemGroupOid];
-        let { itemDefs, itemRefs, valueLists, whereClauses } =
-            copyItems(currentGroup, sourceGroup, this.props.mdv, this.props.sourceMdv, this.state.selected, false);
+        let { itemDefs, itemRefs, valueLists, whereClauses } = copyItems({
+            currentGroup,
+            sourceGroup,
+            mdv: this.props.mdv,
+            sourceMdv: this.props.sourceMdv,
+            selected: this.state.selected,
+            parentItemDefOid: undefined,
+            copyVlm: this.state.copyVlm,
+        });
         // If it is the same define, then there is no need to rebuild codeLists, other than update sources
         let codeLists = {};
         if (this.props.sameDefine === false) {
@@ -219,6 +310,7 @@ class ConnectedCodedValueSelector extends React.Component {
                     matchingIds.some( codeListOid => {
                         if (compareCodeLists(this.props.mdv.codeLists[codeListOid], codeList)) {
                             newCodeListOid = codeListOid;
+                            return true;
                         }
                     });
                     if (newCodeListOid === undefined) {
@@ -240,42 +332,90 @@ class ConnectedCodedValueSelector extends React.Component {
         // Copy methods;
         let methods = {};
         if (this.props.sameDefine === false || this.state.detachMethods === true) {
-            let methodOids = Object.keys(this.props.mdv.methods);
-            Object.keys(itemRefs).forEach( itemRefOid => {
-                if (itemRefs[itemRefOid].methodOid !== undefined) {
-                    let method = clone(this.props.sourceMdv.methods[itemRefs[itemRefOid].methodOid]);
-                    let name = method.name;
-                    // Search for the same name in the existing methods
-                    let matchingIds = [];
-                    Object.keys(this.props.mdv.methods).forEach(methodOid => {
-                        if (this.props.mdv.methods[methodOid].name === name) {
-                            matchingIds.push(methodOid);
-                        }
+            // Variable-level methods
+            Object.keys(itemRefs[this.props.itemGroupOid]).forEach( itemRefOid => {
+                let itemRef = itemRefs[this.props.itemGroupOid][itemRefOid];
+                if (itemRef.methodOid !== undefined) {
+                    let { newMethodOid, method, duplicateFound } = copyMethod({
+                        sourceMethodOid: itemRef.methodOid,
+                        mdv: this.props.mdv,
+                        sourceMdv: this.props.sourceMdv,
+                        searchForDuplicate: (this.state.detachMethods === false && this.props.sameDefine === false),
+                        groupOid: this.props.itemGroupOid,
+                        itemRefOid,
+                        vlm: false,
                     });
-                    let newMethodOid;
-                    // Perform deep compare of the methods in case methods are not detached and coming from a different Define-XML
-                    if (this.state.detachMethods === false && this.props.sameDefine === false) {
-                        matchingIds.some( methodOid => {
-                            if (compareMethods(this.props.mdv.methods[methodOid], method)) {
-                                newMethodOid = methodOid;
-                            }
-                        });
-                    }
-                    if (newMethodOid === undefined) {
-                        newMethodOid = getOid('Method', undefined, methodOids);
-                        method.sources = { itemGroups: { [this.props.itemGroupOid]: [itemRefOid] }, valueLists: {} };
-                        methodOids.push(newMethodOid);
-                        method.oid = newMethodOid;
+                    itemRef.methodOid = newMethodOid;
+                    if (!duplicateFound) {
                         methods[newMethodOid] = method;
                     }
-                    // Update itemRef referece
-                    itemRefs[itemRefOid].methodOid = newMethodOid;
                 }
             });
+            // Value-level methods
+            if (this.state.copyVlm === true) {
+                Object.keys(valueLists).forEach( valueListOid => {
+                    Object.keys(valueLists[valueListOid].itemRefs).forEach( itemRefOid => {
+                        let itemRef = valueLists[valueListOid].itemRefs[itemRefOid];
+                        if (itemRef.methodOid !== undefined) {
+                            let { newMethodOid, method, duplicateFound } = copyMethod({
+                                sourceMethodOid: itemRef.methodOid,
+                                mdv: this.props.mdv,
+                                sourceMdv: this.props.sourceMdv,
+                                searchForDuplicate: (this.state.detachMethods === false && this.props.sameDefine === false),
+                                groupOid: valueListOid,
+                                itemRefOid,
+                                vlm: true,
+                            });
+                            itemRef.methodOid = newMethodOid;
+                            if (!duplicateFound) {
+                                methods[newMethodOid] = method;
+                            }
+                        }
+                    });
+                });
+            }
         }
 
         // Copy comments;
         let comments = {};
+        if (this.props.sameDefine === false || this.state.detachComments === true) {
+            // ItemDef comments
+            Object.keys(itemDefs).forEach( itemDefOid => {
+                let itemDef = itemDefs[itemDefOid];
+                if (itemDef.commentOid !== undefined) {
+                    let { newCommentOid, comment, duplicateFound } = copyComment({
+                        sourceCommentOid: itemDef.commentOid,
+                        mdv: this.props.mdv,
+                        sourceMdv: this.props.sourceMdv,
+                        searchForDuplicate: (this.state.detachComments === false && this.props.sameDefine === false),
+                        itemDefOid,
+                    });
+                    itemDef.commentOid = newCommentOid;
+                    if (!duplicateFound) {
+                        comments[newCommentOid] = comment;
+                    }
+                }
+            });
+            // Where Clause Comments
+            if (this.state.copyVlm === true) {
+                Object.keys(whereClauses).forEach( whereClauseOid => {
+                    let whereClause = whereClauses[whereClauseOid];
+                    if (whereClause.commentOid !== undefined) {
+                        let { newCommentOid, comment, duplicateFound } = copyComment({
+                            sourceCommentOid: whereClause.commentOid,
+                            mdv: this.props.mdv,
+                            sourceMdv: this.props.sourceMdv,
+                            searchForDuplicate: (this.state.detachComments === false && this.props.sameDefine === false),
+                            whereClauseOid,
+                        });
+                        WhereClause.commentOid = newCommentOid;
+                        if (!duplicateFound) {
+                            comments[newCommentOid] = comment;
+                        }
+                    }
+                });
+            }
+        }
 
         // Get position to insert
         let position;
@@ -328,10 +468,13 @@ class ConnectedCodedValueSelector extends React.Component {
         }
     };
 
-
     handleChangeSearchString = event => {
         this.setState({ searchString: event.target.value });
     };
+
+    handleCheckBoxChange = name => event => {
+        this.setState({ [name]: !this.state[name] });
+    }
 
     getVariableTable(defineVersion, classes) {
         const { selected, page, rowsPerPage, searchString, itemGroupData } = this.state;
@@ -354,6 +497,43 @@ class ConnectedCodedValueSelector extends React.Component {
 
         return (
             <Grid container spacing={0}>
+                <Grid item xs={12}>
+                    <FormGroup row className={classes.checkBoxes}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={this.state.copyVlm}
+                                    onChange={this.handleCheckBoxChange('copyVlm')}
+                                    color='primary'
+                                    value='copyVlm'
+                                />
+                            }
+                            label="Copy VLM"
+                        />
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={this.state.detachMethods}
+                                    onChange={this.handleCheckBoxChange('detachMethods')}
+                                    color='primary'
+                                    value='detachMethods'
+                                />
+                            }
+                            label="Detach Methods"
+                        />
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={this.state.detachComments}
+                                    onChange={this.handleCheckBoxChange('detachComments')}
+                                    color='primary'
+                                    value='detachComments'
+                                />
+                            }
+                            label="Detach Comments"
+                        />
+                    </FormGroup>
+                </Grid>
                 <Grid item xs={12}>
                     <Grid
                         container

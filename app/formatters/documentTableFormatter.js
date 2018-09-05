@@ -9,6 +9,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
 import FormattingControlIcons from 'formatters/formattingControlIcons.js';
+import { ipcRenderer } from 'electron';
 
 const styles = theme => ({
     mainPart: {
@@ -34,6 +35,17 @@ const CustomTableCell = withStyles(theme => ({
 
 class DocumentTableFormatter extends React.Component {
 
+    openPdf = (event) => {
+        event.preventDefault();
+        // Basefolder of all documents must be the same, that is why it is taken from the first leaf
+        let baseFolder = '';
+        Object.keys(this.props.leafs).some( leafId => {
+            baseFolder = this.props.leafs[leafId].baseFolder;
+            return true;
+        });
+        ipcRenderer.send('openDocument', baseFolder, event.target.attributes[0].value);
+    }
+
     getDocuments = () => {
         let leafs = this.props.leafs;
 
@@ -44,7 +56,7 @@ class DocumentTableFormatter extends React.Component {
                         {this.props.documentTypes.typeLabel[leafs[leafId].type]}
                     </CustomTableCell>
                     <CustomTableCell>
-                        <a href={'file://' + leafs[leafId].href}>{leafs[leafId].title}</a>
+                        <a href={leafs[leafId].href} onClick={this.openPdf}>{leafs[leafId].title}</a>
                     </CustomTableCell>
                 </TableRow>
             );

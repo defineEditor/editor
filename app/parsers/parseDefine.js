@@ -242,6 +242,8 @@ function parseComments (commentsRaw, mdv) {
         };
         if (mdv.commentOid === comment.oid) {
             comment.sources['metaDataVersion'] = [mdv.oid];
+        } else {
+            comment.sources['metaDataVersion'] = [];
         }
         comments[comment.oid] = comment;
     });

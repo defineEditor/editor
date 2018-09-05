@@ -12,6 +12,7 @@ import {
     DEL_CODEDVALUES,
     UPD_CODEDVALUEORDER,
     DEL_VARS,
+    ADD_VARS,
     DEL_ITEMGROUPS,
 } from "constants/action-types";
 import { CodeList, CodeListItem, EnumeratedItem, Alias } from 'elements.js';
@@ -718,6 +719,49 @@ const handleItemsBulkUpdate = (state, action) => {
     }
 };
 
+const handleAddVariables = (state, action) => {
+    // Some of the codeLists can be just referenced and not copied
+    // Find all added ItemDefs with codeList links, which do not link to any of the new codeLists
+    let codeListSourceUpdated = {};
+    // For Item Defs
+    Object.keys(action.updateObj.itemDefs).forEach( itemDefOid => {
+        let itemDef = action.updateObj.itemDefs[itemDefOid];
+        if (itemDef.codeListOid !== undefined
+            &&
+            !action.updateObj.codeLists.hasOwnProperty(itemDef.codeListOid)
+            &&
+            state.hasOwnProperty(itemDef.codeListOid)
+        ) {
+            if (codeListSourceUpdated.hasOwnProperty(itemDef.codeListOid)) {
+                codeListSourceUpdated[itemDef.codeListOid].itemDefs.push(itemDefOid);
+            } else {
+                codeListSourceUpdated[itemDef.codeListOid] = { itemDefs: [itemDefOid] };
+            }
+        }
+    });
+    // Add sources
+    let updatedCodeLists = {};
+    Object.keys(codeListSourceUpdated).forEach( codeListOid => {
+        let codeList = state[codeListOid];
+        let newSources = clone(codeList.sources);
+        Object.keys(codeListSourceUpdated[codeListOid]).forEach( type => {
+            if (newSources.hasOwnProperty(type)) {
+                newSources[type] = newSources[type].concat(codeListSourceUpdated[codeListOid][type]);
+            } else {
+                newSources[type] = codeListSourceUpdated[codeListOid][type].slice();
+            }
+        });
+        updatedCodeLists[codeListOid] = { ...new CodeList({ ...state[codeListOid], sources: newSources }) };
+    });
+
+    if (Object.keys(action.updateObj.codeLists).length > 0 || Object.keys(updatedCodeLists).length > 0) {
+        return { ...state, ...action.updateObj.codeLists, ...updatedCodeLists };
+    } else {
+        return state;
+    }
+};
+
+
 const codeLists = (state = {}, action) => {
     switch (action.type) {
         case ADD_CODELIST:
@@ -746,6 +790,8 @@ const codeLists = (state = {}, action) => {
             return updateCodedValueOrder(state, action);
         case DEL_VARS:
             return deleteCodeListReferences(state, action);
+        case ADD_VARS:
+            return handleAddVariables(state, action);
         case DEL_ITEMGROUPS:
             return deleteItemGroups(state, action);
         default:

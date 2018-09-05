@@ -17,7 +17,7 @@ class DocumentFormatter extends React.Component {
             baseFolder = this.props.leafs[leafId].baseFolder;
             return true;
         });
-        ipcRenderer.send('openPdf', baseFolder, event.target.attributes[0].value);
+        ipcRenderer.send('openDocument', baseFolder, event.target.attributes[0].value);
     }
     render () {
         let leafs = this.props.leafs;

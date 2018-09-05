@@ -204,13 +204,14 @@ const addVariable = (state, action) => {
 };
 
 const addVariables = (state, action) => {
-    if (Object.keys(action.updateObj.itemRefs).length > 0) {
+    let itemRefs = action.updateObj.itemRefs[action.updateObj.itemGroupOid];
+    if (Object.keys(itemRefs).length > 0) {
         let newState = { ...state };
-        Object.keys(action.updateObj.itemRefs).forEach( (itemRefOid, index) => {
+        Object.keys(itemRefs).forEach( (itemRefOid, index) => {
             newState = addVariable( newState, {
                 source: { itemGroupOid: action.updateObj.itemGroupOid },
                 orderNumber: action.updateObj.position + index,
-                itemRef: action.updateObj.itemRefs[itemRefOid],
+                itemRef: itemRefs[itemRefOid],
             });
         });
         return newState;

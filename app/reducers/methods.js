@@ -3,6 +3,7 @@ import {
     DEL_VARS,
     DEL_ITEMGROUPS,
     UPD_ITEMSBULK,
+    ADD_VARS,
 } from "constants/action-types";
 import { Method, TranslatedText } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -29,7 +30,7 @@ const addMethod = (state, action) => {
         } else {
             newSourcesForType = { [action.source.typeOid]: [action.source.oid] };
         }
-        let newMethod = new Method({ ...action.method, sources: { ...action.method.sources, [action.source.type]: newSourcesForType } });
+        let newMethod = { ...new Method({ ...action.method, sources: { ...action.method.sources, [action.source.type]: newSourcesForType } }) };
         return {...state, [action.method.oid]: newMethod};
     }
 };
@@ -62,7 +63,7 @@ const deleteMethod = (state, action) => {
         } else {
             newSourcesForType = { ...newSourcesForType, [action.source.typeOid]: newSourcesForTypeGroup };
         }
-        let newMethod = new Method({ ...action.method, sources: { ...action.method.sources, [action.source.type]: newSourcesForType } });
+        let newMethod = { ...new Method({ ...action.method, sources: { ...action.method.sources, [action.source.type]: newSourcesForType } }) };
         return {...state, [action.method.oid]: newMethod};
     } else {
         return state;
@@ -319,6 +320,76 @@ const handleItemsBulkUpdate = (state, action) => {
     }
 };
 
+const handleAddVariables = (state, action) => {
+    // Some of the methods can be just referenced and not copied
+    // Find all added ItemRefs with method links, which do not link to any of the new methods
+    let methodSourceUpdated = {};
+    // For itemGroups
+    Object.keys(action.updateObj.itemRefs).forEach( itemGroupOid => {
+        let itemRefs = action.updateObj.itemRefs[itemGroupOid];
+        Object.keys(itemRefs).forEach( itemRefOid => {
+            let itemRef = itemRefs[itemRefOid];
+            if (itemRef.methodOid !== undefined
+                &&
+                !action.updateObj.methods.hasOwnProperty(itemRef.methodOid)
+                &&
+                state.hasOwnProperty(itemRef.methodOid)
+            ) {
+                if (methodSourceUpdated.hasOwnProperty(itemRef.methodOid)) {
+                    methodSourceUpdated[itemRef.methodOid].itemGroups[itemGroupOid].push(itemRefOid);
+                } else {
+                    methodSourceUpdated[itemRef.methodOid] = { itemGroups: { [itemGroupOid]: [itemRefOid] }, valueLists: {} };
+                }
+            }
+        });
+    });
+    // For valueLists
+    Object.keys(action.updateObj.valueLists).forEach( valueListOid => {
+        let itemRefs = action.updateObj.valueLists[valueListOid].itemRefs;
+        Object.keys(itemRefs).forEach( itemRefOid => {
+            let itemRef = itemRefs[itemRefOid];
+            if (itemRef.methodOid !== undefined
+                &&
+                !action.updateObj.methods.hasOwnProperty(itemRef.methodOid)
+                &&
+                state.hasOwnProperty(itemRef.methodOid)
+            ) {
+                if (methodSourceUpdated.hasOwnProperty(itemRef.methodOid)) {
+                    if (methodSourceUpdated[itemRef.methodOid].valueLists.hasOwnProperty(valueListOid)) {
+                        methodSourceUpdated[itemRef.methodOid].valueLists[valueListOid].push(itemRefOid);
+                    } else {
+                        methodSourceUpdated[itemRef.methodOid].valueLists[valueListOid] = [itemRefOid];
+                    }
+                } else {
+                    methodSourceUpdated[itemRef.methodOid] = { itemGroups: { }, valueLists: { [valueListOid]: [itemRefOid] } };
+                }
+            }
+        });
+    });
+    // Add sources
+    let updatedMethods = {};
+    Object.keys(methodSourceUpdated).forEach( methodOid => {
+        let method = state[methodOid];
+        let newSources = clone(method.sources);
+        Object.keys(methodSourceUpdated[methodOid]).forEach( type => {
+            Object.keys(methodSourceUpdated[methodOid][type]).forEach( groupOid => {
+                if (newSources[type].hasOwnProperty(groupOid)) {
+                    newSources[type][groupOid] = newSources[type][groupOid].concat(methodSourceUpdated[methodOid][type][groupOid]);
+                } else {
+                    newSources[type][groupOid] = methodSourceUpdated[methodOid][type][groupOid];
+                }
+            });
+        });
+        updatedMethods[methodOid] = { ...new Method({ ...state[methodOid], sources: newSources }) };
+    });
+
+    if (Object.keys(action.updateObj.methods).length > 0 || Object.keys(updatedMethods).length > 0) {
+        return { ...state, ...action.updateObj.methods, ...updatedMethods };
+    } else {
+        return state;
+    }
+};
+
 const methods = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMDESCRIPTION:
@@ -329,6 +400,8 @@ const methods = (state = {}, action) => {
             return deleteItemGroups(state, action);
         case UPD_ITEMSBULK:
             return handleItemsBulkUpdate(state, action);
+        case ADD_VARS:
+            return handleAddVariables(state, action);
         default:
             return state;
     }

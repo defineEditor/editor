@@ -59,11 +59,11 @@ class ConnectedItemGroupMenu extends React.Component {
                         },
                     }}
                 >
-                    <MenuItem key='Delete' onClick={this.deleteItemGroup}>
-                        Delete
-                    </MenuItem>
                     <MenuItem key='EditDatasetVariables' onClick={this.editItemGroupVariables}>
                         Edit Dataset Variables
+                    </MenuItem>
+                    <MenuItem key='Delete' onClick={this.deleteItemGroup}>
+                        Delete
                     </MenuItem>
                 </Menu>
             </React.Fragment>
