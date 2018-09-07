@@ -67,18 +67,18 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = (state, props) => {
     if (props.sourceMdv !== undefined) {
         return {
-            mdv: state.odm.study.metaDataVersion,
-            defineVersion: state.odm.study.metaDataVersion.defineVersion,
-            baseFolder: state.defines.byId[state.odm.defineId].pathToFile,
+            mdv: state.present.odm.study.metaDataVersion,
+            defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
+            baseFolder: state.present.defines.byId[state.present.odm.defineId].pathToFile,
             sameDefine: false,
         };
     } else {
         return {
-            mdv: state.odm.study.metaDataVersion,
-            defineVersion: state.odm.study.metaDataVersion.defineVersion,
-            baseFolder: state.defines.byId[state.odm.defineId].pathToFile,
-            sourceMdv: state.odm.study.metaDataVersion,
-            sourceDefineId: state.odm.defineId,
+            mdv: state.present.odm.study.metaDataVersion,
+            defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
+            baseFolder: state.present.defines.byId[state.present.odm.defineId].pathToFile,
+            sourceMdv: state.present.odm.study.metaDataVersion,
+            sourceDefineId: state.present.odm.defineId,
             sameDefine: true,
         };
     }

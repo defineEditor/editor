@@ -47,10 +47,10 @@ const styles = theme => ({
 
 const mapStateToProps = state => {
     return {
-        leafs    : state.odm.study.metaDataVersion.leafs,
-        comments : state.odm.study.metaDataVersion.comments,
-        mdv      : state.odm.study.metaDataVersion,
-        lang     : state.odm.study.metaDataVersion.lang,
+        leafs    : state.present.odm.study.metaDataVersion.leafs,
+        comments : state.present.odm.study.metaDataVersion.comments,
+        mdv      : state.present.odm.study.metaDataVersion,
+        lang     : state.present.odm.study.metaDataVersion.lang,
     };
 };
 

@@ -48,16 +48,16 @@ const styles = theme => ({
 
 const mapStateToProps = state => {
     let study = {};
-    if (state.studies.byId.hasOwnProperty(state.ui.studies.currentStudyId)) {
-        study = state.studies.byId[state.ui.studies.currentStudyId];
+    if (state.present.studies.byId.hasOwnProperty(state.present.ui.studies.currentStudyId)) {
+        study = state.present.studies.byId[state.present.ui.studies.currentStudyId];
     }
     return {
         study,
-        defineForm: state.ui.studies.defineForm,
-        defines: state.defines,
-        standardNames: state.stdConstants.standardNames,
-        settings: state.settings.define,
-        controlledTerminology: state.controlledTerminology,
+        defineForm: state.present.ui.studies.defineForm,
+        defines: state.present.defines,
+        standardNames: state.present.stdConstants.standardNames,
+        settings: state.present.settings.define,
+        controlledTerminology: state.present.controlledTerminology,
     };
 };
 

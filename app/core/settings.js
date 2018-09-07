@@ -51,7 +51,7 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        settings: state.settings
+        settings: state.present.settings
     };
 };
 

@@ -18,8 +18,8 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        codeLists           : state.odm.study.metaDataVersion.codeLists,
-        codedValuesTabIndex : state.ui.tabs.tabNames.indexOf('Coded Values'),
+        codeLists           : state.present.odm.study.metaDataVersion.codeLists,
+        codedValuesTabIndex : state.present.ui.tabs.tabNames.indexOf('Coded Values'),
     };
 };
 

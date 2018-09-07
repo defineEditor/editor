@@ -12,7 +12,7 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = (state, props) => {
-    let codeList = state.odm.study.metaDataVersion.codeLists[props.codeListOid];
+    let codeList = state.present.odm.study.metaDataVersion.codeLists[props.codeListOid];
     let itemOrder = codeList.itemOrder;
     let items;
 

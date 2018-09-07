@@ -35,7 +35,7 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        mainMenuOpened: state.ui.main.mainMenuOpened,
+        mainMenuOpened: state.present.ui.main.mainMenuOpened,
     };
 };
 

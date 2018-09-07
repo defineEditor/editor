@@ -33,8 +33,8 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        odm: state.odm,
-        tabs: state.ui.tabs,
+        odm: state.present.odm,
+        tabs: state.present.ui.tabs,
     };
 };
 

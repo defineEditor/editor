@@ -26,8 +26,8 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = (state, props) => {
     return {
-        studies: state.studies,
-        defines: state.defines,
+        studies: state.present.studies,
+        defines: state.present.defines,
     };
 };
 

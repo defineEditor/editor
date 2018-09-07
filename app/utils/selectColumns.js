@@ -40,9 +40,9 @@ const mapDispatchToProps = dispatch => {
     };
 };
 const mapStateToProps = state => {
-    let tabs = state.ui.tabs;
+    let tabs = state.present.ui.tabs;
     return {
-        stdColumns : state.stdConstants.columns[tabs.tabObjectNames[tabs.currentTab]],
+        stdColumns : state.present.stdConstants.columns[tabs.tabObjectNames[tabs.currentTab]],
         columns    : tabs.settings[tabs.currentTab].columns,
     };
 };

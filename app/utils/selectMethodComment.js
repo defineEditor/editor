@@ -58,8 +58,8 @@ const styles = theme => ({
 
 const mapStateToProps = state => {
     return {
-        leafs : state.odm.study.metaDataVersion.leafs,
-        mdv   : state.odm.study.metaDataVersion,
+        leafs : state.present.odm.study.metaDataVersion.leafs,
+        mdv   : state.present.odm.study.metaDataVersion,
     };
 };
 

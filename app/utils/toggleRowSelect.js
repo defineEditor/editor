@@ -22,7 +22,7 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        tabs: state.ui.tabs,
+        tabs: state.present.ui.tabs,
     };
 };
 

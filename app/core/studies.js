@@ -34,10 +34,10 @@ const styles = theme => ({
 
 const mapStateToProps = state => {
     return {
-        studies: state.studies,
-        defines: state.defines,
-        currentDefineId: state.ui.main.currentDefineId,
-        isCurrentDefineSaved: state.ui.main.isCurrentDefineSaved,
+        studies: state.present.studies,
+        defines: state.present.defines,
+        currentDefineId: state.present.ui.main.currentDefineId,
+        isCurrentDefineSaved: state.present.ui.main.isCurrentDefineSaved,
     };
 };
 

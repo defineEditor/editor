@@ -35,8 +35,8 @@ const styles = theme => ({
 
 const mapStateToProps = state => {
     return {
-        controlledTerminologyLocation: state.settings.general.controlledTerminologyLocation,
-        controlledTerminology: state.controlledTerminology,
+        controlledTerminologyLocation: state.present.settings.general.controlledTerminologyLocation,
+        controlledTerminology: state.present.controlledTerminology,
     };
 };
 

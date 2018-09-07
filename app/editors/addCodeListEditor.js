@@ -44,9 +44,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        defineVersion : state.odm.study.metaDataVersion.defineVersion,
-        codeLists     : state.odm.study.metaDataVersion.codeLists,
-        codeListTypes : state.stdConstants.codeListTypes,
+        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
+        codeLists     : state.present.odm.study.metaDataVersion.codeLists,
+        codeListTypes : state.present.stdConstants.codeListTypes,
     };
 };
 

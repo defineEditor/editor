@@ -21,9 +21,9 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        codeLists    : state.odm.study.metaDataVersion.codeLists,
-        stdCodeLists : state.stdCodeLists,
-        standards    : state.odm.study.metaDataVersion.standards,
+        codeLists    : state.present.odm.study.metaDataVersion.codeLists,
+        stdCodeLists : state.present.stdCodeLists,
+        standards    : state.present.odm.study.metaDataVersion.standards,
     };
 };
 

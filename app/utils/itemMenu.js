@@ -29,10 +29,10 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        valueLists   : state.odm.study.metaDataVersion.valueLists,
-        itemDefs     : state.odm.study.metaDataVersion.itemDefs,
-        whereClauses : state.odm.study.metaDataVersion.whereClauses,
-        mdv          : state.odm.study.metaDataVersion,
+        valueLists   : state.present.odm.study.metaDataVersion.valueLists,
+        itemDefs     : state.present.odm.study.metaDataVersion.itemDefs,
+        whereClauses : state.present.odm.study.metaDataVersion.whereClauses,
+        mdv          : state.present.odm.study.metaDataVersion,
     };
 };
 

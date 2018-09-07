@@ -40,11 +40,11 @@ const styles = theme => ({
 
 const mapStateToProps = state => {
     return {
-        leafs         : state.odm.study.metaDataVersion.leafs,
-        lang          : state.odm.study.metaDataVersion.lang,
-        model         : state.odm.study.metaDataVersion.model,
-        stdConstants  : state.stdConstants,
-        defineVersion : state.odm.study.metaDataVersion.defineVersion,
+        leafs         : state.present.odm.study.metaDataVersion.leafs,
+        lang          : state.present.odm.study.metaDataVersion.lang,
+        model         : state.present.odm.study.metaDataVersion.model,
+        stdConstants  : state.present.stdConstants,
+        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
     };
 };
 

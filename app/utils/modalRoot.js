@@ -7,7 +7,7 @@ import ModalChangeDefine from 'utils/modalChangeDefine.js';
 
 const mapStateToProps = state => {
     return {
-        modal: state.ui.modal,
+        modal: state.present.ui.modal,
     };
 };
 

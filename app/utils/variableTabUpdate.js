@@ -94,10 +94,10 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        mdv           : state.odm.study.metaDataVersion,
-        defineVersion : state.odm.study.metaDataVersion.defineVersion,
-        lang          : state.odm.study.metaDataVersion.lang,
-        stdConstants  : state.stdConstants,
+        mdv           : state.present.odm.study.metaDataVersion,
+        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
+        lang          : state.present.odm.study.metaDataVersion.lang,
+        stdConstants  : state.present.stdConstants,
     };
 };
 

@@ -45,49 +45,49 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
 
     let comment;
-    let defineVersion = state.odm.study.metaDataVersion.defineVersion;
-    let mdvCommentOid = state.odm.study.metaDataVersion.commentOid;
-    let comments = state.odm.study.metaDataVersion.comments;
+    let defineVersion = state.present.odm.study.metaDataVersion.defineVersion;
+    let mdvCommentOid = state.present.odm.study.metaDataVersion.commentOid;
+    let comments = state.present.odm.study.metaDataVersion.comments;
 
     if (defineVersion === '2.1.0' && mdvCommentOid !== undefined) {
         comment = comments[mdvCommentOid];
     }
 
-    let description = state.odm.study.metaDataVersion.description;
+    let description = state.present.odm.study.metaDataVersion.description;
     if (description === undefined) {
         description = '';
     }
     const mdvAttrs = {
-        name: state.odm.study.metaDataVersion.name,
+        name: state.present.odm.study.metaDataVersion.name,
         description,
         comment,
     };
 
     const odmAttrs = {
-        fileOid      : state.odm.fileOid,
-        asOfDateTime : state.odm.asOfDateTime !== undefined ? state.odm.asOfDateTime : '',
-        originator   : state.odm.originator !== undefined ? state.odm.originator: '',
-        stylesheetLocation   : state.odm.stylesheetLocation !== undefined ? state.odm.stylesheetLocation: '',
+        fileOid      : state.present.odm.fileOid,
+        asOfDateTime : state.present.odm.asOfDateTime !== undefined ? state.present.odm.asOfDateTime : '',
+        originator   : state.present.odm.originator !== undefined ? state.present.odm.originator: '',
+        stylesheetLocation   : state.present.odm.stylesheetLocation !== undefined ? state.present.odm.stylesheetLocation: '',
     };
 
-    const defineId = state.odm.defineId;
+    const defineId = state.present.odm.defineId;
 
     let otherAttrs = {};
-    if (state.defines.allIds.includes(defineId)) {
-        otherAttrs = state.defines.byId[defineId];
+    if (state.present.defines.allIds.includes(defineId)) {
+        otherAttrs = state.present.defines.byId[defineId];
     }
 
     return {
-        globalVariables       : state.odm.study.globalVariables,
-        studyOid              : state.odm.study.oid,
-        standards             : state.odm.study.metaDataVersion.standards,
-        standardOrder         : state.odm.study.metaDataVersion.order.standardOrder,
-        lang                  : state.odm.study.metaDataVersion.lang,
-        model                 : state.odm.study.metaDataVersion.model,
-        stdConstants          : state.stdConstants,
-        controlledTerminology : state.controlledTerminology,
-        stdCodeLists          : state.stdCodeLists,
-        tabs                  : state.ui.tabs,
+        globalVariables       : state.present.odm.study.globalVariables,
+        studyOid              : state.present.odm.study.oid,
+        standards             : state.present.odm.study.metaDataVersion.standards,
+        standardOrder         : state.present.odm.study.metaDataVersion.order.standardOrder,
+        lang                  : state.present.odm.study.metaDataVersion.lang,
+        model                 : state.present.odm.study.metaDataVersion.model,
+        stdConstants          : state.present.stdConstants,
+        controlledTerminology : state.present.controlledTerminology,
+        stdCodeLists          : state.present.stdCodeLists,
+        tabs                  : state.present.ui.tabs,
         mdvAttrs,
         odmAttrs,
         comments,

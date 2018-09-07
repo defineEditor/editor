@@ -44,8 +44,8 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        model         : state.odm.study.metaDataVersion.model,
-        defineVersion : state.odm.study.metaDataVersion.defineVersion,
+        model         : state.present.odm.study.metaDataVersion.model,
+        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
     };
 };
 

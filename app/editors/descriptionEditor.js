@@ -28,7 +28,7 @@ const styles = theme => ({
 const mapStateToProps = state => {
     return {
         // TODO : remove mapStateToProps and add mapDispatchToProps
-        lang          : state.odm.study.metaDataVersion.lang,
+        lang          : state.present.odm.study.metaDataVersion.lang,
     };
 };
 

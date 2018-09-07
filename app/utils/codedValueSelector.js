@@ -71,7 +71,7 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        defineVersion: state.odm.study.metaDataVersion.defineVersion
+        defineVersion: state.present.odm.study.metaDataVersion.defineVersion
     };
 };
 

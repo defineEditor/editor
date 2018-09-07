@@ -58,21 +58,21 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
-    let model = state.odm.study.metaDataVersion.model;
-    let pathToDefine = path.dirname(state.defines.byId[state.odm.defineId].pathToFile);
+    let model = state.present.odm.study.metaDataVersion.model;
+    let pathToDefine = path.dirname(state.present.defines.byId[state.present.odm.defineId].pathToFile);
     return {
-        itemGroups     : state.odm.study.metaDataVersion.itemGroups,
-        itemGroupOrder : state.odm.study.metaDataVersion.order.itemGroupOrder,
-        itemDefs       : state.odm.study.metaDataVersion.itemDefs,
-        comments       : state.odm.study.metaDataVersion.comments,
-        leafs          : state.odm.study.metaDataVersion.leafs,
-        mdv            : state.odm.study.metaDataVersion,
-        defineVersion  : state.odm.study.metaDataVersion.defineVersion,
-        tabs           : state.ui.tabs,
-        classTypes     : state.stdConstants.classTypes[model],
-        stdConstants   : state.stdConstants,
-        tabSettings    : state.ui.tabs.settings[state.ui.tabs.currentTab],
-        showRowSelect  : state.ui.tabs.settings[state.ui.tabs.currentTab].rowSelect['overall'],
+        itemGroups     : state.present.odm.study.metaDataVersion.itemGroups,
+        itemGroupOrder : state.present.odm.study.metaDataVersion.order.itemGroupOrder,
+        itemDefs       : state.present.odm.study.metaDataVersion.itemDefs,
+        comments       : state.present.odm.study.metaDataVersion.comments,
+        leafs          : state.present.odm.study.metaDataVersion.leafs,
+        mdv            : state.present.odm.study.metaDataVersion,
+        defineVersion  : state.present.odm.study.metaDataVersion.defineVersion,
+        tabs           : state.present.ui.tabs,
+        classTypes     : state.present.stdConstants.classTypes[model],
+        stdConstants   : state.present.stdConstants,
+        tabSettings    : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
+        showRowSelect  : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
         pathToDefine,
     };
 };

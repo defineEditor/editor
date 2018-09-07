@@ -18,8 +18,8 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        mdv       : state.odm.study.metaDataVersion,
-        blueprint : state.odm.study.metaDataVersion,
+        mdv       : state.present.odm.study.metaDataVersion,
+        blueprint : state.present.odm.study.metaDataVersion,
     };
 };
 

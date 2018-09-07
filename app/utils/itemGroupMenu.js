@@ -19,9 +19,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        itemGroups       : state.odm.study.metaDataVersion.itemGroups,
-        variableTabIndex : state.ui.tabs.tabNames.indexOf('Variables'),
-        mdv              : state.odm.study.metaDataVersion,
+        itemGroups       : state.present.odm.study.metaDataVersion.itemGroups,
+        variableTabIndex : state.present.ui.tabs.tabNames.indexOf('Variables'),
+        mdv              : state.present.odm.study.metaDataVersion,
     };
 };
 

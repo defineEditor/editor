@@ -86,9 +86,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        mdv           : state.odm.study.metaDataVersion,
-        defineVersion : state.odm.study.metaDataVersion.defineVersion,
-        tabSettings   : state.ui.tabs.settings[state.ui.tabs.currentTab],
+        mdv           : state.present.odm.study.metaDataVersion,
+        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
+        tabSettings   : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
     };
 };
 

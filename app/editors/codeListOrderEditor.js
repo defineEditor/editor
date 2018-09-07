@@ -13,8 +13,8 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        codeListOrder : state.odm.study.metaDataVersion.order.codeListOrder,
-        codeLists     : state.odm.study.metaDataVersion.codeLists,
+        codeListOrder : state.present.odm.study.metaDataVersion.order.codeListOrder,
+        codeLists     : state.present.odm.study.metaDataVersion.codeLists,
     };
 };
 

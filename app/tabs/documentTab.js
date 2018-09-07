@@ -20,12 +20,12 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        leafs         : state.odm.study.metaDataVersion.leafs,
-        leafOrder     : state.odm.study.metaDataVersion.order.leafOrder,
-        defineVersion : state.odm.study.metaDataVersion.defineVersion,
-        documentTypes : state.stdConstants.documentTypes,
-        pathToDefine  : state.defines.byId[state.odm.defineId].pathToFile,
-        tabs          : state.ui.tabs,
+        leafs         : state.present.odm.study.metaDataVersion.leafs,
+        leafOrder     : state.present.odm.study.metaDataVersion.order.leafOrder,
+        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
+        documentTypes : state.present.stdConstants.documentTypes,
+        pathToDefine  : state.present.defines.byId[state.present.odm.defineId].pathToFile,
+        tabs          : state.present.ui.tabs,
     };
 };
 

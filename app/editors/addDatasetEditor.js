@@ -44,9 +44,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        model         : state.odm.study.metaDataVersion.model,
-        defineVersion : state.odm.study.metaDataVersion.defineVersion,
-        itemGroupOids : Object.keys(state.odm.study.metaDataVersion.itemGroups),
+        model         : state.present.odm.study.metaDataVersion.model,
+        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
+        itemGroupOids : Object.keys(state.present.odm.study.metaDataVersion.itemGroups),
     };
 };
 

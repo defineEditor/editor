@@ -48,25 +48,25 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = (state, props) => {
-    let tabIndex = state.ui.tabs.tabNames.indexOf(props.groupClass);
+    let tabIndex = state.present.ui.tabs.tabNames.indexOf(props.groupClass);
     let groups;
     let groupOrder;
     if (props.groupClass === 'Coded Values') {
-        groupOrder = state.odm.study.metaDataVersion.order.codeListOrder;
-        groups = state.odm.study.metaDataVersion.codeLists;
+        groupOrder = state.present.odm.study.metaDataVersion.order.codeListOrder;
+        groups = state.present.odm.study.metaDataVersion.codeLists;
     } else if (props.groupClass === 'Variables') {
-        groupOrder = state.odm.study.metaDataVersion.order.itemGroupOrder;
-        groups = state.odm.study.metaDataVersion.itemGroups;
+        groupOrder = state.present.odm.study.metaDataVersion.order.itemGroupOrder;
+        groups = state.present.odm.study.metaDataVersion.itemGroups;
     }
     return {
         groups,
         groupOrder,
         tabIndex,
-        groupOid      : state.ui.tabs.settings[tabIndex].groupOid,
-        tabs          : state.ui.tabs,
-        mdv           : state.odm.study.metaDataVersion,
-        defineVersion : state.odm.study.metaDataVersion.defineVersion,
-        filter        : state.ui.tabs.settings[tabIndex].filter,
+        groupOid      : state.present.ui.tabs.settings[tabIndex].groupOid,
+        tabs          : state.present.ui.tabs,
+        mdv           : state.present.odm.study.metaDataVersion,
+        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
+        filter        : state.present.ui.tabs.settings[tabIndex].filter,
     };
 };
 

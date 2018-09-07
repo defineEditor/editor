@@ -48,15 +48,15 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        codeLists     : state.odm.study.metaDataVersion.codeLists,
-        codeListOrder : state.odm.study.metaDataVersion.order.codeListOrder,
-        standards     : state.odm.study.metaDataVersion.standards,
-        stdCodeLists  : state.stdCodeLists,
-        stdConstants  : state.stdConstants,
-        defineVersion : state.odm.study.metaDataVersion.defineVersion,
-        tabs          : state.ui.tabs,
-        tabSettings   : state.ui.tabs.settings[state.ui.tabs.currentTab],
-        showRowSelect : state.ui.tabs.settings[state.ui.tabs.currentTab].rowSelect['overall'],
+        codeLists     : state.present.odm.study.metaDataVersion.codeLists,
+        codeListOrder : state.present.odm.study.metaDataVersion.order.codeListOrder,
+        standards     : state.present.odm.study.metaDataVersion.standards,
+        stdCodeLists  : state.present.stdCodeLists,
+        stdConstants  : state.present.stdConstants,
+        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
+        tabs          : state.present.ui.tabs,
+        tabSettings   : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
+        showRowSelect : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
     };
 };
 

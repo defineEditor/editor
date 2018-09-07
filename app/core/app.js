@@ -29,7 +29,7 @@ const theme = createMuiTheme({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        currentPage: state.ui.main.currentPage
+        currentPage: state.present.ui.main.currentPage
     };
 };
 

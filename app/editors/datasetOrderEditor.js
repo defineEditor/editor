@@ -13,8 +13,8 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        itemGroupOrder : state.odm.study.metaDataVersion.order.itemGroupOrder,
-        itemGroups     : state.odm.study.metaDataVersion.itemGroups,
+        itemGroupOrder : state.present.odm.study.metaDataVersion.order.itemGroupOrder,
+        itemGroups     : state.present.odm.study.metaDataVersion.itemGroups,
     };
 };
 

@@ -19,8 +19,8 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        variableRoles : state.stdConstants.variableRoles,
-        codeLists     : state.odm.study.metaDataVersion.codeLists,
+        variableRoles : state.present.stdConstants.variableRoles,
+        codeLists     : state.present.odm.study.metaDataVersion.codeLists,
     };
 };
 
