@@ -75,7 +75,7 @@ const mapStateToProps = state => {
     };
 };
 
-class ConnectedCodedValueSelector extends React.Component {
+class CodedValueSelectorConnected extends React.Component {
     constructor(props) {
         super(props);
 
@@ -338,7 +338,7 @@ class ConnectedCodedValueSelector extends React.Component {
     }
 }
 
-ConnectedCodedValueSelector.propTypes = {
+CodedValueSelectorConnected.propTypes = {
     classes: PropTypes.object.isRequired,
     sourceCodeList: PropTypes.object.isRequired,
     codeList: PropTypes.object.isRequired,
@@ -348,5 +348,5 @@ ConnectedCodedValueSelector.propTypes = {
     onClose: PropTypes.func.isRequired
 };
 
-const CodedValueSelector = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodedValueSelector);
+const CodedValueSelector = connect(mapStateToProps, mapDispatchToProps)(CodedValueSelectorConnected);
 export default withStyles(styles)(CodedValueSelector);

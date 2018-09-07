@@ -105,6 +105,10 @@ ipcMain.on('deleteDefineObject', (event, defineId) => {
 ipcMain.on('loadDefineObject', (event, defineId) => {
     loadDefineObject(mainWindow, defineId);
 });
+// Extract only odm part from nogz
+ipcMain.on('loadDefineObjectForImport', (event, defineId) => {
+    loadDefineObject(mainWindow, defineId, true);
+});
 // Scan the controlled terminology folder
 ipcMain.on('scanControlledTerminologyFolder', (event, controlledTerminologyLocation) => {
     scanControlledTerminologyFolder(mainWindow, controlledTerminologyLocation);

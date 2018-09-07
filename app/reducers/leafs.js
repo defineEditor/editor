@@ -2,6 +2,7 @@ import { Leaf } from 'elements.js';
 import getOid from 'utils/getOid.js';
 import {
     UPD_LEAFS,
+    ADD_VARS,
 } from "constants/action-types";
 
 const initialState = new Leaf({oid: getOid('Leaf')});
@@ -23,10 +24,20 @@ const updateLeafs = (state, action) => {
     return newState;
 };
 
+const handleAddVariables = (state, action) => {
+    if (Object.keys(action.updateObj.leafs).length > 0) {
+        return { ...state, ...action.updateObj.leafs };
+    } else {
+        return state;
+    }
+};
+
 const leafs = (state = initialState, action) => {
     switch (action.type) {
         case UPD_LEAFS:
             return updateLeafs(state, action);
+        case ADD_VARS:
+            return handleAddVariables(state, action);
         default:
             return state;
     }

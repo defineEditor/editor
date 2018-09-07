@@ -2,6 +2,7 @@ import {
     ADD_CODELIST,
     DEL_CODELISTS,
     UPD_CODELISTORDER,
+    ADD_VARS,
 } from "constants/action-types";
 
 const addCodeList = (state, action) => {
@@ -25,6 +26,14 @@ const deleteCodeLists = (state, action) => {
     return newCodeListOrder;
 };
 
+const handleAddVariables = (state, action) => {
+    if (Object.keys(action.updateObj.codeLists).length > 0) {
+        return state.concat(Object.keys(action.updateObj.codeLists));
+    } else {
+        return state;
+    }
+};
+
 const codeListOrder = (state = {}, action) => {
     switch (action.type) {
         case ADD_CODELIST:
@@ -33,6 +42,8 @@ const codeListOrder = (state = {}, action) => {
             return deleteCodeLists(state, action);
         case UPD_CODELISTORDER:
             return updateCodeListOrder(state, action);
+        case ADD_VARS:
+            return handleAddVariables(state, action);
         default:
             return state;
     }

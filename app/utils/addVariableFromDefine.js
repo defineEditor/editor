@@ -21,9 +21,10 @@ import getTableDataForImport from 'utils/getTableDataForImport.js';
 import compareCodeLists from 'utils/compareCodeLists.js';
 import compareMethods from 'utils/compareMethods.js';
 import compareComments from 'utils/compareComments.js';
+import compareLeafs from 'utils/compareLeafs.js';
 import DescriptionFormatter from 'formatters/descriptionFormatter.js';
 import { addVariables } from 'actions/index.js';
-import { ItemDef, ItemRef, ValueList, WhereClause } from 'elements.js';
+import { ItemDef, ItemRef, ValueList, WhereClause, CodeList, Leaf } from 'elements.js';
 
 const styles = theme => ({
     root: {
@@ -68,13 +69,16 @@ const mapStateToProps = (state, props) => {
         return {
             mdv: state.odm.study.metaDataVersion,
             defineVersion: state.odm.study.metaDataVersion.defineVersion,
+            baseFolder: state.defines.byId[state.odm.defineId].pathToFile,
             sameDefine: false,
         };
     } else {
         return {
             mdv: state.odm.study.metaDataVersion,
             defineVersion: state.odm.study.metaDataVersion.defineVersion,
+            baseFolder: state.defines.byId[state.odm.defineId].pathToFile,
             sourceMdv: state.odm.study.metaDataVersion,
+            sourceDefineId: state.odm.defineId,
             sameDefine: true,
         };
     }
@@ -85,6 +89,7 @@ const copyItems = ({currentGroup, sourceGroup, mdv, sourceMdv, selected, parentI
     let itemRefs = { [currentGroup.oid]: {} };
     let valueLists = {};
     let whereClauses = {};
+    let processedItemDefs = {};
     let currentItemDefs = Object.keys(mdv.itemDefs);
     let currentItemRefs = currentGroup.itemRefOrder.slice();
     let currentValueLists = Object.keys(mdv.valueLists);
@@ -114,6 +119,7 @@ const copyItems = ({currentGroup, sourceGroup, mdv, sourceMdv, selected, parentI
         } else {
             sources = {itemGroups: [currentGroup.oid], valueLists: []};
         }
+        processedItemDefs[itemRef.itemOid] = newItemDefOid;
         itemDefs[newItemDefOid] = {...new ItemDef({
             ...clone(sourceMdv.itemDefs[itemRef.itemOid]),
             oid: newItemDefOid,
@@ -144,9 +150,10 @@ const copyItems = ({currentGroup, sourceGroup, mdv, sourceMdv, selected, parentI
             itemDefs = { ...itemDefs, ...vlCopy.itemDefs };
             valueLists = { ...valueLists, ...vlCopy.valueLists };
             whereClauses = { ...whereClauses, ...vlCopy.whereClauses };
+            processedItemDefs = { ...processedItemDefs, ...vlCopy.processedItemDefs };
         }
     });
-    return { itemDefs, itemRefs, valueLists, whereClauses };
+    return { itemDefs, itemRefs, valueLists, whereClauses, processedItemDefs };
 };
 
 const copyMethod = ({sourceMethodOid, mdv, sourceMdv, searchForDuplicate, groupOid, itemRefOid, vlm} = {}) => {
@@ -214,29 +221,36 @@ const copyComment = ({sourceCommentOid, mdv, sourceMdv, searchForDuplicate, item
     return { newCommentOid, comment, duplicateFound };
 };
 
-class ConnectedCodedValueSelector extends React.Component {
+const getInitialValues = (props) => {
+    // Get a list of all datasets for selection
+    const itemGroupList = {};
+    props.sourceMdv.order.itemGroupOrder.forEach( itemGroupOid => {
+        itemGroupList[itemGroupOid] = props.sourceMdv.itemGroups[itemGroupOid].name;
+    });
+    // Get initial data
+    const sourceItemGroupOid = Object.keys(itemGroupList)[0];
+    let itemGroupData = getTableDataForImport({
+        source: props.sourceMdv.itemGroups[sourceItemGroupOid],
+        datasetOid: sourceItemGroupOid,
+        mdv: props.sourceMdv,
+        defineVersion: props.defineVersion,
+        vlmLevel: 0,
+    });
+
+    return { itemGroupList, sourceItemGroupOid, itemGroupData };
+};
+
+class AddVariableFromDefineConnected extends React.Component {
     constructor(props) {
         super(props);
 
-        // Get a list of all datasets for selection
-        const itemGroupList = {};
-        props.sourceMdv.order.itemGroupOrder.forEach( itemGroupOid => {
-            itemGroupList[itemGroupOid] = props.sourceMdv.itemGroups[itemGroupOid].name;
-        });
-        // Get initial data
-        const sourceItemGroupOid = Object.keys(itemGroupList)[0];
-        let itemGroupData = getTableDataForImport({
-            source: props.sourceMdv.itemGroups[sourceItemGroupOid],
-            datasetOid: sourceItemGroupOid,
-            mdv: props.sourceMdv,
-            defineVersion: props.defineVersion,
-            vlmLevel: 0,
-        });
-        // Mark all items from the source codelist which are already present in the destination codelist
+        const { itemGroupList, sourceItemGroupOid, itemGroupData } = getInitialValues(props);
+
         this.state = {
             selected: [],
             searchString: '',
             itemGroupList,
+            sourceDefineId: props.sourceDefineId,
             sourceItemGroupOid,
             itemGroupData,
             detachMethods: true,
@@ -245,6 +259,15 @@ class ConnectedCodedValueSelector extends React.Component {
             rowsPerPage : 25,
             page: 0,
         };
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        // If source ODM has changed
+        if (nextProps.sourceDefineId !== prevState.sourceDefineId) {
+            return ({ ...getInitialValues(nextProps), sourceDefineId: nextProps.sourceDefineId });
+        } else {
+            return null;
+        }
     }
 
     handleSelectAllClick = (event, checked) => {
@@ -278,37 +301,44 @@ class ConnectedCodedValueSelector extends React.Component {
     };
 
     handleAddVariables = () => {
+        let { mdv, sourceMdv, baseFolder, itemGroupOid, position, sameDefine } = this.props;
         // Get new OIDs for each of the variables (both ItemRef and ItemDef)
-        let currentGroup = this.props.mdv.itemGroups[this.props.itemGroupOid];
-        let sourceGroup = this.props.sourceMdv.itemGroups[this.state.sourceItemGroupOid];
-        let { itemDefs, itemRefs, valueLists, whereClauses } = copyItems({
+        let currentGroup = mdv.itemGroups[itemGroupOid];
+        let sourceGroup = sourceMdv.itemGroups[this.state.sourceItemGroupOid];
+        let { itemDefs, itemRefs, valueLists, whereClauses, processedItemDefs } = copyItems({
             currentGroup,
             sourceGroup,
-            mdv: this.props.mdv,
-            sourceMdv: this.props.sourceMdv,
+            mdv: mdv,
+            sourceMdv: sourceMdv,
             selected: this.state.selected,
             parentItemDefOid: undefined,
             copyVlm: this.state.copyVlm,
         });
         // If it is the same define, then there is no need to rebuild codeLists, other than update sources
         let codeLists = {};
-        if (this.props.sameDefine === false) {
-            let codeListOids = Object.keys(this.props.mdv.codeLists);
+        let processedCodeLists = {};
+        let codeListSources = {};
+        if (sameDefine === false) {
+            let codeListOids = Object.keys(mdv.codeLists);
             Object.keys(itemDefs).forEach( itemDefOid => {
-                if (itemDefs[itemDefOid].codeListOid !== undefined) {
-                    let codeList = clone(this.props.sourceMdv.codeLists[itemDefs[itemDefOid].codeListOid]);
+                let sourceCodeListOid = itemDefs[itemDefOid].codeListOid;
+                if (sourceCodeListOid !== undefined && !processedCodeLists.hasOwnProperty(sourceCodeListOid)) {
+                    let codeList = { ...new CodeList({
+                        ...sourceMdv.codeLists[sourceCodeListOid],
+                        sources: undefined,
+                    }) };
                     let name = codeList.name;
                     // Search for the same name in the existing codelists
                     let matchingIds = [];
-                    Object.keys(this.props.mdv.codeLists).forEach(codeListOid => {
-                        if (this.props.mdv.codeLists[codeListOid].name === name) {
+                    Object.keys(mdv.codeLists).forEach(codeListOid => {
+                        if (mdv.codeLists[codeListOid].name === name) {
                             matchingIds.push(codeListOid);
                         }
                     });
                     // Perform deep compare of the codelists
                     let newCodeListOid;
                     matchingIds.some( codeListOid => {
-                        if (compareCodeLists(this.props.mdv.codeLists[codeListOid], codeList)) {
+                        if (compareCodeLists(mdv.codeLists[codeListOid], codeList)) {
                             newCodeListOid = codeListOid;
                             return true;
                         }
@@ -324,24 +354,36 @@ class ConnectedCodedValueSelector extends React.Component {
                         codeList.cdiscSubmissionValue = undefined;
                         codeLists[newCodeListOid] = codeList;
                     }
-                    // Update itemDef referece
+
+                    codeListSources[newCodeListOid] = { itemDefs: [itemDefOid] };
+                    processedCodeLists[sourceCodeListOid] = newCodeListOid;
+                    itemDefs[itemDefOid].codeListOid = newCodeListOid;
+                } else if (sourceCodeListOid !== undefined && processedCodeLists.hasOwnProperty(sourceCodeListOid)) {
+                    // If the codelist was already processed in some other ItemDef
+                    let newCodeListOid = processedCodeLists[sourceCodeListOid];
+                    codeListSources[newCodeListOid].itemDefs.push(itemDefOid);
                     itemDefs[itemDefOid].codeListOid = newCodeListOid;
                 }
+            });
+            // Add sources for all newly added codelists
+            Object.keys(codeLists).forEach( codeListOid => {
+                let codeList = codeLists[codeListOid];
+                codeList.sources.itemDefs = codeListSources[codeListOid].itemDefs;
             });
         }
         // Copy methods;
         let methods = {};
-        if (this.props.sameDefine === false || this.state.detachMethods === true) {
+        if (sameDefine === false || this.state.detachMethods === true) {
             // Variable-level methods
-            Object.keys(itemRefs[this.props.itemGroupOid]).forEach( itemRefOid => {
-                let itemRef = itemRefs[this.props.itemGroupOid][itemRefOid];
+            Object.keys(itemRefs[itemGroupOid]).forEach( itemRefOid => {
+                let itemRef = itemRefs[itemGroupOid][itemRefOid];
                 if (itemRef.methodOid !== undefined) {
                     let { newMethodOid, method, duplicateFound } = copyMethod({
                         sourceMethodOid: itemRef.methodOid,
-                        mdv: this.props.mdv,
-                        sourceMdv: this.props.sourceMdv,
-                        searchForDuplicate: (this.state.detachMethods === false && this.props.sameDefine === false),
-                        groupOid: this.props.itemGroupOid,
+                        mdv: mdv,
+                        sourceMdv: sourceMdv,
+                        searchForDuplicate: (this.state.detachMethods === false && sameDefine === false),
+                        groupOid: itemGroupOid,
                         itemRefOid,
                         vlm: false,
                     });
@@ -359,9 +401,9 @@ class ConnectedCodedValueSelector extends React.Component {
                         if (itemRef.methodOid !== undefined) {
                             let { newMethodOid, method, duplicateFound } = copyMethod({
                                 sourceMethodOid: itemRef.methodOid,
-                                mdv: this.props.mdv,
-                                sourceMdv: this.props.sourceMdv,
-                                searchForDuplicate: (this.state.detachMethods === false && this.props.sameDefine === false),
+                                mdv: mdv,
+                                sourceMdv: sourceMdv,
+                                searchForDuplicate: (this.state.detachMethods === false && sameDefine === false),
                                 groupOid: valueListOid,
                                 itemRefOid,
                                 vlm: true,
@@ -378,16 +420,16 @@ class ConnectedCodedValueSelector extends React.Component {
 
         // Copy comments;
         let comments = {};
-        if (this.props.sameDefine === false || this.state.detachComments === true) {
+        if (sameDefine === false || this.state.detachComments === true) {
             // ItemDef comments
             Object.keys(itemDefs).forEach( itemDefOid => {
                 let itemDef = itemDefs[itemDefOid];
                 if (itemDef.commentOid !== undefined) {
                     let { newCommentOid, comment, duplicateFound } = copyComment({
                         sourceCommentOid: itemDef.commentOid,
-                        mdv: this.props.mdv,
-                        sourceMdv: this.props.sourceMdv,
-                        searchForDuplicate: (this.state.detachComments === false && this.props.sameDefine === false),
+                        mdv: mdv,
+                        sourceMdv: sourceMdv,
+                        searchForDuplicate: (this.state.detachComments === false && sameDefine === false),
                         itemDefOid,
                     });
                     itemDef.commentOid = newCommentOid;
@@ -403,9 +445,9 @@ class ConnectedCodedValueSelector extends React.Component {
                     if (whereClause.commentOid !== undefined) {
                         let { newCommentOid, comment, duplicateFound } = copyComment({
                             sourceCommentOid: whereClause.commentOid,
-                            mdv: this.props.mdv,
-                            sourceMdv: this.props.sourceMdv,
-                            searchForDuplicate: (this.state.detachComments === false && this.props.sameDefine === false),
+                            mdv: mdv,
+                            sourceMdv: sourceMdv,
+                            searchForDuplicate: (this.state.detachComments === false && sameDefine === false),
                             whereClauseOid,
                         });
                         WhereClause.commentOid = newCommentOid;
@@ -417,28 +459,78 @@ class ConnectedCodedValueSelector extends React.Component {
             }
         }
 
-        // Get position to insert
-        let position;
-        if (this.props.position !== undefined) {
-            position = this.props.position;
-        } else {
-            // If the position was not specified, add it to the end
-            position = this.props.mdv.itemGroups[this.props.itemGroupOid].itemRefOrder.length + 1;
+        // Copy Leafs
+        let leafs = {};
+        if (sameDefine === false) {
+            let leafIds = [];
+            // Check which documents are referenced in methods or comments
+            Object.keys(methods).forEach( methodOid => {
+                let documents = methods[methodOid].documents;
+                if (documents.length > 0) {
+                    documents.forEach( doc =>  {
+                        if (!leafIds.includes[doc.leafId]) {
+                            leafIds.push(doc.leafId);
+                        }
+                    });
+                }
+            });
+            Object.keys(comments).forEach( commentOid => {
+                let documents = comments[commentOid].documents;
+                if (documents.length > 0) {
+                    documents.forEach( doc =>  {
+                        if (!leafIds.includes[doc.leafId]) {
+                            leafIds.push(doc.leafId);
+                        }
+                    });
+                }
+            });
+            // Compare leafs with the existing leafs;
+            let finalLeafIds = leafIds.slice();
+            leafIds.forEach( sourceLeafId => {
+                Object.keys(mdv.leafs).some( leafId => {
+                    if (compareLeafs(sourceMdv.leafs[sourceLeafId], mdv.leafs[leafId])) {
+                        finalLeafIds.splice(finalLeafIds.indexOf(sourceLeafId), 1);
+                        return true;
+                    }
+                });
+            });
+
+            finalLeafIds.forEach( leafId => {
+                leafs[leafId] = { ...new Leaf({ ...sourceMdv.leafs[leafId], baseFolder }) };
+            });
         }
+
+        // Update WhereClause refereces;
+        Object.keys(whereClauses).forEach( whereClauseOid => {
+            let whereClause = whereClauses[whereClauseOid];
+            whereClause.rangeChecks.forEach( rangeCheck => {
+                if (rangeCheck.itemGroupOid === sourceGroup.oid && Object.keys(processedItemDefs).includes(rangeCheck.itemOid)) {
+                    rangeCheck.itemGroupOid = currentGroup.oid;
+                    rangeCheck.itemOid = processedItemDefs[rangeCheck.itemOid];
+                } else {
+                    rangeCheck.itemGroupOid = undefined;
+                    rangeCheck.itemOid = undefined;
+                }
+            });
+        });
+
+        // Get position to insert
+        let positionUpd = position || (mdv.itemGroups[itemGroupOid].itemRefOrder.length + 1);
 
         this.props.addVariables({
             itemGroupOid: this.props.itemGroupOid,
-            position,
+            position: positionUpd,
             itemDefs,
             itemRefs,
             codeLists,
             methods,
+            leafs,
             comments,
             valueLists,
             whereClauses,
         });
 
-        //this.props.onClose();
+        this.props.onClose();
     };
 
     handleChangePage = (event, page) => {
@@ -515,6 +607,7 @@ class ConnectedCodedValueSelector extends React.Component {
                                 <Checkbox
                                     checked={this.state.detachMethods}
                                     onChange={this.handleCheckBoxChange('detachMethods')}
+                                    disabled={!this.props.sameDefine}
                                     color='primary'
                                     value='detachMethods'
                                 />
@@ -526,6 +619,7 @@ class ConnectedCodedValueSelector extends React.Component {
                                 <Checkbox
                                     checked={this.state.detachComments}
                                     onChange={this.handleCheckBoxChange('detachComments')}
+                                    disabled={!this.props.sameDefine}
                                     color='primary'
                                     value='detachComments'
                                 />
@@ -657,17 +751,20 @@ class ConnectedCodedValueSelector extends React.Component {
     }
 }
 
-ConnectedCodedValueSelector.propTypes = {
+AddVariableFromDefineConnected.propTypes = {
     classes: PropTypes.object.isRequired,
     mdv: PropTypes.object.isRequired,
     sourceMdv: PropTypes.object.isRequired,
     sameDefine: PropTypes.bool.isRequired,
     defineVersion: PropTypes.string.isRequired,
     itemGroupOid: PropTypes.string.isRequired,
-    position: PropTypes.string,
+    sourceDefineId: PropTypes.string.isRequired,
+    baseFolder: PropTypes.string,
+    position: PropTypes.number,
+    onClose: PropTypes.func.isRequired,
 };
 
-const CodedValueSelector = connect(mapStateToProps, mapDispatchToProps)(
-    ConnectedCodedValueSelector
+const addVariableFromDefine = connect(mapStateToProps, mapDispatchToProps)(
+    AddVariableFromDefineConnected
 );
-export default withStyles(styles)(CodedValueSelector);
+export default withStyles(styles)(addVariableFromDefine);

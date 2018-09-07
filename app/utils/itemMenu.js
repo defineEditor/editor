@@ -7,6 +7,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import getOid from 'utils/getOid.js';
 import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
+import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
 import GeneralOrderEditor from 'editors/generalOrderEditor.js';
 import {
     deleteVariables, addValueList, updateVlmItemRefOrder, insertVariable, insertValueLevel
@@ -76,6 +77,15 @@ class ConnectedItemMenu extends React.Component {
         this.props.onClose();
     }
 
+    insertRecordDialog = (shift) => () => {
+        let params = this.props.itemMenuParams;
+        // This is confusing as insertRecord does not have +1 added to the orderNumber, but users probably will be confused with position 0
+        // that is why +1 is added, to show the first position as 1.
+        let orderNumber = this.props.mdv.itemGroups[params.itemGroupVLOid].itemRefOrder.indexOf(params.itemRefOid) + shift + 1;
+        this.props.onAddVariable(orderNumber);
+        this.props.onClose();
+    }
+
     addVlm = () => {
         let valueListOid = getOid('ValueList', undefined, Object.keys(this.props.valueLists));
         let itemDefOid = getOid('ItemDef', undefined, Object.keys(this.props.itemDefs));
@@ -118,7 +128,10 @@ class ConnectedItemMenu extends React.Component {
             let valueList = this.props.mdv.valueLists[valueListOid];
 
             valueList.itemRefOrder.forEach( itemRefOid => {
-                items.push({oid: itemRefOid, name: this.props.mdv.whereClauses[valueList.itemRefs[itemRefOid].whereClauseOid].toString(this.props.mdv)});
+                items.push({
+                    oid: itemRefOid,
+                    name: getWhereClauseAsText(this.props.mdv.whereClauses[valueList.itemRefs[itemRefOid].whereClauseOid], this.props.mdv)
+                });
             });
         }
         return (
@@ -135,16 +148,24 @@ class ConnectedItemMenu extends React.Component {
                     }}
                 >
                     <MenuItem key='InsertBefore' onClick={this.insertRecord(0)}>
-                        Insert Before
+                        Insert Line Before
                     </MenuItem>
                     <MenuItem key='InsertAfter' onClick={this.insertRecord(1)}>
-                        Insert After
+                        Insert Line After
                     </MenuItem>
                     <Divider/>
-                    <MenuItem key='Delete' onClick={this.deleteItem}>
-                        Delete
+                    <MenuItem key='InsertBeforeDialog' onClick={this.insertRecordDialog(0)}>
+                        Insert Variable Before
+                    </MenuItem>
+                    <MenuItem key='InsertAfterDialog' onClick={this.insertRecordDialog(1)}>
+                        Insert Variable After
                     </MenuItem>
                     <Divider/>
+                    { (!hasVlm && vlmLevel === 0) && (
+                        <MenuItem key='AddVlm' onClick={this.addVlm}>
+                            Add VLM
+                        </MenuItem>
+                    )}
                     { hasVlm && (
                         <MenuItem key='OrderVlm' onClick={this.openVlmOrder}>
                             Order VLM
@@ -155,11 +176,10 @@ class ConnectedItemMenu extends React.Component {
                             Delete VLM
                         </MenuItem>
                     )}
-                    { (!hasVlm && vlmLevel === 0) && (
-                        <MenuItem key='AddVlm' onClick={this.addVlm}>
-                            Add VLM
-                        </MenuItem>
-                    )}
+                    <Divider/>
+                    <MenuItem key='Delete' onClick={this.deleteItem}>
+                        Delete
+                    </MenuItem>
                 </Menu>
                 { this.state.openVlmOrder &&
                         <GeneralOrderEditor title='Value Level Order'
@@ -177,6 +197,9 @@ class ConnectedItemMenu extends React.Component {
 
 ConnectedItemMenu.propTypes = {
     itemMenuParams: PropTypes.object.isRequired,
+    anchorEl: PropTypes.object,
+    onAddVariable: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
 };
 
 const ItemMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedItemMenu);

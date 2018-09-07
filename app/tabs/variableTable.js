@@ -28,7 +28,7 @@ import applyFilter from 'utils/applyFilter.js';
 import SelectColumns from 'utils/selectColumns.js';
 import KeyOrderEditor from 'editors/keyOrderEditor.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
-import AddVariableEditor from 'editors/addVariableEditor.js';
+import AddVariable from 'utils/addVariable.js';
 import DescriptionEditor from 'editors/descriptionEditor.js';
 import VariableOrderEditor from 'editors/variableOrderEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
@@ -259,6 +259,8 @@ class ConnectedVariableTable extends React.Component {
             anchorEl         : null,
             showSelectColumn : false,
             showFilter       : false,
+            showAddVariable  : false,
+            insertPosition   : null,
             selectedRows     : [],
             selectedVlmRows  : {},
             itemGroupOid     : this.props.itemGroupOid,
@@ -524,7 +526,13 @@ class ConnectedVariableTable extends React.Component {
                         <ToggleRowSelect oid='overall'/>
                     </Grid>
                     <Grid item>
-                        <AddVariableEditor itemGroupOid={this.props.itemGroupOid}/>
+                        <Button
+                            variant='raised'
+                            color='default'
+                            onClick={ () => { this.setState({ showAddVariable: true, insertPosition: null }); } }
+                        >
+                            Add
+                        </Button>
                     </Grid>
                     <Grid item>
                         <Button
@@ -766,7 +774,12 @@ class ConnectedVariableTable extends React.Component {
                 >
                     {renderColumns(this.state.columns)}
                 </BootstrapTable>
-                <ItemMenu onClose={this.handleMenuClose} itemMenuParams={this.state.itemMenuParams} anchorEl={this.state.anchorEl}/>
+                <ItemMenu
+                    onClose={this.handleMenuClose}
+                    onAddVariable={ (orderNumber) => { this.setState({ showAddVariable: true, insertPosition: orderNumber }); } }
+                    itemMenuParams={this.state.itemMenuParams}
+                    anchorEl={this.state.anchorEl}
+                />
                 { this.state.showFilter &&
                         <VariableTabFilter
                             itemGroupOid={this.props.itemGroupOid}
@@ -784,6 +797,14 @@ class ConnectedVariableTable extends React.Component {
                 { this.state.showSelectColumn && (
                     <SelectColumns
                         onClose={ () => { this.setState({ showSelectColumn: false }); } }
+                    />
+                )
+                }
+                { this.state.showAddVariable && (
+                    <AddVariable
+                        itemGroupOid={this.props.itemGroupOid}
+                        position={this.state.insertPosition}
+                        onClose={ () => { this.setState({ showAddVariable: false }); } }
                     />
                 )
                 }
