@@ -50,17 +50,17 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
-    let currentDefineId = state.ui.main.currentDefineId;
-    let loadedDefineId = state.odm !== undefined && state.odm.defineId;
+    let currentDefineId = state.present.ui.main.currentDefineId;
+    let loadedDefineId = state.present.odm !== undefined && state.present.odm.defineId;
     let odmLoaded = false;
-    if (state.odm !== undefined && state.odm.odmVersion !== undefined && loadedDefineId === currentDefineId) {
+    if (state.present.odm !== undefined && state.present.odm.odmVersion !== undefined && loadedDefineId === currentDefineId) {
         odmLoaded = true;
     }
     return {
         odmLoaded,
         loadedDefineId,
         currentDefineId,
-        codeLists: odmLoaded ? state.odm.study.metaDataVersion.codeLists : undefined
+        codeLists: odmLoaded ? state.present.odm.study.metaDataVersion.codeLists : undefined
     };
 };
 

@@ -14,11 +14,12 @@ const styles = theme => ({
         overflowX: 'auto'
     },
     studySelector: {
+        marginLeft: theme.spacing.unit * 2,
         minWidth: '100px',
     },
     defineSelector: {
         minWidth: '100px',
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing.unit * 4,
     },
 });
 
@@ -78,6 +79,7 @@ class addVariableFromOtherStudyConnected extends React.Component {
                 studyId: newStudyId,
                 defineList,
                 defineId: '',
+                sourceOdm: {},
             });
         } else if (name === 'define') {
             let newDefineId = event.target.value;
@@ -85,8 +87,7 @@ class addVariableFromOtherStudyConnected extends React.Component {
             if (newDefineId === this.state.defineId) {
                 return;
             }
-            ipcRenderer.send('loadDefineObjectForImport', newDefineId);
-            this.setState({ defineId: newDefineId });
+            this.setState({ defineId: newDefineId, sourceOdm: {} }, () => { ipcRenderer.send('loadDefineObjectForImport', newDefineId);});
         }
     };
 
