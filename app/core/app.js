@@ -8,6 +8,7 @@ import Editor from 'core/editor.js';
 import ControlledTerminology from 'core/controlledTerminology.js';
 import Settings from 'core/settings.js';
 import Studies from 'core/studies.js';
+import RedoUndo from 'utils/redoUndo.js';
 
 const theme = createMuiTheme({
     palette: {
@@ -34,15 +35,41 @@ const mapStateToProps = state => {
 };
 
 class ConnectedApp extends Component {
+    constructor (props) {
+        super(props);
+        this.state = {
+            showRedoUndo: false,
+        };
+    }
+
+    componentDidMount() {
+        window.addEventListener('keydown', this.onKeyDown);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('keydown', this.onKeyDown);
+    }
+
+    onKeyDown = (event)  => {
+        if (event.ctrlKey && (event.keyCode === 72)) {
+            this.toggleRedoUndo();
+        }
+    }
+
+    toggleRedoUndo = () => {
+        this.setState({ showRedoUndo: !this.state.showRedoUndo });
+    }
+
     render() {
         return (
             <MuiThemeProvider theme={theme}>
-                <MainMenu />
+                <MainMenu onToggleRedoUndo={this.toggleRedoUndo}/>
                 {this.props.currentPage === 'studies' && <Studies />}
                 {this.props.currentPage === 'editor' && <Editor />}
                 {this.props.currentPage === 'controlledTerminology' && <ControlledTerminology />}
                 {this.props.currentPage === 'settings' && <Settings />}
                 <ModalRoot />
+                { this.state.showRedoUndo && <RedoUndo onToggleRedoUndo={this.toggleRedoUndo}/> }
             </MuiThemeProvider>
         );
     }

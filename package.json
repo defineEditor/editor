@@ -200,6 +200,7 @@
   "dependencies": {
     "@material-ui/core": "^3.0.1",
     "@material-ui/icons": "^3.0.1",
+    "@material-ui/lab": "^3.0.0-alpha.14",
     "bootstrap": "^4.1.1",
     "clone": "^2.1.2",
     "devtron": "^1.4.0",
@@ -221,6 +222,7 @@
     "redux": "^4.0.0",
     "redux-undo": "^1.0.0-beta9-9-7",
     "source-map-support": "^0.5.6",
+    "throttle-debounce": "^2.0.1",
     "typeface-roboto": "^0.0.54",
     "typeface-roboto-mono": "^0.0.54",
     "xml2js": "^0.4.19"

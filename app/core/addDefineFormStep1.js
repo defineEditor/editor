@@ -12,6 +12,7 @@ import IconButton from '@material-ui/core/IconButton';
 import FolderOpen from '@material-ui/icons/FolderOpen';
 import Typography from '@material-ui/core/Typography';
 import parseDefine from 'parsers/parseDefine.js';
+import checkDefineXml from 'utils/checkDefineXml.js';
 
 const styles = theme => ({
     button: {
@@ -45,13 +46,17 @@ class AddDefineFormStep1 extends React.Component {
     }
 
     loadDefine = (error, data, pathToDefineXml) => {
-        let defineData;
         try {
-            defineData = parseDefine(data);
-            this.setState({ defineData, pathToDefineXml });
+            let defineData = parseDefine(data);
+            let checkResult = checkDefineXml(defineData);
+            if (checkResult === 'No Issues') {
+                this.setState({ defineData, pathToDefineXml });
+            } else {
+                throw new Error(checkResult);
+            }
         }
         catch (error) {
-            throw new Error('Could not process the Define-XML file.\nVerify a valid Define-XML file is selected.');
+            throw new Error('Could not process the Define-XML file.\nVerify a valid Define-XML file is selected.\n' + error );
         }
     }
 

@@ -7,8 +7,9 @@ function saveState() {
         name: 'state',
     });
 
-    let state = store.getState();
-    let stateToSave = { ...state, ui: { ...state.ui } };
+    let state = store.getState().present;
+    // Close main menu when saving
+    let stateToSave = { ...state, ui: { ...state.ui, main: { ...state.ui.main, mainMenuOpened: false } } };
     // Save current Define
     if (stateToSave.ui.main.currentDefineId !== '') {
         ipcRenderer.send('writeDefineObject', {

@@ -1,5 +1,4 @@
 import { app } from 'electron';
-const openDefineXml = require('../main/openDefineXml.js');
 const { Menu } = require('electron');
 
 const createMenu = mainWindow => {
@@ -14,13 +13,6 @@ const createMenu = mainWindow => {
                     }
                 },
                 { type: 'separator' },
-                {
-                    label: 'Open Define-XML',
-                    accelerator: 'CmdOrCtrl+O',
-                    click() {
-                        openDefineXml(mainWindow);
-                    }
-                },
                 {
                     label: 'Save As Define-XML 2.0',
                     click() {

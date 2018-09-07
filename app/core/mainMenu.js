@@ -8,12 +8,17 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Drawer from '@material-ui/core/Drawer';
 import IconButton from '@material-ui/core/IconButton';
+import Divider from '@material-ui/core/Divider';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Settings from '@material-ui/icons/Settings';
+import Save from '@material-ui/icons/Save';
+import SaveAlt from '@material-ui/icons/SaveAlt';
+import History from '@material-ui/icons/History';
 import Assignment from '@material-ui/icons/Assignment';
 import Edit from '@material-ui/icons/Edit';
 import Public from '@material-ui/icons/Public';
-import Divider from '@material-ui/core/Divider';
+import sendDefineObject from 'utils/sendDefineObject.js';
+import saveState from 'utils/saveState.js';
 import {
     toggleMainMenu,
     changePage,
@@ -36,6 +41,7 @@ const styles = theme => ({
 const mapStateToProps = state => {
     return {
         mainMenuOpened: state.present.ui.main.mainMenuOpened,
+        currentPage: state.present.ui.main.currentPage,
     };
 };
 
@@ -102,6 +108,31 @@ class ConnectedMainMenu extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary='Settings'/>
                             </ListItem>
+                            <Divider/>
+                            <ListItem button key='redoundo' onClick={() => {this.props.onToggleRedoUndo(); this.props.toggleMainMenu();}}>
+                                <ListItemIcon>
+                                    <History/>
+                                </ListItemIcon>
+                                <ListItemText primary='History'/>
+                            </ListItem>
+                            { this.props.currentPage === 'editor' && (
+                                [(
+                                    <ListItem button key='save' onClick={() => {saveState(); this.props.toggleMainMenu();}}>
+                                        <ListItemIcon>
+                                            <Save/>
+                                        </ListItemIcon>
+                                        <ListItemText primary='Save'/>
+                                    </ListItem>
+                                ) , (
+                                        <ListItem button key='saveAs' onClick={() => {sendDefineObject(); this.props.toggleMainMenu();}}>
+                                            <ListItemIcon>
+                                                <SaveAlt/>
+                                            </ListItemIcon>
+                                            <ListItemText primary='Save As'/>
+                                        </ListItem>
+                                    )
+                                ]
+                            )}
                         </List>
                     </div>
                 </div>
@@ -111,10 +142,12 @@ class ConnectedMainMenu extends React.Component {
 }
 
 ConnectedMainMenu.propTypes = {
-    classes        : PropTypes.object.isRequired,
-    mainMenuOpened : PropTypes.bool.isRequired,
-    toggleMainMenu : PropTypes.func.isRequired,
-    changePage     : PropTypes.func.isRequired,
+    classes          : PropTypes.object.isRequired,
+    mainMenuOpened   : PropTypes.bool.isRequired,
+    currentPage      : PropTypes.string.isRequired,
+    toggleMainMenu   : PropTypes.func.isRequired,
+    onToggleRedoUndo : PropTypes.func.isRequired,
+    changePage       : PropTypes.func.isRequired,
 };
 
 const MainMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedMainMenu);

@@ -12,7 +12,7 @@ function loadDefineObject (event, data) {
         store.dispatch(addOdm(data.odm));
         let ctToLoad = {};
         // Check which CTs are needed
-        let currentState = store.getState();
+        let currentState = store.getState().present;
         let currentStdCodeListIds = Object.keys(currentState.stdCodeLists);
         let controlledTerminology = currentState.controlledTerminology;
         let standards = data.odm.study.metaDataVersion.standards;

@@ -3,7 +3,7 @@ import store from 'store/index.js';
 import { getMaxLength } from 'utils/defineStructureUtils.js';
 
 function sendDefineObject (event, data) {
-    let odm = store.getState().odm;
+    let odm = store.getState().present.odm;
 
     // Update the data;
     // Update variable length based if special options were selected;

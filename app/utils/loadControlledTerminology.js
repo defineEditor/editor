@@ -18,11 +18,11 @@ function loadControlledTerminology(event, data) {
     let stdCodeLists;
     if (state.hasOwnProperty('stdCodeLists')) {
         stdCodeLists = state.stdCodeLists;
-    }
-    if (Object.keys(stdCodeLists).length > 0 && Object.keys(codeLists).length > 0) {
-        let updateObj = getCodeListStandardOids(codeLists, stdCodeLists);
-        if (Object.keys(updateObj).length > 0) {
-            store.dispatch(updateCodeListStandardOids(updateObj));
+        if (Object.keys(stdCodeLists).length > 0 && Object.keys(codeLists).length > 0) {
+            let updateObj = getCodeListStandardOids(codeLists, stdCodeLists);
+            if (Object.keys(updateObj).length > 0) {
+                store.dispatch(updateCodeListStandardOids(updateObj));
+            }
         }
     }
 }
