@@ -3,6 +3,9 @@ import {
     UI_CHANGEPAGE,
     STUDY_DEL,
     DEFINE_DEL,
+    APP_QUIT,
+    APP_SAVE,
+    UI_UPDMAIN,
 } from 'constants/action-types';
 
 const generateInitialState = () => {
@@ -11,6 +14,7 @@ const generateInitialState = () => {
         currentPage: 'studies',
         currentDefineId: '',
         isCurrentDefineSaved: true,
+        quitNormally: null,
     };
 };
 
@@ -70,6 +74,19 @@ const handleStudyDelete = (state, action) => {
     }
 };
 
+const appQuit = (state, action) => {
+    return { ...state, quitNormally: true, isCurrentDefineSaved: true };
+};
+
+const appSave = (state, action) => {
+    return { ...state, isCurrentDefineSaved: true };
+};
+
+const updateMain = (state, action) => {
+    return { ...state, ...action.updateObj };
+};
+
+
 const main = (state = initialState, action) => {
     switch (action.type) {
         case UI_TOGGLEMAINMENU:
@@ -80,6 +97,12 @@ const main = (state = initialState, action) => {
             return handleDefineDelete(state, action);
         case STUDY_DEL:
             return handleStudyDelete(state, action);
+        case APP_QUIT:
+            return appQuit(state, action);
+        case APP_SAVE:
+            return appSave(state, action);
+        case UI_UPDMAIN:
+            return updateMain(state, action);
         default: {
             if (action.type !== undefined
                 && state.isCurrentDefineSaved

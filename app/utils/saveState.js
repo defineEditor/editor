@@ -1,8 +1,11 @@
 import EStore from 'electron-store';
 import { ipcRenderer } from 'electron';
 import store from 'store/index.js';
+import {
+    appSave,
+} from 'actions/index.js';
 
-function saveState() {
+function saveState(type) {
     const eStore = new EStore({
         name: 'state',
     });
@@ -11,12 +14,18 @@ function saveState() {
     // Close main menu when saving
     let stateToSave = { ...state, ui: { ...state.ui, main: { ...state.ui.main, mainMenuOpened: false } } };
     // Save current Define
-    if (stateToSave.ui.main.currentDefineId !== '') {
-        ipcRenderer.send('writeDefineObject', {
-            defineId: stateToSave.odm.defineId,
-            tabs: stateToSave.ui.tabs,
-            odm: stateToSave.odm,
-        });
+    if (type !== 'quitWithoutSave') {
+        if (type !== 'backup') {
+            ipcRenderer.once('writeDefineObjectFinished', () => {store.dispatch(appSave());} );
+        }
+        if (stateToSave.ui.main.currentDefineId !== '') {
+            ipcRenderer.send('writeDefineObject', {
+                defineId: stateToSave.odm.defineId,
+                tabs: stateToSave.ui.tabs,
+                odm: stateToSave.odm,
+            },
+            type === 'backup' ? true : false);
+        }
     }
     // Delete parts of the state which are loaded differently
     delete stateToSave.odm;

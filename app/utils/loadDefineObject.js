@@ -25,7 +25,7 @@ function loadDefineObject (event, data) {
         // Emit event to the main process to read the CTs
         ipcRenderer.send('loadControlledTerminology', ctToLoad);
         // Remove CT from stdCodeLists which are not required by this ODM
-        let ctIdsToRemove = currentStdCodeListIds.filter( ctId => (!ctIds.includes[ctId]) );
+        let ctIdsToRemove = currentStdCodeListIds.filter( ctId => (!ctIds.includes(ctId)) );
         if (ctIdsToRemove.length > 0) {
             store.dispatch(deleteStdCodeLists({ ctIds: ctIdsToRemove }));
         }

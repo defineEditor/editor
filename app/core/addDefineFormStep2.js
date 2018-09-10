@@ -49,7 +49,7 @@ class AddDefineFormStep2 extends React.Component {
   handleChange = name => event => {
       if (
           name === 'defineVersion' &&
-      !this.props.standardNames[event.target.value].includes[this.state.standard]
+      !this.props.standardNames[event.target.value].includes(this.state.standard)
       ) {
           this.setState({
               [name]: event.target.value,
@@ -92,7 +92,8 @@ class AddDefineFormStep2 extends React.Component {
                                   this.props.standardNames[this.state.defineVersion]
                               )}
                           </TextField>
-                          <Grid item xs={12} />
+                      </Grid>
+                      <Grid item xs={12}>
                           <TextField
                               label="Define Version"
                               disabled={true}

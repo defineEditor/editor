@@ -59,8 +59,8 @@ class addVariableFromOtherStudyConnected extends React.Component {
         ipcRenderer.removeListener('loadDefineObjectForImport', this.loadOdm);
     }
 
-    loadOdm= (event, data) => {
-        if (data.hasOwnProperty('odm')) {
+    loadOdm= (event, data, id) => {
+        if (id === 'import' && data.hasOwnProperty('odm')) {
             this.setState({ sourceOdm: data.odm });
         }
     }
@@ -87,7 +87,7 @@ class addVariableFromOtherStudyConnected extends React.Component {
             if (newDefineId === this.state.defineId) {
                 return;
             }
-            this.setState({ defineId: newDefineId, sourceOdm: {} }, () => { ipcRenderer.send('loadDefineObjectForImport', newDefineId);});
+            this.setState({ defineId: newDefineId, sourceOdm: {} }, () => { ipcRenderer.send('loadDefineObject', newDefineId, 'import');});
         }
     };
 

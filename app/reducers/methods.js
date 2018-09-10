@@ -282,10 +282,10 @@ const handleItemsBulkUpdate = (state, action) => {
             Object.keys(state).forEach( methodOid => {
                 let method = state[methodOid];
                 // Check if method has selected sources
-                let updateNeeded = itemGroupItemRefs.some(type => {
-                    return itemGroupItemRefs[type].some(groupOid => {
+                let updateNeeded = Object.keys(itemGroupItemRefs).some(type => {
+                    return Object.keys(itemGroupItemRefs[type]).some(groupOid => {
                         return itemGroupItemRefs[type][groupOid].some(itemRefOid => {
-                            if (method.sources[type][groupOid].includes(itemRefOid)) {
+                            if (method.sources[type].hasOwnProperty(groupOid) && method.sources[type][groupOid].includes(itemRefOid)) {
                                 return true;
                             }
                         });

@@ -468,7 +468,7 @@ class AddVariableFromDefineConnected extends React.Component {
                 let documents = methods[methodOid].documents;
                 if (documents.length > 0) {
                     documents.forEach( doc =>  {
-                        if (!leafIds.includes[doc.leafId]) {
+                        if (!leafIds.includes(doc.leafId)) {
                             leafIds.push(doc.leafId);
                         }
                     });
@@ -478,7 +478,7 @@ class AddVariableFromDefineConnected extends React.Component {
                 let documents = comments[commentOid].documents;
                 if (documents.length > 0) {
                     documents.forEach( doc =>  {
-                        if (!leafIds.includes[doc.leafId]) {
+                        if (!leafIds.includes(doc.leafId)) {
                             leafIds.push(doc.leafId);
                         }
                     });

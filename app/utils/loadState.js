@@ -1,6 +1,5 @@
 import eStore from 'electron-store';
 import stdConstants from 'constants/stdConstants.js';
-import { ipcRenderer } from 'electron';
 
 function loadState() {
     const store = new eStore({
@@ -14,9 +13,6 @@ function loadState() {
 
     // Load current Define-XML file
     state.odm = {};
-    if (state.hasOwnProperty('ui') && state.ui.main.currentDefineId) {
-        ipcRenderer.send('loadDefineObject', state.ui.main.currentDefineId);
-    }
 
     state.stdCodeLists = {};
     //delete stateToSave.odm;

@@ -8,10 +8,6 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';
 import {
-    addOdm,
-    addStdControlledTerminology,
-    updateCodeListStandardOids,
-    updateStandards,
     changePage,
 } from 'actions/index.js';
 
@@ -41,10 +37,6 @@ const styles = theme => ({
 
 const mapDispatchToProps = dispatch => {
     return {
-        addOdm: odm => dispatch(addOdm(odm)),
-        addStdControlledTerminology: codeListsOdm => dispatch(addStdControlledTerminology(codeListsOdm)),
-        updateCodeListStandardOids: updateObj => dispatch(updateCodeListStandardOids(updateObj)),
-        updateStandards: updateObj => dispatch(updateStandards(updateObj)),
         changePage : (updateObj) => dispatch(changePage(updateObj)),
     };
 };
@@ -68,7 +60,7 @@ class ConnectedEditor extends React.Component {
     componentDidMount() {
         if (this.props.currentDefineId !== this.props.loadedDefineId && this.props.currentDefineId) {
             // If the currently loaded define is different, load the correct one
-            ipcRenderer.send('loadDefineObject', this.props.currentDefineId);
+            ipcRenderer.send('loadDefineObject', this.props.currentDefineId, 'initialLoad');
         }
     }
 

@@ -110,29 +110,31 @@ class ConnectedEditorTabs extends React.Component {
 
         return (
             <div className={classes.root}>
-                <IconButton
-                    color='default'
-                    onClick={this.props.toggleMainMenu}
-                    className={classes.menuToggle}
-                >
-                    <MenuIcon/>
-                </IconButton>
-                <AppBar position="fixed" color='default'>
-                    <Tabs
-                        value={currentTab}
-                        onChange={this.handleChange}
-                        fullWidth
-                        indicatorColor='primary'
-                        textColor='primary'
-                        scrollable
-                        scrollButtons="auto"
+                <div id='editingAppBar'>
+                    <IconButton
+                        color='default'
+                        onClick={this.props.toggleMainMenu}
+                        className={classes.menuToggle}
                     >
-                        { tabNames.map( tab => {
-                            return <Tab key={tab} label={tab} />;
-                        })
-                        }
-                    </Tabs>
-                </AppBar>
+                        <MenuIcon/>
+                    </IconButton>
+                    <AppBar position="fixed" color='default'>
+                        <Tabs
+                            value={currentTab}
+                            onChange={this.handleChange}
+                            fullWidth
+                            indicatorColor='primary'
+                            textColor='primary'
+                            scrollable
+                            scrollButtons="auto"
+                        >
+                            { tabNames.map( tab => {
+                                return <Tab key={tab} label={tab} />;
+                            })
+                            }
+                        </Tabs>
+                    </AppBar>
+                </div>
                 <TabContainer>
                     <br/>
                     {tabNames[currentTab] === 'Standards' && <StandardTable/>}

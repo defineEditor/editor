@@ -30,3 +30,9 @@
   width: 100%;
   overflow: visible;
 }
+
+@media print {
+    #editingAppBar{
+        display: none !important;
+    }
+}

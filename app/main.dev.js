@@ -1,4 +1,4 @@
-import electron, { app, BrowserWindow, Menu, ipcMain } from 'electron';
+import { app, BrowserWindow, Menu, ipcMain } from 'electron';
 import path from 'path';
 import createMenu from './menu/menu.js';
 import saveAs from './main/saveAs.js';
@@ -57,23 +57,9 @@ function createWindow() {
     Menu.setApplicationMenu(createMenu(mainWindow));
 
     mainWindow.on('close', function(e) {
-        if (
-            process.env.NODE_ENV !== 'development' &&
-            process.env.DEBUG_PROD !== 'true'
-        ) {
-            const choice = electron.dialog.showMessageBox(this, {
-                type: 'question',
-                buttons: ['Yes', 'No'],
-                title: 'Closing Define-XML editor',
-                message: 'Are you sure you want to quit?'
-            });
-            if (choice === 1) {
-                e.preventDefault();
-            } else {
-                mainWindow = null;
-            }
-        } else {
-            mainWindow = null;
+        if (mainWindow !== null) {
+            e.preventDefault();
+            mainWindow.webContents.send('quit');
         }
     });
 }
@@ -94,20 +80,16 @@ ipcMain.on('selectFolder', (event, title, initialFolder) => {
     selectFolder(mainWindow, title, initialFolder);
 });
 // Saving internal representation of Define-XML to disk
-ipcMain.on('writeDefineObject', (event, defineObject) => {
-    writeDefineObject(defineObject);
+ipcMain.on('writeDefineObject', (event, defineObject, type) => {
+    writeDefineObject(mainWindow, defineObject, type);
 });
 // Delete a nogz file
 ipcMain.on('deleteDefineObject', (event, defineId) => {
     deleteDefineObject(defineId);
 });
 // Extract data from nogz
-ipcMain.on('loadDefineObject', (event, defineId) => {
-    loadDefineObject(mainWindow, defineId);
-});
-// Extract only odm part from nogz
-ipcMain.on('loadDefineObjectForImport', (event, defineId) => {
-    loadDefineObject(mainWindow, defineId, true);
+ipcMain.on('loadDefineObject', (event, defineId, id) => {
+    loadDefineObject(mainWindow, defineId, id);
 });
 // Scan the controlled terminology folder
 ipcMain.on('scanControlledTerminologyFolder', (event, controlledTerminologyLocation) => {
@@ -124,6 +106,10 @@ ipcMain.on('openDocument', (event, defineLocation, pdfLink) => {
 // Open file using external application
 ipcMain.on('openFileInExternalApp', (event, defineLocation, fileLink) => {
     openFileInExternalApp(mainWindow, defineLocation, fileLink);
+});
+
+ipcMain.on('quitConfirmed', (event) => {
+    mainWindow = null;
 });
 
 

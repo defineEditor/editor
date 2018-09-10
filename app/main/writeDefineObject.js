@@ -3,9 +3,14 @@ import jszip from 'jszip';
 import path from 'path';
 import { app } from 'electron';
 
-function writeDefineObject(defineObject) {
+function writeDefineObject(mainWindow, defineObject, backupFlag) {
     let pathToDefines = path.join(app.getPath('userData'), 'defines');
-    let outputFile = path.join(pathToDefines, defineObject.defineId + '.nogz');
+    let outputFile;
+    if (backupFlag === true) {
+        outputFile = path.join(pathToDefines, 'backup.nogz');
+    } else {
+        outputFile = path.join(pathToDefines, defineObject.defineId + '.nogz');
+    }
 
     var zip = new jszip();
     zip.file('odm.json', JSON.stringify(defineObject.odm));
@@ -20,7 +25,8 @@ function writeDefineObject(defineObject) {
                 streamFiles: true,
                 compression: 'DEFLATE'
             })
-            .pipe(fs.createWriteStream(outputFile));
+            .pipe(fs.createWriteStream(outputFile))
+            .once('finish', () => {mainWindow.webContents.send('writeDefineObjectFinished');});
     }
 
     fs.mkdir(pathToDefines, function(err) {

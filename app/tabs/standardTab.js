@@ -163,11 +163,35 @@ class ConnectedStandardTable extends React.Component {
             }
             this.setState({globalVariablesEdit: false});
         } else if (name === 'controlledTerminology' || name === 'standard') {
+            let newStandards = returnValue.standards;
             let oldStandards = {};
+            let addedStandards = {};
+            let removedStandardOids = [];
+            let updatedStandards = [];
             if (name === 'controlledTerminology') {
                 Object.keys(this.props.standards).forEach(standardOid => {
                     if (this.props.standards[standardOid].name === 'CDISC/NCI' && this.props.standards[standardOid].type === 'CT') {
                         oldStandards[standardOid] = this.props.standards[standardOid];
+                    }
+                });
+                // Check which items were added;
+                Object.keys(newStandards).forEach( stdOid => {
+                    if (!oldStandards.hasOwnProperty(stdOid) && newStandards[stdOid].name === 'CDISC/NCI' && newStandards[stdOid].type === 'CT') {
+                        addedStandards[stdOid] = newStandards[stdOid];
+                    }
+                });
+                // Check which items were removed;
+                Object.keys(oldStandards).forEach( stdOid => {
+                    if (!newStandards.hasOwnProperty(stdOid) && oldStandards[stdOid].name === 'CDISC/NCI' && oldStandards[stdOid].type === 'CT') {
+                        removedStandardOids.push(stdOid);
+                    }
+                });
+                // Check which items were updated;
+                Object.keys(newStandards).forEach( stdOid => {
+                    if (oldStandards.hasOwnProperty(stdOid) && !deepEqual(oldStandards[stdOid], newStandards[stdOid])
+                        && newStandards[stdOid].name === 'CDISC/NCI' && newStandards[stdOid].type === 'CT'
+                    ) {
+                        updatedStandards[stdOid] = newStandards[stdOid];
                     }
                 });
             } else if (name === 'standard') {
@@ -176,29 +200,27 @@ class ConnectedStandardTable extends React.Component {
                         oldStandards[standardOid] = this.props.standards[standardOid];
                     }
                 });
+                // Check which items were added;
+                Object.keys(newStandards).forEach( stdOid => {
+                    if (!oldStandards.hasOwnProperty(stdOid) && !(newStandards[stdOid].name === 'CDISC/NCI' && newStandards[stdOid].type === 'CT')) {
+                        addedStandards[stdOid] = newStandards[stdOid];
+                    }
+                });
+                // Check which items were removed;
+                Object.keys(oldStandards).forEach( stdOid => {
+                    if (!newStandards.hasOwnProperty(stdOid) && !(oldStandards[stdOid].name === 'CDISC/NCI' && oldStandards[stdOid].type === 'CT')) {
+                        removedStandardOids.push(stdOid);
+                    }
+                });
+                // Check which items were updated;
+                Object.keys(newStandards).forEach( stdOid => {
+                    if (oldStandards.hasOwnProperty(stdOid) && !deepEqual(oldStandards[stdOid], newStandards[stdOid])
+                        && !(newStandards[stdOid].name === 'CDISC/NCI' && newStandards[stdOid].type === 'CT')
+                    ) {
+                        updatedStandards[stdOid] = newStandards[stdOid];
+                    }
+                });
             }
-            let newStandards = returnValue.standards;
-            // Check which items were added;
-            let addedStandards = {};
-            Object.keys(newStandards).forEach( stdOid => {
-                if (!oldStandards.hasOwnProperty(stdOid)) {
-                    addedStandards[stdOid] = newStandards[stdOid];
-                }
-            });
-            // Check which items were removed;
-            let removedStandardOids = [];
-            Object.keys(oldStandards).forEach( stdOid => {
-                if (!newStandards.hasOwnProperty(stdOid)) {
-                    removedStandardOids.push(stdOid);
-                }
-            });
-            // Check which items were updated;
-            let updatedStandards = [];
-            Object.keys(newStandards).forEach( stdOid => {
-                if (oldStandards.hasOwnProperty(stdOid) && !deepEqual(oldStandards[stdOid], newStandards[stdOid]) ) {
-                    updatedStandards[stdOid] = newStandards[stdOid];
-                }
-            });
 
             if (name === 'controlledTerminology') {
                 if (Object.keys(updatedStandards).length > 0
@@ -222,9 +244,11 @@ class ConnectedStandardTable extends React.Component {
                         }
                     });
                     // Emit event to the main process to read the CTs
-                    ipcRenderer.send('loadControlledTerminology', ctToLoad);
+                    if (Object.keys(ctToLoad).length > 0) {
+                        ipcRenderer.send('loadControlledTerminology', ctToLoad);
+                    }
                     // Remove CT from stdCodeLists which are not required by this ODM
-                    let ctIdsToRemove = currentStdCodeListIds.filter( ctId => (!ctIds.includes[ctId]) );
+                    let ctIdsToRemove = currentStdCodeListIds.filter( ctId => (!ctIds.includes(ctId)) );
                     if (ctIdsToRemove.length > 0) {
                         this.props.deleteStdCodeLists({ ctIds: ctIdsToRemove });
                     }

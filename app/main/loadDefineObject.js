@@ -6,7 +6,7 @@ import { promisify } from 'util';
 
 const readFile = promisify(fs.readFile);
 
-async function loadDefineObject(mainWindow, defineId, importFlag) {
+async function loadDefineObject(mainWindow, defineId, id) {
     let pathToDefines = path.join(app.getPath('userData'), 'defines');
     let file = path.join(pathToDefines, defineId + '.nogz');
 
@@ -19,17 +19,17 @@ async function loadDefineObject(mainWindow, defineId, importFlag) {
     await zip.loadAsync(data);
     let files = Object.keys(zip.files);
 
-    if (importFlag && files.includes('odm.json')) {
+    if (id === 'import' && files.includes('odm.json')) {
         // Load only the ODM
         let contents = await zip.file('odm.json').async('string');
         result.odm = JSON.parse(contents);
-        mainWindow.webContents.send('loadDefineObjectForImport', result);
-    } else if (importFlag !== true) {
+        mainWindow.webContents.send('loadDefineObjectForImport', result, id);
+    } else if (id !== 'import') {
         await Promise.all(files.map(async (file) => {
             let contents = await zip.file(file).async('string');
             result[file.replace(/\.json$/,'')] = JSON.parse(contents);
         }));
-        mainWindow.webContents.send('loadDefineObjectToRender', result);
+        mainWindow.webContents.send('loadDefineObjectToRender', result, id);
     }
 
     return undefined;

@@ -65,7 +65,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
             if (commentOids[commentOid] === undefined) {
                 commentOids[commentOid] = [];
             }
-            if (!commentOids[commentOid].includes[itemOid]) {
+            if (!commentOids[commentOid].includes(itemOid)) {
                 commentOids[commentOid].push(itemOid);
             }
         }
@@ -75,7 +75,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
             if (methodOids[methodOid] === undefined) {
                 methodOids[methodOid] = [];
             }
-            if (!methodOids[methodOid].includes[itemRefOid]) {
+            if (!methodOids[methodOid].includes(itemRefOid)) {
                 methodOids[methodOid].push(itemRefOid);
             }
         }
@@ -85,7 +85,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
             if (codeListOids[codeListOid] === undefined) {
                 codeListOids[codeListOid] = [];
             }
-            if (!codeListOids[codeListOid].includes[itemOid]) {
+            if (!codeListOids[codeListOid].includes(itemOid)) {
                 codeListOids[codeListOid].push(itemOid);
             }
         }
@@ -101,7 +101,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
                 if (commentOids[commentOid] === undefined) {
                     commentOids[commentOid] = [];
                 }
-                if (!commentOids[commentOid].includes[itemOid]) {
+                if (!commentOids[commentOid].includes(itemOid)) {
                     commentOids[commentOid].push(itemOid);
                 }
             }
@@ -114,7 +114,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
                 if (vlmMethodOids[methodOid][valueListOid] === undefined) {
                     vlmMethodOids[methodOid][valueListOid] = [];
                 }
-                if (!vlmMethodOids[methodOid][valueListOid].includes[itemRefOid]) {
+                if (!vlmMethodOids[methodOid][valueListOid].includes(itemRefOid)) {
                     vlmMethodOids[methodOid][valueListOid].push(itemRefOid);
                 }
             }
@@ -124,7 +124,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
                 if (codeListOids[codeListOid] === undefined) {
                     codeListOids[codeListOid] = [];
                 }
-                if (!codeListOids[codeListOid].includes[itemOid]) {
+                if (!codeListOids[codeListOid].includes(itemOid)) {
                     codeListOids[codeListOid].push(itemOid);
                 }
             }

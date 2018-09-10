@@ -406,9 +406,9 @@ class ConnectedVariableTabUpdate extends React.Component {
 
     update = () => {
         // Lang is required when Label is set
-        // If methods are set, generated an ItemDefOid -> ItemRefOid map, as within method reducer there is no data for that
-        let methodSet = this.state.fields.some( field => ( field.attr === 'method' && field.updateType === 'set'));
-        if (methodSet === true) {
+        // If methods are updated, generated an ItemDefOid -> ItemRefOid map, as within method reducer there is no data for that
+        let methodUpdate = this.state.fields.some( field => ( field.attr === 'method'));
+        if (methodUpdate === true) {
             // Get itemRefs from itemOids
             let itemDefItemRefMap = {};
             // For ItemGroups

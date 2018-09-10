@@ -12,6 +12,7 @@ import {
     UI_LOADTABS,
     UI_OPENMODAL,
     UI_CLOSEMODAL,
+    UI_UPDMAIN,
 } from 'constants/action-types';
 
 export const changeTab = updateObj => ({
@@ -76,4 +77,9 @@ export const openModal = updateObj => ({
 
 export const closeModal = () => ({
     type: UI_CLOSEMODAL,
+});
+
+export const updateMainUi = updateObj => ({
+    type: UI_UPDMAIN,
+    updateObj
 });

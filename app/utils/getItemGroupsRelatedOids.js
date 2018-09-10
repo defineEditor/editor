@@ -10,7 +10,7 @@ function getItemGroupsRelatedOids (mdv, itemGroupOids) {
             if (commentOids[commentOid] === undefined) {
                 commentOids[commentOid] = [];
             }
-            if (!commentOids[commentOid].includes[itemGroupOid]) {
+            if (!commentOids[commentOid].includes(itemGroupOid)) {
                 commentOids[commentOid].push(itemGroupOid);
             }
         }

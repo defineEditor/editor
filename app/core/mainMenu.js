@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import { remote } from 'electron';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -14,6 +15,7 @@ import Settings from '@material-ui/icons/Settings';
 import Save from '@material-ui/icons/Save';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import History from '@material-ui/icons/History';
+import Print from '@material-ui/icons/Print';
 import Assignment from '@material-ui/icons/Assignment';
 import Edit from '@material-ui/icons/Edit';
 import Public from '@material-ui/icons/Public';
@@ -22,6 +24,7 @@ import saveState from 'utils/saveState.js';
 import {
     toggleMainMenu,
     changePage,
+    updateMainUi,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -49,6 +52,7 @@ const mapDispatchToProps = dispatch => {
     return {
         toggleMainMenu : () => dispatch(toggleMainMenu()),
         changePage : (updateObj) => dispatch(changePage(updateObj)),
+        updateMainUi : (updateObj) => dispatch(updateMainUi(updateObj)),
     };
 };
 
@@ -66,6 +70,10 @@ class ConnectedMainMenu extends React.Component {
         if (event.ctrlKey && (event.keyCode === 77)) {
             this.props.toggleMainMenu();
         }
+    }
+
+    print = () => {
+        remote.getCurrentWindow().webContents.print();
     }
 
     render() {
@@ -129,6 +137,13 @@ class ConnectedMainMenu extends React.Component {
                                                 <SaveAlt/>
                                             </ListItemIcon>
                                             <ListItemText primary='Save As'/>
+                                        </ListItem>
+                                    ) , (
+                                        <ListItem button key='print' onClick={() => {this.print(); this.props.toggleMainMenu();}}>
+                                            <ListItemIcon>
+                                                <Print/>
+                                            </ListItemIcon>
+                                            <ListItemText primary='Print'/>
                                         </ListItem>
                                     )
                                 ]

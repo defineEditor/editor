@@ -49,7 +49,6 @@ class RedoUndoConnected extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            currentPosition: this.props.historyLength,
             currentLength: this.props.historyLength,
         };
         this.jumpThrottled = throttle(500, this.props.jump);
@@ -57,24 +56,30 @@ class RedoUndoConnected extends React.Component {
 
     static getDerivedStateFromProps(nextProps, prevState) {
         if (nextProps.historyLength !== prevState.currentLength) {
-            // Action was fired - close the history slider
-            nextProps.onToggleRedoUndo();
+            //nextProps.onToggleRedoUndo();
         }
         return null;
     }
 
+    componentDidMount() {
+        window.addEventListener('keydown', this.onKeyDown);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('keydown', this.onKeyDown);
+    }
+
+    onKeyDown = (event)  => {
+        if (event.ctrlKey && (event.keyCode === 90)) {
+            this.props.undo();
+        } else if (event.ctrlKey && (event.keyCode === 89)) {
+            this.props.redo();
+        }
+    }
+
     handleSliderChange = (event, value) => {
-        let jumpDistance = value - this.state.currentPosition;
+        let jumpDistance = value - this.props.pastLength - 1;
         this.jumpThrottled(jumpDistance);
-        this.setState({ currentPosition: value });
-    }
-
-    handleUndo = () => {
-        this.setState({ currentPosition: this.state.currentPosition - 1 }, this.props.undo);
-    }
-
-    handleRedo = () => {
-        this.setState({ currentPosition: this.state.currentPosition + 1 }, this.props.redo);
     }
 
     render() {
@@ -84,7 +89,7 @@ class RedoUndoConnected extends React.Component {
             <div className={classes.root}>
                 <Grid container wrap='nowrap' alignItems='center'>
                     <Grid item xs={11}>
-                        <Slider value={this.state.currentPosition} min={1} max={this.props.historyLength} step={1} onChange={this.handleSliderChange} />
+                        <Slider value={this.props.pastLength + 1} min={1} max={this.props.historyLength} step={1} onChange={this.handleSliderChange} />
                     </Grid>
                     <Grid item>
                         <Button
@@ -94,7 +99,7 @@ class RedoUndoConnected extends React.Component {
                             disabled={this.props.pastLength === 0}
                             aria-label='Undo'
                             className={classes.button}
-                            onClick={this.handleUndo}
+                            onClick={this.props.undo}
                         >
                             <UndoIcon/>
                         </Button>
@@ -107,7 +112,7 @@ class RedoUndoConnected extends React.Component {
                             disabled={this.props.futureLength === 0}
                             aria-label='Redo'
                             className={classes.button}
-                            onClick={this.handleRedo}
+                            onClick={this.props.redo}
                         >
                             <RedoIcon/>
                         </Button>

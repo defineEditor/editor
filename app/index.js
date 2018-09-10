@@ -9,6 +9,7 @@ import saveState from 'utils/saveState.js';
 import sendDefineObject from 'utils/sendDefineObject.js';
 import loadDefineObject from 'utils/loadDefineObject.js';
 import loadControlledTerminology from 'utils/loadControlledTerminology.js';
+import quitApplication from 'utils/quitApplication.js';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import '../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 import 'css/index.css';
@@ -20,6 +21,7 @@ ipcRenderer.on('sendDefineObjectToMain', sendDefineObject);
 ipcRenderer.on('loadDefineObjectToRender', loadDefineObject);
 ipcRenderer.on('loadControlledTerminologyToRender', loadControlledTerminology);
 ipcRenderer.on('saveState', saveState);
+ipcRenderer.on('quit', quitApplication);
 
 ReactDOM.render(
     <AppContainer>

@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import ModalDeleteStudy from 'utils/modalDeleteStudy.js';
 import ModalDeleteDefine from 'utils/modalDeleteDefine.js';
 import ModalChangeDefine from 'utils/modalChangeDefine.js';
+import ModalQuitApplication from 'utils/modalQuitApplication.js';
 
 const mapStateToProps = state => {
     return {
@@ -15,6 +16,7 @@ const MODAL_COMPONENTS = {
     'DELETE_STUDY': ModalDeleteStudy,
     'DELETE_DEFINE': ModalDeleteDefine,
     'CHANGE_DEFINE': ModalChangeDefine,
+    'QUIT': ModalQuitApplication,
 };
 
 class ConnectedModalRoot extends React.Component {

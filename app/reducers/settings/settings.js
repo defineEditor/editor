@@ -1,5 +1,7 @@
 import { remote } from 'electron';
-import { STG_UPDATESETTINGS } from 'constants/action-types';
+import {
+    STG_UPDATESETTINGS,
+} from 'constants/action-types';
 
 const general = {
     userName: 'Pikachu',

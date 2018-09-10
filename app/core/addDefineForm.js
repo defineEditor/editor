@@ -103,7 +103,7 @@ class ConnectedAddDefineForm extends React.Component {
       let define = {
           ...new Define({
               id: defineId,
-              name: defineData.study.metaDataVersion.model,
+              name: defineData.defineName,
               pathToFile: pathToDefineXml,
               stats,
           })
@@ -151,6 +151,7 @@ class ConnectedAddDefineForm extends React.Component {
           let defineId = getOid('Define', undefined, this.props.defines.allIds);
           let defineData = this.state.defineData;
           defineData.defineId = defineId;
+          defineData.defineName = data;
           Object.keys(defineData.study.metaDataVersion.leafs).forEach( leafOid => {
               defineData.study.metaDataVersion.leafs[leafOid].baseFolder = path.dirname(this.state.pathToDefineXml);
           });

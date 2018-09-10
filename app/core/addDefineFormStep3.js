@@ -7,6 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import TextField from '@material-ui/core/TextField';
 
 const styles = theme => ({
     root: {
@@ -14,12 +15,28 @@ const styles = theme => ({
     },
     button: {
         marginRight: theme.spacing.unit
-    }
+    },
+    textField: {
+        width: 200,
+        marginBottom: theme.spacing.unit
+    },
 });
 
 class AddDefineFormStep3 extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            name: this.props.defineData.study.metaDataVersion.model || '',
+        };
+    }
+
+  handleChange = event => {
+      this.setState({ name: event.target.value });
+  };
+
   handleNext = event => {
-      this.props.onNext();
+      this.props.onNext(this.state.name);
   };
 
   render() {
@@ -28,14 +45,23 @@ class AddDefineFormStep3 extends React.Component {
       return (
           <Grid container spacing={8} className={classes.root}>
               <Grid item xs={12}>
+                  <TextField
+                      label="Name"
+                      id="standard"
+                      value={this.state.name}
+                      onChange={this.handleChange}
+                      className={classes.textField}
+                  />
+              </Grid>
+              <Grid item xs={12}>
                   {this.props.defineCreationMethod === 'new' && (
                       <Typography variant="headline">
-              Creating a new Define-XML document
+                          Creating a new Define-XML document
                       </Typography>
                   )}
                   {this.props.defineCreationMethod === 'import' && (
                       <Typography variant="headline">
-              Creating Define-XML from an existing file
+                          Creating Define-XML from an existing file
                       </Typography>
                   )}
                   <List dense>
