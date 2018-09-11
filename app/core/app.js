@@ -9,6 +9,7 @@ import ControlledTerminology from 'core/controlledTerminology.js';
 import Settings from 'core/settings.js';
 import Studies from 'core/studies.js';
 import RedoUndo from 'utils/redoUndo.js';
+import FindInPage from 'utils/findInPage.js';
 
 const theme = createMuiTheme({
     palette: {
@@ -39,6 +40,7 @@ class ConnectedApp extends Component {
         super(props);
         this.state = {
             showRedoUndo: false,
+            showFindInPage: false,
         };
     }
 
@@ -54,22 +56,36 @@ class ConnectedApp extends Component {
         if (event.ctrlKey && (event.keyCode === 72)) {
             this.toggleRedoUndo();
         }
+        if (event.ctrlKey && (event.keyCode === 70)) {
+            this.toggleFindInPage();
+        }
     }
 
     toggleRedoUndo = () => {
         this.setState({ showRedoUndo: !this.state.showRedoUndo });
     }
 
+    toggleFindInPage = (timeOut) => {
+        if (timeOut > 0) {
+            // Timeout is required when toggle is triggered from the main menu
+            // Otherwise the input field gets unfocused after main menu closes
+            setTimeout(() => {this.setState({ showFindInPage: !this.state.showFindInPage });} , timeOut);
+        } else {
+            this.setState({ showFindInPage: !this.state.showFindInPage });
+        }
+    }
+
     render() {
         return (
             <MuiThemeProvider theme={theme}>
-                <MainMenu onToggleRedoUndo={this.toggleRedoUndo}/>
+                <MainMenu onToggleRedoUndo={this.toggleRedoUndo} onToggleFindInPage={this.toggleFindInPage}/>
                 {this.props.currentPage === 'studies' && <Studies />}
                 {this.props.currentPage === 'editor' && <Editor />}
                 {this.props.currentPage === 'controlledTerminology' && <ControlledTerminology />}
                 {this.props.currentPage === 'settings' && <Settings />}
                 <ModalRoot />
                 { this.state.showRedoUndo && <RedoUndo onToggleRedoUndo={this.toggleRedoUndo}/> }
+                { this.state.showFindInPage && <FindInPage onToggleFindInPage={this.toggleFindInPage}/> }
             </MuiThemeProvider>
         );
     }

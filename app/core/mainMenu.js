@@ -16,6 +16,7 @@ import Save from '@material-ui/icons/Save';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import History from '@material-ui/icons/History';
 import Print from '@material-ui/icons/Print';
+import Search from '@material-ui/icons/Search';
 import Assignment from '@material-ui/icons/Assignment';
 import Edit from '@material-ui/icons/Edit';
 import Public from '@material-ui/icons/Public';
@@ -117,11 +118,17 @@ class ConnectedMainMenu extends React.Component {
                                 <ListItemText primary='Settings'/>
                             </ListItem>
                             <Divider/>
-                            <ListItem button key='redoundo' onClick={() => {this.props.onToggleRedoUndo(); this.props.toggleMainMenu();}}>
+                            <ListItem button key='redoundo' onClick={() => {this.props.toggleMainMenu(); this.props.onToggleRedoUndo(); }}>
                                 <ListItemIcon>
                                     <History/>
                                 </ListItemIcon>
                                 <ListItemText primary='History'/>
+                            </ListItem>
+                            <ListItem button key='search' onClick={() => {this.props.toggleMainMenu(); this.props.onToggleFindInPage(300);}}>
+                                <ListItemIcon>
+                                    <Search/>
+                                </ListItemIcon>
+                                <ListItemText primary='Search'/>
                             </ListItem>
                             { this.props.currentPage === 'editor' && (
                                 [(
@@ -157,12 +164,13 @@ class ConnectedMainMenu extends React.Component {
 }
 
 ConnectedMainMenu.propTypes = {
-    classes          : PropTypes.object.isRequired,
-    mainMenuOpened   : PropTypes.bool.isRequired,
-    currentPage      : PropTypes.string.isRequired,
-    toggleMainMenu   : PropTypes.func.isRequired,
-    onToggleRedoUndo : PropTypes.func.isRequired,
-    changePage       : PropTypes.func.isRequired,
+    classes            : PropTypes.object.isRequired,
+    mainMenuOpened     : PropTypes.bool.isRequired,
+    currentPage        : PropTypes.string.isRequired,
+    toggleMainMenu     : PropTypes.func.isRequired,
+    onToggleRedoUndo   : PropTypes.func.isRequired,
+    onToggleFindInPage : PropTypes.func.isRequired,
+    changePage         : PropTypes.func.isRequired,
 };
 
 const MainMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedMainMenu);

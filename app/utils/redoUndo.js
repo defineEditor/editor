@@ -74,6 +74,8 @@ class RedoUndoConnected extends React.Component {
             this.props.undo();
         } else if (event.ctrlKey && (event.keyCode === 89)) {
             this.props.redo();
+        } else if (event.keyCode === 27) {
+            this.props.onToggleRedoUndo();
         }
     }
 
