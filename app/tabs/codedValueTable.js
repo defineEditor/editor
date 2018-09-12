@@ -71,6 +71,7 @@ const mapStateToProps = state => {
         lang          : state.present.odm.study.metaDataVersion.lang,
         tabSettings   : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
         showRowSelect : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
+        reviewMode    : state.present.ui.main.reviewMode,
     };
 };
 
@@ -302,7 +303,7 @@ class ConnectedCodedValueTable extends React.Component {
             <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={16}>
                     <Grid item>
-                        <ToggleRowSelect oid='overall'/>
+                        <ToggleRowSelect oid='overall' disabled={this.props.reviewMode}/>
                     </Grid>
                     <Grid item>
                         <Button
@@ -310,7 +311,7 @@ class ConnectedCodedValueTable extends React.Component {
                             mini
                             onClick={handleClick}
                             variant='raised'
-                            disabled={enumAndHasLinked}
+                            disabled={enumAndHasLinked || this.props.reviewMode}
                         >
                             Add
                         </Button>
@@ -320,7 +321,7 @@ class ConnectedCodedValueTable extends React.Component {
                             color='secondary'
                             mini
                             onClick={this.deleteRows}
-                            disabled={!this.props.showRowSelect || enumAndHasLinked}
+                            disabled={!this.props.showRowSelect || enumAndHasLinked || this.props.reviewMode}
                             variant='raised'
                         >
                             Delete
@@ -331,7 +332,7 @@ class ConnectedCodedValueTable extends React.Component {
                             color='default'
                             mini
                             onClick={ this.handleShowCodedValueSelector() }
-                            disabled={codeList.standardOid === undefined || enumAndHasLinked}
+                            disabled={codeList.standardOid === undefined || enumAndHasLinked || this.props.reviewMode}
                             variant='raised'
                         >
                             Add Std. Codes
@@ -358,9 +359,6 @@ class ConnectedCodedValueTable extends React.Component {
                                 Columns
                                 <RemoveRedEyeIcon style={{marginLeft: '7px'}}/>
                             </Button>
-                        </Grid>
-                        <Grid item>
-                            { props.components.searchPanel }
                         </Grid>
                     </Grid>
                 </Grid>
@@ -508,7 +506,7 @@ class ConnectedCodedValueTable extends React.Component {
                     striped
                     hover
                     version='4'
-                    cellEdit={cellEditProp}
+                    cellEdit={this.props.reviewMode ? undefined : cellEditProp}
                     keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}
                     headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
                     selectRow={selectRowProp}
@@ -547,6 +545,7 @@ ConnectedCodedValueTable.propTypes = {
     defineVersion : PropTypes.string.isRequired,
     lang          : PropTypes.string.isRequired,
     stdCodeLists  : PropTypes.object,
+    reviewMode    : PropTypes.bool,
 };
 
 const CodedValueTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodedValueTable);

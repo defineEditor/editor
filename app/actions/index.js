@@ -13,7 +13,7 @@ export const addStdConstants = () => ({ type: ADD_STDCONST });
 
 export const appQuit = () => ({ type: APP_QUIT });
 
-export const appSave = () => ({ type: APP_SAVE });
+export const appSave = (updateObj) => ({ type: APP_SAVE, updateObj });
 
 export * from 'actions/standard.js';
 export * from 'actions/codeList.js';

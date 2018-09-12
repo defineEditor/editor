@@ -108,6 +108,7 @@ class AddVariableEditorConnected extends React.Component {
                     variant='raised'
                     onClick={this.handleOpen}
                     className={classes.editButton}
+                    disabled={this.props.disabled}
                 >
                     Add
                 </Button>
@@ -156,6 +157,7 @@ AddVariableEditorConnected.propTypes = {
     codeLists     : PropTypes.object.isRequired,
     codeListTypes : PropTypes.array.isRequired,
     defineVersion : PropTypes.string.isRequired,
+    disabled      : PropTypes.bool,
 };
 
 const AddVariableEditor = connect(mapStateToProps, mapDispatchToProps)(AddVariableEditorConnected);

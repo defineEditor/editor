@@ -13,6 +13,7 @@ import {
     UI_OPENMODAL,
     UI_CLOSEMODAL,
     UI_UPDMAIN,
+    UI_TOGGLEREVIEWMODE,
 } from 'constants/action-types';
 
 export const changeTab = updateObj => ({
@@ -83,3 +84,8 @@ export const updateMainUi = updateObj => ({
     type: UI_UPDMAIN,
     updateObj
 });
+
+export const toggleReviewMode = () => ({
+    type: UI_TOGGLEREVIEWMODE,
+});
+

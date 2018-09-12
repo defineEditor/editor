@@ -40,7 +40,8 @@ const installExtensions = async () => {
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        fullscreen: true,
+        width: 768,
+        height: 2014,
         show: false,
         icon: __dirname + '/static/images/avatars/fox.png',
     });
@@ -52,6 +53,7 @@ function createWindow() {
             throw new Error('"mainWindow" is not defined');
         }
         mainWindow.show();
+        mainWindow.maximize();
     });
     // Set the menu
     Menu.setApplicationMenu(createMenu(mainWindow));

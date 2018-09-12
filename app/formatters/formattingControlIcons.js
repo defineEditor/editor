@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
 import CommentIcon from '@material-ui/icons/Comment';
 import EditIcon from '@material-ui/icons/Edit';
 import IconButton from '@material-ui/core/IconButton';
@@ -11,15 +12,23 @@ const styles = theme => ({
     }
 });
 
-class formattingControlIcons extends React.Component {
+const mapStateToProps = state => {
+    return {
+        reviewMode : state.present.ui.main.reviewMode,
+    };
+};
+
+class ConnectedFormattingControlIcons extends React.Component {
     render () {
         const { classes } = this.props;
 
         return (
             <React.Fragment>
-                <IconButton color='default' onClick={this.props.onEdit} className={classes.icon}>
-                    <EditIcon/>
-                </IconButton>
+                { !this.props.reviewMode && (
+                    <IconButton color='default' onClick={this.props.onEdit} className={classes.icon}>
+                        <EditIcon/>
+                    </IconButton>
+                )}
                 <IconButton color='default' onClick={this.props.onComment} className={classes.icon}>
                     <CommentIcon/>
                 </IconButton>
@@ -28,10 +37,12 @@ class formattingControlIcons extends React.Component {
     }
 }
 
-formattingControlIcons.propTypes = {
-    onEdit    : PropTypes.func.isRequired,
-    onHelp    : PropTypes.func,
-    onComment : PropTypes.func,
+ConnectedFormattingControlIcons.propTypes = {
+    reviewMode : PropTypes.bool.isRequired,
+    onEdit     : PropTypes.func.isRequired,
+    onHelp     : PropTypes.func,
+    onComment  : PropTypes.func,
 };
 
-export default withStyles(styles)(formattingControlIcons);
+const FormattingControlIcons = connect(mapStateToProps)(ConnectedFormattingControlIcons);
+export default withStyles(styles)(FormattingControlIcons);

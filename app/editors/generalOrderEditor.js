@@ -154,6 +154,7 @@ class GeneralOrderEditor extends React.Component {
                             mini
                             onClick={this.handleOpen}
                             className={classes.editButton}
+                            disabled={this.props.disabled}
                         >
                             <LowPriority/>
                         </Button>
@@ -198,6 +199,7 @@ GeneralOrderEditor.propTypes = {
     width    : PropTypes.string,
     noButton : PropTypes.bool,
     onCancel : PropTypes.func,
+    disabled : PropTypes.bool,
 };
 
 export default withStyles(styles)(GeneralOrderEditor);

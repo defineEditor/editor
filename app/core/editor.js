@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
 import { withStyles } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import EditorTabs from 'tabs/editorTabs.js';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import { connect } from 'react-redux';
+import EditorTabs from 'tabs/editorTabs.js';
+import DataInput from 'utils/dataInput.js';
 import {
     changePage,
 } from 'actions/index.js';
@@ -52,7 +53,8 @@ const mapStateToProps = state => {
         odmLoaded,
         loadedDefineId,
         currentDefineId,
-        codeLists: odmLoaded ? state.present.odm.study.metaDataVersion.codeLists : undefined
+        codeLists: odmLoaded ? state.present.odm.study.metaDataVersion.codeLists : undefined,
+        showDataInput: state.present.ui.main.showDataInput,
     };
 };
 
@@ -90,6 +92,9 @@ class ConnectedEditor extends React.Component {
                 {this.props.odmLoaded && (
                     <EditorTabs />
                 )}
+                {this.props.showDataInput && (
+                    <DataInput />
+                )}
             </React.Fragment>
         );
     }
@@ -100,7 +105,8 @@ ConnectedEditor.propTypes = {
     odmLoaded: PropTypes.bool.isRequired,
     currentDefineId: PropTypes.string.isRequired,
     changePage: PropTypes.func.isRequired,
-    codeLists: PropTypes.object
+    codeLists: PropTypes.object,
+    showDataInput: PropTypes.bool
 };
 
 const Editor = connect(mapStateToProps, mapDispatchToProps)(ConnectedEditor);

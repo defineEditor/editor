@@ -15,6 +15,7 @@ const mapStateToProps = state => {
     return {
         codeListOrder : state.present.odm.study.metaDataVersion.order.codeListOrder,
         codeLists     : state.present.odm.study.metaDataVersion.codeLists,
+        reviewMode    : state.present.ui.main.reviewMode,
     };
 };
 
@@ -32,7 +33,7 @@ class CodeListOrderEditorConnected extends React.Component {
 
 
         return (
-            <GeneralOrderEditor title='Codelist Order' items={items} onSave={this.onSave} width='600px'/>
+            <GeneralOrderEditor title='Codelist Order' items={items} onSave={this.onSave} width='600px' disabled={this.props.reviewMode}/>
         );
     }
 }
@@ -40,6 +41,7 @@ class CodeListOrderEditorConnected extends React.Component {
 CodeListOrderEditorConnected.propTypes = {
     codeListOrder : PropTypes.array.isRequired,
     codeLists     : PropTypes.object.isRequired,
+    reviewMode    : PropTypes.bool,
 };
 
 const CodeListOrderEditor = connect(mapStateToProps, mapDispatchToProps)(CodeListOrderEditorConnected);

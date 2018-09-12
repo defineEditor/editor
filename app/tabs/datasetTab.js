@@ -73,6 +73,7 @@ const mapStateToProps = state => {
         stdConstants   : state.present.stdConstants,
         tabSettings    : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
         showRowSelect  : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
+        reviewMode     : state.present.ui.main.reviewMode,
         pathToDefine,
     };
 };
@@ -280,10 +281,10 @@ class ConnectedDatasetTable extends React.Component {
             <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={16}>
                     <Grid item>
-                        <ToggleRowSelect oid='overall'/>
+                        <ToggleRowSelect oid='overall' disabled={this.props.reviewMode}/>
                     </Grid>
                     <Grid item>
-                        <AddDatasetEditor/>
+                        <AddDatasetEditor disabled={this.props.reviewMode}/>
                     </Grid>
                     <Grid item>
                         <Button
@@ -291,7 +292,7 @@ class ConnectedDatasetTable extends React.Component {
                             mini
                             onClick={console.log}
                             variant='raised'
-                            disabled={!this.props.showRowSelect}
+                            disabled={!this.props.showRowSelect || this.props.reviewMode}
                         >
                             Update
                         </Button>
@@ -301,7 +302,7 @@ class ConnectedDatasetTable extends React.Component {
                             color='secondary'
                             mini
                             onClick={this.deleteRows}
-                            disabled={!this.props.showRowSelect}
+                            disabled={!this.props.showRowSelect || this.props.reviewMode}
                             variant='raised'
                         >
                             Delete
@@ -328,9 +329,6 @@ class ConnectedDatasetTable extends React.Component {
                                 Columns
                                 <RemoveRedEyeIcon style={{marginLeft: '7px'}}/>
                             </Button>
-                        </Grid>
-                        <Grid item style={{paddingRight: '25px'}}>
-                            { props.components.searchPanel }
                         </Grid>
                     </Grid>
                 </Grid>
@@ -448,7 +446,7 @@ class ConnectedDatasetTable extends React.Component {
                     hover
                     remote={ true }
                     version='4'
-                    cellEdit={cellEditProp}
+                    cellEdit={this.props.reviewMode ? undefined : cellEditProp}
                     keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}
                     tableHeaderClass={classes.tableHeader}
                     selectRow={selectRowProp}
@@ -476,6 +474,7 @@ ConnectedDatasetTable.propTypes = {
     leafs          : PropTypes.object.isRequired,
     tabs           : PropTypes.object.isRequired,
     classTypes     : PropTypes.object.isRequired,
+    reviewMode     : PropTypes.bool,
     showRowSelect  : PropTypes.bool,
 };
 

@@ -32,7 +32,7 @@
 }
 
 @media print {
-    #editingAppBar{
+    .doNotPrint{
         display: none !important;
     }
 }

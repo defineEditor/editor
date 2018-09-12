@@ -6,7 +6,8 @@ import DocumentFormatter from 'formatters/documentFormatter.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
-    text: {
+    originName: {
+        color: '#000000'
     },
 });
 
@@ -17,7 +18,7 @@ class OriginFormatter extends React.Component {
 
         return (
             <div key='originDescription'>
-                <Typography variant="caption" gutterBottom>
+                <Typography variant="caption" gutterBottom className={this.props.classes.originName}>
                     {origin.type}
                 </Typography>
                 <div key='originText'>{originText}</div>
@@ -30,8 +31,9 @@ class OriginFormatter extends React.Component {
 }
 
 OriginFormatter.propTypes = {
-    origin : PropTypes.object.isRequired,
-    leafs  : PropTypes.object
+    classes : PropTypes.object.isRequired,
+    origin  : PropTypes.object.isRequired,
+    leafs   : PropTypes.object
 };
 
 export default withStyles(styles)(OriginFormatter);

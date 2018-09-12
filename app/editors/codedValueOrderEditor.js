@@ -25,6 +25,7 @@ const mapStateToProps = (state, props) => {
     return {
         itemOrder,
         items,
+        reviewMode: state.present.ui.main.reviewMode,
     };
 };
 
@@ -42,14 +43,15 @@ class CodedValueOrderEditorConnected extends React.Component {
 
 
         return (
-            <GeneralOrderEditor title='Coded Value Order' items={items} onSave={this.onSave} width='600px'/>
+            <GeneralOrderEditor title='Coded Value Order' items={items} onSave={this.onSave} width='600px' disabled={this.props.reviewMode}/>
         );
     }
 }
 
 CodedValueOrderEditorConnected.propTypes = {
-    itemOrder : PropTypes.array.isRequired,
-    items     : PropTypes.object.isRequired,
+    itemOrder  : PropTypes.array.isRequired,
+    items      : PropTypes.object.isRequired,
+    reviewMode : PropTypes.bool,
 };
 
 const CodedValueOrderEditor = connect(mapStateToProps, mapDispatchToProps)(CodedValueOrderEditorConnected);

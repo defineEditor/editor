@@ -33,6 +33,7 @@ const mapStateToProps = state => {
         itemDefs     : state.present.odm.study.metaDataVersion.itemDefs,
         whereClauses : state.present.odm.study.metaDataVersion.whereClauses,
         mdv          : state.present.odm.study.metaDataVersion,
+        reviewMode   : state.present.ui.main.reviewMode,
     };
 };
 
@@ -147,37 +148,37 @@ class ConnectedItemMenu extends React.Component {
                         },
                     }}
                 >
-                    <MenuItem key='InsertBefore' onClick={this.insertRecord(0)}>
+                    <MenuItem key='InsertBefore' onClick={this.insertRecord(0)} disabled={this.props.reviewMode}>
                         Insert Line Before
                     </MenuItem>
-                    <MenuItem key='InsertAfter' onClick={this.insertRecord(1)}>
+                    <MenuItem key='InsertAfter' onClick={this.insertRecord(1)} disabled={this.props.reviewMode}>
                         Insert Line After
                     </MenuItem>
                     <Divider/>
-                    <MenuItem key='InsertBeforeDialog' onClick={this.insertRecordDialog(0)}>
+                    <MenuItem key='InsertBeforeDialog' onClick={this.insertRecordDialog(0)} disabled={this.props.reviewMode}>
                         Insert Variable Before
                     </MenuItem>
-                    <MenuItem key='InsertAfterDialog' onClick={this.insertRecordDialog(1)}>
+                    <MenuItem key='InsertAfterDialog' onClick={this.insertRecordDialog(1)} disabled={this.props.reviewMode}>
                         Insert Variable After
                     </MenuItem>
                     <Divider/>
                     { (!hasVlm && vlmLevel === 0) && (
-                        <MenuItem key='AddVlm' onClick={this.addVlm}>
+                        <MenuItem key='AddVlm' onClick={this.addVlm} disabled={this.props.reviewMode}>
                             Add VLM
                         </MenuItem>
                     )}
                     { hasVlm && (
-                        <MenuItem key='OrderVlm' onClick={this.openVlmOrder}>
+                        <MenuItem key='OrderVlm' onClick={this.openVlmOrder} disabled={this.props.reviewMode}>
                             Order VLM
                         </MenuItem>
                     )}
                     { hasVlm && (
-                        <MenuItem key='DeleteVlm' onClick={this.deleteVlm}>
+                        <MenuItem key='DeleteVlm' onClick={this.deleteVlm} disabled={this.props.reviewMode}>
                             Delete VLM
                         </MenuItem>
                     )}
                     <Divider/>
-                    <MenuItem key='Delete' onClick={this.deleteItem}>
+                    <MenuItem key='Delete' onClick={this.deleteItem} disabled={this.props.reviewMode}>
                         Delete
                     </MenuItem>
                 </Menu>
@@ -186,6 +187,7 @@ class ConnectedItemMenu extends React.Component {
                             items={items}
                             onSave={this.orderVlm}
                             onCancel={this.closeVlmOrder}
+                            disabled={this.props.reviewMode}
                             noButton={true}
                             width='700px'
                         />
@@ -200,6 +202,7 @@ ConnectedItemMenu.propTypes = {
     anchorEl: PropTypes.object,
     onAddVariable: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
+    reviewMode: PropTypes.bool,
 };
 
 const ItemMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedItemMenu);

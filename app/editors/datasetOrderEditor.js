@@ -15,6 +15,7 @@ const mapStateToProps = state => {
     return {
         itemGroupOrder : state.present.odm.study.metaDataVersion.order.itemGroupOrder,
         itemGroups     : state.present.odm.study.metaDataVersion.itemGroups,
+        reviewMode     : state.present.ui.main.reviewMode,
     };
 };
 
@@ -32,7 +33,7 @@ class DatasetOrderEditorConnected extends React.Component {
 
 
         return (
-            <GeneralOrderEditor title='Dataset Order' items={items} onSave={this.onSave}/>
+            <GeneralOrderEditor title='Dataset Order' items={items} onSave={this.onSave} disabled={this.props.reviewMode}/>
         );
     }
 }
@@ -40,6 +41,7 @@ class DatasetOrderEditorConnected extends React.Component {
 DatasetOrderEditorConnected.propTypes = {
     itemGroupOrder : PropTypes.array.isRequired,
     itemGroups     : PropTypes.object.isRequired,
+    reviewMode     : PropTypes.bool,
 };
 
 const DatasetOrderEditor = connect(mapStateToProps, mapDispatchToProps)(DatasetOrderEditorConnected);

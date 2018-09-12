@@ -110,7 +110,7 @@ class ConnectedEditorTabs extends React.Component {
 
         return (
             <div className={classes.root}>
-                <div id='editingAppBar'>
+                <div className='doNotPrint'>
                     <IconButton
                         color='default'
                         onClick={this.props.toggleMainMenu}

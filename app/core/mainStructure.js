@@ -1,17 +1,12 @@
 class Study {
     constructor ({
-        id, name, image, lastChanged,
+        id, name, image,
         defineIds = [],
     } = {}) {
         this.id = id;
         this.name = name;
         this.image = image;
         this.defineIds = defineIds;
-        if (lastChanged !== undefined) {
-            this.lastChanged = lastChanged;
-        } else {
-            this.lastChanged = new Date().toISOString();
-        }
     }
 }
 

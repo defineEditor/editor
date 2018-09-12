@@ -89,6 +89,7 @@ const mapStateToProps = state => {
         tabSettings   : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
         showRowSelect : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
         filter        : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].filter,
+        reviewMode    : state.present.ui.main.reviewMode,
     };
 };
 
@@ -523,12 +524,13 @@ class ConnectedVariableTable extends React.Component {
             <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={16}>
                     <Grid item>
-                        <ToggleRowSelect oid='overall'/>
+                        <ToggleRowSelect oid='overall' disabled={this.props.reviewMode}/>
                     </Grid>
                     <Grid item>
                         <Button
                             variant='raised'
                             color='default'
+                            disabled={this.props.reviewMode}
                             onClick={ () => { this.setState({ showAddVariable: true, insertPosition: null }); } }
                         >
                             Add
@@ -538,6 +540,7 @@ class ConnectedVariableTable extends React.Component {
                         <Button
                             variant='raised'
                             color='default'
+                            disabled={this.props.reviewMode}
                             onClick={ () => { this.setState({ showUpdate: true }); } }
                         >
                             Update
@@ -548,7 +551,7 @@ class ConnectedVariableTable extends React.Component {
                             color='secondary'
                             mini
                             onClick={this.deleteRows}
-                            disabled={!this.props.showRowSelect}
+                            disabled={!this.props.showRowSelect || this.props.reviewMode}
                             variant='raised'
                         >
                             Delete
@@ -767,7 +770,7 @@ class ConnectedVariableTable extends React.Component {
                     remote={ true }
                     keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}
                     version='4'
-                    cellEdit={cellEditProp}
+                    cellEdit={this.props.reviewMode ? undefined : cellEditProp}
                     headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
                     selectRow={selectRowProp}
                     trClassName={this.highLightVlmRows}
@@ -830,6 +833,7 @@ ConnectedVariableTable.propTypes = {
     updateItemDescription           : PropTypes.func.isRequired,
     deleteVariables                 : PropTypes.func.isRequired,
     setVlmState                     : PropTypes.func.isRequired,
+    reviewMode                      : PropTypes.bool,
 };
 
 const VariableTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedVariableTable);

@@ -59,6 +59,7 @@ export const UI_LOADTABS = 'UI_LOADTABS';
 export const UI_OPENMODAL = 'UI_OPENMODAL';
 export const UI_CLOSEMODAL = 'UI_CLOSEMODAL';
 export const UI_UPDMAIN = 'UI_UPDMAIN';
+export const UI_TOGGLEREVIEWMODE = 'UI_TOGGLEREVIEWMODE';
 export const STG_UPDATESETTINGS = 'STG_UPDATESETTINGS';
 export const STUDY_ADD = 'STUDY_ADD';
 export const STUDY_DEL = 'STUDY_DEL';

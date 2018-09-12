@@ -6,6 +6,7 @@ import {
     APP_QUIT,
     APP_SAVE,
     UI_UPDMAIN,
+    UI_TOGGLEREVIEWMODE,
 } from 'constants/action-types';
 
 const generateInitialState = () => {
@@ -15,6 +16,8 @@ const generateInitialState = () => {
         currentDefineId: '',
         isCurrentDefineSaved: true,
         quitNormally: null,
+        reviewMode: false,
+        showDataInput: false,
     };
 };
 
@@ -86,6 +89,9 @@ const updateMain = (state, action) => {
     return { ...state, ...action.updateObj };
 };
 
+const toggleReviewMode = (state, action) => {
+    return { ...state, reviewMode: !state.reviewMode };
+};
 
 const main = (state = initialState, action) => {
     switch (action.type) {
@@ -103,6 +109,8 @@ const main = (state = initialState, action) => {
             return appSave(state, action);
         case UI_UPDMAIN:
             return updateMain(state, action);
+        case UI_TOGGLEREVIEWMODE:
+            return toggleReviewMode(state, action);
         default: {
             if (action.type !== undefined
                 && state.isCurrentDefineSaved

@@ -20,6 +20,7 @@ const mapStateToProps = state => {
     return {
         codeLists           : state.present.odm.study.metaDataVersion.codeLists,
         codedValuesTabIndex : state.present.ui.tabs.tabNames.indexOf('Coded Values'),
+        reviewMode          : state.present.ui.main.reviewMode,
     };
 };
 
@@ -69,9 +70,9 @@ class ConnectedCodeListMenu extends React.Component {
                     }}
                 >
                     <MenuItem key='EditCodelistValues' onClick={this.editCodeListValues}>
-                        Edit Codelist Values
+                        View Codelist Values
                     </MenuItem>
-                    <MenuItem key='Delete' onClick={this.deleteCodeList}>
+                    <MenuItem key='Delete' onClick={this.deleteCodeList} disabled={this.props.reviewMode}>
                         Delete
                     </MenuItem>
                 </Menu>
@@ -83,6 +84,7 @@ class ConnectedCodeListMenu extends React.Component {
 ConnectedCodeListMenu.propTypes = {
     codeListMenuParams : PropTypes.object.isRequired,
     codeLists          : PropTypes.object.isRequired,
+    reviewMode         : PropTypes.bool,
 };
 
 const CodeListMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodeListMenu);

@@ -47,6 +47,7 @@ class ToggleRowSelectConnected extends React.Component {
                 color="default"
                 variant='fab'
                 mini
+                disabled={this.props.disabled}
                 onClick={this.handleChange}
                 className={classes.editButton}
             >
@@ -62,8 +63,9 @@ class ToggleRowSelectConnected extends React.Component {
 }
 
 ToggleRowSelectConnected.propTypes = {
-    tabs : PropTypes.object.isRequired,
-    oid  : PropTypes.string.isRequired,
+    tabs     : PropTypes.object.isRequired,
+    oid      : PropTypes.string.isRequired,
+    disabled : PropTypes.bool,
 };
 
 const ToggleRowSelect = connect(mapStateToProps, mapDispatchToProps)(ToggleRowSelectConnected);

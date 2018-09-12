@@ -18,7 +18,8 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        codeLists: state.present.odm.study.metaDataVersion.codeLists
+        codeLists: state.present.odm.study.metaDataVersion.codeLists,
+        reviewMode: state.present.ui.main.reviewMode,
     };
 };
 
@@ -70,25 +71,25 @@ class ConnectedCodedValueMenu extends React.Component {
                       }
                   }}
               >
-                  <MenuItem key="InsertBefore" onClick={this.insertRecord(0)}>
+                  <MenuItem key="InsertBefore" onClick={this.insertRecord(0)} disabled={this.props.reviewMode}>
             Insert Before
                   </MenuItem>
-                  <MenuItem key="InsertAfter" onClick={this.insertRecord(1)}>
+                  <MenuItem key="InsertAfter" onClick={this.insertRecord(1)} disabled={this.props.reviewMode}>
             Insert After
                   </MenuItem>
                   {hasStandard && (
                       [
                           <Divider key='Divider' />,
-                          <MenuItem key='InsertStdBefore' onClick={this.insertStdRecord(0)}>
+                          <MenuItem key='InsertStdBefore' onClick={this.insertStdRecord(0)} disabled={this.props.reviewMode}>
                 Insert Std. Codes Before
                           </MenuItem>,
-                          <MenuItem key='InsertStdAfter' onClick={this.insertStdRecord(1)}>
+                          <MenuItem key='InsertStdAfter' onClick={this.insertStdRecord(1)} disabled={this.props.reviewMode}>
                 Insert Std. Codes After
                           </MenuItem>
                       ]
                   )}
                   <Divider />
-                  <MenuItem key="Delete" onClick={this.deleteCodedValue}>
+                  <MenuItem key="Delete" onClick={this.deleteCodedValue} disabled={this.props.reviewMode}>
             Delete
                   </MenuItem>
               </Menu>
@@ -99,7 +100,8 @@ class ConnectedCodedValueMenu extends React.Component {
 
 ConnectedCodedValueMenu.propTypes = {
     codedValueMenuParams: PropTypes.object.isRequired,
-    onShowCodedValueSelector: PropTypes.func
+    onShowCodedValueSelector: PropTypes.func,
+    reviewMode: PropTypes.bool,
 };
 
 const CodedValueMenu = connect(mapStateToProps, mapDispatchToProps)(

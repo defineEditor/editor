@@ -206,6 +206,13 @@ class ConnectedStudyTile extends React.Component {
 
         let definesNum = this.state.study.defineIds.length;
 
+        // Get last changed data
+        let defineChangeDates = this.state.study.defineIds.map( defineId => ( this.props.defines.byId[defineId].lastChanged ) );
+        // As dates are stored in ISO format, they can be sorted alphabetically;
+        defineChangeDates.sort();
+        const lastChanged = defineChangeDates[defineChangeDates.length - 1];
+
+
         return (
             <div className={classes.root}>
                 <Card className={classes.card} raised={true}>
@@ -281,7 +288,7 @@ class ConnectedStudyTile extends React.Component {
                         )}
                         <Typography color="textSecondary" component="p">
                             Last changed:{' '}
-                            {this.state.study.lastChanged.substr(0, 16).replace('T', ' ')}
+                            {lastChanged.substr(0, 16).replace('T', ' ')}
                         </Typography>
                         <Typography component="p" className={classes.summary}>{this.getSummary()}</Typography>
                         <Button

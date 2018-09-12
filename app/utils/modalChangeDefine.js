@@ -10,9 +10,9 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import { ipcRenderer } from 'electron';
 import {
-    deleteStudy,
     changePage,
     closeModal,
+    appSave,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -40,8 +40,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        deleteStudy: deleteObj => dispatch(deleteStudy(deleteObj)),
         changePage: updateObj => dispatch(changePage(updateObj)),
+        appSave : (updateObj) => dispatch(appSave(updateObj)),
         closeModal: () => dispatch(closeModal()),
     };
 };
@@ -54,6 +54,7 @@ class ConnectedModalChangeDefine extends React.Component {
             tabs: this.props.tabs,
             defineId: this.props.currentDefineId,
         });
+        this.props.appSave({defineId: this.props.currentDefineId});
         this.props.changePage({ page: 'editor', defineId: this.props.defineId });
         this.props.closeModal();
     }
@@ -120,6 +121,9 @@ ConnectedModalChangeDefine.propTypes = {
     currentDefineId: PropTypes.string.isRequired,
     odm: PropTypes.object.isRequired,
     tabs: PropTypes.object.isRequired,
+    appSave: PropTypes.func.isRequired,
+    changePage: PropTypes.func.isRequired,
+    closeModal: PropTypes.func.isRequired,
 };
 
 const ModalChangeDefine = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalChangeDefine);

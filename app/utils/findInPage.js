@@ -13,14 +13,18 @@ const styles = theme => ({
         marginLeft: theme.spacing.unit * 2,
     },
     root: {
-        top: 'calc(100vh - 60px)',
+        top: 'calc(100vh - 65px)',
         position: 'fixed',
         border: '1px solid #CCCCCC',
         width: 'calc(100% - 20px)',
-        backgroundImage: 'radial-gradient(#FFFFFF,#EEEEEE)',
+        height: '56px',
+        backgroundImage: 'radial-gradient(#FFFFFF,#DDDDDD)',
         borderRadius: '25px',
         marginLeft : '10px',
         marginRight : '10px',
+    },
+    grid: {
+        height: '56px',
     },
     textField: {
         width: 200,
@@ -83,7 +87,13 @@ class FindInPage extends React.Component {
 
     handleChange = (event) => {
         this.findInPageDebounced(event.target.value);
-        this.setState({search: event.target.value});
+        if (event.target.value === '') {
+            // Disabled clearSelection as otherwise TextField looses focus;
+            //this.page.webContents.stopFindInPage('clearSelection');
+            this.setState({search: event.target.value, totalFound: 0, currentNum: 0});
+        } else {
+            this.setState({search: event.target.value});
+        }
     }
 
     render() {
@@ -91,7 +101,7 @@ class FindInPage extends React.Component {
 
         return (
             <div className={classes.root}>
-                <Grid container wrap='nowrap' alignItems='center' justify='space-between'>
+                <Grid container wrap='nowrap' alignItems='center' justify='space-between' className={classes.grid}>
                     <Grid item xs={11}>
                         <TextField
                             label="Find in page"
@@ -104,7 +114,7 @@ class FindInPage extends React.Component {
                         />
                         { this.state.totalFound > 0 &&
                                 <span className={classes.count}>
-                                    { this.state.totalFound + ' matches' }
+                                    { this.state.totalFound + (this.state.totalFound !== 1 ? ' matches' : ' match')}
                                 </span>
                         }
                     </Grid>

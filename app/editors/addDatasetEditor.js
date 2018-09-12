@@ -122,6 +122,7 @@ class AddDatasetEditorConnected extends React.Component {
                     color="default"
                     mini
                     variant='raised'
+                    disabled={this.props.disabled}
                     onClick={this.handleOpen}
                     className={classes.editButton}
                 >
@@ -163,6 +164,7 @@ AddDatasetEditorConnected.propTypes = {
     model         : PropTypes.string.isRequired,
     itemGroupOids : PropTypes.array.isRequired,
     defineVersion : PropTypes.string.isRequired,
+    disabled      : PropTypes.bool,
 };
 
 const AddDatasetEditor = connect(mapStateToProps, mapDispatchToProps)(AddDatasetEditorConnected);

@@ -7,6 +7,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
+import Switch from '@material-ui/core/Switch';
 import Drawer from '@material-ui/core/Drawer';
 import IconButton from '@material-ui/core/IconButton';
 import Divider from '@material-ui/core/Divider';
@@ -17,6 +18,8 @@ import SaveAlt from '@material-ui/icons/SaveAlt';
 import History from '@material-ui/icons/History';
 import Print from '@material-ui/icons/Print';
 import Search from '@material-ui/icons/Search';
+import Review from '@material-ui/icons/RemoveRedEye';
+import Archive from '@material-ui/icons/Archive';
 import Assignment from '@material-ui/icons/Assignment';
 import Edit from '@material-ui/icons/Edit';
 import Public from '@material-ui/icons/Public';
@@ -26,6 +29,8 @@ import {
     toggleMainMenu,
     changePage,
     updateMainUi,
+    appSave,
+    toggleReviewMode,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -39,6 +44,9 @@ const styles = theme => ({
         padding         : '0 8px',
         backgroundColor : theme.palette.primary.main,
     },
+    reviewModeSwitch: {
+        margin     : 'none',
+    },
 });
 
 // Redux functions
@@ -46,6 +54,8 @@ const mapStateToProps = state => {
     return {
         mainMenuOpened: state.present.ui.main.mainMenuOpened,
         currentPage: state.present.ui.main.currentPage,
+        currentDefineId: state.present.ui.main.currentDefineId,
+        reviewMode: state.present.ui.main.reviewMode,
     };
 };
 
@@ -54,6 +64,8 @@ const mapDispatchToProps = dispatch => {
         toggleMainMenu : () => dispatch(toggleMainMenu()),
         changePage : (updateObj) => dispatch(changePage(updateObj)),
         updateMainUi : (updateObj) => dispatch(updateMainUi(updateObj)),
+        appSave : (updateObj) => dispatch(appSave(updateObj)),
+        toggleReviewMode : (updateObj) => dispatch(toggleReviewMode(updateObj)),
     };
 };
 
@@ -75,6 +87,12 @@ class ConnectedMainMenu extends React.Component {
 
     print = () => {
         remote.getCurrentWindow().webContents.print();
+    }
+
+    save = () => {
+        saveState();
+        this.props.appSave({defineId: this.props.currentDefineId});
+        this.props.toggleMainMenu();
     }
 
     render() {
@@ -132,7 +150,7 @@ class ConnectedMainMenu extends React.Component {
                             </ListItem>
                             { this.props.currentPage === 'editor' && (
                                 [(
-                                    <ListItem button key='save' onClick={() => {saveState(); this.props.toggleMainMenu();}}>
+                                    <ListItem button key='save' onClick={this.save}>
                                         <ListItemIcon>
                                             <Save/>
                                         </ListItemIcon>
@@ -152,6 +170,35 @@ class ConnectedMainMenu extends React.Component {
                                             </ListItemIcon>
                                             <ListItemText primary='Print'/>
                                         </ListItem>
+                                    ) , (
+                                        <ListItem button key='dataInput' onClick={() => {this.props.updateMainUi({showDataInput: true}); this.props.toggleMainMenu();}}>
+                                            <ListItemIcon>
+                                                <Archive/>
+                                            </ListItemIcon>
+                                            <ListItemText primary='Data Input'/>
+                                        </ListItem>
+                                    ) , (
+                                        <ListItem button key='reviewModeToggle' onClick={() => {this.props.toggleReviewMode();}}>
+                                            <ListItemIcon>
+                                                { this.props.reviewMode === true ? (
+                                                    <Review/>
+                                                ) : (
+                                                    <Edit/>
+                                                )}
+                                            </ListItemIcon>
+                                            <ListItemText primary={
+                                                [(
+                                                    <Switch
+                                                        checked={this.props.reviewMode === true}
+                                                        color='primary'
+                                                        className={classes.reviewModeSwitch}
+                                                        key='switch'
+                                                    />
+                                                ),(
+                                                        <span key='modeText'> Review Mode</span>
+                                                    )]
+                                            }/>
+                                        </ListItem>
                                     )
                                 ]
                             )}
@@ -167,10 +214,15 @@ ConnectedMainMenu.propTypes = {
     classes            : PropTypes.object.isRequired,
     mainMenuOpened     : PropTypes.bool.isRequired,
     currentPage        : PropTypes.string.isRequired,
+    currentDefineId    : PropTypes.string.isRequired,
+    reviewMode         : PropTypes.bool.isRequired,
     toggleMainMenu     : PropTypes.func.isRequired,
     onToggleRedoUndo   : PropTypes.func.isRequired,
     onToggleFindInPage : PropTypes.func.isRequired,
     changePage         : PropTypes.func.isRequired,
+    appSave            : PropTypes.func.isRequired,
+    toggleReviewMode   : PropTypes.func.isRequired,
+    updateMainUi       : PropTypes.func.isRequired,
 };
 
 const MainMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedMainMenu);

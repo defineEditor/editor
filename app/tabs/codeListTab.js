@@ -57,6 +57,7 @@ const mapStateToProps = state => {
         tabs          : state.present.ui.tabs,
         tabSettings   : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
         showRowSelect : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
+        reviewMode    : state.present.ui.main.reviewMode,
     };
 };
 
@@ -241,17 +242,17 @@ class ConnectedCodeListTable extends React.Component {
             <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={16}>
                     <Grid item>
-                        <ToggleRowSelect oid='overall'/>
+                        <ToggleRowSelect oid='overall' disabled={this.props.reviewMode}/>
                     </Grid>
                     <Grid item>
-                        <AddCodeListEditor/>
+                        <AddCodeListEditor disabled={this.props.reviewMode}/>
                     </Grid>
                     <Grid item>
                         <Button
                             color='secondary'
                             mini
                             onClick={this.deleteRows}
-                            disabled={!this.props.showRowSelect}
+                            disabled={!this.props.showRowSelect || this.props.reviewMode}
                             variant='raised'
                         >
                             Delete
@@ -271,16 +272,13 @@ class ConnectedCodeListTable extends React.Component {
                 <Grid item style={{paddingLeft: '8px'}}>
                     { props.components.btnGroup }
                 </Grid>
-                <Grid item>
+                <Grid item style={{paddingRight: '25px'}}>
                     <Grid container spacing={16} justify='flex-end'>
                         <Grid item>
                             <Button variant="raised" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
                                 Columns
                                 <RemoveRedEyeIcon style={{marginLeft: '7px'}}/>
                             </Button>
-                        </Grid>
-                        <Grid item style={{paddingRight: '25px'}}>
-                            { props.components.searchPanel }
                         </Grid>
                     </Grid>
                 </Grid>
@@ -401,7 +399,7 @@ class ConnectedCodeListTable extends React.Component {
                     striped
                     hover
                     version='4'
-                    cellEdit={cellEditProp}
+                    cellEdit={this.props.reviewMode ? undefined : cellEditProp}
                     keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}
                     headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
                     selectRow={selectRowProp}
@@ -426,6 +424,7 @@ ConnectedCodeListTable.propTypes = {
     stdConstants  : PropTypes.object.isRequired,
     classes       : PropTypes.object.isRequired,
     defineVersion : PropTypes.string.isRequired,
+    reviewMode    : PropTypes.bool,
 };
 
 const CodeListTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodeListTable);

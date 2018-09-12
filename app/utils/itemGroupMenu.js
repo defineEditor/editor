@@ -22,6 +22,7 @@ const mapStateToProps = state => {
         itemGroups       : state.present.odm.study.metaDataVersion.itemGroups,
         variableTabIndex : state.present.ui.tabs.tabNames.indexOf('Variables'),
         mdv              : state.present.odm.study.metaDataVersion,
+        reviewMode       : state.present.ui.main.reviewMode,
     };
 };
 
@@ -60,9 +61,9 @@ class ConnectedItemGroupMenu extends React.Component {
                     }}
                 >
                     <MenuItem key='EditDatasetVariables' onClick={this.editItemGroupVariables}>
-                        Edit Dataset Variables
+                        View Dataset Variables
                     </MenuItem>
-                    <MenuItem key='Delete' onClick={this.deleteItemGroup}>
+                    <MenuItem key='Delete' onClick={this.deleteItemGroup} disabled={this.props.reviewMode}>
                         Delete
                     </MenuItem>
                 </Menu>
@@ -74,6 +75,7 @@ class ConnectedItemGroupMenu extends React.Component {
 ConnectedItemGroupMenu.propTypes = {
     itemGroupMenuParams : PropTypes.object.isRequired,
     itemGroups          : PropTypes.object.isRequired,
+    reviewMode          : PropTypes.bool,
 };
 
 const ItemGroupMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedItemGroupMenu);

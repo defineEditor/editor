@@ -15,6 +15,7 @@ const mapStateToProps = state => {
     return {
         itemGroups : state.present.odm.study.metaDataVersion.itemGroups,
         itemDefs   : state.present.odm.study.metaDataVersion.itemDefs,
+        reviewMode : state.present.ui.main.reviewMode,
     };
 };
 
@@ -34,7 +35,7 @@ class VariableOrderEditorConnected extends React.Component {
 
 
         return (
-            <GeneralOrderEditor title='Variable Order' items={items} onSave={this.onSave}/>
+            <GeneralOrderEditor title='Variable Order' items={items} onSave={this.onSave} disabled={this.props.reviewMode}/>
         );
     }
 }
@@ -43,6 +44,7 @@ VariableOrderEditorConnected.propTypes = {
     itemGroupOid : PropTypes.string.isRequired,
     itemGroups   : PropTypes.object.isRequired,
     itemDefs     : PropTypes.object.isRequired,
+    reviewMode   : PropTypes.bool,
 };
 
 const VariableOrderEditor = connect(mapStateToProps, mapDispatchToProps)(VariableOrderEditorConnected);

@@ -63,12 +63,12 @@ const datasets = {
 
 const variables = {
     oid: {
-        isKey    : true,
-        text     : '',
-        width    : '48px',
-        editable : false,
-        hidden   : false,
-        tdStyle  : { padding: '0px' },
+        isKey     : true,
+        text      : '',
+        width     : '48px',
+        editable  : false,
+        hidden    : false,
+        tdStyle   : { padding: '0px' },
     },
     keyOrder: {
         text    : 'Key, Position',

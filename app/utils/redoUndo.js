@@ -16,15 +16,23 @@ const styles = theme => ({
     button: {
         marginLeft: theme.spacing.unit * 2,
     },
+    slider: {
+        marginLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 3,
+    },
     root: {
-        top: 'calc(100vh - 60px)',
+        top: 'calc(100vh - 65px)',
         position: 'fixed',
         border: '1px solid #CCCCCC',
         width: 'calc(100% - 20px)',
-        backgroundImage: 'radial-gradient(#FFFFFF,#EEEEEE)',
+        height: '56px',
+        backgroundImage: 'radial-gradient(#FFFFFF,#DDDDDD)',
         borderRadius: '25px',
         marginLeft : '10px',
         marginRight : '10px',
+    },
+    grid: {
+        height: '56px',
     },
 });
 
@@ -89,9 +97,16 @@ class RedoUndoConnected extends React.Component {
 
         return (
             <div className={classes.root}>
-                <Grid container wrap='nowrap' alignItems='center'>
+                <Grid container wrap='nowrap' alignItems='center' className={classes.grid}>
                     <Grid item xs={11}>
-                        <Slider value={this.props.pastLength + 1} min={1} max={this.props.historyLength} step={1} onChange={this.handleSliderChange} />
+                        <Slider
+                            value={this.props.pastLength + 1}
+                            min={1}
+                            max={this.props.historyLength}
+                            step={1}
+                            onChange={this.handleSliderChange}
+                            className={classes.slider}
+                        />
                     </Grid>
                     <Grid item>
                         <Button

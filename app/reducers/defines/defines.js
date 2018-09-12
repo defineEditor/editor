@@ -2,6 +2,7 @@ import {
     DEFINE_ADD,
     DEFINE_DEL,
     DEFINE_UPD,
+    APP_SAVE,
     STUDY_DEL
 } from 'constants/action-types';
 
@@ -78,6 +79,21 @@ const deleteDefine = (state, action) => {
     }
 };
 
+const appSave = (state, action) => {
+    if (state.allIds.includes(action.updateObj.defineId)) {
+        let newById = {
+            ...state.byId,
+            [action.updateObj.defineId]: {
+                ...state.byId[action.updateObj.defineId],
+                lastChanged: new Date().toISOString(),
+            }
+        };
+        return { ...state, byId: newById };
+    } else {
+        return state;
+    }
+};
+
 const studies = (state = initialState, action) => {
     switch (action.type) {
         case DEFINE_ADD:
@@ -88,6 +104,8 @@ const studies = (state = initialState, action) => {
             return deleteDefine(state, action);
         case STUDY_DEL:
             return deleteStudy(state, action);
+        case APP_SAVE:
+            return appSave(state, action);
         default:
             return state;
     }
