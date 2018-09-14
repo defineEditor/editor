@@ -175,7 +175,7 @@ class ConnectedMainMenu extends React.Component {
                                             <ListItemIcon>
                                                 <Archive/>
                                             </ListItemIcon>
-                                            <ListItemText primary='Data Input'/>
+                                            <ListItemText primary='Import Length'/>
                                         </ListItem>
                                     ) , (
                                         <ListItem button key='reviewModeToggle' onClick={() => {this.props.toggleReviewMode();}}>

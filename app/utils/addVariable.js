@@ -49,7 +49,7 @@ const mapStateToProps = state => {
     };
 };
 
-const tabNames = ['New Variable', 'This Define', 'Another Define', 'Share API'];
+const tabNames = ['New Variable', 'This Define', 'Another Define'];
 
 function TabContainer(props) {
     return (
@@ -137,7 +137,6 @@ class AddVariableConnected extends React.Component {
                                         onClose={this.props.onClose}
                                     />
                             }
-                            {tabNames[currentTab] === 'Share API' && <AddVariableFromDefine/>}
                         </TabContainer>
                     </DialogContent>
                 </Dialog>

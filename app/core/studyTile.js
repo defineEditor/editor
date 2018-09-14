@@ -207,10 +207,15 @@ class ConnectedStudyTile extends React.Component {
         let definesNum = this.state.study.defineIds.length;
 
         // Get last changed data
+        let lastChanged;
         let defineChangeDates = this.state.study.defineIds.map( defineId => ( this.props.defines.byId[defineId].lastChanged ) );
         // As dates are stored in ISO format, they can be sorted alphabetically;
-        defineChangeDates.sort();
-        const lastChanged = defineChangeDates[defineChangeDates.length - 1];
+        if (defineChangeDates.length > 0) {
+            defineChangeDates.sort();
+            lastChanged = defineChangeDates[defineChangeDates.length - 1];
+        } else {
+            lastChanged = '';
+        }
 
 
         return (

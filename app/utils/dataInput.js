@@ -6,7 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-//import Button from '@material-ui/core/Button';
+import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import {
     updateMainUi
@@ -26,12 +26,16 @@ const styles = theme => ({
         transform: 'translate(0%, calc(-10%+0.5px))',
         overflowX: 'auto',
         maxHeight: '80%',
-        width: '600px',
+        width: '90%',
         overflowY: 'auto'
     },
-    textField: {
-        whiteSpace : 'normal',
-        minWidth   : '120px',
+    textFieldInput: {
+        padding: theme.spacing.unit,
+        borderRadius: 4,
+        border: '1px solid',
+    },
+    textFieldRoot: {
+        padding: 0,
     },
 });
 
@@ -66,6 +70,14 @@ class ConnectedVariableTabUpdate extends React.Component {
         }
     }
 
+    cancel = () => {
+        this.props.updateMainUi({ showDataInput: false });
+    }
+
+    import = () => {
+        this.props.updateMainUi({ showDataInput: false });
+    }
+
     render() {
         const {classes} = this.props;
 
@@ -82,9 +94,41 @@ class ConnectedVariableTabUpdate extends React.Component {
                         <Grid item xs={12}>
                             <TextField
                                 multiline
-                                rows={40}
+                                fullWidth
+                                rows={20}
                                 onChange={this.handleChange}
+                                InputProps={{
+                                    disableUnderline: true,
+                                    classes: {
+                                        root: classes.textFieldRoot,
+                                        input: classes.textFieldInput,
+                                    },
+                                }}
                             />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Grid container spacing={16} justify='flex-start'>
+                                <Grid item>
+                                    <Button
+                                        color='primary'
+                                        size='small'
+                                        onClick={this.import}
+                                        variant='raised'
+                                    >
+                                        Import
+                                    </Button>
+                                </Grid>
+                                <Grid item>
+                                    <Button
+                                        color='secondary'
+                                        size='small'
+                                        onClick={this.cancel}
+                                        variant='raised'
+                                    >
+                                        Cancel
+                                    </Button>
+                                </Grid>
+                            </Grid>
                         </Grid>
                     </Grid>
                 </DialogContent>

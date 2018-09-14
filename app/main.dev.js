@@ -1,6 +1,5 @@
-import { app, BrowserWindow, Menu, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
-import createMenu from './menu/menu.js';
 import saveAs from './main/saveAs.js';
 import openDefineXml from './main/openDefineXml.js';
 import selectFolder from './main/selectFolder.js';
@@ -56,7 +55,10 @@ function createWindow() {
         mainWindow.maximize();
     });
     // Set the menu
-    Menu.setApplicationMenu(createMenu(mainWindow));
+    // Disabled menu at the moment, as most control buttons are available in the mainMenu
+    //import createMenu from './menu/menu.js';
+    //Menu.setApplicationMenu(createMenu(mainWindow));
+    mainWindow.setMenu(null);
 
     mainWindow.on('close', function(e) {
         if (mainWindow !== null) {

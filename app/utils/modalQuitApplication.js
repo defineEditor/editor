@@ -35,7 +35,7 @@ const mapDispatchToProps = dispatch => {
     return {
         closeModal: () => dispatch(closeModal()),
         appQuit: () => dispatch(appQuit()),
-        appSave: () => dispatch(appSave()),
+        appSave: (updateObj) => dispatch(appSave(updateObj)),
     };
 };
 
@@ -44,7 +44,7 @@ class ConnectedModalQuitApplication extends React.Component {
     onSave = () => {
         this.props.appQuit();
         this.props.closeModal();
-        this.props.appSave();
+        this.props.appSave({definId: this.props.defineId});
         saveState();
         ipcRenderer.once('writeDefineObjectFinished', () => { ipcRenderer.send('quitConfirmed'); window.close();} );
         ipcRenderer.send('writeDefineObject', {

@@ -92,7 +92,7 @@ class ConnectedEditor extends React.Component {
                 {this.props.odmLoaded && (
                     <EditorTabs />
                 )}
-                {this.props.showDataInput && (
+                {this.props.showDataInput && this.props.odmLoaded && (
                     <DataInput />
                 )}
             </React.Fragment>
