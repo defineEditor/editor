@@ -29,6 +29,9 @@ const styles = theme => ({
     textFieldFirst: {
         width: '80px',
     },
+    namedDestination: {
+        width: '130px',
+    },
     textFieldLast: {
         width      : '80px',
         marginLeft : theme.spacing.unit
@@ -125,7 +128,7 @@ class PdfPageEditor extends React.Component {
                 <Grid item key='NamedDestination'>
                     <TextField
                         label='Destination Anchor'
-                        className={classes.textField}
+                        className={classes.namedDestination}
                         defaultValue={this.props.value.pageRefs}
                         onBlur={this.handleChange('pageRefs')}
                     />

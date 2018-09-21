@@ -26,7 +26,7 @@ function writeDefineObject(mainWindow, defineObject, backupFlag) {
                 compression: 'DEFLATE'
             })
             .pipe(fs.createWriteStream(outputFile))
-            .once('finish', () => {mainWindow.webContents.send('writeDefineObjectFinished');});
+            .once('finish', () => {mainWindow.webContents.send('writeDefineObjectFinished', defineObject.defineId);});
     }
 
     fs.mkdir(pathToDefines, function(err) {

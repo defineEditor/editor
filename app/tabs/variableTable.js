@@ -625,6 +625,7 @@ class ConnectedVariableTable extends React.Component {
         if (this.state.selectedRows.length > 0 || Object.keys(this.state.selectedVlmRows).length > 0) {
             let deleteObj = getItemRefsRelatedOids(this.props.mdv, this.props.itemGroupOid, this.state.selectedRows, this.state.selectedVlmRows);
             this.props.deleteVariables({itemGroupOid: this.props.itemGroupOid}, deleteObj);
+            this.setState({selectedRows: [], selectedVlmRows: {}});
         }
     }
 

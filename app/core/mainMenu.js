@@ -91,7 +91,6 @@ class ConnectedMainMenu extends React.Component {
 
     save = () => {
         saveState();
-        this.props.appSave({defineId: this.props.currentDefineId});
         this.props.toggleMainMenu();
     }
 

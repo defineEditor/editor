@@ -34,7 +34,7 @@ const styles = theme => ({
         marginBottom : '8px',
     },
     commentInput: {
-        margin: '0px',
+        marginBottom : '8px',
     },
     multipleSourcesLine: {
         whiteSpace : 'pre-wrap',

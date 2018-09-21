@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import Switch from '@material-ui/core/Switch';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+//import Switch from '@material-ui/core/Switch';
+//import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 
@@ -38,6 +38,7 @@ class VariableNameLabelEditor extends React.Component {
                         className={classes.nameTextField}
                     />
                 </Grid>
+                {/*
                 <Grid item>
                     <FormControlLabel
                         control={
@@ -53,6 +54,7 @@ class VariableNameLabelEditor extends React.Component {
                         className={classes.formControl}
                     />
                 </Grid>
+                */}
                 <Grid item xs={12}>
                     <TextField
                         label='Label'

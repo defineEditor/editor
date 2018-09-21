@@ -339,6 +339,7 @@ class ConnectedDatasetTable extends React.Component {
     deleteRows = () => {
         const deleteObj = getItemGroupsRelatedOids(this.props.mdv, this.state.selectedRows);
         this.props.deleteItemGroups(deleteObj);
+        this.setState({ selectedRows: [] });
     }
 
     // Row Selection functions

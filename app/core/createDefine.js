@@ -35,7 +35,7 @@ function createOdm (data, version) {
             'xmlns:xlink'         : data.xlink,
             'xmlns:xsi'           : data.xsi,
             'xsi:schemalocation'  : data.schemaLocation,
-            'odmVersion'          : data.odmVersion,
+            'ODMVersion'          : data.odmVersion,
             'FileType'            : data.fileType,
             'FileOID'             : data.fileOid,
             'CreationDateTime'    : new Date().toISOString().replace(/(.*)\..*/,'$1'),
@@ -59,7 +59,7 @@ function createStudy (data, version) {
     let xmlRoot = xmlBuilder.create('Study');
     if (version === '2.0.0') {
         let attributes = {
-            'StudyOID': data.oid
+            'OID': data.oid
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -627,7 +627,7 @@ function createMethodDef (data, version) {
                 // Context is required, so if the define is wrong, set it to blank
                 result['FormalExpression'].push({
                     '#text'    : formalExpression.value,
-                    '@context' : formalExpression.context || ''
+                    '@Context' : formalExpression.context || ''
                 });
             });
         }

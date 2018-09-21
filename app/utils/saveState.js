@@ -16,7 +16,7 @@ function saveState(type) {
     // Save current Define
     if (type !== 'quitWithoutSave') {
         if (type !== 'backup') {
-            ipcRenderer.once('writeDefineObjectFinished', () => {store.dispatch(appSave());} );
+            ipcRenderer.once('writeDefineObjectFinished', (event, defineId) => {store.dispatch(appSave({ defineId }));} );
         }
         if (stateToSave.ui.main.currentDefineId !== '') {
             ipcRenderer.send('writeDefineObject', {

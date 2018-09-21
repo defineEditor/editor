@@ -219,7 +219,7 @@ class ConnectedStudyTile extends React.Component {
 
 
         return (
-            <div className={classes.root}>
+            <div>
                 <Card className={classes.card} raised={true}>
                     <CardActions className={classes.actions}>
                         {this.state.editMode ? (
@@ -297,7 +297,7 @@ class ConnectedStudyTile extends React.Component {
                         </Typography>
                         <Typography component="p" className={classes.summary}>{this.getSummary()}</Typography>
                         <Button
-                            aria-owns={anchorEl ? 'simple-menu' : null}
+                            aria-owns={anchorEl ? 'define-menu' : null}
                             aria-haspopup="true"
                             disabled={definesNum === 0}
                             onClick={this.handleMenuClick}
@@ -307,10 +307,15 @@ class ConnectedStudyTile extends React.Component {
                     </CardContent>
                 </Card>
                 <Menu
-                    id="simple-menu"
+                    id='define-menu'
                     anchorEl={anchorEl}
                     open={Boolean(anchorEl)}
                     onClose={this.handleMenuClose}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left'
+                    }}
+                    getContentAnchorEl={null}
                 >
                     {this.getDefines(classes)}
                 </Menu>

@@ -288,7 +288,7 @@ class ConnectedMethodEditor extends React.Component {
                             />
                     }
                     {method !== undefined &&
-                            <Grid container spacing={0}>
+                            <Grid container spacing={8}>
                                 <Grid item xs={12}>
                                     <Grid container spacing={16} justify='flex-start'>
                                         <Grid item>

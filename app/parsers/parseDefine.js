@@ -754,7 +754,7 @@ function parseMetaDataVersion (metadataRaw) {
         defineVersion   : metadataRaw['$']['defineVersion'],
         commentOid      : metadataRaw['$']['commentOid'],
         standards       : mdv.standards,
-        annotatedCRF    : mdv.annotatedCrf,
+        annotatedCrf    : mdv.annotatedCrf,
         supplementalDoc : mdv.supplementalDoc,
         valueLists      : mdv.valueLists,
         whereClauses    : mdv.whereClauses,

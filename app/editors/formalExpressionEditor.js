@@ -11,7 +11,7 @@ const styles = theme => ({
         marginBottom: theme.spacing.unit
     },
     value: {
-        fontFamily: 'Roboto Mono'
+        fontFamily: 'Courier'
     },
 });
 

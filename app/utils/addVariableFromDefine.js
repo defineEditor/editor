@@ -151,6 +151,8 @@ const copyItems = ({currentGroup, sourceGroup, mdv, sourceMdv, selected, parentI
             valueLists = { ...valueLists, ...vlCopy.valueLists };
             whereClauses = { ...whereClauses, ...vlCopy.whereClauses };
             processedItemDefs = { ...processedItemDefs, ...vlCopy.processedItemDefs };
+        } else if (copyVlm === false && itemDefs[newItemDefOid].valueListOid !== undefined) {
+            itemDefs[newItemDefOid].valueListOid = undefined;
         }
     });
     return { itemDefs, itemRefs, valueLists, whereClauses, processedItemDefs };

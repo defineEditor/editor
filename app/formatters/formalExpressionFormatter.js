@@ -4,10 +4,11 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
     context: {
-        fontSize: '13px',
+        fontSize: '11px',
+        color: '#000000',
     },
     value: {
-        fontFamily: 'Roboto Mono'
+        fontFamily: 'Courier'
     },
 });
 
