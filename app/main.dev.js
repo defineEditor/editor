@@ -72,7 +72,7 @@ function createWindow() {
  * Add event listeners...
  */
 // Add listener for Define-XML generation
-ipcMain.on('defineObject', (event, data) => {
+ipcMain.on('saveAs', (event, data) => {
     saveAs(mainWindow, data);
 });
 // Add listener for Define-XML open

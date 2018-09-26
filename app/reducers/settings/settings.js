@@ -8,7 +8,11 @@ const general = {
     controlledTerminologyLocation: ''
 };
 
-const editor = {};
+const editor = {
+    removeUnusedCodeListsInDefineXml: true,
+    getNameLabelFromWhereClause: true,
+    lengthForAllDataTypes: false,
+};
 
 const define = {
     schemaLocation200: 'http://www.cdisc.org/ns/def/v2.0/define2-0-0.xsd',

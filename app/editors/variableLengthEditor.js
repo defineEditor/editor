@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
 import Switch from '@material-ui/core/Switch';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -20,7 +21,14 @@ const styles = theme => ({
     },
 });
 
-class VariableLengthEditor extends React.Component {
+// Redux functions
+const mapStateToProps = state => {
+    return {
+        lengthForAllDataTypes : state.present.settings.editor.lengthForAllDataTypes,
+    };
+};
+
+class ConnectedVariableLengthEditor extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
@@ -69,7 +77,7 @@ class VariableLengthEditor extends React.Component {
         const lengthAsCodeList = this.state.lengthAsCodeList;
         const hasCodeList = this.props.row.codeList !== undefined;
         const dataType = this.props.row.dataType;
-        const lengthNotApplicable = (['float','text','integer'].indexOf(dataType) === -1) && !this.state.length;
+        const lengthNotApplicable = this.props.lengthForAllDataTypes || ((['float','text','integer'].indexOf(dataType) === -1) && !this.state.length);
 
         let length;
         if (lengthAsData) {
@@ -144,11 +152,12 @@ class VariableLengthEditor extends React.Component {
     }
 }
 
-VariableLengthEditor.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    defaultValue : PropTypes.object.isRequired,
-    onUpdate     : PropTypes.func.isRequired,
+ConnectedVariableLengthEditor.propTypes = {
+    classes               : PropTypes.object.isRequired,
+    defaultValue          : PropTypes.object.isRequired,
+    onUpdate              : PropTypes.func.isRequired,
+    lengthForAllDataTypes : PropTypes.bool.isRequired,
 };
 
+const VariableLengthEditor = connect(mapStateToProps)(ConnectedVariableLengthEditor);
 export default withStyles(styles)(VariableLengthEditor);
-

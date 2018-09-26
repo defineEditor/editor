@@ -395,6 +395,7 @@ class ConnectedDatasetTable extends React.Component {
             currentDs.flags = {
                 repeating       : originDs.repeating,
                 isReferenceData : originDs.isReferenceData,
+                hasNoData       : originDs.hasNoData,
             };
             currentDs.domainAttrs = {
                 domain : originDs.domain,

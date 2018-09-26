@@ -2,16 +2,9 @@ import {
     UI_SETSTUDYORDERTYPE,
     UI_TOGGLEADDDEFINEFORM,
 } from "constants/action-types";
+import { ui } from 'constants/initialValues.js';
 
-const generateInitialState = () => {
-    return {
-        orderType      : 'alphabetical',
-        defineForm     : false,
-        currentStudyId : '',
-    };
-};
-
-const initialState = generateInitialState();
+const initialState = ui.studies;
 
 const setStudyOrderType = (state, action) => {
     return ({

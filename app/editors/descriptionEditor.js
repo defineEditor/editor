@@ -117,6 +117,7 @@ class ConnectedDescriptionEditor extends React.Component {
 
 ConnectedDescriptionEditor.propTypes = {
     defaultValue : PropTypes.object,
+    lang         : PropTypes.string,
 };
 
 const DescriptionEditor = connect(mapStateToProps)(ConnectedDescriptionEditor);

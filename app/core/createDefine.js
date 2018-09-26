@@ -118,7 +118,7 @@ function createMetaDataVersion (data, version) {
             });
             xmlRoot.ele(supplementalDoc);
         }
-        if (data.valueLists !== {}) {
+        if (Object.keys(data.valueLists).length !== 0) {
             // ValueListDef
             let valueListDefs = {'def:ValueListDef': []};
             Object.keys(data.valueLists).forEach(function (valueListOid) {
@@ -411,7 +411,7 @@ function createItemDef (data, version) {
             'OID'               : data.oid,
             'Name'              : data.name,
             'DataType'          : data.dataType,
-            'Length'            : data.length,
+            'Length'            : ['text', 'integer', 'float'].includes(data.dataType) ? data.length : undefined,
             'SignificantDigits' : data.fractionDigits,
             'SASFieldName'      : data.fieldName,
             'def:DisplayFormat' : data.displayFormat

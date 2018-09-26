@@ -18,8 +18,10 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        mdv       : state.present.odm.study.metaDataVersion,
-        blueprint : state.present.odm.study.metaDataVersion,
+        mdv                         : state.present.odm.study.metaDataVersion,
+        blueprint                   : state.present.odm.study.metaDataVersion,
+        lang                        : state.present.odm.study.metaDataVersion.lang,
+        getNameLabelFromWhereClause : state.present.settings.editor.getNameLabelFromWhereClause,
     };
 };
 
@@ -104,11 +106,34 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
             updateObj.forEach( rawRangeCheck => {
                 rangeChecks.push({ ...new RangeCheck(rawRangeCheck) });
             });
+            // Populate current name and label if they are blank and EQ range is used
+            let additionalAttrs = {};
+            if (this.props.getNameLabelFromWhereClause && rangeChecks.length === 1 && rangeChecks[0].comparator === 'EQ') {
+                additionalAttrs.name = rangeChecks[0].checkValues[0];
+                // Check if there is a codelist with decodes
+                let mdv = this.props.mdv;
+                let codeListOid = mdv.itemDefs[rangeChecks[0].itemOid].codeListOid;
+                if (codeListOid !== undefined && mdv.codeLists[codeListOid].codeListType === 'decoded') {
+                    let value;
+                    let codeListItems = mdv.codeLists[codeListOid].codeListItems;
+                    Object.keys(codeListItems).some( codeListItemOid => {
+                        if (codeListItems[codeListItemOid].codedValue === rangeChecks[0].checkValues[0]) {
+                            value = codeListItems[codeListItemOid].decodes[0].value;
+                            return true;
+                        }
+                    });
+                    if (value !== undefined) {
+                        let lang = this.props.lang;
+                        additionalAttrs.descriptions = [{ ...new TranslatedText({lang, value}) }];
+                    }
+                }
+            }
             this.setState({
                 whereClause: { ...new WhereClause({
                     ...this.state.whereClause,
                     rangeChecks: rangeChecks,
-                }) }
+                }) },
+                ...additionalAttrs,
             });
         } else if (name === 'comment') {
             this.setState({
@@ -122,7 +147,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
             this.setState({ [name]: !this.state.autoLabel });
         } else if (name === 'label') {
             // Create a new description;
-            let lang = 'en';
+            let lang = this.props.lang;
             let value = updateObj.target.value;
             let descriptions = [{ ...new TranslatedText({lang, value}) }];
             this.setState({ descriptions });
@@ -369,11 +394,14 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
 }
 
 ConnectedVariableNameLabelWhereClauseEditor.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    defaultValue : PropTypes.object.isRequired,
-    onUpdate     : PropTypes.func.isRequired,
-    blueprint    : PropTypes.object,
-    mdv          : PropTypes.object,
+    classes                     : PropTypes.object.isRequired,
+    defaultValue                : PropTypes.object.isRequired,
+    onUpdate                    : PropTypes.func.isRequired,
+    blueprint                   : PropTypes.object,
+    getNameLabelFromWhereClause : PropTypes.bool,
+    mdv                         : PropTypes.object,
+    row                         : PropTypes.object.isRequired,
+    lang                        : PropTypes.string.isRequired,
 };
 
 const VariableNameLabelWhereClauseEditor = connect(mapStateToProps)(ConnectedVariableNameLabelWhereClauseEditor);

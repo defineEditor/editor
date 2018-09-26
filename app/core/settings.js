@@ -8,6 +8,9 @@ import IconButton from '@material-ui/core/IconButton';
 import FolderOpen from '@material-ui/icons/FolderOpen';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
+import Switch from '@material-ui/core/Switch';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import clone from 'clone';
 import deepEqual from 'fast-deep-equal';
 import NavigationBar from 'core/navigationBar.js';
@@ -79,9 +82,11 @@ class ConnectedSettings extends React.Component {
       ipcRenderer.send('selectFolder', 'Select Controlled Terminology Folder', this.props.settings.general.controlledTerminologyLocation);
   };
 
-  handleChange = (category, name) => event => {
+  handleChange = (category, name) => (event, checked) => {
       if (name === 'controlledTerminologyLocation') {
           this.setState({ [category]: { ...this.state[category], [name]: event } });
+      } else if (['removeUnusedCodeListsInDefineXml', 'getNameLabelFromWhereClause', 'lengthForAllDataTypes'].includes(name)) {
+          this.setState({ [category]: { ...this.state[category], [name]: checked } });
       } else {
           this.setState({
               [category]: { ...this.state[category], [name]: event.target.value }
@@ -171,12 +176,51 @@ class ConnectedSettings extends React.Component {
                   </Grid>
                   <Grid item xs={12}>
                       <Typography variant="display1" gutterBottom align="left">
-              Editor Settings
+                          Editor Settings
                       </Typography>
+                      <Grid container>
+                          <Grid item xs={12}>
+                              <FormGroup>
+                                  <FormControlLabel
+                                      control={
+                                          <Switch
+                                              checked={this.state.editor.removeUnusedCodeListsInDefineXml}
+                                              onChange={this.handleChange('editor', 'removeUnusedCodeListsInDefineXml')}
+                                              color='primary'
+                                              className={classes.switch}
+                                          />
+                                      }
+                                      label = 'Remove unused codelists when saving as Define-XML'
+                                  />
+                                  <FormControlLabel
+                                      control={
+                                          <Switch
+                                              checked={this.state.editor.getNameLabelFromWhereClause}
+                                              onChange={this.handleChange('editor', 'getNameLabelFromWhereClause')}
+                                              color='primary'
+                                              className={classes.switch}
+                                          />
+                                      }
+                                      label = 'Populate Name and Label values from Where Clause'
+                                  />
+                                  <FormControlLabel
+                                      control={
+                                          <Switch
+                                              checked={this.state.editor.lengthForAllDataTypes}
+                                              onChange={this.handleChange('editor', 'lengthForAllDataTypes')}
+                                              color='primary'
+                                              className={classes.switch}
+                                          />
+                                      }
+                                      label = 'Allow to set length for all datatypes. In any case a Define-XML file will have Length set only for valid datatypes.'
+                                  />
+                              </FormGroup>
+                          </Grid>
+                      </Grid>
                   </Grid>
                   <Grid item xs={12}>
                       <Typography variant="display1" gutterBottom align="left">
-              Define-XML Settings
+                          Define-XML Settings
                       </Typography>
                       <Grid container>
                           <Grid item xs={12}>

@@ -6,22 +6,12 @@ import {
     APP_QUIT,
     APP_SAVE,
     UI_UPDMAIN,
+    UI_UPDCOPYBUFFER,
     UI_TOGGLEREVIEWMODE,
 } from 'constants/action-types';
+import { ui } from 'constants/initialValues.js';
 
-const generateInitialState = () => {
-    return {
-        mainMenuOpened: false,
-        currentPage: 'studies',
-        currentDefineId: '',
-        isCurrentDefineSaved: true,
-        quitNormally: null,
-        reviewMode: false,
-        showDataInput: false,
-    };
-};
-
-const initialState = generateInitialState();
+const initialState = ui.main;
 
 const toggleMainMenu = (state, action) => {
     return {
@@ -93,6 +83,10 @@ const toggleReviewMode = (state, action) => {
     return { ...state, reviewMode: !state.reviewMode };
 };
 
+const updateCopyBuffer = (state, action) => {
+    return { ...state, copyBuffer: { ...state.copyBuffer, [action.updateObj.tab] : action.updateObj.buffer } };
+};
+
 const main = (state = initialState, action) => {
     switch (action.type) {
         case UI_TOGGLEMAINMENU:
@@ -111,6 +105,8 @@ const main = (state = initialState, action) => {
             return updateMain(state, action);
         case UI_TOGGLEREVIEWMODE:
             return toggleReviewMode(state, action);
+        case UI_UPDCOPYBUFFER:
+            return updateCopyBuffer(state, action);
         default: {
             if (action.type !== undefined
                 && state.isCurrentDefineSaved

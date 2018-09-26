@@ -2,11 +2,10 @@ import {
     UI_OPENMODAL,
     UI_CLOSEMODAL,
 } from 'constants/action-types';
+import { ui } from 'constants/initialValues.js';
 
-const initialState = {
-    type: null,
-    props: {},
-};
+const initialState = ui.modal;
+
 
 const closeModal = (state, action) => {
     return initialState;

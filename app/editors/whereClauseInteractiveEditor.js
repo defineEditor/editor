@@ -60,7 +60,6 @@ const styles = theme => ({
 const comparators = ['EQ','NE','LT','LE','GT','GE','IN','NOTIN'];
 const comparatorsLimited = ['EQ','NE','LT','LE','GT','GE'];
 
-
 class WhereClauseEditorInteractive extends React.Component {
     constructor (props) {
         super(props);
@@ -173,16 +172,32 @@ class WhereClauseEditorInteractive extends React.Component {
                 return;
             }
             result[index].itemGroupName = updateObj.target.value;
-            result[index].itemGroupOid = getOidByName(this.props.mdv, 'itemGroups',updateObj.target.value);
+            result[index].itemGroupOid = getOidByName(this.props.mdv, 'itemGroups', updateObj.target.value);
             // Reset all other values
             let updatedListOfVariables = this.updateListOfVariables(result[index].itemGroupOid);
-            result[index].itemName = updatedListOfVariables[result[index].itemGroupOid][0];
-            result[index].itemOid = getOidByName(this.props.mdv, 'itemDefs',result[index].itemName);
+            result[index].itemName = undefined;
+            // Use --TESTCD/PARAMCD if they are present
+            if ( updatedListOfVariables[result[index].itemGroupOid].includes('PARAMCD')) {
+                result[index].itemName = 'PARAMCD';
+            } else {
+                // Look for any --TESTCD
+                updatedListOfVariables[result[index].itemGroupOid].some( name => {
+                    if (/^\w+TESTCD$/.test(name)) {
+                        result[index].itemName = name;
+                        return true;
+                    }
+                });
+                if (result[index].itemName === undefined) {
+                    result[index].itemName = updatedListOfVariables[result[index].itemGroupOid][0];
+                }
+            }
+            result[index].itemOid = getOidByName(this.props.mdv, 'itemDefs', result[index].itemName);
             result[index].comparator = 'EQ';
             result[index].checkValues = [''];
             this.setState({
                 rangeChecks     : result,
                 listOfVariables : updatedListOfVariables,
+                listOfCodeValues : this.updateListOfCodeValues(result[index].itemOid)
             });
         } else if (name === 'item') {
             // Do nothing if name did not change
@@ -233,13 +248,28 @@ class WhereClauseEditorInteractive extends React.Component {
             result[newIndex].itemGroupOid = getOidByName(this.props.mdv, 'itemGroups',result[newIndex].itemGroupName);
             // Reset all other values
             let updatedListOfVariables = this.updateListOfVariables(result[newIndex].itemGroupOid);
-            result[newIndex].itemName = updatedListOfVariables[result[newIndex].itemGroupOid][0];
+            // Use --TESTCD/PARAMCD if they are present
+            if ( updatedListOfVariables[result[newIndex].itemGroupOid].includes('PARAMCD')) {
+                result[newIndex].itemName = 'PARAMCD';
+            } else {
+                // Look for any --TESTCD
+                updatedListOfVariables[result[newIndex].itemGroupOid].some( name => {
+                    if (/^\w+TESTCD$/.test(name)) {
+                        result[newIndex].itemName = name;
+                        return true;
+                    }
+                });
+                if (result[newIndex].itemName === undefined) {
+                    result[newIndex].itemName = updatedListOfVariables[result[newIndex].itemGroupOid][0];
+                }
+            }
             result[newIndex].itemOid = getOidByName(this.props.mdv, 'itemDefs',result[newIndex].itemName);
             result[newIndex].comparator = 'EQ';
             result[newIndex].checkValues = [''];
             this.setState({
-                rangeChecks     : result,
-                listOfVariables : updatedListOfVariables,
+                rangeChecks      : result,
+                listOfVariables  : updatedListOfVariables,
+                listOfCodeValues : this.updateListOfCodeValues(result[index].itemOid),
             });
         } else if (name === 'deleteRangeCheck') {
             result.splice(index,1);

@@ -1,10 +1,10 @@
 {
   "name": "defineEditor",
-  "productName": "Define-XML Editor",
+  "productName": "Visual Define-XML Editor",
   "version": "0.1.0",
   "license": "GPL-3.0",
   "private": "true",
-  "description": "Define-XML Editor",
+  "description": "Visual Define-XML Editor",
   "scripts": {
     "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
     "build-dll": "cross-env NODE_ENV=development node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.renderer.dev.dll.js --colors",
@@ -203,6 +203,7 @@
     "@material-ui/lab": "^3.0.0-alpha.14",
     "bootstrap": "^4.1.1",
     "clone": "^2.1.2",
+    "csvtojson": "^2.0.8",
     "devtron": "^1.4.0",
     "downshift": "^1.31.16",
     "electron-debug": "^1.5.0",

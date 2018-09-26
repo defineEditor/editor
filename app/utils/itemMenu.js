@@ -6,11 +6,12 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import getOid from 'utils/getOid.js';
+import copyVariables from 'utils/copyVariables.js';
 import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
 import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
 import GeneralOrderEditor from 'editors/generalOrderEditor.js';
 import {
-    deleteVariables, addValueList, updateVlmItemRefOrder, insertVariable, insertValueLevel
+    deleteVariables, addValueList, updateVlmItemRefOrder, insertVariable, insertValueLevel, updateCopyBuffer, addVariables,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -24,6 +25,8 @@ const mapDispatchToProps = dispatch => {
         updateVlmItemRefOrder : (valueListOid, itemRefOrder) => dispatch(updateVlmItemRefOrder(valueListOid, itemRefOrder)),
         insertVariable        : (itemGroupOid, itemDefOid, orderNumber) => dispatch(insertVariable(itemGroupOid, itemDefOid, orderNumber)),
         insertValueLevel      : (valueListOid, itemDefOid, parentItemDefOid, whereClauseOid, orderNumber) => dispatch(insertValueLevel(valueListOid, itemDefOid, parentItemDefOid, whereClauseOid, orderNumber)),
+        updateCopyBuffer : (updateObj) => dispatch(updateCopyBuffer(updateObj)),
+        addVariables: (updateObj) => dispatch(addVariables(updateObj))
     };
 };
 
@@ -34,6 +37,8 @@ const mapStateToProps = state => {
         whereClauses : state.present.odm.study.metaDataVersion.whereClauses,
         mdv          : state.present.odm.study.metaDataVersion,
         reviewMode   : state.present.ui.main.reviewMode,
+        buffer       : state.present.ui.main.copyBuffer['variables'],
+        baseFolder   : state.present.defines.byId[state.present.odm.defineId].pathToFile,
     };
 };
 
@@ -120,6 +125,70 @@ class ConnectedItemMenu extends React.Component {
         this.setState({ openVlmOrder: false }, this.props.onClose());
     }
 
+    copy = () => {
+        this.props.updateCopyBuffer({
+            tab: 'variables',
+            buffer: {
+                groupOid: this.props.itemMenuParams.itemGroupVLOid,
+                itemRefOid: this.props.itemMenuParams.itemRefOid,
+                vlmLevel: this.props.itemMenuParams.vlmLevel,
+            }
+
+        });
+        this.props.onClose();
+    }
+
+    paste = (shift) => () => {
+        let itemMenuParams = this.props.itemMenuParams;
+        let buffer = this.props.buffer;
+        let mdv = this.props.mdv;
+        let sourceMdv = mdv;
+        let groupOid = itemMenuParams.itemGroupVLOid;
+        let currentGroup;
+        let sourceGroup;
+        let parentItemDefOid;
+        if (itemMenuParams.vlmLevel === 0) {
+            currentGroup = mdv.itemGroups[groupOid];
+            sourceGroup = sourceMdv.itemGroups[buffer.groupOid];
+        } else if (itemMenuParams.vlmLevel > 0) {
+            currentGroup = mdv.valueLists[groupOid];
+            sourceGroup = sourceMdv.valueLists[buffer.groupOid];
+            parentItemDefOid = sourceMdv.itemDefs[itemMenuParams.oid].parentItemDefOid;
+        }
+        let { itemDefs, itemRefs, codeLists, methods, leafs, comments, valueLists, whereClauses } = copyVariables({
+            mdv,
+            sourceMdv,
+            currentGroup,
+            sourceGroup,
+            itemRefList: [ buffer.itemRefOid ],
+            parentItemDefOid,
+            baseFolder: this.props.baseFolder,
+            itemGroupOid: groupOid,
+            sameDefine : true,
+            sourceItemGroupOid: buffer.groupOid,
+            copyVlm: true,
+            detachMethods: true,
+            detachComments: true,
+        });
+
+        let position = currentGroup.itemRefOrder.indexOf(itemMenuParams.itemRefOid) + shift + 1;
+
+        this.props.addVariables({
+            itemGroupOid: groupOid,
+            position,
+            itemDefs,
+            itemRefs,
+            codeLists,
+            methods,
+            leafs,
+            comments,
+            valueLists,
+            whereClauses,
+            isVlm: itemMenuParams.vlmLevel > 0,
+        });
+        this.props.onClose();
+    }
+
     render() {
         const { hasVlm, vlmLevel } = this.props.itemMenuParams;
 
@@ -155,27 +224,57 @@ class ConnectedItemMenu extends React.Component {
                         Insert Line After
                     </MenuItem>
                     <Divider/>
-                    <MenuItem key='InsertBeforeDialog' onClick={this.insertRecordDialog(0)} disabled={this.props.reviewMode}>
-                        Insert Variable Before
+                    { (vlmLevel === 0) && ([
+                        (
+                            <MenuItem key='InsertBeforeDialog' onClick={this.insertRecordDialog(0)} disabled={this.props.reviewMode}>
+                                Insert Variable Before
+                            </MenuItem>
+                        ),(
+                            <MenuItem key='InsertAfterDialog' onClick={this.insertRecordDialog(1)} disabled={this.props.reviewMode}>
+                                Insert Variable After
+                            </MenuItem>
+                        ),(
+                            <Divider key='InsertDialogDivider'/>
+                        )]
+                    )}
+                    <MenuItem key='CopyVariable' onClick={this.copy} disabled={this.props.reviewMode}>
+                        Copy Variable
                     </MenuItem>
-                    <MenuItem key='InsertAfterDialog' onClick={this.insertRecordDialog(1)} disabled={this.props.reviewMode}>
-                        Insert Variable After
-                    </MenuItem>
+                    {[
+                        (
+                            <MenuItem
+                                key='PasteBefore'
+                                onClick={this.paste(0)}
+                                disabled={this.props.reviewMode || (this.props.buffer === undefined || this.props.buffer.vlmLevel !== vlmLevel)}
+                            >
+                                Paste {vlmLevel > 1 && 'VLM'} Variable Before
+                            </MenuItem>
+                        ),(
+                            <MenuItem
+                                key='PasteAfter'
+                                onClick={this.paste(1)}
+                                disabled={this.props.reviewMode || (this.props.buffer === undefined || this.props.buffer.vlmLevel !== vlmLevel)}
+                            >
+                                Paste {vlmLevel > 1 && 'VLM'} Variable After
+                            </MenuItem>
+                        )
+                    ]}
                     <Divider/>
                     { (!hasVlm && vlmLevel === 0) && (
                         <MenuItem key='AddVlm' onClick={this.addVlm} disabled={this.props.reviewMode}>
                             Add VLM
                         </MenuItem>
                     )}
-                    { hasVlm && (
-                        <MenuItem key='OrderVlm' onClick={this.openVlmOrder} disabled={this.props.reviewMode}>
-                            Order VLM
-                        </MenuItem>
-                    )}
-                    { hasVlm && (
-                        <MenuItem key='DeleteVlm' onClick={this.deleteVlm} disabled={this.props.reviewMode}>
-                            Delete VLM
-                        </MenuItem>
+                    { hasVlm && ([
+                        (
+                            <MenuItem key='OrderVlm' onClick={this.openVlmOrder} disabled={this.props.reviewMode}>
+                                Order VLM
+                            </MenuItem>
+                        ),(
+                            <MenuItem key='DeleteVlm' onClick={this.deleteVlm} disabled={this.props.reviewMode}>
+                                Delete VLM
+                            </MenuItem>
+                        )]
                     )}
                     <Divider/>
                     <MenuItem key='Delete' onClick={this.deleteItem} disabled={this.props.reviewMode}>
@@ -198,11 +297,14 @@ class ConnectedItemMenu extends React.Component {
 }
 
 ConnectedItemMenu.propTypes = {
-    itemMenuParams: PropTypes.object.isRequired,
-    anchorEl: PropTypes.object,
-    onAddVariable: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired,
-    reviewMode: PropTypes.bool,
+    itemMenuParams : PropTypes.object.isRequired,
+    mdv : PropTypes.object.isRequired,
+    anchorEl       : PropTypes.object,
+    onAddVariable  : PropTypes.func.isRequired,
+    onClose        : PropTypes.func.isRequired,
+    reviewMode     : PropTypes.bool,
+    buffer         : PropTypes.object,
+    baseFolder     : PropTypes.string.isRequired,
 };
 
 const ItemMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedItemMenu);

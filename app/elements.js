@@ -712,6 +712,7 @@ class ItemGroup extends BasicFunctions {
         archiveLocationId,
         commentOid,
         isNotStandard,
+        hasNoData,
         standardOid,
         alias,
         leaf,
@@ -733,6 +734,7 @@ class ItemGroup extends BasicFunctions {
         this.archiveLocationId = archiveLocationId;
         this.commentOid = commentOid;
         this.isNotStandard = isNotStandard;
+        this.hasNoData = hasNoData;
         this.standardOid = standardOid;
         this.descriptions = descriptions;
         this.itemRefs = itemRefs;
@@ -777,7 +779,6 @@ class ItemDef extends BasicFunctions {
         codeListOid,
         valueList,
         valueListOid,
-        parent,
         note,
         varLength,
         lengthAsData,
@@ -789,7 +790,7 @@ class ItemDef extends BasicFunctions {
     } = {}) {
         super();
         this.oid = oid || getOid(this.constructor.name);
-        this.name = name;
+        this.name = name || '';
         this.dataType = dataType;
         this.length = length;
         this.fractionDigits = fractionDigits;

@@ -369,6 +369,7 @@ class ConnectedCodedValueTable extends React.Component {
     deleteRows = () => {
         if (this.state.selectedRows.length > 0) {
             this.props.deleteCodedValues(this.props.codeListOid, this.state.selectedRows);
+            this.setState({ selectedRows: [] });
         }
     }
 

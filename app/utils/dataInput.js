@@ -8,6 +8,8 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import csv from 'csvtojson';
+import getOidByName from 'utils/getOidByName.js';
 import {
     updateMainUi
 } from 'actions/index.js';
@@ -53,6 +55,32 @@ const mapStateToProps = state => {
     };
 };
 
+async function parseData(data, mdv) {
+    let jsonData = await csv().fromString(data);
+    let result = {};
+    let wrongData = [];
+    jsonData.forEach( row => {
+        if (row.dataset) {
+            row.itemGroupOid = getOidByName(mdv, 'itemGroups', row.dataset);
+        }
+        if (row.variable && row.itemGroupOid !== undefined) {
+            if (row.variable.indexOf('.') < 0) {
+                row.itemOid = getOidByName(mdv, 'itemDefs', row.variable, row.itemGroupOid);
+            }
+        }
+        if (row.itemGroupOid !== undefined && row.itemOid !== undefined) {
+            if (result.hasOwnProperty(row.itemGroupOid)) {
+                result[row.itemGroupOid][row.itemOid] = { ...row };
+            } else {
+                result[row.itemGroupOid] = { [row.itemOid] : { ...row } };
+            }
+        } else {
+            wrongData.push(row);
+        }
+    });
+    console.log(result);
+}
+
 class ConnectedVariableTabUpdate extends React.Component {
     constructor (props) {
         super(props);
@@ -75,6 +103,7 @@ class ConnectedVariableTabUpdate extends React.Component {
     }
 
     import = () => {
+        parseData(this.state.data, this.props.mdv);
         this.props.updateMainUi({ showDataInput: false });
     }
 
@@ -88,7 +117,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                 open
                 PaperProps={{ className: classes.dialog }}
             >
-                <DialogTitle>Input Actual Data Attributes</DialogTitle>
+                <DialogTitle>Import Actual Data Attributes</DialogTitle>
                 <DialogContent>
                     <Grid container spacing={16} alignItems='flex-end'>
                         <Grid item xs={12}>
@@ -96,7 +125,8 @@ class ConnectedVariableTabUpdate extends React.Component {
                                 multiline
                                 fullWidth
                                 rows={20}
-                                onChange={this.handleChange}
+                                placeholder={"dataset,variable,length,crfPage\nADSL,AVAL,20,'5 6 7'\nADSL,AVAL.AST,8,'13-20'"}
+                                onChange={this.handleChange('input')}
                                 InputProps={{
                                     disableUnderline: true,
                                     classes: {

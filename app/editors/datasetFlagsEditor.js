@@ -24,6 +24,7 @@ class DatasetFlagsEditor extends React.Component {
         this.state = {
             repeating       : this.props.defaultValue.repeating === 'Yes',
             isReferenceData : this.props.defaultValue.isReferenceData === 'Yes',
+            hasNoData       : this.props.defaultValue.hasNoData === 'Yes',
         };
     }
 
@@ -39,6 +40,7 @@ class DatasetFlagsEditor extends React.Component {
         let result = {
             repeating       : this.state.repeating ? 'Yes' : 'No',
             isReferenceData : this.state.isReferenceData ? 'Yes' : 'No',
+            hasNoData       : this.state.hasNoData ? 'Yes' : 'No',
         };
         this.props.onUpdate(result);
     }
@@ -89,6 +91,18 @@ class DatasetFlagsEditor extends React.Component {
                                     />
                                 }
                                 label="Reference Data"
+                                className={classes.formControl}
+                            />
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={this.state.hasNoData}
+                                        color='primary'
+                                        onChange={this.handleChange('hasNoData')}
+                                        value="hasNoData"
+                                    />
+                                }
+                                label="Has&nbsp;No Data"
                                 className={classes.formControl}
                             />
                         </FormGroup>

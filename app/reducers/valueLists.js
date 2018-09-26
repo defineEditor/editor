@@ -316,11 +316,52 @@ const handleItemsBulkUpdate = (state, action) => {
     }
 };
 
-const addVariables = (state, action) => {
-    if (Object.keys(action.updateObj.valueLists).length > 0) {
-        return { ...state, ...action.updateObj.valueLists };
+const addVariable = (state, action) => {
+    // Check if order changed;
+    let ds = state[action.source.valueListOid];
+    let newItemRefOrder;
+    if (action.orderNumber - 1 <= ds.itemRefOrder.length) {
+        newItemRefOrder = ds.itemRefOrder.slice(0, action.orderNumber - 1).concat([action.itemRef.oid].concat(ds.itemRefOrder.slice(action.orderNumber - 1))) ;
     } else {
-        return state;
+        newItemRefOrder = ds.itemRefOrder.slice().concat([action.itemRef.oid]);
+    }
+    let newValueList =  { ...new ValueList({ ...state[action.source.valueListOid],
+        itemRefOrder : newItemRefOrder,
+        itemRefs     : { ...state[action.source.valueListOid].itemRefs, [action.itemRef.oid]: action.itemRef },
+    }) };
+    return { ...state, [action.source.valueListOid]: newValueList };
+};
+
+const addVariables = (state, action) => {
+    if (action.updateObj.isVlm) {
+        // In case items are added to ValueList
+        let itemRefs = action.updateObj.itemRefs[action.updateObj.itemGroupOid];
+        if (Object.keys(itemRefs).length > 0) {
+            let newState = { ...state };
+            Object.keys(itemRefs).forEach( (itemRefOid, index) => {
+                newState = addVariable( newState, {
+                    source: { valueListOid: action.updateObj.itemGroupOid },
+                    orderNumber: action.updateObj.position + index,
+                    itemRef: itemRefs[itemRefOid],
+                });
+            });
+            if (Object.keys(action.updateObj.valueLists).length > 0) {
+                newState = { ...newState, ...action.updateObj.valueLists };
+            }
+            return newState;
+        } else {
+            if (Object.keys(action.updateObj.valueLists).length > 0) {
+                return { ...state, ...action.updateObj.valueLists };
+            } else {
+                return state;
+            }
+        }
+    } else {
+        if (Object.keys(action.updateObj.valueLists).length > 0) {
+            return { ...state, ...action.updateObj.valueLists };
+        } else {
+            return state;
+        }
     }
 };
 

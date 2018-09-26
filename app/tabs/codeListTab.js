@@ -301,6 +301,7 @@ class ConnectedCodeListTable extends React.Component {
             itemDefOids,
         };
         this.props.deleteCodeLists(deleteObj);
+        this.setState({ selectedRows: [] });
     }
 
     // Row Selection functions
