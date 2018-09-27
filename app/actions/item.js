@@ -14,6 +14,7 @@ import {
     DEL_VARS,
     UPD_NAMELABELWHERECLAUSE,
     UPD_ITEMSBULK,
+    UPD_LOADACTUALDATA,
 } from "constants/action-types";
 
 // Item Ref/Def actions
@@ -143,5 +144,12 @@ export const addValueList = (source, valueListOid, itemDefOid, whereClauseOid) =
         valueListOid,
         itemDefOid,
         whereClauseOid,
+    }
+);
+
+export const loadActualData = (updateObj) => (
+    {
+        type: UPD_LOADACTUALDATA,
+        updateObj,
     }
 );

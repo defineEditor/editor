@@ -12,6 +12,7 @@ import {
     ADD_VALUELIST,
     INSERT_VAR,
     INSERT_VALLVL,
+    UPD_LOADACTUALDATA,
 } from "constants/action-types";
 import { ItemDef, TranslatedText, Origin } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -194,6 +195,33 @@ const insertValueLevel = (state, action) => {
     return { ...state, [action.itemDefOid]: newItemDef };
 };
 
+const handleActualData = (state, action) => {
+    let updateType = action.updateObj.updateType;
+    // Make the parsed data plain
+    let data = {};
+    Object.keys(action.updateObj.actualData.parsedData).forEach(itemGroupOid => {
+        Object.keys(action.updateObj.actualData.parsedData[itemGroupOid]).forEach(itemOid => {
+            data[itemOid] = action.updateObj.actualData.parsedData[itemGroupOid][itemOid];
+        });
+    });
+
+    let newState = { ...state };
+    let updatedItemDefOids = Object.keys(data);
+    Object.keys(state).forEach( itemDefOid => {
+        if (updatedItemDefOids.includes(itemDefOid)
+            &&
+            (updateType === 'all' || (state[itemDefOid].lengthAsData === true && updateType === 'actualData'))
+            &&
+            ['text', 'float', 'integer'].includes(state[itemDefOid].dataType)
+            &&
+            data[itemDefOid].length > 0
+        ) {
+            newState = { ...newState, [itemDefOid]: { ...new ItemDef({ ...state[itemDefOid], length: data[itemDefOid].length }) } };
+        }
+    });
+    return newState;
+};
+
 const updateItemsBulk = (state, action) => {
     // Check if the Bulk update is performed for one of the ItemDef attributes
     let field = action.updateObj.fields[0];
@@ -320,6 +348,8 @@ const itemDefs = (state = {}, action) => {
             return insertVariable(state, action);
         case INSERT_VALLVL:
             return insertValueLevel(state, action);
+        case UPD_LOADACTUALDATA:
+            return handleActualData(state, action);
         default:
             return state;
     }

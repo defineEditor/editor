@@ -672,6 +672,7 @@ class Odm {
         stylesheetLocation,
         defineId,
         isSaved,
+        actualData,
     } = {}) {
         this.schemaLocation = schemaLocation;
         this.odmVersion = odmVersion;
@@ -695,6 +696,7 @@ class Odm {
         // Non-define XML properties
         this.stylesheetLocation = stylesheetLocation;
         this.defineId = defineId;
+        this.actualData  = actualData;
     }
 }
 

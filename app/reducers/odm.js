@@ -1,6 +1,7 @@
 import {
     ADD_ODM,
     UPD_ODMATTRS,
+    UPD_LOADACTUALDATA,
     STUDY_DEL,
     DEFINE_DEL,
 } from 'constants/action-types';
@@ -32,12 +33,18 @@ const handleStudyDelete = (state, action) => {
     }
 };
 
+const loadActualData = (state, action) => {
+    return { ...state, actualData: action.updateObj.actualData };
+};
+
 const odm = (state = initialState, action) => {
     switch (action.type) {
         case ADD_ODM:
             return action.odm;
         case UPD_ODMATTRS:
             return updateOdmAttrs(state, action);
+        case UPD_LOADACTUALDATA:
+            return loadActualData({...state, study: study(state.study, action)}, action);
         case DEFINE_DEL:
             return handleDefineDelete(state, action);
         case STUDY_DEL:

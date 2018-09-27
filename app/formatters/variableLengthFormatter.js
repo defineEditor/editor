@@ -19,14 +19,14 @@ class VariableLengthFormatter extends React.Component {
         const lengthNotApplicable = (['float','text','integer'].indexOf(dataType) === -1) && !this.props.value.length;
 
         let length;
-        if (lengthAsData) {
-            length = 'No Data';
+        if (lengthAsData && !this.props.value.length) {
+            length = <abbr title='Actual Data'>AD</abbr>;
         } else if (lengthAsCodeList && this.props.row.codeList !== undefined) {
             length = <abbr title='Derived from the codelist'>{getMaxLength(this.props.row.codeList)}</abbr>;
         } else if (lengthNotApplicable) {
             length = <abbr title='Not applicable'>NA</abbr>;
         } else if (lengthAsData) {
-            length = <abbr title='Derived from data'>{this.props.value.length}</abbr>;
+            length = <abbr title='Actual Length'>{this.props.value.length}</abbr>;
         } else {
             length = this.props.value.length || '';
         }

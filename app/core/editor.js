@@ -7,7 +7,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import EditorTabs from 'tabs/editorTabs.js';
-import DataInput from 'utils/dataInput.js';
+import DataInput from 'components/utils/dataInput.js';
 import {
     changePage,
 } from 'actions/index.js';

@@ -15,9 +15,10 @@ const styles = theme => ({
         whiteSpace   : 'normal',
         overflowWrap : 'break-word',
     },
-    textField: {
+    root: {
+        outline: 'none',
     },
-    switch: {
+    textField: {
     },
 });
 
@@ -31,27 +32,40 @@ const mapStateToProps = state => {
 class ConnectedVariableLengthEditor extends React.Component {
     constructor (props) {
         super(props);
+        this.rootRef = React.createRef();
         this.state = {
-            length           : this.props.defaultValue.length,
-            fractionDigits   : this.props.defaultValue.fractionDigits,
-            lengthAsData     : this.props.defaultValue.lengthAsData ? true : false,
-            lengthAsCodeList : this.props.defaultValue.lengthAsCodeList ? true : false,
+            length           : props.defaultValue.length,
+            fractionDigits   : props.defaultValue.fractionDigits,
+            lengthAsData     : props.defaultValue.lengthAsData ? true : false,
+            lengthAsCodeList : props.defaultValue.lengthAsCodeList ? true : false,
+            lengthNotApplicable: !props.lengthForAllDataTypes ||
+            ((['float','text','integer'].indexOf(props.row.dataType) === -1) && !props.defaultValue.length),
         };
+    }
+
+    componentDidMount() {
+        // If not applicable, then manually set focus, so that shortcuts work
+        if (this.state.lengthNotApplicable) {
+            this.rootRef.current.focus();
+        }
     }
 
     handleChange = name => event => {
         if (name === 'lengthAsData') {
-            this.setState({ [name]: event.target.checked });
+            let lengthAsCodeList;
             if (this.state.lengthAsCodeList === true) {
-                this.setState({lengthAsCodeList: false});
+                lengthAsCodeList = false;
             }
+            this.setState({ [name]: event.target.checked, lengthAsCodeList, length: undefined });
         } else if (name === 'lengthAsCodeList') {
             this.setState({ [name]: event.target.checked });
             if (this.state.lengthAsData === true) {
                 this.setState({lengthAsData: false});
             }
         } else {
-            this.setState({ [name]: event.target.value });
+            if (/^\d*$/.test(event.target.value)) {
+                this.setState({ [name]: event.target.value });
+            }
         }
     }
 
@@ -77,7 +91,7 @@ class ConnectedVariableLengthEditor extends React.Component {
         const lengthAsCodeList = this.state.lengthAsCodeList;
         const hasCodeList = this.props.row.codeList !== undefined;
         const dataType = this.props.row.dataType;
-        const lengthNotApplicable = this.props.lengthForAllDataTypes || ((['float','text','integer'].indexOf(dataType) === -1) && !this.state.length);
+        const lengthNotApplicable = this.state.lengthNotApplicable;
 
         let length;
         if (lengthAsData) {
@@ -91,63 +105,70 @@ class ConnectedVariableLengthEditor extends React.Component {
         }
         const fractionDigits = this.state.fractionDigits || '';
         return (
-            <Grid container spacing={0} onKeyDown={this.onKeyDown} tabIndex='0'>
-                <Grid item xs={12}>
-                    <FormGroup row>
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    color='primary'
-                                    checked={this.state.lengthAsData}
-                                    onChange={this.handleChange('lengthAsData')}
-                                    className={classes.switch}
-                                    disabled={lengthNotApplicable}
-                                />
-                            }
-                            label="Actual Length"
-                            className={classes.formControl}
-                        />
-                        { hasCodeList &&
-                                <FormControlLabel
-                                    control={
-                                        <Switch
-                                            color='primary'
-                                            checked={this.state.lengthAsCodeList}
-                                            onChange={this.handleChange('lengthAsCodeList')}
-                                            className={classes.switch}
-                                        />
-                                    }
-                                    label="Codelist Length"
-                                    className={classes.formControl}
-                                    disabled={lengthNotApplicable}
-                                />
-                        }
-                    </FormGroup>
-                </Grid>
-                <Grid item xs={12}>
-                    <TextField
-                        label='Length'
-                        autoFocus
-                        value={length}
-                        onChange={this.handleChange('length')}
-                        className={classes.textField}
-                        disabled={lengthAsData || lengthAsCodeList || lengthNotApplicable}
-                    />
-                </Grid>
-                { dataType === 'float' &&
-                        <Grid item xs={12}>
-                            <TextField
-                                label='Fraction Digits'
-                                value={fractionDigits}
-                                onChange={this.handleChange('fractionDigits')}
-                                className={classes.textField}
+            <div
+                onKeyDown={this.onKeyDown}
+                tabIndex='0'
+                ref={this.rootRef}
+                className={classes.root}
+            >
+                <Grid container spacing={0}>
+                    <Grid item xs={12}>
+                        <FormGroup row>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        color='primary'
+                                        checked={this.state.lengthAsData}
+                                        onChange={this.handleChange('lengthAsData')}
+                                        disabled={lengthNotApplicable}
+                                    />
+                                }
+                                label="Actual Length"
+                                className={classes.formControl}
                             />
-                        </Grid>
-                }
-                <Grid item xs={12}>
-                    <SaveCancel mini icon save={this.save} cancel={this.cancel}/>
+                            { hasCodeList &&
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                color='primary'
+                                                checked={this.state.lengthAsCodeList}
+                                                onChange={this.handleChange('lengthAsCodeList')}
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label="Codelist Length"
+                                        className={classes.formControl}
+                                        disabled={lengthNotApplicable}
+                                    />
+                            }
+                        </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label='Length'
+                            autoFocus
+                            error={ (length < 1 || length > 200) && length !== '' }
+                            value={length}
+                            onChange={this.handleChange('length')}
+                            className={classes.textField}
+                            disabled={lengthAsData || lengthAsCodeList || lengthNotApplicable}
+                        />
+                    </Grid>
+                    { dataType === 'float' &&
+                            <Grid item xs={12}>
+                                <TextField
+                                    label='Fraction Digits'
+                                    value={fractionDigits}
+                                    onChange={this.handleChange('fractionDigits')}
+                                    className={classes.textField}
+                                />
+                            </Grid>
+                    }
+                    <Grid item xs={12}>
+                        <SaveCancel mini icon save={this.save} cancel={this.cancel}/>
+                    </Grid>
                 </Grid>
-            </Grid>
+            </div>
         );
     }
 }
