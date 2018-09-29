@@ -14,9 +14,12 @@ function loadState() {
 
     // Update UI structure with initial values, this is required when schema changed and old UI does not have required properties
     Object.keys(uiInitialValues).forEach( uiType =>  {
-        if (state.ui.hasOwnProperty(uiType)) {
+        if (state.hasOwnProperty('ui') && state.ui.hasOwnProperty(uiType)) {
             state.ui[uiType] = { ...uiInitialValues[uiType], ...state.ui[uiType] };
         } else {
+            if (!state.hasOwnProperty('ui')) {
+                state.ui = {};
+            }
             state.ui[uiType] = { ...uiInitialValues[uiType] };
         }
     });
@@ -25,10 +28,6 @@ function loadState() {
     state.odm = {};
 
     state.stdCodeLists = {};
-    //delete stateToSave.odm;
-    //delete stateToSave.stdConstants;
-    //delete stateToSave.stdCodeLists;
-    //delete stateToSave.ui.tabs;
     return { ...state };
 }
 

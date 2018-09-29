@@ -6,7 +6,6 @@ import AppBar from '@material-ui/core/AppBar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import Grid from '@material-ui/core/Grid';
-import Avatar from 'static/images/avatars/whale.png';
 import {
     toggleMainMenu,
 } from 'actions/index.js';
@@ -18,11 +17,8 @@ const styles = theme => ({
     navBarItem: {
         marginTop: theme.spacing.unit,
     },
-    avatar: {
-        margin      : 10,
+    menu: {
         marginRight : theme.spacing.unit * 2,
-        width       : 30,
-        height      : 30,
     },
 });
 
@@ -44,8 +40,8 @@ class ConnectedNavigationBar extends React.Component {
         const { classes } = this.props;
         return (
             <AppBar position="fixed" color='default'>
-                <Grid container justify='space-between'>
-                    <Grid item>
+                <Grid container justify='flex-start'>
+                    <Grid item className={classes.menu}>
                         <IconButton
                             color='default'
                             onClick={this.props.toggleMainMenu}
@@ -61,13 +57,6 @@ class ConnectedNavigationBar extends React.Component {
                             </Grid>
                         </Grid>
                     )}
-                    <Grid item>
-                        <img
-                            alt="User"
-                            src={Avatar}
-                            className={classes.avatar}
-                        />
-                    </Grid>
                 </Grid>
             </AppBar>
         );

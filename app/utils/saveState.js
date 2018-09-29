@@ -33,8 +33,10 @@ function saveState(type) {
     delete stateToSave.stdCodeLists;
     delete stateToSave.ui.tabs;
 
-    eStore.clear();
-    eStore.set(stateToSave);
+    if (Object.keys(stateToSave).length > 0) {
+        eStore.clear();
+        eStore.set(stateToSave);
+    }
 }
 
 export default saveState;

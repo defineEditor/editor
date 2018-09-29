@@ -224,7 +224,6 @@ class ConnectedVariableTab extends React.Component {
             }
         }
 
-
         return (
             <React.Fragment>
                 { (groupOid !== undefined) ? (

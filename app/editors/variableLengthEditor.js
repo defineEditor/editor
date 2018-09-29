@@ -26,20 +26,41 @@ const styles = theme => ({
 const mapStateToProps = state => {
     return {
         lengthForAllDataTypes : state.present.settings.editor.lengthForAllDataTypes,
+        actualData            : state.present.odm.actualData,
     };
 };
 
 class ConnectedVariableLengthEditor extends React.Component {
     constructor (props) {
         super(props);
+        let lengthNotApplicable;
+        if ( props.lengthForAllDataTypes
+            ||
+            ['float','text','integer'].indexOf(props.row.dataType) >= 0
+            ||
+            props.defaultValue.length
+        ) {
+            lengthNotApplicable = false;
+        } else {
+            lengthNotApplicable = true;
+        }
+
+        let actualLength;
+        if (props.actualData.hasOwnProperty('parsedData')
+            &&
+            props.actualData.parsedData.hasOwnProperty(props.row.datasetOid)
+            &&
+            props.actualData.parsedData[props.row.datasetOid].hasOwnProperty(props.row.oid)) {
+            actualLength = props.actualData.parsedData[props.row.datasetOid][props.row.oid].length;
+        }
         this.rootRef = React.createRef();
         this.state = {
             length           : props.defaultValue.length,
             fractionDigits   : props.defaultValue.fractionDigits,
             lengthAsData     : props.defaultValue.lengthAsData ? true : false,
             lengthAsCodeList : props.defaultValue.lengthAsCodeList ? true : false,
-            lengthNotApplicable: !props.lengthForAllDataTypes ||
-            ((['float','text','integer'].indexOf(props.row.dataType) === -1) && !props.defaultValue.length),
+            actualLength,
+            lengthNotApplicable,
         };
     }
 
@@ -56,7 +77,11 @@ class ConnectedVariableLengthEditor extends React.Component {
             if (this.state.lengthAsCodeList === true) {
                 lengthAsCodeList = false;
             }
-            this.setState({ [name]: event.target.checked, lengthAsCodeList, length: undefined });
+            let length;
+            if (event.target.checked === true) {
+                length = this.state.actualLength;
+            }
+            this.setState({ [name]: event.target.checked, lengthAsCodeList, length });
         } else if (name === 'lengthAsCodeList') {
             this.setState({ [name]: event.target.checked });
             if (this.state.lengthAsData === true) {
@@ -95,7 +120,7 @@ class ConnectedVariableLengthEditor extends React.Component {
 
         let length;
         if (lengthAsData) {
-            length = 'No Data';
+            length = this.state.actualLength || 'No Data';
         } else if (lengthAsCodeList && hasCodeList) {
             length = getMaxLength(this.props.row.codeList);
         } else if (lengthNotApplicable) {
@@ -178,6 +203,7 @@ ConnectedVariableLengthEditor.propTypes = {
     defaultValue          : PropTypes.object.isRequired,
     onUpdate              : PropTypes.func.isRequired,
     lengthForAllDataTypes : PropTypes.bool.isRequired,
+    actualData            : PropTypes.object,
 };
 
 const VariableLengthEditor = connect(mapStateToProps)(ConnectedVariableLengthEditor);
