@@ -151,7 +151,7 @@ class ConnectedSelectMethodComment extends React.Component {
                         <Grid item xs={2} className={classes.icon}>
                             <IconButton
                                 onClick={this.props.onClose}
-                                color='default'
+                                color='secondary'
                                 className={classes.iconButton}
                             >
                                 <CloseIcon/>

@@ -5,6 +5,7 @@ import { ActionCreators } from 'redux-undo';
 import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {
     deleteItemGroups,
+    updateDefine,
 } from 'actions/index.js';
 
 function sendDefineObject (event, data) {
@@ -67,7 +68,20 @@ function sendDefineObject (event, data) {
         }
     });
 
+    // If define does not have pathToFile, use the save file as location of the Define-XML
+    if (odm.defineId
+        &&
+        state.defines.byId.hasOwnProperty(odm.defineId)
+        &&
+        !state.defines.byId[odm.defineId].pathToFile
+    ) {
+        ipcRenderer.once('fileSavedAs', (event, savePath) => {
+            store.dispatch(updateDefine({ defineId: odm.defineId , properties: { pathToFile: savePath } }));
+        });
+    }
+
     ipcRenderer.send('saveAs', { odm });
+
 }
 
 export default sendDefineObject;

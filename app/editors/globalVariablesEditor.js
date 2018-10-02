@@ -59,7 +59,7 @@ class GlobalVariablesEditor extends React.Component {
                 <List>
                     <ListItem dense>
                         <TextField
-                            label='Study Name'
+                            label='Study OID'
                             value={this.state.studyOid}
                             fullWidth
                             onChange={this.handleChange('studyOid')}

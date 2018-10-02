@@ -14,6 +14,7 @@ import {
     DEL_VARS,
     ADD_VARS,
     DEL_ITEMGROUPS,
+    UPD_STDCT,
 } from "constants/action-types";
 import { CodeList, CodeListItem, EnumeratedItem, Alias } from 'elements.js';
 import getOid from 'utils/getOid.js';
@@ -761,6 +762,31 @@ const handleAddVariables = (state, action) => {
     }
 };
 
+const handleDeleteStdCodeLists = (state, action) => {
+    if (action.updateObj.removedStandardOids.length > 0) {
+        // Find all codelists using the removed CT
+        let codeListOids = [];
+        Object.keys(state).forEach( codeListOid => {
+            action.updateObj.removedStandardOids.forEach( ctId => {
+                if (state[codeListOid].standardOid === ctId) {
+                    codeListOids.push(codeListOid);
+                }
+            });
+        });
+        if (codeListOids.length > 0) {
+            let newState = { ...state };
+            codeListOids.forEach( codeListOid => {
+                newState = { ...newState, [codeListOid]: { ...new CodeList({ ...state[codeListOid], standardOid: undefined }) } };
+            });
+            return newState;
+        } else {
+            return state;
+        }
+    } else {
+        return state;
+    }
+};
+
 
 const codeLists = (state = {}, action) => {
     switch (action.type) {
@@ -794,6 +820,8 @@ const codeLists = (state = {}, action) => {
             return handleAddVariables(state, action);
         case DEL_ITEMGROUPS:
             return deleteItemGroups(state, action);
+        case UPD_STDCT:
+            return handleDeleteStdCodeLists(state, action);
         default:
             return state;
     }

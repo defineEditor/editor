@@ -23,12 +23,16 @@ class editingControlIcons extends React.Component {
                 <IconButton color='primary' onClick={this.props.onSave} className={classes.icon}>
                     <SaveIcon/>
                 </IconButton>
-                <IconButton color='default' onClick={this.props.onComment} className={classes.icon}>
-                    <CommentIcon/>
-                </IconButton>
-                <IconButton color='default' onClick={this.props.onHelp} className={classes.icon}>
-                    <HelpIcon/>
-                </IconButton>
+                { this.props.onComment !== undefined && (
+                    <IconButton color='default' onClick={this.props.onComment} className={classes.icon}>
+                        <CommentIcon/>
+                    </IconButton>
+                )}
+                { this.props.onHelp !== undefined && (
+                    <IconButton color='default' onClick={this.props.onHelp} className={classes.icon}>
+                        <HelpIcon/>
+                    </IconButton>
+                )}
                 { this.props.onSort !== undefined && (
                     <IconButton color='default' onClick={this.props.onSort} className={classes.icon}>
                         <LowPriority/>

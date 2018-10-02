@@ -82,6 +82,8 @@ class ConnectedMainMenu extends React.Component {
     onKeyDown = (event)  => {
         if (event.ctrlKey && (event.keyCode === 77)) {
             this.props.toggleMainMenu();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.save(true);
         }
     }
 
@@ -89,9 +91,11 @@ class ConnectedMainMenu extends React.Component {
         remote.getCurrentWindow().webContents.print();
     }
 
-    save = () => {
+    save = (noToggle) => {
         saveState();
-        this.props.toggleMainMenu();
+        if (!noToggle) {
+            this.props.toggleMainMenu();
+        }
     }
 
     render() {

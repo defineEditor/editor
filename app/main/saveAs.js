@@ -4,7 +4,7 @@ const fs = require('fs');
 const createDefine = require('../core/createDefine.js');
 
 // Create Define-XML
-const convertToDefineXml = (data) => (savePath) => {
+const convertToDefineXml = (mainWindow, data) => (savePath) => {
     let defineXml = createDefine(data.odm, '2.0.0');
     let stylesheetLocation = data.odm.stylesheetLocation;
     let xmlProlog;
@@ -17,7 +17,11 @@ const convertToDefineXml = (data) => (savePath) => {
 `;
     }
     fs.writeFile(savePath, xmlProlog + defineXml, function (err) {
-        if (err) throw err;
+        if (err) {
+            throw err;
+        } else {
+            mainWindow.webContents.send('fileSavedAs', savePath);
+        }
     });
 };
 
@@ -28,7 +32,7 @@ function saveAs (mainWindow, data) {
             title   : 'Export Define-XML',
             filters : [{name: 'XML files', extensions: ['xml']}],
         },
-        convertToDefineXml(data));
+        convertToDefineXml(mainWindow, data));
 }
 
 module.exports = saveAs;

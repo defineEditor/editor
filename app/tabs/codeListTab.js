@@ -171,6 +171,7 @@ class ConnectedCodeListTable extends React.Component {
     menuFormatter = (cell, row) => {
         let codeListMenuParams = {
             codeListOid: row.oid,
+            codeListType: row.codeListType,
         };
         return (
             <IconButton
@@ -192,9 +193,11 @@ class ConnectedCodeListTable extends React.Component {
     }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
+        if (cellValue === '' && cellName === 'linkedCodeList') {
+            cellValue = undefined;
+        }
         // Update on if the value changed
         if (!deepEqual(row[cellName], cellValue)) {
-
             let updateObj = {};
             if (cellName === 'linkedCodeList') {
                 // Linking a codelist may change of the enumeration codelist, so provide standardCodelist for the enumerated codelist

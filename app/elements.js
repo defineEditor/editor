@@ -768,6 +768,26 @@ class ItemGroup extends BasicFunctions {
     }
 }
 
+class DatasetClass {
+    constructor({
+        name,
+        subClasses = [],
+    } = {}) {
+        this.name = name;
+        this.subClasses = subClasses;
+    }
+}
+
+class DatasetSubClass {
+    constructor({
+        name,
+        parentClass,
+    } = {}) {
+        this.name = name;
+        this.parentClass = parentClass;
+    }
+}
+
 class ItemDef extends BasicFunctions {
     constructor({
         oid,
@@ -838,16 +858,18 @@ class ItemRef {
         role,
         roleCodeListOid,
         itemOid,
+        hasNoData,
         isNotStandatd,
         whereClauseOid
     } = {}) {
         this.mandatory = mandatory;
         this.methodOid = methodOid;
-        this.isNotStandard = isNotStandatd;
         this.role = role;
         this.roleCodeListOid = roleCodeListOid;
         this.itemOid = itemOid;
         this.whereClauseOid = whereClauseOid;
+        this.isNotStandard = isNotStandatd;
+        this.hasNoData = hasNoData; // 2.1
         // Non-define XML properties
         this.oid = oid || getOid(this.constructor.name);
     }
@@ -892,6 +914,8 @@ module.exports = {
     WhereClause: WhereClause,
     RangeCheck: RangeCheck,
     ItemGroup: ItemGroup,
+    DatasetClass: DatasetClass,
+    DatasetSubClass: DatasetSubClass,
     ItemRef: ItemRef,
     ItemDef: ItemDef,
     CodeList: CodeList,

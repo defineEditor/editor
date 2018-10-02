@@ -29,9 +29,11 @@ class ConnectedFormattingControlIcons extends React.Component {
                         <EditIcon/>
                     </IconButton>
                 )}
-                <IconButton color='default' onClick={this.props.onComment} className={classes.icon}>
-                    <CommentIcon/>
-                </IconButton>
+                { this.props.onComment !== undefined && (
+                    <IconButton color='default' onClick={this.props.onComment} className={classes.icon}>
+                        <CommentIcon/>
+                    </IconButton>
+                )}
             </React.Fragment>
         );
     }

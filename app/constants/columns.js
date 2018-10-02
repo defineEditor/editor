@@ -15,6 +15,7 @@ const datasets = {
     },
     description: {
         text    : 'Description',
+        width   : '15%',
         tdStyle : { whiteSpace: 'normal' },
         thStyle : { whiteSpace: 'normal' }
     },
@@ -27,7 +28,7 @@ const datasets = {
     domainAttrs: {
         text    : 'Domain',
         width   : '115px',
-        tdStyle : { whiteSpace: 'normal' },
+        tdStyle : { whiteSpace: 'normal', overflowWrap: 'break-word' },
         thStyle : { whiteSpace: 'normal' },
     },
     flags: {
@@ -38,6 +39,7 @@ const datasets = {
     },
     structure: {
         text    : 'Structure',
+        width   : '10%',
         tdStyle : { whiteSpace: 'normal' },
         thStyle : { whiteSpace: 'normal' },
     },
@@ -49,13 +51,14 @@ const datasets = {
     },
     comment: {
         text    : 'Comment',
-        width   : '35%',
+        width   : '30%',
         tdStyle : { whiteSpace: 'pre-wrap' },
         thStyle : { whiteSpace: 'normal' },
     },
     leaf: {
         dataField : 'leaf',
         text      : 'Location',
+        width     : '7%',
         tdStyle   : { whiteSpace: 'normal' },
         thStyle   : { whiteSpace: 'normal' }
     }
@@ -93,7 +96,7 @@ const variables = {
     },
     lengthAttrs: {
         text    : 'Length',
-        width   : '110px',
+        width   : '115px',
         hidden  : false,
         tdStyle : { whiteSpace: 'normal' },
         thStyle : { whiteSpace: 'normal' }

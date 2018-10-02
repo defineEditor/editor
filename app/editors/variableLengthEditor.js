@@ -26,7 +26,7 @@ const styles = theme => ({
 const mapStateToProps = state => {
     return {
         lengthForAllDataTypes : state.present.settings.editor.lengthForAllDataTypes,
-        actualData            : state.present.odm.actualData,
+        actualData            : state.present.odm.actualData || {},
     };
 };
 
@@ -83,10 +83,12 @@ class ConnectedVariableLengthEditor extends React.Component {
             }
             this.setState({ [name]: event.target.checked, lengthAsCodeList, length });
         } else if (name === 'lengthAsCodeList') {
-            this.setState({ [name]: event.target.checked });
+            let lengthAsData;
             if (this.state.lengthAsData === true) {
-                this.setState({lengthAsData: false});
+                lengthAsData = false;
             }
+            let length = getMaxLength(this.props.row.codeList);
+            this.setState({ [name]: event.target.checked, lengthAsData, length });
         } else {
             if (/^\d*$/.test(event.target.value)) {
                 this.setState({ [name]: event.target.value });

@@ -66,7 +66,7 @@ class VariableCodeListFormatEditor extends React.Component {
         let codeLists = sortedCodeListIds.map( codeListOid => {
             let result = {};
             if (this.props.defaultValue.dataType === undefined || this.props.defaultValue.dataType === this.props.codeLists[codeListOid].dataType) {
-                result[codeListOid] = this.props.codeLists[codeListOid].name + ' (' + codeListOid + ')';
+                result[codeListOid] = this.props.codeLists[codeListOid].name;
             }
             return result;
         });

@@ -40,7 +40,8 @@ const installExtensions = async () => {
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 768,
-        height: 2014,
+        height: 1024,
+        center: true,
         show: false,
         icon: __dirname + '/static/images/avatars/fox.png',
     });

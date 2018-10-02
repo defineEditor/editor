@@ -51,6 +51,14 @@ class ConnectedItemMenu extends React.Component {
         };
     }
 
+    componentDidMount() {
+        window.addEventListener('keydown', this.onKeyDown);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('keydown', this.onKeyDown);
+    }
+
     openVlmOrder = () => {
         this.setState({ openVlmOrder: true });
     }
@@ -189,6 +197,23 @@ class ConnectedItemMenu extends React.Component {
         this.props.onClose();
     }
 
+    onKeyDown = (event)  => {
+        // Do not use shortcuts when VLM order is opened
+        if (this.state.openVlmOrder) {
+            return;
+        }
+        if (event.keyCode === 73) {
+            this.insertRecord(1)();
+        } else if (event.keyCode === 67) {
+            this.copy();
+        } else if (event.keyCode === 80
+            &&
+            !(this.props.reviewMode || (this.props.buffer === undefined || this.props.buffer.vlmLevel !== this.props.itemMenuParams.vlmLevel)) ) {
+            this.paste(1)();
+            this.copy();
+        }
+    }
+
     render() {
         const { hasVlm, vlmLevel } = this.props.itemMenuParams;
 
@@ -205,7 +230,7 @@ class ConnectedItemMenu extends React.Component {
             });
         }
         return (
-            <React.Fragment>
+            <div>
                 <Menu
                     id="itemMenu"
                     anchorEl={this.props.anchorEl}
@@ -217,45 +242,45 @@ class ConnectedItemMenu extends React.Component {
                         },
                     }}
                 >
-                    <MenuItem key='InsertBefore' onClick={this.insertRecord(0)} disabled={this.props.reviewMode}>
-                        Insert Line Before
+                    <MenuItem key='InsertAbove' onClick={this.insertRecord(0)} disabled={this.props.reviewMode}>
+                        Insert Row Above
                     </MenuItem>
-                    <MenuItem key='InsertAfter' onClick={this.insertRecord(1)} disabled={this.props.reviewMode}>
-                        Insert Line After
+                    <MenuItem key='InsertBelow' onClick={this.insertRecord(1)} disabled={this.props.reviewMode}>
+                        <u>I</u>nsert Row Below
                     </MenuItem>
                     <Divider/>
                     { (vlmLevel === 0) && ([
                         (
-                            <MenuItem key='InsertBeforeDialog' onClick={this.insertRecordDialog(0)} disabled={this.props.reviewMode}>
-                                Insert Variable Before
+                            <MenuItem key='InsertAboveDialog' onClick={this.insertRecordDialog(0)} disabled={this.props.reviewMode}>
+                                Insert Variable Above
                             </MenuItem>
                         ),(
-                            <MenuItem key='InsertAfterDialog' onClick={this.insertRecordDialog(1)} disabled={this.props.reviewMode}>
-                                Insert Variable After
+                            <MenuItem key='InsertBelowDialog' onClick={this.insertRecordDialog(1)} disabled={this.props.reviewMode}>
+                                Insert Variable Below
                             </MenuItem>
                         ),(
                             <Divider key='InsertDialogDivider'/>
                         )]
                     )}
                     <MenuItem key='CopyVariable' onClick={this.copy} disabled={this.props.reviewMode}>
-                        Copy Variable
+                        <u>C</u>opy Variable
                     </MenuItem>
                     {[
                         (
                             <MenuItem
-                                key='PasteBefore'
+                                key='PasteAbove'
                                 onClick={this.paste(0)}
                                 disabled={this.props.reviewMode || (this.props.buffer === undefined || this.props.buffer.vlmLevel !== vlmLevel)}
                             >
-                                Paste {vlmLevel > 1 && 'VLM'} Variable Before
+                                Paste {vlmLevel > 1 && 'VLM'} Variable Above
                             </MenuItem>
                         ),(
                             <MenuItem
-                                key='PasteAfter'
+                                key='PasteBelow'
                                 onClick={this.paste(1)}
                                 disabled={this.props.reviewMode || (this.props.buffer === undefined || this.props.buffer.vlmLevel !== vlmLevel)}
                             >
-                                Paste {vlmLevel > 1 && 'VLM'} Variable After
+                                <u>P</u>aste {vlmLevel > 1 && 'VLM'} Variable Below
                             </MenuItem>
                         )
                     ]}
@@ -291,7 +316,7 @@ class ConnectedItemMenu extends React.Component {
                             width='700px'
                         />
                 }
-            </React.Fragment>
+            </div>
         );
     }
 }

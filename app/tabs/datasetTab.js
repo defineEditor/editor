@@ -388,6 +388,9 @@ class ConnectedDatasetTable extends React.Component {
                 leafs         : this.props.leafs,
                 classTypes    : this.props.classTypes,
             };
+            if (originDs.datasetClass !== undefined) {
+                currentDs.datasetClass = originDs.datasetClass.name;
+            }
             currentDs.description = getDescription(originDs);
             currentDs.comment = originDs.commentOid === undefined ? undefined : this.props.comments[originDs.commentOid];
             currentDs.leaf = originDs.leaf === undefined ? undefined : { ...originDs.leaf, baseFolder: this.props.pathToDefine };

@@ -78,7 +78,7 @@ class OdmAttributesEditor extends React.Component {
                     </ListItem>
                     <ListItem dense>
                         <TextField
-                            label='Database Query Datetime'
+                            label='Database Query Datetime (YYYY-MM-DDTHH:MM:SS)'
                             value={this.state.asOfDateTime}
                             fullWidth
                             error={asOfDateTimeValidation}

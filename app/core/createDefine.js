@@ -302,6 +302,10 @@ function createWhereClauseDef (data, version) {
 function createItemGroupDef (data, version) {
     let result = {};
     if (version === '2.0.0') {
+        let datasetClass;
+        if (data.datasetClass !== undefined) {
+            datasetClass = data.datasetClass.name;
+        }
         let attributes = {
             'OID'                   : data.oid,
             'Name'                  : data.name,
@@ -311,13 +315,10 @@ function createItemGroupDef (data, version) {
             'Domain'                : data.domain,
             'Purpose'               : data.purpose,
             'def:Structure'         : data.structure,
-            'def:Class'             : data.datasetClass,
+            'def:Class'             : datasetClass,
             'def:ArchiveLocationID' : data.archiveLocationId,
             'def:CommentOID'        : data.commentOid,
         };
-        if (data.archiveLocation !== undefined) {
-            Object.assign(attributes, {'def:ArchiveLocationID': data.archiveLocationId});
-        }
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];

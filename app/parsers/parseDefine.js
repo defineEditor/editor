@@ -572,7 +572,7 @@ function parseItemGroups (itemGroupsRaw, mdv) {
             delete args['sASDatasetName'];
         }
         if (args.hasOwnProperty('class')) {
-            args.datasetClass = args['class'];
+            args.datasetClass = new def.DatasetClass({name: args['class']});
             delete args['class'];
         }
         if (itemGroupRaw.hasOwnProperty('alias')) {

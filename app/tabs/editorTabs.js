@@ -91,14 +91,24 @@ class ConnectedEditorTabs extends React.Component {
             this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Documents'));
         } else if (event.ctrlKey && (event.keyCode === 54)) {
             this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Standards'));
-        } else if (event.ctrlKey && (event.keyCode === 9)) {
+        } else if (event.ctrlKey && (event.keyCode === 187 || event.keyCode === 189)) {
             // Change to the next tab
             let currentTab = this.props.tabs.currentTab;
             let tabCount = this.props.tabs.tabNames.length;
-            if (currentTab + 1 < tabCount) {
-                this.handleChange(undefined, currentTab + 1);
+            let shift;
+            if (event.keyCode === 187) {
+                shift = 1;
+            } else if (event.keyCode === 189) {
+                shift = -1;
+            }
+            if ( (currentTab + shift) < tabCount && (currentTab + shift) >= 0) {
+                this.handleChange(undefined, currentTab + shift);
             } else {
-                this.handleChange(undefined, 0);
+                if (shift < 0) {
+                    this.handleChange(undefined, tabCount - 1);
+                } else if (shift > 0) {
+                    this.handleChange(undefined, 0);
+                }
             }
         }
     }

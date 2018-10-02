@@ -303,7 +303,7 @@ class ConnectedStandardTable extends React.Component {
         } else if (name === 'otherAttrs') {
             updateObj.defineId = this.props.defineId;
             updateObj.properties = {};
-            // Check which properties changed;
+            // Check which properties changed
             for (let prop in returnValue) {
                 if (this.props.otherAttrs[prop] !== returnValue[prop]) {
                     if (returnValue[prop].replace(/ /g,'') === '') {

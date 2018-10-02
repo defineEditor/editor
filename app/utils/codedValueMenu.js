@@ -71,20 +71,20 @@ class ConnectedCodedValueMenu extends React.Component {
                       }
                   }}
               >
-                  <MenuItem key="InsertBefore" onClick={this.insertRecord(0)} disabled={this.props.reviewMode}>
-            Insert Before
+                  <MenuItem key="InsertAbove" onClick={this.insertRecord(0)} disabled={this.props.reviewMode}>
+            Insert Above
                   </MenuItem>
-                  <MenuItem key="InsertAfter" onClick={this.insertRecord(1)} disabled={this.props.reviewMode}>
-            Insert After
+                  <MenuItem key="InsertBelow" onClick={this.insertRecord(1)} disabled={this.props.reviewMode}>
+            Insert Below
                   </MenuItem>
                   {hasStandard && (
                       [
                           <Divider key='Divider' />,
-                          <MenuItem key='InsertStdBefore' onClick={this.insertStdRecord(0)} disabled={this.props.reviewMode}>
-                Insert Std. Codes Before
+                          <MenuItem key='InsertStdAbove' onClick={this.insertStdRecord(0)} disabled={this.props.reviewMode}>
+                Insert Std. Codes Above
                           </MenuItem>,
-                          <MenuItem key='InsertStdAfter' onClick={this.insertStdRecord(1)} disabled={this.props.reviewMode}>
-                Insert Std. Codes After
+                          <MenuItem key='InsertStdBelow' onClick={this.insertStdRecord(1)} disabled={this.props.reviewMode}>
+                Insert Std. Codes Below
                           </MenuItem>
                       ]
                   )}

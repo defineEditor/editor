@@ -69,9 +69,11 @@ class ConnectedCodeListMenu extends React.Component {
                         },
                     }}
                 >
-                    <MenuItem key='EditCodelistValues' onClick={this.editCodeListValues}>
-                        View Codelist Values
-                    </MenuItem>
+                    { !(this.props.codeListMenuParams.codeListType === 'external') && (
+                        <MenuItem key='EditCodelistValues' onClick={this.editCodeListValues}>
+                            View Codelist Values
+                        </MenuItem>
+                    )}
                     <MenuItem key='Delete' onClick={this.deleteCodeList} disabled={this.props.reviewMode}>
                         Delete
                     </MenuItem>

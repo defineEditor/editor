@@ -16,7 +16,7 @@ import {
     UPD_KEYOREDER,
     INSERT_VAR,
 } from "constants/action-types";
-import { ItemGroup, TranslatedText, Leaf, ItemRef } from 'elements.js';
+import { ItemGroup, TranslatedText, DatasetClass, Leaf, ItemRef } from 'elements.js';
 import getOid from 'utils/getOid.js';
 
 const addItemGroup = (state, action) => {
@@ -55,6 +55,16 @@ const updateItemGroup = (state, action) => {
             // Otherwise update the description and set language to standard;
             let newDescription = { ...new TranslatedText({value: updateObj.description, lang: 'en'}) };
             updateObj.descriptions = [newDescription];
+        }
+    }
+
+    if (updateObj.hasOwnProperty('datasetClass')) {
+        // delete class if the value is blank;
+        if (updateObj.datasetClass === '') {
+            delete updateObj.datasetClass;
+        } else {
+            let newDatasetClass = { ...new DatasetClass({ name: updateObj.datasetClass }) };
+            updateObj.datasetClass = newDatasetClass;
         }
     }
 
