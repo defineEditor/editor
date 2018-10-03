@@ -97,10 +97,11 @@ class AddDatasetEditorConnected extends React.Component {
 
     handleSaveAndClose = (updateObj) => {
         let itemGroupOid = getOid('ItemGroup', undefined, this.props.itemGroupOids);
-        let itemGroup = new ItemGroup({
+        let itemGroup = { ...new ItemGroup({
             oid  : itemGroupOid,
             name : this.state.name,
-        });
+            datasetName: this.state.name,
+        }) };
         this.props.addItemGroup(itemGroup);
         this.resetState();
     }

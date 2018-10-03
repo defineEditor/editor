@@ -340,6 +340,17 @@ const handleAddVariables = (state, action) => {
     }
 };
 
+const handleDeleteVariables = (state, action) => {
+    // Delete comments which were attached to the variables;
+    let newState = { ...state } ;
+    Object.keys(action.deleteObj.commentOids).forEach( type => {
+        let subAction = {deleteObj: {}};
+        subAction.deleteObj.commentOids = action.deleteObj.commentOids[type];
+        newState = deleteCommentRefereces(newState, subAction, type);
+    });
+    return newState;
+};
+
 const comments = (state = {}, action) => {
     switch (action.type) {
         case ADD_ITEMGROUPCOMMENT:
@@ -359,7 +370,7 @@ const comments = (state = {}, action) => {
         case DEL_ITEMGROUPS:
             return deleteItemGroupCommentReferences(state, action);
         case DEL_VARS:
-            return deleteCommentRefereces(state, action, 'itemDefs');
+            return handleDeleteVariables(state, action);
         case ADD_VARS:
             return handleAddVariables(state, action);
         default:

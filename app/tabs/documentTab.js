@@ -121,6 +121,7 @@ class ConnectedDocumentTable extends React.Component {
                             leafs={this.props.leafs}
                             leafOrder={this.props.leafOrder}
                             documentTypes={this.props.documentTypes}
+                            pathToDefine={this.props.pathToDefine}
                             onEdit={this.handleChange('documentEdit')}
                         />
                     )
@@ -135,6 +136,7 @@ ConnectedDocumentTable.propTypes = {
     leafs         : PropTypes.object.isRequired,
     documentTypes : PropTypes.object.isRequired,
     defineVersion : PropTypes.string.isRequired,
+    pathToDefine  : PropTypes.string,
 };
 
 const DocumentTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedDocumentTable);

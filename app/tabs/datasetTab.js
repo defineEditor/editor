@@ -393,7 +393,7 @@ class ConnectedDatasetTable extends React.Component {
             }
             currentDs.description = getDescription(originDs);
             currentDs.comment = originDs.commentOid === undefined ? undefined : this.props.comments[originDs.commentOid];
-            currentDs.leaf = originDs.leaf === undefined ? undefined : { ...originDs.leaf, baseFolder: this.props.pathToDefine };
+            currentDs.leaf = originDs.leaf === undefined ? undefined : { ...originDs.leaf };
             // Group Repeating/IsReferenceData/isStandard
             currentDs.flags = {
                 repeating       : originDs.repeating,

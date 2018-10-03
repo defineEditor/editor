@@ -5,7 +5,7 @@ import {
     ADD_VARS,
 } from "constants/action-types";
 
-const initialState = new Leaf({oid: getOid('Leaf')});
+const initialState = { ...new Leaf({oid: getOid('Leaf')}) };
 
 const updateLeafs = (state, action) => {
     let newState = { ...state };

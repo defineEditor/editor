@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import clone from 'clone';
-import path from 'path';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
@@ -82,7 +81,7 @@ class DocumentTableEditor extends React.Component {
             let newLeafOrder = this.state.leafOrder.slice();
             let isPdf = 'false';
             newLeafOrder.push(newOid);
-            newLeafs[newOid] = { ...new Leaf({ leafId: newOid, title: '', href: '', type: 'other', baseFolder: path.dirname(this.props.pathToDefine), isPdf }) };
+            newLeafs[newOid] = { ...new Leaf({ id: newOid, title: '', href: '', type: 'other', isPdf }) };
             this.setState({ leafs: newLeafs, leafOrder: newLeafOrder });
         } else if (name === 'type' || name === 'title' || name === 'href' ) {
             let newLeafs = { ...this.state.leafs } ;
@@ -94,6 +93,8 @@ class DocumentTableEditor extends React.Component {
                 } else {
                     isPdf = false;
                 }
+            } else {
+                isPdf = newLeafs[oid].isPdf;
             }
             let newLeaf = { ...new Leaf({ ...newLeafs[oid], [name]: event.target.value, isPdf }) };
             newLeafs[oid] = newLeaf;
@@ -228,6 +229,7 @@ DocumentTableEditor.propTypes = {
     classes       : PropTypes.object.isRequired,
     onSave        : PropTypes.func.isRequired,
     onCancel      : PropTypes.func.isRequired,
+    pathToFile    : PropTypes.string,
     onHelp        : PropTypes.func,
     onComment     : PropTypes.func,
 };

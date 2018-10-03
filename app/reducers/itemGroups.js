@@ -43,7 +43,7 @@ const updateItemGroup = (state, action) => {
     if (updateObj.hasOwnProperty('name')) {
         // Update datasetName and leafId together with the name
         updateObj.datasetName = action.updateObj.name;
-        newLeafOid = getOid('Leaf',updateObj.name);
+        newLeafOid = getOid('Leaf', updateObj.name);
     }
 
     if (updateObj.hasOwnProperty('description')) {
@@ -72,15 +72,21 @@ const updateItemGroup = (state, action) => {
         // Delete leaf if the value is blank;
         if (updateObj.leaf.href === '' && updateObj.leaf.title === '') {
             updateObj.leaf = undefined;
+            updateObj.archiveLocationId = undefined;
             delete updateObj.leaf;
         } else {
             if (newLeafOid !== undefined) {
                 updateObj.leaf.id = newLeafOid;
+                updateObj.archiveLocationId = newLeafOid;
+            } else {
+                updateObj.leaf.id = getOid('Leaf', state[action.oid].name);
+                updateObj.archiveLocationId = updateObj.leaf.id;
             }
         }
     } else if (newLeafOid !== undefined && state[action.oid].leaf !== undefined) {
         // If the dataset name changed and the leaf exists, update the leaf id;
         updateObj.leaf = { ...new Leaf({...state[action.oid].leaf, id: newLeafOid}) };
+        updateObj.archiveLocationId = newLeafOid;
     }
 
     // Add an updated itemGroup

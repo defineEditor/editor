@@ -3,7 +3,7 @@ function compareLeafs(leaf1, leaf2) {
         return (
             typeof prop !== 'object' && leaf1[prop] !== leaf2[prop]
             &&
-            !['id', 'baseFolder', 'href'].includes(prop)
+            !['id', 'href'].includes(prop)
         );
     });
     if (differenceInAttributes) {

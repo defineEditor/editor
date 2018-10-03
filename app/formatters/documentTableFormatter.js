@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import path from 'path';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -37,13 +38,7 @@ class DocumentTableFormatter extends React.Component {
 
     openPdf = (event) => {
         event.preventDefault();
-        // Basefolder of all documents must be the same, that is why it is taken from the first leaf
-        let baseFolder = '';
-        Object.keys(this.props.leafs).some( leafId => {
-            baseFolder = this.props.leafs[leafId].baseFolder;
-            return true;
-        });
-        ipcRenderer.send('openDocument', baseFolder, event.target.attributes[0].value);
+        ipcRenderer.send('openDocument', path.dirname(this.props.pathToDefine), event.target.attributes[0].value);
     }
 
     getDocuments = () => {
@@ -97,6 +92,7 @@ DocumentTableFormatter.propTypes = {
     documentTypes : PropTypes.object.isRequired,
     classes       : PropTypes.object.isRequired,
     onEdit        : PropTypes.func.isRequired,
+    pathToDefine  : PropTypes.string,
     onComment     : PropTypes.func,
 };
 

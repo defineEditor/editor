@@ -5,24 +5,28 @@ const createDefine = require('../core/createDefine.js');
 
 // Create Define-XML
 const convertToDefineXml = (mainWindow, data) => (savePath) => {
-    let defineXml = createDefine(data.odm, '2.0.0');
-    let stylesheetLocation = data.odm.stylesheetLocation;
-    let xmlProlog;
-    if (stylesheetLocation) {
-        xmlProlog = `<?xml version="1.0" encoding="UTF-8"?>
+    if (savePath !== undefined) {
+        let defineXml = createDefine(data.odm, '2.0.0');
+        let stylesheetLocation = data.odm.stylesheetLocation;
+        let xmlProlog;
+        if (stylesheetLocation) {
+            xmlProlog = `<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="${stylesheetLocation}"?>
 `;
-    } else {
-        xmlProlog = `<?xml version="1.0" encoding="UTF-8"?>
-`;
-    }
-    fs.writeFile(savePath, xmlProlog + defineXml, function (err) {
-        if (err) {
-            throw err;
         } else {
-            mainWindow.webContents.send('fileSavedAs', savePath);
+            xmlProlog = `<?xml version="1.0" encoding="UTF-8"?>
+`;
         }
-    });
+        fs.writeFile(savePath, xmlProlog + defineXml, function (err) {
+            if (err) {
+                throw err;
+            } else {
+                mainWindow.webContents.send('fileSavedAs', savePath);
+            }
+        });
+    } else {
+        mainWindow.webContents.send('fileSavedAs', '_cancelled_');
+    }
 };
 
 function saveAs (mainWindow, data) {

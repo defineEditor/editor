@@ -38,7 +38,6 @@ const mapStateToProps = state => {
         mdv          : state.present.odm.study.metaDataVersion,
         reviewMode   : state.present.ui.main.reviewMode,
         buffer       : state.present.ui.main.copyBuffer['variables'],
-        baseFolder   : state.present.defines.byId[state.present.odm.defineId].pathToFile,
     };
 };
 
@@ -170,7 +169,6 @@ class ConnectedItemMenu extends React.Component {
             sourceGroup,
             itemRefList: [ buffer.itemRefOid ],
             parentItemDefOid,
-            baseFolder: this.props.baseFolder,
             itemGroupOid: groupOid,
             sameDefine : true,
             sourceItemGroupOid: buffer.groupOid,
@@ -329,7 +327,6 @@ ConnectedItemMenu.propTypes = {
     onClose        : PropTypes.func.isRequired,
     reviewMode     : PropTypes.bool,
     buffer         : PropTypes.object,
-    baseFolder     : PropTypes.string.isRequired,
 };
 
 const ItemMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedItemMenu);

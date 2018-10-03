@@ -87,6 +87,12 @@ class ConnectedSettings extends React.Component {
           this.setState({ [category]: { ...this.state[category], [name]: event } });
       } else if (['removeUnusedCodeListsInDefineXml', 'getNameLabelFromWhereClause', 'lengthForAllDataTypes'].includes(name)) {
           this.setState({ [category]: { ...this.state[category], [name]: checked } });
+      } else if (['sourceSystem'].includes(name)) {
+          if (event.target.value === '') {
+              this.setState({ [category]: { ...this.state[category], [name]: remote.app.getName(), sourceSystemVersion: remote.app.getVersion() } });
+          } else {
+              this.setState({ [category]: { ...this.state[category], [name]: event.target.value } });
+          }
       } else {
           this.setState({
               [category]: { ...this.state[category], [name]: event.target.value }

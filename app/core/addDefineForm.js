@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import path from 'path';
 import { connect } from 'react-redux';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -152,9 +151,6 @@ class ConnectedAddDefineForm extends React.Component {
           let defineData = this.state.defineData;
           defineData.defineId = defineId;
           defineData.defineName = data;
-          Object.keys(defineData.study.metaDataVersion.leafs).forEach( leafOid => {
-              defineData.study.metaDataVersion.leafs[leafOid].baseFolder = path.dirname(this.state.pathToDefineXml);
-          });
           this.saveDefineAsObject(defineId, defineData, this.state.pathToDefineXml);
           this.props.toggleAddDefineForm({});
       }

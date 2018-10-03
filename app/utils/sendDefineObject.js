@@ -76,7 +76,9 @@ function sendDefineObject (event, data) {
         !state.defines.byId[odm.defineId].pathToFile
     ) {
         ipcRenderer.once('fileSavedAs', (event, savePath) => {
-            store.dispatch(updateDefine({ defineId: odm.defineId , properties: { pathToFile: savePath } }));
+            if (savePath !== '_cancelled_') {
+                store.dispatch(updateDefine({ defineId: odm.defineId , properties: { pathToFile: savePath } }));
+            }
         });
     }
 

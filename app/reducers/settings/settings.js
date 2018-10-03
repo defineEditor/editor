@@ -1,32 +1,8 @@
-import { remote } from 'electron';
 import {
     STG_UPDATESETTINGS,
 } from 'constants/action-types';
+import { settings as initialState } from 'constants/initialValues.js';
 
-const general = {
-    userName: 'Pikachu',
-    controlledTerminologyLocation: ''
-};
-
-const editor = {
-    removeUnusedCodeListsInDefineXml: true,
-    getNameLabelFromWhereClause: true,
-    lengthForAllDataTypes: false,
-};
-
-const define = {
-    schemaLocation200: 'http://www.cdisc.org/ns/def/v2.0/define2-0-0.xsd',
-    schemaLocation210: 'http://www.cdisc.org/ns/def/v2.1/define2-1-0.xsd',
-    sourceSystem: remote.app.getName(),
-    sourceSystemVersion: remote.app.getVersion(),
-    stylesheetLocation: './stylesheet/define2-0-0.xsl'
-};
-
-const initialState = {
-    general,
-    editor,
-    define
-};
 
 const updateSettings = (state, action) => {
     let newState = { ...state };

@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import path from 'path';
+import store from 'store/index.js';
 import { withStyles } from '@material-ui/core/styles';
 import { ipcRenderer } from 'electron';
 
@@ -8,24 +10,21 @@ const styles = theme => ({
     },
 });
 
+const openPdf = (event) => {
+    event.preventDefault();
+    let state = store.getState();
+    let pathToDefine = state.present.defines.byId[state.present.odm.defineId].pathToFile;
+    ipcRenderer.send('openDocument', path.dirname(pathToDefine), event.target.attributes[0].value);
+};
+
 class DocumentFormatter extends React.Component {
-    openPdf = (event) => {
-        event.preventDefault();
-        // Basefolder of all documents must be the same, that is why it is taken from the first leaf
-        let baseFolder = '';
-        Object.keys(this.props.leafs).some( leafId => {
-            baseFolder = this.props.leafs[leafId].baseFolder;
-            return true;
-        });
-        ipcRenderer.send('openDocument', baseFolder, event.target.attributes[0].value);
-    }
     render () {
         let leafs = this.props.leafs;
         let documents = [];
         this.props.documents.forEach((doc) => {
             if (leafs.hasOwnProperty(doc.leafId)) {
                 documents.push(
-                    <a href={leafs[doc.leafId].href} key={doc.leafId} onClick={this.openPdf}>
+                    <a href={leafs[doc.leafId].href} key={doc.leafId} onClick={openPdf}>
                         {leafs[doc.leafId].title}
                     </a>
                 );
@@ -34,19 +33,19 @@ class DocumentFormatter extends React.Component {
                 doc.pdfPageRefs.forEach (pdfPageRef => {
                     if (pdfPageRef.pageRefs !== undefined) {
                         if (pdfPageRef.type === 'NamedDestination') {
-                            pdfPageRefs.push(<a href={leafs[doc.leafId].href + '#' + pdfPageRef.pageRefs} key={pdfPageRef.pageRefs} onClick={this.openPdf}>{pdfPageRef.pageRefs}</a>);
+                            pdfPageRefs.push(<a href={leafs[doc.leafId].href + '#' + pdfPageRef.pageRefs} key={pdfPageRef.pageRefs} onClick={openPdf}>{pdfPageRef.pageRefs}</a>);
                         } else if (pdfPageRef.type === 'PhysicalRef') {
                             // It is expected that pages are separated by a space (as per Define-XML spec)
                             let pageList = [];
                             pdfPageRef.pageRefs.split(' ').forEach( pageNumber => {
-                                pageList.push(<a href={leafs[doc.leafId].href + '#page=' + pageNumber} key={pageNumber} onClick={this.openPdf}>{pageNumber}</a>);
+                                pageList.push(<a href={leafs[doc.leafId].href + '#page=' + pageNumber} key={pageNumber} onClick={openPdf}>{pageNumber}</a>);
                             });
                             pdfPageRefs.push(pageList.reduce( (prev, cur) => ( [prev, ' ', cur] ) ));
                         }
                     } else if (pdfPageRef.firstPage !== undefined) {
-                        pdfPageRefs.push(<a href={leafs[doc.leafId].href + '#page=' + pdfPageRef.firstPage} key='first' onClick={this.openPdf}>{pdfPageRef.firstPage}</a>);
+                        pdfPageRefs.push(<a href={leafs[doc.leafId].href + '#page=' + pdfPageRef.firstPage} key='first' onClick={openPdf}>{pdfPageRef.firstPage}</a>);
                         pdfPageRefs.push(' - ');
-                        pdfPageRefs.push(<a href={leafs[doc.leafId].href + '#page=' + pdfPageRef.lastPage} key='last' onClick={this.openPdf}>{pdfPageRef.lastPage}</a>);
+                        pdfPageRefs.push(<a href={leafs[doc.leafId].href + '#page=' + pdfPageRef.lastPage} key='last' onClick={openPdf}>{pdfPageRef.lastPage}</a>);
                     }
                 });
                 if (pdfPageRefs.length > 0) {

@@ -43,7 +43,7 @@ function createWindow() {
         height: 1024,
         center: true,
         show: false,
-        icon: __dirname + '/static/images/avatars/fox.png',
+        icon: __dirname + '/static/images/misc/mainIcon32x32.png',
     });
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);

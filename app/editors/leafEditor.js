@@ -16,7 +16,7 @@ class LeafEditor extends React.Component {
     constructor (props) {
         super(props);
         this.handleChange = this.handleChange.bind(this);
-        this.state = {leaf: props.defaultValue};
+        this.state = { leaf: { ...props.defaultValue } };
     }
 
     handleChange = name => event => {
@@ -79,7 +79,7 @@ class LeafEditor extends React.Component {
 
 LeafEditor.propTypes = {
     classes      : PropTypes.object.isRequired,
-    defaultValue : PropTypes.instanceOf(Leaf).isRequired,
+    defaultValue : PropTypes.object.isRequired,
     onUpdate     : PropTypes.func.isRequired,
 };
 

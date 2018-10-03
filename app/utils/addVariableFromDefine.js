@@ -63,14 +63,12 @@ const mapStateToProps = (state, props) => {
         return {
             mdv: state.present.odm.study.metaDataVersion,
             defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
-            baseFolder: state.present.defines.byId[state.present.odm.defineId].pathToFile,
             sameDefine: false,
         };
     } else {
         return {
             mdv: state.present.odm.study.metaDataVersion,
             defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
-            baseFolder: state.present.defines.byId[state.present.odm.defineId].pathToFile,
             sourceMdv: state.present.odm.study.metaDataVersion,
             sourceDefineId: state.present.odm.defineId,
             sameDefine: true,
@@ -158,7 +156,7 @@ class AddVariableFromDefineConnected extends React.Component {
     };
 
     handleAddVariables = () => {
-        let { mdv, sourceMdv, baseFolder, itemGroupOid, position, sameDefine } = this.props;
+        let { mdv, sourceMdv, itemGroupOid, position, sameDefine } = this.props;
         let currentGroup = mdv.itemGroups[itemGroupOid];
         let sourceGroup = sourceMdv.itemGroups[this.state.sourceItemGroupOid];
         let { itemDefs, itemRefs, codeLists, methods, leafs, comments, valueLists, whereClauses } = copyVariables({
@@ -167,7 +165,6 @@ class AddVariableFromDefineConnected extends React.Component {
             currentGroup,
             sourceGroup,
             itemRefList: this.state.selected,
-            baseFolder,
             itemGroupOid,
             sameDefine,
             sourceItemGroupOid: this.state.sourceItemGroupOid,
@@ -421,7 +418,6 @@ AddVariableFromDefineConnected.propTypes = {
     defineVersion: PropTypes.string.isRequired,
     itemGroupOid: PropTypes.string.isRequired,
     sourceDefineId: PropTypes.string.isRequired,
-    baseFolder: PropTypes.string,
     position: PropTypes.number,
     onClose: PropTypes.func.isRequired,
 };

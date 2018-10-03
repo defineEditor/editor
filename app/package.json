@@ -1,9 +1,9 @@
 {
   "name": "defineEditor",
-  "productName": "defineEditor",
+  "productName": "Visual Define-XML Editor",
   "private": "true",
-  "version": "0.1.0",
-  "description": "Define-XML Editor",
+  "version": "0.8.10-3",
+  "description": "Editor for CDISC Define-XML standard",
   "main": "./main.prod.js",
   "author": {
     "name": "Dmitry Kolosov",

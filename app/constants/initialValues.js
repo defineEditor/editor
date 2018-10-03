@@ -1,3 +1,4 @@
+import { remote } from 'electron';
 import stdColumns from 'constants/columns.js';
 
 // UI
@@ -77,8 +78,35 @@ const ui = {
     studies,
 };
 
+// Settings
+const general = {
+    userName: 'Winnie-the-Pooh',
+    controlledTerminologyLocation: ''
+};
+
+const editor = {
+    removeUnusedCodeListsInDefineXml: true,
+    getNameLabelFromWhereClause: true,
+    lengthForAllDataTypes: false,
+};
+
+const define = {
+    schemaLocation200: 'http://www.cdisc.org/ns/def/v2.0/define2-0-0.xsd',
+    schemaLocation210: 'http://www.cdisc.org/ns/def/v2.1/define2-1-0.xsd',
+    sourceSystem: remote.app.getName(),
+    sourceSystemVersion: remote.app.getVersion(),
+    stylesheetLocation: './stylesheet/define2-0-0.xsl'
+};
+
+const settings = {
+    general,
+    editor,
+    define
+};
+
 const initialValues = {
     ui,
+    settings,
 };
 
 export default initialValues;

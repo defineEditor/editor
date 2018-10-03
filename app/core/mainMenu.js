@@ -20,6 +20,7 @@ import Print from '@material-ui/icons/Print';
 import Search from '@material-ui/icons/Search';
 import Review from '@material-ui/icons/RemoveRedEye';
 import Archive from '@material-ui/icons/Archive';
+import Close from '@material-ui/icons/Close';
 import Assignment from '@material-ui/icons/Assignment';
 import Edit from '@material-ui/icons/Edit';
 import Public from '@material-ui/icons/Public';
@@ -139,20 +140,21 @@ class ConnectedMainMenu extends React.Component {
                                 <ListItemText primary='Settings'/>
                             </ListItem>
                             <Divider/>
-                            <ListItem button key='redoundo' onClick={() => {this.props.toggleMainMenu(); this.props.onToggleRedoUndo(); }}>
-                                <ListItemIcon>
-                                    <History/>
-                                </ListItemIcon>
-                                <ListItemText primary='History'/>
-                            </ListItem>
                             <ListItem button key='search' onClick={() => {this.props.toggleMainMenu(); this.props.onToggleFindInPage(300);}}>
                                 <ListItemIcon>
                                     <Search/>
                                 </ListItemIcon>
                                 <ListItemText primary='Search'/>
                             </ListItem>
-                            { this.props.currentPage === 'editor' && (
-                                [(
+                            { this.props.currentPage === 'editor' && ([
+                                (
+                                    <ListItem button key='redoundo' onClick={() => {this.props.toggleMainMenu(); this.props.onToggleRedoUndo(); }}>
+                                        <ListItemIcon>
+                                            <History/>
+                                        </ListItemIcon>
+                                        <ListItemText primary='History'/>
+                                    </ListItem>
+                                ) , (
                                     <ListItem button key='save' onClick={this.save}>
                                         <ListItemIcon>
                                             <Save/>
@@ -160,51 +162,56 @@ class ConnectedMainMenu extends React.Component {
                                         <ListItemText primary='Save'/>
                                     </ListItem>
                                 ) , (
-                                        <ListItem button key='saveAs' onClick={() => {sendDefineObject(); this.props.toggleMainMenu();}}>
-                                            <ListItemIcon>
-                                                <SaveAlt/>
-                                            </ListItemIcon>
-                                            <ListItemText primary='Save As'/>
-                                        </ListItem>
-                                    ) , (
-                                        <ListItem button key='print' onClick={() => {this.print(); this.props.toggleMainMenu();}}>
-                                            <ListItemIcon>
-                                                <Print/>
-                                            </ListItemIcon>
-                                            <ListItemText primary='Print'/>
-                                        </ListItem>
-                                    ) , (
-                                        <ListItem button key='dataInput' onClick={() => {this.props.updateMainUi({showDataInput: true}); this.props.toggleMainMenu();}}>
-                                            <ListItemIcon>
-                                                <Archive/>
-                                            </ListItemIcon>
-                                            <ListItemText primary='Import Length'/>
-                                        </ListItem>
-                                    ) , (
-                                        <ListItem button key='reviewModeToggle' onClick={() => {this.props.toggleReviewMode();}}>
-                                            <ListItemIcon>
-                                                { this.props.reviewMode === true ? (
-                                                    <Review/>
-                                                ) : (
-                                                    <Edit/>
-                                                )}
-                                            </ListItemIcon>
-                                            <ListItemText primary={
-                                                [(
-                                                    <Switch
-                                                        checked={this.props.reviewMode === true}
-                                                        color='primary'
-                                                        className={classes.reviewModeSwitch}
-                                                        key='switch'
-                                                    />
-                                                ),(
-                                                        <span key='modeText'> Review Mode</span>
-                                                    )]
-                                            }/>
-                                        </ListItem>
-                                    )
-                                ]
+                                    <ListItem button key='saveAs' onClick={() => {sendDefineObject(); this.props.toggleMainMenu();}}>
+                                        <ListItemIcon>
+                                            <SaveAlt/>
+                                        </ListItemIcon>
+                                        <ListItemText primary='Save As'/>
+                                    </ListItem>
+                                ) , (
+                                    <ListItem button key='print' onClick={() => {this.print(); this.props.toggleMainMenu();}}>
+                                        <ListItemIcon>
+                                            <Print/>
+                                        </ListItemIcon>
+                                        <ListItemText primary='Print'/>
+                                    </ListItem>
+                                ) , (
+                                    <ListItem button key='dataInput' onClick={() => {this.props.updateMainUi({showDataInput: true}); this.props.toggleMainMenu();}}>
+                                        <ListItemIcon>
+                                            <Archive/>
+                                        </ListItemIcon>
+                                        <ListItemText primary='Import Length'/>
+                                    </ListItem>
+                                ) , (
+                                    <ListItem button key='reviewModeToggle' onClick={() => {this.props.toggleReviewMode();}}>
+                                        <ListItemIcon>
+                                            { this.props.reviewMode === true ? (
+                                                <Review/>
+                                            ) : (
+                                                <Edit/>
+                                            )}
+                                        </ListItemIcon>
+                                        <ListItemText primary={[
+                                            (
+                                                <Switch
+                                                    checked={this.props.reviewMode === true}
+                                                    color='primary'
+                                                    className={classes.reviewModeSwitch}
+                                                    key='switch'
+                                                />
+                                            ),(
+                                                <span key='modeText'> Review Mode</span>
+                                            )]
+                                        }/>
+                                    </ListItem>
+                                )]
                             )}
+                            <ListItem button key='quit' onClick={() => {this.props.toggleMainMenu(); remote.app.quit();}}>
+                                <ListItemIcon>
+                                    <Close/>
+                                </ListItemIcon>
+                                <ListItemText primary='Quit'/>
+                            </ListItem>
                         </List>
                     </div>
                 </div>

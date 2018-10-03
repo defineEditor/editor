@@ -70,7 +70,13 @@ const updateItemDescription = (state, action) => {
 };
 
 const updateNameLabel = (state, action) => {
-    let newItemDef = { ...new ItemDef({...state[action.source.itemDefOid], ...action.updateObj}) };
+    let newItemDef;
+    if (action.updateObj.hasOwnProperty('name') && !action.updateObj.hasOwnProperty('fieldName')) {
+        // Set fieldName to name
+        newItemDef = { ...new ItemDef({ ...state[action.source.itemDefOid], ...action.updateObj, fieldName: action.updateObj.name }) };
+    } else {
+        newItemDef = { ...new ItemDef({...state[action.source.itemDefOid], ...action.updateObj}) };
+    }
     return { ...state, [action.source.itemDefOid]: newItemDef };
 };
 
@@ -299,6 +305,14 @@ const updateItemsBulk = (state, action) => {
                         updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], origins: newOrigins }) };
                     }
                 }
+            }
+            // If name is changed, update fieldName
+            if (field.attr === 'name') {
+                Object.keys(updatedItemDefs).forEach( oid => {
+                    if (updatedItemDefs[oid].name !== updatedItemDefs[oid].fieldName) {
+                        updatedItemDefs[oid] = { ...new ItemDef({ ...updatedItemDefs[oid], fieldName: updatedItemDefs[oid].name }) };
+                    }
+                });
             }
             newState = { ...newState, ...updatedItemDefs };
         });

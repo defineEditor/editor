@@ -1,7 +1,7 @@
 {
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
-  "version": "0.1.0",
+  "version": "0.8.10-3",
   "license": "GPL-3.0",
   "private": "true",
   "description": "Visual Define-XML Editor",
@@ -46,6 +46,7 @@
     "appId": "org.nogi.DefineEditor",
     "files": [
       "dist/",
+      "static/",
       "node_modules/",
       "index.html",
       "main.prod.js",

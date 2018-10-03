@@ -223,6 +223,10 @@ function parseTranslatedText (item) {
 
 function parseComments (commentsRaw, mdv) {
     let comments = {};
+    if (commentsRaw === undefined) {
+        return comments;
+    }
+
     commentsRaw.forEach(function (commentRaw) {
         let comment = new def.Comment({oid: commentRaw['$'].oid});
         commentRaw['description'].forEach(function (item) {
@@ -273,6 +277,9 @@ function parseStandards (standardsRaw, defineVersion) {
 
 function parseMethods (methodsRaw, mdv) {
     let methods = {};
+    if (methodsRaw === undefined) {
+        return methods;
+    }
     methodsRaw.forEach(function (methodRaw) {
         let method = new def.Method(
             {
@@ -338,6 +345,10 @@ function parseMethods (methodsRaw, mdv) {
 
 function parseCodelists (codeListsRaw, mdv) {
     let codeLists = {};
+    if (codeListsRaw === undefined) {
+        return codeLists;
+    }
+
     codeListsRaw.forEach(function (codeListRaw) {
         if (codeListRaw.hasOwnProperty('$')) {
             let args = codeListRaw['$'];
@@ -431,6 +442,9 @@ function parseCodelists (codeListsRaw, mdv) {
 
 function parseWhereClauses (whereClausesRaw, mdv) {
     let whereClauses = {};
+    if (whereClausesRaw === undefined) {
+        return whereClauses;
+    }
     whereClausesRaw.forEach(function (whereClauseRaw) {
         if (whereClauseRaw.hasOwnProperty('$')) {
             let args = whereClauseRaw['$'];
@@ -493,6 +507,9 @@ function parseOrigins (originsRaw, mdv) {
 
 function parseItemDefs (itemDefsRaw, mdv) {
     let itemDefs = {};
+    if (itemDefsRaw === undefined) {
+        return itemDefs;
+    }
     itemDefsRaw.forEach(function (itemDefRaw) {
         let args = itemDefRaw['$'];
         if (itemDefRaw.hasOwnProperty('codeListRef')) {
@@ -564,6 +581,10 @@ function parseItemRef (itemRefRaw, oid, mdv) {
 
 function parseItemGroups (itemGroupsRaw, mdv) {
     let itemGroups = {};
+    if (itemGroupsRaw === undefined) {
+        return itemGroups;
+    }
+
     itemGroupsRaw.forEach(function (itemGroupRaw, index) {
         let args = itemGroupRaw['$'];
 
@@ -586,6 +607,9 @@ function parseItemGroups (itemGroupsRaw, mdv) {
         // ItemRefs are stored as an object instead of an array
         let itemRefs = {};
         itemGroupRaw['itemRef'].forEach(function (item) {
+            if (!item) {
+                return;
+            }
             let oid = getOid('ItemRef', undefined, Object.keys(itemRefs));
             itemRefs[oid] = parseItemRef(item, oid, mdv);
             if ( item['$']['orderNumber'] ) {
@@ -639,6 +663,9 @@ function parseItemGroups (itemGroupsRaw, mdv) {
 
 function parseValueLists (valueListsRaw, mdv) {
     let valueLists = {};
+    if (valueListsRaw === undefined) {
+        return valueLists;
+    }
 
     valueListsRaw.forEach(function (valueListRaw) {
 

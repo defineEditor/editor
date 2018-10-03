@@ -149,7 +149,6 @@ const copyVariables = ({
     sourceMdv,
     currentGroup,
     sourceGroup,
-    baseFolder,
     itemGroupOid,
     sameDefine,
     sourceItemGroupOid,
@@ -363,7 +362,7 @@ const copyVariables = ({
         });
 
         finalLeafIds.forEach( leafId => {
-            leafs[leafId] = { ...new Leaf({ ...sourceMdv.leafs[leafId], baseFolder }) };
+            leafs[leafId] = { ...new Leaf({ ...sourceMdv.leafs[leafId] }) };
         });
     }
 
