@@ -29,11 +29,11 @@ class OtherAttributesFormatter extends React.Component {
                 </Typography>
                 <List>
                     <ListItem>
-                        <ListItemText primary='Name' secondary={name}>
+                        <ListItemText primary='Define-XML Name' secondary={name}>
                         </ListItemText>
                     </ListItem>
                     <ListItem>
-                        <ListItemText primary='Define-XML Name and Location' secondary={pathToFile}>
+                        <ListItemText primary='Define-XML Location' secondary={pathToFile}>
                         </ListItemText>
                     </ListItem>
                 </List>

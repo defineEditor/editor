@@ -158,10 +158,13 @@ const deleteItemGroupCommentReferences = (state, action) => {
     // Delete comments which were attached to the dataset;
     let newState = deleteCommentRefereces(state, action, 'itemGroups');
     // Delete comments which were attached to the variables;
-    Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
+    let itemGroupData = action.deleteObj.itemGroupData;
+    Object.keys(itemGroupData).forEach( itemGroupOid => {
         let subAction = {deleteObj: {}};
-        subAction.deleteObj.commentOids = action.deleteObj.itemGroupData[itemGroupOid].commentOids;
-        newState = deleteCommentRefereces(newState, subAction, 'itemDefs');
+        Object.keys(itemGroupData[itemGroupOid].commentOids).forEach( type => {
+            subAction.deleteObj.commentOids = itemGroupData[itemGroupOid].commentOids[type];
+            newState = deleteCommentRefereces(newState, subAction, type);
+        });
     });
     return newState;
 };

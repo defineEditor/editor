@@ -93,7 +93,7 @@ class ConnectedMainMenu extends React.Component {
 
     save = (noToggle) => {
         saveState();
-        if (!noToggle) {
+        if (!(noToggle === true)) {
             this.props.toggleMainMenu();
         }
     }

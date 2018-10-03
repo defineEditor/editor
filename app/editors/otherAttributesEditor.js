@@ -55,10 +55,13 @@ class OtherAttributesEditor extends React.Component {
                     Other Attributes
                     <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
                 </Typography>
+                <Typography variant="caption">
+                    Those attributes are not part of the Define-XML standard and are not saved in a Define-XML file.
+                </Typography>
                 <List>
                     <ListItem dense>
                         <TextField
-                            label='Name'
+                            label='Define-XML Name'
                             value={this.state.name}
                             autoFocus
                             fullWidth
@@ -68,7 +71,7 @@ class OtherAttributesEditor extends React.Component {
                     </ListItem>
                     <ListItem dense>
                         <TextField
-                            label='Define Location'
+                            label='Define-XML Location'
                             value={this.state.pathToFile}
                             fullWidth
                             onChange={this.handleChange('pathToFile')}

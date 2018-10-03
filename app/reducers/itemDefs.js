@@ -104,21 +104,24 @@ const deleteVariables = (state, action) => {
     // Remove value levels
     Object.keys(action.deleteObj.vlmItemDefOids).forEach( valueListOid => {
         action.deleteObj.vlmItemDefOids[valueListOid].forEach( itemDefOid => {
-            // If it is referened only in 1 dataset, remove it
-            let sourceNum = [].concat.apply([],Object.keys(state[itemDefOid].sources).map(type => (state[itemDefOid].sources[type]))).length;
-            if (sourceNum === 1
-                && state[itemDefOid].sources.valueLists[0] === valueListOid) {
-                delete newState[itemDefOid];
-            } else if (state[itemDefOid].sources.valueLists.includes(valueListOid)) {
-                // Delete the dataset from the sources
-                let newSourcesForType = state[itemDefOid].sources.valueLists.slice();
-                newSourcesForType.splice(newSourcesForType.indexOf(valueListOid),1);
-                newState = {
-                    ...newState,
-                    [itemDefOid]: { ...new ItemDef({ ...state[itemDefOid],
-                        sources: { ...state[itemDefOid].sources, valueLists: newSourcesForType }
-                    }) }
-                };
+            // It is possible that valueList was shared between different ItemDefs and already removed in this action
+            if (newState.hasOwnProperty(itemDefOid)) {
+                // If it is referened only in 1 dataset, remove it
+                let sourceNum = [].concat.apply([],Object.keys(state[itemDefOid].sources).map(type => (state[itemDefOid].sources[type]))).length;
+                if (sourceNum === 1
+                    && state[itemDefOid].sources.valueLists[0] === valueListOid) {
+                    delete newState[itemDefOid];
+                } else if (state[itemDefOid].sources.valueLists.includes(valueListOid)) {
+                    // Delete the dataset from the sources
+                    let newSourcesForType = state[itemDefOid].sources.valueLists.slice();
+                    newSourcesForType.splice(newSourcesForType.indexOf(valueListOid),1);
+                    newState = {
+                        ...newState,
+                        [itemDefOid]: { ...new ItemDef({ ...state[itemDefOid],
+                            sources: { ...state[itemDefOid].sources, valueLists: newSourcesForType }
+                        }) }
+                    };
+                }
             }
         });
     });
@@ -127,7 +130,7 @@ const deleteVariables = (state, action) => {
         if (newState.hasOwnProperty(itemDefOid)) {
             newState = {
                 ...newState,
-                [itemDefOid]: { ...new ItemDef({ ...state[itemDefOid], valueListOid: undefined }) }
+                [itemDefOid]: { ...new ItemDef({ ...newState[itemDefOid], valueListOid: undefined }) }
             };
         }
     });

@@ -38,8 +38,11 @@ const deleteWhereClauseRefereces = (state, action) => {
         let subAction = {};
         subAction.source ={ valueListOid };
         action.deleteObj.whereClauseOids[valueListOid].forEach( whereClauseOid => {
-            subAction.whereClause = newState[whereClauseOid];
-            newState = deleteWhereClause(newState, subAction);
+            // It is possible that WC was shared by several ItemRefs/ValueLists and already deleted
+            if (newState.hasOwnProperty(whereClauseOid)) {
+                subAction.whereClause = newState[whereClauseOid];
+                newState = deleteWhereClause(newState, subAction);
+            }
         });
     });
     return newState;

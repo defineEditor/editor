@@ -13,6 +13,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
             return mdv.itemDefs[itemOid].valueListOid !== undefined;
         });
     // For variables having a valueList attached, return an array of ValueList OIDs;
+    // It will always have only 1 item
     let valueListOids = {};
     itemRefOidsWithValueLists.forEach( itemRefOid => {
         let itemOid = mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid;
@@ -47,7 +48,10 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
         });
     });
     // Form an object of comments to remove {commentOid: [itemOid1, itemOid2, ...]}
-    let commentOids = {};
+    let commentOids = { itemDefs: {}, whereClauses:  {} };
+    // Comments which are referenced by ItemDefs with multiple sources cannot be deleted at this stage
+    // Get this information, so that a decision to delete them can be taken upstream
+    let commentCandidateOids = {};
     // Form an object of methods to remove {methodOid: [itemOid1, itemOid2, ...]}
     // Had to distinguish vlm and non-vlm method Oids, as they are defined at ItemRef level
     let methodOids = {};
@@ -62,11 +66,21 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
         // Comments
         let commentOid = mdv.itemDefs[itemOid].commentOid;
         if (commentOid !== undefined) {
-            if (commentOids[commentOid] === undefined) {
-                commentOids[commentOid] = [];
-            }
-            if (!commentOids[commentOid].includes(itemOid)) {
-                commentOids[commentOid].push(itemOid);
+            // Before deleting the comment verify that there is only one itemGroup for that itemDef
+            if (mdv.itemDefs[itemOid].sources.itemGroups.length + mdv.itemDefs[itemOid].sources.valueLists.length <= 1) {
+                if (commentOids.itemDefs[commentOid] === undefined) {
+                    commentOids.itemDefs[commentOid] = [];
+                }
+                if (!commentOids.itemDefs[commentOid].includes(itemOid)) {
+                    commentOids.itemDefs[commentOid].push(itemOid);
+                }
+            } else {
+                if (commentCandidateOids[commentOid] === undefined) {
+                    commentCandidateOids[commentOid] = {};
+                }
+                if (!Object.keys(commentCandidateOids[commentOid]).includes(itemOid)) {
+                    commentCandidateOids[commentOid][itemOid] = mdv.itemDefs[itemOid].sources;
+                }
             }
         }
         // Methods
@@ -90,19 +104,37 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
             }
         }
     });
-    // Value-level
 
+    // Value-level
     Object.keys(vlmItemRefOids).forEach( valueListOid => {
         vlmItemRefOids[valueListOid].forEach( itemRefOid => {
             let itemOid = mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid;
+            let sourceItemOids = mdv.valueLists[valueListOid].sources.itemDefs;
             // Comments
             let commentOid = mdv.itemDefs[itemOid].commentOid;
             if (commentOid !== undefined) {
-                if (commentOids[commentOid] === undefined) {
-                    commentOids[commentOid] = [];
-                }
-                if (!commentOids[commentOid].includes(itemOid)) {
-                    commentOids[commentOid].push(itemOid);
+                // Before deleting the comment verify that there is only one itemGroup for that itemDef
+                if ( (mdv.itemDefs[itemOid].sources.itemGroups.length + mdv.itemDefs[itemOid].sources.valueLists.length <= 1)
+                    &&
+                    sourceItemOids.length <= 1
+                    &&
+                    mdv.itemDefs.hasOwnProperty(sourceItemOids[0])
+                    &&
+                    mdv.itemDefs[sourceItemOids].sources.itemGroups.length <= 1
+                ) {
+                    if (commentOids.itemDefs[commentOid] === undefined) {
+                        commentOids.itemDefs[commentOid] = [];
+                    }
+                    if (!commentOids.itemDefs[commentOid].includes(itemOid)) {
+                        commentOids.itemDefs[commentOid].push(itemOid);
+                    }
+                } else {
+                    if (commentCandidateOids[commentOid] === undefined) {
+                        commentCandidateOids[commentOid] = {};
+                    }
+                    if (!Object.keys(commentCandidateOids[commentOid]).includes(itemOid)) {
+                        commentCandidateOids[commentOid][itemOid] = mdv.itemDefs[itemOid].sources;
+                    }
                 }
             }
             // Methods
@@ -131,6 +163,21 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
         });
     });
 
+    // Comments referenced from whereClauses
+    Object.keys(whereClauseOids).forEach( valueListOid => {
+        whereClauseOids[valueListOid].forEach( whereClauseOid => {
+            let commentOid = mdv.whereClauses[whereClauseOid].commentOid;
+            if (commentOid !== undefined) {
+                if (commentOids.whereClauses[commentOid] === undefined) {
+                    commentOids.whereClauses[commentOid] = [];
+                }
+                if (!commentOids.whereClauses[commentOid].includes(whereClauseOid)) {
+                    commentOids.whereClauses[commentOid].push(whereClauseOid);
+                }
+            }
+        });
+    });
+
     return (
         {
             itemRefOids,
@@ -138,6 +185,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
             vlmItemRefOids,
             vlmItemDefOids,
             commentOids,
+            commentCandidateOids,
             methodOids,
             vlmMethodOids,
             codeListOids,

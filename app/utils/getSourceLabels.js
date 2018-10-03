@@ -1,3 +1,5 @@
+import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
+
 const getSourceLabels = (sources, mdv) => {
     let result = {};
     for (let source in sources) {
@@ -16,7 +18,7 @@ const getSourceLabels = (sources, mdv) => {
                         result[source].push(mdv.itemGroups[itemGroupOid].name + '.' +  mdv[source][oid].name);
                     });
                 } else if (source === 'whereClauses') {
-                    result[source].push(mdv[source][oid].toString(mdv));
+                    result[source].push(getWhereClauseAsText(mdv[source][oid],mdv));
                 } else {
                     result[source].push(mdv[source][oid].name);
                 }
@@ -35,7 +37,7 @@ const getSourceLabels = (sources, mdv) => {
                 labelParts.push('Datasets: ' + result[group].join(', '));
             }
             if (group === 'whereClauses') {
-                labelParts.push('Where Clauses: ' + result[group].join(', '));
+                labelParts.push('Where Clauses:\n' + result[group].join(',\n'));
             }
             count += result[group].length;
         }
