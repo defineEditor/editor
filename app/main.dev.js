@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu } from 'electron';
 import path from 'path';
 import saveAs from './main/saveAs.js';
 import openDefineXml from './main/openDefineXml.js';
@@ -10,6 +10,7 @@ import deleteDefineObject from './main/deleteDefineObject.js';
 import scanControlledTerminologyFolder from './main/scanControlledTerminologyFolder.js';
 import openDocument from './main/openDocument.js';
 import openFileInExternalApp from './main/openFileInExternalApp.js';
+import createMenu from './menu/menu.js';
 
 let mainWindow = null;
 
@@ -57,9 +58,12 @@ function createWindow() {
     });
     // Set the menu
     // Disabled menu at the moment, as most control buttons are available in the mainMenu
-    //import createMenu from './menu/menu.js';
-    //Menu.setApplicationMenu(createMenu(mainWindow));
-    mainWindow.setMenu(null);
+    // Enable it only in production debug mode
+    if (process.env.DEBUG_PROD === 'true') {
+        Menu.setApplicationMenu(createMenu(mainWindow));
+    } else {
+        mainWindow.setMenu(null);
+    }
 
     mainWindow.on('close', function(e) {
         if (mainWindow !== null) {

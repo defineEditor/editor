@@ -727,7 +727,7 @@ class ItemGroup extends BasicFunctions {
         this.name = name;
         this.domain = domain;
         this.datasetName = datasetName;
-        this.repeating = repeating;
+        this.repeating = repeating === undefined ? 'Yes' : repeating;
         this.isReferenceData = isReferenceData;
         this.purpose = purpose;
         this.structure = structure;

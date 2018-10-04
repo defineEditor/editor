@@ -32,7 +32,11 @@ class MetaDataVersionEditor extends React.Component {
     }
 
     handleChange = (name) => (event) => {
-        this.setState({ [name]: event.target.value });
+        if (name === 'description' && event.target.value === '') {
+            this.setState({ [name]: undefined });
+        } else {
+            this.setState({ [name]: event.target.value });
+        }
     }
 
     save = () => {
@@ -74,7 +78,7 @@ class MetaDataVersionEditor extends React.Component {
                     <ListItem dense>
                         <TextField
                             label='Description'
-                            value={this.state.description}
+                            value={this.state.description||""}
                             fullWidth
                             multiline
                             onChange={this.handleChange('description')}

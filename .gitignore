@@ -3,11 +3,9 @@ node_modules
 dll
 release*
 app/dist
-resources
 test
 flow-typed/npm
 app/temp
-app/static
 app/main.prod*
 *.swp
 *.log
