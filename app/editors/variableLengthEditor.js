@@ -130,9 +130,6 @@ class ConnectedVariableLengthEditor extends React.Component {
         } else {
             length = this.state.length || '';
         }
-        length.no.such.mail = 5;
-        let a;
-        a.focus();
         const fractionDigits = this.state.fractionDigits || '';
         return (
             <div
