@@ -116,6 +116,7 @@ ConnectedModalQuitApplication.propTypes = {
     classes: PropTypes.object.isRequired,
     appQuit: PropTypes.func.isRequired,
     appSave: PropTypes.func.isRequired,
+    closeModal: PropTypes.func.isRequired,
     defineId: PropTypes.string.isRequired,
     odm: PropTypes.object.isRequired,
     tabs: PropTypes.object.isRequired,

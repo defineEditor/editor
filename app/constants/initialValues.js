@@ -11,6 +11,7 @@ const main = (() => {
         quitNormally: null,
         reviewMode: false,
         showDataInput: false,
+        showInitialMessage: true,
         copyBuffer: {},
     };
 })();

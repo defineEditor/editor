@@ -13,7 +13,11 @@ import GroupTab from 'tabs/groupTab.js';
 import DocumentTab from 'tabs/documentTab.js';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
-import { changeTab, toggleMainMenu } from 'actions/index.js';
+import {
+    changeTab,
+    toggleMainMenu,
+    openModal,
+} from 'actions/index.js';
 
 const styles = theme => ({
     root: {
@@ -33,6 +37,7 @@ const mapDispatchToProps = dispatch => {
     return {
         toggleMainMenu : () => dispatch(toggleMainMenu()),
         changeTab      : (updateObj) => dispatch(changeTab(updateObj)),
+        openModal      : updateObj => dispatch(openModal(updateObj)),
     };
 };
 
@@ -65,7 +70,10 @@ class ConnectedEditorTabs extends React.Component {
     }
 
     componentDidCatch(error, info) {
-        console.log(error, info);
+        this.props.openModal({
+            type: 'BUG_REPORT',
+            props: {error, info}
+        });
     }
 
     handleChange = (event, value) => {

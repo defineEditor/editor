@@ -101,6 +101,7 @@ class AddDatasetEditorConnected extends React.Component {
             oid  : itemGroupOid,
             name : this.state.name,
             datasetName: this.state.name,
+            purpose: this.state.purpose,
         }) };
         this.props.addItemGroup(itemGroup);
         this.resetState();

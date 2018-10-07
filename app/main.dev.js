@@ -28,6 +28,8 @@ if (
     require('module').globalPaths.push(p);
 }
 
+app.disableHardwareAcceleration();
+
 const installExtensions = async () => {
     const installer = require('electron-devtools-installer');
     const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -44,7 +46,7 @@ function createWindow() {
         height: 1024,
         center: true,
         show: false,
-        icon: __dirname + '/static/images/misc/mainIcon32x32.png',
+        icon: __dirname + '/static/images/misc/mainIcon64x64.png',
     });
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);

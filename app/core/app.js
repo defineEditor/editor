@@ -10,6 +10,9 @@ import Settings from 'core/settings.js';
 import Studies from 'core/studies.js';
 import RedoUndo from 'utils/redoUndo.js';
 import FindInPage from 'utils/findInPage.js';
+import {
+    openModal,
+} from 'actions/index.js';
 
 const theme = createMuiTheme({
     palette: {
@@ -31,7 +34,14 @@ const theme = createMuiTheme({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        currentPage: state.present.ui.main.currentPage
+        currentPage: state.present.ui.main.currentPage,
+        showInitialMessage: state.present.ui.main.showInitialMessage,
+    };
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+        openModal: updateObj => dispatch(openModal(updateObj)),
     };
 };
 
@@ -46,6 +56,12 @@ class ConnectedApp extends Component {
 
     componentDidMount() {
         window.addEventListener('keydown', this.onKeyDown);
+        if (this.props.showInitialMessage) {
+            this.props.openModal({
+                type: 'INITIAL_MESSAGE',
+                props: {}
+            });
+        }
     }
 
     componentWillUnmount() {
@@ -80,7 +96,7 @@ class ConnectedApp extends Component {
             <MuiThemeProvider theme={theme}>
                 <MainMenu onToggleRedoUndo={this.toggleRedoUndo} onToggleFindInPage={this.toggleFindInPage}/>
                 {this.props.currentPage === 'studies' && <Studies />}
-                {this.props.currentPage === 'editor' && <Editor />}
+                {this.props.currentPage === 'editor' && <Editor onToggleRedoUndo={this.toggleRedoUndo}/>}
                 {this.props.currentPage === 'controlledTerminology' && <ControlledTerminology />}
                 {this.props.currentPage === 'settings' && <Settings />}
                 <ModalRoot />
@@ -92,8 +108,9 @@ class ConnectedApp extends Component {
 }
 
 ConnectedApp.propTypes = {
-    currentPage: PropTypes.string.isRequired
+    currentPage: PropTypes.string.isRequired,
+    showInitialMessage: PropTypes.bool.isRequired
 };
 
-const App = connect(mapStateToProps)(ConnectedApp);
+const App = connect(mapStateToProps, mapDispatchToProps)(ConnectedApp);
 export default App;

@@ -72,6 +72,11 @@ class DocumentTableEditor extends React.Component {
             leafOrder,
             showDocumentOrderEditor: false
         };
+        this.rootRef = React.createRef();
+    }
+
+    componentDidMount() {
+        this.rootRef.current.focus();
     }
 
     handleChange = (name, oid) => (event) => {
@@ -174,50 +179,60 @@ class DocumentTableEditor extends React.Component {
         this.setState({ leafOrder: items.map(item => (item.oid)) });
     }
 
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.props.onCancel();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.save();
+        }
+    }
+
     render () {
         const { classes } = this.props;
         let leafItems = this.state.leafOrder.map( leafId => {
             return { oid: leafId, name: this.state.leafs[leafId].title };
         });
         return (
-            <Paper className={classes.mainPart} elevation={4}>
-                <Typography variant="headline" component="h3">
-                    Documents
-                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} onSort={this.showDocumentOrderEditor}/>
-                </Typography>
-                <Button
-                    color='default'
-                    size='small'
-                    variant='raised'
-                    onClick={this.handleChange('addDoc')}
-                    className={classes.button}
-                >
-                    Add Document
-                </Button>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <CustomTableCell className={classes.delColumn}></CustomTableCell>
-                            <CustomTableCell className={classes.typeColumn}>Type</CustomTableCell>
-                            <CustomTableCell className={classes.titleColumn}>Title</CustomTableCell>
-                            <CustomTableCell className={classes.locationColumn}>Location</CustomTableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {this.getDocuments()}
-                    </TableBody>
-                </Table>
-                { this.state.showDocumentOrderEditor && (
-                    <GeneralOrderEditor
-                        items={leafItems}
-                        onSave={this.updateLeafOrder}
-                        noButton={true}
-                        title='Document Order'
-                        width='500px'
-                        onCancel={() => this.setState({ showDocumentOrderEditor: false })}
-                    />
-                )}
-            </Paper>
+            <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef}>
+                <Paper className={classes.mainPart} elevation={4}>
+                    <Typography variant="headline" component="h3">
+                        Documents
+                        <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} onSort={this.showDocumentOrderEditor}/>
+                    </Typography>
+                    <Button
+                        color='default'
+                        size='small'
+                        variant='raised'
+                        onClick={this.handleChange('addDoc')}
+                        className={classes.button}
+                    >
+                        Add Document
+                    </Button>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <CustomTableCell className={classes.delColumn}></CustomTableCell>
+                                <CustomTableCell className={classes.typeColumn}>Type</CustomTableCell>
+                                <CustomTableCell className={classes.titleColumn}>Title</CustomTableCell>
+                                <CustomTableCell className={classes.locationColumn}>Location</CustomTableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {this.getDocuments()}
+                        </TableBody>
+                    </Table>
+                    { this.state.showDocumentOrderEditor && (
+                        <GeneralOrderEditor
+                            items={leafItems}
+                            onSave={this.updateLeafOrder}
+                            noButton={true}
+                            title='Document Order'
+                            width='500px'
+                            onCancel={() => this.setState({ showDocumentOrderEditor: false })}
+                        />
+                    )}
+                </Paper>
+            </div>
         );
     }
 }

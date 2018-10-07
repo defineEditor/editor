@@ -30,7 +30,6 @@ import {
     toggleMainMenu,
     changePage,
     updateMainUi,
-    appSave,
     toggleReviewMode,
 } from 'actions/index.js';
 
@@ -65,7 +64,6 @@ const mapDispatchToProps = dispatch => {
         toggleMainMenu : () => dispatch(toggleMainMenu()),
         changePage : (updateObj) => dispatch(changePage(updateObj)),
         updateMainUi : (updateObj) => dispatch(updateMainUi(updateObj)),
-        appSave : (updateObj) => dispatch(appSave(updateObj)),
         toggleReviewMode : (updateObj) => dispatch(toggleReviewMode(updateObj)),
     };
 };
@@ -144,7 +142,7 @@ class ConnectedMainMenu extends React.Component {
                                 <ListItemIcon>
                                     <Search/>
                                 </ListItemIcon>
-                                <ListItemText primary='Search'/>
+                                <ListItemText primary='Find in Page'/>
                             </ListItem>
                             { this.props.currentPage === 'editor' && ([
                                 (
@@ -230,7 +228,6 @@ ConnectedMainMenu.propTypes = {
     onToggleRedoUndo   : PropTypes.func.isRequired,
     onToggleFindInPage : PropTypes.func.isRequired,
     changePage         : PropTypes.func.isRequired,
-    appSave            : PropTypes.func.isRequired,
     toggleReviewMode   : PropTypes.func.isRequired,
     updateMainUi       : PropTypes.func.isRequired,
 };

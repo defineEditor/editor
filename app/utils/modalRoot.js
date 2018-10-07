@@ -5,6 +5,8 @@ import ModalDeleteStudy from 'utils/modalDeleteStudy.js';
 import ModalDeleteDefine from 'utils/modalDeleteDefine.js';
 import ModalChangeDefine from 'utils/modalChangeDefine.js';
 import ModalQuitApplication from 'utils/modalQuitApplication.js';
+import ModalInitialMessage from 'utils/modalInitialMessage.js';
+import ModalBugReport from 'utils/modalBugReport.js';
 
 const mapStateToProps = state => {
     return {
@@ -16,6 +18,8 @@ const MODAL_COMPONENTS = {
     'DELETE_STUDY': ModalDeleteStudy,
     'DELETE_DEFINE': ModalDeleteDefine,
     'CHANGE_DEFINE': ModalChangeDefine,
+    'INITIAL_MESSAGE': ModalInitialMessage,
+    'BUG_REPORT': ModalBugReport,
     'QUIT': ModalQuitApplication,
 };
 
