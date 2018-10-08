@@ -44,8 +44,8 @@ class ConnectedModalQuitApplication extends React.Component {
     onSave = () => {
         this.props.appQuit();
         this.props.closeModal();
-        this.props.appSave({definId: this.props.defineId});
-        saveState();
+        this.props.appSave({defineId: this.props.defineId});
+        saveState('noWrite');
         ipcRenderer.once('writeDefineObjectFinished', () => { ipcRenderer.send('quitConfirmed'); window.close();} );
         ipcRenderer.send('writeDefineObject', {
             defineId: this.props.defineId,
@@ -57,7 +57,7 @@ class ConnectedModalQuitApplication extends React.Component {
     onDiscard = () => {
         this.props.appQuit();
         this.props.closeModal();
-        saveState('quitWithoutSave');
+        saveState('noWrite');
         ipcRenderer.send('quitConfirmed');
         window.close();
     }

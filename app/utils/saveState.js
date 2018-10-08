@@ -14,7 +14,7 @@ function saveState(type) {
     // Close main menu when saving
     let stateToSave = { ...state, ui: { ...state.ui, main: { ...state.ui.main, mainMenuOpened: false } } };
     // Save current Define
-    if (type !== 'quitWithoutSave') {
+    if (type !== 'noWrite') {
         if (type !== 'backup') {
             ipcRenderer.once('writeDefineObjectFinished', (event, defineId) => {store.dispatch(appSave({ defineId }));} );
         }
