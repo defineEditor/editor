@@ -73,6 +73,12 @@
         "portable"
       ]
     },
+    "mac": {
+      "target": [
+        "pkg",
+        "mas"
+      ]
+    },
     "linux": {
       "target": [
         "deb",
