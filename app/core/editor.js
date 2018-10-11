@@ -84,7 +84,10 @@ class ConnectedEditor extends React.Component {
                 )}
                 {this.props.currentDefineId && !this.props.odmLoaded && (
                     <div className={classes.loading}>
-                        Loading Define-XML
+                        Loading Define-XML.
+                        <Typography variant="caption" gutterBottom>
+                            Taking too long? Use Ctrl+M to open the menu.
+                        </Typography>
                         <br />
                         <CircularProgress className={classes.progress} />
                     </div>

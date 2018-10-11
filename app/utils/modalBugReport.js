@@ -72,7 +72,23 @@ class ConnectedModalInitialMessage extends React.Component {
             + '%0D%0AComponent stack:' + encodeURIComponent(this.props.info.componentStack)
             + '%0D%0AApplication Version: ' + encodeURIComponent(remote.app.getVersion())
         ;
-        const mailLink = 'mailto:dmitry.m.kolosov@gmail.com?subject=' + mailSubject + '&body=' + mailBody;
+        const emails = [
+            'black.hole@defineeditor.com',
+            'moc.rotideenifed@defineeditor.com',
+            'no.more.bugs@defineedifor.com',
+            'too.many.bugs@defineeditor.com',
+            'santa.claus@defineeditor.com',
+            'stop.making.bugs@defineeditor.com',
+            'are.you.even.testing.this.program@defineeditor.com',
+            'learn.to.program@defineeditor.com',
+            'it.really.does.not.matter.what.is.here@defineeditor.com',
+            'this.program.is.awful@defineeditor.com',
+            'senior.vice.president.of.support.emails@defineeditor.com',
+            'senior.principal.support.specialist.3@defineeditor.com',
+            'associate.director.support.specialist@defineeditor.com',
+            'chief.executive.janitor@defineeditor.com',
+        ];
+        const mailLink = 'mailto:'+ emails[Math.floor(Math.random() * emails.length)] + '?subject=' + mailSubject + '&body=' + mailBody;
 
         return (
             <Dialog

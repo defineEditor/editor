@@ -14,6 +14,7 @@ import AddIcon from '@material-ui/icons/AddCircle';
 import Tooltip from '@material-ui/core/Tooltip';
 import ClearIcon from '@material-ui/icons/Clear';
 import getSelectionList from 'utils/getSelectionList.js';
+import getModelFromStandard from 'utils/getModelFromStandard.js';
 import DocumentEditor from 'editors/documentEditor.js';
 import { Origin, TranslatedText } from 'elements.js';
 import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
@@ -39,12 +40,25 @@ const styles = theme => ({
 });
 
 const mapStateToProps = state => {
+    let standards = state.present.odm.study.metaDataVersion.standards;
+    // Find default standard;
+    let model;
+    Object.keys(standards).forEach(id => {
+        if (standards[id].isDefault) {
+            model = getModelFromStandard(standards[id].name);
+        }
+    });
+
+    if (model === undefined && state.present.odm.study.metaDataVersion.model !== undefined) {
+        model = state.present.odm.study.metaDataVersion.model;
+    }
+
     return {
         leafs         : state.present.odm.study.metaDataVersion.leafs,
         lang          : state.present.odm.study.metaDataVersion.lang,
-        model         : state.present.odm.study.metaDataVersion.model,
         stdConstants  : state.present.stdConstants,
         defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
+        model,
     };
 };
 

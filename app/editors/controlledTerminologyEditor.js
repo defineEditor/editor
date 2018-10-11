@@ -107,7 +107,7 @@ class ControlledTerminologyEditor extends React.Component {
                             onChange={this.handleChange('updateCt',standardOid)}
                             className={this.props.classes.inputField}
                         >
-                            {getSelectionList(ctList)}
+                            { Object.keys(ctList).length > 0 && getSelectionList(ctList)}
                         </TextField>
                     </ListItem>
                 );

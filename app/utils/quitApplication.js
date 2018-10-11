@@ -10,7 +10,7 @@ function quitApplication (event, data) {
     let state = store.getState().present;
     // Check if Define-XML is saved;
     if (state.ui.main.isCurrentDefineSaved === true) {
-        saveState('quitWithoutSave');
+        saveState('noWrite');
         store.dispatch(appQuit());
         ipcRenderer.send('quitConfirmed');
         window.close();
@@ -27,7 +27,6 @@ function quitApplication (event, data) {
             })
         );
     }
-
 }
 
 export default quitApplication;

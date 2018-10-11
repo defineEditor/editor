@@ -56,12 +56,10 @@ const originTypes = {
         'Predecessor'
     ],
     'SEND': [
-        'CRF',
-        'Derived',
-        'Assigned',
-        'Protocol',
-        'eDT',
-        'Predecessor'
+        'COLLECTED',
+        'DERIVED',
+        'OTHER',
+        'NOT AVAILABLE',
     ],
 };
 
@@ -93,6 +91,15 @@ const classTypes = {
         'INTEGRATED SUBJECT LEVEL'             : 'IADSL',
     },
     'SDTM': {
+        'TRIAL DESIGN'    : 'TD',
+        'SPECIAL PURPOSE' : 'SP',
+        'INTERVENTIONS'   : 'INTERV',
+        'EVENTS'          : 'EVENTS',
+        'FINDINGS'        : 'FIND',
+        'FINDINGS ABOOUT' : 'FA',
+        'RELATIONSHIP'    : 'REL',
+    },
+    'SEND': {
         'TRIAL DESIGN'    : 'TD',
         'SPECIAL PURPOSE' : 'SP',
         'INTERVENTIONS'   : 'INTERV',
