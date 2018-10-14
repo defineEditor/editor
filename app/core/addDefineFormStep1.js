@@ -34,7 +34,7 @@ class AddDefineFormStep1 extends React.Component {
             defineCreationMethod : this.props.defineCreationMethod,
             defineData           : this.props.defineData,
             pathToDefineXml      : this.props.pathToDefineXml,
-            parsingError         : '',
+            parsingErrors        : [],
         };
     }
 
@@ -50,16 +50,18 @@ class AddDefineFormStep1 extends React.Component {
         try {
             let defineData = parseDefine(data);
             let checkResult = checkDefineXml(defineData);
-            if (checkResult === 'No Issues') {
-                this.setState({ defineData, pathToDefineXml, parsingError: '' });
+            if (checkResult.length === 0) {
+                this.setState({ defineData, pathToDefineXml, parsingErrors: [] });
             } else {
-                this.setState({ parsingError: checkResult });
+                this.setState({ parsingErrors: checkResult });
                 throw new Error(checkResult);
             }
         }
         catch (error) {
-            this.setState( { parsingError: error.message } );
-            throw new Error('Could not process the Define-XML file.\nVerify a valid Define-XML file is selected.\n' + error.message); 
+            if (this.state.parsingErrors.lenth === 0 ) {
+                this.setState( { parsingErrors: [error.message] } );
+            }
+            throw new Error('Could not process the Define-XML file. Verify a valid Define-XML file is selected. ' + error.message);
         }
     }
 
@@ -120,9 +122,16 @@ class AddDefineFormStep1 extends React.Component {
                                         </IconButton>
                                     </Grid>
                                 </Grid>
-                                { this.state.parsingError !== '' && (
+                                { this.state.parsingErrors.length > 0 && (
                                     <Typography variant="caption" color='secondary'>
-                                        Import Failed. Verify a valid Define-XML is imported. {this.state.parsingError}
+                                        Import Failed. Verify a valid Define-XML is imported.
+                                        <br/>
+                                        {this.state.parsingErrors.map( (error, index) => (
+                                            <div key={index}>
+                                                {error}
+                                                <br/>
+                                            </div>
+                                        ))}
                                     </Typography>
 
                                 )}

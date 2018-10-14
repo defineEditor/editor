@@ -130,7 +130,7 @@ function datasetFlagsFormatter (cell, row) {
 
 function datasetClassFormatter (cell, row) {
     let value = row.classTypes[cell];
-    return (<span>{value}</span>);
+    return (<abbr title={cell}>{value}</abbr>);
 }
 
 function datasetDomainFormatter (cell, row) {

@@ -18,8 +18,6 @@ const styles = theme => ({
         marginRight  : theme.spacing.unit,
         marginBottom : theme.spacing.unit,
     },
-    switch: {
-    },
 });
 
 class VariableNameLabelEditor extends React.Component {
@@ -38,23 +36,6 @@ class VariableNameLabelEditor extends React.Component {
                         className={classes.nameTextField}
                     />
                 </Grid>
-                {/*
-                <Grid item>
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={this.props.autoLabel}
-                                onChange={this.props.handleChange('autoLabel')}
-                                className={classes.switch}
-                                color='primary'
-                                disabled={this.props.blueprint === undefined}
-                            />
-                        }
-                        label="Auto Label"
-                        className={classes.formControl}
-                    />
-                </Grid>
-                */}
                 <Grid item xs={12}>
                     <TextField
                         label='Label'

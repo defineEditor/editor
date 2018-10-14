@@ -136,13 +136,23 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
                 ...additionalAttrs,
             });
         } else if (name === 'comment') {
-            this.setState({
-                whereClause:{ ...new WhereClause({
-                    ...this.state.whereClause,
-                    commentOid: updateObj.oid,
-                }) },
-                wcComment: updateObj,
-            });
+            if (updateObj === undefined) {
+                this.setState({
+                    whereClause:{ ...new WhereClause({
+                        ...this.state.whereClause,
+                        commentOid: undefined,
+                    }) },
+                    wcComment: updateObj,
+                });
+            } else {
+                this.setState({
+                    whereClause:{ ...new WhereClause({
+                        ...this.state.whereClause,
+                        commentOid: updateObj.oid,
+                    }) },
+                    wcComment: updateObj,
+                });
+            }
         } else if (name === 'autoLabel') {
             this.setState({ [name]: !this.state.autoLabel });
         } else if (name === 'label') {

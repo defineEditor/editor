@@ -105,6 +105,8 @@ class ConnectedModalInitialMessage extends React.Component {
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
                         You&apos;ve just found a &quot;feature&quot; of the application.
+                        If you have imported a Define-XML file created outside, please validate it.
+                        There may be some structure errors in it, which are causing the application to fail.
                         First try to return to the last saved state.
                         If it did not help, then undo the last change using the Session History functionality (CTRL + H)
                         or go to the Studies page using the main menu (CTRL + M) and try to close and open the Define-XML document.
