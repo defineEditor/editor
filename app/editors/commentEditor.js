@@ -16,7 +16,7 @@ import SelectCommentIcon from '@material-ui/icons/OpenInNew';
 import Tooltip from '@material-ui/core/Tooltip';
 import {Comment, TranslatedText} from 'elements.js';
 import getOid from 'utils/getOid.js';
-import SelectMethodComment from 'utils/selectMethodComment.js';
+import CommentMethodTable from 'components/utils/commentMethodTable.js';
 import SaveCancel from 'editors/saveCancel.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
 import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
@@ -40,6 +40,10 @@ const styles = theme => ({
         whiteSpace : 'pre-wrap',
         color      : 'grey',
     },
+    helperText: {
+        whiteSpace : 'pre-wrap',
+        color      : theme.palette.primary.main,
+    },
     root: {
         outline: 'none',
     },
@@ -47,10 +51,11 @@ const styles = theme => ({
 
 const mapStateToProps = state => {
     return {
-        leafs    : state.present.odm.study.metaDataVersion.leafs,
-        comments : state.present.odm.study.metaDataVersion.comments,
-        mdv      : state.present.odm.study.metaDataVersion,
-        lang     : state.present.odm.study.metaDataVersion.lang,
+        leafs                 : state.present.odm.study.metaDataVersion.leafs,
+        comments              : state.present.odm.study.metaDataVersion.comments,
+        mdv                   : state.present.odm.study.metaDataVersion,
+        lang                  : state.present.odm.study.metaDataVersion.lang,
+        textInstantProcessing : state.present.settings.editor.textInstantProcessing,
     };
 };
 
@@ -178,10 +183,36 @@ class ConnectedCommentEditor extends React.Component {
         let comment = this.props.stateless === true ? this.props.comment : this.state.comment;
         let sourceLabels = {count: 0};
         let usedBy;
+        let issue = false;
+        let helperText;
+        let commentText;
         if (comment !== undefined) {
+            commentText = getDescription(comment);
             sourceLabels = getSourceLabels(comment.sources, this.props.mdv);
             if (sourceLabels.count > 1) {
                 usedBy = sourceLabels.labelParts.join('. ');
+            }
+            // Check for special characters
+            let issues = [];
+            let issueText;
+            // eslint-disable-next-line no-control-regex
+            let spCharRegex = new RegExp(/[^\u000A\u0020-\u007f]/,'g');
+            let result;
+            while ((result = spCharRegex.exec(commentText)) !== null) {
+                issueText = `Special character ${result[0]} found at position ${result.index}`;
+                if (result.index > 0) {
+                    let prevString = commentText.slice(0,result.index).replace(/\s/g,' ');
+                    let previousWord = /^.*?\s?(\S+)\s*$/.exec(prevString);
+                    if (previousWord !== null && previousWord.length > 1) {
+                        issueText = issueText + ` after word "${previousWord[1]}"`;
+                    }
+                }
+                issueText = issueText + '.';
+                issues.push(issueText);
+            }
+            if (issues.length > 0) {
+                issue = true;
+                helperText = issues.join('\n');
             }
         }
 
@@ -241,7 +272,7 @@ class ConnectedCommentEditor extends React.Component {
                             </Grid>
                     }
                     { this.state.selectCommentOpened &&
-                            <SelectMethodComment
+                            <CommentMethodTable
                                 type='Comment'
                                 onSelect={this.handleChange('selectComment')}
                                 onCopy={this.handleChange('copyComment')}
@@ -257,9 +288,12 @@ class ConnectedCommentEditor extends React.Component {
                                     rowsMax="10"
                                     autoFocus={this.props.autoFocus}
                                     key={comment.oid}
-                                    defaultValue={getDescription(comment)}
+                                    helperText={issue && helperText}
+                                    FormHelperTextProps={{className: classes.helperText}}
+                                    defaultValue={commentText}
                                     className={classes.commentInput}
-                                    onBlur={this.handleChange('textUpdate')}
+                                    onBlur={!this.props.textInstantProcessing && this.handleChange('textUpdate')}
+                                    onChange={this.props.textInstantProcessing && this.handleChange('textUpdate')}
                                 />
                                 <DocumentEditor
                                     parentObj={comment}
@@ -281,17 +315,18 @@ class ConnectedCommentEditor extends React.Component {
 }
 
 ConnectedCommentEditor.propTypes = {
-    comment: PropTypes.oneOfType([
+    comment               : PropTypes.oneOfType([
         PropTypes.object,
         PropTypes.oneOf([""]),
     ]),
-    leafs     : PropTypes.object.isRequired,
-    lang      : PropTypes.string.isRequired,
-    mdv       : PropTypes.object.isRequired,
-    comments  : PropTypes.object.isRequired,
-    onUpdate  : PropTypes.func,
-    autoFocus : PropTypes.bool,
-    stateless : PropTypes.bool,
+    leafs                 : PropTypes.object.isRequired,
+    lang                  : PropTypes.string.isRequired,
+    mdv                   : PropTypes.object.isRequired,
+    comments              : PropTypes.object.isRequired,
+    onUpdate              : PropTypes.func,
+    autoFocus             : PropTypes.bool,
+    stateless             : PropTypes.bool,
+    textInstantProcessing : PropTypes.bool,
 };
 
 const CommentEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedCommentEditor);

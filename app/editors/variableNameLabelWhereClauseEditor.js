@@ -365,7 +365,6 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
                     <Grid item xs={12}>
                         <VariableNameLabelEditor
                             handleChange={this.handleChange}
-                            onNameBlur={this.setAutoLabel}
                             label={label}
                             name={this.state.name}
                             blueprint={this.props.blueprint}

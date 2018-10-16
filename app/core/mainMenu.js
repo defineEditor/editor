@@ -20,6 +20,7 @@ import Print from '@material-ui/icons/Print';
 import Search from '@material-ui/icons/Search';
 import Review from '@material-ui/icons/RemoveRedEye';
 import Archive from '@material-ui/icons/Archive';
+import Description from '@material-ui/icons/Description';
 import Close from '@material-ui/icons/Close';
 import Assignment from '@material-ui/icons/Assignment';
 import Edit from '@material-ui/icons/Edit';
@@ -179,6 +180,13 @@ class ConnectedMainMenu extends React.Component {
                                             <Archive/>
                                         </ListItemIcon>
                                         <ListItemText primary='Import Length'/>
+                                    </ListItem>
+                                ) , (
+                                    <ListItem button key='commentMethod' onClick={() => {this.props.updateMainUi({showCommentMethodTable: true}); this.props.toggleMainMenu();}}>
+                                        <ListItemIcon>
+                                            <Description/>
+                                        </ListItemIcon>
+                                        <ListItemText primary='Comments/Methods'/>
                                     </ListItem>
                                 ) , (
                                     <ListItem button key='reviewModeToggle' onClick={() => {this.props.toggleReviewMode();}}>

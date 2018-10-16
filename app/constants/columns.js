@@ -74,7 +74,7 @@ const variables = {
         tdStyle   : { padding: '0px' },
     },
     keyOrder: {
-        text    : 'Key, Position',
+        text    : 'Position, Key',
         width   : '110px',
         hidden  : true,
         tdStyle : { whiteSpace: 'normal' },

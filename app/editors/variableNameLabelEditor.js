@@ -18,11 +18,46 @@ const styles = theme => ({
         marginRight  : theme.spacing.unit,
         marginBottom : theme.spacing.unit,
     },
+    helperText: {
+        whiteSpace : 'pre-wrap',
+    },
 });
 
 class VariableNameLabelEditor extends React.Component {
     render() {
-        const {classes} = this.props;
+        const { classes, label } = this.props;
+
+        let issue = false;
+        let helperText = '';
+        if (label !== undefined) {
+            let issues = [];
+            let issueText;
+            let result;
+            let spCharRegex = new RegExp(/[^\u0020-\u007f]/,'g');
+            // Check for special characters
+            while ((result = spCharRegex.exec(label)) !== null) {
+                issueText = `Special character ${result[0]} found at position ${result.index}`;
+                if (result.index > 0) {
+                    let prevString = label.slice(0,result.index).replace(/\s/,' ');
+                    let previousWord = /^.*?\s?(\S+)\s*$/.exec(prevString);
+                    if (previousWord !== null && previousWord.length > 1) {
+                        issueText = issueText + ` after word "${previousWord[1]}"`;
+                    }
+                }
+                issueText = issueText + '.';
+                issues.push(issueText);
+            }
+            // Check label length is withing 40 chars
+            if (label.length > 40) {
+                issueText = `Label length is ${label.length}, which exceeds 40 characters.`;
+                issues.push(issueText);
+            }
+            if (issues.length > 0) {
+                issue = true;
+                helperText = issues.join('\n');
+            }
+
+        }
 
         return (
             <Grid container spacing={0} alignItems='flex-end'>
@@ -41,6 +76,9 @@ class VariableNameLabelEditor extends React.Component {
                         label='Label'
                         multiline
                         fullWidth
+                        error={issue}
+                        helperText={issue && helperText}
+                        FormHelperTextProps={{className: classes.helperText}}
                         value={this.props.label}
                         onChange={this.props.handleChange('label')}
                         className={classes.textField}
@@ -54,7 +92,7 @@ class VariableNameLabelEditor extends React.Component {
 VariableNameLabelEditor.propTypes = {
     classes      : PropTypes.object.isRequired,
     handleChange : PropTypes.func.isRequired,
-    onNameBlur   : PropTypes.func.isRequired,
+    onNameBlur   : PropTypes.func,
     name         : PropTypes.string.isRequired,
     label        : PropTypes.string.isRequired,
     autoLabel    : PropTypes.bool,

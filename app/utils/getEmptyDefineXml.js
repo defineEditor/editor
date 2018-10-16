@@ -5,6 +5,7 @@ import {
     GlobalVariables,
     Standard
 } from 'elements.js';
+import { remote } from 'electron';
 import getOid from 'utils/getOid.js';
 import getCtPublishingSet from 'utils/getCtPublishingSet.js';
 import getModelFromStandard from 'utils/getModelFromStandard.js';
@@ -31,10 +32,13 @@ function getEmptyDefineXml({ standard, defineVersion, study, settings, controlle
     }
     if (
         settings.hasOwnProperty('sourceSystem') &&
-    settings.sourceSystem !== undefined
+    settings.sourceSystem !== ''
     ) {
         defaultOdmAttrs.sourceSystem = settings.sourceSystem;
         defaultOdmAttrs.sourceSystemVersion = settings.sourceSystemVersion;
+    } else {
+        defaultOdmAttrs.sourceSystem = remote.app.getName();
+        defaultOdmAttrs.sourceSystemVersion = remote.app.getVersion();
     }
 
     let standardOid = getOid('Standard');

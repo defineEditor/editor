@@ -85,11 +85,16 @@ class ConnectedSettings extends React.Component {
   handleChange = (category, name) => (event, checked) => {
       if (name === 'controlledTerminologyLocation') {
           this.setState({ [category]: { ...this.state[category], [name]: event } });
-      } else if (['removeUnusedCodeListsInDefineXml', 'getNameLabelFromWhereClause', 'lengthForAllDataTypes'].includes(name)) {
+      } else if ([
+          'removeUnusedCodeListsInDefineXml',
+          'getNameLabelFromWhereClause',
+          'lengthForAllDataTypes',
+          'textInstantProcessing'
+      ].includes(name)) {
           this.setState({ [category]: { ...this.state[category], [name]: checked } });
       } else if (['sourceSystem'].includes(name)) {
           if (event.target.value === '') {
-              this.setState({ [category]: { ...this.state[category], [name]: remote.app.getName(), sourceSystemVersion: remote.app.getVersion() } });
+              this.setState({ [category]: { ...this.state[category], [name]: '', sourceSystemVersion: '' } });
           } else {
               this.setState({ [category]: { ...this.state[category], [name]: event.target.value } });
           }
@@ -220,6 +225,17 @@ class ConnectedSettings extends React.Component {
                                       }
                                       label = 'Allow to set length for all datatypes. In any case a Define-XML file will have Length set only for valid datatypes.'
                                   />
+                                  <FormControlLabel
+                                      control={
+                                          <Switch
+                                              checked={this.state.editor.textInstantProcessing}
+                                              onChange={this.handleChange('editor', 'textInstantProcessing')}
+                                              color='primary'
+                                              className={classes.switch}
+                                          />
+                                      }
+                                      label = 'Instantly process text in Comments and Methods. Suggested to turn off for slow machines.'
+                                  />
                               </FormGroup>
                           </Grid>
                       </Grid>
@@ -257,7 +273,7 @@ class ConnectedSettings extends React.Component {
                           <Grid item>
                               <TextField
                                   label="Source System"
-                                  value={this.state.define.sourceSystem}
+                                  value={this.state.define.sourceSystem || remote.app.getName()}
                                   onChange={this.handleChange('define', 'sourceSystem')}
                                   className={classes.sourceSystem}
                               />
@@ -266,9 +282,9 @@ class ConnectedSettings extends React.Component {
                               <TextField
                                   label="Source System Version"
                                   disabled={
-                                      this.state.define.sourceSystem === remote.app.getName()
+                                      this.state.define.sourceSystem === ''
                                   }
-                                  value={this.state.define.sourceSystemVersion}
+                                  value={this.state.define.sourceSystemVersion || remote.app.getVersion()}
                                   onChange={this.handleChange('define', 'sourceSystemVersion')}
                                   className={classes.sourceSystemVersion}
                               />

@@ -8,8 +8,10 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import EditorTabs from 'tabs/editorTabs.js';
 import DataInput from 'components/utils/dataInput.js';
+import CommentMethodTable from 'components/utils/commentMethodTable.js';
 import {
     changePage,
+    updateMainUi,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -39,6 +41,7 @@ const styles = theme => ({
 const mapDispatchToProps = dispatch => {
     return {
         changePage : (updateObj) => dispatch(changePage(updateObj)),
+        updateMainUi : (updateObj) => dispatch(updateMainUi(updateObj)),
     };
 };
 
@@ -55,6 +58,7 @@ const mapStateToProps = state => {
         currentDefineId,
         codeLists: odmLoaded ? state.present.odm.study.metaDataVersion.codeLists : undefined,
         showDataInput: state.present.ui.main.showDataInput,
+        showCommentMethodTable: state.present.ui.main.showCommentMethodTable,
     };
 };
 
@@ -98,6 +102,13 @@ class ConnectedEditor extends React.Component {
                 {this.props.showDataInput && this.props.odmLoaded && (
                     <DataInput />
                 )}
+                { this.props.showCommentMethodTable &&
+                        <CommentMethodTable
+                            type='Comment'
+                            onClose={() => {this.props.updateMainUi({showCommentMethodTable: false});}}
+                            listOnly={true}
+                        />
+                }
             </React.Fragment>
         );
     }

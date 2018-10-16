@@ -12,8 +12,12 @@ function quitApplication (event, data) {
     if (state.ui.main.isCurrentDefineSaved === true) {
         saveState('noWrite');
         store.dispatch(appQuit());
-        ipcRenderer.send('quitConfirmed');
-        window.close();
+        // TODO Rewrite this solution.
+        // Without it, a JS error is happening when application is closed. Looks like caused by electron-store writing its state.
+        setTimeout( () => {
+            ipcRenderer.send('quitConfirmed');
+            window.close();
+        }, 500);
     } else {
         // Open a modal
         store.dispatch(

@@ -19,7 +19,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Switch from '@material-ui/core/Switch';
 import MenuItem from '@material-ui/core/MenuItem';
 import getOid from 'utils/getOid.js';
-import SelectMethodComment from 'utils/selectMethodComment.js';
+import CommentMethodTable from 'components/utils/commentMethodTable.js';
 import getMethodSourceLabels from 'utils/getMethodSourceLabels.js';
 import SelectMethodIcon from '@material-ui/icons/OpenInNew';
 import { Method, TranslatedText, FormalExpression } from 'elements.js';
@@ -50,21 +50,26 @@ const styles = theme => ({
     titleLine: {
         height: '40px',
     },
+    helperText: {
+        whiteSpace : 'pre-wrap',
+        color      : theme.palette.primary.main,
+    },
 });
 
 const mapStateToProps = state => {
     return {
-        leafs   : state.present.odm.study.metaDataVersion.leafs,
-        mdv     : state.present.odm.study.metaDataVersion,
-        methods : state.present.odm.study.metaDataVersion.methods,
-        lang    : state.present.odm.study.metaDataVersion.lang,
+        leafs                 : state.present.odm.study.metaDataVersion.leafs,
+        mdv                   : state.present.odm.study.metaDataVersion,
+        methods               : state.present.odm.study.metaDataVersion.methods,
+        lang                  : state.present.odm.study.metaDataVersion.lang,
+        textInstantProcessing : state.present.settings.editor.textInstantProcessing,
     };
 };
 
 class ConnectedMethodEditor extends React.Component {
     constructor (props) {
         super(props);
-        // Bootstrap table changed undefined to '' when saving the value. 
+        // Bootstrap table changed undefined to '' when saving the value.
         // Catching this and resetting to undefined in case it is an empty string
         let defaultValue;
         if (this.props.stateless !== true) {
@@ -179,15 +184,42 @@ class ConnectedMethodEditor extends React.Component {
         let method = this.props.stateless === true ? this.props.method : this.state.method;
         const methodTypeList = ['Imputation', 'Computation'];
         let methodName, autoMethodName, methodType, formalExpressionExists;
+        let issue = false;
+        let helperText;
+        let methodText;
         if (method !== undefined) {
+            methodText = getDescription(method);
             methodName = method.name || '';
             autoMethodName = method.autoMethodName;
             // If method type is not set, default it to Computation when it is one of the options
             methodType = method.type || (methodTypeList.indexOf('Computation') >= 0 ? 'Computation' :  '');
             formalExpressionExists = (method.formalExpressions[0] !== undefined);
+            // Check for special characters
+            let issues = [];
+            let issueText;
+            // eslint-disable-next-line no-control-regex
+            let spCharRegex = new RegExp(/[^\u000A\u0020-\u007f]/,'g');
+            let result;
+            while ((result = spCharRegex.exec(methodText)) !== null) {
+                issueText = `Special character ${result[0]} found at position ${result.index}`;
+                if (result.index > 0) {
+                    let prevString = methodText.slice(0,result.index).replace(/\s/g,' ');
+                    let previousWord = /^.*?\s?(\S+)\s*$/.exec(prevString);
+                    if (previousWord !== null && previousWord.length > 1) {
+                        issueText = issueText + ` after word "${previousWord[1]}"`;
+                    }
+                }
+                issueText = issueText + '.';
+                issues.push(issueText);
+            }
+            if (issues.length > 0) {
+                issue = true;
+                helperText = issues.join('\n');
+            }
         } else {
             methodName = '';
             autoMethodName = false;
+            methodText = '';
             methodType = methodTypeList.indexOf('Computation') >= 0 ? 'Computation' :  '';
             formalExpressionExists = false;
         }
@@ -280,7 +312,7 @@ class ConnectedMethodEditor extends React.Component {
                 }
                 <Grid item xs={12}>
                     { this.state.selectMethodOpened &&
-                            <SelectMethodComment
+                            <CommentMethodTable
                                 type='Method'
                                 onSelect={this.handleChange('selectMethod')}
                                 onCopy={this.handleChange('copyMethod')}
@@ -337,8 +369,11 @@ class ConnectedMethodEditor extends React.Component {
                                         fullWidth
                                         autoFocus
                                         key={method.oid}
-                                        defaultValue={getDescription(method)}
-                                        onBlur={this.handleChange('textUpdate')}
+                                        defaultValue={methodText}
+                                        helperText={issue && helperText}
+                                        FormHelperTextProps={{className: classes.helperText}}
+                                        onBlur={!this.props.textInstantProcessing && this.handleChange('textUpdate')}
+                                        onChange={this.props.textInstantProcessing && this.handleChange('textUpdate')}
                                         margin="normal"
                                     />
                                     <DocumentEditor
@@ -375,13 +410,14 @@ ConnectedMethodEditor.propTypes = {
         PropTypes.object,
         PropTypes.oneOf([""]),
     ]),
-    mdv       : PropTypes.object.isRequired,
-    leafs     : PropTypes.object.isRequired,
-    lang      : PropTypes.string.isRequired,
-    methods   : PropTypes.object.isRequired,
-    fullName  : PropTypes.string,
-    onUpdate  : PropTypes.func,
-    stateless : PropTypes.bool,
+    mdv                   : PropTypes.object.isRequired,
+    leafs                 : PropTypes.object.isRequired,
+    lang                  : PropTypes.string.isRequired,
+    methods               : PropTypes.object.isRequired,
+    fullName              : PropTypes.string,
+    onUpdate              : PropTypes.func,
+    stateless             : PropTypes.bool,
+    textInstantProcessing : PropTypes.bool,
 };
 
 const MethodEditor = connect(mapStateToProps)(ConnectedMethodEditor);

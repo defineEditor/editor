@@ -15,16 +15,18 @@ function saveState(type) {
     let stateToSave = { ...state, ui: { ...state.ui, main: { ...state.ui.main, mainMenuOpened: false } } };
     // Save current Define
     if (type !== 'noWrite') {
-        if (type !== 'backup') {
-            ipcRenderer.once('writeDefineObjectFinished', (event, defineId) => {store.dispatch(appSave({ defineId }));} );
-        }
-        if (stateToSave.ui.main.currentDefineId !== '') {
-            ipcRenderer.send('writeDefineObject', {
-                defineId: stateToSave.odm.defineId,
-                tabs: stateToSave.ui.tabs,
-                odm: stateToSave.odm,
-            },
-            type === 'backup' ? true : false);
+        if (stateToSave.ui.main.currentDefineId !== '' && Object.keys(stateToSave.odm).length > 0) {
+            if (type !== 'backup') {
+                ipcRenderer.once('writeDefineObjectFinished', (event, defineId) => {store.dispatch(appSave({ defineId }));} );
+            }
+            ipcRenderer.send('writeDefineObject',
+                {
+                    defineId: stateToSave.odm.defineId,
+                    tabs: stateToSave.ui.tabs,
+                    odm: stateToSave.odm,
+                },
+                type === 'backup' ? true : false
+            );
         }
     }
     // Delete parts of the state which are loaded differently

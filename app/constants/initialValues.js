@@ -89,6 +89,7 @@ const editor = {
     removeUnusedCodeListsInDefineXml: true,
     getNameLabelFromWhereClause: true,
     lengthForAllDataTypes: false,
+    textInstantProcessing: false,
 };
 
 const define = {

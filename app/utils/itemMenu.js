@@ -196,19 +196,22 @@ class ConnectedItemMenu extends React.Component {
     }
 
     onKeyDown = (event)  => {
-        // Do not use shortcuts when VLM order is opened
-        if (this.state.openVlmOrder) {
-            return;
-        }
-        if (event.keyCode === 73) {
-            this.insertRecord(1)();
-        } else if (event.keyCode === 67) {
-            this.copy();
-        } else if (event.keyCode === 80
-            &&
-            !(this.props.reviewMode || (this.props.buffer === undefined || this.props.buffer.vlmLevel !== this.props.itemMenuParams.vlmLevel)) ) {
-            this.paste(1)();
-            this.copy();
+        // Run only when menu is opened
+        if (Boolean(this.props.anchorEl) === true) {
+            // Do not use shortcuts when VLM order is opened
+            if (this.state.openVlmOrder) {
+                return;
+            }
+            if (event.keyCode === 73) {
+                this.insertRecord(1)();
+            } else if (event.keyCode === 67) {
+                this.copy();
+            } else if (event.keyCode === 80
+                &&
+                !(this.props.reviewMode || (this.props.buffer === undefined || this.props.buffer.vlmLevel !== this.props.itemMenuParams.vlmLevel)) ) {
+                this.paste(1)();
+                this.copy();
+            }
         }
     }
 

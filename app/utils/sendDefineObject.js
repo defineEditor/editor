@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, remote } from 'electron';
 import store from 'store/index.js';
 import { getMaxLength } from 'utils/defineStructureUtils.js';
 import { ActionCreators } from 'redux-undo';
@@ -58,7 +58,7 @@ function sendDefineObject (event, data) {
             odm.study.metaDataVersion = mdv;
         }
     }
-    // Update variable length based if special options were selected;
+    // Update variable length if corresponding options were selected;
     Object.keys(mdv.itemDefs).forEach( itemDefOid => {
         let itemDef = mdv.itemDefs[itemDefOid];
 
@@ -80,6 +80,15 @@ function sendDefineObject (event, data) {
                 store.dispatch(updateDefine({ defineId: odm.defineId , properties: { pathToFile: savePath } }));
             }
         });
+    }
+
+    // Set proper version of the app;
+    if (state.settings.define.sourceSystem === '') {
+        odm.sourceSystem = remote.app.getName();
+        odm.sourceSystemVersion = remote.app.getVersion();
+    } else {
+        odm.sourceSystem = state.settings.define.sourceSystem;
+        odm.sourceSystemVersion = state.settings.define.sourceSystemVersion;
     }
 
     ipcRenderer.send('saveAs', { odm });
