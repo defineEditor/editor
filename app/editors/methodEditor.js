@@ -372,8 +372,8 @@ class ConnectedMethodEditor extends React.Component {
                                         defaultValue={methodText}
                                         helperText={issue && helperText}
                                         FormHelperTextProps={{className: classes.helperText}}
-                                        onBlur={!this.props.textInstantProcessing && this.handleChange('textUpdate')}
-                                        onChange={this.props.textInstantProcessing && this.handleChange('textUpdate')}
+                                        onBlur={!this.props.textInstantProcessing ? this.handleChange('textUpdate') : undefined}
+                                        onChange={this.props.textInstantProcessing ? this.handleChange('textUpdate') : undefined}
                                         margin="normal"
                                     />
                                     <DocumentEditor

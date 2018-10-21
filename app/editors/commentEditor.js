@@ -292,8 +292,8 @@ class ConnectedCommentEditor extends React.Component {
                                     FormHelperTextProps={{className: classes.helperText}}
                                     defaultValue={commentText}
                                     className={classes.commentInput}
-                                    onBlur={!this.props.textInstantProcessing && this.handleChange('textUpdate')}
-                                    onChange={this.props.textInstantProcessing && this.handleChange('textUpdate')}
+                                    onBlur={!this.props.textInstantProcessing ? this.handleChange('textUpdate') : undefined}
+                                    onChange={this.props.textInstantProcessing ? this.handleChange('textUpdate') : undefined}
                                 />
                                 <DocumentEditor
                                     parentObj={comment}
