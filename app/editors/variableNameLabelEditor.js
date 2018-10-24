@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 //import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
+import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 
 const styles = theme => ({
     formControl: {
@@ -30,33 +31,16 @@ class VariableNameLabelEditor extends React.Component {
         let issue = false;
         let helperText = '';
         if (label !== undefined) {
-            let issues = [];
-            let issueText;
-            let result;
-            let spCharRegex = new RegExp(/[^\u0020-\u007f]/,'g');
-            // Check for special characters
-            while ((result = spCharRegex.exec(label)) !== null) {
-                issueText = `Special character ${result[0]} found at position ${result.index}`;
-                if (result.index > 0) {
-                    let prevString = label.slice(0,result.index).replace(/\s/,' ');
-                    let previousWord = /^.*?\s?(\S+)\s*$/.exec(prevString);
-                    if (previousWord !== null && previousWord.length > 1) {
-                        issueText = issueText + ` after word "${previousWord[1]}"`;
-                    }
-                }
-                issueText = issueText + '.';
-                issues.push(issueText);
-            }
+            let issues = checkForSpecialChars(label);
             // Check label length is withing 40 chars
             if (label.length > 40) {
-                issueText = `Label length is ${label.length}, which exceeds 40 characters.`;
+                let issueText = `Label length is ${label.length}, which exceeds 40 characters.`;
                 issues.push(issueText);
             }
             if (issues.length > 0) {
                 issue = true;
                 helperText = issues.join('\n');
             }
-
         }
 
         return (

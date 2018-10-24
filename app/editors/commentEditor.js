@@ -16,6 +16,7 @@ import SelectCommentIcon from '@material-ui/icons/OpenInNew';
 import Tooltip from '@material-ui/core/Tooltip';
 import {Comment, TranslatedText} from 'elements.js';
 import getOid from 'utils/getOid.js';
+import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 import CommentMethodTable from 'components/utils/commentMethodTable.js';
 import SaveCancel from 'editors/saveCancel.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
@@ -193,23 +194,8 @@ class ConnectedCommentEditor extends React.Component {
                 usedBy = sourceLabels.labelParts.join('. ');
             }
             // Check for special characters
-            let issues = [];
-            let issueText;
             // eslint-disable-next-line no-control-regex
-            let spCharRegex = new RegExp(/[^\u000A\u0020-\u007f]/,'g');
-            let result;
-            while ((result = spCharRegex.exec(commentText)) !== null) {
-                issueText = `Special character ${result[0]} found at position ${result.index}`;
-                if (result.index > 0) {
-                    let prevString = commentText.slice(0,result.index).replace(/\s/g,' ');
-                    let previousWord = /^.*?\s?(\S+)\s*$/.exec(prevString);
-                    if (previousWord !== null && previousWord.length > 1) {
-                        issueText = issueText + ` after word "${previousWord[1]}"`;
-                    }
-                }
-                issueText = issueText + '.';
-                issues.push(issueText);
-            }
+            let issues = checkForSpecialChars(commentText, new RegExp(/[^\u000A\u0020-\u007f]/,'g'));
             if (issues.length > 0) {
                 issue = true;
                 helperText = issues.join('\n');

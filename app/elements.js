@@ -434,7 +434,8 @@ class Comment extends BasicFunctions {
                 itemGroups: [],
                 whereClauses: [],
                 codeLists: [],
-                metaDataVersion: []
+                metaDataVersion: [],
+                analysisResults: [],
             };
         }
     }
@@ -562,6 +563,7 @@ class MetaDataVersion extends BasicFunctions {
         leafs = {},
         model,
         lang = 'en',
+        analysisResultDisplays,
         annotatedCrf = {},
         supplementalDoc = {},
         order = { itemGroupOrder: [], codeListOrder: [], leafOrder: [] }
@@ -584,6 +586,7 @@ class MetaDataVersion extends BasicFunctions {
         this.methods = methods;
         this.comments = comments;
         this.leafs = leafs;
+        this.analysisResultDisplays = analysisResultDisplays;
         // Non-define XML properties
         this.model = model;
         if (order !== undefined) {
@@ -665,6 +668,7 @@ class Odm {
         context,
         study,
         xlink,
+        arm,
         def,
         xmlns,
         xsi,
@@ -684,6 +688,7 @@ class Odm {
         this.sourceSystemVersion = sourceSystemVersion;
         this.context = context;
         this.xlink = xlink;
+        this.arm = arm;
         this.def = def;
         this.xmlns = xmlns;
         this.xsi = xsi;
@@ -930,5 +935,6 @@ module.exports = {
     Document: Document,
     PdfPageRef: PdfPageRef,
     Leaf: Leaf,
-    Note: Note
+    Note: Note,
+    BasicFunctions: BasicFunctions,
 };

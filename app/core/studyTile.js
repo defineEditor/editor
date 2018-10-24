@@ -49,6 +49,9 @@ const styles = theme => ({
         textOverflow: 'ellipsis',
         overflow: 'hidden',
     },
+    root: {
+        outline: 'none',
+    },
 });
 
 const mapDispatchToProps = dispatch => {
@@ -200,6 +203,14 @@ class ConnectedStudyTile extends React.Component {
         this.setState({ study: { ...this.props.study }, editMode: false });
     };
 
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.onCancel();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.onSave();
+        }
+    }
+
     render() {
         const { classes } = this.props;
         const { anchorEl } = this.state;
@@ -219,7 +230,11 @@ class ConnectedStudyTile extends React.Component {
 
 
         return (
-            <div>
+            <div
+                onKeyDown={this.onKeyDown}
+                tabIndex='0'
+                className={classes.root}
+            >
                 <Card className={classes.card} raised={true}>
                     <CardActions className={classes.actions}>
                         {this.state.editMode ? (

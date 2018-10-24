@@ -33,7 +33,11 @@ class DocumentFormatter extends React.Component {
                 doc.pdfPageRefs.forEach (pdfPageRef => {
                     if (pdfPageRef.pageRefs !== undefined) {
                         if (pdfPageRef.type === 'NamedDestination') {
-                            pdfPageRefs.push(<a href={leafs[doc.leafId].href + '#' + pdfPageRef.pageRefs} key={pdfPageRef.pageRefs} onClick={openPdf}>{pdfPageRef.pageRefs}</a>);
+                            let destinationList = [];
+                            pdfPageRef.pageRefs.split(' ').forEach( destination => {
+                                destinationList.push(<a href={leafs[doc.leafId].href + '#' + destination} key={destination} onClick={openPdf}>{destination}</a>);
+                            });
+                            pdfPageRefs.push(destinationList.reduce( (prev, cur) => ( [prev, ' ', cur] ) ));
                         } else if (pdfPageRef.type === 'PhysicalRef') {
                             // It is expected that pages are separated by a space (as per Define-XML spec)
                             let pageList = [];

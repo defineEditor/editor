@@ -19,6 +19,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Switch from '@material-ui/core/Switch';
 import MenuItem from '@material-ui/core/MenuItem';
 import getOid from 'utils/getOid.js';
+import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 import CommentMethodTable from 'components/utils/commentMethodTable.js';
 import getMethodSourceLabels from 'utils/getMethodSourceLabels.js';
 import SelectMethodIcon from '@material-ui/icons/OpenInNew';
@@ -195,23 +196,8 @@ class ConnectedMethodEditor extends React.Component {
             methodType = method.type || (methodTypeList.indexOf('Computation') >= 0 ? 'Computation' :  '');
             formalExpressionExists = (method.formalExpressions[0] !== undefined);
             // Check for special characters
-            let issues = [];
-            let issueText;
             // eslint-disable-next-line no-control-regex
-            let spCharRegex = new RegExp(/[^\u000A\u0020-\u007f]/,'g');
-            let result;
-            while ((result = spCharRegex.exec(methodText)) !== null) {
-                issueText = `Special character ${result[0]} found at position ${result.index}`;
-                if (result.index > 0) {
-                    let prevString = methodText.slice(0,result.index).replace(/\s/g,' ');
-                    let previousWord = /^.*?\s?(\S+)\s*$/.exec(prevString);
-                    if (previousWord !== null && previousWord.length > 1) {
-                        issueText = issueText + ` after word "${previousWord[1]}"`;
-                    }
-                }
-                issueText = issueText + '.';
-                issues.push(issueText);
-            }
+            let issues = checkForSpecialChars(methodText, new RegExp(/[^\u000A\u0020-\u007f]/,'g'));
             if (issues.length > 0) {
                 issue = true;
                 helperText = issues.join('\n');

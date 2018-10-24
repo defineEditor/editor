@@ -1,139 +1,19 @@
 import def from 'elements.js';
 import getOid from 'utils/getOid.js';
 import getModelFromStandard from 'utils/getModelFromStandard.js';
-
-// Auxiliary functions
-
-// Remove namespace from attribute names
-function removeNamespace (obj) {
-    for (let prop in obj) {
-        if (obj.hasOwnProperty(prop)) {
-            let propUpdated = prop;
-            // Rename only properties starting with a capital letter
-            if (/^\w+:/.test(prop)) {
-                propUpdated = prop.replace(/^\w+:(.*)/, '$1');
-                // Check if the renamed property already exists and if not - rename and remove the old one
-                if (obj.hasOwnProperty(propUpdated)) {
-                    throw new Error('Cannot convert property ' + prop + ' to ' + propUpdated + ' as it already exists');
-                } else {
-                    obj[propUpdated] = obj[prop];
-                    delete obj[prop];
-                }
-            }
-            if (typeof obj[propUpdated] === 'object') {
-                removeNamespace(obj[propUpdated]);
-            }
-        }
-    }
-}
-
-function populateValueListSources(valueLists, itemDefs) {
-    // Connect codeList to its sources
-    // Required as a separate function, because valueLists are connected to itemDefs and itemDefs are connected to valueLists
-    Object.keys(valueLists).forEach( valueListOid => {
-        let sources = [];
-        let valueList = valueLists[valueListOid];
-        Object.keys(itemDefs).forEach( itemDefOid => {
-            if (itemDefs[itemDefOid].valueListOid === valueList.oid) {
-                sources.push(itemDefOid);
-            }
-        });
-
-        valueList.sources = {
-            itemDefs: sources,
-        };
-    });
-}
-
-// ODM naming convention uses UpperCamelCase for attribute/element names
-// As they become class properties, all attributes are converted to lower camel case
-function convertAttrsToLCC (obj) {
-    for (let prop in obj) {
-        if (obj.hasOwnProperty(prop)) {
-            let propUpdated = prop;
-            // Rename only properties starting with a capital letter
-            if (/^[A-Z]|leafID/.test(prop)) {
-                if (/^[A-Z0-9_]+$/.test(prop)) {
-                    // All caps OID -> oid
-                    propUpdated = prop.toLowerCase();
-                } else if (/[a-z](OID|CRF|ID)/.test(propUpdated)) {
-                    // Abbreviations mid word: FileOID -> fileOid
-                    propUpdated = propUpdated.replace(/^(\w*[a-z])(OID|CRF|ID)/, function (a, p1, p2) {
-                        return p1.slice(0, 1).toLowerCase() + p1.slice(1) + p2.slice(0, 1) + p2.slice(1).toLowerCase();
-                    });
-                } else if (prop === 'ODMVersion') {
-                    propUpdated = 'odmVersion';
-                } else {
-                    propUpdated = prop.slice(0, 1).toLowerCase() + prop.slice(1);
-                }
-                // Check if the renamed property already exists and if not - rename and remove the old one
-                if (obj.hasOwnProperty(propUpdated)) {
-                    throw new Error('Cannot convert property ' + prop + ' to ' + propUpdated + ' as it already exists');
-                } else {
-                    obj[propUpdated] = obj[prop];
-                    delete obj[prop];
-                }
-            }
-            if (typeof obj[propUpdated] === 'object') {
-                convertAttrsToLCC(obj[propUpdated]);
-            }
-        }
-    }
-}
-
-// Get an array of IDs using a specific target ID;
-// Source is an object, with IDs as property names
-function getListOfSourceIds(source, targetName, targetId) {
-    if (source !== undefined) {
-        return Object.keys(source).filter( oid => {
-            return source[oid][targetName] === targetId;
-        });
-    } else {
-        return [];
-    }
-}
-
-// Get ItemGroupOids for where clauses
-function populateItemGroupOidInWhereClause(mdv) {
-    Object.keys(mdv.whereClauses).forEach(whereClauseOid => {
-        let wc = mdv.whereClauses[whereClauseOid];
-        // Get source datasets for the WhereClause
-        let sourceItemGroups = [];
-        wc.sources.valueLists.forEach( vlOid => {
-            mdv.valueLists[vlOid].sources.itemDefs.forEach( itemDefOid => {
-                mdv.itemDefs[itemDefOid].sources.itemGroups.forEach ( itemGroupOid => {
-                    if (!sourceItemGroups.includes(itemGroupOid)) {
-                        sourceItemGroups.push(itemGroupOid);
-                    }
-
-                });
-            });
-        });
-        wc.rangeChecks.forEach( rangeCheck => {
-            if (rangeCheck.itemGroupOid === undefined && rangeCheck.itemOid !==undefined) {
-                // If itemOid has only 1 source dataset, use it
-                if (!mdv.itemDefs.hasOwnProperty(rangeCheck.itemOid)) {
-                    throw new Error(' Item ' + rangeCheck.itemOid + ' referenced in WhereClause ' + wc.oid +  ' does not exist.');
-                }
-                if (mdv.itemDefs[rangeCheck.itemOid].sources.itemGroups.length === 1) {
-                    rangeCheck.itemGroupOid = mdv.itemDefs[rangeCheck.itemOid].sources.itemGroups[0];
-                } else {
-                    // Check if the dataset(s) using the WC has the variable
-                    let itemGroupOids = [];
-                    sourceItemGroups.forEach( itemGroupOid => {
-                        if (mdv.itemDefs[rangeCheck.itemOid].sources.itemGroups.includes(itemGroupOid)) {
-                            itemGroupOids.push(itemGroupOid);
-                        }
-                    });
-                    // If there is only one match, safely assume that it is the one to use
-                    if (itemGroupOids.length === 1) {
-                        rangeCheck.itemGroup = itemGroupOids[0];
-                    }
-                }
-            }
-        });
-    });
-}
+import {
+    removeNamespace,
+    populateValueListSources,
+    convertAttrsToLCC,
+    getListOfSourceIds,
+    populateItemGroupOidInWhereClause,
+} from 'parsers/parseUtils.js';
+import {
+    parseArm,
+    parseTranslatedText,
+    parseDocument,
+    parseDocumentCollection,
+} from 'parsers/parseArm.js';
 
 // Parse functions
 function parseLeafs (leafsRaw, mdv) {
@@ -172,53 +52,6 @@ function parseAlias (aliasRaw) {
         name    : aliasRaw[0]['$']['name'],
         context : aliasRaw[0]['$']['context']
     });
-}
-
-function parseDocument (doc) {
-    let args = {
-        leafId: doc['$']['leafId'],
-    };
-    let document = new def.Document(args);
-    if (doc.hasOwnProperty('pDFPageRef')) {
-        doc['pDFPageRef'].forEach(function (pdfPageRef) {
-            document.addPdfPageRef(new def.PdfPageRef({
-                type      : doc['pDFPageRef'][0]['$']['type'],
-                pageRefs  : doc['pDFPageRef'][0]['$']['pageRefs'],
-                firstPage : doc['pDFPageRef'][0]['$']['firstPage'],
-                lastPage  : doc['pDFPageRef'][0]['$']['lastPage'],
-                title     : doc['pDFPageRef'][0]['$']['title']
-            }));
-        });
-    }
-
-    return document;
-}
-
-function parseDocumentCollection (documentsRaw) {
-    let documents = {};
-    documentsRaw.forEach(function (documentRaw) {
-        let document = parseDocument(documentRaw['documentRef'][0]);
-        documents[document.leafId] = document;
-    });
-
-    return documents;
-}
-
-function parseTranslatedText (item) {
-    let args = {};
-    if (typeof item['translatedText'][0] === 'string') {
-        args = {
-            lang  : undefined,
-            value : item['translatedText'][0]
-        };
-    } else {
-        args = {
-            lang  : item['translatedText'][0]['$']['lang'],
-            value : item['translatedText'][0]['_']
-        };
-    }
-
-    return new def.TranslatedText(args);
 }
 
 function parseComments (commentsRaw, mdv) {
@@ -740,6 +573,11 @@ function parseMetaDataVersion (metadataRaw) {
     if (metadataRaw.hasOwnProperty('supplementalDoc')) {
         mdv.supplementalDoc = parseDocumentCollection(metadataRaw['supplementalDoc']);
     }
+
+    if (metadataRaw.hasOwnProperty('analysisResultDisplays')) {
+        mdv.analysisResultDisplays = parseArm(metadataRaw['analysisResultDisplays']);
+    }
+
     mdv.leafs = parseLeafs(metadataRaw['leaf'], mdv);
     mdv.valueLists = parseValueLists(metadataRaw['valueListDef'], mdv);
     mdv.whereClauses = parseWhereClauses(metadataRaw['whereClauseDef'], mdv);

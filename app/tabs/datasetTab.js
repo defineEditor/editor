@@ -170,10 +170,21 @@ class ConnectedDatasetTable extends React.Component {
                 dataFormat: this.menuFormatter,
             },
             name: {
-                customEditor: {getElement: simpleInputEditor},
+                customEditor: {getElement: simpleInputEditor, customEditorParameters: { options:
+                    {
+                        checkForSpecialChars : { type: 'Error', regex: new RegExp(/[^A-Z_0-9]/,'g') },
+                        lengthLimit          : { type: 'Error', maxLength: 8 },
+                        upcase               : true,
+                    }
+                }},
             },
             description: {
-                customEditor: {getElement: simpleInputEditor},
+                customEditor: {getElement: simpleInputEditor, customEditorParameters: { options:
+                    {
+                        checkForSpecialChars : { type: 'Error' },
+                        lengthLimit          : { type: 'Error', maxLength: 40 }
+                    }
+                }},
             },
             domainAttrs: {
                 dataFormat   : datasetDomainFormatter,
@@ -188,7 +199,11 @@ class ConnectedDatasetTable extends React.Component {
                 customEditor : {getElement: datasetFlagsEditor},
             },
             structure: {
-                customEditor: {getElement: simpleInputEditor},
+                customEditor: {getElement: simpleInputEditor, customEditorParameters: { options:
+                    {
+                        checkForSpecialChars : { type: 'Note' },
+                    }
+                }},
             },
             keys: {
                 customEditor: {getElement: interactiveKeyOrderEditor},

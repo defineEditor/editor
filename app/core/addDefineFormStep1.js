@@ -58,7 +58,7 @@ class AddDefineFormStep1 extends React.Component {
             }
         }
         catch (error) {
-            if (this.state.parsingErrors.lenth === 0 ) {
+            if (this.state.parsingErrors.length === 0 ) {
                 this.setState( { parsingErrors: [error.message] } );
             }
             throw new Error('Could not process the Define-XML file. Verify a valid Define-XML file is selected. ' + error.message);
