@@ -6,6 +6,7 @@ import SaveCancel from 'editors/saveCancel.js';
 import TextField from '@material-ui/core/TextField';
 import getSelectionList from 'utils/getSelectionList.js';
 import sortCodeLists from 'utils/sortCodeLists.js';
+import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 
 const styles = theme => ({
     textField: {
@@ -17,6 +18,9 @@ const styles = theme => ({
     },
     root: {
         outline: 'none',
+    },
+    helperText: {
+        whiteSpace : 'pre-wrap',
     },
 });
 
@@ -75,6 +79,21 @@ class VariableCodeListFormatEditor extends React.Component {
             return Object.keys(codeList).length !== 0;
         });
 
+        let issue = false;
+        let helperText = '';
+        if (displayFormat !== undefined) {
+            let issues = checkForSpecialChars(displayFormat, new RegExp(/[^$a-zA-Z_0-9]/,'g'), 'Invalid character' );
+            // Check label length is withing 40 chars
+            if (displayFormat.length > 32) {
+                let issueText = `Value length is ${displayFormat.length}, which exceeds 32 characters.`;
+                issues.push(issueText);
+            }
+            if (issues.length > 0) {
+                issue = true;
+                helperText = issues.join('\n');
+            }
+        }
+
         return (
             <div
                 onKeyDown={this.onKeyDown}
@@ -101,6 +120,9 @@ class VariableCodeListFormatEditor extends React.Component {
                         <TextField
                             label='Display Format'
                             fullWidth
+                            error={issue}
+                            helperText={issue && helperText}
+                            FormHelperTextProps={{className: classes.helperText}}
                             value={displayFormat}
                             onChange={this.handleChange('displayFormat')}
                             className={classes.textField}

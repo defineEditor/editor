@@ -119,7 +119,11 @@ class ConnectedCodeListTable extends React.Component {
                 dataFormat: this.menuFormatter,
             },
             name: {
-                customEditor: {getElement: simpleInputEditor},
+                customEditor: {getElement: simpleInputEditor, customEditorParameters: { options:
+                    {
+                        checkForSpecialChars : { type: 'Note' },
+                    }
+                }},
             },
             codeListType: {
                 dataFormat   : codeListTypeFormatter,

@@ -13,6 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import ClearIcon from '@material-ui/icons/Clear';
 import CodeIcon from '@material-ui/icons/Code';
+import DetachMethodIcon from '@material-ui/icons/CallSplit';
 import InsertLink from '@material-ui/icons/InsertLink';
 import AddIcon from '@material-ui/icons/AddCircle';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -134,6 +135,9 @@ class ConnectedMethodEditor extends React.Component {
             let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
             newMethod = { ...new Method({ ...clone(updateObj), oid: methodOid, sources: undefined }) };
             this.setState({selectMethodOpened: false});
+        } else if (name === 'detachMethod') {
+            let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
+            newMethod = { ...new Method({ ...clone(this.props.stateless ? this.props.method : this.state.method), oid: methodOid, sources: undefined }) };
         }
 
         if (this.props.stateless === true) {
@@ -287,6 +291,19 @@ class ConnectedMethodEditor extends React.Component {
                                 </span>
                             </Tooltip>
                         </Grid>
+                        {(sourceLabels.count > 1)  &&
+                                <Grid item>
+                                    <Tooltip title='Detach Method' placement='bottom' enterDelay={1000}>
+                                        <IconButton
+                                            onClick={this.handleChange('detachMethod')}
+                                            className={classes.iconButton}
+                                            color='primary'
+                                        >
+                                            <DetachMethodIcon/>
+                                        </IconButton>
+                                    </Tooltip>
+                                </Grid>
+                        }
                     </Grid>
                 </Grid>
                 {(sourceLabels.count > 1)  &&

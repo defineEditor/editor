@@ -32,7 +32,11 @@ class CodedValueEditor extends React.Component {
                 />
             );
         } else {
-            return (<SimpleInputEditor onUpdate={ this.props.onUpdate } {...this.props}/>);
+            let options = {
+                checkForSpecialChars : { type: 'Error' },
+                lengthLimit          : { type: 'Error', maxLength: 200 },
+            };
+            return (<SimpleInputEditor onUpdate={ this.props.onUpdate } {...this.props} options={options}/>);
         }
     }
 }

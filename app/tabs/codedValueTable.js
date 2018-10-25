@@ -133,7 +133,12 @@ class ConnectedCodedValueTable extends React.Component {
                 customEditor: { getElement: codedValueEditor },
             },
             decode: {
-                customEditor: { getElement: simpleInputEditor },
+                customEditor: {getElement: simpleInputEditor, customEditorParameters: { options:
+                    {
+                        checkForSpecialChars : { type: 'Error' },
+                        lengthLimit          : { type: 'Error', maxLength: 200 },
+                    }
+                }},
             },
             rank: {
                 customEditor: { getElement: simpleInputEditor },

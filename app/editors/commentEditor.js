@@ -13,6 +13,7 @@ import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import InsertLink from '@material-ui/icons/InsertLink';
 import AddIcon from '@material-ui/icons/AddCircle';
 import SelectCommentIcon from '@material-ui/icons/OpenInNew';
+import DetachCommentIcon from '@material-ui/icons/CallSplit';
 import Tooltip from '@material-ui/core/Tooltip';
 import {Comment, TranslatedText} from 'elements.js';
 import getOid from 'utils/getOid.js';
@@ -122,6 +123,9 @@ class ConnectedCommentEditor extends React.Component {
             let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
             newComment = { ...new Comment({ ...clone(updateObj), oid: commentOid, sources: undefined }) };
             this.setState({selectCommentOpened: false});
+        } else if (name === 'detachComment') {
+            let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
+            newComment = { ...new Comment({ ...clone(this.props.stateless ? this.props.comment : this.state.comment), oid: commentOid, sources: undefined }) };
         }
 
         if (this.props.stateless === true) {
@@ -248,6 +252,17 @@ class ConnectedCommentEditor extends React.Component {
                                     </IconButton>
                                 </span>
                             </Tooltip>
+                            {(sourceLabels.count > 1)  &&
+                                    <Tooltip title='Detach Comment' placement='bottom' enterDelay={1000}>
+                                        <IconButton
+                                            onClick={this.handleChange('detachComment')}
+                                            className={classes.iconButton}
+                                            color='primary'
+                                        >
+                                            <DetachCommentIcon/>
+                                        </IconButton>
+                                    </Tooltip>
+                            }
                         </Typography>
                     </Grid>
                     {(sourceLabels.count > 1)  &&
