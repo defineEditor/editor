@@ -13,6 +13,7 @@ const main = (() => {
         showDataInput: false,
         showInitialMessage: true,
         copyBuffer: {},
+        dummyActionTimeStamp: '',
     };
 })();
 

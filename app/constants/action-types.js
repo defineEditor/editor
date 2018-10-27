@@ -1,5 +1,6 @@
 export const ADD_ODM = 'ADD_ODM';
 export const ADD_STDCONST = 'ADD_STDCONST';
+export const DUMMY_ACTION = 'DUMMY_ACTION';
 export const STDCDL_LOAD = 'STDCDL_LOAD';
 export const STDCDL_DEL = 'STDCDL_DEL';
 export const UPD_STDCT = 'UPD_STDCT';
@@ -11,6 +12,7 @@ export const UPD_MDV = 'UPD_MDV';
 export const UPD_ITEMGROUP = 'UPD_ITEMGROUP';
 export const UPD_ITEMGROUPORDER = 'UPD_ITEMGROUPORDER';
 export const ADD_ITEMGROUP = 'ADD_ITEMGROUP';
+export const ADD_ITEMGROUPS = 'ADD_ITEMGROUPS';
 export const DEL_ITEMGROUPS = 'DEL_ITEMGROUPS';
 export const ADD_ITEMGROUPCOMMENT = 'ADD_ITEMGROUPCOMMENT';
 export const UPD_ITEMGROUPCOMMENT = 'UPD_ITEMGROUPCOMMENT';

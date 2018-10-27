@@ -5,6 +5,7 @@ import {
     DEFINE_DEL,
     APP_QUIT,
     APP_SAVE,
+    DUMMY_ACTION,
     UI_UPDMAIN,
     UI_UPDCOPYBUFFER,
     UI_TOGGLEREVIEWMODE,
@@ -87,6 +88,10 @@ const updateCopyBuffer = (state, action) => {
     return { ...state, copyBuffer: { ...state.copyBuffer, [action.updateObj.tab] : action.updateObj.buffer } };
 };
 
+const handleDummyAction = (state, action) => {
+    return { ...state, main: { ...state.main, dummyActionTimeStamp: new Date().toString() } };
+};
+
 const main = (state = initialState, action) => {
     switch (action.type) {
         case UI_TOGGLEMAINMENU:
@@ -107,6 +112,8 @@ const main = (state = initialState, action) => {
             return toggleReviewMode(state, action);
         case UI_UPDCOPYBUFFER:
             return updateCopyBuffer(state, action);
+        case DUMMY_ACTION:
+            return handleDummyAction(state, action);
         default: {
             if (action.type !== undefined
                 && state.isCurrentDefineSaved

@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import getSelectionList from 'utils/getSelectionList.js';
-import AddVariableFromDefine from 'utils/addVariableFromDefine.js';
+import AddVariableFromDefine from 'components/tableActions/addVariableFromDefine.js';
 
 const styles = theme => ({
     root: {

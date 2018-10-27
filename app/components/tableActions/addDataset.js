@@ -12,9 +12,9 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import IconButton from '@material-ui/core/IconButton';
 import ClearIcon from '@material-ui/icons/Clear';
-import AddVariableSimple from 'utils/addVariableSimple.js';
-import AddVariableFromDefine from 'utils/addVariableFromDefine.js';
-import AddVariableFromOtherStudy from 'utils/addVariableFromOtherStudy.js';
+import AddDatasetSimple from 'components/tableActions/addDatasetSimple.js';
+import AddDatasetFromDefine from 'components/tableActions/addDatasetFromDefine.js';
+import AddDatasetFromOtherStudy from 'components/tableActions/addDatasetFromOtherStudy.js';
 
 const styles = theme => ({
     dialog: {
@@ -44,12 +44,11 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        model         : state.present.odm.study.metaDataVersion.model,
-        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
+        model: state.present.odm.study.metaDataVersion.model,
     };
 };
 
-const tabNames = ['New Variable', 'This Define', 'Another Define'];
+const tabNames = ['New Dataset', 'This Define', 'Another Define'];
 
 function TabContainer(props) {
     return (
@@ -59,7 +58,7 @@ function TabContainer(props) {
     );
 }
 
-class AddVariableConnected extends React.Component {
+class AddDatasetConnected extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
@@ -86,7 +85,7 @@ class AddVariableConnected extends React.Component {
                     <DialogTitle className={classes.title}>
                         <Grid container spacing={0} justify='space-between' alignItems='center'>
                             <Grid item>
-                                Add Variable
+                                Add Dataset
                             </Grid>
                             <Grid item>
                                 <IconButton
@@ -116,23 +115,20 @@ class AddVariableConnected extends React.Component {
                         </AppBar>
                         <TabContainer>
                             <br/>
-                            {tabNames[currentTab] === 'New Variable' && (
-                                <AddVariableSimple
-                                    itemGroupOid={this.props.itemGroupOid}
+                            {tabNames[currentTab] === 'New Dataset' && (
+                                <AddDatasetSimple
                                     position={this.props.position}
                                     onClose={this.props.onClose}
                                 />
                             )}
                             {tabNames[currentTab] === 'This Define' &&
-                                    <AddVariableFromDefine
-                                        itemGroupOid={this.props.itemGroupOid}
+                                    <AddDatasetFromDefine
                                         position={this.props.position}
                                         onClose={this.props.onClose}
                                     />
                             }
                             {tabNames[currentTab] === 'Another Define' &&
-                                    <AddVariableFromOtherStudy
-                                        itemGroupOid={this.props.itemGroupOid}
+                                    <AddDatasetFromOtherStudy
                                         position={this.props.position}
                                         onClose={this.props.onClose}
                                     />
@@ -145,15 +141,12 @@ class AddVariableConnected extends React.Component {
     }
 }
 
-AddVariableConnected.propTypes = {
+AddDatasetConnected.propTypes = {
     classes       : PropTypes.object.isRequired,
     model         : PropTypes.string.isRequired,
-    itemGroupOid  : PropTypes.string.isRequired,
-    defineVersion : PropTypes.string.isRequired,
     position      : PropTypes.number,
     onClose       : PropTypes.func.isRequired,
 };
 
-const AddVariable = connect(mapStateToProps)(AddVariableConnected);
-export default withStyles(styles)(AddVariable);
-
+const AddDataset = connect(mapStateToProps)(AddDatasetConnected);
+export default withStyles(styles)(AddDataset);

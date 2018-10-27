@@ -15,7 +15,7 @@ import IconButton from '@material-ui/core/IconButton';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import CommentEditor from 'editors/commentEditor.js';
 import InteractiveKeyOrderEditor from 'editors/interactiveKeyOrderEditor.js';
-import AddDatasetEditor from 'editors/addDatasetEditor.js';
+import AddDataset from 'components/tableActions/addDataset.js';
 import DatasetOrderEditor from 'editors/datasetOrderEditor.js';
 import LeafEditor from 'editors/leafEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
@@ -229,6 +229,8 @@ class ConnectedDatasetTable extends React.Component {
             selectedRows        : [],
             itemGroupMenuParams : {},
             showSelectColumn    : false,
+            showAddVariable     : false,
+            insertPosition      : null,
         };
     }
 
@@ -299,7 +301,14 @@ class ConnectedDatasetTable extends React.Component {
                         <ToggleRowSelect oid='overall' disabled={this.props.reviewMode}/>
                     </Grid>
                     <Grid item>
-                        <AddDatasetEditor disabled={this.props.reviewMode}/>
+                        <Button
+                            variant='raised'
+                            color='default'
+                            disabled={this.props.reviewMode}
+                            onClick={ () => { this.setState({ showAddDataset: true, insertPosition: null }); } }
+                        >
+                            Add
+                        </Button>
                     </Grid>
                     <Grid item>
                         <Button
@@ -477,6 +486,13 @@ class ConnectedDatasetTable extends React.Component {
                 { this.state.showSelectColumn && (
                     <SelectColumns
                         onClose={ () => { this.setState({ showSelectColumn: false }); } }
+                    />
+                )
+                }
+                { this.state.showAddDataset && (
+                    <AddDataset
+                        position={this.state.insertPosition}
+                        onClose={ () => { this.setState({ showAddDataset: false }); } }
                     />
                 )
                 }

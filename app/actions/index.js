@@ -4,6 +4,7 @@ import {
     ADD_STDCONST,
     APP_QUIT,
     APP_SAVE,
+    DUMMY_ACTION,
 } from "constants/action-types";
 
 // Core actions
@@ -14,6 +15,9 @@ export const addStdConstants = () => ({ type: ADD_STDCONST });
 export const appQuit = () => ({ type: APP_QUIT });
 
 export const appSave = (updateObj) => ({ type: APP_SAVE, updateObj });
+
+// Dummy actions does not have any effect on the state, but changes the current redo/undo buffer;
+export const dummyAction = () => ({ type: DUMMY_ACTION });
 
 export * from 'actions/standard.js';
 export * from 'actions/codeList.js';

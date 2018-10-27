@@ -2,6 +2,7 @@ import {
     UPD_ITEMGROUP,
     UPD_ITEMGROUPORDER,
     ADD_ITEMGROUP,
+    ADD_ITEMGROUPS,
     DEL_ITEMGROUPS,
     ADD_ITEMGROUPCOMMENT,
     DEL_ITEMGROUPCOMMENT,
@@ -79,5 +80,12 @@ export const replaceItemGroupComment = (source, newComment, oldCommentOid) => (
         source,
         newComment,
         oldCommentOid,
+    }
+);
+
+export const addItemGroups = (updateObj) => (
+    {
+        type: ADD_ITEMGROUPS,
+        updateObj,
     }
 );

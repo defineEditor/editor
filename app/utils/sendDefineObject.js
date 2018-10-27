@@ -6,6 +6,7 @@ import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {
     deleteItemGroups,
     updateDefine,
+    dummyAction,
 } from 'actions/index.js';
 
 function sendDefineObject (event, data) {
@@ -23,6 +24,8 @@ function sendDefineObject (event, data) {
         });
     }
     if (itemGroupOidsToRemove.length > 0) {
+        // Perform dummy action, so that current state is saved
+        store.dispatch(dummyAction());
         // As this is a very complex operation it is done via reducers and then an undo is performed
         const deleteObj = getItemGroupsRelatedOids(mdv, itemGroupOidsToRemove);
         store.dispatch(deleteItemGroups(deleteObj));
@@ -30,6 +33,8 @@ function sendDefineObject (event, data) {
         odm = state.odm;
         mdv = odm.study.metaDataVersion;
         store.dispatch(ActionCreators.undo());
+        // Perform dummy action, so that dataset removal action is erased from the history
+        store.dispatch(dummyAction());
     }
     // Remove unused codelists if corresponding option is set
     if (state.settings.editor.hasOwnProperty('removeUnusedCodeListsInDefineXml') && state.settings.editor.removeUnusedCodeListsInDefineXml === true) {
