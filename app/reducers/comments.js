@@ -9,6 +9,7 @@ import {
     DEL_VARS,
     ADD_VARS,
     DEL_ITEMGROUPS,
+    ADD_ITEMGROUPS,
 } from "constants/action-types";
 import { Comment, TranslatedText } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -351,6 +352,15 @@ const handleDeleteVariables = (state, action) => {
     return newState;
 };
 
+const handleAddItemGroups = (state, action) => {
+    let allComments = {};
+    const { itemGroups } = action.updateObj;
+    Object.values(itemGroups).forEach( itemGroupData => {
+        allComments = { ...allComments, ...itemGroupData.comments };
+    });
+    return { ...state, ...allComments };
+};
+
 const comments = (state = {}, action) => {
     switch (action.type) {
         case ADD_ITEMGROUPCOMMENT:
@@ -373,6 +383,8 @@ const comments = (state = {}, action) => {
             return handleDeleteVariables(state, action);
         case ADD_VARS:
             return handleAddVariables(state, action);
+        case ADD_ITEMGROUPS:
+            return handleAddItemGroups(state, action);
         default:
             return state;
     }

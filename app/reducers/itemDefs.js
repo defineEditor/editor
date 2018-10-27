@@ -13,6 +13,7 @@ import {
     INSERT_VAR,
     INSERT_VALLVL,
     UPD_LOADACTUALDATA,
+    ADD_ITEMGROUPS,
 } from "constants/action-types";
 import { ItemDef, TranslatedText, Origin } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -87,7 +88,6 @@ const addVariable = (state, action) => {
 const addVariables = (state, action) => {
     return { ...state, ...action.updateObj.itemDefs };
 };
-
 
 const deleteVariables = (state, action) => {
     // action.deleteObj.itemDefOids: [itemDefOid1, itemDefOid2, ...]
@@ -337,6 +337,15 @@ const updateItemsBulk = (state, action) => {
     }
 };
 
+const handleAddItemGroups = (state, action) => {
+    let allItemDefs = {};
+    const { itemGroups } = action.updateObj;
+    Object.values(itemGroups).forEach( itemGroupData => {
+        allItemDefs = { ...allItemDefs, ...itemGroupData.itemDefs };
+    });
+    return { ...state, ...allItemDefs };
+};
+
 const itemDefs = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMDEF:
@@ -355,6 +364,8 @@ const itemDefs = (state = {}, action) => {
             return addVariables(state, action);
         case DEL_VARS:
             return deleteVariables(state, action);
+        case ADD_ITEMGROUPS:
+            return handleAddItemGroups(state, action);
         case DEL_ITEMGROUPS:
             return deleteItemGroups(state, action);
         case DEL_CODELISTS:

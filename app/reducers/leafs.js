@@ -3,6 +3,7 @@ import getOid from 'utils/getOid.js';
 import {
     UPD_LEAFS,
     ADD_VARS,
+    ADD_ITEMGROUPS,
 } from "constants/action-types";
 
 const initialState = { ...new Leaf({oid: getOid('Leaf')}) };
@@ -32,12 +33,23 @@ const handleAddVariables = (state, action) => {
     }
 };
 
+const handleAddItemGroups = (state, action) => {
+    let allLeafs = {};
+    const { itemGroups } = action.updateObj;
+    Object.values(itemGroups).forEach( itemGroupData => {
+        allLeafs = { ...allLeafs, ...itemGroupData.leafs };
+    });
+    return { ...state, ...allLeafs };
+};
+
 const leafs = (state = initialState, action) => {
     switch (action.type) {
         case UPD_LEAFS:
             return updateLeafs(state, action);
         case ADD_VARS:
             return handleAddVariables(state, action);
+        case ADD_ITEMGROUPS:
+            return handleAddItemGroups(state, action);
         default:
             return state;
     }

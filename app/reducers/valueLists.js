@@ -5,6 +5,7 @@ import {
     UPD_ITEMREF,
     ADD_VALUELIST,
     ADD_VARS,
+    ADD_ITEMGROUPS,
     INSERT_VALLVL,
     UPD_ITEMSBULK,
     UPD_ITEMDESCRIPTION,
@@ -365,6 +366,15 @@ const addVariables = (state, action) => {
     }
 };
 
+const handleAddItemGroups = (state, action) => {
+    let allValueLists = {};
+    const { itemGroups } = action.updateObj;
+    Object.values(itemGroups).forEach( itemGroupData => {
+        allValueLists = { ...allValueLists, ...itemGroupData.valueLists };
+    });
+    return { ...state, ...allValueLists };
+};
+
 const valueLists = (state = {}, action) => {
     switch (action.type) {
         case ADD_VALUELIST:
@@ -381,6 +391,8 @@ const valueLists = (state = {}, action) => {
             return updateItemRef(state, action);
         case ADD_VARS:
             return addVariables(state, action);
+        case ADD_ITEMGROUPS:
+            return handleAddItemGroups(state, action);
         case UPD_ITEMSBULK:
             return handleItemsBulkUpdate(state, action);
         case UPD_VLMITEMREFORDER:

@@ -13,6 +13,7 @@ import {
     UPD_CODEDVALUEORDER,
     DEL_VARS,
     ADD_VARS,
+    ADD_ITEMGROUPS,
     DEL_ITEMGROUPS,
     UPD_STDCT,
 } from "constants/action-types";
@@ -787,6 +788,14 @@ const handleDeleteStdCodeLists = (state, action) => {
     }
 };
 
+const handleAddItemGroups = (state, action) => {
+    const { itemGroups } = action.updateObj;
+    let newState = { ...state };
+    Object.values(itemGroups).forEach( itemGroupData => {
+        newState = handleAddVariables(newState, { updateObj: itemGroupData });
+    });
+    return newState;
+};
 
 const codeLists = (state = {}, action) => {
     switch (action.type) {
@@ -822,6 +831,8 @@ const codeLists = (state = {}, action) => {
             return deleteItemGroups(state, action);
         case UPD_STDCT:
             return handleDeleteStdCodeLists(state, action);
+        case ADD_ITEMGROUPS:
+            return handleAddItemGroups(state, action);
         default:
             return state;
     }

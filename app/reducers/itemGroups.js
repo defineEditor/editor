@@ -1,6 +1,7 @@
 import {
     UPD_ITEMGROUP,
     ADD_ITEMGROUP,
+    ADD_ITEMGROUPS,
     DEL_ITEMGROUPS,
     ADD_ITEMGROUPCOMMENT,
     DEL_ITEMGROUPCOMMENT,
@@ -383,12 +384,24 @@ const handleItemsBulkUpdate = (state, action) => {
     }
 };
 
+const addItemGroups = (state, action) => {
+    // action.updateObj.itemGroups - object with itemGroups data
+    let newState = { ...state };
+    const { itemGroups } = action.updateObj;
+    Object.keys(itemGroups).forEach( itemGroupOid => {
+        newState[itemGroupOid] = itemGroups[itemGroupOid].itemGroup;
+    });
+    return newState;
+};
+
 const itemGroups = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMGROUP:
             return updateItemGroup(state, action);
         case ADD_ITEMGROUP:
             return addItemGroup(state, action);
+        case ADD_ITEMGROUPS:
+            return addItemGroups(state, action);
         case DEL_ITEMGROUPS:
             return deleteItemGroups(state, action);
         case ADD_ITEMGROUPCOMMENT:

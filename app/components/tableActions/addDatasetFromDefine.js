@@ -157,24 +157,46 @@ class AddDatasetFromDefineConnected extends React.Component {
 
     handleAddDatasets = () => {
         let { mdv, sourceMdv, position, sameDefine } = this.props;
-        let itemGroups = [];
+        let itemGroups = {};
+        let currentGroupOids = mdv.order.itemGroupOrder.slice();
         this.state.selected.forEach( sourceItemGroupOid => {
             let sourceGroup = sourceMdv.itemGroups[sourceItemGroupOid];
-            let itemGroupOid = getOid('ItemGroup', undefined, mdv.order.itemGroupOrder);
+            let itemGroupOid = getOid('ItemGroup', undefined, currentGroupOids);
+            currentGroupOids.push(itemGroupOid);
             let currentGroup = { ...new ItemGroup({ ...sourceGroup, oid: itemGroupOid, purpose: this.state.purpose }) };
-            itemGroups.push(copyVariables({
+            let existingOids = {
+                itemDefs: [],
+                methods: [],
+                comments: [],
+                codeLists: [],
+                whereClauses: [],
+                valueLists: [],
+            };
+            let result = copyVariables({
                 mdv,
                 sourceMdv,
                 currentGroup,
                 sourceGroup,
-                itemRefList: sourceGroup.itemRefs,
+                itemRefList: Object.keys(sourceGroup.itemRefs),
                 itemGroupOid,
                 sameDefine,
                 sourceItemGroupOid: sourceItemGroupOid,
                 copyVlm: this.state.copyVlm,
                 detachMethods: this.state.detachMethods,
                 detachComments: this.state.detachComments,
-            }));
+                existingOids,
+            });
+            // Update the list of OIDs, so that they are not reused;
+            ['itemDefs','methods', 'comments', 'codeLists', 'whereClauses', 'valueLists'].forEach( type => {
+                existingOids[type] = existingOids[type].concat(Object.keys(result[type]));
+            });
+            currentGroup.itemRefs = result.itemRefs[itemGroupOid];
+            currentGroup.keyOrder = currentGroup.keyOrder.map( itemRefOid => (result.processedItemRefs[itemRefOid]));
+            currentGroup.itemRefOrder = currentGroup.itemRefOrder.map( itemRefOid => (result.processedItemRefs[itemRefOid]));
+            result.itemGroup = currentGroup;
+            delete result.itemRefs;
+
+            itemGroups[itemGroupOid] = result;
         });
 
         // Get position to insert
@@ -207,10 +229,10 @@ class AddDatasetFromDefineConnected extends React.Component {
     getVariableTable(defineVersion, classes) {
         const { selected, page, rowsPerPage, searchString, itemGroupsData } = this.state;
 
-        let data = itemGroupsData.slice();
+        let data;
 
         if (searchString !== '') {
-            data = data.filter( row => {
+            data = itemGroupsData.filter( row => {
                 if (/[A-Z]/.test(searchString)) {
                     return row.name.includes(searchString)
                         || row.description.includes(searchString)
@@ -221,6 +243,8 @@ class AddDatasetFromDefineConnected extends React.Component {
                         || row.class.toLowerCase().includes(searchString.toLowerCase());
                 }
             });
+        } else {
+            data = itemGroupsData;
         }
 
         let numSelected = this.state.selected.length;
@@ -352,7 +376,7 @@ class AddDatasetFromDefineConnected extends React.Component {
                 <Grid item xs={12}>
                     <TablePagination
                         component="div"
-                        count={this.state.itemGroupsData.length}
+                        count={data.length}
                         page={page}
                         rowsPerPage={rowsPerPage}
                         backIconButtonProps={{

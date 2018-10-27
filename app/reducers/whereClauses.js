@@ -5,6 +5,7 @@ import {
     ADD_VALUELIST,
     INSERT_VALLVL,
     ADD_VARS,
+    ADD_ITEMGROUPS,
 } from "constants/action-types";
 import { WhereClause } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -116,6 +117,15 @@ const handleAddVariables = (state, action) => {
     }
 };
 
+const handleAddItemGroups = (state, action) => {
+    let allWhereClauses = {};
+    const { itemGroups } = action.updateObj;
+    Object.values(itemGroups).forEach( itemGroupData => {
+        allWhereClauses = { ...allWhereClauses, ...itemGroupData.whereClauses };
+    });
+    return { ...state, ...allWhereClauses };
+};
+
 const whereClauses = (state = {}, action) => {
     switch (action.type) {
         case DEL_ITEMGROUPS:
@@ -128,6 +138,8 @@ const whereClauses = (state = {}, action) => {
             return createNewWhereClause(state, action);
         case ADD_VARS:
             return handleAddVariables(state, action);
+        case ADD_ITEMGROUPS:
+            return handleAddItemGroups(state, action);
         case INSERT_VALLVL:
             return createNewWhereClause(state, action);
         default:

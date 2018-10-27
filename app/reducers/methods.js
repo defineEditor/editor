@@ -4,6 +4,7 @@ import {
     DEL_ITEMGROUPS,
     UPD_ITEMSBULK,
     ADD_VARS,
+    ADD_ITEMGROUPS,
 } from "constants/action-types";
 import { Method, TranslatedText } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -390,6 +391,15 @@ const handleAddVariables = (state, action) => {
     }
 };
 
+const handleAddItemGroups = (state, action) => {
+    let allMethods = {};
+    const { itemGroups } = action.updateObj;
+    Object.values(itemGroups).forEach( itemGroupData => {
+        allMethods = { ...allMethods, ...itemGroupData.methods };
+    });
+    return { ...state, ...allMethods };
+};
+
 const methods = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMDESCRIPTION:
@@ -402,6 +412,8 @@ const methods = (state = {}, action) => {
             return handleItemsBulkUpdate(state, action);
         case ADD_VARS:
             return handleAddVariables(state, action);
+        case ADD_ITEMGROUPS:
+            return handleAddItemGroups(state, action);
         default:
             return state;
     }
