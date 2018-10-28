@@ -4,10 +4,10 @@ import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
 import { addVariable } from 'actions/index.js';
 import { ItemRef, ItemDef } from 'elements.js';
 import getOid from 'utils/getOid.js';
-import Button from '@material-ui/core/Button';
 
 const styles = theme => ({
     inputField: {
