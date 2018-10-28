@@ -353,12 +353,55 @@ const handleDeleteVariables = (state, action) => {
 };
 
 const handleAddItemGroups = (state, action) => {
-    let allComments = {};
-    const { itemGroups } = action.updateObj;
+    const { itemGroups, itemGroupComments } = action.updateObj;
+    let newState = { ...state };
     Object.values(itemGroups).forEach( itemGroupData => {
-        allComments = { ...allComments, ...itemGroupData.comments };
+        newState = handleAddVariables(newState, { updateObj: itemGroupData });
     });
-    return { ...state, ...allComments };
+    // Add itemGroup comments;
+    if (Object.keys(itemGroupComments).length !== 0) {
+        newState = { ...newState, ...itemGroupComments };
+    }
+    // Some of the comments can be just referenced and not copied
+    // Find all added ItemGroups with comment links, which do not link to any of the new comments
+    let commentSourceUpdated = {};
+    // For ItemGroups
+    Object.values(itemGroups).forEach( itemGroupData => {
+        if (itemGroupData.commentOid !== undefined
+            &&
+            !itemGroupComments.hasOwnProperty(itemGroupData.commentOid)
+            &&
+            newState.hasOwnProperty(itemGroupData.commentOid)
+        ) {
+            if (commentSourceUpdated.hasOwnProperty(itemGroupData.commentOid)) {
+                commentSourceUpdated[itemGroupData.commentOid].itemGroups.push(itemGroupData.oid);
+            } else {
+                commentSourceUpdated[itemGroupData.commentOid] = {
+                    itemDefs: [],
+                    itemGroups: [itemGroupData.oid],
+                    whereClauses: [],
+                    codeLists: [],
+                    metaDataVersion: [],
+                };
+            }
+        }
+    });
+    // Add sources
+    let updatedComments = {};
+    Object.keys(commentSourceUpdated).forEach( commentOid => {
+        let comment = newState[commentOid];
+        let newSources = clone(comment.sources);
+        Object.keys(commentSourceUpdated[commentOid]).forEach( type => {
+            if (newSources.hasOwnProperty(type)) {
+                newSources[type] = newSources[type].concat(commentSourceUpdated[commentOid][type]);
+            } else {
+                newSources[type] = commentSourceUpdated[commentOid][type].slice();
+            }
+        });
+        updatedComments[commentOid] = { ...new Comment({ ...state[commentOid], sources: newSources }) };
+    });
+
+    return { ...newState, ...updatedComments };
 };
 
 const comments = (state = {}, action) => {

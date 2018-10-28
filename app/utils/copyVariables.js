@@ -68,6 +68,7 @@ const copyItems = ({currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, pare
                 copyVlm,
                 existingOids,
             });
+            // Add ItemRefs with new OIDs to the valueList
             valueLists[newValueListOid].itemRefs = vlCopy.itemRefs[newValueListOid];
             valueLists[newValueListOid].itemRefOrder = valueList.itemRefOrder.map( itemRefOid => (vlCopy.processedItemRefs[itemRefOid]));
             valueLists[newValueListOid].keyOrder = valueList.keyOrder.map( itemRefOid => (vlCopy.processedItemRefs[itemRefOid]));
@@ -118,7 +119,7 @@ const copyMethod = ({sourceMethodOid, mdv, sourceMdv, searchForDuplicate, groupO
     return { newMethodOid, method, duplicateFound };
 };
 
-const copyComment = ({sourceCommentOid, mdv, sourceMdv, searchForDuplicate, itemDefOid, whereClauseOid, existingOids} = {}) => {
+const copyComment = ({sourceCommentOid, mdv, sourceMdv, searchForDuplicate, itemDefOid, whereClauseOid, itemGroupOid, existingOids} = {}) => {
     let comment = clone(sourceMdv.comments[sourceCommentOid]);
     let commentOids = Object.keys(mdv.comments).concat(existingOids.comments);
     // Search for the same name in the existing comments
@@ -138,7 +139,7 @@ const copyComment = ({sourceCommentOid, mdv, sourceMdv, searchForDuplicate, item
         newCommentOid = getOid('Comment', undefined, commentOids);
         comment.sources = {
             itemDefs: itemDefOid !== undefined ? [itemDefOid] : [],
-            itemGroups: [],
+            itemGroups: itemGroupOid !== undefined ? [itemGroupOid] : [],
             whereClauses: whereClauseOid !== undefined ? [whereClauseOid] : [],
             codeLists: [],
             metaDataVersion: [],
@@ -169,6 +170,9 @@ const copyVariables = ({
         whereClauses: [],
         valueLists: [],
     },
+    copiedItems = {
+        codeLists: {},
+    }
 } = {}
 ) => {
     let { itemDefs, itemRefs, valueLists, whereClauses, processedItemDefs, processedItemRefs } = copyItems({
@@ -202,12 +206,24 @@ const copyVariables = ({
                         matchingIds.push(codeListOid);
                     }
                 });
+                Object.keys(copiedItems.codeLists).forEach(codeListOid => {
+                    if (copiedItems.codeLists[codeListOid].name === name) {
+                        matchingIds.push(codeListOid);
+                    }
+                });
                 // Perform deep compare of the codelists
                 let newCodeListOid;
                 matchingIds.some( codeListOid => {
-                    if (compareCodeLists(mdv.codeLists[codeListOid], codeList)) {
-                        newCodeListOid = codeListOid;
-                        return true;
+                    if (Object.keys(mdv.codeLists).includes(codeListOid)) {
+                        if (compareCodeLists(mdv.codeLists[codeListOid], codeList)) {
+                            newCodeListOid = codeListOid;
+                            return true;
+                        }
+                    } else if (Object.keys(copiedItems.codeLists).includes(codeListOid)) {
+                        if (compareCodeLists(copiedItems.codeLists[codeListOid], codeList)) {
+                            newCodeListOid = codeListOid;
+                            return true;
+                        }
                     }
                 });
                 if (newCodeListOid === undefined) {
@@ -416,4 +432,4 @@ const copyVariables = ({
     });
 };
 
-export default copyVariables;
+export default  { copyVariables, copyComment };

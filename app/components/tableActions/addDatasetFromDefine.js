@@ -15,7 +15,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import Button from '@material-ui/core/Button';
 import getDatasetDataForImport from 'utils/getDatasetDataForImport.js';
-import copyVariables from 'utils/copyVariables.js';
+import { copyVariables, copyComment } from 'utils/copyVariables.js';
 import { addItemGroups } from 'actions/index.js';
 import { ItemGroup } from 'elements.js';
 import CommentFormatter from 'formatters/commentFormatter.js';
@@ -158,20 +158,42 @@ class AddDatasetFromDefineConnected extends React.Component {
     handleAddDatasets = () => {
         let { mdv, sourceMdv, position, sameDefine } = this.props;
         let itemGroups = {};
+        let itemGroupComments = {};
         let currentGroupOids = mdv.order.itemGroupOrder.slice();
+        // Track newly created OIDs, so that they are not accidently reused when performing copyVariables
+        let existingOids = {
+            itemDefs: [],
+            methods: [],
+            comments: [],
+            codeLists: [],
+            whereClauses: [],
+            valueLists: [],
+        };
+        let copiedItems = {
+            codeLists: {},
+        };
         this.state.selected.forEach( sourceItemGroupOid => {
             let sourceGroup = sourceMdv.itemGroups[sourceItemGroupOid];
             let itemGroupOid = getOid('ItemGroup', undefined, currentGroupOids);
             currentGroupOids.push(itemGroupOid);
             let currentGroup = { ...new ItemGroup({ ...sourceGroup, oid: itemGroupOid, purpose: this.state.purpose }) };
-            let existingOids = {
-                itemDefs: [],
-                methods: [],
-                comments: [],
-                codeLists: [],
-                whereClauses: [],
-                valueLists: [],
-            };
+            // Copy itemGroup comment if it exists
+            if (currentGroup.commentOid !== undefined) {
+                let { newCommentOid, comment, duplicateFound } = copyComment({
+                    sourceCommentOid: sourceGroup.commentOid,
+                    mdv: mdv,
+                    sourceMdv: sourceMdv,
+                    searchForDuplicate: (this.state.detachComments === false && sameDefine === false),
+                    itemGroupOid,
+                    existingOids,
+                });
+                currentGroup.commentOid = newCommentOid;
+                if (!duplicateFound) {
+                    itemGroupComments[newCommentOid] = comment;
+                    existingOids.comments.push(newCommentOid);
+                }
+            }
+            // Copy Variables
             let result = copyVariables({
                 mdv,
                 sourceMdv,
@@ -185,16 +207,19 @@ class AddDatasetFromDefineConnected extends React.Component {
                 detachMethods: this.state.detachMethods,
                 detachComments: this.state.detachComments,
                 existingOids,
+                copiedItems,
             });
             // Update the list of OIDs, so that they are not reused;
             ['itemDefs','methods', 'comments', 'codeLists', 'whereClauses', 'valueLists'].forEach( type => {
                 existingOids[type] = existingOids[type].concat(Object.keys(result[type]));
             });
+            ['codeLists'].forEach( type => {
+                copiedItems[type] = { ...copiedItems[type], ...result.codeLists };
+            });
             currentGroup.itemRefs = result.itemRefs[itemGroupOid];
             currentGroup.keyOrder = currentGroup.keyOrder.map( itemRefOid => (result.processedItemRefs[itemRefOid]));
             currentGroup.itemRefOrder = currentGroup.itemRefOrder.map( itemRefOid => (result.processedItemRefs[itemRefOid]));
             result.itemGroup = currentGroup;
-            delete result.itemRefs;
 
             itemGroups[itemGroupOid] = result;
         });
@@ -205,6 +230,7 @@ class AddDatasetFromDefineConnected extends React.Component {
         this.props.addItemGroups({
             position: positionUpd,
             itemGroups,
+            itemGroupComments,
         });
 
         this.props.onClose();

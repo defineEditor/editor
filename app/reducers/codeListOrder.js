@@ -3,6 +3,7 @@ import {
     DEL_CODELISTS,
     UPD_CODELISTORDER,
     ADD_VARS,
+    ADD_ITEMGROUPS,
 } from "constants/action-types";
 
 const addCodeList = (state, action) => {
@@ -34,6 +35,19 @@ const handleAddVariables = (state, action) => {
     }
 };
 
+const handleAddItemGroups = (state, action) => {
+    let allCodeListOids = [];
+    const { itemGroups } = action.updateObj;
+    Object.values(itemGroups).forEach( itemGroupData => {
+        Object.keys(itemGroupData.codeLists).forEach( codeListOid => {
+            if (!allCodeListOids.includes(codeListOid)) {
+                allCodeListOids.push(codeListOid);
+            }
+        });
+    });
+    return state.concat(allCodeListOids);
+};
+
 const codeListOrder = (state = {}, action) => {
     switch (action.type) {
         case ADD_CODELIST:
@@ -44,6 +58,8 @@ const codeListOrder = (state = {}, action) => {
             return updateCodeListOrder(state, action);
         case ADD_VARS:
             return handleAddVariables(state, action);
+        case ADD_ITEMGROUPS:
+            return handleAddItemGroups(state, action);
         default:
             return state;
     }

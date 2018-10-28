@@ -17,6 +17,7 @@ import OdmAttributesEditor from 'editors/odmAttributesEditor.js';
 import OtherAttributesEditor from 'editors/otherAttributesEditor.js';
 import StandardEditor from 'editors/standardEditor.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
+import getModelFromStandard from 'utils/getModelFromStandard.js';
 import {
     updateGlobalVariablesAndStudyOid,
     updateMetaDataVersion,
@@ -270,15 +271,9 @@ class ConnectedStandardTable extends React.Component {
             // Check if the model changed;
             if (name === 'standard') {
                 if (Object.keys(updatedStandards).filter(stdOid => (updatedStandards[stdOid].isDefault === 'Yes')).length > 0) {
-                    let newModel;
-                    let defaultStandardName = Object.keys(updatedStandards).filter(stdOid => (updatedStandards[stdOid].isDefault === 'Yes'))[0].name;
-                    if (/adam/i.test(defaultStandardName)) {
-                        newModel = 'ADaM';
-                    } else if (/sdtm/i.test(defaultStandardName)) {
-                        newModel = 'SDTM';
-                    } else if (/send/i.test(defaultStandardName)) {
-                        newModel = 'SEND';
-                    }
+                    let defaultStandardName =
+                        updatedStandards[Object.keys(updatedStandards).filter(stdOid => (updatedStandards[stdOid].isDefault === 'Yes'))[0]].name;
+                    let newModel = getModelFromStandard(defaultStandardName);
                     if (newModel !== this.props.model) {
                         this.props.updateModel({model: newModel});
                     }

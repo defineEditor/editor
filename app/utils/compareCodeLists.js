@@ -3,7 +3,7 @@ import compareDecodes from 'utils/compareDecodes.js';
 function compareCodeLists(codeList1, codeList2) {
     let differenceInAttributes = Object.keys(codeList1).some( prop => {
         return (
-            typeof prop !== 'object' && codeList1[prop] !== codeList2[prop]
+            typeof codeList1[prop] !== 'object' && codeList1[prop] !== codeList2[prop]
             &&
             !['oid', 'standardOid', 'cdiscSubmissionValue', 'linkedCodeListOid', 'standardCodeListOid'].includes(prop)
         );

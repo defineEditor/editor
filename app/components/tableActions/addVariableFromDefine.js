@@ -16,7 +16,7 @@ import FormGroup from '@material-ui/core/FormGroup';
 import Button from '@material-ui/core/Button';
 import getSelectionList from 'utils/getSelectionList.js';
 import getTableDataForImport from 'utils/getTableDataForImport.js';
-import copyVariables from 'utils/copyVariables.js';
+import { copyVariables } from 'utils/copyVariables.js';
 import DescriptionFormatter from 'formatters/descriptionFormatter.js';
 import { addVariables } from 'actions/index.js';
 

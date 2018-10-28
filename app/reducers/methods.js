@@ -392,12 +392,12 @@ const handleAddVariables = (state, action) => {
 };
 
 const handleAddItemGroups = (state, action) => {
-    let allMethods = {};
     const { itemGroups } = action.updateObj;
+    let newState = { ...state };
     Object.values(itemGroups).forEach( itemGroupData => {
-        allMethods = { ...allMethods, ...itemGroupData.methods };
+        newState = handleAddVariables(newState, { updateObj: itemGroupData });
     });
-    return { ...state, ...allMethods };
+    return newState;
 };
 
 const methods = (state = {}, action) => {
