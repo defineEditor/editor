@@ -2,6 +2,7 @@ import {
     UPD_LEAFS,
     UPD_LEAFORDER,
     ADD_VARS,
+    ADD_ITEMGROUPS,
 } from "constants/action-types";
 
 const updateLeafOrder = (state, action) => {
@@ -29,6 +30,19 @@ const handleAddVariables = (state, action) => {
     }
 };
 
+const handleAddItemGroups = (state, action) => {
+    let allLeafOids = [];
+    const { itemGroups } = action.updateObj;
+    Object.values(itemGroups).forEach( itemGroupData => {
+        Object.keys(itemGroupData.leafs).forEach( leafId => {
+            if (!allLeafOids.includes(leafId)) {
+                allLeafOids.push(leafId);
+            }
+        });
+    });
+    return state.concat(allLeafOids);
+};
+
 const leafOrder = (state = {}, action) => {
     switch (action.type) {
         case UPD_LEAFS:
@@ -37,6 +51,8 @@ const leafOrder = (state = {}, action) => {
             return updateLeafOrder(state, action);
         case ADD_VARS:
             return handleAddVariables(state, action);
+        case ADD_ITEMGROUPS:
+            return handleAddItemGroups(state, action);
         default:
             return state;
     }
