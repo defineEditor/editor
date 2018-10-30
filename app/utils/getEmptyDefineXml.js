@@ -14,6 +14,7 @@ function getEmptyDefineXml({ standard, defineVersion, study, settings, controlle
     let defaultOdmAttrs = {
         xlink: 'http://www.w3.org/1999/xlink',
         def: 'http://www.cdisc.org/ns/def/v2.0',
+        arm: 'http://www.cdisc.org/ns/arm/v1.0',
         xmlns: 'http://www.cdisc.org/ns/odm/v1.3',
         odmVersion: '1.3.2',
         fileType: 'Snapshot',

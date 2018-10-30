@@ -139,6 +139,12 @@ function parseAnalysisResults(datasRaw) {
 
         let analysisResult = new AnalysisResult(args);
 
+        if (dataRaw.hasOwnProperty('description')) {
+            dataRaw['description'].forEach(function (item) {
+                analysisResult.addDescription(parseTranslatedText(item));
+            });
+        }
+
         analysisResults[analysisResult.oid] = analysisResult;
     });
     return analysisResults;

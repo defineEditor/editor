@@ -1,5 +1,6 @@
-'use strict';
-const xmlBuilder = require('xmlbuilder');
+import xmlBuilder from 'xmlbuilder';
+import createArm from './createArm.js';
+import { createTranslatedText, createDocumentRef } from './createUtils.js';
 
 function createDefine (data, version) {
     // Use the same version as before if the version is not specified
@@ -44,6 +45,13 @@ function createOdm (data, version) {
             'SourceSystem'        : data.sourceSystem,
             'SourceSystemVersion' : data.sourceSystemVersion
         };
+        // If ARM is present, add its namespace
+        if (data.hasOwnProperty('study')
+            && data.study.hasOwnProperty('metaDataVersion')
+            && data.study.metaDataVersion.hasOwnProperty('analysisResultDisplays')
+        ) {
+            attributes['xmlns:arm'] = data.arm;
+        }
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 xmlRoot.att(attr, attributes[attr]);
@@ -176,40 +184,14 @@ function createMetaDataVersion (data, version) {
             });
             xmlRoot.ele(leaf);
         }
+        // Analysis Result Metadata
+        if (data.hasOwnProperty('analysisResultDisplays') && Object.keys(data.analysisResultDisplays).length !== 0) {
+            let analysisResultDisplays = {'arm:AnalysisResultDisplays': [createArm(data.analysisResultDisplays)]};
+            xmlRoot.ele(analysisResultDisplays);
+        }
     }
 
     return xmlRoot;
-}
-
-function createDocumentRef (data, version) {
-    let result = {};
-    if (version === '2.0.0') {
-        let attributes = {
-            leafID: data.leafId
-        };
-        for (let attr in attributes) {
-            if (attributes[attr] !== undefined) {
-                result['@' + attr] = attributes[attr];
-            }
-        }
-        if (data.pdfPageRefs.length !== 0) {
-            // Create PDFPageDef element
-            result['def:PDFPageRef'] = [];
-            data.pdfPageRefs.forEach(function (pdfPageRef) {
-                let pdfPageRefObj = {};
-                for (let pdfPageAttr in pdfPageRef) {
-                    if (pdfPageRef[pdfPageAttr] !== undefined) {
-                        // Capitalize first letter of an attribute
-                        let uccPdfPageAttr = pdfPageAttr.charAt(0).toUpperCase() + pdfPageAttr.substr(1);
-                        pdfPageRefObj['@' + uccPdfPageAttr] = pdfPageRef[pdfPageAttr];
-                    }
-                }
-                result['def:PDFPageRef'].push(pdfPageRefObj);
-            });
-        }
-    }
-
-    return result;
 }
 
 function createValueListDef (data, version) {
@@ -349,18 +331,6 @@ function createItemGroupDef (data, version) {
         // Add leaf
         if (data.leaf !== undefined) {
             result['def:leaf'] = createLeaf(data.leaf, version);
-        }
-    }
-
-    return result;
-}
-
-function createTranslatedText (data, version) {
-    let result = {};
-    if (version === '2.0.0') {
-        result = {'TranslatedText': {'#text': data.value}};
-        if (data.lang !== undefined) {
-            result['TranslatedText']['@xml:lang'] = data.lang;
         }
     }
 
@@ -667,4 +637,4 @@ function createCommentDef (data, version) {
     return result;
 }
 
-module.exports = createDefine;
+export default createDefine;

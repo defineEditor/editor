@@ -23,15 +23,17 @@ class ResultDisplay extends BasicFunctions {
     }
 }
 
-class AnalysisResult {
+class AnalysisResult extends BasicFunctions {
     constructor ({
         oid, parameterOid, analysisReason, analysisPurpose,
-        analysisDatasets = {}, analysisDatasetOrder = [], analysisDatasetsCommentOid, documentation, programmingCode,
+        descriptions = [], analysisDatasets = {}, analysisDatasetOrder = [], analysisDatasetsCommentOid, documentation, programmingCode,
     } = {}) {
+        super();
         this.oid = oid;
         this.parameterOid = parameterOid;
         this.analysisReason = analysisReason;
         this.analysisPurpose = analysisPurpose;
+        this.descriptions = descriptions;
         this.analysisDatasets = analysisDatasets;
         this.analysisDatasetOrder = analysisDatasetOrder;
         this.analysisDatasetsCommentOid = analysisDatasetsCommentOid;
