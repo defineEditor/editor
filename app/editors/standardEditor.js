@@ -13,8 +13,10 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import Switch from '@material-ui/core/Switch';
 import { Standard } from 'elements.js';
 import getSelectionList from 'utils/getSelectionList.js';
+import getModelFromStandard from 'utils/getModelFromStandard.js';
 
 const styles = theme => ({
     Standard: {
@@ -31,6 +33,9 @@ const styles = theme => ({
     listItem: {
         marginRight: theme.spacing.unit,
     },
+    switch: {
+        marginLeft: theme.spacing.unit * 3,
+    },
 });
 
 class StandardEditor extends React.Component {
@@ -44,18 +49,24 @@ class StandardEditor extends React.Component {
         Object.keys(this.props.standards).forEach( standardOid => {
             standardsCopy[standardOid] = new Standard(this.props.standards[standardOid]);
         });
-        this.state = { standards: standardsCopy };
+        this.state = { standards: standardsCopy, hasArm: this.props.hasArm };
     }
 
     handleChange = (name, oid) => (event) => {
         if (name === 'name' || name === 'version') {
             let newStandards = this.state.standards;
             newStandards[oid] = new Standard({ ...this.state.standards[oid], [name]: event.target.value });
-            this.setState({ standards: newStandards });
+            if (name === 'name' && getModelFromStandard(event.target.value) !== 'ADaM' && this.state.hasArm === true) {
+                this.setState({ standards: newStandards, hasArm: false });
+            } else {
+                this.setState({ standards: newStandards });
+            }
+        } else if (name === 'hasArm') {
+            this.setState({ hasArm: !this.state.hasArm });
         }
     }
 
-    getStandards = () => {
+    getStandards = (isAdam) => {
         let standards = this.state.standards;
         let nameList = this.props.stdConstants.standardNames[this.props.defineVersion];
         let stdList = Object.keys(standards)
@@ -95,6 +106,16 @@ class StandardEditor extends React.Component {
                                 className={this.props.classes.inputField}
                             />
                         </TableCell>
+                        { isAdam &&
+                                <TableCell>
+                                    <Switch
+                                        checked={this.state.hasArm}
+                                        onChange={this.handleChange('hasArm')}
+                                        color='primary'
+                                        className={this.props.classes.switch}
+                                    />
+                                </TableCell>
+                        }
                     </TableRow>
                 );
             });
@@ -115,6 +136,7 @@ class StandardEditor extends React.Component {
 
     render () {
         const { classes } = this.props;
+        const isAdam = (getModelFromStandard(Object.values(this.state.standards)[0].name) === 'ADaM');
         return (
             <Paper className={classes.Standard} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Typography variant="headline" component="h3">
@@ -129,10 +151,13 @@ class StandardEditor extends React.Component {
                             }
                             <TableCell>Name</TableCell>
                             <TableCell>Version</TableCell>
+                            { isAdam &&
+                                    <TableCell>Analysis Result Metadata</TableCell>
+                            }
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {this.getStandards()}
+                        {this.getStandards(isAdam)}
                     </TableBody>
                 </Table>
             </Paper>
@@ -144,6 +169,7 @@ StandardEditor.propTypes = {
     standards    : PropTypes.object.isRequired,
     stdConstants : PropTypes.object.isRequired,
     classes      : PropTypes.object.isRequired,
+    hasArm       : PropTypes.bool.isRequired,
     onSave       : PropTypes.func.isRequired,
     onCancel     : PropTypes.func.isRequired,
     onHelp       : PropTypes.func,

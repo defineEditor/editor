@@ -6,6 +6,7 @@ export const STDCDL_DEL = 'STDCDL_DEL';
 export const UPD_STDCT = 'UPD_STDCT';
 export const UPD_STD = 'UPD_STD';
 export const UPD_MODEL = 'UPD_MODEL';
+export const UPD_ARMSTATUS = 'UPD_ARMSTATUS';
 export const UPD_GLOBALVARSSTOID = 'UPD_GLOBALVARSSTOID';
 export const UPD_ODMATTRS = 'UPD_ODMATTRS';
 export const UPD_MDV = 'UPD_MDV';

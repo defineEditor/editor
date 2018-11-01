@@ -10,6 +10,7 @@ import whereClauses from 'reducers/whereClauses.js';
 import valueLists from 'reducers/valueLists.js';
 import leafs from 'reducers/leafs.js';
 import order from 'reducers/order.js';
+import analysisResultDisplays from 'reducers/analysisResultDisplays.js';
 import { MetaDataVersion } from 'elements.js';
 import {
     UPD_MDV,
@@ -34,18 +35,19 @@ const metaDataVersion = (state = { ...initialState }, action) => {
     } else {
         return {
             ...state,
-            standards       : standards(state.standards, action),
-            whereClauses    : whereClauses(state.whereClauses, action),
-            valueLists      : valueLists(state.valueLists, action),
-            annotatedCrf    : annotatedCrf(state.annotatedCrf, action),
-            supplementalDoc : supplementalDoc(state.supplementalDoc, action),
-            itemGroups      : itemGroups(state.itemGroups, action),
-            itemDefs        : itemDefs(state.itemDefs, action),
-            methods         : methods(state.methods, action),
-            comments        : comments(state.comments, action),
-            codeLists       : codeLists(state.codeLists, action),
-            leafs           : leafs(state.leafs, action),
-            order           : order(state.order, action),
+            standards              : standards(state.standards, action),
+            whereClauses           : whereClauses(state.whereClauses, action),
+            valueLists             : valueLists(state.valueLists, action),
+            annotatedCrf           : annotatedCrf(state.annotatedCrf, action),
+            supplementalDoc        : supplementalDoc(state.supplementalDoc, action),
+            itemGroups             : itemGroups(state.itemGroups, action),
+            itemDefs               : itemDefs(state.itemDefs, action),
+            methods                : methods(state.methods, action),
+            comments               : comments(state.comments, action),
+            codeLists              : codeLists(state.codeLists, action),
+            leafs                  : leafs(state.leafs, action),
+            analysisResultDisplays : analysisResultDisplays(state.analysisResultDisplays, action),
+            order                  : order(state.order, action),
         };
     }
 };

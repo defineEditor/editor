@@ -348,7 +348,6 @@ class ConnectedMethodEditor extends React.Component {
                                                     onChange={this.handleChange('autoMethodNameUpdate')}
                                                     disabled={this.props.fullName === undefined}
                                                     color='primary'
-                                                    className={classes.switch}
                                                 />
                                             </Tooltip>
                                         </Grid>

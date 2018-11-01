@@ -26,6 +26,7 @@ import {
     updateOdmAttrs,
     updateDefine,
     updateModel,
+    updateArmStatus,
     deleteStdCodeLists,
 } from 'actions/index.js';
 
@@ -37,6 +38,7 @@ const mapDispatchToProps = dispatch => {
         updateControlledTerminologies    : (updateObj) => dispatch(updateControlledTerminologies(updateObj)),
         updateStandards                  : (updateObj) => dispatch(updateStandards(updateObj)),
         updateModel                      : (updateObj) => dispatch(updateModel(updateObj)),
+        updateArmStatus                  : (updateObj) => dispatch(updateArmStatus(updateObj)),
         updateOdmAttrs                   : (updateObj) => dispatch(updateOdmAttrs(updateObj)),
         deleteStdCodeLists               : (updateObj) => dispatch(deleteStdCodeLists(updateObj)),
         updateDefine                     : (updateObj) => dispatch(updateDefine(updateObj)),
@@ -78,6 +80,14 @@ const mapStateToProps = state => {
         otherAttrs = state.present.defines.byId[defineId];
     }
 
+    // Check if Analysis Result Metadata is present
+    let hasArm;
+    if (state.present.odm.study.metaDataVersion.analysisResultDisplays !== undefined) {
+        hasArm = true;
+    } else {
+        hasArm = false;
+    }
+
     return {
         globalVariables       : state.present.odm.study.globalVariables,
         studyOid              : state.present.odm.study.oid,
@@ -89,6 +99,7 @@ const mapStateToProps = state => {
         controlledTerminology : state.present.controlledTerminology,
         stdCodeLists          : state.present.stdCodeLists,
         tabs                  : state.present.ui.tabs,
+        hasArm,
         mdvAttrs,
         odmAttrs,
         comments,
@@ -268,6 +279,12 @@ class ConnectedStandardTable extends React.Component {
                 }
                 this.setState({standardEdit: false});
             }
+            // Check if the ARM status has changed;
+            if (name === 'standard') {
+                if (this.props.hasArm !== returnValue.hasArm) {
+                    this.props.updateArmStatus({armStatus: returnValue.hasArm});
+                }
+            }
             // Check if the model changed;
             if (name === 'standard') {
                 if (Object.keys(updatedStandards).filter(stdOid => (updatedStandards[stdOid].isDefault === 'Yes')).length > 0) {
@@ -375,6 +392,7 @@ class ConnectedStandardTable extends React.Component {
                         <StandardEditor
                             standards={this.props.standards}
                             stdConstants={this.props.stdConstants}
+                            hasArm={this.props.hasArm}
                             defineVersion={this.props.defineVersion}
                             onSave={this.save('standard')}
                             onCancel={this.cancel('standard')}
@@ -383,6 +401,7 @@ class ConnectedStandardTable extends React.Component {
                         <StandardFormatter
                             standards={this.props.standards}
                             defineVersion={this.props.defineVersion}
+                            hasArm={this.props.hasArm}
                             onEdit={this.handleChange('standardEdit')}
                         />
                     )
@@ -450,6 +469,7 @@ ConnectedStandardTable.propTypes = {
     standards       : PropTypes.object.isRequired,
     comments        : PropTypes.object.isRequired,
     model           : PropTypes.string.isRequired,
+    hasArm          : PropTypes.bool.isRequired,
     mdvAttrs        : PropTypes.object.isRequired,
     defineVersion   : PropTypes.string.isRequired,
     stdConstants    : PropTypes.object.isRequired,

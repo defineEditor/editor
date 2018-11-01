@@ -172,7 +172,8 @@ class WhereClause {
             this.sources = sources;
         } else {
             this.sources = {
-                valueLists: []
+                valueLists: [],
+                resultDisplays: [],
             };
         }
     }
@@ -435,7 +436,7 @@ class Comment extends BasicFunctions {
                 whereClauses: [],
                 codeLists: [],
                 metaDataVersion: [],
-                analysisResults: [],
+                resultDisplays: [],
             };
         }
     }

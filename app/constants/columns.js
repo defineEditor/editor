@@ -216,11 +216,38 @@ const codedValues = {
     },
 };
 
+const armSummary = {
+    oid: {
+        isKey    : true,
+        text     : '',
+        width    : '48px',
+        editable : false,
+        hidden   : false,
+        tdStyle  : { padding: '0px' },
+    },
+    name: {
+        text    : 'Name',
+        width   : '30%',
+        hidden  : false,
+        tdStyle : {whiteSpace: 'normal'},
+        thStyle : {whiteSpace: 'normal'}
+    },
+    description: {
+        text    : 'Description',
+        hidden  : false,
+        width   : '70%',
+        tdStyle : { whiteSpace: 'normal' },
+        thStyle : { whiteSpace: 'normal' },
+    },
+};
+
+
 const columns = {
     datasets,
     variables,
     codeLists,
     codedValues,
+    armSummary,
 };
 
 export default columns;

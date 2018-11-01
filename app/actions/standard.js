@@ -5,6 +5,7 @@ import {
     UPD_STDCT,
     UPD_STD,
     UPD_MODEL,
+    UPD_ARMSTATUS,
 } from "constants/action-types";
 
 // Standard
@@ -50,3 +51,9 @@ export const updateStandards = (updateObj) => (
     }
 );
 
+export const updateArmStatus = (updateObj) => (
+    {
+        type: UPD_ARMSTATUS,
+        updateObj,
+    }
+);

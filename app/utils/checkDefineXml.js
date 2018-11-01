@@ -40,7 +40,7 @@ function checkDefineXml (odm) {
     Object.keys(mdv.itemDefs).forEach( itemDefOid => {
         let itemDef = mdv.itemDefs[itemDefOid];
         if ( itemDef.commentOid !== undefined && !mdv.comments.hasOwnProperty(itemDef.commentOid)) {
-            issues.push('Comment with OID ' + itemDef.itemDefOid + ' does not exist, but is referenced.');
+            issues.push('Comment with OID ' + itemDef.commentOid + ' does not exist, but is referenced.');
         }
     });
 

@@ -23,7 +23,7 @@ function removeNamespace (obj) {
 }
 
 function populateValueListSources(valueLists, itemDefs) {
-    // Connect codeList to its sources
+    // Connect valueList to its sources
     // Required as a separate function, because valueLists are connected to itemDefs and itemDefs are connected to valueLists
     Object.keys(valueLists).forEach( valueListOid => {
         let sources = [];

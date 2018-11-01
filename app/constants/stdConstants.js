@@ -122,6 +122,19 @@ const variableRoles = [
     'Rule',
 ];
 
+const armAnalysisReason = {
+    'DATA DRIVEN'                    : 'Data Drived',
+    'REQUESTED BY REGULATORY AGENCY' : 'Requested by Regulatory Agency',
+    'SPECIFIED IN PROTOCOL'          : 'Specified in Protocol',
+    'SPECIFIED IN SAP'               : 'Specified in SAP',
+};
+
+const armAnalysisPurpose = {
+    'EXPLORATORY OUTCOME MEASURE' : 'Exploratory Outcome Measure',
+    'PRIMARY OUTCOME MEASURE'     : 'Primary Outcome Measure',
+    'SECONDARY OUTCOME MEASURE'   : 'Secondary Outcome Measure',
+};
+
 const stdConstants = {
     dataTypes,
     codeListTypes,
@@ -131,6 +144,8 @@ const stdConstants = {
     originTypes,
     classTypes,
     variableRoles,
+    armAnalysisReason,
+    armAnalysisPurpose,
 };
 
 export default stdConstants;

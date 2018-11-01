@@ -2,7 +2,7 @@ import { BasicFunctions } from 'elements.js';
 
 class AnalysisResultDisplays {
     constructor ({
-        resultDisplays = {}, resultDisplayOrder,
+        resultDisplays = {}, resultDisplayOrder = [],
     } = {}) {
         this.resultDisplays = resultDisplays;
         this.resultDisplayOrder = resultDisplayOrder;
