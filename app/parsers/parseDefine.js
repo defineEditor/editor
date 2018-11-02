@@ -72,10 +72,11 @@ function parseComments (commentsRaw, mdv) {
         }
         // Connect comment to its sources
         comment.sources = {
-            itemDefs     : getListOfSourceIds(mdv.itemDefs, 'commentOid', comment.oid),
-            itemGroups   : getListOfSourceIds(mdv.itemGroups, 'commentOid', comment.oid),
-            whereClauses : getListOfSourceIds(mdv.whereClauses, 'commentOid', comment.oid),
-            codeLists    : getListOfSourceIds(mdv.codeLists, 'commentOid', comment.oid),
+            itemDefs        : getListOfSourceIds(mdv.itemDefs, 'commentOid', comment.oid),
+            itemGroups      : getListOfSourceIds(mdv.itemGroups, 'commentOid', comment.oid),
+            whereClauses    : getListOfSourceIds(mdv.whereClauses, 'commentOid', comment.oid),
+            codeLists       : getListOfSourceIds(mdv.codeLists, 'commentOid', comment.oid),
+            analysisResults : getListOfSourceIds(mdv.analysisResultDisplays.analysisResults, 'commentOid', comment.oid),
         };
         if (mdv.commentOid === comment.oid) {
             comment.sources['metaDataVersion'] = [mdv.oid];

@@ -173,7 +173,7 @@ class WhereClause {
         } else {
             this.sources = {
                 valueLists: [],
-                resultDisplays: [],
+                analysisResults: [],
             };
         }
     }

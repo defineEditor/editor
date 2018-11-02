@@ -293,7 +293,7 @@ const handleAddVariables = (state, action) => {
                     whereClauses: [],
                     codeLists: [],
                     metaDataVersion: [],
-                    resultDisplays: [],
+                    analysisResults: [],
                 };
             }
         }
@@ -316,7 +316,7 @@ const handleAddVariables = (state, action) => {
                     whereClauses: [whereClauseOid],
                     codeLists: [],
                     metaDataVersion: [],
-                    resultDisplays: [],
+                    analysisResults: [],
                 };
             }
         }
@@ -384,7 +384,7 @@ const handleAddItemGroups = (state, action) => {
                     whereClauses: [],
                     codeLists: [],
                     metaDataVersion: [],
-                    resultDisplays: [],
+                    analysisResults: [],
                 };
             }
         }

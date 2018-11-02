@@ -11,6 +11,7 @@ import {
     PdfPageRef,
     Document,
 } from 'elements.js';
+import getOid from 'utils/getOid.js';
 
 function parseDocument (doc) {
     let args = {
@@ -184,6 +185,24 @@ function parseArm (dataRaw) {
     let args = {};
     args.resultDisplays = parseResultDisplays(dataRaw[0]['resultDisplay']);
     args.resultDisplayOrder = Object.keys(args.resultDisplays);
+    // Normalize ARM structure. Move AnalysisResults to root level
+    let analysisResults = {};
+    Object.values(args.resultDisplays).forEach( resultDisplay => {
+        Object.values(resultDisplay.analysisResults).forEach( analysisResult => {
+            // Check OID for uniqueness
+            if (Object.keys(analysisResults).includes(analysisResult.oid)) {
+                let newOid = getOid('AnalysisResult', undefined, Object.keys(analysisResults));
+                resultDisplay.analysisResultOrder.splice(resultDisplay.analysisResultOrder.indexOf(analysisResult.oid), 1, newOid);
+                analysisResult.oid = newOid;
+                analysisResults[newOid] = analysisResult;
+            } else {
+                analysisResults[analysisResult.oid] = analysisResult;
+            }
+
+        });
+        delete resultDisplay.analysisResults;
+    });
+    args.analysisResults = analysisResults;
 
     let analysisResultDisplays = new AnalysisResultDisplays(args);
 

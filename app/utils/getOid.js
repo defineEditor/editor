@@ -14,7 +14,9 @@ function getOid(type, suffix, existingOids = []) {
         ItemRef: 'NG.IR.',
         CodeListItem: 'NG.CI.',
         Study: 'NG.SDY.',
-        Define: 'NG.DEF.'
+        Define: 'NG.DEF.',
+        ResultDisplay: 'RD.',
+        AnalysisResult: 'AR.',
     };
     if (suffix !== undefined) {
         oid = prefix[type] + suffix;

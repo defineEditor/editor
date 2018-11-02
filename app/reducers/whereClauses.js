@@ -91,7 +91,7 @@ const updateNameLabelWhereClause = (state, action) => {
 };
 
 const createNewWhereClause = (state, action) => {
-    let newWhereClause = new WhereClause({ oid: action.whereClauseOid, sources: { valueLists: [action.valueListOid] } });
+    let newWhereClause = new WhereClause({ oid: action.whereClauseOid, sources: { valueLists: [action.valueListOid], analysisResults: [] } });
     return { ...state, [action.whereClauseOid]: newWhereClause };
 };
 
