@@ -19,8 +19,8 @@ const main = (() => {
 
 const tabs = (() => {
     /* TODO: 'Methods', 'Comments', 'Where Conditions'*/
-    let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents'];
-    let tabObjectNames = ['standards', 'datasets', 'variables', 'codeLists', 'codedValues', 'documents'];
+    let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents', 'ARM Summary'];
+    let tabObjectNames = ['standards', 'datasets', 'variables', 'codeLists', 'codedValues', 'documents', 'armSummary'];
 
     let setting = {
         windowScrollPosition: 0,
@@ -30,7 +30,7 @@ const tabs = (() => {
     for (let i = 0; i < tabNames.length; i++) {
         let tabObjectName = tabObjectNames[i];
         settings[i] = { ...setting };
-        if (['Datasets', 'Variables', 'Codelists', 'Coded Values'].includes(tabNames[i])) {
+        if (['Datasets', 'Variables', 'Codelists', 'Coded Values', 'ARM Summary'].includes(tabNames[i])) {
             settings[i].rowSelect = {};
         }
         // When tab has multiple tables
@@ -46,7 +46,7 @@ const tabs = (() => {
             };
         }
         // Column state
-        if (['Datasets', 'Variables','Codelists','Coded Values'].includes(tabNames[i])) {
+        if (['Datasets', 'Variables','Codelists','Coded Values', 'ARM Summary'].includes(tabNames[i])) {
             settings[i].columns = {};
             Object.keys(stdColumns[tabObjectName]).forEach( columnName => {
                 settings[i].columns[columnName] = { hidden: stdColumns[tabObjectName][columnName].hidden };

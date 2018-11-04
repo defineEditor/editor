@@ -51,7 +51,7 @@ const deleteMethod = (state, action) => {
     let sourceNum = idArray.length;
     if (sourceNum <= 1 && action.method.sources[action.source.type][action.source.typeOid][0] === action.source.oid) {
         // If the item to which method is attached is the only one, fully remove the method
-        let newState = Object.assign({}, state);
+        let newState = { ...state };
         delete newState[action.method.oid];
         return newState;
     } else if (action.method.sources[action.source.type][action.source.typeOid].includes(action.source.oid)){

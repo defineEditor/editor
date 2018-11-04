@@ -8,7 +8,7 @@ import clone from 'clone';
 import renderColumns from 'utils/renderColumns.js';
 import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
-import ItemMenu from 'utils/itemMenu.js';
+import ItemMenu from 'components/menus/itemMenu.js';
 import VariableTabFilter from 'utils/variableTabFilter.js';
 import VariableTabUpdate from 'utils/variableTabUpdate.js';
 import Grid from '@material-ui/core/Grid';

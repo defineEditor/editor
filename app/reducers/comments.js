@@ -10,6 +10,7 @@ import {
     ADD_VARS,
     DEL_ITEMGROUPS,
     ADD_ITEMGROUPS,
+    DEL_RESULTDISPLAY,
 } from "constants/action-types";
 import { Comment, TranslatedText } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -344,14 +345,26 @@ const handleAddVariables = (state, action) => {
 };
 
 const handleDeleteVariables = (state, action) => {
-    // Delete comments which were attached to the variables;
-    let newState = { ...state } ;
-    Object.keys(action.deleteObj.commentOids).forEach( type => {
-        let subAction = {deleteObj: {}};
-        subAction.deleteObj.commentOids = action.deleteObj.commentOids[type];
-        newState = deleteCommentRefereces(newState, subAction, type);
+    // Check if there are any comments to delete;
+    let commentsExist;
+    Object.keys(action.deleteObj.commentOids).some( type => {
+        if (Object.keys(action.deleteObj.commentOids[type]).length > 0) {
+            commentsExist = true;
+            return true;
+        }
     });
-    return newState;
+    if (commentsExist) {
+        // Delete comments which were attached to the variables;
+        let newState = { ...state } ;
+        Object.keys(action.deleteObj.commentOids).forEach( type => {
+            let subAction = {deleteObj: {}};
+            subAction.deleteObj.commentOids = action.deleteObj.commentOids[type];
+            newState = deleteCommentRefereces(newState, subAction, type);
+        });
+        return newState;
+    } else {
+        return state;
+    }
 };
 
 const handleAddItemGroups = (state, action) => {
@@ -407,6 +420,16 @@ const handleAddItemGroups = (state, action) => {
     return { ...newState, ...updatedComments };
 };
 
+const handleDeleteResultDisplay = (state, action) => {
+    if (Object.keys(action.deleteObj.commentOids).length > 0) {
+        let subAction = {deleteObj: {}};
+        subAction.deleteObj.commentOids = action.deleteObj.commentOids;
+        return deleteCommentRefereces(state, subAction, 'analysisResults');
+    } else {
+        return state;
+    }
+};
+
 const comments = (state = {}, action) => {
     switch (action.type) {
         case ADD_ITEMGROUPCOMMENT:
@@ -431,6 +454,8 @@ const comments = (state = {}, action) => {
             return handleAddVariables(state, action);
         case ADD_ITEMGROUPS:
             return handleAddItemGroups(state, action);
+        case DEL_RESULTDISPLAY:
+            return handleDeleteResultDisplay(state, action);
         default:
             return state;
     }

@@ -22,7 +22,7 @@ import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import { TranslatedText } from 'elements.js';
 import SelectColumns from 'utils/selectColumns.js';
 import renderColumns from 'utils/renderColumns.js';
-import CodedValueMenu from 'utils/codedValueMenu.js';
+import CodedValueMenu from 'components/menus/codedValueMenu.js';
 import getCodeListData from 'utils/getCodeListData.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';

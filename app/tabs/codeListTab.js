@@ -22,7 +22,7 @@ import CodeListFormatNameEditor from 'editors/codeListFormatNameEditor.js';
 import CodeListStandardEditor from 'editors/codeListStandardEditor.js';
 import SelectColumns from 'utils/selectColumns.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
-import CodeListMenu from 'utils/codeListMenu.js';
+import CodeListMenu from 'components/menus/codeListMenu.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import {

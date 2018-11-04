@@ -76,7 +76,7 @@ function parseComments (commentsRaw, mdv) {
             itemGroups      : getListOfSourceIds(mdv.itemGroups, 'commentOid', comment.oid),
             whereClauses    : getListOfSourceIds(mdv.whereClauses, 'commentOid', comment.oid),
             codeLists       : getListOfSourceIds(mdv.codeLists, 'commentOid', comment.oid),
-            analysisResults : getListOfSourceIds(mdv.analysisResultDisplays.analysisResults, 'commentOid', comment.oid),
+            analysisResults : getListOfSourceIds(mdv.analysisResultDisplays.analysisResults, 'analysisDatasetsCommentOid', comment.oid),
         };
         if (mdv.commentOid === comment.oid) {
             comment.sources['metaDataVersion'] = [mdv.oid];
@@ -310,7 +310,21 @@ function parseWhereClauses (whereClausesRaw, mdv) {
                 valueLists.push(valueListOid);
             }
         });
-        whereClause.sources = { valueLists };
+        let analysisResults = {};
+        if (mdv.analysisResultDisplays !== undefined) {
+            Object.values(mdv.analysisResultDisplays.analysisResults).forEach( analysisResult => {
+                Object.values(analysisResult.analysisDatasets).forEach( dataset => {
+                    if (dataset.whereClauseOid === whereClause.oid) {
+                        if (analysisResults.hasOwnProperty(analysisResult.oid)) {
+                            analysisResults[analysisResult.oid].push(dataset.itemGroupOid);
+                        } else {
+                            analysisResults[analysisResult.oid] = [dataset.itemGroupOid];
+                        }
+                    }
+                });
+            });
+        }
+        whereClause.sources = { valueLists, analysisResults };
         whereClauses[whereClause.oid] = whereClause;
     });
 

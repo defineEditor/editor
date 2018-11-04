@@ -9,6 +9,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import StandardTable from 'tabs/standardTab.js';
 import DatasetTable from 'tabs/datasetTab.js';
 import CodeListTable from 'tabs/codeListTab.js';
+import ArmSummaryTab from 'tabs/armSummaryTab.js';
 import GroupTab from 'tabs/groupTab.js';
 import DocumentTab from 'tabs/documentTab.js';
 import { connect } from 'react-redux';
@@ -42,8 +43,15 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
+    let hasArm;
+    if (state.present.odm.study.metaDataVersion.analysisResultDisplays !== undefined) {
+        hasArm = true;
+    } else {
+        hasArm = false;
+    }
     return {
         tabs: state.present.ui.tabs,
+        hasArm,
     };
 };
 
@@ -161,6 +169,7 @@ class ConnectedEditorTabs extends React.Component {
                     {tabNames[currentTab] === 'Codelists' && <CodeListTable/>}
                     {tabNames[currentTab] === 'Coded Values' && <GroupTab groupClass='Coded Values'/>}
                     {tabNames[currentTab] === 'Documents' && <DocumentTab/>}
+                    {this.props.hasArm && tabNames[currentTab] === 'ARM Summary' && <ArmSummaryTab/>}
                 </TabContainer>
             </div>
         );
@@ -170,6 +179,7 @@ class ConnectedEditorTabs extends React.Component {
 ConnectedEditorTabs.propTypes = {
     classes        : PropTypes.object.isRequired,
     tabs           : PropTypes.object.isRequired,
+    hasArm         : PropTypes.bool.isRequired,
     toggleMainMenu : PropTypes.func.isRequired,
     changeTab      : PropTypes.func.isRequired,
 };

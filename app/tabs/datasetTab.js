@@ -30,7 +30,7 @@ import renderColumns from 'utils/renderColumns.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import SelectColumns from 'utils/selectColumns.js';
-import ItemGroupMenu from 'utils/itemGroupMenu.js';
+import ItemGroupMenu from 'components/menus/itemGroupMenu.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {

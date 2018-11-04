@@ -30,3 +30,4 @@ export * from 'actions/studies.js';
 export * from 'actions/defines.js';
 export * from 'actions/controlledTerminology.js';
 export * from 'actions/stdCodeLists.js';
+export * from 'actions/analysisResultDisplays.js';

@@ -6,24 +6,61 @@ import {
     INSERT_VALLVL,
     ADD_VARS,
     ADD_ITEMGROUPS,
+    DEL_RESULTDISPLAY,
 } from "constants/action-types";
 import { WhereClause } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
 
 const deleteWhereClause = (state, action) => {
     // Get number of sources for the whereClause;
-    let sourceNum = [].concat.apply([],Object.keys(action.whereClause.sources).map(type => (action.whereClause.sources[type]))).length;
-    if (sourceNum <= 1 && action.whereClause.sources.valueLists[0] === action.source.valueListOid) {
-        // If the item to which whereClause is attached is the only one, fully remove the whereClause
-        let newState = Object.assign({}, state);
-        delete newState[action.whereClause.oid];
-        return newState;
-    } else if (action.whereClause.sources[action.source.type].includes(action.source.valueListOid)){
-        // Remove referece to the source OID from the list of whereClause sources
-        let newSourcesForType = action.whereClause.sources.valueLists.slice();
-        newSourcesForType.splice(newSourcesForType.indexOf(action.source.valueListOid),1);
-        let newWhereClause = new WhereClause({ ...action.whereClause, sources: { ...action.whereClause.sources, valueLists: newSourcesForType } });
-        return {...state, [action.whereClause.oid]: newWhereClause};
+    let idArray = [];
+    Object.keys(action.whereClause.sources).forEach(type => {
+        if (Array.isArray(action.whereClause.sources[type])) {
+            idArray = idArray.concat(action.whereClause.sources[type]);
+        } else {
+            Object.keys(action.whereClause.sources[type]).forEach(oid => {
+                idArray = idArray.concat(action.whereClause.sources[type][oid]);
+            });
+        }
+    });
+    // Get number of sources for the whereClause;
+    let sourceNum = idArray.length;
+    if (action.source.type === 'valueLists') {
+        if (sourceNum <= 1 && action.whereClause.sources.valueLists[0] === action.source.valueListOid) {
+            // If the item to which whereClause is attached is the only one, fully remove the whereClause
+            let newState = Object.assign({}, state);
+            delete newState[action.whereClause.oid];
+            return newState;
+        } else if (action.whereClause.sources[action.source.type].includes(action.source.valueListOid)){
+            // Remove referece to the source OID from the list of whereClause sources
+            let newSourcesForType = action.whereClause.sources.valueLists.slice();
+            newSourcesForType.splice(newSourcesForType.indexOf(action.source.valueListOid),1);
+            let newWhereClause = new WhereClause({ ...action.whereClause, sources: { ...action.whereClause.sources, valueLists: newSourcesForType } });
+            return {...state, [action.whereClause.oid]: newWhereClause};
+        } else {
+            return state;
+        }
+    } else if (action.source.type === 'analysisResults') {
+        if (sourceNum <= 1 && action.whereClause.sources[action.source.type][action.source.typeOid][0] === action.source.oid) {
+            // If the item to which whereClause is attached is the only one, fully remove the whereClause
+            let newState = { ...state };
+            delete newState[action.whereClause.oid];
+            return newState;
+        } else if (action.whereClause.sources[action.source.type][action.source.typeOid].includes(action.source.oid)){
+            // Remove referece to the source OID from the list of whereClause sources
+            let newSourcesForType = { ...action.whereClause.sources[action.source.type] };
+            let newSourcesForTypeGroup = newSourcesForType[action.source.typeOid].slice();
+            newSourcesForTypeGroup.splice(newSourcesForTypeGroup.indexOf(action.source.oid),1);
+            if (newSourcesForTypeGroup.length === 0) {
+                delete newSourcesForType[action.source.typeOid];
+            } else {
+                newSourcesForType = { ...newSourcesForType, [action.source.typeOid]: newSourcesForTypeGroup };
+            }
+            let newWhereClause = { ...new WhereClause({ ...action.whereClause, sources: { ...action.whereClause.sources, [action.source.type]: newSourcesForType } }) };
+            return {...state, [action.whereClause.oid]: newWhereClause};
+        } else {
+            return state;
+        }
     } else {
         return state;
     }
@@ -37,7 +74,7 @@ const deleteWhereClauseRefereces = (state, action) => {
     let newState = { ...state };
     Object.keys(action.deleteObj.whereClauseOids).forEach( valueListOid => {
         let subAction = {};
-        subAction.source ={ valueListOid };
+        subAction.source = { valueListOid, type: 'valueLists' };
         action.deleteObj.whereClauseOids[valueListOid].forEach( whereClauseOid => {
             // It is possible that WC was shared by several ItemRefs/ValueLists and already deleted
             if (newState.hasOwnProperty(whereClauseOid)) {
@@ -56,7 +93,7 @@ const updateWhereClause = (state, action) => {
             return { ...state, [action.whereClause.oid]: action.whereClause };
         } else {
             // Add sources
-            let newSources = {};
+            let newSources = { ...action.whereClause.sources };
             newSources.valueLists = [ ...action.whereClause.sources.valueLists, action.source.valueListOid ];
             let newWhereClause = new WhereClause({ ...action.whereClause, sources: newSources });
             return { ...state, [action.whereClause.oid]: newWhereClause };
@@ -75,7 +112,7 @@ const updateNameLabelWhereClause = (state, action) => {
     if (updateObj.oldWcOid !== updateObj.whereClause.oid) {
         if (updateObj.oldWcOid !== undefined) {
             let subAction = {};
-            subAction.source = { valueListOid: action.source.valueListOid };
+            subAction.source = { valueListOid: action.source.valueListOid, type: 'valueLists' };
             subAction.whereClause = newState[updateObj.oldWcOid];
             newState = deleteWhereClause(newState, subAction);
         }
@@ -91,7 +128,12 @@ const updateNameLabelWhereClause = (state, action) => {
 };
 
 const createNewWhereClause = (state, action) => {
-    let newWhereClause = new WhereClause({ oid: action.whereClauseOid, sources: { valueLists: [action.valueListOid], analysisResults: [] } });
+    let newWhereClause;
+    if (action.valueListOid !== undefined) {
+        newWhereClause = new WhereClause({ oid: action.whereClauseOid, sources: { valueLists: [action.valueListOid], analysisResults: {} } });
+    } else if (action.analysisResultSources !== undefined) {
+        newWhereClause = new WhereClause({ oid: action.whereClauseOid, sources: { valueLists: [], analysisResults: action.analysisResultSources } });
+    }
     return { ...state, [action.whereClauseOid]: newWhereClause };
 };
 
@@ -126,6 +168,25 @@ const handleAddItemGroups = (state, action) => {
     return { ...state, ...allWhereClauses };
 };
 
+const handleDeleteResultDisplay = (state, action) => {
+    if (Object.keys(action.deleteObj.whereClauseOids).length > 0) {
+        let newState = { ...state };
+        Object.keys(action.deleteObj.whereClauseOids).forEach( whereClauseOid => {
+            Object.keys(action.deleteObj.whereClauseOids[whereClauseOid]).forEach(analysisResultOid => {
+                action.deleteObj.whereClauseOids[whereClauseOid][analysisResultOid].forEach(itemGroupOid => {
+                    let subAction = {};
+                    subAction.whereClause = newState[whereClauseOid];
+                    subAction.source ={ type: 'analysisResults', oid: itemGroupOid, typeOid: analysisResultOid };
+                    newState = deleteWhereClause(newState, subAction);
+                });
+            });
+        });
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const whereClauses = (state = {}, action) => {
     switch (action.type) {
         case DEL_ITEMGROUPS:
@@ -142,6 +203,8 @@ const whereClauses = (state = {}, action) => {
             return handleAddItemGroups(state, action);
         case INSERT_VALLVL:
             return createNewWhereClause(state, action);
+        case DEL_RESULTDISPLAY:
+            return handleDeleteResultDisplay(state, action);
         default:
             return state;
     }
