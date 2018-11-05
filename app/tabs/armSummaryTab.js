@@ -13,7 +13,7 @@ import IconButton from '@material-ui/core/IconButton';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
-import CodeListOrderEditor from 'editors/codeListOrderEditor.js';
+import ResultDisplayOrderEditor from 'editors/resultDisplayOrderEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import ArmDescriptionEditor from 'editors/armDescriptionEditor.js';
 import ArmDescriptionFormatter from 'formatters/armDescriptionFormatter.js';
@@ -61,7 +61,7 @@ function simpleInputEditor (onUpdate, props) {
 }
 
 function descriptionEditor (onUpdate, props) {
-    return (<ArmDescriptionEditor onUpdate={onUpdate} {...props}/>);
+    return (<ArmDescriptionEditor onUpdate={onUpdate} description={props.defaultValue} {...props}/>);
 }
 
 // Formatter functions
@@ -149,15 +149,17 @@ class ConnectedArmSummaryTable extends React.Component {
     }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
-        if (cellValue === '' && cellName === 'description') {
-            cellValue = undefined;
+        if (cellName === 'description') {
+            // Action is handled within the editor
+            return true;
+        } else {
+            // Update on if the value changed
+            if (!deepEqual(row[cellName], cellValue)) {
+                let updateObj = {oid: row.oid, updates: { [cellName]: cellValue }};
+                this.props.updateResultDisplay(updateObj);
+            }
+            return true;
         }
-        // Update on if the value changed
-        if (!deepEqual(row[cellName], cellValue)) {
-            let updateObj = {oid: row.oid, updates: { [cellName]: cellValue }};
-            this.props.updateResultDisplay(updateObj);
-        }
-        return true;
     }
 
     createCustomButtonGroup = props => {
@@ -182,7 +184,7 @@ class ConnectedArmSummaryTable extends React.Component {
                         </Button>
                     </Grid>
                     <Grid item>
-                        <CodeListOrderEditor/>
+                        <ResultDisplayOrderEditor/>
                     </Grid>
                 </Grid>
             </ButtonGroup>

@@ -2,6 +2,7 @@ import {
     ADD_RESULTDISPLAY,
     UPD_RESULTDISPLAY,
     DEL_RESULTDISPLAY,
+    UPD_RESULTDISPLAYORDER,
 } from "constants/action-types";
 
 // ARM actions
@@ -23,5 +24,12 @@ export const deleteResultDisplays = (deleteObj) => (
     {
         type: DEL_RESULTDISPLAY,
         deleteObj,
+    }
+);
+
+export const updateResultDisplayOrder = (updateObj) => (
+    {
+        type: UPD_RESULTDISPLAYORDER,
+        updateObj,
     }
 );

@@ -14,7 +14,7 @@ import {
     ADD_VAR,
     ADD_VARS,
     DEL_VARS,
-    UPD_KEYOREDER,
+    UPD_KEYORDER,
     INSERT_VAR,
 } from "constants/action-types";
 import { ItemGroup, TranslatedText, DatasetClass, Leaf, ItemRef } from 'elements.js';
@@ -426,7 +426,7 @@ const itemGroups = (state = {}, action) => {
             return addVariables(state, action);
         case DEL_VARS:
             return deleteVariables(state, action);
-        case UPD_KEYOREDER:
+        case UPD_KEYORDER:
             return updateKeyOrder(state, action);
         case INSERT_VAR:
             return insertVariable(state, action);

@@ -35,32 +35,54 @@ export const getDecode = (object, language) => {
 
 export const setDescription = (object, value, language = 'en') => {
     let updatedFlag = false;
-    // No description yet
-    if (object.descriptions.length === 0) {
-        object.descriptions.push(
-            { ...new TranslatedText({ lang: language, value: value }) }
-        );
-        updatedFlag = true;
-    } else {
-        // Search for a description with a specific language and update it
-        object.descriptions.forEach((description, index) => {
-            if (description.lang === language) {
-                object.descriptions[index] = { ...new TranslatedText({
-                    lang: language,
-                    value: value
-                })};
-                updatedFlag = true;
+    if (value === '') {
+        // Blank description should be removed
+        if (object.descriptions.length > 0) {
+            // Search for a description with a specific language and update it
+            object.descriptions.forEach((description, index) => {
+                if (description.lang === language) {
+                    object.descriptions.splice(index, 1);
+                    updatedFlag = true;
+                }
+            });
+            // In case nothing was found and there is a description without language, delete it
+            if (
+                updatedFlag === false &&
+                object.descriptions.length === 1 &&
+                object.descriptions[0].lang === undefined &&
+                language === 'en'
+            ) {
+                object.descriptions = [];
             }
-        });
-    }
-    // In case there is a description without language, use it as default;
-    if (
-        updatedFlag === false &&
-        object.descriptions.length === 1 &&
-        object.descriptions[0].lang === undefined &&
-        language === 'en'
-    ) {
-        object.descriptions[0] = { ...new TranslatedText({ lang: language, value: value }) };
+        }
+    } else {
+        // No description yet
+        if (object.descriptions.length === 0) {
+            object.descriptions.push(
+                { ...new TranslatedText({ lang: language, value: value }) }
+            );
+            updatedFlag = true;
+        } else {
+            // Search for a description with a specific language and update it
+            object.descriptions.forEach((description, index) => {
+                if (description.lang === language) {
+                    object.descriptions[index] = { ...new TranslatedText({
+                        lang: language,
+                        value: value
+                    })};
+                    updatedFlag = true;
+                }
+            });
+        }
+        // In case there is a description without language, use it as default;
+        if (
+            updatedFlag === false &&
+            object.descriptions.length === 1 &&
+            object.descriptions[0].lang === undefined &&
+            language === 'en'
+        ) {
+            object.descriptions[0] = { ...new TranslatedText({ lang: language, value: value }) };
+        }
     }
 };
 

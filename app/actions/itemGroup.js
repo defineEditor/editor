@@ -8,7 +8,7 @@ import {
     DEL_ITEMGROUPCOMMENT,
     UPD_ITEMGROUPCOMMENT,
     REP_ITEMGROUPCOMMENT,
-    UPD_KEYOREDER,
+    UPD_KEYORDER,
 } from "constants/action-types";
 
 // Item Group actions
@@ -29,7 +29,7 @@ export const updateItemGroupOrder = (itemGroupOrder) => (
 
 export const updateKeyOrder = (itemGroupOid, keyOrder) => (
     {
-        type: UPD_KEYOREDER,
+        type: UPD_KEYORDER,
         itemGroupOid,
         keyOrder,
     }

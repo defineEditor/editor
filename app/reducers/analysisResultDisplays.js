@@ -3,6 +3,7 @@ import {
     ADD_RESULTDISPLAY,
     UPD_RESULTDISPLAY,
     DEL_RESULTDISPLAY,
+    UPD_RESULTDISPLAYORDER,
 } from "constants/action-types";
 import { AnalysisResultDisplays, ResultDisplay } from 'core/armStructure.js';
 //import getOid from 'utils/getOid.js';
@@ -51,6 +52,11 @@ const deleteResultDisplays = (state, action) => {
     return { ...new AnalysisResultDisplays({ resultDisplays, resultDisplayOrder, analysisResults }) };
 };
 
+const updateResultDisplayOrder = (state, action) => {
+    // action.updateObj - new item ord
+    return { ...state, resultDisplayOrder: action.updateObj };
+};
+
 const analysisResultDisplays = (state = {}, action) => {
     switch (action.type) {
         case UPD_ARMSTATUS:
@@ -61,6 +67,8 @@ const analysisResultDisplays = (state = {}, action) => {
             return updateResultDisplay(state, action);
         case DEL_RESULTDISPLAY:
             return deleteResultDisplays(state, action);
+        case UPD_RESULTDISPLAYORDER:
+            return updateResultDisplayOrder(state, action);
         default:
             return state;
     }
