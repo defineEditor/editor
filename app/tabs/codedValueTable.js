@@ -17,7 +17,7 @@ import OpenDrawer from '@material-ui/icons/ArrowUpward';
 import Typography from '@material-ui/core/Typography';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import CodedValueEditor from 'editors/codedValueEditor.js';
-import CodedValueOrderEditor from 'editors/codedValueOrderEditor.js';
+import CodedValueOrderEditor from 'components/orderEditors/codedValueOrderEditor.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import { TranslatedText } from 'elements.js';
 import SelectColumns from 'utils/selectColumns.js';
@@ -177,7 +177,7 @@ class ConnectedCodedValueTable extends React.Component {
 
     static getDerivedStateFromProps(nextProps, prevState) {
         let stateUpdate = {};
-        // Store previous itemGroupOid in state so it can be compared with when props change
+        // Store previous groupOid in state so it can be compared with when props change
         if (nextProps.codeListOid !== prevState.codeListOid) {
             stateUpdate.codeListOid = nextProps.codeListOid;
             stateUpdate.setScrollY = true;

@@ -9,7 +9,7 @@ import getOid from 'utils/getOid.js';
 import copyVariables from 'utils/copyVariables.js';
 import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
 import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
-import GeneralOrderEditor from 'editors/generalOrderEditor.js';
+import GeneralOrderEditor from 'components/orderEditors/generalOrderEditor.js';
 import {
     deleteVariables, addValueList, updateVlmItemRefOrder, insertVariable, insertValueLevel, updateCopyBuffer, addVariables,
 } from 'actions/index.js';

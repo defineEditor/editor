@@ -13,13 +13,14 @@ import IconButton from '@material-ui/core/IconButton';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
-import ResultDisplayOrderEditor from 'editors/resultDisplayOrderEditor.js';
+import ResultDisplayOrderEditor from 'components/orderEditors/resultDisplayOrderEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import ArmDescriptionEditor from 'editors/armDescriptionEditor.js';
 import ArmDescriptionFormatter from 'formatters/armDescriptionFormatter.js';
 import SelectColumns from 'utils/selectColumns.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import ArmSummaryMenu from 'components/menus/armSummaryMenu.js';
+import AddResultDisplay from 'components/tableActions/addResultDisplay.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import getArmResultDisplayOids from 'utils/getArmResultDisplayOids.js';
@@ -75,7 +76,7 @@ class ConnectedArmSummaryTable extends React.Component {
 
         let columns = clone(props.stdConstants.columns.armSummary);
 
-        // Variables menu is not shown when selection is triggered
+        // Menu is not shown when selection is triggered
         if (columns.hasOwnProperty('oid')) {
             columns.oid.hidden = this.props.showRowSelect;
         }
@@ -108,6 +109,8 @@ class ConnectedArmSummaryTable extends React.Component {
             selectedRows         : [],
             armSummaryMenuParams : {},
             showSelectColumn     : false,
+            showAddResultDisplay : false,
+            insertPosition       : null,
         };
     }
 
@@ -170,7 +173,14 @@ class ConnectedArmSummaryTable extends React.Component {
                         <ToggleRowSelect oid='overall' disabled={this.props.reviewMode}/>
                     </Grid>
                     <Grid item>
-                        {/* <AddArmEditor disabled={this.props.reviewMode}/> */}
+                        <Button
+                            variant='raised'
+                            color='default'
+                            disabled={this.props.reviewMode}
+                            onClick={ () => { this.setState({ showAddResultDisplay: true, insertPosition: null }); } }
+                        >
+                            Add
+                        </Button>
                     </Grid>
                     <Grid item>
                         <Button
@@ -314,10 +324,22 @@ class ConnectedArmSummaryTable extends React.Component {
                 >
                     {renderColumns(this.state.columns)}
                 </BootstrapTable>
-                <ArmSummaryMenu onClose={this.handleMenuClose} armSummaryMenuParams={this.state.armSummaryMenuParams} anchorEl={this.state.anchorEl}/>
+                <ArmSummaryMenu
+                    onClose={this.handleMenuClose}
+                    armSummaryMenuParams={this.state.armSummaryMenuParams}
+                    anchorEl={this.state.anchorEl}
+                    onAddVariable={ (orderNumber) => { this.setState({ showAddResultDisplay: true, insertPosition: orderNumber }); } }
+                />
                 { this.state.showSelectColumn && (
                     <SelectColumns
                         onClose={ () => { this.setState({ showSelectColumn: false }); } }
+                    />
+                )
+                }
+                { this.state.showAddResultDisplay && (
+                    <AddResultDisplay
+                        position={this.state.insertPosition}
+                        onClose={ () => { this.setState({ showAddResultDisplay: false }); } }
                     />
                 )
                 }

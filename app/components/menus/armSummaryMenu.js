@@ -42,6 +42,15 @@ class ConnectedArmSummaryMenu extends React.Component {
         this.props.onClose();
     }
 
+    insertRecordDialog = (shift) => () => {
+        let params = this.props.armSummaryMenuParams;
+        // This is confusing as insertRecord does not have +1 added to the orderNumber, but users probably will be confused with position 0
+        // that is why +1 is added, to show the first position as 1.
+        let orderNumber = this.props.analysisResultDisplays.resultDisplayOrder.indexOf(params.resultDisplayOid) + shift + 1;
+        this.props.onAddVariable(orderNumber);
+        this.props.onClose();
+    }
+
     editResultDisplayValues = () => {
         let updateObj = {
             tabIndex       : this.props.codedValuesTabIndex,
@@ -67,6 +76,12 @@ class ConnectedArmSummaryMenu extends React.Component {
                         },
                     }}
                 >
+                    <MenuItem key='InsertAboveDialog' onClick={this.insertRecordDialog(0)} disabled={this.props.reviewMode}>
+                        Insert Above
+                    </MenuItem>
+                    <MenuItem key='InsertBelowDialog' onClick={this.insertRecordDialog(1)} disabled={this.props.reviewMode}>
+                        Insert Below
+                    </MenuItem>
                     <MenuItem key='EditResultDisplay' onClick={this.editResultDisplayValues}>
                         View Details
                     </MenuItem>
@@ -83,6 +98,7 @@ ConnectedArmSummaryMenu.propTypes = {
     armSummaryMenuParams   : PropTypes.object.isRequired,
     analysisResultDisplays : PropTypes.object.isRequired,
     reviewMode             : PropTypes.bool,
+    onAddVariable          : PropTypes.func.isRequired,
 };
 
 const ArmSummaryMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedArmSummaryMenu);

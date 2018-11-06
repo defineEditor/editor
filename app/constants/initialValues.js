@@ -19,8 +19,8 @@ const main = (() => {
 
 const tabs = (() => {
     /* TODO: 'Methods', 'Comments', 'Where Conditions'*/
-    let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents', 'ARM Summary'];
-    let tabObjectNames = ['standards', 'datasets', 'variables', 'codeLists', 'codedValues', 'documents', 'armSummary'];
+    let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents', 'ARM Summary', 'Analysis Results'];
+    let tabObjectNames = ['standards', 'datasets', 'variables', 'codeLists', 'codedValues', 'documents', 'armSummary', 'analysisResults'];
 
     let setting = {
         windowScrollPosition: 0,
@@ -34,7 +34,7 @@ const tabs = (() => {
             settings[i].rowSelect = {};
         }
         // When tab has multiple tables
-        if (['Variables', 'Coded Values'].includes(tabNames[i])) {
+        if (['Variables', 'Coded Values', 'Analysis Results'].includes(tabNames[i])) {
             settings[i].vlmState = {};
             settings[i].scrollPosition = {};
             settings[i].groupOid = undefined;

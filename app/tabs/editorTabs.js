@@ -170,6 +170,7 @@ class ConnectedEditorTabs extends React.Component {
                     {tabNames[currentTab] === 'Coded Values' && <GroupTab groupClass='Coded Values'/>}
                     {tabNames[currentTab] === 'Documents' && <DocumentTab/>}
                     {this.props.hasArm && tabNames[currentTab] === 'ARM Summary' && <ArmSummaryTab/>}
+                    {this.props.hasArm && tabNames[currentTab] === 'Analysis Results' && <GroupTab groupClass='Analysis Results'/>}
                 </TabContainer>
             </div>
         );

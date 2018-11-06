@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { updateCodedValueOrder } from 'actions/index.js';
-import GeneralOrderEditor from 'editors/generalOrderEditor.js';
+import GeneralOrderEditor from 'components/orderEditors/generalOrderEditor.js';
 
 // Redux functions
 const mapDispatchToProps = dispatch => {

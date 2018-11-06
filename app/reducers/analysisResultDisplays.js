@@ -5,8 +5,8 @@ import {
     DEL_RESULTDISPLAY,
     UPD_RESULTDISPLAYORDER,
 } from "constants/action-types";
-import { AnalysisResultDisplays, ResultDisplay } from 'core/armStructure.js';
-//import getOid from 'utils/getOid.js';
+import { AnalysisResultDisplays, ResultDisplay, AnalysisResult } from 'core/armStructure.js';
+import getOid from 'utils/getOid.js';
 
 let initialState = new AnalysisResultDisplays();
 
@@ -31,7 +31,33 @@ const updateResultDisplay = (state, action) => {
 };
 
 const addResultDisplay = (state, action) => {
-    return state;
+    let newResultDisplayOid = getOid('ResultDisplay', undefined, state.resultDisplayOrder);
+    let newAnalysisResultOid = getOid('AnalysisResult', undefined, Object.keys(state.analysisResults));
+    let newResultDisplayOrder;
+    const { orderNumber } = action.updateObj;
+    if (orderNumber - 1 <= state.resultDisplayOrder.length) {
+        newResultDisplayOrder = state.resultDisplayOrder.slice(0, orderNumber - 1).concat([newResultDisplayOid].concat(state.resultDisplayOrder.slice(orderNumber - 1))) ;
+    } else {
+        newResultDisplayOrder = state.resultDisplayOrder.concat([newResultDisplayOid]);
+    }
+
+    return { ...new AnalysisResultDisplays(
+        {
+            resultDisplays: {
+                ...state.resultDisplays,
+                [newResultDisplayOid]: { ...new ResultDisplay( {
+                    oid: newResultDisplayOid,
+                    name: action.updateObj.name,
+                    analysisResultOrder: [newAnalysisResultOid],
+                } ) }
+            },
+            resultDisplayOrder: newResultDisplayOrder,
+            analysisResults: {
+                ...state.analysisResults,
+                [newAnalysisResultOid]: { ...new AnalysisResult( { oid: newAnalysisResultOid } ) }
+            }
+        }
+    )};
 };
 
 const deleteResultDisplays = (state, action) => {

@@ -14,7 +14,7 @@ class AnalysisResultDisplays {
 
 class ResultDisplay extends BasicFunctions {
     constructor ({
-        oid, name, analysisResultOrder, descriptions = [], documents = [], analysisResults,
+        oid, name, analysisResultOrder = [], descriptions = [], documents = [], analysisResults,
     } = {}) {
         super();
         this.oid = oid;

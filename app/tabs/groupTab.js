@@ -9,6 +9,7 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 import Drawer from '@material-ui/core/Drawer';
 import VariableTable from 'tabs/variableTable.js';
 import CodedValueTable from 'tabs/codedValueTable.js';
+import AnalysisResultTable from 'tabs/analysisResultTable.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import getTableDataForFilter from 'utils/getTableDataForFilter.js';
 import applyFilter from 'utils/applyFilter.js';
@@ -54,6 +55,9 @@ const mapStateToProps = (state, props) => {
     if (props.groupClass === 'Coded Values') {
         groupOrder = state.present.odm.study.metaDataVersion.order.codeListOrder;
         groups = state.present.odm.study.metaDataVersion.codeLists;
+    } else if (props.groupClass === 'Analysis Results') {
+        groupOrder = state.present.odm.study.metaDataVersion.analysisResultDisplays.resultDisplayOrder;
+        groups = state.present.odm.study.metaDataVersion.analysisResultDisplays.resultDisplays;
     } else if (props.groupClass === 'Variables') {
         groupOrder = state.present.odm.study.metaDataVersion.order.itemGroupOrder;
         groups = state.present.odm.study.metaDataVersion.itemGroups;
@@ -70,7 +74,7 @@ const mapStateToProps = (state, props) => {
     };
 };
 
-class ConnectedVariableTab extends React.Component {
+class ConnectedGroupTab extends React.Component {
     constructor(props) {
         super(props);
 
@@ -217,6 +221,8 @@ class ConnectedVariableTab extends React.Component {
         let filteredGroupOids = [];
         if (this.props.groupClass === 'Coded Values') {
             groupName = 'Codelists';
+        } else if (this.props.groupClass === 'Analysis Results') {
+            groupName = 'Result Displays';
         } else if (this.props.groupClass === 'Variables') {
             groupName = 'Datasets';
             if (this.props.filter.isEnabled && this.state.drawerOpened) {
@@ -250,6 +256,9 @@ class ConnectedVariableTab extends React.Component {
                         { this.props.groupClass === 'Coded Values' &&
                             <CodedValueTable codeListOid={groupOid} openDrawer={() => this.toggleDrawer()}/>
                         }
+                        { this.props.groupClass === 'Analysis Results' &&
+                            <AnalysisResultTable resultDisplayOid={groupOid} openDrawer={() => this.toggleDrawer()}/>
+                        }
                     </div>
                 ) : (
                     <div>
@@ -259,6 +268,9 @@ class ConnectedVariableTab extends React.Component {
                         { this.props.groupClass === 'Coded Values' &&
                                 <div>No Codelists</div>
                         }
+                        { this.props.groupClass === 'Analysis Results' &&
+                                <div>No Analysis Results</div>
+                        }
                     </div>
                 )
                 }
@@ -267,7 +279,7 @@ class ConnectedVariableTab extends React.Component {
     }
 }
 
-ConnectedVariableTab.propTypes = {
+ConnectedGroupTab.propTypes = {
     classes    : PropTypes.object.isRequired,
     groups     : PropTypes.object.isRequired,
     groupOrder : PropTypes.array.isRequired,
@@ -275,5 +287,5 @@ ConnectedVariableTab.propTypes = {
     groupClass : PropTypes.string.isRequired,
 };
 
-const VariableTab = connect(mapStateToProps, mapDispatchToProps)(ConnectedVariableTab);
-export default withStyles(styles)(VariableTab);
+const GroupTab = connect(mapStateToProps, mapDispatchToProps)(ConnectedGroupTab);
+export default withStyles(styles)(GroupTab);

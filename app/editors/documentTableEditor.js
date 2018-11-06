@@ -16,7 +16,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Leaf } from 'elements.js';
-import GeneralOrderEditor from 'editors/generalOrderEditor.js';
+import GeneralOrderEditor from 'components/orderEditors/generalOrderEditor.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getOid from 'utils/getOid.js';
 

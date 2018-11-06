@@ -24,12 +24,8 @@ const styles = theme => ({
         marginRight  : '0px',
         marginBottom : '8px',
     },
-    descriptionInput: {
+    resultDisplayInput: {
         marginBottom : '8px',
-    },
-    multipleSourcesLine: {
-        whiteSpace : 'pre-wrap',
-        color      : 'grey',
     },
     helperText: {
         whiteSpace : 'pre-wrap',
