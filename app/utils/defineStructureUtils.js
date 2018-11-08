@@ -86,7 +86,7 @@ export const setDescription = (object, value, language = 'en') => {
     }
 };
 
-const surroundWithQuotes = (value) => {
+const surroundWithQuotes = (value, type) => {
     if (/'/.test(value) && /"/.test(value) && /\s/.test(value)) {
         // TODO Throw an error -> cannot handle such values at the moment
         return value;
@@ -96,14 +96,19 @@ const surroundWithQuotes = (value) => {
     } else if (/'/.test(value) || /\s/.test(value)) {
         return '"' + value + '"';
     } else {
-        return value;
+        if (['text', 'date', 'time', 'datetime'].includes(type)) {
+            return '"' + value + '"';
+        } else {
+            return value;
+        }
     }
 };
 
-const getRangeCheckAsText = (object, mdv) => {
+const getRangeCheckAsText = (object, mdv, options = {}) => {
     let result;
     let itemName = mdv.itemDefs.hasOwnProperty(object.itemOid) ? mdv.itemDefs[object.itemOid].name : '';
-    if (object.itemGroupOid !== undefined && mdv.itemGroups.hasOwnProperty(object.itemGroupOid)) {
+    let itemType = mdv.itemDefs.hasOwnProperty(object.itemOid) ? mdv.itemDefs[object.itemOid].dataType : '';
+    if (object.itemGroupOid !== undefined && mdv.itemGroups.hasOwnProperty(object.itemGroupOid) && options.noDatasetName !== true) {
         let itemGroupName = mdv.itemGroups[object.itemGroupOid].name;
         result = itemGroupName + '.' + itemName + ' ' + object.comparator + ' ';
     } else {
@@ -113,18 +118,19 @@ const getRangeCheckAsText = (object, mdv) => {
         if (['IN', 'NOTIN'].indexOf(object.comparator) >= 0) {
             result +=
                 '(' +
-                object.checkValues.map(value => surroundWithQuotes(value)).join(', ') +
+                object.checkValues.map(value => surroundWithQuotes(value, itemType)).join(', ') +
                 ')';
         } else {
-            result += surroundWithQuotes(object.checkValues[0]);
+            result += surroundWithQuotes(object.checkValues[0], itemType);
         }
     }
     return result;
 };
 
-export const getWhereClauseAsText = (object, mdv) => {
+export const getWhereClauseAsText = (object, mdv, options = {}) => {
     return object.rangeChecks
-        .map(rangeCheck => getRangeCheckAsText(rangeCheck, mdv))
+        .filter( rangeCheck => (options.itemOid !== undefined ? (rangeCheck.itemOid === options.itemOid) : true))
+        .map(rangeCheck => getRangeCheckAsText(rangeCheck, mdv, options))
         .join(' AND ');
 
 };

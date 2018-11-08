@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
 import OpenDrawer from '@material-ui/icons/ArrowUpward';
-//import AnalysisResultTile from 'components/utils/analysisResultTile.js';
+import AnalysisResultTile from 'components/utils/analysisResultTile.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 import {
     addAnalysisResult,
@@ -80,13 +80,13 @@ class ConnectedAnalysisResultTable extends React.Component {
     }
 
     addAnalysisResult = (event) => {
-        addAnalysisResult({ resultDisplayOid: this.props.resultDisplayOid });
+        this.props.addAnalysisResult({ resultDisplayOid: this.props.resultDisplayOid });
     }
 
     render () {
         const { classes } = this.props;
         const resultDisplay = this.props.resultDisplays[this.props.resultDisplayOid];
-        let resultDisplayTitle = resultDisplay.name || ' ' || getDescription(resultDisplay);
+        let resultDisplayTitle = resultDisplay.name + ' ' + getDescription(resultDisplay);
 
         return (
             <React.Fragment>
@@ -117,10 +117,9 @@ class ConnectedAnalysisResultTable extends React.Component {
                         </Button>
                     </Grid>
                     <Grid item xs={12}>
-                        {/*resultDisplay.analysisResultOrder.map( (analysisResultOid, index) => (
-                            {<AnalysisResultTile key={index} analysisResultOid={analysisResultOid}/>}
-                        ))
-                            */}
+                        {resultDisplay.analysisResultOrder.map( (analysisResultOid, index) => (
+                            <AnalysisResultTile key={index} analysisResultOid={analysisResultOid} resultDisplayOid={this.props.resultDisplayOid}/>
+                        ))}
                     </Grid>
                 </Grid>
             </React.Fragment>

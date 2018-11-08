@@ -5,7 +5,8 @@ import DocumentFormatter from 'formatters/documentFormatter.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
-    text: {
+    greyText: {
+        color: 'rgba(0,0,0,0.54)',
     },
 });
 
@@ -17,7 +18,7 @@ class ArmDescriptionFormatter extends React.Component {
 
         return (
             <div>
-                <div>{descriptionText}</div>
+                <div className={this.props.greyText ? this.props.classes.greyText : undefined}>{descriptionText}</div>
                 { (description.documents.length !== 0) &&
                         <DocumentFormatter documents={description.documents} leafs={this.props.leafs}/>
                 }
@@ -28,7 +29,8 @@ class ArmDescriptionFormatter extends React.Component {
 
 ArmDescriptionFormatter.propTypes = {
     description : PropTypes.object.isRequired,
-    leafs       : PropTypes.object
+    leafs       : PropTypes.object,
+    greyText    : PropTypes.bool,
 };
 
 export default withStyles(styles)(ArmDescriptionFormatter);

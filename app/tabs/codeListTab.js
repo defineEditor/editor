@@ -180,7 +180,6 @@ class ConnectedCodeListTable extends React.Component {
         return (
             <IconButton
                 onClick={this.handleMenuOpen(codeListMenuParams)}
-                className={this.props.classes.menuButton}
                 color='default'
             >
                 <MoreVertIcon/>

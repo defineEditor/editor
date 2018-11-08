@@ -4,8 +4,11 @@ import {
     UPD_RESULTDISPLAY,
     DEL_RESULTDISPLAY,
     UPD_RESULTDISPLAYORDER,
+    UPD_ANALYSISRESULTORDER,
+    ADD_ANALYSISRESULT,
 } from "constants/action-types";
 import { AnalysisResultDisplays, ResultDisplay, AnalysisResult } from 'core/armStructure.js';
+import analysisResults from 'reducers/analysisResults.js';
 import getOid from 'utils/getOid.js';
 
 let initialState = new AnalysisResultDisplays();
@@ -83,6 +86,17 @@ const updateResultDisplayOrder = (state, action) => {
     return { ...state, resultDisplayOrder: action.updateObj };
 };
 
+const updateAnalysisResultOrder = (state, action) => {
+    // action.updateObj.newOrder - new item ord
+    // action.updateObj.resultDisplayOid - oid of the parent result display
+    return {
+        ...state,
+        resultDisplays: {
+            ...state.resultDisplays,
+            [action.resultDisplayOid]: { ...state.resultDisplayOid[action.updateObj.resultDisplayOid], analysisResultOrder: action.updateObj.newOrder } }
+    };
+};
+
 const analysisResultDisplays = (state = {}, action) => {
     switch (action.type) {
         case UPD_ARMSTATUS:
@@ -95,8 +109,13 @@ const analysisResultDisplays = (state = {}, action) => {
             return deleteResultDisplays(state, action);
         case UPD_RESULTDISPLAYORDER:
             return updateResultDisplayOrder(state, action);
-        default:
-            return state;
+        case UPD_ANALYSISRESULTORDER:
+            return updateAnalysisResultOrder(state, action);
+        case ADD_ANALYSISRESULT:
+            return updateAnalysisResultOrder(state, action);
+        default: {
+            return {...state, analysisResults: analysisResults(state.analysisResults, action)};
+        }
     }
 };
 
