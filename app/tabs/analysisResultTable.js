@@ -24,8 +24,7 @@ const styles = theme => ({
         marginLeft    : theme.spacing.unit,
     },
     drawerButton: {
-        marginLeft : theme.spacing.unit,
-        transform  : 'translate(0%, -6%)',
+        marginLeft : theme.spacing.unit * 2,
     },
 });
 
@@ -92,18 +91,24 @@ class ConnectedAnalysisResultTable extends React.Component {
             <React.Fragment>
                 <Grid container spacing={8}>
                     <Grid item xs={12}>
-                        <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
-                            {resultDisplayTitle}
-                            <Button
-                                color="default"
-                                variant='fab'
-                                mini
-                                onClick={this.props.openDrawer}
-                                className={this.props.classes.drawerButton}
-                            >
-                                <OpenDrawer/>
-                            </Button>
-                        </h3>
+                        <Grid container alignItems='center' justify='flex-start' wrap='nowrap'>
+                            <Grid>
+                                <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
+                                    {resultDisplayTitle}
+                                </h3>
+                            </Grid>
+                            <Grid>
+                                <Button
+                                    color="default"
+                                    variant='fab'
+                                    mini
+                                    onClick={this.props.openDrawer}
+                                    className={this.props.classes.drawerButton}
+                                >
+                                    <OpenDrawer/>
+                                </Button>
+                            </Grid>
+                        </Grid>
                     </Grid>
                     <Grid item xs={12}>
                         <Button

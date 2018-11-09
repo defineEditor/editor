@@ -14,9 +14,6 @@ import AnalysisResultFormatter from 'formatters/analysisResultFormatter.js';
 import EditIcon from '@material-ui/icons/Edit';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { getDescription } from 'utils/defineStructureUtils.js';
-import {
-    openModal,
-} from 'actions/index.js';
 
 const styles = theme => ({
     actions: {
@@ -40,12 +37,6 @@ const styles = theme => ({
         marginBottom: theme.spacing.unit,
     },
 });
-
-const mapDispatchToProps = dispatch => {
-    return {
-        openModal: updateObj => dispatch(openModal(updateObj)),
-    };
-};
 
 const mapStateToProps = state => {
     return {
@@ -125,7 +116,9 @@ class ConnectedAnalysisResultTile extends React.Component {
                     </CardActions>
                     <CardContent className={classes.content}>
                         {this.state.editMode ? (
-                            <AnalysisResultEditor analysisResultOid={this.props.AnalysisResultEditor}/>
+                            <AnalysisResultEditor
+                                analysisResultOid={this.props.analysisResultOid}
+                            />
                         ) : (
                             <AnalysisResultFormatter
                                 mdv={this.props.mdv}
@@ -156,5 +149,5 @@ ConnectedAnalysisResultTile.propTypes = {
     resultDisplayOid: PropTypes.string.isRequired,
 };
 
-const AnalysisResultTile = connect(mapStateToProps, mapDispatchToProps)(ConnectedAnalysisResultTile);
+const AnalysisResultTile = connect(mapStateToProps)(ConnectedAnalysisResultTile);
 export default withStyles(styles)(AnalysisResultTile);

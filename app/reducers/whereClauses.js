@@ -7,6 +7,7 @@ import {
     ADD_VARS,
     ADD_ITEMGROUPS,
     DEL_RESULTDISPLAY,
+    DEL_ANALYSISRESULT,
 } from "constants/action-types";
 import { WhereClause } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -168,7 +169,7 @@ const handleAddItemGroups = (state, action) => {
     return { ...state, ...allWhereClauses };
 };
 
-const handleDeleteResultDisplay = (state, action) => {
+const handleDeleteArmItem = (state, action) => {
     if (Object.keys(action.deleteObj.whereClauseOids).length > 0) {
         let newState = { ...state };
         Object.keys(action.deleteObj.whereClauseOids).forEach( whereClauseOid => {
@@ -204,7 +205,9 @@ const whereClauses = (state = {}, action) => {
         case INSERT_VALLVL:
             return createNewWhereClause(state, action);
         case DEL_RESULTDISPLAY:
-            return handleDeleteResultDisplay(state, action);
+            return handleDeleteArmItem(state, action);
+        case DEL_ANALYSISRESULT:
+            return handleDeleteArmItem(state, action);
         default:
             return state;
     }

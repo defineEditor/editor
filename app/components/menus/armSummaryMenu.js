@@ -20,7 +20,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
     return {
         analysisResultDisplays : state.present.odm.study.metaDataVersion.analysisResultDisplays,
-        armDetailsTabIndex     : state.present.ui.tabs.tabNames.indexOf('ARM Details'),
+        armDetailsTabIndex     : state.present.ui.tabs.tabNames.indexOf('Analysis Results'),
         reviewMode             : state.present.ui.main.reviewMode,
     };
 };
@@ -53,7 +53,7 @@ class ConnectedArmSummaryMenu extends React.Component {
 
     editResultDisplayValues = () => {
         let updateObj = {
-            tabIndex       : this.props.codedValuesTabIndex,
+            tabIndex       : this.props.armDetailsTabIndex,
             groupOid       : this.props.armSummaryMenuParams.resultDisplaysOid,
             scrollPosition : {},
         };

@@ -11,6 +11,7 @@ import {
     DEL_ITEMGROUPS,
     ADD_ITEMGROUPS,
     DEL_RESULTDISPLAY,
+    DEL_ANALYSISRESULT,
 } from "constants/action-types";
 import { Comment, TranslatedText } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -420,7 +421,7 @@ const handleAddItemGroups = (state, action) => {
     return { ...newState, ...updatedComments };
 };
 
-const handleDeleteResultDisplay = (state, action) => {
+const handleDeleteArmItem = (state, action) => {
     if (Object.keys(action.deleteObj.commentOids).length > 0) {
         let subAction = {deleteObj: {}};
         subAction.deleteObj.commentOids = action.deleteObj.commentOids;
@@ -455,7 +456,9 @@ const comments = (state = {}, action) => {
         case ADD_ITEMGROUPS:
             return handleAddItemGroups(state, action);
         case DEL_RESULTDISPLAY:
-            return handleDeleteResultDisplay(state, action);
+            return handleDeleteArmItem(state, action);
+        case DEL_ANALYSISRESULT:
+            return handleDeleteArmItem(state, action);
         default:
             return state;
     }

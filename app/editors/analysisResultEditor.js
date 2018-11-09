@@ -1,35 +1,91 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
 import List from '@material-ui/core/List';
+import Grid from '@material-ui/core/Grid';
 import ListItem from '@material-ui/core/ListItem';
 import TextField from '@material-ui/core/TextField';
-import EditingControlIcons from 'editors/editingControlIcons.js';
+import { getDescription } from 'utils/defineStructureUtils.js';
+import getSelectionList from 'utils/getSelectionList.js';
+import {
+    updateAnalysisResult,
+} from 'actions/index.js';
 
 const styles = theme => ({
-    globalVariables: {
-        padding   : 16,
-        marginTop : theme.spacing.unit * 3,
-        width     : '100%',
+    root: {
         outline   : 'none',
     },
-    inputField: {
+    paramter: {
+        minWidth: '200px',
     },
 });
 
-class GlobalVariablesEditor extends React.Component {
+const mapDispatchToProps = dispatch => {
+    return {
+        updateAnalysisResult: updateObj => dispatch(updateAnalysisResult(updateObj)),
+    };
+};
+
+const mapStateToProps = state => {
+    return {
+        mdv          : state.present.odm.study.metaDataVersion,
+        stdConstants : state.present.stdConstants,
+    };
+};
+
+class ConnectedAnalysisResultEditor extends React.Component {
 
     constructor (props) {
 
         super(props);
 
-        const { globalVariables, studyOid } = this.props;
+        let analysisResult = props.mdv.analysisResultDisplays.analysisResults[props.analysisResultOid];
+
+        const {
+            analysisReason,
+            analysisPurpose,
+            parameterOid,
+            documentation,
+            programmingCode,
+            analysisDatasets,
+            analysisDatasetOrder,
+            analysisDatasetsCommentOid
+        } = analysisResult;
+
+        let listOfVariables = this.getListOfVariables(analysisDatasets);
+
+        let descriptionText = getDescription(analysisResult);
         this.state = {
-            ...globalVariables,
-            studyOid,
+            descriptionText,
+            analysisReason,
+            analysisPurpose,
+            parameterOid,
+            documentation,
+            programmingCode,
+            analysisDatasets,
+            analysisDatasetOrder,
+            analysisDatasetsCommentOid,
+            listOfVariables,
         };
+    }
+
+    getListOfVariables = (analysisDatasets) => {
+        let result = [];
+        const mdv = this.props.mdv;
+        const itemGroups = mdv.itemGroups;
+        Object.values(analysisDatasets).forEach( analysisDataset => {
+            let itemGroupOid = analysisDataset.itemGroupOid;
+            if (itemGroups.hasOwnProperty(itemGroupOid)) {
+                let itemGroup = itemGroups[itemGroupOid];
+                let datasetName = itemGroup.name;
+                itemGroup.itemRefOrder.forEach( itemRefOid => {
+                    let itemDef = mdv.itemDefs[itemGroup.itemRefs[itemRefOid].itemOid];
+                    result.push({ [itemDef.oid]: datasetName + '.' + itemDef.name });
+                });
+            }
+        });
+        return result;
     }
 
     handleChange = (name) => (event) => {
@@ -37,12 +93,12 @@ class GlobalVariablesEditor extends React.Component {
     }
 
     save = () => {
-        this.props.onSave(this.state);
+        this.props.onUpdateFinished();
     }
 
     onKeyDown = (event)  => {
         if (event.key === 'Escape' || event.keyCode === 27) {
-            this.props.onCancel();
+            this.props.onUpdateFinished();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
             this.save();
         }
@@ -51,63 +107,71 @@ class GlobalVariablesEditor extends React.Component {
     render () {
         const { classes } = this.props;
         return (
-            <Paper className={classes.globalVariables} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
-                <Typography variant="headline" component="h3">
-                    Global Variables and Study OID
-                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
-                </Typography>
+            <div className={classes.root} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <List>
                     <ListItem dense>
                         <TextField
-                            label='Study OID'
-                            value={this.state.studyOid}
-                            fullWidth
-                            onChange={this.handleChange('studyOid')}
-                            className={classes.inputField}
-                        />
-                    </ListItem>
-                    <ListItem dense>
-                        <TextField
-                            label='Study Name'
-                            value={this.state.studyName}
-                            fullWidth
+                            label='Description'
+                            value={this.state.descriptionText}
                             autoFocus
-                            onChange={this.handleChange('studyName')}
+                            fullWidth
+                            onChange={this.handleChange('descriptionText')}
                             className={classes.inputField}
                         />
                     </ListItem>
                     <ListItem dense>
-                        <TextField
-                            label='Protocol Name'
-                            value={this.state.protocolName}
-                            fullWidth
-                            onChange={this.handleChange('protocolName')}
-                            className={classes.inputField}
-                        />
+                        <Grid container justify='space-between' spacing={8}>
+                            <Grid item>
+                                <TextField
+                                    label='Analysis Reason'
+                                    value={this.state.analysisReason}
+                                    fullWidth
+                                    select
+                                    onChange={this.handleChange('analysisReason')}
+                                >
+                                    {getSelectionList(this.props.stdConstants.armAnalysisReason)}
+                                </TextField>
+                            </Grid>
+                            <Grid item>
+                                <TextField
+                                    label='Analysis Purpose'
+                                    value={this.state.analysisPurpose}
+                                    fullWidth
+                                    select
+                                    onChange={this.handleChange('analysisPurpose')}
+                                >
+                                    {getSelectionList(this.props.stdConstants.armAnalysisPurpose)}
+                                </TextField>
+                            </Grid>
+                            <Grid item>
+                                <TextField
+                                    label='Parameter'
+                                    value={this.state.parameterOid}
+                                    fullWidth
+                                    select
+                                    onChange={this.handleChange('parameterOid')}
+                                    className={classes.paramter}
+                                >
+                                    {getSelectionList(this.state.listOfVariables)}
+                                </TextField>
+                            </Grid>
+                        </Grid>
                     </ListItem>
                     <ListItem dense>
-                        <TextField
-                            label='Study Description'
-                            value={this.state.studyDescription}
-                            fullWidth
-                            multiline
-                            onChange={this.handleChange('studyDescription')}
-                            className={classes.inputField}
-                        />
+                    </ListItem>
+                    <ListItem dense>
                     </ListItem>
                 </List>
-            </Paper>
+            </div>
         );
     }
 }
 
-GlobalVariablesEditor.propTypes = {
-    globalVariables : PropTypes.object.isRequired,
-    classes         : PropTypes.object.isRequired,
-    onSave          : PropTypes.func.isRequired,
-    onCancel        : PropTypes.func.isRequired,
-    onHelp          : PropTypes.func,
-    onComment       : PropTypes.func,
+ConnectedAnalysisResultEditor.propTypes = {
+    analysisResult   : PropTypes.object.isRequired,
+    classes          : PropTypes.object.isRequired,
+    onUpdateFinished : PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(GlobalVariablesEditor);
+const AnalysisResultEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedAnalysisResultEditor);
+export default withStyles(styles)(AnalysisResultEditor);

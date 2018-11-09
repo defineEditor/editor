@@ -6,9 +6,10 @@ import {
     UPD_RESULTDISPLAYORDER,
     UPD_ANALYSISRESULTORDER,
     ADD_ANALYSISRESULT,
+    DEL_ANALYSISRESULT,
+    UPD_ANALYSISRESULT,
 } from "constants/action-types";
 import { AnalysisResultDisplays, ResultDisplay, AnalysisResult } from 'core/armStructure.js';
-import analysisResults from 'reducers/analysisResults.js';
 import getOid from 'utils/getOid.js';
 
 let initialState = new AnalysisResultDisplays();
@@ -97,6 +98,47 @@ const updateAnalysisResultOrder = (state, action) => {
     };
 };
 
+const addAnalysisResult = (state, action) => {
+    let newAnalysisResultOid = getOid('AnalysisResult', undefined, Object.keys(state.analysisResults));
+
+    let newAnalysisResults = {
+        ...state.analysisResults,
+        [newAnalysisResultOid]: { ...new AnalysisResult( { oid: newAnalysisResultOid } ) }
+    };
+
+    let newResultDisplay = { ...state.resultDisplays[action.updateObj.resultDisplayOid] };
+    newResultDisplay.analysisResultOrder = newResultDisplay.analysisResultOrder.concat([newAnalysisResultOid]);
+    return {
+        ...state,
+        resultDisplays: { ...state.resultDisplays, [action.updateObj.resultDisplayOid]: newResultDisplay },
+        analysisResults: newAnalysisResults,
+    };
+};
+
+const updateAnalysisResult = (state, action) => {
+    return state;
+};
+
+const deleteAnalysisResults = (state, action) => {
+
+    let newAnalysisResults = { ...state.analysisResults };
+
+    let newResultDisplay = { ...state.resultDisplays[action.deleteObj.resultDisplayOid] };
+    let newAnalysisResultOrder = newResultDisplay.analysisResultOrder.slice();
+
+    action.deleteObj.analysisResultOids.forEach(analysisResultOid => {
+        delete newAnalysisResults[analysisResultOid];
+        newAnalysisResultOrder.splice(newAnalysisResultOrder.indexOf(analysisResultOid),1);
+    });
+
+    newResultDisplay.analysisResultOrder = newAnalysisResultOrder;
+
+    return {
+        ...state,
+        resultDisplays: { ...state.resultDisplays, [action.deleteObj.resultDisplayOid]: newResultDisplay },
+        analysisResults: newAnalysisResults,
+    };
+};
 const analysisResultDisplays = (state = {}, action) => {
     switch (action.type) {
         case UPD_ARMSTATUS:
@@ -112,10 +154,13 @@ const analysisResultDisplays = (state = {}, action) => {
         case UPD_ANALYSISRESULTORDER:
             return updateAnalysisResultOrder(state, action);
         case ADD_ANALYSISRESULT:
-            return updateAnalysisResultOrder(state, action);
-        default: {
-            return {...state, analysisResults: analysisResults(state.analysisResults, action)};
-        }
+            return addAnalysisResult(state, action);
+        case UPD_ANALYSISRESULT:
+            return updateAnalysisResult(state, action);
+        case DEL_ANALYSISRESULT:
+            return deleteAnalysisResults(state, action);
+        default:
+            return state;
     }
 };
 
