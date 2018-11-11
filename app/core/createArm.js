@@ -1,14 +1,14 @@
 import { createTranslatedText, createDocumentRef } from './createUtils.js';
+import clone from 'clone';
 
-function createArm (data, version) {
+function createArm (rawData, version) {
     let result = {};
+    let data = clone(rawData);
     // Use the same version as before if the version is not specified
     // Use 1.0.0 by default
     version = version || '1.0.0';
     // De-normalize ARM
-    data.resultDisplays = { ...data.resultDisplays };
     Object.values(data.resultDisplays).forEach( resultDisplay => {
-        resultDisplay = { ...resultDisplay };
         resultDisplay.analysisResults = {};
         resultDisplay.analysisResultOrder.forEach( analysisResultOid => {
             resultDisplay.analysisResults[analysisResultOid] = data.analysisResults[analysisResultOid];

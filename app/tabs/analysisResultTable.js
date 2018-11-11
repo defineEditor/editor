@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
 import OpenDrawer from '@material-ui/icons/ArrowUpward';
+import AnalysisResultOrderEditor from 'components/orderEditors/analysisResultOrderEditor.js';
 import AnalysisResultTile from 'components/utils/analysisResultTile.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 import {
@@ -111,15 +112,21 @@ class ConnectedAnalysisResultTable extends React.Component {
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
-                        <Button
-                            color='default'
-                            size='small'
-                            variant='raised'
-                            onClick={this.addAnalysisResult}
-                            className={classes.button}
-                        >
-                            Add Analysis Result
-                        </Button>
+                        <Grid container spacing={16} alignItems='center'>
+                            <Grid item>
+                                <Button
+                                    color='default'
+                                    variant='raised'
+                                    onClick={this.addAnalysisResult}
+                                    className={classes.button}
+                                >
+                                    Add Analysis Result
+                                </Button>
+                            </Grid>
+                            <Grid item>
+                                <AnalysisResultOrderEditor resultDisplayOid={this.props.resultDisplayOid}/>
+                            </Grid>
+                        </Grid>
                     </Grid>
                     <Grid item xs={12}>
                         {resultDisplay.analysisResultOrder.map( (analysisResultOid, index) => (

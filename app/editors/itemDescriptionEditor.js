@@ -32,7 +32,7 @@ const mapStateToProps = state => {
     };
 };
 
-class ConnectedDescriptionEditor extends React.Component {
+class ConnectedItemDescriptionEditor extends React.Component {
     constructor (props) {
         super(props);
         this.rootRef = React.createRef();
@@ -115,10 +115,10 @@ class ConnectedDescriptionEditor extends React.Component {
     }
 }
 
-ConnectedDescriptionEditor.propTypes = {
+ConnectedItemDescriptionEditor.propTypes = {
     defaultValue : PropTypes.object,
     lang         : PropTypes.string,
 };
 
-const DescriptionEditor = connect(mapStateToProps)(ConnectedDescriptionEditor);
-export default withStyles(styles)(DescriptionEditor);
+const ItemDescriptionEditor = connect(mapStateToProps)(ConnectedItemDescriptionEditor);
+export default withStyles(styles)(ItemDescriptionEditor);

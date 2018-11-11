@@ -316,6 +316,7 @@ class ConnectedArmSummaryTable extends React.Component {
                     search
                     striped
                     hover
+                    remote={ true }
                     version='4'
                     cellEdit={this.props.reviewMode ? undefined : cellEditProp}
                     keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}

@@ -2,12 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
-import List from '@material-ui/core/List';
+import deepEqual from 'fast-deep-equal';
+import clone from 'clone';
 import Grid from '@material-ui/core/Grid';
-import ListItem from '@material-ui/core/ListItem';
 import TextField from '@material-ui/core/TextField';
-import { getDescription } from 'utils/defineStructureUtils.js';
+import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
+import SaveCancel from 'editors/saveCancel.js';
 import getSelectionList from 'utils/getSelectionList.js';
+import ArmDocumentationView from 'editors/view/armDocumentationView.js';
+import ArmProgrammingCodeView from 'editors/view/armProgrammingCodeView.js';
+import { Documentation, ProgrammingCode } from 'core/armStructure.js';
 import {
     updateAnalysisResult,
 } from 'actions/index.js';
@@ -31,6 +35,7 @@ const mapStateToProps = state => {
     return {
         mdv          : state.present.odm.study.metaDataVersion,
         stdConstants : state.present.stdConstants,
+        lang         : state.present.odm.study.metaDataVersion.lang,
     };
 };
 
@@ -40,6 +45,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
 
         super(props);
 
+        this.rootRef = React.createRef();
         let analysisResult = props.mdv.analysisResultDisplays.analysisResults[props.analysisResultOid];
 
         const {
@@ -81,18 +87,101 @@ class ConnectedAnalysisResultEditor extends React.Component {
                 let datasetName = itemGroup.name;
                 itemGroup.itemRefOrder.forEach( itemRefOid => {
                     let itemDef = mdv.itemDefs[itemGroup.itemRefs[itemRefOid].itemOid];
-                    result.push({ [itemDef.oid]: datasetName + '.' + itemDef.name });
+                    if (itemDef.name === 'PARAMCD') {
+                        result.unshift({ [itemDef.oid]: datasetName + '.' + itemDef.name });
+                    } else {
+                        result.push({ [itemDef.oid]: datasetName + '.' + itemDef.name });
+                    }
                 });
             }
         });
         return result;
     }
 
-    handleChange = (name) => (event) => {
-        this.setState({ [name]: event.target.value });
+    handleChange = (category) => (name) => (updateObj) => {
+        if (category === 'main') {
+            this.setState({ [name]: updateObj.target.value });
+        } else if (category === 'documentation') {
+            let newDescriptions;
+            let docObj;
+            if (this.state.documentation !== undefined) {
+                newDescriptions = { descriptions: this.state.documentation.descriptions.slice() };
+                docObj = { documents: this.state.documentation.documents };
+            }
+            if (name === 'textUpdate') {
+                setDescription(newDescriptions, updateObj.target.value, this.props.lang);
+            } else if (name === 'addDocument') {
+                addDocument(docObj);
+            } else if (name === 'updateDocument') {
+                docObj = updateObj;
+            } else if (name === 'addDocumentation') {
+                this.setState({ documentation: { ...new Documentation({}) } });
+            } else if (name === 'deleteDocumentation') {
+                this.setState({ documentation: undefined });
+            }
+
+            if (!(['addDocumentation', 'deleteDocumentation'].includes(name))) {
+                let updatedDocumentation = { descriptions: newDescriptions.descriptions, documents: docObj.documents };
+                this.setState({ documentation: updatedDocumentation });
+            }
+        } else if (category === 'programmingCode') {
+            let docObj;
+            let code;
+            let context;
+            if (this.state.programmingCode !== undefined) {
+                docObj = { documents: this.state.programmingCode.documents };
+                code = this.state.programmingCode.code;
+                context = this.state.programmingCode.context;
+            }
+            if (name === 'contextUpdate') {
+                context = updateObj.target.value;
+            } else if (name === 'codeUpdate') {
+                code = updateObj.target.value;
+            } else if (name === 'addDocument') {
+                addDocument(docObj);
+            } else if (name === 'updateDocument') {
+                docObj = updateObj;
+            } else if (name === 'addProgrammingCode') {
+                this.setState({ programmingCode: { ...new ProgrammingCode({}) } });
+            } else if (name === 'deleteProgrammingCode') {
+                this.setState({ programmingCode: undefined });
+            }
+
+            if (!(['addProgrammingCode', 'deleteProgrammingCode'].includes(name))) {
+                let updatedProgrammingCode = { code, context, documents: docObj.documents };
+                this.setState({ programmingCode: updatedProgrammingCode });
+            }
+        }
     }
 
     save = () => {
+        let analysisResult = clone(this.state);
+        let originalAnalysisResult = this.props.mdv.analysisResultDisplays.analysisResults[this.props.analysisResultOid];
+        // Pre-process the value
+        if (analysisResult.programmingCode !== undefined) {
+            if (analysisResult.programmingCode.code === '') {
+                analysisResult.programmingCode.code = undefined;
+            }
+            if (analysisResult.programmingCode.context === '') {
+                analysisResult.programmingCode.context = undefined;
+            }
+        }
+        if (analysisResult.descriptionText === '') {
+            analysisResult.descriptions = [];
+        } else {
+            analysisResult.descriptions = originalAnalysisResult.descriptions.slice();
+            setDescription(analysisResult, analysisResult.descriptionText, this.props.lang);
+        }
+        // Keep only parts which have changed
+        for (let prop in analysisResult) {
+            if (!originalAnalysisResult.hasOwnProperty(prop) || deepEqual(analysisResult[prop], originalAnalysisResult[prop])) {
+                delete analysisResult[prop];
+            }
+        }
+
+        if (Object.keys(analysisResult).length > 0) {
+            this.props.updateAnalysisResult({ oid: this.props.analysisResultOid, updates: { ... analysisResult } });
+        }
         this.props.onUpdateFinished();
     }
 
@@ -100,26 +189,27 @@ class ConnectedAnalysisResultEditor extends React.Component {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.props.onUpdateFinished();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
-            this.save();
+            this.rootRef.current.focus();
+            this.setState({}, this.save);
         }
     }
 
     render () {
         const { classes } = this.props;
         return (
-            <div className={classes.root} onKeyDown={this.onKeyDown} tabIndex='0'>
-                <List>
-                    <ListItem dense>
+            <div className={classes.root} onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef}>
+                <Grid container spacing={16}>
+                    <Grid item xs={12}>
                         <TextField
                             label='Description'
                             value={this.state.descriptionText}
                             autoFocus
                             fullWidth
-                            onChange={this.handleChange('descriptionText')}
+                            onChange={this.handleChange('main')('descriptionText')}
                             className={classes.inputField}
                         />
-                    </ListItem>
-                    <ListItem dense>
+                    </Grid>
+                    <Grid item xs={12}>
                         <Grid container justify='space-between' spacing={8}>
                             <Grid item>
                                 <TextField
@@ -127,7 +217,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
                                     value={this.state.analysisReason}
                                     fullWidth
                                     select
-                                    onChange={this.handleChange('analysisReason')}
+                                    onChange={this.handleChange('main')('analysisReason')}
                                 >
                                     {getSelectionList(this.props.stdConstants.armAnalysisReason)}
                                 </TextField>
@@ -138,7 +228,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
                                     value={this.state.analysisPurpose}
                                     fullWidth
                                     select
-                                    onChange={this.handleChange('analysisPurpose')}
+                                    onChange={this.handleChange('main')('analysisPurpose')}
                                 >
                                     {getSelectionList(this.props.stdConstants.armAnalysisPurpose)}
                                 </TextField>
@@ -149,28 +239,39 @@ class ConnectedAnalysisResultEditor extends React.Component {
                                     value={this.state.parameterOid}
                                     fullWidth
                                     select
-                                    onChange={this.handleChange('parameterOid')}
+                                    onChange={this.handleChange('main')('parameterOid')}
                                     className={classes.paramter}
                                 >
-                                    {getSelectionList(this.state.listOfVariables)}
+                                    {getSelectionList(this.state.listOfVariables, true)}
                                 </TextField>
                             </Grid>
                         </Grid>
-                    </ListItem>
-                    <ListItem dense>
-                    </ListItem>
-                    <ListItem dense>
-                    </ListItem>
-                </List>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <ArmDocumentationView
+                            documentation={this.state.documentation}
+                            onChange={this.handleChange('documentation')}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <ArmProgrammingCodeView
+                            programmingCode={this.state.programmingCode}
+                            onChange={this.handleChange('programmingCode')}
+                        />
+                    </Grid>
+                    <Grid item xs={12} >
+                        <SaveCancel save={this.save} cancel={this.props.onUpdateFinished}/>
+                    </Grid>
+                </Grid>
             </div>
         );
     }
 }
 
 ConnectedAnalysisResultEditor.propTypes = {
-    analysisResult   : PropTypes.object.isRequired,
-    classes          : PropTypes.object.isRequired,
-    onUpdateFinished : PropTypes.func.isRequired,
+    analysisResultOid : PropTypes.string.isRequired,
+    classes           : PropTypes.object.isRequired,
+    onUpdateFinished  : PropTypes.func.isRequired,
 };
 
 const AnalysisResultEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedAnalysisResultEditor);

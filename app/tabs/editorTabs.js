@@ -110,7 +110,7 @@ class ConnectedEditorTabs extends React.Component {
         } else if (event.ctrlKey && (event.keyCode === 187 || event.keyCode === 189)) {
             // Change to the next tab
             let currentTab = this.props.tabs.currentTab;
-            let tabCount = this.props.tabs.tabNames.length;
+            let tabCount = this.props.hasArm ? this.props.tabs.tabNames.length : this.props.tabs.tabNames.length - 2;
             let shift;
             if (event.keyCode === 187) {
                 shift = 1;
@@ -132,7 +132,17 @@ class ConnectedEditorTabs extends React.Component {
     render() {
 
         const { classes } = this.props;
-        const { currentTab, tabNames } = this.props.tabs;
+        const { currentTab } = this.props.tabs;
+        let tabNames = this.props.tabs.tabNames.slice();
+        // If there is no ARM, hide related tabs
+        if (this.props.hasArm !== true) {
+            if (tabNames.includes('ARM Summary')) {
+                tabNames.splice(tabNames.indexOf('ARM Summary'), 1);
+            }
+            if (tabNames.includes('Analysis Results')) {
+                tabNames.splice(tabNames.indexOf('Analysis Results'), 1);
+            }
+        }
 
         return (
             <div className={classes.root}>

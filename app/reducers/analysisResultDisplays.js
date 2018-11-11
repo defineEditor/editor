@@ -94,7 +94,7 @@ const updateAnalysisResultOrder = (state, action) => {
         ...state,
         resultDisplays: {
             ...state.resultDisplays,
-            [action.resultDisplayOid]: { ...state.resultDisplayOid[action.updateObj.resultDisplayOid], analysisResultOrder: action.updateObj.newOrder } }
+            [action.updateObj.resultDisplayOid]: { ...state.resultDisplays[action.updateObj.resultDisplayOid], analysisResultOrder: action.updateObj.newOrder } }
     };
 };
 
@@ -103,7 +103,7 @@ const addAnalysisResult = (state, action) => {
 
     let newAnalysisResults = {
         ...state.analysisResults,
-        [newAnalysisResultOid]: { ...new AnalysisResult( { oid: newAnalysisResultOid } ) }
+        [newAnalysisResultOid]: { ...new AnalysisResult( { oid: newAnalysisResultOid, analysisReason: 'SPECIFIED IN SAP' , analysisPurpose: 'PRIMARY OUTCOME MEASURE' } ) }
     };
 
     let newResultDisplay = { ...state.resultDisplays[action.updateObj.resultDisplayOid] };
@@ -116,7 +116,15 @@ const addAnalysisResult = (state, action) => {
 };
 
 const updateAnalysisResult = (state, action) => {
-    return state;
+    const updateObj = action.updateObj;
+    const oid = updateObj.oid;
+    const updates = updateObj.updates;
+    if (state.analysisResults.hasOwnProperty(oid)) {
+        let analysisResult = { ...new AnalysisResult({ ...state.analysisResults[oid], ...updates }) };
+        return { ...state, analysisResults: { ...state.analysisResults, [oid]: analysisResult } };
+    } else {
+        return state;
+    }
 };
 
 const deleteAnalysisResults = (state, action) => {

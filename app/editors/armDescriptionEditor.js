@@ -1,47 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { withStyles } from '@material-ui/core/styles';
-import clone from 'clone';
 import deepEqual from 'fast-deep-equal';
-import IconButton from '@material-ui/core/IconButton';
-import TextField from '@material-ui/core/TextField';
-import DocumentEditor from 'editors/documentEditor.js';
+import clone from 'clone';
 import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import InsertLink from '@material-ui/icons/InsertLink';
-import Tooltip from '@material-ui/core/Tooltip';
-import checkForSpecialChars from 'utils/checkForSpecialChars.js';
+import { connect } from 'react-redux';
+import DescriptionView from 'editors/view/descriptionView.js';
 import SaveCancel from 'editors/saveCancel.js';
 import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
 import {
     updateResultDisplay,
 } from 'actions/index.js';
-
-const styles = theme => ({
-    iconButton: {
-        marginLeft   : '0px',
-        marginRight  : '0px',
-        marginBottom : '8px',
-    },
-    resultDisplayInput: {
-        marginBottom : '8px',
-    },
-    helperText: {
-        whiteSpace : 'pre-wrap',
-        color      : theme.palette.primary.main,
-    },
-    root: {
-        outline: 'none',
-    },
-});
-
-const mapStateToProps = state => {
-    return {
-        leafs                 : state.present.odm.study.metaDataVersion.leafs,
-        lang                  : state.present.odm.study.metaDataVersion.lang,
-    };
-};
 
 const mapDispatchToProps = dispatch => {
     return {
@@ -52,8 +20,6 @@ const mapDispatchToProps = dispatch => {
 class ConnectedArmDescriptionEditor extends React.Component {
     constructor (props) {
         super(props);
-        // Bootstrap table changed undefined to '' when saving the value.
-        // Catching this and resetting to undefined in case it is an empty string
         this.rootRef = React.createRef();
         let description = clone(this.props.description);
         let descriptionText = getDescription(description);
@@ -76,13 +42,11 @@ class ConnectedArmDescriptionEditor extends React.Component {
     }
 
     save = () => {
-        // Form the new description object;
         let newDescriptions = { descriptions: this.props.description.descriptions.slice() };
         setDescription(newDescriptions, this.state.descriptionText, this.props.lang);
-        let updates = { descriptions: newDescriptions.descriptions, documents: this.state.docObj.documents };
-        // Compare it with the original value
-        if (!deepEqual(this.props.description, updates)) {
-            let updateObj = { oid: this.props.row.oid, updates };
+        let updatedDescription = { descriptions: newDescriptions.descriptions, documents: this.state.docObj.documents };
+        if (!deepEqual(this.props.description, updatedDescription)) {
+            let updateObj = { oid: this.props.row.oid, updates: updatedDescription };
             this.props.updateResultDisplay(updateObj);
         }
         this.props.onUpdate();
@@ -97,72 +61,31 @@ class ConnectedArmDescriptionEditor extends React.Component {
             if (event.key === 'Escape' || event.keyCode === 27) {
                 this.cancel();
             } else if (event.ctrlKey && (event.keyCode === 83)) {
-                this.save();
+                this.rootRef.current.focus();
+                this.setState({}, this.save);
             }
         }
     }
 
     render () {
-        const { classes } = this.props;
-        let issue = false;
-        let helperText;
-        const descriptionText = this.state.descriptionText;
-        if (descriptionText !== undefined) {
-            // Check for special characters
-            // eslint-disable-next-line no-control-regex
-            let issues = checkForSpecialChars(descriptionText, new RegExp(/[^\u000A\u0020-\u007f]/,'g'));
-            if (issues.length > 0) {
-                issue = true;
-                helperText = issues.join('\n');
-            }
-        }
-
         return (
             <div
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
                 ref={this.rootRef}
-                className={classes.root}
+                style={{ outline: 'none' }}
             >
-                <Grid container>
+                <Grid container spacing={8}>
                     <Grid item xs={12}>
-                        <Typography variant="subheading">
-                            Description
-                            <Tooltip title='Add Link to Document' placement='bottom' enterDelay={1000}>
-                                <span>
-                                    <IconButton
-                                        onClick={this.handleChange('addDocument')}
-                                        className={classes.iconButton}
-                                        color='primary'
-                                    >
-                                        <InsertLink/>
-                                    </IconButton>
-                                </span>
-                            </Tooltip>
-                        </Typography>
+                        <DescriptionView
+                            descriptionText={this.state.descriptionText}
+                            docObj={this.state.docObj}
+                            onChange={this.handleChange}
+                            title='Description'
+                        />
                     </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            label="Text"
-                            multiline
-                            fullWidth
-                            rowsMax="10"
-                            autoFocus
-                            helperText={issue && helperText}
-                            FormHelperTextProps={{className: classes.helperText}}
-                            value={descriptionText}
-                            className={classes.resultDisplayInput}
-                            onChange={this.handleChange('textUpdate')}
-                        />
-                        <DocumentEditor
-                            parentObj={this.state.docObj}
-                            handleChange={this.handleChange('updateDocument')}
-                            leafs={this.props.leafs}
-                        />
-                        <Grid item xs={12} >
-                            <br/>
-                            <SaveCancel save={this.save} cancel={this.cancel}/>
-                        </Grid>
+                    <Grid item xs={12} >
+                        <SaveCancel save={this.save} cancel={this.cancel}/>
                     </Grid>
                 </Grid>
             </div>
@@ -172,11 +95,9 @@ class ConnectedArmDescriptionEditor extends React.Component {
 
 ConnectedArmDescriptionEditor.propTypes = {
     description           : PropTypes.object.isRequired,
-    leafs                 : PropTypes.object.isRequired,
-    lang                  : PropTypes.string.isRequired,
     row                   : PropTypes.object.isRequired,
     onUpdate              : PropTypes.func,
 };
 
-const ArmDescriptionEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedArmDescriptionEditor);
-export default withStyles(styles)(ArmDescriptionEditor);
+const ArmDescriptionEditor = connect(undefined, mapDispatchToProps)(ConnectedArmDescriptionEditor);
+export default ArmDescriptionEditor;

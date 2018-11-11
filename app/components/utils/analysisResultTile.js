@@ -82,14 +82,14 @@ class ConnectedAnalysisResultTile extends React.Component {
                 <Card className={classes.card} raised={true}>
                     <CardActions className={classes.actions}>
                         {!this.state.editMode && (
-                            <Grid container justify="space-between">
+                            <Grid container justify="space-between" wrap='nowrap'>
                                 <Grid item>
                                     <Typography variant="headline" component="h3" className={classes.title}>
                                         { title }
                                     </Typography>
                                 </Grid>
                                 <Grid item>
-                                    <Grid container justify="space-between">
+                                    <Grid container justify="space-between" wrap='nowrap'>
                                         <Grid item>
                                             <IconButton
                                                 color="default"
@@ -118,6 +118,7 @@ class ConnectedAnalysisResultTile extends React.Component {
                         {this.state.editMode ? (
                             <AnalysisResultEditor
                                 analysisResultOid={this.props.analysisResultOid}
+                                onUpdateFinished={() => {this.setState({ editMode: !this.state.editMode });}}
                             />
                         ) : (
                             <AnalysisResultFormatter

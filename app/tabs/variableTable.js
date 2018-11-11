@@ -29,7 +29,7 @@ import SelectColumns from 'utils/selectColumns.js';
 import KeyOrderEditor from 'components/orderEditors/keyOrderEditor.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import AddVariable from 'components/tableActions/addVariable.js';
-import DescriptionEditor from 'editors/descriptionEditor.js';
+import ItemDescriptionEditor from 'editors/itemDescriptionEditor.js';
 import VariableOrderEditor from 'components/orderEditors/variableOrderEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import RoleEditor from 'editors/roleEditor.js';
@@ -94,8 +94,8 @@ const mapStateToProps = state => {
 };
 
 // Editors
-function descriptionEditor (onUpdate, props) {
-    return (<DescriptionEditor onUpdate={ onUpdate } {...props}/>);
+function itemDescriptionEditor (onUpdate, props) {
+    return (<ItemDescriptionEditor onUpdate={ onUpdate } {...props}/>);
 }
 
 function simpleSelectEditor (onUpdate, props) {
@@ -244,7 +244,7 @@ class ConnectedVariableTable extends React.Component {
             },
             description: {
                 dataFormat   : descriptionFormatter,
-                customEditor : {getElement: descriptionEditor},
+                customEditor : {getElement: itemDescriptionEditor},
             },
         };
 

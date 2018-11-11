@@ -25,12 +25,15 @@ const styles = theme => ({
     },
     textField: {
         width: '100px',
+        whiteSpace: 'nowrap',
     },
     textFieldFirst: {
         width: '80px',
+        whiteSpace: 'nowrap',
     },
     namedDestination: {
         width: '130px',
+        whiteSpace: 'nowrap',
     },
     textFieldLast: {
         width      : '80px',
