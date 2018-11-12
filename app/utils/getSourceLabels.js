@@ -1,9 +1,9 @@
-import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
+import { getWhereClauseAsText, getDescription } from 'utils/defineStructureUtils.js';
 
 const getSourceLabels = (sources, mdv) => {
     let result = {};
     for (let source in sources) {
-        if (mdv.hasOwnProperty(source) && sources[source].length > 0) {
+        if ((mdv.hasOwnProperty(source) || source === 'analysisResults') && sources[source].length > 0) {
             result[source] = [];
             sources[source].forEach(oid => {
                 if (source === 'itemDefs' && mdv[source][oid].parentItemDefOid !== undefined) {
@@ -19,6 +19,13 @@ const getSourceLabels = (sources, mdv) => {
                     });
                 } else if (source === 'whereClauses') {
                     result[source].push(getWhereClauseAsText(mdv[source][oid],mdv));
+                } else if (source === 'analysisResults') {
+                    if (mdv.hasOwnProperty('analysisResultDisplays')
+                        && mdv.analysisResultDisplays.hasOwnProperty('analysisResults')
+                        && mdv.analysisResultDisplays.analysisResults.hasOwnProperty(oid)
+                    ){
+                        result[source].push(getDescription(mdv.analysisResultDisplays[source][oid]));
+                    }
                 } else {
                     result[source].push(mdv[source][oid].name);
                 }
@@ -32,12 +39,12 @@ const getSourceLabels = (sources, mdv) => {
         if (result.hasOwnProperty(group)) {
             if (group === 'itemDefs') {
                 labelParts.push('Variables: ' + result[group].join(', '));
-            }
-            if (group === 'itemGroups') {
+            } else if (group === 'itemGroups') {
                 labelParts.push('Datasets: ' + result[group].join(', '));
-            }
-            if (group === 'whereClauses') {
+            } else if (group === 'whereClauses') {
                 labelParts.push('Where Clauses:\n' + result[group].join(',\n'));
+            } else if (group === 'analysisResults') {
+                labelParts.push('Analysis Result: ' + result[group].join(', '));
             }
             count += result[group].length;
         }

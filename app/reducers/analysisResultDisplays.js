@@ -119,7 +119,7 @@ const updateAnalysisResult = (state, action) => {
     const updateObj = action.updateObj;
     const oid = updateObj.oid;
     const updates = updateObj.updates;
-    if (state.analysisResults.hasOwnProperty(oid)) {
+    if (oid !== undefined && state.analysisResults.hasOwnProperty(oid)) {
         let analysisResult = { ...new AnalysisResult({ ...state.analysisResults[oid], ...updates }) };
         return { ...state, analysisResults: { ...state.analysisResults, [oid]: analysisResult } };
     } else {

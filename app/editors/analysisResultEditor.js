@@ -8,9 +8,11 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
 import SaveCancel from 'editors/saveCancel.js';
+import CommentEditor from 'editors/commentEditor.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import ArmDocumentationView from 'editors/view/armDocumentationView.js';
 import ArmProgrammingCodeView from 'editors/view/armProgrammingCodeView.js';
+import ArmDatasetReferenceEditor from 'editors/armDatasetReferenceEditor.js';
 import { Documentation, ProgrammingCode } from 'core/armStructure.js';
 import {
     updateAnalysisResult,
@@ -62,6 +64,11 @@ class ConnectedAnalysisResultEditor extends React.Component {
         let listOfVariables = this.getListOfVariables(analysisDatasets);
 
         let descriptionText = getDescription(analysisResult);
+
+        let analysisDatasetsComment;
+        if (analysisDatasetsCommentOid !== undefined && props.mdv.comments.hasOwnProperty(analysisDatasetsCommentOid)) {
+            analysisDatasetsComment = props.mdv.comments[analysisDatasetsCommentOid];
+        }
         this.state = {
             descriptionText,
             analysisReason,
@@ -71,7 +78,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
             programmingCode,
             analysisDatasets,
             analysisDatasetOrder,
-            analysisDatasetsCommentOid,
+            analysisDatasetsComment,
             listOfVariables,
         };
     }
@@ -124,6 +131,8 @@ class ConnectedAnalysisResultEditor extends React.Component {
                 let updatedDocumentation = { descriptions: newDescriptions.descriptions, documents: docObj.documents };
                 this.setState({ documentation: updatedDocumentation });
             }
+        } else if (category === 'analysisDatasets') {
+            this.setState({ ...updateObj });
         } else if (category === 'programmingCode') {
             let docObj;
             let code;
@@ -151,6 +160,8 @@ class ConnectedAnalysisResultEditor extends React.Component {
                 let updatedProgrammingCode = { code, context, documents: docObj.documents };
                 this.setState({ programmingCode: updatedProgrammingCode });
             }
+        } else if (category === 'analysisDatasetsComment') {
+            this.setState({ analysisDatasetsComment: updateObj });
         }
     }
 
@@ -166,21 +177,42 @@ class ConnectedAnalysisResultEditor extends React.Component {
                 analysisResult.programmingCode.context = undefined;
             }
         }
+        if (analysisResult.analysisDatasetsComment !== undefined) {
+            analysisResult.analysisDatasetsCommentOid = analysisResult.analysisDatasetsComment.oid;
+        } else {
+            analysisResult.analysisDatasetsCommentOid = undefined;
+        }
         if (analysisResult.descriptionText === '') {
             analysisResult.descriptions = [];
         } else {
             analysisResult.descriptions = originalAnalysisResult.descriptions.slice();
             setDescription(analysisResult, analysisResult.descriptionText, this.props.lang);
         }
+        // Prepare comment data;
+        let commentData;
+        let originalComment;
+        if (originalAnalysisResult.analysisDatasetsCommentOid !== undefined
+            && this.props.mdv.comments.hasOwnProperty(originalAnalysisResult.analysisDatasetsCommentOid)) {
+            originalComment = this.props.mdv.comments[originalAnalysisResult.analysisDatasetsCommentOid];
+        }
+        if (analysisResult.analysisDatasetsCommentOid !== originalAnalysisResult.analysisDatasetsCommentOid
+            || !deepEqual(this.state.analysisDatasetsComment, originalComment)
+        ) {
+            commentData = { oldCommentOid: originalAnalysisResult.analysisDatasetsCommentOid, comment: this.state.analysisDatasetsComment };
+        }
         // Keep only parts which have changed
         for (let prop in analysisResult) {
-            if (!originalAnalysisResult.hasOwnProperty(prop) || deepEqual(analysisResult[prop], originalAnalysisResult[prop])) {
+            if ( ['analysisDatasetsComment','listOfVariables','descriptionText'].includes(prop)
+                || deepEqual(analysisResult[prop], originalAnalysisResult[prop])) {
                 delete analysisResult[prop];
             }
         }
-
-        if (Object.keys(analysisResult).length > 0) {
-            this.props.updateAnalysisResult({ oid: this.props.analysisResultOid, updates: { ... analysisResult } });
+        if (Object.keys(analysisResult).length > 0 || commentData !== undefined) {
+            this.props.updateAnalysisResult({
+                oid: this.props.analysisResultOid,
+                commentData,
+                updates: { ... analysisResult },
+            });
         }
         this.props.onUpdateFinished();
     }
@@ -246,6 +278,22 @@ class ConnectedAnalysisResultEditor extends React.Component {
                                 </TextField>
                             </Grid>
                         </Grid>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <CommentEditor
+                            comment={this.state.analysisDatasetsComment}
+                            onUpdate={this.handleChange('analysisDatasetsComment')('update')}
+                            stateless={true}
+                            title='Datasets Comment'
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <ArmDatasetReferenceEditor
+                            analysisDatasets={this.state.analysisDatasets}
+                            analysisDatasetOrder={this.state.analysisDatasetOrder}
+                            itemGroups={this.props.mdv.itemGroups}
+                            onChange={this.handleChange('analysisDatasets')('update')}
+                        />
                     </Grid>
                     <Grid item xs={12}>
                         <ArmDocumentationView

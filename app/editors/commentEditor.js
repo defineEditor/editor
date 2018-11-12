@@ -216,7 +216,7 @@ class ConnectedCommentEditor extends React.Component {
                 <Grid container>
                     <Grid item xs={12}>
                         <Typography variant="subheading">
-                            Comment
+                            { this.props.title || 'Comment' }
                             <Tooltip title={comment === undefined ? 'Add Comment' : 'Remove Comment'} placement='bottom' enterDelay={1000}>
                                 <span>
                                     <IconButton
@@ -327,6 +327,7 @@ ConnectedCommentEditor.propTypes = {
     onUpdate              : PropTypes.func,
     autoFocus             : PropTypes.bool,
     stateless             : PropTypes.bool,
+    title                 : PropTypes.string,
     textInstantProcessing : PropTypes.bool,
 };
 

@@ -57,7 +57,6 @@ const CustomTableCell = withStyles(theme => ({
 class DocumentTableEditor extends React.Component {
 
     constructor (props) {
-
         super(props);
 
         // Clone leafs

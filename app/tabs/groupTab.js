@@ -251,13 +251,13 @@ class ConnectedGroupTab extends React.Component {
                             </div>
                         </Drawer>
                         { this.props.groupClass === 'Variables' &&
-                            <VariableTable itemGroupOid={groupOid} openDrawer={() => this.toggleDrawer()}/>
+                            <VariableTable key={groupOid} itemGroupOid={groupOid} openDrawer={() => this.toggleDrawer()}/>
                         }
                         { this.props.groupClass === 'Coded Values' &&
-                            <CodedValueTable codeListOid={groupOid} openDrawer={() => this.toggleDrawer()}/>
+                            <CodedValueTable key={groupOid} codeListOid={groupOid} openDrawer={() => this.toggleDrawer()}/>
                         }
                         { this.props.groupClass === 'Analysis Results' &&
-                            <AnalysisResultTable resultDisplayOid={groupOid} openDrawer={() => this.toggleDrawer()}/>
+                            <AnalysisResultTable key={groupOid} resultDisplayOid={groupOid} openDrawer={() => this.toggleDrawer()}/>
                         }
                     </div>
                 ) : (

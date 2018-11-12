@@ -12,12 +12,17 @@ import {
     ADD_ITEMGROUPS,
     DEL_RESULTDISPLAY,
     DEL_ANALYSISRESULT,
+    UPD_ANALYSISRESULT,
 } from "constants/action-types";
 import { Comment, TranslatedText } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
 
 const addComment = (state, action) => {
+    // action.source.type
+    // action.source.oid
+    // action.comment
+
     // Check if the item to which comment is attached is already referenced
     // in the list of comment sources
     if (action.comment.sources.hasOwnProperty(action.source.type)
@@ -431,6 +436,42 @@ const handleDeleteArmItem = (state, action) => {
     }
 };
 
+const handleUpdatedArmItem = (state, action) => {
+    let commentData = action.updateObj.commentData;
+    if (commentData !== undefined) {
+        if (commentData.comment === undefined && commentData.oldCommentOid !== undefined) {
+            if (state.hasOwnProperty(commentData.oldCommentOid)) {
+                // Comment was removed
+                let subAction = {};
+                subAction.comment = state[commentData.oldCommentOid];
+                subAction.source ={ type: 'analysisResults', oid: action.updateObj.oid };
+                return deleteComment(state, subAction);
+            } else {
+                return state;
+            }
+        } else if (commentData.comment !== undefined && commentData.oldCommentOid === undefined) {
+            // Comment was added
+            let subAction = { comment: commentData.comment, source: { type: 'analysisResults', oid: action.updateObj.oid } };
+            return addComment(state, subAction);
+        } else if (commentData.comment !== undefined && commentData.oldCommentOid !== commentData.comment.oid) {
+            // Comment was replaced
+            let subAction = {
+                newComment: commentData.comment,
+                oldCommentOid: commentData.oldCommentOid,
+                source: { type: 'analysisResults', oid: action.updateObj.oid }
+            };
+            return replaceComment(state, subAction);
+        } else if (commentData.comment !== undefined && commentData.oldCommentOid === commentData.comment.oid) {
+            // Comment was updated
+            return {...state, [commentData.comment.oid]: commentData.comment};
+        } else {
+            return state;
+        }
+    } else {
+        return state;
+    }
+};
+
 const comments = (state = {}, action) => {
     switch (action.type) {
         case ADD_ITEMGROUPCOMMENT:
@@ -459,6 +500,8 @@ const comments = (state = {}, action) => {
             return handleDeleteArmItem(state, action);
         case DEL_ANALYSISRESULT:
             return handleDeleteArmItem(state, action);
+        case UPD_ANALYSISRESULT:
+            return handleUpdatedArmItem(state, action);
         default:
             return state;
     }
