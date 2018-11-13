@@ -96,9 +96,9 @@ class ArmDatasetReferenceEditor extends React.Component {
                                 </IconButton>
                             </span>
                         </Tooltip>
-                        <Tooltip title='Add Reference Dataset' placement='bottom' enterDelay={1000}>
+                        <Tooltip title='Order Datasets' placement='bottom' enterDelay={1000}>
                             <IconButton
-                                color='default'
+                                color='primary'
                                 onClick={() => { this.setState({ showDatasetOrderEditor: true });}}
                                 className={classes.iconButton}
                             >
@@ -109,7 +109,7 @@ class ArmDatasetReferenceEditor extends React.Component {
                 </Grid>
                 <Grid item xs={12} >
                     { this.props.analysisDatasetOrder.map( (oid, index) => (
-                        <Grid container justify='flex-start' alignItems='flex-end' spacing={8} key={index}>
+                        <Grid container justify='flex-start' alignItems='flex-start' spacing={8} key={index}>
                             <Grid item>
                                 <Tooltip title="Remove Dataset" placement="bottom-end" enterDelay={1000}>
                                     <IconButton
@@ -127,6 +127,7 @@ class ArmDatasetReferenceEditor extends React.Component {
                                     datasets={datasets}
                                     datasetsNotUsed={datasetsNotUsed}
                                     itemGroups={this.props.itemGroups}
+                                    itemDefs={this.props.itemDefs}
                                     onChange={this.handleChange('updateDataset',oid)}
                                 />
                             </Grid>
@@ -156,6 +157,7 @@ ArmDatasetReferenceEditor.propTypes = {
     analysisDatasetOrder : PropTypes.array.isRequired,
     analysisDatasets     : PropTypes.object.isRequired,
     itemGroups           : PropTypes.object.isRequired,
+    itemDefs             : PropTypes.object.isRequired,
     onChange             : PropTypes.func.isRequired,
 };
 

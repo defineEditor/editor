@@ -14,6 +14,9 @@ import AnalysisResultFormatter from 'formatters/analysisResultFormatter.js';
 import EditIcon from '@material-ui/icons/Edit';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { getDescription } from 'utils/defineStructureUtils.js';
+import {
+    selectGroup
+} from 'actions/index.js';
 
 const styles = theme => ({
     actions: {
@@ -38,10 +41,18 @@ const styles = theme => ({
     },
 });
 
+// Redux functions
+const mapDispatchToProps = dispatch => {
+    return {
+        selectGroup      : (updateObj) => dispatch(selectGroup(updateObj)),
+    };
+};
+
 const mapStateToProps = state => {
     return {
-        mdv           : state.present.odm.study.metaDataVersion,
-        reviewMode    : state.present.ui.main.reviewMode,
+        mdv              : state.present.odm.study.metaDataVersion,
+        reviewMode       : state.present.ui.main.reviewMode,
+        variableTabIndex : state.present.ui.tabs.tabNames.indexOf('Variables'),
     };
 };
 
@@ -71,6 +82,15 @@ class ConnectedAnalysisResultTile extends React.Component {
     deleteAnalysisResult = defineId => {
         this.handleMenuClose();
     };
+
+    selectGroup = (itemGroupOid) => {
+        let updateObj = {
+            tabIndex       : this.props.variableTabIndex,
+            groupOid       : itemGroupOid,
+            scrollPosition : {},
+        };
+        this.props.selectGroup(updateObj);
+    }
 
     render() {
         const { classes } = this.props;
@@ -123,7 +143,9 @@ class ConnectedAnalysisResultTile extends React.Component {
                         ) : (
                             <AnalysisResultFormatter
                                 mdv={this.props.mdv}
-                                analysisResult={analysisResult}/>
+                                analysisResult={analysisResult}
+                                selectGroup={this.selectGroup}
+                            />
                         )}
                     </CardContent>
                 </Card>
@@ -143,12 +165,14 @@ class ConnectedAnalysisResultTile extends React.Component {
 }
 
 ConnectedAnalysisResultTile.propTypes = {
-    classes: PropTypes.object.isRequired,
-    mdv: PropTypes.object.isRequired,
-    reviewMode: PropTypes.bool,
-    analysisResultOid: PropTypes.string.isRequired,
-    resultDisplayOid: PropTypes.string.isRequired,
+    classes           : PropTypes.object.isRequired,
+    mdv               : PropTypes.object.isRequired,
+    reviewMode        : PropTypes.bool,
+    analysisResultOid : PropTypes.string.isRequired,
+    resultDisplayOid  : PropTypes.string.isRequired,
+    selectGroup       : PropTypes.func.isRequired,
+    variableTabIndex  : PropTypes.number,
 };
 
-const AnalysisResultTile = connect(mapStateToProps)(ConnectedAnalysisResultTile);
+const AnalysisResultTile = connect(mapStateToProps, mapDispatchToProps)(ConnectedAnalysisResultTile);
 export default withStyles(styles)(AnalysisResultTile);

@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-//import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -52,6 +51,7 @@ class GlobalVariablesFormatter extends React.Component {
             const analysisDataset = analysisDatasets[analysisDatasetOid];
             let dsData = {};
             if (mdv.itemGroups.hasOwnProperty(analysisDataset.itemGroupOid)) {
+                dsData.itemGroupOid = analysisDataset.itemGroupOid;
                 let itemGroup = mdv.itemGroups[analysisDataset.itemGroupOid];
                 let description = getDescription(itemGroup);
                 if (description !== '') {
@@ -119,7 +119,11 @@ class GlobalVariablesFormatter extends React.Component {
                                 <ListItemText primary='Datasets' secondary={commentText || ''}/>
                             </Grid>
                             <Grid item xs={12}>
-                                { Object.keys(datasetData).map( dsOid => (<AnalysisDatasetFormatter key={dsOid} dsData={datasetData[dsOid]}/>)) }
+                                { Object.keys(datasetData).map( dsOid => (<AnalysisDatasetFormatter
+                                    key={dsOid}
+                                    dsData={datasetData[dsOid]}
+                                    selectGroup={this.props.selectGroup}
+                                />)) }
                             </Grid>
                         </Grid>
                     </ListItem>
@@ -153,6 +157,7 @@ GlobalVariablesFormatter.propTypes = {
     classes        : PropTypes.object.isRequired,
     analysisResult : PropTypes.object.isRequired,
     mdv            : PropTypes.object.isRequired,
+    selectGroup    : PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(GlobalVariablesFormatter);

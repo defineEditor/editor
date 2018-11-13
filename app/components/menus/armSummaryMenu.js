@@ -54,7 +54,7 @@ class ConnectedArmSummaryMenu extends React.Component {
     editResultDisplayValues = () => {
         let updateObj = {
             tabIndex       : this.props.armDetailsTabIndex,
-            groupOid       : this.props.armSummaryMenuParams.resultDisplaysOid,
+            groupOid       : this.props.armSummaryMenuParams.resultDisplayOid,
             scrollPosition : {},
         };
         this.props.selectGroup(updateObj);

@@ -58,7 +58,11 @@ const addResultDisplay = (state, action) => {
             resultDisplayOrder: newResultDisplayOrder,
             analysisResults: {
                 ...state.analysisResults,
-                [newAnalysisResultOid]: { ...new AnalysisResult( { oid: newAnalysisResultOid } ) }
+                [newAnalysisResultOid]: { ...new AnalysisResult( {
+                    oid: newAnalysisResultOid,
+                    analysisReason: 'SPECIFIED IN SAP',
+                    analysisPurpose: 'PRIMARY OUTCOME MEASURE',
+                } ) }
             }
         }
     )};

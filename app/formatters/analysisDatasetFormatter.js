@@ -2,15 +2,22 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 import Grid from '@material-ui/core/Grid';
 
 const styles = theme => ({
     title: {
         fontSize: '16px',
+        color: '#007BFF',
+        cursor: 'pointer',
+    },
+    textValues: {
         color: 'rgba(0,0,0,0.54)',
     },
-    whereClause: {
-        color: 'rgba(0,0,0,0.54)',
+    variable: {
+        padding: '0 0 4px 0',
     },
     caption: {
         color: '#000000',
@@ -23,13 +30,13 @@ const styles = theme => ({
 class AnalysisDatasetFormatter extends React.Component {
     render () {
         const { classes, dsData } = this.props;
-        const { datasetName, whereClauseText, variables } = dsData;
+        const { datasetName, whereClauseText, variables, itemGroupOid } = dsData;
 
         return (
             <Grid container spacing={8}>
                 <Grid item xs={12}>
                     <Typography variant="headline" className={classes.title}>
-                        {datasetName}
+                        <span onClick={() => {this.props.selectGroup(itemGroupOid);}}>{datasetName}</span>
                     </Typography>
                 </Grid>
                 { whereClauseText !== undefined && (
@@ -37,7 +44,7 @@ class AnalysisDatasetFormatter extends React.Component {
                         <Typography variant="caption" className={classes.caption}>
                             Selection Criteria
                         </Typography>
-                        <Typography variant="body2" className={classes.whereClause}>
+                        <Typography variant="body2" className={classes.textValues}>
                             { whereClauseText }
                         </Typography>
                     </Grid>
@@ -47,11 +54,13 @@ class AnalysisDatasetFormatter extends React.Component {
                         <Typography variant="caption" className={classes.caption}>
                             Analysis Variables
                         </Typography>
-                        {Object.values(variables).map( (variable, index) => (
-                            <Typography key={index} variant="body2" className={classes.whereClause}>
-                                { variable }
-                            </Typography>
-                        ))}
+                        <List>
+                            {Object.values(variables).map( (variable, index) => (
+                                <ListItem key={index} disableGutters className={classes.variable}>
+                                    <ListItemText primary={variable} disableTypography className={classes.textValues}/>
+                                </ListItem>
+                            ))}
+                        </List>
                     </Grid>
                 ) }
             </Grid>
@@ -60,8 +69,9 @@ class AnalysisDatasetFormatter extends React.Component {
 }
 
 AnalysisDatasetFormatter.propTypes = {
-    classes : PropTypes.object,
-    dsData  : PropTypes.object.isRequired,
+    classes     : PropTypes.object,
+    dsData      : PropTypes.object.isRequired,
+    selectGroup : PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(AnalysisDatasetFormatter);

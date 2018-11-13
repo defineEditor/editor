@@ -76,6 +76,7 @@ ConnectedItemGroupMenu.propTypes = {
     itemGroupMenuParams : PropTypes.object.isRequired,
     itemGroups          : PropTypes.object.isRequired,
     reviewMode          : PropTypes.bool,
+    variableTabIndex    : PropTypes.number,
 };
 
 const ItemGroupMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedItemGroupMenu);

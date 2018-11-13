@@ -5,6 +5,8 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import { AnalysisDataset } from 'core/armStructure.js';
 import getSelectionList from 'utils/getSelectionList.js';
+import ArmAnalysisVariableEditor from 'editors/armAnalysisVariableEditor.js';
+import ArmWhereClauseEditor from 'editors/armWhereClauseEditor.js';
 
 const styles = theme => ({
     datasetSelect: {
@@ -26,17 +28,19 @@ class ArmDatasetEditor extends React.Component {
                 let newAnalysisDataset = { ...new AnalysisDataset({ itemGroupOid: event.target.value }) };
                 this.props.onChange({ analysisDataset: newAnalysisDataset });
             }
-        } else if (name === 'deleteDataset') {
-            //
+        } else if (name === 'changeVariables') {
+            let newAnalysisDataset = { ...new AnalysisDataset({ ...this.props.analysisDataset, analysisVariableOids: event }) };
+            this.props.onChange({ analysisDataset: newAnalysisDataset });
         }
     };
 
 
     render () {
-        const { classes, datasets, analysisDataset } = this.props;
+        const { classes, datasets, analysisDataset, datasetsNotUsed } = this.props;
+        let disabledDatasets = Object.keys(datasets).filter(oid => (!datasetsNotUsed.includes(oid) && oid !== analysisDataset.itemGroupOid)).map( oid => (oid));
 
         return (
-            <Grid container>
+            <Grid container spacing={8}>
                 <Grid item xs={12}>
                     <TextField
                         label='Dataset'
@@ -45,8 +49,24 @@ class ArmDatasetEditor extends React.Component {
                         onChange={this.handleChange('changeDataset')}
                         className={classes.datasetSelect}
                     >
-                        {getSelectionList(datasets)}
+                        {getSelectionList(datasets, false, disabledDatasets)}
                     </TextField>
+                </Grid>
+                <Grid item xs={12}>
+                    <ArmWhereClauseEditor
+                        itemGroup={this.props.itemGroups[analysisDataset.itemGroupOid]}
+                        itemDefs={this.props.itemDefs}
+                        analysisVariables={analysisDataset.analysisVariableOids}
+                        onChange={this.handleChange('changeVariables')}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <ArmAnalysisVariableEditor
+                        itemGroup={this.props.itemGroups[analysisDataset.itemGroupOid]}
+                        itemDefs={this.props.itemDefs}
+                        analysisVariables={analysisDataset.analysisVariableOids}
+                        onChange={this.handleChange('changeVariables')}
+                    />
                 </Grid>
             </Grid>
         );
@@ -56,6 +76,7 @@ class ArmDatasetEditor extends React.Component {
 ArmDatasetEditor.propTypes = {
     analysisDataset : PropTypes.object.isRequired,
     itemGroups      : PropTypes.object.isRequired,
+    itemDefs        : PropTypes.object.isRequired,
     datasets        : PropTypes.object.isRequired,
     datasetsNotUsed : PropTypes.array.isRequired,
     onChange        : PropTypes.func.isRequired,

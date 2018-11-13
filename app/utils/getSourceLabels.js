@@ -44,7 +44,7 @@ const getSourceLabels = (sources, mdv) => {
             } else if (group === 'whereClauses') {
                 labelParts.push('Where Clauses:\n' + result[group].join(',\n'));
             } else if (group === 'analysisResults') {
-                labelParts.push('Analysis Result: ' + result[group].join(', '));
+                labelParts.push('Analysis Results: ' + result[group].join(', '));
             }
             count += result[group].length;
         }

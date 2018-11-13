@@ -132,7 +132,13 @@ class ConnectedAnalysisResultEditor extends React.Component {
                 this.setState({ documentation: updatedDocumentation });
             }
         } else if (category === 'analysisDatasets') {
-            this.setState({ ...updateObj });
+            // If datasets were changed, update the list of variables for paramOid selection
+            if (updateObj.hasOwnProperty('analysisDatasets')) {
+                let listOfVariables = this.getListOfVariables(updateObj.analysisDatasets);
+                this.setState({ ...updateObj, listOfVariables });
+            } else {
+                this.setState({ ...updateObj });
+            }
         } else if (category === 'programmingCode') {
             let docObj;
             let code;
@@ -230,7 +236,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
         const { classes } = this.props;
         return (
             <div className={classes.root} onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef}>
-                <Grid container spacing={16}>
+                <Grid container spacing={8}>
                     <Grid item xs={12}>
                         <TextField
                             label='Description'
@@ -292,6 +298,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
                             analysisDatasets={this.state.analysisDatasets}
                             analysisDatasetOrder={this.state.analysisDatasetOrder}
                             itemGroups={this.props.mdv.itemGroups}
+                            itemDefs={this.props.mdv.itemDefs}
                             onChange={this.handleChange('analysisDatasets')('update')}
                         />
                     </Grid>
