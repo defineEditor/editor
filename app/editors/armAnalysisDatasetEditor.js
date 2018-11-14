@@ -22,15 +22,25 @@ class ArmDatasetEditor extends React.Component {
             showDatasetOrderEditor: false
         };
     }
-    handleChange = (name, oid) => event => {
+    handleChange = (name, oid) => updateObj => {
         if (name === 'changeDataset') {
-            if (this.props.datasetsNotUsed.includes(event.target.value)) {
-                let newAnalysisDataset = { ...new AnalysisDataset({ itemGroupOid: event.target.value }) };
+            if (this.props.datasetsNotUsed.includes(updateObj.target.value)) {
+                let newAnalysisDataset = { ...new AnalysisDataset({ itemGroupOid: updateObj.target.value }) };
                 this.props.onChange({ analysisDataset: newAnalysisDataset });
             }
         } else if (name === 'changeVariables') {
-            let newAnalysisDataset = { ...new AnalysisDataset({ ...this.props.analysisDataset, analysisVariableOids: event }) };
+            let newAnalysisDataset = { ...new AnalysisDataset({ ...this.props.analysisDataset, analysisVariableOids: updateObj }) };
             this.props.onChange({ analysisDataset: newAnalysisDataset });
+        } else if (name === 'changeWhereClause') {
+            if (updateObj === undefined && this.props.analysisDataset.whereClauseOid !== undefined) {
+                let newAnalysisDataset = { ...new AnalysisDataset({ ...this.props.analysisDataset, whereClauseOid: undefined }) };
+                this.props.onChange({ analysisDataset: newAnalysisDataset, whereClause: updateObj });
+            } else if (updateObj !== undefined && updateObj.oid !== this.props.analysisDataset.whereClauseOid) {
+                let newAnalysisDataset = { ...new AnalysisDataset({ ...this.props.analysisDataset, whereClauseOid: updateObj.oid }) };
+                this.props.onChange({ analysisDataset: newAnalysisDataset, whereClause: updateObj });
+            } else {
+                this.props.onChange({ whereClause: updateObj });
+            }
         }
     };
 
@@ -55,9 +65,8 @@ class ArmDatasetEditor extends React.Component {
                 <Grid item xs={12}>
                     <ArmWhereClauseEditor
                         itemGroup={this.props.itemGroups[analysisDataset.itemGroupOid]}
-                        itemDefs={this.props.itemDefs}
-                        analysisVariables={analysisDataset.analysisVariableOids}
-                        onChange={this.handleChange('changeVariables')}
+                        whereClause={this.props.whereClause}
+                        onChange={this.handleChange('changeWhereClause')}
                     />
                 </Grid>
                 <Grid item xs={12}>
@@ -75,6 +84,7 @@ class ArmDatasetEditor extends React.Component {
 
 ArmDatasetEditor.propTypes = {
     analysisDataset : PropTypes.object.isRequired,
+    whereClause     : PropTypes.object,
     itemGroups      : PropTypes.object.isRequired,
     itemDefs        : PropTypes.object.isRequired,
     datasets        : PropTypes.object.isRequired,

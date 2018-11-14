@@ -11,7 +11,8 @@ import getOidByName from 'utils/getOidByName.js';
 import { WhereClause, RangeCheck, TranslatedText } from 'elements.js';
 
 const styles = theme => ({
-    gridItem: {
+    root: {
+        outline: 'none',
     },
 });
 
@@ -360,7 +361,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
         }
 
         return (
-            <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef}>
+            <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef} className={this.props.classes.root}>
                 <Grid container spacing={8}>
                     <Grid item xs={12}>
                         <VariableNameLabelEditor
@@ -369,6 +370,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
                             name={this.state.name}
                             blueprint={this.props.blueprint}
                             autoLabel={this.state.autoLabel}
+                            vlm={true}
                         />
                     </Grid>
                     {vlmLevel > 0 &&

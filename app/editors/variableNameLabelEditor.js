@@ -24,14 +24,14 @@ const styles = theme => ({
 
 class VariableNameLabelEditor extends React.Component {
     render() {
-        const { classes, label } = this.props;
+        const { classes, label, vlm } = this.props;
 
         let issue = false;
         let helperText = '';
         if (label !== undefined) {
             let issues = checkForSpecialChars(label);
             // Check label length is withing 40 chars
-            if (label.length > 40) {
+            if (label.length > 40 && vlm !== true) {
                 let issueText = `Label length is ${label.length}, which exceeds 40 characters.`;
                 issues.push(issueText);
             }
@@ -78,6 +78,7 @@ VariableNameLabelEditor.propTypes = {
     name         : PropTypes.string.isRequired,
     label        : PropTypes.string.isRequired,
     autoLabel    : PropTypes.bool,
+    vlm          : PropTypes.bool,
     blueprint    : PropTypes.object,
 };
 

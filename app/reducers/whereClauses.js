@@ -8,6 +8,7 @@ import {
     ADD_ITEMGROUPS,
     DEL_RESULTDISPLAY,
     DEL_ANALYSISRESULT,
+    UPD_ANALYSISRESULT,
 } from "constants/action-types";
 import { WhereClause } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -188,6 +189,36 @@ const handleDeleteArmItem = (state, action) => {
     }
 };
 
+const handleUpdatedArmItem = (state, action) => {
+    let whereClauseData = action.updateObj.whereClauseData;
+    if (whereClauseData !== undefined
+        &&
+        (Object.keys(whereClauseData.added).length > 0 ||  Object.keys(whereClauseData.removed).length > 0 ||  Object.keys(whereClauseData.changed).length > 0)
+    ) {
+        let newState = { ...state };
+        Object.keys(whereClauseData.added).forEach( whereClauseOid => {
+            newState[whereClauseOid] = whereClauseData.added[whereClauseOid];
+        });
+        // TODO Implement more in-depth comparison for changed Where Clauses
+        Object.keys(whereClauseData.changed).forEach( whereClauseOid => {
+            newState[whereClauseOid] = whereClauseData.changed[whereClauseOid];
+        });
+        Object.keys(whereClauseData.removed).forEach( whereClauseOid => {
+            Object.keys(whereClauseData.removed[whereClauseOid]).forEach( analysisResultOid => {
+                let itemGroupOid = whereClauseData.removed[whereClauseOid][analysisResultOid];
+                let subAction = {};
+                subAction.whereClause = newState[whereClauseOid];
+                subAction.source ={ type: 'analysisResults', oid: itemGroupOid, typeOid: analysisResultOid };
+                newState = deleteWhereClause(newState, subAction);
+            });
+        });
+
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const whereClauses = (state = {}, action) => {
     switch (action.type) {
         case DEL_ITEMGROUPS:
@@ -208,6 +239,8 @@ const whereClauses = (state = {}, action) => {
             return handleDeleteArmItem(state, action);
         case DEL_ANALYSISRESULT:
             return handleDeleteArmItem(state, action);
+        case UPD_ANALYSISRESULT:
+            return handleUpdatedArmItem(state, action);
         default:
             return state;
     }

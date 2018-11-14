@@ -69,6 +69,14 @@ class ConnectedAnalysisResultEditor extends React.Component {
         if (analysisDatasetsCommentOid !== undefined && props.mdv.comments.hasOwnProperty(analysisDatasetsCommentOid)) {
             analysisDatasetsComment = props.mdv.comments[analysisDatasetsCommentOid];
         }
+        // Extract all where clauses
+        let whereClauses = {};
+        Object.values(analysisDatasets).forEach( analysisDataset => {
+            if (analysisDataset.whereClauseOid !== undefined && props.mdv.whereClauses.hasOwnProperty(analysisDataset.whereClauseOid)) {
+                whereClauses[analysisDataset.itemGroupOid] = props.mdv.whereClauses[analysisDataset.whereClauseOid];
+            }
+        });
+
         this.state = {
             descriptionText,
             analysisReason,
@@ -80,6 +88,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
             analysisDatasetOrder,
             analysisDatasetsComment,
             listOfVariables,
+            whereClauses
         };
     }
 
@@ -194,7 +203,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
             analysisResult.descriptions = originalAnalysisResult.descriptions.slice();
             setDescription(analysisResult, analysisResult.descriptionText, this.props.lang);
         }
-        // Prepare comment data;
+        // Comments;
         let commentData;
         let originalComment;
         if (originalAnalysisResult.analysisDatasetsCommentOid !== undefined
@@ -206,17 +215,102 @@ class ConnectedAnalysisResultEditor extends React.Component {
         ) {
             commentData = { oldCommentOid: originalAnalysisResult.analysisDatasetsCommentOid, comment: this.state.analysisDatasetsComment };
         }
+        // Where Clauses;
+        let newWhereClauses = this.state.whereClauses;
+        let whereClauseData = {};
+        let totalWcChanged = 0;
+        let originalWhereClauses = {};
+        Object.values(originalAnalysisResult.analysisDatasets).forEach( analysisDataset => {
+            if (analysisDataset.whereClauseOid !== undefined && this.props.mdv.whereClauses.hasOwnProperty(analysisDataset.whereClauseOid)) {
+                originalWhereClauses[analysisDataset.itemGroupOid] = this.props.mdv.whereClauses[analysisDataset.whereClauseOid];
+            }
+        });
+        // Where clauses which were removed;
+        whereClauseData.removed = {};
+        Object.keys(originalWhereClauses).forEach( itemGroupOid => {
+            if (originalWhereClauses[itemGroupOid] !== undefined && newWhereClauses[itemGroupOid] === undefined) {
+                let wcOid = originalWhereClauses[itemGroupOid].oid;
+                if (whereClauseData.removed.hasOwnProperty(wcOid)) {
+                    whereClauseData.removed[wcOid][this.props.analysisResultOid] = itemGroupOid;
+                } else {
+                    whereClauseData.removed[wcOid] = { [this.props.analysisResultOid]: itemGroupOid };
+                }
+            }
+        });
+        // Added
+        whereClauseData.added = {};
+        Object.keys(newWhereClauses).forEach( itemGroupOid => {
+            if (newWhereClauses[itemGroupOid] !== undefined && originalWhereClauses[itemGroupOid] === undefined) {
+                let wcOid = newWhereClauses[itemGroupOid].oid;
+                let newWhereClause = newWhereClauses[itemGroupOid];
+                // Update sources
+                if (newWhereClause.sources.analysisResults !== undefined
+                    && newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid)
+                    && !newWhereClause.sources.analysisResults[this.props.analysisResultOid].includes(itemGroupOid)
+                ) {
+                    newWhereClause.sources.analysisResults[this.props.analysisResultOid].push(itemGroupOid);
+                } else if (newWhereClause.sources.analysisResults !== undefined
+                    && !newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid)
+                ) {
+                    newWhereClause.sources.analysisResults[this.props.analysisResultOid] = [itemGroupOid];
+                } else {
+                    newWhereClause.sources.analysisResults = {};
+                    newWhereClause.sources.analysisResults[this.props.analysisResultOid] = [itemGroupOid];
+                }
+                whereClauseData.added[wcOid] = newWhereClause;
+            }
+        });
+        // Changed
+        whereClauseData.changed = {};
+        Object.keys(newWhereClauses).forEach( itemGroupOid => {
+            if (newWhereClauses[itemGroupOid] !== undefined
+                && originalWhereClauses[itemGroupOid] !== undefined
+                && !deepEqual(newWhereClauses[itemGroupOid], originalWhereClauses[itemGroupOid])
+            ) {
+                let wcOid = newWhereClauses[itemGroupOid].oid;
+                let newWhereClause = newWhereClauses[itemGroupOid];
+                // Update sources
+                if (newWhereClause.sources.analysisResults !== undefined
+                    && newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid)
+                    && !newWhereClause.sources.analysisResults[this.props.analysisResultOid].includes(itemGroupOid)
+                ) {
+                    newWhereClause.sources.analysisResults[this.props.analysisResultOid].push(itemGroupOid);
+                } else if (newWhereClause.sources.analysisResults !== undefined
+                    && !newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid)
+                ) {
+                    newWhereClause.sources.analysisResults[this.props.analysisResultOid] = [itemGroupOid];
+                } else {
+                    newWhereClause.sources.analysisResults = {};
+                    newWhereClause.sources.analysisResults[this.props.analysisResultOid] = [itemGroupOid];
+                }
+                whereClauseData.changed[wcOid] = newWhereClause;
+            }
+        });
+        // Total number of where clauses changed
+        totalWcChanged = Object.keys(whereClauseData.removed).length + Object.keys(whereClauseData.added).length + Object.keys(whereClauseData.changed).length;
+
+        if (originalAnalysisResult.analysisDatasetsCommentOid !== undefined
+            && this.props.mdv.comments.hasOwnProperty(originalAnalysisResult.analysisDatasetsCommentOid)) {
+            originalComment = this.props.mdv.comments[originalAnalysisResult.analysisDatasetsCommentOid];
+        }
+        if (analysisResult.analysisDatasetsCommentOid !== originalAnalysisResult.analysisDatasetsCommentOid
+            || !deepEqual(this.state.analysisDatasetsComment, originalComment)
+        ) {
+            commentData = { oldCommentOid: originalAnalysisResult.analysisDatasetsCommentOid, comment: this.state.analysisDatasetsComment };
+        }
+
         // Keep only parts which have changed
         for (let prop in analysisResult) {
-            if ( ['analysisDatasetsComment','listOfVariables','descriptionText'].includes(prop)
+            if ( ['analysisDatasetsComment','listOfVariables','descriptionText','whereClauses'].includes(prop)
                 || deepEqual(analysisResult[prop], originalAnalysisResult[prop])) {
                 delete analysisResult[prop];
             }
         }
-        if (Object.keys(analysisResult).length > 0 || commentData !== undefined) {
+        if (Object.keys(analysisResult).length > 0 || commentData !== undefined || totalWcChanged > 0) {
             this.props.updateAnalysisResult({
                 oid: this.props.analysisResultOid,
                 commentData,
+                whereClauseData,
                 updates: { ... analysisResult },
             });
         }
@@ -299,6 +393,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
                             analysisDatasetOrder={this.state.analysisDatasetOrder}
                             itemGroups={this.props.mdv.itemGroups}
                             itemDefs={this.props.mdv.itemDefs}
+                            whereClauses={this.state.whereClauses}
                             onChange={this.handleChange('analysisDatasets')('update')}
                         />
                     </Grid>

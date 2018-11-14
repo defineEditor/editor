@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import clone from 'clone';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
@@ -11,7 +12,7 @@ import getSelectionList from 'utils/getSelectionList.js';
 import SaveCancel from 'editors/saveCancel.js';
 import getOidByName from 'utils/getOidByName.js';
 import { getDecode } from 'utils/defineStructureUtils.js';
-import clone from 'clone';
+import { WhereClause } from 'elements.js';
 
 
 const styles = theme => ({
@@ -66,7 +67,13 @@ class WhereClauseEditorInteractive extends React.Component {
         // Split into parts for visual editing
         const mdv = this.props.mdv;
         let rangeChecks = [];
-        this.props.whereClause.rangeChecks.forEach( rawRangeCheck => {
+        let whereClause;
+        if (this.props.whereClause === undefined) {
+            whereClause = { ...new WhereClause({}) };
+        } else {
+            whereClause = this.props.whereClause;
+        }
+        whereClause.rangeChecks.forEach( rawRangeCheck => {
             let rangeCheck = clone(rawRangeCheck);
             rangeCheck.itemName = mdv.itemDefs.hasOwnProperty(rawRangeCheck.itemOid) ? mdv.itemDefs[rawRangeCheck.itemOid].name : '';
             if (rawRangeCheck.itemGroupOid !== undefined && mdv.itemGroups.hasOwnProperty(rawRangeCheck.itemGroupOid)) {
@@ -329,18 +336,20 @@ class WhereClauseEditorInteractive extends React.Component {
                             <RemoveIcon />
                         </IconButton>
                     </Grid>
-                    <Grid item>
-                        <TextField
-                            label='Dataset'
-                            fullWidth
-                            select={true}
-                            value={rangeCheck.itemGroupName||this.state.listOfDatasets[0]}
-                            onChange={this.handleChange('itemGroup', index)}
-                            className={classes.textField}
-                        >
-                            {getSelectionList(this.state.listOfDatasets)}
-                        </TextField>
-                    </Grid>
+                    { !this.props.fixedDataset &&
+                            <Grid item>
+                                <TextField
+                                    label='Dataset'
+                                    fullWidth
+                                    select={true}
+                                    value={rangeCheck.itemGroupName||this.state.listOfDatasets[0]}
+                                    onChange={this.handleChange('itemGroup', index)}
+                                    className={classes.textField}
+                                >
+                                    {getSelectionList(this.state.listOfDatasets)}
+                                </TextField>
+                            </Grid>
+                    }
                     <Grid item>
                         <TextField
                             label='Variable'
@@ -420,12 +429,13 @@ class WhereClauseEditorInteractive extends React.Component {
 }
 
 WhereClauseEditorInteractive.propTypes = {
-    classes     : PropTypes.object.isRequired,
-    onSave      : PropTypes.func.isRequired,
-    onCancel    : PropTypes.func.isRequired,
-    whereClause : PropTypes.object.isRequired,
-    mdv         : PropTypes.object.isRequired,
-    dataset     : PropTypes.object.isRequired,
+    classes      : PropTypes.object.isRequired,
+    onSave       : PropTypes.func.isRequired,
+    onCancel     : PropTypes.func.isRequired,
+    whereClause  : PropTypes.object,
+    mdv          : PropTypes.object.isRequired,
+    dataset      : PropTypes.object.isRequired,
+    fixedDataset : PropTypes.bool,
 };
 
 export default withStyles(styles)(WhereClauseEditorInteractive);

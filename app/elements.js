@@ -164,7 +164,7 @@ class Origin extends BasicFunctions {
 
 class WhereClause {
     constructor({ oid, commentOid, sources, rangeChecks = [] } = {}) {
-        this.oid = oid;
+        this.oid = oid || getOid(this.constructor.name);
         this.commentOid = commentOid;
         this.rangeChecks = rangeChecks;
         // List of ItemGroups/itemRefs from which the whereClause is linked

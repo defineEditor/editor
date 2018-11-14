@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import GeneralOrderEditor from 'components/orderEditors/generalOrderEditor.js';
 import { AnalysisDataset } from 'core/armStructure.js';
-import ArmDatasetEditor from 'editors/armDatasetEditor.js';
+import ArmAnalysisDatasetEditor from 'editors/armAnalysisDatasetEditor.js';
 
 const styles = theme => ({
     button: {
@@ -29,7 +29,7 @@ class ArmDatasetReferenceEditor extends React.Component {
             showDatasetOrderEditor: false
         };
     }
-    handleChange = (name, oid) => event => {
+    handleChange = (name, oid) => updateObj => {
         if (name === 'addDataset') {
             let datasets = {};
             Object.values(this.props.itemGroups).forEach( itemGroup => { datasets[itemGroup.oid] = itemGroup.name; } );
@@ -42,25 +42,59 @@ class ArmDatasetReferenceEditor extends React.Component {
             let newAnalysisDataset = { ...new AnalysisDataset({ itemGroupOid: datasetsNotUsed[0] }) };
             let newAnalysisDatasets = { ...this.props.analysisDatasets, [newAnalysisDataset.itemGroupOid]: newAnalysisDataset };
             let newAnalysisDatasetOrder = this.props.analysisDatasetOrder.concat([newAnalysisDataset.itemGroupOid]);
-            this.props.onChange({ analysisDatasets: newAnalysisDatasets, analysisDatasetOrder: newAnalysisDatasetOrder });
+            this.props.onChange({
+                analysisDatasets: newAnalysisDatasets,
+                analysisDatasetOrder: newAnalysisDatasetOrder,
+            });
         } else if (name === 'deleteDataset') {
             let newAnalysisDatasets = { ...this.props.analysisDatasets };
             delete newAnalysisDatasets[oid];
             let newAnalysisDatasetOrder = this.props.analysisDatasetOrder.slice();
             newAnalysisDatasetOrder.splice(newAnalysisDatasetOrder.indexOf(oid), 1);
-            this.props.onChange({ analysisDatasets: newAnalysisDatasets, analysisDatasetOrder: newAnalysisDatasetOrder });
+            let newWhereClauses = { ...this.props.whereClauses };
+            if (newWhereClauses.hasOwnProperty(oid)) {
+                delete newWhereClauses[oid];
+            }
+            this.props.onChange({
+                analysisDatasets: newAnalysisDatasets,
+                analysisDatasetOrder: newAnalysisDatasetOrder,
+                whereClauses: newWhereClauses,
+            });
         } else if (name === 'datasetOrder') {
-            this.props.onChange({ analysisDatasetOrder: event.map( item => (item.oid)) });
+            this.props.onChange({ analysisDatasetOrder: updateObj.map( item => (item.oid)) });
         } else if (name === 'updateDataset') {
-            let newAnalysisDatasets = { ...this.props.analysisDatasets, [event.analysisDataset.itemGroupOid]: event.analysisDataset };
-            // If a new dataset was selected, remove the old dataset
-            if (oid !== event.analysisDataset.itemGroupOid) {
-                delete newAnalysisDatasets[oid];
-                let newAnalysisDatasetOrder = this.props.analysisDatasetOrder.slice();
-                newAnalysisDatasetOrder.splice(newAnalysisDatasetOrder.indexOf(oid), 1, event.analysisDataset.itemGroupOid);
-                this.props.onChange({ analysisDatasets: newAnalysisDatasets, analysisDatasetOrder: newAnalysisDatasetOrder });
-            } else {
-                this.props.onChange({ analysisDatasets: newAnalysisDatasets });
+            if (updateObj.hasOwnProperty('analysisDataset')) {
+                let newAnalysisDatasets = { ...this.props.analysisDatasets, [updateObj.analysisDataset.itemGroupOid]: updateObj.analysisDataset };
+                // If a new dataset was selected, remove the old dataset
+                if (oid !== updateObj.analysisDataset.itemGroupOid) {
+                    delete newAnalysisDatasets[oid];
+                    let newAnalysisDatasetOrder = this.props.analysisDatasetOrder.slice();
+                    newAnalysisDatasetOrder.splice(newAnalysisDatasetOrder.indexOf(oid), 1, updateObj.analysisDataset.itemGroupOid);
+                    let newWhereClauses = { ...this.props.whereClauses };
+                    if (newWhereClauses.hasOwnProperty(oid)) {
+                        delete newWhereClauses[oid];
+                    }
+                    if (updateObj.hasOwnProperty('whereClause')) {
+                        newWhereClauses[updateObj.analysisDataset.itemGroupOid] = updateObj.whereClause;
+                    }
+                    this.props.onChange({
+                        analysisDatasets: newAnalysisDatasets,
+                        analysisDatasetOrder: newAnalysisDatasetOrder,
+                        whereClauses: newWhereClauses,
+                    });
+                } else {
+                    if (updateObj.hasOwnProperty('whereClause')) {
+                        let newWhereClauses = { ...this.props.whereClauses };
+                        newWhereClauses[updateObj.analysisDataset.itemGroupOid] = updateObj.whereClause;
+                        this.props.onChange({ analysisDatasets: newAnalysisDatasets, whereClauses: newWhereClauses });
+                    } else {
+                        this.props.onChange({ analysisDatasets: newAnalysisDatasets });
+                    }
+                }
+            } else if (updateObj.hasOwnProperty('whereClause')) {
+                let newWhereClauses = { ...this.props.whereClauses };
+                newWhereClauses[oid] = updateObj.whereClause;
+                this.props.onChange({ whereClauses: newWhereClauses });
             }
         }
     };
@@ -109,7 +143,7 @@ class ArmDatasetReferenceEditor extends React.Component {
                 </Grid>
                 <Grid item xs={12} >
                     { this.props.analysisDatasetOrder.map( (oid, index) => (
-                        <Grid container justify='flex-start' alignItems='flex-start' spacing={8} key={index}>
+                        <Grid container justify='flex-start' alignItems='flex-start' spacing={8} key={index} wrap='nowrap'>
                             <Grid item>
                                 <Tooltip title="Remove Dataset" placement="bottom-end" enterDelay={1000}>
                                     <IconButton
@@ -122,10 +156,11 @@ class ArmDatasetReferenceEditor extends React.Component {
                                 </Tooltip>
                             </Grid>
                             <Grid item>
-                                <ArmDatasetEditor
+                                <ArmAnalysisDatasetEditor
                                     analysisDataset={this.props.analysisDatasets[oid]}
                                     datasets={datasets}
                                     datasetsNotUsed={datasetsNotUsed}
+                                    whereClause={this.props.whereClauses[oid]}
                                     itemGroups={this.props.itemGroups}
                                     itemDefs={this.props.itemDefs}
                                     onChange={this.handleChange('updateDataset',oid)}
@@ -158,6 +193,7 @@ ArmDatasetReferenceEditor.propTypes = {
     analysisDatasets     : PropTypes.object.isRequired,
     itemGroups           : PropTypes.object.isRequired,
     itemDefs             : PropTypes.object.isRequired,
+    whereClauses         : PropTypes.object.isRequired,
     onChange             : PropTypes.func.isRequired,
 };
 

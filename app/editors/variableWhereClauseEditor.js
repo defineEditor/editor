@@ -9,8 +9,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import WhereClauseInteractiveEditor from 'editors/whereClauseInteractiveEditor.js';
 import Button from '@material-ui/core/Button';
+import WhereClauseInteractiveEditor from 'editors/whereClauseInteractiveEditor.js';
 import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
@@ -61,96 +61,96 @@ class VariableWhereClauseEditor extends React.Component {
         }
     }
 
-  handleChange = name => event => {
-      if (name === 'whereClauseLine') {
-          this.setState({ [name]: event.target.value });
-      }
-  };
+    handleChange = name => event => {
+        if (name === 'whereClauseLine') {
+            this.setState({ [name]: event.target.value });
+        }
+    };
 
-  handleOpen = () => {
-      this.setState({ dialogOpened: true });
-  };
+    handleOpen = () => {
+        this.setState({ dialogOpened: true });
+    };
 
-  handleCancelAndClose = () => {
-      this.setState({ dialogOpened: false });
-  };
+    handleCancelAndClose = () => {
+        this.setState({ dialogOpened: false });
+    };
 
-  handleSaveAndClose = updateObj => {
-      this.props.handleChange('whereClauseInteractive')(updateObj);
-      this.setState({ dialogOpened: false });
-  };
+    handleSaveAndClose = updateObj => {
+        this.props.handleChange('whereClauseInteractive')(updateObj);
+        this.setState({ dialogOpened: false });
+    };
 
-  render() {
-      const { classes } = this.props;
-      const interactiveMode = this.props.wcEditingMode === 'interactive';
-      const manualWCIsInvalid = !this.props.validationCheck(
-          this.state.whereClauseLine
-      );
+    render() {
+        const { classes } = this.props;
+        const interactiveMode = this.props.wcEditingMode === 'interactive';
+        const manualWCIsInvalid = !this.props.validationCheck(
+            this.state.whereClauseLine
+        );
 
-      return (
-          <Grid container spacing={0} alignItems="flex-end">
-              <Grid item>
-                  <FormControlLabel
-                      control={
-                          <Switch
-                              checked={interactiveMode}
-                              onChange={this.props.handleChange('wcEditingMode')}
-                              className={classes.switch}
-                              color="primary"
-                          />
-                      }
-                      label={interactiveMode ? 'Interactive Mode' : 'Manual Mode'}
-                      className={classes.formControl}
-                  />
-              </Grid>
-              {!interactiveMode && (
-                  <Grid item xs={12}>
-                      <TextField
-                          label="Where Clause"
-                          multiline
-                          fullWidth
-                          value={this.state.whereClauseLine}
-                          onChange={this.handleChange('whereClauseLine')}
-                          onBlur={this.props.handleChange('whereClauseManual')}
-                          error={manualWCIsInvalid}
-                          className={classes.textField}
-                      />
-                  </Grid>
-              )}
-              {interactiveMode && (
-                  <Grid item xs={12} className={classes.whereClause}>
-                      {this.state.whereClauseLine}
-                      <Button
-                          variant="fab"
-                          mini
-                          color="default"
-                          onClick={this.handleOpen}
-                          className={classes.editButton}
-                      >
-                          <EditIcon />
-                      </Button>
-                      <Dialog
-                          disableBackdropClick
-                          disableEscapeKeyDown
-                          open={this.state.dialogOpened}
-                          PaperProps={{ className: classes.dialog }}
-                      >
-                          <DialogTitle>Where Clause</DialogTitle>
-                          <DialogContent>
-                              <WhereClauseInteractiveEditor
-                                  whereClause={this.props.whereClause}
-                                  mdv={this.props.mdv}
-                                  dataset={this.props.dataset}
-                                  onSave={this.handleSaveAndClose}
-                                  onCancel={this.handleCancelAndClose}
-                              />
-                          </DialogContent>
-                      </Dialog>
-                  </Grid>
-              )}
-          </Grid>
-      );
-  }
+        return (
+            <Grid container spacing={0} alignItems="flex-end">
+                <Grid item>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={interactiveMode}
+                                onChange={this.props.handleChange('wcEditingMode')}
+                                className={classes.switch}
+                                color="primary"
+                            />
+                        }
+                        label={interactiveMode ? 'Interactive Mode' : 'Manual Mode'}
+                        className={classes.formControl}
+                    />
+                </Grid>
+                {!interactiveMode && (
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Where Clause"
+                            multiline
+                            fullWidth
+                            value={this.state.whereClauseLine}
+                            onChange={this.handleChange('whereClauseLine')}
+                            onBlur={this.props.handleChange('whereClauseManual')}
+                            error={manualWCIsInvalid}
+                            className={classes.textField}
+                        />
+                    </Grid>
+                )}
+                {interactiveMode && (
+                    <Grid item xs={12} className={classes.whereClause}>
+                        {this.state.whereClauseLine}
+                        <Button
+                            variant="fab"
+                            mini
+                            color="default"
+                            onClick={this.handleOpen}
+                            className={classes.editButton}
+                        >
+                            <EditIcon />
+                        </Button>
+                        <Dialog
+                            disableBackdropClick
+                            disableEscapeKeyDown
+                            open={this.state.dialogOpened}
+                            PaperProps={{ className: classes.dialog }}
+                        >
+                            <DialogTitle>Where Clause</DialogTitle>
+                            <DialogContent>
+                                <WhereClauseInteractiveEditor
+                                    whereClause={this.props.whereClause}
+                                    mdv={this.props.mdv}
+                                    dataset={this.props.dataset}
+                                    onSave={this.handleSaveAndClose}
+                                    onCancel={this.handleCancelAndClose}
+                                />
+                            </DialogContent>
+                        </Dialog>
+                    </Grid>
+                )}
+            </Grid>
+        );
+    }
 }
 
 VariableWhereClauseEditor.propTypes = {
