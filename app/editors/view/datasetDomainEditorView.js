@@ -24,11 +24,6 @@ class DatasetDomainEditorView extends React.Component {
         let helperText = '';
         if (this.props.domain !== undefined) {
             let issues = checkForSpecialChars(this.props.domain);
-            // Check label length is withing 40 chars
-            if (this.props.domain.length > 2) {
-                let issueText = `Domain name length is ${this.props.domain.length}, which exceeds 2 characters.`;
-                issues.push(issueText);
-            }
             if (issues.length > 0) {
                 issue = true;
                 helperText = issues.join('\n');

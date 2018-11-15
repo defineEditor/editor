@@ -15,7 +15,7 @@ const styles = theme => ({
     },
 });
 
-class ProgrammingCodeFormatter extends React.Component {
+class ArmProgrammingCodeFormatter extends React.Component {
     render () {
         const { classes, programmingCode } = this.props;
         const { context, code, documents } = programmingCode;
@@ -30,10 +30,10 @@ class ProgrammingCodeFormatter extends React.Component {
     }
 }
 
-ProgrammingCodeFormatter.propTypes = {
+ArmProgrammingCodeFormatter.propTypes = {
     classes         : PropTypes.object,
     programmingCode : PropTypes.object.isRequired,
     leafs           : PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(ProgrammingCodeFormatter);
+export default withStyles(styles)(ArmProgrammingCodeFormatter);

@@ -69,7 +69,7 @@ class Documentation extends BasicFunctions {
 
 class ProgrammingCode extends BasicFunctions {
     constructor ({
-        context = [], code = [], documents = [],
+        context, code, documents = [],
     } = {}) {
         super();
         this.context = context;

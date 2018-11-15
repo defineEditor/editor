@@ -27,7 +27,7 @@ const styles = theme => ({
     },
 });
 
-class AnalysisDatasetFormatter extends React.Component {
+class ArmAnalysisDatasetFormatter extends React.Component {
     render () {
         const { classes, dsData } = this.props;
         const { datasetName, whereClauseText, variables, itemGroupOid } = dsData;
@@ -68,10 +68,10 @@ class AnalysisDatasetFormatter extends React.Component {
     }
 }
 
-AnalysisDatasetFormatter.propTypes = {
+ArmAnalysisDatasetFormatter.propTypes = {
     classes     : PropTypes.object,
     dsData      : PropTypes.object.isRequired,
     selectGroup : PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(AnalysisDatasetFormatter);
+export default withStyles(styles)(ArmAnalysisDatasetFormatter);

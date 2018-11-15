@@ -6,8 +6,8 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ArmDescriptionFormatter from 'formatters/armDescriptionFormatter.js';
-import ProgrammingCodeFormatter from 'formatters/programmingCodeFormatter.js';
-import AnalysisDatasetFormatter from 'formatters/analysisDatasetFormatter.js';
+import ArmProgrammingCodeFormatter from 'formatters/armProgrammingCodeFormatter.js';
+import ArmAnalysisDatasetFormatter from 'formatters/armAnalysisDatasetFormatter.js';
 import { getWhereClauseAsText, getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
@@ -41,7 +41,10 @@ class GlobalVariablesFormatter extends React.Component {
             // Looks for a where clause which is using this parameter
             Object.values(analysisResult.analysisDatasets).forEach( analysisDataset => {
                 if (analysisDataset.whereClauseOid !== undefined && mdv.whereClauses.hasOwnProperty(analysisDataset.whereClauseOid)) {
-                    parameterName = getWhereClauseAsText(mdv.whereClauses[analysisDataset.whereClauseOid], mdv, { itemOid: parameterOid });
+                    let parameterWhereClause = getWhereClauseAsText(mdv.whereClauses[analysisDataset.whereClauseOid], mdv, { itemOid: parameterOid });
+                    if (parameterWhereClause !== undefined && parameterWhereClause !== '') {
+                        parameterName = parameterWhereClause;
+                    }
                 }
             });
         }
@@ -119,11 +122,17 @@ class GlobalVariablesFormatter extends React.Component {
                                 <ListItemText primary='Datasets' secondary={commentText || ''}/>
                             </Grid>
                             <Grid item xs={12}>
-                                { Object.keys(datasetData).map( dsOid => (<AnalysisDatasetFormatter
-                                    key={dsOid}
-                                    dsData={datasetData[dsOid]}
-                                    selectGroup={this.props.selectGroup}
-                                />)) }
+                                <Grid container spacing={8}>
+                                    { Object.keys(datasetData).map( dsOid => (
+                                        <Grid key={dsOid} item xs={6}>
+                                            <ArmAnalysisDatasetFormatter
+                                                key={dsOid}
+                                                dsData={datasetData[dsOid]}
+                                                selectGroup={this.props.selectGroup}
+                                            />
+                                        </Grid>
+                                    )) }
+                                </Grid>
                             </Grid>
                         </Grid>
                     </ListItem>
@@ -143,7 +152,7 @@ class GlobalVariablesFormatter extends React.Component {
                                 <ListItemText primary='Programming Code'/>
                             </Grid>
                             <Grid item xs={12}>
-                                { programmingCode !== undefined  && <ProgrammingCodeFormatter programmingCode={programmingCode} leafs={mdv.leafs}/> }
+                                { programmingCode !== undefined  && <ArmProgrammingCodeFormatter programmingCode={programmingCode} leafs={mdv.leafs}/> }
                             </Grid>
                         </Grid>
                     </ListItem>

@@ -12,8 +12,7 @@ import getSelectionList from 'utils/getSelectionList.js';
 import SaveCancel from 'editors/saveCancel.js';
 import getOidByName from 'utils/getOidByName.js';
 import { getDecode } from 'utils/defineStructureUtils.js';
-import { WhereClause } from 'elements.js';
-
+import { WhereClause, RangeCheck } from 'elements.js';
 
 const styles = theme => ({
     textField: {
@@ -287,7 +286,12 @@ class WhereClauseEditorInteractive extends React.Component {
     }
 
     save = () => {
-        this.props.onSave(this.state.rangeChecks);
+        // Convert to real range checks
+        let result = [];
+        this.state.rangeChecks.forEach( rangeCheck => {
+            result.push({ ...new RangeCheck(rangeCheck) });
+        });
+        this.props.onSave(result);
     }
 
     cancel = () => {

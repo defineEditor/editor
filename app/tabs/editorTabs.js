@@ -31,6 +31,9 @@ const styles = theme => ({
         position  : 'fixed',
         zIndex    : '9000',
     },
+    tabs: {
+        marginLeft: theme.spacing.unit * 4,
+    },
 });
 
 // Redux functions
@@ -162,6 +165,7 @@ class ConnectedEditorTabs extends React.Component {
                             indicatorColor='primary'
                             textColor='primary'
                             scrollable
+                            className={classes.tabs}
                             scrollButtons="auto"
                         >
                             { tabNames.map( tab => {

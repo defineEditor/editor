@@ -203,6 +203,9 @@ class ConnectedAnalysisResultEditor extends React.Component {
             analysisResult.descriptions = originalAnalysisResult.descriptions.slice();
             setDescription(analysisResult, analysisResult.descriptionText, this.props.lang);
         }
+        if (analysisResult.parameterOid === '') {
+            analysisResult.parameterOid = undefined;
+        }
         // Comments;
         let commentData;
         let originalComment;
@@ -368,7 +371,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
                             <Grid item>
                                 <TextField
                                     label='Parameter'
-                                    value={this.state.parameterOid}
+                                    value={this.state.parameterOid || ''}
                                     fullWidth
                                     select
                                     onChange={this.handleChange('main')('parameterOid')}
