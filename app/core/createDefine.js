@@ -2,6 +2,11 @@ import xmlBuilder from 'xmlbuilder';
 import createArm from './createArm.js';
 import { createTranslatedText, createDocumentRef } from './createUtils.js';
 
+function splitAttributes(match) {
+    let tab = match.substr(0,match.indexOf('<'));
+    return match.replace(/\s(\S+=".*?")/g,'\n' + tab + '  $1');
+}
+
 function createDefine (data, version) {
     // Use the same version as before if the version is not specified
     // Use 2.0.0 by default
@@ -24,6 +29,23 @@ function createDefine (data, version) {
         newline          : '\n',
         spacebeforeslash : ''
     });
+
+    // Split long lines
+    result = result.replace(/^\s*<(?:ODM|MetaDataVersion|ItemGroupDef|arm:AnalysisResult).*/mg, splitAttributes);
+
+    // Add prolog
+    let stylesheetLocation = data.stylesheetLocation;
+    let xmlProlog;
+    if (stylesheetLocation) {
+        xmlProlog = `<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="${stylesheetLocation}"?>
+`;
+    } else {
+        xmlProlog = `<?xml version="1.0" encoding="UTF-8"?>
+`;
+    }
+    result = xmlProlog + result;
+
     return result;
 }
 

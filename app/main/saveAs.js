@@ -7,17 +7,7 @@ const createDefine = require('../core/createDefine.js');
 const convertToDefineXml = (mainWindow, data) => (savePath) => {
     if (savePath !== undefined) {
         let defineXml = createDefine(data.odm, '2.0.0');
-        let stylesheetLocation = data.odm.stylesheetLocation;
-        let xmlProlog;
-        if (stylesheetLocation) {
-            xmlProlog = `<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="${stylesheetLocation}"?>
-`;
-        } else {
-            xmlProlog = `<?xml version="1.0" encoding="UTF-8"?>
-`;
-        }
-        fs.writeFile(savePath, xmlProlog + defineXml, function (err) {
+        fs.writeFile(savePath, defineXml, function (err) {
             if (err) {
                 throw err;
             } else {

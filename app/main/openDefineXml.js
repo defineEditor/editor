@@ -2,7 +2,6 @@ const electron = require('electron');
 const dialog = electron.dialog;
 const readXml = require('../utils/readXml.js');
 
-
 function sendToRender (mainWindow, pathToDefineXml) {
     return function (data) {
         mainWindow.webContents.send('define', data, pathToDefineXml);
