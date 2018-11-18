@@ -6,7 +6,7 @@ import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
 import renderColumns from 'utils/renderColumns.js';
-import AddCodeListEditor from 'editors/addCodeListEditor.js';
+import AddCodeList from 'components/tableActions/addCodeList.js';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -24,6 +24,7 @@ import SelectColumns from 'utils/selectColumns.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import CodeListMenu from 'components/menus/codeListMenu.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
+import getSourceLabels from 'utils/getSourceLabels.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import {
     updateCodeList,
@@ -48,6 +49,7 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
+        mdv           : state.present.odm.study.metaDataVersion,
         codeLists     : state.present.odm.study.metaDataVersion.codeLists,
         codeListOrder : state.present.odm.study.metaDataVersion.order.codeListOrder,
         standards     : state.present.odm.study.metaDataVersion.standards,
@@ -154,6 +156,8 @@ class ConnectedCodeListTable extends React.Component {
             anchorEl           : null,
             selectedRows       : [],
             codeListMenuParams : {},
+            showAddCodeList    : false,
+            insertPosition     : null,
             showSelectColumn   : false,
         };
     }
@@ -251,7 +255,14 @@ class ConnectedCodeListTable extends React.Component {
                         <ToggleRowSelect oid='overall' disabled={this.props.reviewMode}/>
                     </Grid>
                     <Grid item>
-                        <AddCodeListEditor disabled={this.props.reviewMode}/>
+                        <Button
+                            variant='raised'
+                            color='default'
+                            disabled={this.props.reviewMode}
+                            onClick={ () => { this.setState({ showAddCodeList: true, insertPosition: null }); } }
+                        >
+                            Add
+                        </Button>
                     </Grid>
                     <Grid item>
                         <Button
@@ -358,6 +369,12 @@ class ConnectedCodeListTable extends React.Component {
                 defineVersion  : this.props.defineVersion,
                 stdConstants   : this.props.stdConstants,
             };
+            let sources = getSourceLabels(originCL.sources, this.props.mdv);
+            if (sources.hasOwnProperty('itemDefs')) {
+                currentCL.usedBy = sources.itemDefs.join('\n');
+            } else {
+                currentCL.usedBy = '';
+            }
             currentCL.standardData = {
                 alias                : originCL.alias,
                 standardOid          : originCL.standardOid,
@@ -419,8 +436,13 @@ class ConnectedCodeListTable extends React.Component {
                     <SelectColumns
                         onClose={ () => { this.setState({ showSelectColumn: false }); } }
                     />
-                )
-                }
+                )}
+                { this.state.showAddCodeList && (
+                    <AddCodeList
+                        position={this.state.insertPosition}
+                        onClose={ () => { this.setState({ showAddCodeList: false }); } }
+                    />
+                )}
             </React.Fragment>
         );
     }
@@ -430,6 +452,7 @@ ConnectedCodeListTable.propTypes = {
     codeLists     : PropTypes.object.isRequired,
     stdCodeLists  : PropTypes.object.isRequired,
     stdConstants  : PropTypes.object.isRequired,
+    mdv           : PropTypes.object.isRequired,
     classes       : PropTypes.object.isRequired,
     defineVersion : PropTypes.string.isRequired,
     reviewMode    : PropTypes.bool,

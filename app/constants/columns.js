@@ -170,16 +170,24 @@ const codeLists = {
     },
     linkedCodeList: {
         text    : 'Linked Codelist',
-        width   : '20%',
+        width   : '10%',
         tdStyle : { whiteSpace: 'normal' },
         thStyle : { whiteSpace: 'normal' },
     },
     standardData: {
         text    : 'Standard',
         hidden  : false,
-        width   : '20%',
+        width   : '15%',
         tdStyle : { whiteSpace: 'normal' },
         thStyle : { whiteSpace: 'normal' }
+    },
+    usedBy: {
+        text     : 'Used By',
+        hidden   : false,
+        editable : false,
+        width    : '15%',
+        tdStyle  : { whiteSpace: 'pre-wrap', overflowWrap: 'break-word' },
+        thStyle  : { whiteSpace: 'normal' }
     },
 };
 

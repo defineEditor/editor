@@ -5,8 +5,8 @@ import { connect } from 'react-redux';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { addItemGroup } from 'actions/index.js';
-import { ItemGroup } from 'elements.js';
+import { addCodeList } from 'actions/index.js';
+import getSelectionList from 'utils/getSelectionList.js';
 import getOid from 'utils/getOid.js';
 
 const styles = theme => ({
@@ -22,62 +22,48 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        addItemGroup: (itemGroup) => dispatch(addItemGroup(itemGroup)),
+        addCodeList: (updateObj) => dispatch(addCodeList(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        model         : state.present.odm.study.metaDataVersion.model,
         defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
-        itemGroupOids : Object.keys(state.present.odm.study.metaDataVersion.itemGroups),
+        codeLists     : state.present.odm.study.metaDataVersion.codeLists,
+        codeListTypes : state.present.stdConstants.codeListTypes,
     };
 };
 
-class AddDatasetEditorConnected extends React.Component {
+class AddVariableEditorConnected extends React.Component {
     constructor (props) {
         super(props);
-        let purpose;
-        if (this.props.model === 'ADaM') {
-            purpose = 'Analysis';
-        } else {
-            purpose = 'Tabulation';
-        }
         this.state = {
             name         : '',
-            purpose,
+            codeListType : 'decoded',
         };
 
     }
 
     resetState = () => {
-        let purpose;
-        if (this.props.model === 'ADaM') {
-            purpose = 'Analysis';
-        } else {
-            purpose = 'Tabulation';
-        }
         this.setState({
             name         : '',
-            purpose,
+            codeListType : 'decoded',
         });
     }
 
     handleChange = (name) => (event) => {
-        if (name === 'name') {
-            this.setState({ [name]: event.target.value.toUpperCase() });
-        }
+        this.setState({ [name]: event.target.value });
     }
 
     handleSaveAndClose = (updateObj) => {
-        let itemGroupOid = getOid('ItemGroup', undefined, this.props.itemGroupOids);
-        let itemGroup = { ...new ItemGroup({
-            oid  : itemGroupOid,
-            name : this.state.name,
-            datasetName: this.state.name,
-            purpose: this.state.purpose,
-        }) };
-        this.props.addItemGroup(itemGroup);
+        let codeListOids = Object.keys(this.props.codeLists);
+        let codeListOid = getOid('CodeList', undefined, codeListOids);
+        // Get all possible IDs
+        this.props.addCodeList({
+            oid          : codeListOid,
+            name         : this.state.name,
+            codeListType : this.state.codeListType,
+        });
         this.resetState();
         this.props.onClose();
     }
@@ -102,6 +88,17 @@ class AddDatasetEditorConnected extends React.Component {
                         className={classes.name}
                     />
                 </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        label='Codelist Type'
+                        select
+                        value={this.state.codeListType}
+                        onChange={this.handleChange('codeListType')}
+                        className={classes.name}
+                    >
+                        {getSelectionList(this.props.codeListTypes)}
+                    </TextField>
+                </Grid>
                 <Grid item>
                     <Button
                         onClick={this.handleSaveAndClose}
@@ -110,7 +107,7 @@ class AddDatasetEditorConnected extends React.Component {
                         variant="raised"
                         className={classes.addButton}
                     >
-                        Add variable
+                        Add codelist
                     </Button>
                 </Grid>
             </Grid>
@@ -118,14 +115,13 @@ class AddDatasetEditorConnected extends React.Component {
     }
 }
 
-AddDatasetEditorConnected.propTypes = {
+AddVariableEditorConnected.propTypes = {
     classes       : PropTypes.object.isRequired,
-    model         : PropTypes.string.isRequired,
-    itemGroupOids : PropTypes.array.isRequired,
+    codeLists     : PropTypes.object.isRequired,
+    codeListTypes : PropTypes.array.isRequired,
     defineVersion : PropTypes.string.isRequired,
     disabled      : PropTypes.bool,
 };
 
-const AddDatasetEditor = connect(mapStateToProps, mapDispatchToProps)(AddDatasetEditorConnected);
-export default withStyles(styles)(AddDatasetEditor);
-
+const AddVariableEditor = connect(mapStateToProps, mapDispatchToProps)(AddVariableEditorConnected);
+export default withStyles(styles)(AddVariableEditor);

@@ -281,8 +281,6 @@ const updateCodeListStandard = (state, action) => {
     let newCodeListItems;
     let newEnumeratedItems;
     if (standardCodeList !== undefined) {
-        // TODO: When classes are removed, the below fork for decoded/enumerated should be removed as in this case code for
-        // codeListItems and enumeratedItems will be the same
         if (codeList.codeListType === 'decoded') {
             newCodeListItems = getItemsWithAliasExtendedValue(codeList.codeListItems, standardCodeList, codeList.codeListType);
         } else if (codeList.codeListType === 'enumerated') {
@@ -290,8 +288,6 @@ const updateCodeListStandard = (state, action) => {
         }
     } else {
         // If the standard was removed, remove all alias/extendedValue elements
-        // TODO: When classes are removed, the below fork for decoded/enumerated should be removed as in this case code for
-        // codeListItems and enumeratedItems will be the same
         if (codeList.codeListType === 'decoded') {
             newCodeListItems = {};
             Object.keys(codeList.codeListItems).forEach( itemOid => {

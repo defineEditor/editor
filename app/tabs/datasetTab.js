@@ -229,7 +229,7 @@ class ConnectedDatasetTable extends React.Component {
             selectedRows        : [],
             itemGroupMenuParams : {},
             showSelectColumn    : false,
-            showAddVariable     : false,
+            showAddDataset      : false,
             insertPosition      : null,
         };
     }

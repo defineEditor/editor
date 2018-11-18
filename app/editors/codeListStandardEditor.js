@@ -27,7 +27,6 @@ const mapStateToProps = state => {
     };
 };
 
-
 class ConnectedCodeListStandardEditor extends React.Component {
     constructor(props) {
         super(props);
@@ -43,11 +42,6 @@ class ConnectedCodeListStandardEditor extends React.Component {
         let standardCodeListOid;
         if (props.defaultValue.standardOid !== undefined && props.stdCodeLists.hasOwnProperty(props.defaultValue.standardOid)) {
             standard = props.stdCodeLists[props.defaultValue.standardOid];
-            Object.keys(props.standards).forEach( standardOid => {
-                if (props.standards[standardOid].type === 'CT') {
-                    standardList[standardOid] = props.stdCodeLists[standardOid].description;
-                }
-            });
             if (this.props.defaultValue.alias !== undefined && standard.nciCodeOids.hasOwnProperty(this.props.defaultValue.alias.name)) {
                 standardCodeListOid = standard.nciCodeOids[props.defaultValue.alias.name];
             }

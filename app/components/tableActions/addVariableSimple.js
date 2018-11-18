@@ -76,9 +76,7 @@ class AddVariableSimpleConnected extends React.Component {
     }
 
     onKeyDown = (event)  => {
-        if (event.key === 'Escape' || event.keyCode === 27) {
-            this.handleClose();
-        } else if (event.ctrlKey && (event.keyCode === 83)) {
+        if (event.ctrlKey && (event.keyCode === 83)) {
             this.handleSaveAndClose();
         }
     }
