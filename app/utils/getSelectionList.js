@@ -15,7 +15,8 @@ function getSelectionList (rawList, optional, disabledItems) {
         throw Error('GetSelectionList: An array or object must be provided as an argument.');
     }
     if (list.length < 1 && optional !== true) {
-        throw Error('GetSelectionList: Blank value list provided for the ItemSelect element');
+        console.error('GetSelectionList: Blank value list provided for the ItemSelect element');
+        return [];
     } else {
         let elementIsObject = false;
         if  ( typeof list[0] === 'object') {

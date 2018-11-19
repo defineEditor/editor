@@ -127,8 +127,6 @@ function SelectWrapped(props) {
 const ITEM_HEIGHT = 48;
 
 const styles = theme => ({
-    root: {
-    },
     chip: {
         margin: theme.spacing.unit / 4,
     },
@@ -254,10 +252,11 @@ class ReactSelectEditor extends React.Component {
         const multi = this.props.value;
 
         return (
-            <div className={classes.root}>
+            <React.Fragment>
                 {this.props.multiSelect ? (
                     <Input
                         fullWidth
+                        className={this.props.className}
                         autoFocus
                         inputComponent={SelectWrapped}
                         inputProps={{
@@ -277,6 +276,7 @@ class ReactSelectEditor extends React.Component {
                 ) : (
                     <Input
                         fullWidth
+                        className={this.props.className}
                         autoFocus
                         inputComponent={SelectWrapped}
                         inputProps={{
@@ -294,7 +294,7 @@ class ReactSelectEditor extends React.Component {
                     />
                 )
                 }
-            </div>
+            </React.Fragment>
         );
     }
 }

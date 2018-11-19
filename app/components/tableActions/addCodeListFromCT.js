@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import clone from 'clone';
 import TextField from '@material-ui/core/TextField';
+import ReactSelectEditor from 'editors/reactSelectEditor.js';
 import { addCodeList } from 'actions/index.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import CodedValueSelectorTable from 'components/utils/codedValueSelectorTable.js';
@@ -18,10 +19,13 @@ const styles = theme => ({
     table: {
         minWidth: 100
     },
-    selectionField: {
+    standardSelection: {
         minWidth: 100,
         marginRight: theme.spacing.unit * 6,
-        marginBottom: theme.spacing.unit * 2,
+    },
+    codeListSelection: {
+        minWidth: 150,
+        marginTop: theme.spacing.unit * 2,
     },
 });
 
@@ -42,10 +46,14 @@ const mapStateToProps = (state, props) => {
 };
 
 const getCodeListList = (standard) => {
-    let result = {};
+    let result = [];
     if (standard !== undefined) {
         Object.keys(standard.codeLists).forEach( codeListOid => {
-            result[codeListOid] = standard.codeLists[codeListOid].name;
+            let item = {
+                value : codeListOid,
+                label : standard.codeLists[codeListOid].name,
+            };
+            result.push(item);
         });
     }
     return result;
@@ -63,7 +71,7 @@ class ConnectedAddCodeListFromCT extends React.Component {
         });
 
         let standardOid;
-        let codeListList = {};
+        let codeListList = [];
         if (Object.keys(standardList).length > 0) {
             standardOid = Object.keys(standardList)[0];
             codeListList = getCodeListList(props.stdCodeLists[standardOid]);
@@ -84,9 +92,9 @@ class ConnectedAddCodeListFromCT extends React.Component {
             let standardOid = updateObj.target.value;
             let standard = this.props.stdCodeLists[updateObj.target.value];
             let codeListList = getCodeListList(standard);
-            this.setState( { standardOid, codeListList, codeListOid: null, selectedCodes: [] });
+            this.setState( { standardOid, codeListList, codeListOid: null });
         } else if (name === 'codeList') {
-            this.setState( { codeListOid: updateObj.target.value, selectedCodes: [] });
+            this.setState( { codeListOid: updateObj });
         }
     }
 
@@ -131,29 +139,30 @@ class ConnectedAddCodeListFromCT extends React.Component {
         }
 
         return (
-            <Grid container spacing={8} className={classes.root}>
+            <Grid container spacing={8} justify='flex-start' className={classes.root}>
                 <Grid item>
                     <TextField
                         label='Standard'
                         value={this.state.standardOid}
                         onChange={this.handleChange('standard')}
-                        className={classes.selectionField}
+                        className={classes.standardSelection}
                         select
                     >
                         {getSelectionList(this.state.standardList)}
                     </TextField>
                 </Grid>
-                <Grid item>
-                    <TextField
-                        label='Codelist'
-                        disabled={this.state.standardOid === null}
-                        value={this.state.codeListOid||''}
-                        onChange={this.handleChange('codeList')}
-                        className={classes.selectionField}
-                        select
-                    >
-                        {getSelectionList(this.state.codeListList)}
-                    </TextField>
+                <Grid item xs={6}>
+                    {(this.state.codeListList.length === 0) ? (
+                        <div>The standard does not have any codelits.</div>
+                    ) : (
+                        <ReactSelectEditor
+                            handleChange={this.handleChange('codeList')}
+                            value={this.state.codeListOid||''}
+                            options={this.state.codeListList}
+                            extensible={false}
+                            className={classes.codeListSelection}
+                        />
+                    )}
                 </Grid>
                 <Grid item xs={12}>
                     { codeList !== undefined &&

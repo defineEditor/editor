@@ -14,7 +14,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ClearIcon from '@material-ui/icons/Clear';
 import AddCodeListSimple from 'components/tableActions/addCodeListSimple.js';
 import AddCodeListFromCT from 'components/tableActions/addCodeListFromCT.js';
-//import AddCodeListFromOtherStudy from 'components/tableActions/addCodeListFromOtherStudy.js';
+import AddCodeListFromOtherStudy from 'components/tableActions/addCodeListFromOtherStudy.js';
 
 const styles = theme => ({
     dialog: {
@@ -128,12 +128,10 @@ class AddCodeListConnected extends React.Component {
                                     />
                             }
                             {tabNames[currentTab] === 'Another Define' &&
-                                    {/*
                                     <AddCodeListFromOtherStudy
                                         position={this.props.position}
                                         onClose={this.props.onClose}
                                     />
-                                    */}
                             }
                         </TabContainer>
                     </DialogContent>
