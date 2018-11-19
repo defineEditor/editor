@@ -3,6 +3,7 @@ import {
     UPD_ITEMSBULK,
     UPD_CODELIST,
     UPD_CODELISTSTD,
+    UPD_CODELISTEXT,
     ADD_CODELIST,
     DEL_CODELISTS,
     UPD_CODELISTSTDOIDS,
@@ -17,7 +18,7 @@ import {
     DEL_ITEMGROUPS,
     UPD_STDCT,
 } from "constants/action-types";
-import { CodeList, CodeListItem, EnumeratedItem, Alias } from 'elements.js';
+import { CodeList, CodeListItem, ExternalCodeList, EnumeratedItem, Alias } from 'elements.js';
 import getOid from 'utils/getOid.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
 import deepEqual from 'fast-deep-equal';
@@ -325,6 +326,15 @@ const updateCodeListStandard = (state, action) => {
         codeListItems        : newCodeListItems,
         enumeratedItems      : newEnumeratedItems,
     }) };
+
+    return {...state, [action.oid]: newCodeList};
+};
+
+const updateExternalCodeList = (state, action) => {
+    // action.oid - codelist oid
+    // action.updateObj - object with external codelist properties
+    let externalCodeList = { ...new ExternalCodeList({ ...action.updateObj }) };
+    let newCodeList = { ...new CodeList({ ...state[action.oid], externalCodeList }) };
 
     return {...state, [action.oid]: newCodeList};
 };
@@ -803,6 +813,8 @@ const codeLists = (state = {}, action) => {
             return updateCodeList(state, action);
         case UPD_CODELISTSTD:
             return updateCodeListStandard(state, action);
+        case UPD_CODELISTEXT:
+            return updateExternalCodeList(state, action);
         case UPD_ITEMCLDF:
             return handleItemDefUpdate(state, action);
         case UPD_ITEMSBULK:

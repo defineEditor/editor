@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
+import { shell } from 'electron';
 import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
@@ -20,6 +21,7 @@ import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import LinkedCodeListEditor from 'editors/linkedCodeListEditor.js';
 import CodeListFormatNameEditor from 'editors/codeListFormatNameEditor.js';
 import CodeListStandardEditor from 'editors/codeListStandardEditor.js';
+import ExternalCodeListEditor from 'editors/externalCodeListEditor.js';
 import SelectColumns from 'utils/selectColumns.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import CodeListMenu from 'components/menus/codeListMenu.js';
@@ -29,6 +31,7 @@ import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import {
     updateCodeList,
     updateCodeListStandard,
+    updateExternalCodeList,
     deleteCodeLists,
 } from 'actions/index.js';
 
@@ -43,6 +46,7 @@ const mapDispatchToProps = dispatch => {
     return {
         updateCodeList         : (oid, updateObj) => dispatch(updateCodeList(oid, updateObj)),
         updateCodeListStandard : (oid, updateObj) => dispatch(updateCodeListStandard(oid, updateObj)),
+        updateExternalCodeList : (oid, updateObj) => dispatch(updateExternalCodeList(oid, updateObj)),
         deleteCodeLists        : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
     };
 };
@@ -65,7 +69,11 @@ const mapStateToProps = state => {
 
 // Editor functions
 function codeListStandardEditor (onUpdate, props) {
-    return (<CodeListStandardEditor onUpdate={onUpdate} {...props}/>);
+    if (props.row.codeListType !== 'external') {
+        return (<CodeListStandardEditor onUpdate={onUpdate} {...props}/>);
+    } else {
+        return (<ExternalCodeListEditor onUpdate={onUpdate} {...props}/>);
+    }
 }
 
 function codeListFormatNameEditor (onUpdate, props) {
@@ -84,9 +92,25 @@ function linkedCodeListEditor (onUpdate, props) {
     return (<LinkedCodeListEditor onUpdate={onUpdate} {...props}/>);
 }
 
+function openLink (event) {
+    event.preventDefault();
+    shell.openExternal(event.target.href);
+}
+
 // Formatter functions
 function codeListStandardFormatter (cell, row) {
-    if (row.standardDescription !== undefined) {
+    if (row.codeListType === 'external') {
+        let result='';
+        if (cell.href === undefined) {
+            result = <div>{(cell.dictionary||'') + ' Version:' + (cell.version||'')}</div>;
+        } else if (cell.href !== undefined) {
+            result = <a onClick={openLink} href={cell.href}>{(cell.dictionary||'') + ' Version:' + (cell.version||'')}</a>;
+        }
+        if (cell.ref !== undefined) {
+            result = <div>{result}<span> Ref: {cell.ref}</span></div>;
+        }
+        return result;
+    } else if (row.standardDescription !== undefined) {
         return (<div>{row.standardDescription} <br/> {cell.cdiscSubmissionValue}</div>);
     }
 }
@@ -229,7 +253,7 @@ class ConnectedCodeListTable extends React.Component {
                 }
                 updateObj['linkedCodeListOid'] = cellValue;
                 this.props.updateCodeList(row.oid, updateObj);
-            } else if (cellName === 'standardData') {
+            } else if (cellName === 'standardData' && row.codeListType !== 'external') {
                 if (!deepEqual(cellValue, row[cellName])) {
                     updateObj = { ...cellValue };
                     if (cellValue.standardOid !== undefined && cellValue.alias !== undefined && this.props.stdCodeLists.hasOwnProperty(cellValue.standardOid)) {
@@ -238,6 +262,9 @@ class ConnectedCodeListTable extends React.Component {
                     }
                     this.props.updateCodeListStandard(row.oid, updateObj);
                 }
+            } else if (cellName === 'standardData' && row.codeListType === 'external') {
+                updateObj = cellValue;
+                this.props.updateExternalCodeList(row.oid, updateObj);
             } else {
                 updateObj[cellName] = cellValue;
                 this.props.updateCodeList(row.oid, updateObj);
@@ -375,11 +402,15 @@ class ConnectedCodeListTable extends React.Component {
             } else {
                 currentCL.usedBy = '';
             }
-            currentCL.standardData = {
-                alias                : originCL.alias,
-                standardOid          : originCL.standardOid,
-                cdiscSubmissionValue : originCL.cdiscSubmissionValue,
-            };
+            if (originCL.codeListType !== 'external') {
+                currentCL.standardData = {
+                    alias                : originCL.alias,
+                    standardOid          : originCL.standardOid,
+                    cdiscSubmissionValue : originCL.cdiscSubmissionValue,
+                };
+            } else {
+                currentCL.standardData = { ...originCL.externalCodeList };
+            }
             if (originCL.standardOid !== undefined && this.props.standards.hasOwnProperty(originCL.standardOid)) {
                 let standard = this.props.standards[originCL.standardOid];
                 currentCL.standardDescription = standard.name + ' ' + standard.publishingSet + ' ver. ' + standard.version;
