@@ -146,6 +146,9 @@ function createMetaDataVersion (data, version) {
             Object.keys(data.supplementalDoc).forEach(function (documentOid) {
                 supplementalDoc['def:SupplementalDoc']['def:DocumentRef'].push(createDocumentRef(data.supplementalDoc[documentOid], version));
             });
+            xmlRoot.com('********************');
+            xmlRoot.com('Supporting Documents');
+            xmlRoot.com('********************');
             xmlRoot.ele(supplementalDoc);
         }
         if (Object.keys(data.valueLists).length !== 0) {
@@ -154,12 +157,18 @@ function createMetaDataVersion (data, version) {
             Object.keys(data.valueLists).forEach(function (valueListOid) {
                 valueListDefs['def:ValueListDef'].push(createValueListDef(data.valueLists[valueListOid], version));
             });
+            xmlRoot.com('***********************');
+            xmlRoot.com('Value List Definitions ');
+            xmlRoot.com('***********************');
             xmlRoot.ele(valueListDefs);
             // WhereClauseDef
             let whereClauseDefs = {'def:WhereClauseDef': []};
             Object.keys(data.whereClauses).forEach(function (whereClauseOid) {
                 whereClauseDefs['def:WhereClauseDef'].push(createWhereClauseDef(data.whereClauses[whereClauseOid], version));
             });
+            xmlRoot.com('***********************');
+            xmlRoot.com('WhereClause Definitions');
+            xmlRoot.com('***********************');
             xmlRoot.ele(whereClauseDefs);
         }
         // ItemGroupDef
@@ -167,12 +176,18 @@ function createMetaDataVersion (data, version) {
         data.order.itemGroupOrder.forEach(function (itemGroupOid) {
             itemGroupDefs['ItemGroupDef'].push(createItemGroupDef(data.itemGroups[itemGroupOid], version));
         });
+        xmlRoot.com('*********************');
+        xmlRoot.com('ItemGroup Definitions');
+        xmlRoot.com('*********************');
         xmlRoot.ele(itemGroupDefs);
         // ItemDef
         let itemDefs = {'ItemDef': []};
         Object.keys(data.itemDefs).forEach(function (itemOid) {
             itemDefs['ItemDef'].push(createItemDef(data.itemDefs[itemOid], version));
         });
+        xmlRoot.com('*******************');
+        xmlRoot.com('ItemDef Definitions');
+        xmlRoot.com('*******************');
         xmlRoot.ele(itemDefs);
         // CodeList
         if (data.order.codeListOrder.length !== 0) {
@@ -180,6 +195,9 @@ function createMetaDataVersion (data, version) {
             data.order.codeListOrder.forEach(function (codeListOid) {
                 codeLists['CodeList'].push(createCodeList(data.codeLists[codeListOid], version));
             });
+            xmlRoot.com('********************');
+            xmlRoot.com('Codelist Definitions');
+            xmlRoot.com('********************');
             xmlRoot.ele(codeLists);
         }
         // MethodDef
@@ -188,6 +206,9 @@ function createMetaDataVersion (data, version) {
             Object.keys(data.methods).forEach(function (methodOid) {
                 methodDefs['MethodDef'].push(createMethodDef(data.methods[methodOid], version));
             });
+            xmlRoot.com('******************');
+            xmlRoot.com('Method Definitions');
+            xmlRoot.com('******************');
             xmlRoot.ele(methodDefs);
         }
         // CommentDef
@@ -196,6 +217,9 @@ function createMetaDataVersion (data, version) {
             Object.keys(data.comments).forEach(function (commentOid) {
                 commentDefs['def:CommentDef'].push(createCommentDef(data.comments[commentOid], version));
             });
+            xmlRoot.com('*******************');
+            xmlRoot.com('Comment Definitions');
+            xmlRoot.com('*******************');
             xmlRoot.ele(commentDefs);
         }
         // leaf
@@ -204,11 +228,17 @@ function createMetaDataVersion (data, version) {
             data.order.leafOrder.forEach(function (leafOid) {
                 leaf['def:leaf'].push(createLeaf(data.leafs[leafOid], version));
             });
+            xmlRoot.com('****************');
+            xmlRoot.com('Leaf Definitions');
+            xmlRoot.com('****************');
             xmlRoot.ele(leaf);
         }
         // Analysis Result Metadata
         if (data.hasOwnProperty('analysisResultDisplays') && Object.keys(data.analysisResultDisplays).length !== 0) {
             let analysisResultDisplays = {'arm:AnalysisResultDisplays': [createArm(data.analysisResultDisplays)]};
+            xmlRoot.com('***********************************');
+            xmlRoot.com('Analysis Result Display Definitions');
+            xmlRoot.com('***********************************');
             xmlRoot.ele(analysisResultDisplays);
         }
     }
