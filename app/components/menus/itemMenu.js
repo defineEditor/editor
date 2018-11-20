@@ -6,7 +6,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import getOid from 'utils/getOid.js';
-import copyVariables from 'utils/copyVariables.js';
+import { copyVariables } from 'utils/copyVariables.js';
 import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
 import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
 import GeneralOrderEditor from 'components/orderEditors/generalOrderEditor.js';

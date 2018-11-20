@@ -136,7 +136,13 @@ class StandardEditor extends React.Component {
 
     render () {
         const { classes } = this.props;
-        const isAdam = (getModelFromStandard(Object.values(this.state.standards)[0].name) === 'ADaM');
+        // Find the default standard
+        let isAdam = false;
+        Object.values(this.state.standards).forEach(standard => {
+            if (standard.isDefault === 'Yes' && getModelFromStandard(standard.name) === 'ADaM') {
+                isAdam = true;
+            }
+        });
         return (
             <Paper className={classes.Standard} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Typography variant="headline" component="h3">
