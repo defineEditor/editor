@@ -76,7 +76,7 @@ function parseComments (commentsRaw, mdv) {
             itemGroups      : getListOfSourceIds(mdv.itemGroups, 'commentOid', comment.oid),
             whereClauses    : getListOfSourceIds(mdv.whereClauses, 'commentOid', comment.oid),
             codeLists       : getListOfSourceIds(mdv.codeLists, 'commentOid', comment.oid),
-            analysisResults : getListOfSourceIds(mdv.analysisResultDisplays.analysisResults, 'analysisDatasetsCommentOid', comment.oid),
+            analysisResults : mdv.hasOwnProperty('analysisResultDisplays') ? getListOfSourceIds(mdv.analysisResultDisplays.analysisResults, 'analysisDatasetsCommentOid', comment.oid) : [],
         };
         if (mdv.commentOid === comment.oid) {
             comment.sources['metaDataVersion'] = [mdv.oid];
