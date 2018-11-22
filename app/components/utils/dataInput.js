@@ -181,7 +181,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                             { dataLoaded && this.state.nonParsedData.length > 0 && (
                                 <Typography variant="body2" gutterBottom className={classes.notImported} color='primary'>
                                     <Button
-                                        variant='raised'
+                                        variant='contained'
                                         mini
                                         onClick={() => {this.setState({showNonParsed: !this.state.showNonParsed});}}
                                         className={classes.button}
@@ -221,7 +221,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                                         color='primary'
                                         size='small'
                                         onClick={ dataLoaded ? this.reImport : this.import}
-                                        variant='raised'
+                                        variant='contained'
                                     >
                                         { dataLoaded ? 'Re-import' : 'Import'}
                                     </Button>
@@ -232,7 +232,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                                             color='default'
                                             size='small'
                                             onClick={this.update('all')}
-                                            variant='raised'
+                                            variant='contained'
                                         >
                                             Update All Lengths
                                         </Button>
@@ -243,7 +243,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                                                 color='default'
                                                 size='small'
                                                 onClick={this.update('actualData')}
-                                                variant='raised'
+                                                variant='contained'
                                             >
                                                 Update Actual Lengths
                                             </Button>
@@ -255,7 +255,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                                         color='secondary'
                                         size='small'
                                         onClick={this.cancel}
-                                        variant='raised'
+                                        variant='contained'
                                     >
                                         Cancel
                                     </Button>

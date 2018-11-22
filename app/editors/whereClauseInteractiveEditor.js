@@ -307,7 +307,7 @@ class WhereClauseEditorInteractive extends React.Component {
                     <Button
                         color='default'
                         size='small'
-                        variant='raised'
+                        variant='contained'
                         onClick={this.handleChange('addRangeCheck',0)}
                         className={classes.button}
                     >

@@ -340,7 +340,7 @@ class AddDatasetFromDefineConnected extends React.Component {
                                 onClick={this.handleAddDatasets}
                                 color="default"
                                 mini
-                                variant="raised"
+                                variant="contained"
                                 className={classes.addButton}
                             >
                                 Add {numSelected} datasets

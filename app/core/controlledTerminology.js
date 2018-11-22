@@ -125,7 +125,7 @@ class ConnectedControlledTerminology extends React.Component {
         return (
             <React.Fragment>
                 <NavigationBar>
-                    <Button size="small" variant="raised" onClick={this.scanControlledTerminologyFolder}>
+                    <Button size="small" variant="contained" onClick={this.scanControlledTerminologyFolder}>
                         Scan CT Folder
                     </Button>
                 </NavigationBar>
@@ -133,7 +133,7 @@ class ConnectedControlledTerminology extends React.Component {
                     { ctNum === 0 ? (
                         <Typography variant="display1" gutterBottom className={classes.noCTMessage}>
                             There is no Controlled Terminology available. Download the NCI/CDISC CT in XML format, specify the folder in settings and press the &nbsp;
-                            <Button size="small" variant="raised" onClick={this.scanControlledTerminologyFolder}>
+                            <Button size="small" variant="contained" onClick={this.scanControlledTerminologyFolder}>
                                 Scan CT Folder
                             </Button> &nbsp; button
                         </Typography>

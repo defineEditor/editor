@@ -140,7 +140,7 @@ class ControlledTerminologyEditor extends React.Component {
                         <Button
                             color='default'
                             size='small'
-                            variant='raised'
+                            variant='contained'
                             onClick={this.handleChange('addCt')}
                             className={classes.button}
                         >

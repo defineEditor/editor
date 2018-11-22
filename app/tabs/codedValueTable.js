@@ -315,7 +315,7 @@ class ConnectedCodedValueTable extends React.Component {
                             color='primary'
                             mini
                             onClick={handleClick}
-                            variant='raised'
+                            variant='contained'
                             disabled={enumAndHasLinked || this.props.reviewMode}
                         >
                             Add
@@ -327,7 +327,7 @@ class ConnectedCodedValueTable extends React.Component {
                             mini
                             onClick={this.deleteRows}
                             disabled={!this.props.showRowSelect || enumAndHasLinked || this.props.reviewMode}
-                            variant='raised'
+                            variant='contained'
                         >
                             Delete
                         </Button>
@@ -338,7 +338,7 @@ class ConnectedCodedValueTable extends React.Component {
                             mini
                             onClick={ this.handleShowCodedValueSelector() }
                             disabled={codeList.standardOid === undefined || enumAndHasLinked || this.props.reviewMode}
-                            variant='raised'
+                            variant='contained'
                         >
                             Add Std. Codes
                         </Button>
@@ -360,7 +360,7 @@ class ConnectedCodedValueTable extends React.Component {
                 <Grid item style={{paddingRight: '25px'}}>
                     <Grid container spacing={16} justify='flex-end'>
                         <Grid item>
-                            <Button variant="raised" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
+                            <Button variant="contained" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
                                 Columns
                                 <RemoveRedEyeIcon style={{marginLeft: '7px'}}/>
                             </Button>

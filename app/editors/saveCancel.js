@@ -31,13 +31,13 @@ class SaveClose extends React.Component {
                 {mini !== true &&
                         <Grid container spacing={0} justify={justify}>
                             <Grid item>
-                                <Button color='primary' size='small' onClick={this.props.save} variant='raised' className={style} disabled={this.props.disabled}>
+                                <Button color='primary' size='small' onClick={this.props.save} variant='contained' className={style} disabled={this.props.disabled}>
                                     { this.props.icon && <SaveIcon className={classes.icon}/>}
                                     Save
                                 </Button>
                             </Grid>
                             <Grid item>
-                                <Button color='secondary' size='small' onClick={this.props.cancel} variant='raised' className={style} disabled={this.props.disabled}>
+                                <Button color='secondary' size='small' onClick={this.props.cancel} variant='contained' className={style} disabled={this.props.disabled}>
                                     { this.props.icon && <ClearIcon className={classes.icon}/>}
                                     Cancel
                                 </Button>

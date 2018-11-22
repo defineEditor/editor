@@ -456,7 +456,7 @@ class ConnectedVariableTabFilter extends React.Component {
                     <Button
                         color='default'
                         size='small'
-                        variant='raised'
+                        variant='contained'
                         onClick={this.handleChange('addRangeCheck',0,'AND')}
                         className={classes.button}
                     >
@@ -465,7 +465,7 @@ class ConnectedVariableTabFilter extends React.Component {
                     <Button
                         color='default'
                         size='small'
-                        variant='raised'
+                        variant='contained'
                         disabled={this.props.itemGroupOid === undefined && this.state.conditions.length === 1}
                         onClick={this.handleChange('addRangeCheck',0,'OR')}
                         className={classes.button}
@@ -517,7 +517,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                                 color='primary'
                                                 size='small'
                                                 onClick={this.enable}
-                                                variant='raised'
+                                                variant='contained'
                                                 className={classes.button}
                                             >
                                                 Enable
@@ -528,7 +528,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                                 color='default'
                                                 size='small'
                                                 onClick={this.disable}
-                                                variant='raised'
+                                                variant='contained'
                                                 className={classes.button}
                                             >
                                                 Disable
@@ -541,7 +541,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                             color='primary'
                                             size='small'
                                             onClick={this.save}
-                                            variant='raised'
+                                            variant='contained'
                                             className={classes.button}
                                         >
                                             Save
@@ -553,7 +553,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                         color='secondary'
                                         size='small'
                                         onClick={this.cancel}
-                                        variant='raised'
+                                        variant='contained'
                                         className={classes.button}
                                     >
                                         Cancel

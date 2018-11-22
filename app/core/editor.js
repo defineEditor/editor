@@ -81,7 +81,7 @@ class ConnectedEditor extends React.Component {
                 {!this.props.currentDefineId && (
                     <Typography variant="display1" gutterBottom className={classes.noDefineMessage}>
                         No Define-XML documents are selected for editing. Select a Define-XML document to edit on the &nbsp;
-                        <Button onClick={this.changePageToStudies} variant='raised'>
+                        <Button onClick={this.changePageToStudies} variant='contained'>
                             Studies
                         </Button> &nbsp; page.
                     </Typography>

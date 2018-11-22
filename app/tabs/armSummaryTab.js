@@ -174,7 +174,7 @@ class ConnectedArmSummaryTable extends React.Component {
                     </Grid>
                     <Grid item>
                         <Button
-                            variant='raised'
+                            variant='contained'
                             color='default'
                             disabled={this.props.reviewMode}
                             onClick={ () => { this.setState({ showAddResultDisplay: true, insertPosition: null }); } }
@@ -188,7 +188,7 @@ class ConnectedArmSummaryTable extends React.Component {
                             mini
                             onClick={this.deleteRows}
                             disabled={!this.props.showRowSelect || this.props.reviewMode}
-                            variant='raised'
+                            variant='contained'
                         >
                             Delete
                         </Button>
@@ -210,7 +210,7 @@ class ConnectedArmSummaryTable extends React.Component {
                 <Grid item style={{paddingRight: '25px'}}>
                     <Grid container spacing={16} justify='flex-end'>
                         <Grid item>
-                            <Button variant="raised" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
+                            <Button variant="contained" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
                                 Columns
                                 <RemoveRedEyeIcon style={{marginLeft: '7px'}}/>
                             </Button>

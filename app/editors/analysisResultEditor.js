@@ -92,6 +92,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
         };
     }
 
+
     getListOfVariables = (analysisDatasets) => {
         let result = [];
         const mdv = this.props.mdv;

@@ -528,7 +528,7 @@ class ConnectedVariableTable extends React.Component {
                     </Grid>
                     <Grid item>
                         <Button
-                            variant='raised'
+                            variant='contained'
                             color='default'
                             disabled={this.props.reviewMode}
                             onClick={ () => { this.setState({ showAddVariable: true, insertPosition: null }); } }
@@ -538,7 +538,7 @@ class ConnectedVariableTable extends React.Component {
                     </Grid>
                     <Grid item>
                         <Button
-                            variant='raised'
+                            variant='contained'
                             color='default'
                             disabled={this.props.reviewMode}
                             onClick={ () => { this.setState({ showUpdate: true }); } }
@@ -552,7 +552,7 @@ class ConnectedVariableTable extends React.Component {
                             mini
                             onClick={this.deleteRows}
                             disabled={!this.props.showRowSelect || this.props.reviewMode}
-                            variant='raised'
+                            variant='contained'
                         >
                             Delete
                         </Button>
@@ -590,7 +590,7 @@ class ConnectedVariableTable extends React.Component {
                         { hasVlm &&
                                 <Grid item>
                                     <Button
-                                        variant="raised"
+                                        variant="contained"
                                         color="default"
                                         onClick={this.toggleVlmRows(vlmState.global === 'collaps' ? 'expand' : 'collaps')}
                                     >
@@ -601,7 +601,7 @@ class ConnectedVariableTable extends React.Component {
                         }
                         <Grid item>
                             <Button
-                                variant="raised"
+                                variant="contained"
                                 color={this.props.filter.isEnabled ? 'primary' : 'default'}
                                 onClick={ () => { this.setState({ showFilter: true }); } }
                             >
@@ -610,7 +610,7 @@ class ConnectedVariableTable extends React.Component {
                             </Button>
                         </Grid>
                         <Grid item>
-                            <Button variant="raised" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
+                            <Button variant="contained" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
                                 Columns
                                 <RemoveRedEyeIcon style={{marginLeft: '7px'}}/>
                             </Button>

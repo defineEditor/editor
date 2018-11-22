@@ -140,7 +140,7 @@ class ConnectedArmProgrammingCodeView extends React.Component {
 }
 
 ConnectedArmProgrammingCodeView.propTypes = {
-    programmingCode   : PropTypes.object,
+    programmingCode : PropTypes.object,
     leafs           : PropTypes.object.isRequired,
     lang            : PropTypes.string.isRequired,
     onChange        : PropTypes.func.isRequired,

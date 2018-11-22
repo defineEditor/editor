@@ -201,7 +201,7 @@ class DocumentTableEditor extends React.Component {
                     <Button
                         color='default'
                         size='small'
-                        variant='raised'
+                        variant='contained'
                         onClick={this.handleChange('addDoc')}
                         className={classes.button}
                     >

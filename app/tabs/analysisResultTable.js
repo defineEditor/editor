@@ -116,7 +116,7 @@ class ConnectedAnalysisResultTable extends React.Component {
                             <Grid item>
                                 <Button
                                     color='default'
-                                    variant='raised'
+                                    variant='contained'
                                     onClick={this.addAnalysisResult}
                                     className={classes.button}
                                 >

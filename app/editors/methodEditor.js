@@ -398,8 +398,8 @@ class ConnectedMethodEditor extends React.Component {
                 {this.props.stateless !== true &&
                     <Grid item xs={12} >
                         <br/>
-                        <Button color='primary' onClick={this.save} variant='raised' className={classes.button}>Save</Button>
-                        <Button color='secondary' onClick={this.cancel} variant='raised' className={classes.button}>Cancel</Button>
+                        <Button color='primary' onClick={this.save} variant='contained' className={classes.button}>Save</Button>
+                        <Button color='secondary' onClick={this.cancel} variant='contained' className={classes.button}>Cancel</Button>
                     </Grid>
                 }
             </Grid>

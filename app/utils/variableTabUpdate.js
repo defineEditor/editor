@@ -502,7 +502,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                                         color='primary'
                                         size='small'
                                         onClick={this.update}
-                                        variant='raised'
+                                        variant='contained'
                                         disabled={itemNum < 1 || anyRegexIsNotValid || this.state.changedAfterUpdated === false}
                                         className={classes.button}
                                     >
@@ -514,7 +514,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                                         color='secondary'
                                         size='small'
                                         onClick={this.props.onClose}
-                                        variant='raised'
+                                        variant='contained'
                                         className={classes.button}
                                     >
                                         Close

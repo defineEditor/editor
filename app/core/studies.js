@@ -97,7 +97,7 @@ class ConnectedStudies extends React.Component {
       return (
           <React.Fragment>
               <NavigationBar>
-                  <Button size="small" variant="raised" onClick={this.addStudy}>
+                  <Button size="small" variant="contained" onClick={this.addStudy}>
             New Study
                   </Button>
               </NavigationBar>

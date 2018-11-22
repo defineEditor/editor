@@ -300,7 +300,7 @@ class AddVariableFromDefineConnected extends React.Component {
                                     onClick={this.handleAddVariables}
                                     color="default"
                                     mini
-                                    variant="raised"
+                                    variant="contained"
                                     className={classes.addButton}
                                 >
                                     Add {numSelected} variables

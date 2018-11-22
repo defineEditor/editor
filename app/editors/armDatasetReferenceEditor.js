@@ -29,6 +29,7 @@ class ArmDatasetReferenceEditor extends React.Component {
             showDatasetOrderEditor: false
         };
     }
+
     handleChange = (name, oid) => updateObj => {
         if (name === 'addDataset') {
             let datasets = {};
