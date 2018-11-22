@@ -117,9 +117,55 @@ const updateFilter = (state, action) => {
 
 const loadTabs = (state, action) => {
     if (action.updateObj !== undefined) {
-        return {
-            ...action.updateObj,
-        };
+        // Check if there the definitions have more/less tabs. In this case reset the tab settings
+        let isDifferent = false;
+        // Check if there are any different tab names
+        // New tab names
+        initialState.tabNames.some( tabName => {
+            if (!action.updateObj.tabNames.includes(tabName)) {
+                isDifferent = true;
+                return true;
+            }
+        });
+        // Removed tab names
+        action.updateObj.tabNames.some( tabName => {
+            if (!initialState.tabNames.includes(tabName)) {
+                isDifferent = true;
+                return true;
+            }
+        });
+        // Check if there are any differences in columns
+        if (!isDifferent) {
+            let actualSettings = action.updateObj.settings;
+            initialState.settings.some( (setting, index) => {
+                let actualSetting = actualSettings[index];
+                if (setting.hasOwnProperty('columns') && actualSetting.hasOwnProperty('columns')) {
+                    let actualColumnsNames = Object.keys(actualSetting.columns);
+                    let initialColumnsNames = Object.keys(setting.columns);
+                    // New columns
+                    initialColumnsNames.some( columnName => {
+                        if (!actualColumnsNames.includes(columnName)) {
+                            isDifferent = true;
+                            return true;
+                        }
+                    });
+                    // Removed columns
+                    if (actualColumnsNames.length !== initialColumnsNames.length) {
+                        isDifferent = true;
+                        return true;
+                    }
+                } else if (setting.hasOwnProperty('columns') !== actualSetting.hasOwnProperty('columns')) {
+                    isDifferent = true;
+                    return true;
+                }
+
+            });
+        }
+        if (isDifferent) {
+            return initialState;
+        } else {
+            return { ...action.updateObj };
+        }
     } else {
         return initialState;
     }
