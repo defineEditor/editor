@@ -6,7 +6,7 @@ const createDefine = require('../core/createDefine.js');
 // Create Define-XML
 const convertToDefineXml = (mainWindow, data) => (savePath) => {
     if (savePath !== undefined) {
-        let defineXml = createDefine(data.odm, '2.0.0');
+        let defineXml = createDefine(data.odm, data.odm.study.metaDataVersion.defineVersion);
         fs.writeFile(savePath, defineXml, function (err) {
             if (err) {
                 throw err;

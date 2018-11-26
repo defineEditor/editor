@@ -89,7 +89,8 @@ class ConnectedSettings extends React.Component {
           'removeUnusedCodeListsInDefineXml',
           'getNameLabelFromWhereClause',
           'lengthForAllDataTypes',
-          'textInstantProcessing'
+          'textInstantProcessing',
+          'alwaysSaveDefineXml',
       ].includes(name)) {
           this.setState({ [category]: { ...this.state[category], [name]: checked } });
       } else if (['sourceSystem'].includes(name)) {
@@ -182,6 +183,21 @@ class ConnectedSettings extends React.Component {
                                       )
                                   }}
                               />
+                          </Grid>
+                          <Grid item xs={12}>
+                              <FormGroup>
+                                  <FormControlLabel
+                                      control={
+                                          <Switch
+                                              checked={this.state.general.alwaysSaveDefineXml}
+                                              onChange={this.handleChange('general', 'alwaysSaveDefineXml')}
+                                              color='primary'
+                                              className={classes.switch}
+                                          />
+                                      }
+                                      label = 'Write changes to Define-XML when saving the current Define-XML document'
+                                  />
+                              </FormGroup>
                           </Grid>
                       </Grid>
                   </Grid>

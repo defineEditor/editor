@@ -83,7 +83,8 @@ const ui = {
 // Settings
 const general = {
     userName: 'Winnie-the-Pooh',
-    controlledTerminologyLocation: ''
+    controlledTerminologyLocation: '',
+    alwaysSaveDefineXml: true,
 };
 
 const editor = {

@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, Menu } from 'electron';
 import path from 'path';
 import saveAs from './main/saveAs.js';
+import saveDefine from './main/saveDefine.js';
 import openDefineXml from './main/openDefineXml.js';
 import selectFolder from './main/selectFolder.js';
 import writeDefineObject from './main/writeDefineObject.js';
@@ -78,9 +79,13 @@ function createWindow() {
 /**
  * Add event listeners...
  */
-// Add listener for Define-XML generation
+// Add listener for Define-XML generation as a new file
 ipcMain.on('saveAs', (event, data) => {
     saveAs(mainWindow, data);
+});
+// Add listener for Define-XML save
+ipcMain.on('saveDefine', (event, data) => {
+    saveDefine(mainWindow, data);
 });
 // Add listener for Define-XML open
 ipcMain.on('openDefineXml', () => {
