@@ -1,8 +1,10 @@
+import clone from 'clone';
 import {
     UPD_ITEMCLDF,
     UPD_ITEMSBULK,
     UPD_CODELIST,
     UPD_CODELISTSTD,
+    UPD_CODELISTSSTD,
     UPD_CODELISTEXT,
     ADD_CODELIST,
     DEL_CODELISTS,
@@ -20,10 +22,7 @@ import {
 } from "constants/action-types";
 import { CodeList, CodeListItem, ExternalCodeList, EnumeratedItem, Alias } from 'elements.js';
 import getOid from 'utils/getOid.js';
-import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
-import deepEqual from 'fast-deep-equal';
-import clone from 'clone';
-
+import { getItemsWithAliasExtendedValue }  from 'utils/codeListUtils.js';
 
 const handleItemDefUpdate = (state, action) => {
     let newState = { ...state };
@@ -50,53 +49,6 @@ const handleItemDefUpdate = (state, action) => {
     }
 
     return newState;
-};
-
-const getItemsWithAliasExtendedValue = (sourceItems, standardCodeList, codeListType) => {
-    // Get enumeratedItems/codeListItems and populate Alias and ExtendedValue for each of the items
-    let newItems = {};
-    let standardCodedValues = getCodedValuesAsArray(standardCodeList);
-    Object.keys(sourceItems).forEach( itemOid => {
-        if (standardCodedValues.includes(sourceItems[itemOid].codedValue)) {
-            // Add alias from the standard codelist if it is different
-            let standardItemOid = Object.keys(standardCodeList.codeListItems)[standardCodedValues.indexOf(sourceItems[itemOid].codedValue)];
-            if (!deepEqual(sourceItems[itemOid].alias, standardCodeList.codeListItems[standardItemOid].alias)){
-                if (codeListType === 'enumerated') {
-                    newItems[itemOid] = { ...new EnumeratedItem({
-                        ...sourceItems[itemOid],
-                        alias: { ...new Alias({ ...standardCodeList.codeListItems[standardItemOid].alias }) },
-                    }) };
-                } else if (codeListType === 'decoded') {
-                    newItems[itemOid] = { ...new CodeListItem({
-                        ...sourceItems[itemOid],
-                        alias: { ...new Alias({ ...standardCodeList.codeListItems[standardItemOid].alias }) },
-                    }) };
-                }
-            } else {
-                newItems[itemOid] = sourceItems[itemOid];
-            }
-        } else {
-            // Check if the extendedValue attribute is set
-            if (sourceItems[itemOid].extendedValue === 'Y') {
-                newItems[itemOid] = sourceItems[itemOid];
-            } else {
-                if (codeListType === 'enumerated') {
-                    newItems[itemOid] = { ...new EnumeratedItem({
-                        ...sourceItems[itemOid],
-                        alias         : undefined,
-                        extendedValue : 'Y',
-                    }) };
-                } else if (codeListType === 'decoded') {
-                    newItems[itemOid] = { ...new CodeListItem({
-                        ...sourceItems[itemOid],
-                        alias         : undefined,
-                        extendedValue : 'Y',
-                    }) };
-                }
-            }
-        }
-    });
-    return newItems;
 };
 
 const updateLinkedCodeList = (state, action) => {
@@ -328,6 +280,24 @@ const updateCodeListStandard = (state, action) => {
     }) };
 
     return {...state, [action.oid]: newCodeList};
+};
+
+const updateCodeListsStandard = (state, action) => {
+    // action.updateObj - Object with the list of codeListIds updated and related update information
+    // updateObj: { codeListOid1: { standardOid, cdiscSubmissionValue, alias, codeListItems|enumeratedItems, codeListOid2 : { ... } , ... }
+    let newState = { ...state };
+    Object.keys(action.updateObj).forEach( codeListOid => {
+        let codeListInfo = action.updateObj[codeListOid];
+        newState = {
+            ...newState,
+            [codeListOid]: { ...new CodeList({
+                ...newState[codeListOid],
+                ...codeListInfo,
+            }) }
+        };
+    });
+
+    return newState;
 };
 
 const updateExternalCodeList = (state, action) => {
@@ -783,7 +753,47 @@ const handleDeleteStdCodeLists = (state, action) => {
         if (codeListOids.length > 0) {
             let newState = { ...state };
             codeListOids.forEach( codeListOid => {
-                newState = { ...newState, [codeListOid]: { ...new CodeList({ ...state[codeListOid], standardOid: undefined }) } };
+                let codeList = newState[codeListOid];
+                // Remove aliases from all coded values
+                if (codeList.codeListType === 'decoded') {
+                    let newCodeListItems = {};
+                    Object.keys(codeList.codeListItems).forEach( oid => {
+                        newCodeListItems[oid] = { ...codeList.codeListItems[oid], alias: undefined };
+                    });
+                    newState = { ...newState,
+                        [codeListOid]: { ...new CodeList({
+                            ...state[codeListOid],
+                            standardOid: undefined,
+                            cdiscSubmissionValue: undefined,
+                            codeListItems: newCodeListItems,
+                            alias: undefined,
+                        }) }
+                    };
+                } else if (codeList.codeListType === 'enumerated') {
+                    let newEnumeratedItems = {};
+                    Object.keys(codeList.enumeratedItems).forEach( oid => {
+                        newEnumeratedItems[oid] = { ...codeList.enumeratedItems[oid], alias: undefined };
+                    });
+                    newState = { ...newState,
+                        [codeListOid]: { ...new CodeList({
+                            ...state[codeListOid],
+                            standardOid: undefined,
+                            cdiscSubmissionValue: undefined,
+                            enumeratedItems: newEnumeratedItems,
+                            alias: undefined,
+                        }) }
+                    };
+                } else {
+                    // No coded values for the external codelists
+                    newState = { ...newState,
+                        [codeListOid]: { ...new CodeList({
+                            ...state[codeListOid],
+                            standardOid: undefined,
+                            cdiscSubmissionValue: undefined,
+                            alias: undefined,
+                        }) }
+                    };
+                }
             });
             return newState;
         } else {
@@ -813,6 +823,8 @@ const codeLists = (state = {}, action) => {
             return updateCodeList(state, action);
         case UPD_CODELISTSTD:
             return updateCodeListStandard(state, action);
+        case UPD_CODELISTSSTD:
+            return updateCodeListsStandard(state, action);
         case UPD_CODELISTEXT:
             return updateExternalCodeList(state, action);
         case UPD_ITEMCLDF:

@@ -232,7 +232,6 @@ const copyVariables = ({
                     codeList.oid = newCodeListOid;
                     // Remove all associations with a standard codelist
                     codeList.standardOid = undefined;
-                    codeList.standardCodeListOid = undefined;
                     codeList.linkedCodeListOid = undefined;
                     codeList.cdiscSubmissionValue = undefined;
                     codeLists[newCodeListOid] = codeList;

@@ -270,7 +270,6 @@ class CodeList extends BasicFunctions {
         cdiscSubmissionValue,
         linkedCodeListOid,
         codeListType,
-        standardCodeListOid,
         enumeratedItems,
         codeListItems,
         itemOrder = [],
@@ -308,7 +307,6 @@ class CodeList extends BasicFunctions {
             }
         }
         this.linkedCodeListOid = linkedCodeListOid;
-        this.standardCodeListOid = standardCodeListOid;
         this.cdiscSubmissionValue = cdiscSubmissionValue;
         // List of items from which the codelist is linked
         if (sources !== undefined) {

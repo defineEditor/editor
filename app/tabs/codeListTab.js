@@ -28,9 +28,11 @@ import CodeListMenu from 'components/menus/codeListMenu.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
+import { getItemsWithAliasExtendedValue }  from 'utils/codeListUtils.js';
 import {
     updateCodeList,
     updateCodeListStandard,
+    updateCodeListsStandard,
     updateExternalCodeList,
     deleteCodeLists,
 } from 'actions/index.js';
@@ -44,11 +46,79 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateCodeList         : (oid, updateObj) => dispatch(updateCodeList(oid, updateObj)),
-        updateCodeListStandard : (oid, updateObj) => dispatch(updateCodeListStandard(oid, updateObj)),
-        updateExternalCodeList : (oid, updateObj) => dispatch(updateExternalCodeList(oid, updateObj)),
-        deleteCodeLists        : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
+        updateCodeList          : (oid, updateObj) => dispatch(updateCodeList(oid, updateObj)),
+        updateCodeListStandard  : (oid, updateObj) => dispatch(updateCodeListStandard(oid, updateObj)),
+        updateCodeListsStandard : (updateObj) => dispatch(updateCodeListsStandard(updateObj)),
+        updateExternalCodeList  : (oid, updateObj) => dispatch(updateExternalCodeList(oid, updateObj)),
+        deleteCodeLists         : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
     };
+};
+
+const getStdCodeListInfo = ({ stdCodeList, codeList, standardOid }) => {
+    let result = {
+        standardOid,
+        alias: stdCodeList.alias,
+        cdiscSubmissionValue: stdCodeList.cdiscSubmissionValue,
+    };
+    let itemsName;
+    if (codeList.codeListType === 'decoded') {
+        itemsName = 'codeListItems';
+    } else if (codeList.codeListType === 'enumerated') {
+        itemsName = 'enumeratedItems';
+    }
+    if (itemsName !== undefined) {
+        result[itemsName] = getItemsWithAliasExtendedValue(codeList[itemsName], stdCodeList, codeList.codeListType);
+    }
+    return result;
+};
+
+const populateStdCodeListInfo = ( { stdCodeLists, codeLists } = {} ) => {
+    let stdCodeListInfo = {};
+    // Find all codelists using the removed CT
+    // Get names of all the new/updated CT codelists
+    // Get relationship between names and codeListOids
+    let stdNames = {};
+    let stdNameCodeListOids = {};
+    Object.values(stdCodeLists).forEach( standard => {
+        stdNames[standard.oid] = [];
+        stdNameCodeListOids[standard.oid] = {};
+        Object.values(standard.codeLists).forEach( codeList => {
+            stdNames[standard.oid].push(codeList.name);
+            stdNameCodeListOids[standard.oid][codeList.name] = codeList.oid;
+        });
+    });
+    // Check if newly added or updated CTs match any of the codelists
+    Object.values(codeLists).forEach( codeList => {
+        let name = codeList.name;
+        // Remove parenthesis to handle situations like 'No Yes Response (Subset Y)'
+        let nameWithoutParen = codeList.name.replace(/\s*\(.*\)\s*$/,'');
+        // Try to apply an std only if there is no std already or the std was removed/update
+        if (codeList.standardOid === undefined) {
+            if (codeList.alias !== undefined && codeList.alias.name !== undefined) {
+                Object.values(stdCodeLists).some( standard => {
+                    let stdCodeListOid = standard.nciCodeOids[codeList.alias.name];
+                    if (stdCodeListOid !== undefined) {
+                        let stdCodeList = standard.codeLists[stdCodeListOid];
+                        stdCodeListInfo[codeList.oid] = getStdCodeListInfo({ stdCodeList, codeList, standardOid: standard.oid });
+                        return true;
+                    }
+                });
+            } else {
+                Object.keys(stdNames).some( standardOid => {
+                    if (stdNames[standardOid].includes(name)) {
+                        let stdCodeList = stdCodeLists[standardOid].codeLists[stdNameCodeListOids[standardOid][name]];
+                        stdCodeListInfo[codeList.oid] = getStdCodeListInfo({ stdCodeList, codeList, standardOid });
+                        return true;
+                    } else if (stdNames[standardOid].includes(nameWithoutParen)) {
+                        let stdCodeList = stdCodeLists[standardOid].codeLists[stdNameCodeListOids[standardOid][nameWithoutParen]];
+                        stdCodeListInfo[codeList.oid] = getStdCodeListInfo({ stdCodeList, codeList, standardOid });
+                        return true;
+                    }
+                });
+            }
+        }
+    });
+    return stdCodeListInfo;
 };
 
 const mapStateToProps = state => {
@@ -303,6 +373,17 @@ class ConnectedCodeListTable extends React.Component {
                         </Button>
                     </Grid>
                     <Grid item>
+                        <Button
+                            color='default'
+                            mini
+                            onClick={this.attachStandardCodeList}
+                            disabled={this.props.reviewMode}
+                            variant='contained'
+                        >
+                            Populate Standards
+                        </Button>
+                    </Grid>
+                    <Grid item>
                         <CodeListOrderEditor/>
                     </Grid>
                 </Grid>
@@ -330,6 +411,15 @@ class ConnectedCodeListTable extends React.Component {
         );
     }
 
+    attachStandardCodeList = () => {
+        let updatedCodeListData = populateStdCodeListInfo({
+            stdCodeLists: this.props.stdCodeLists,
+            codeLists: this.props.codeLists
+        });
+        if (Object.keys(updatedCodeListData).length > 0) {
+            this.props.updateCodeListsStandard(updatedCodeListData);
+        }
+    }
     deleteRows = () => {
         let codeLists = this.props.codeLists;
         let codeListOids = this.state.selectedRows;
