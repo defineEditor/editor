@@ -603,10 +603,12 @@ function parseMetaDataVersion (metadataRaw) {
     Object.keys(mdv.itemDefs).forEach(function (parentItemDefOid) {
         if (mdv.itemDefs[parentItemDefOid].valueListOid !== undefined) {
             let valueListOid = mdv.itemDefs[parentItemDefOid].valueListOid;
-            Object.keys(mdv.valueLists[valueListOid].itemRefs).forEach( itemRefOid => {
-                let itemOid = mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid;
-                mdv.itemDefs[itemOid].parentItemDefOid = parentItemDefOid;
-            });
+            if (mdv.valueLists.hasOwnProperty(valueListOid)) {
+                Object.keys(mdv.valueLists[valueListOid].itemRefs).forEach( itemRefOid => {
+                    let itemOid = mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid;
+                    mdv.itemDefs[itemOid].parentItemDefOid = parentItemDefOid;
+                });
+            }
         }
     });
     // Connect valueLists to ItemDefs

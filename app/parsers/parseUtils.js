@@ -105,24 +105,23 @@ function populateItemGroupOidInWhereClause(mdv) {
             });
         });
         wc.rangeChecks.forEach( rangeCheck => {
-            if (rangeCheck.itemGroupOid === undefined && rangeCheck.itemOid !==undefined) {
+            if (rangeCheck.itemGroupOid === undefined && rangeCheck.itemOid !== undefined) {
                 // If itemOid has only 1 source dataset, use it
-                if (!mdv.itemDefs.hasOwnProperty(rangeCheck.itemOid)) {
-                    throw new Error(' Item ' + rangeCheck.itemOid + ' referenced in WhereClause ' + wc.oid +  ' does not exist.');
-                }
-                if (mdv.itemDefs[rangeCheck.itemOid].sources.itemGroups.length === 1) {
-                    rangeCheck.itemGroupOid = mdv.itemDefs[rangeCheck.itemOid].sources.itemGroups[0];
-                } else {
-                    // Check if the dataset(s) using the WC has the variable
-                    let itemGroupOids = [];
-                    sourceItemGroups.forEach( itemGroupOid => {
-                        if (mdv.itemDefs[rangeCheck.itemOid].sources.itemGroups.includes(itemGroupOid)) {
-                            itemGroupOids.push(itemGroupOid);
+                if (mdv.itemDefs.hasOwnProperty(rangeCheck.itemOid)) {
+                    if (mdv.itemDefs[rangeCheck.itemOid].sources.itemGroups.length === 1) {
+                        rangeCheck.itemGroupOid = mdv.itemDefs[rangeCheck.itemOid].sources.itemGroups[0];
+                    } else {
+                        // Check if the dataset(s) using the WC has the variable
+                        let itemGroupOids = [];
+                        sourceItemGroups.forEach( itemGroupOid => {
+                            if (mdv.itemDefs[rangeCheck.itemOid].sources.itemGroups.includes(itemGroupOid)) {
+                                itemGroupOids.push(itemGroupOid);
+                            }
+                        });
+                        // If there is only one match, safely assume that it is the one to use
+                        if (itemGroupOids.length === 1) {
+                            rangeCheck.itemGroup = itemGroupOids[0];
                         }
-                    });
-                    // If there is only one match, safely assume that it is the one to use
-                    if (itemGroupOids.length === 1) {
-                        rangeCheck.itemGroup = itemGroupOids[0];
                     }
                 }
             }
