@@ -444,6 +444,11 @@ class ConnectedCodedValueTable extends React.Component {
             let standard = this.props.stdCodeLists[codeList.standardOid];
             stdCodeList = standard.codeLists[standard.nciCodeOids[codeList.alias.name]];
         }
+        // Whether codeList can be extended with new values
+        let codeListExtensible;
+        if (stdCodeList !== undefined) {
+            codeListExtensible = stdCodeList.codeListExtensible;
+        }
         // Get codeList data
         let {codeListTable, codeListTitle} = getCodeListData(codeList, this.props.defineVersion);
         codeListTable.forEach(item => {
@@ -499,6 +504,14 @@ class ConnectedCodedValueTable extends React.Component {
                         <Typography variant='subheading' color='primary'>
                             This codelist is linked to {this.props.codeLists[codeList.linkedCodeListOid].name}.
                             Update the linked codelist to change values of this codelist.
+                        </Typography>
+                        <br/>
+                    </React.Fragment>
+                )}
+                { codeListExtensible === 'No' && (
+                    <React.Fragment>
+                        <Typography variant='body1'>
+                            This codelist is not extensible.
                         </Typography>
                         <br/>
                     </React.Fragment>
