@@ -119,7 +119,7 @@ const copyMethod = ({sourceMethodOid, mdv, sourceMdv, searchForDuplicate, groupO
     return { newMethodOid, method, duplicateFound };
 };
 
-const copyComment = ({sourceCommentOid, mdv, sourceMdv, searchForDuplicate, itemDefOid, whereClauseOid, itemGroupOid, existingOids} = {}) => {
+const copyComment = ({sourceCommentOid, mdv, sourceMdv, searchForDuplicate, itemDefOid, whereClauseOid, itemGroupOid, analysisResultOid, existingOids} = {}) => {
     let comment = clone(sourceMdv.comments[sourceCommentOid]);
     let commentOids = Object.keys(mdv.comments).concat(existingOids.comments);
     // Search for the same name in the existing comments
@@ -143,6 +143,7 @@ const copyComment = ({sourceCommentOid, mdv, sourceMdv, searchForDuplicate, item
             whereClauses: whereClauseOid !== undefined ? [whereClauseOid] : [],
             codeLists: [],
             metaDataVersion: [],
+            analysisResults: analysisResultOid !== undefined ? [analysisResultOid] : [],
         };
         comment.oid = newCommentOid;
     }

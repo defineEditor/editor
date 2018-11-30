@@ -19,6 +19,9 @@ import SaveCancel from 'editors/saveCancel.js';
 import { updateSettings } from 'actions/index.js';
 
 const styles = theme => ({
+    root: {
+        maxWidth: '95%',
+    },
     settings: {
         marginTop: theme.spacing.unit * 8,
         marginLeft: theme.spacing.unit * 2,
@@ -90,6 +93,7 @@ class ConnectedSettings extends React.Component {
           'getNameLabelFromWhereClause',
           'lengthForAllDataTypes',
           'textInstantProcessing',
+          'enableSelectForStdCodedValues',
           'alwaysSaveDefineXml',
       ].includes(name)) {
           this.setState({ [category]: { ...this.state[category], [name]: checked } });
@@ -142,7 +146,7 @@ class ConnectedSettings extends React.Component {
       const { classes } = this.props;
       let settingsNotChanged = deepEqual(this.state, this.props.settings);
       return (
-          <React.Fragment>
+          <div className={classes.root}>
               <NavigationBar />
               <Grid
                   container
@@ -250,7 +254,18 @@ class ConnectedSettings extends React.Component {
                                               className={classes.switch}
                                           />
                                       }
-                                      label = 'Instantly process text in Comments and Methods. Suggested to turn off for slow machines.'
+                                      label = 'Instantly process text in Comments and Methods. (Turn off for slow computers)'
+                                  />
+                                  <FormControlLabel
+                                      control={
+                                          <Switch
+                                              checked={this.state.editor.enableSelectForStdCodedValues}
+                                              onChange={this.handleChange('editor', 'enableSelectForStdCodedValues')}
+                                              color='primary'
+                                              className={classes.switch}
+                                          />
+                                      }
+                                      label = 'Enable item selection for the Coded Value column'
                                   />
                               </FormGroup>
                           </Grid>
@@ -311,7 +326,7 @@ class ConnectedSettings extends React.Component {
                       <SaveCancel save={this.save} cancel={this.cancel} disabled={settingsNotChanged} />
                   </Grid>
               </Grid>
-          </React.Fragment>
+          </div>
       );
   }
 }

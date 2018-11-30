@@ -1,16 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import ReactSelectEditor from 'editors/reactSelectEditor.js';
 import getCodeListData from 'utils/getCodeListData.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
 
-class CodedValueEditor extends React.Component {
+const mapStateToProps = state => {
+    return {
+        enableSelectForStdCodedValues : state.present.settings.editor.enableSelectForStdCodedValues,
+    };
+};
 
+class ConnectedCodedValueEditor extends React.Component {
     render () {
         let stdCodeList = this.props.row.stdCodeList;
         let codeList = this.props.row.codeList;
-        if (stdCodeList!== undefined) {
+        if (stdCodeList!== undefined && this.props.enableSelectForStdCodedValues) {
             let stdCodeListData = getCodeListData(stdCodeList).codeListTable;
             let existingValues = getCodedValuesAsArray(codeList);
             let options = stdCodeListData
@@ -41,10 +47,12 @@ class CodedValueEditor extends React.Component {
     }
 }
 
-CodedValueEditor.propTypes = {
-    defaultValue : PropTypes.string.isRequired,
-    row          : PropTypes.object.isRequired,
-    onUpdate     : PropTypes.func
+ConnectedCodedValueEditor.propTypes = {
+    defaultValue                  : PropTypes.string.isRequired,
+    row                           : PropTypes.object.isRequired,
+    enableSelectForStdCodedValues : PropTypes.bool,
+    onUpdate                      : PropTypes.func
 };
 
+const CodedValueEditor = connect(mapStateToProps)(ConnectedCodedValueEditor);
 export default CodedValueEditor;

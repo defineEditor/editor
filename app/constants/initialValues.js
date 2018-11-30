@@ -92,6 +92,7 @@ const editor = {
     getNameLabelFromWhereClause: true,
     lengthForAllDataTypes: false,
     textInstantProcessing: false,
+    enableSelectForStdCodedValues: true,
 };
 
 const define = {
