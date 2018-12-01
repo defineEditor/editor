@@ -324,7 +324,7 @@ class ConnectedItemMenu extends React.Component {
 
 ConnectedItemMenu.propTypes = {
     itemMenuParams : PropTypes.object.isRequired,
-    mdv : PropTypes.object.isRequired,
+    mdv            : PropTypes.object.isRequired,
     anchorEl       : PropTypes.object,
     onAddVariable  : PropTypes.func.isRequired,
     onClose        : PropTypes.func.isRequired,

@@ -13,6 +13,7 @@ import {
     DEL_RESULTDISPLAY,
     DEL_ANALYSISRESULT,
     UPD_ANALYSISRESULT,
+    ADD_ANALYSISRESULTS,
 } from "constants/action-types";
 import { Comment, TranslatedText } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -278,56 +279,85 @@ const handleItemsBulkUpdate = (state, action) => {
     }
 };
 
-const handleAddVariables = (state, action) => {
+const handleAddComments = (state, action) => {
     // Some of the comments can be just referenced and not copied
     // Find all added ItemDefs with comment links, which do not link to any of the new comments
     let commentSourceUpdated = {};
     // For Item Defs
-    Object.keys(action.updateObj.itemDefs).forEach( itemDefOid => {
-        let itemDef = action.updateObj.itemDefs[itemDefOid];
-        if (itemDef.commentOid !== undefined
-            &&
-            !action.updateObj.comments.hasOwnProperty(itemDef.commentOid)
-            &&
-            state.hasOwnProperty(itemDef.commentOid)
-        ) {
-            if (commentSourceUpdated.hasOwnProperty(itemDef.commentOid)) {
-                commentSourceUpdated[itemDef.commentOid].itemDefs.push(itemDefOid);
-            } else {
-                commentSourceUpdated[itemDef.commentOid] = {
-                    itemDefs: [itemDefOid],
-                    itemGroups: [],
-                    whereClauses: [],
-                    codeLists: [],
-                    metaDataVersion: [],
-                    analysisResults: [],
-                };
+    if (action.updateObj.itemDefs !== undefined) {
+        Object.keys(action.updateObj.itemDefs).forEach( itemDefOid => {
+            let itemDef = action.updateObj.itemDefs[itemDefOid];
+            if (itemDef.commentOid !== undefined
+                &&
+                !action.updateObj.comments.hasOwnProperty(itemDef.commentOid)
+                &&
+                state.hasOwnProperty(itemDef.commentOid)
+            ) {
+                if (commentSourceUpdated.hasOwnProperty(itemDef.commentOid)) {
+                    commentSourceUpdated[itemDef.commentOid].itemDefs.push(itemDefOid);
+                } else {
+                    commentSourceUpdated[itemDef.commentOid] = {
+                        itemDefs: [itemDefOid],
+                        itemGroups: [],
+                        whereClauses: [],
+                        codeLists: [],
+                        metaDataVersion: [],
+                        analysisResults: [],
+                    };
+                }
             }
-        }
-    });
+        });
+    }
     // For Where Clauses
-    Object.keys(action.updateObj.whereClauses).forEach( whereClauseOid => {
-        let whereClause = action.updateObj.whereClauses[whereClauseOid];
-        if (whereClause.commentOid !== undefined
-            &&
-            !action.updateObj.comments.hasOwnProperty(whereClause.commentOid)
-            &&
-            state.hasOwnProperty(whereClause.commentOid)
-        ) {
-            if (commentSourceUpdated.hasOwnProperty(whereClause.commentOid)) {
-                commentSourceUpdated[whereClause.commentOid].whereClauses.push(whereClauseOid);
-            } else {
-                commentSourceUpdated[whereClause.commentOid] = {
-                    itemDefs: [],
-                    itemGroups: [],
-                    whereClauses: [whereClauseOid],
-                    codeLists: [],
-                    metaDataVersion: [],
-                    analysisResults: [],
-                };
+    if (action.updateObj.whereClauses !== undefined) {
+        Object.keys(action.updateObj.whereClauses).forEach( whereClauseOid => {
+            let whereClause = action.updateObj.whereClauses[whereClauseOid];
+            if (whereClause.commentOid !== undefined
+                &&
+                !action.updateObj.comments.hasOwnProperty(whereClause.commentOid)
+                &&
+                state.hasOwnProperty(whereClause.commentOid)
+            ) {
+                if (commentSourceUpdated.hasOwnProperty(whereClause.commentOid)) {
+                    commentSourceUpdated[whereClause.commentOid].whereClauses.push(whereClauseOid);
+                } else {
+                    commentSourceUpdated[whereClause.commentOid] = {
+                        itemDefs: [],
+                        itemGroups: [],
+                        whereClauses: [whereClauseOid],
+                        codeLists: [],
+                        metaDataVersion: [],
+                        analysisResults: [],
+                    };
+                }
             }
-        }
-    });
+        });
+    }
+    // For Analysis Results
+    if (action.updateObj.analysisResults !== undefined) {
+        Object.keys(action.updateObj.analysisResults).forEach( analysisResultOid => {
+            let analysisResult = action.updateObj.analysisResults[analysisResultOid];
+            if (analysisResult.analysisDatasetCommentOid !== undefined
+                &&
+                !action.updateObj.comments.hasOwnProperty(analysisResult.analysisDatasetCommentOid)
+                &&
+                state.hasOwnProperty(analysisResult.analysisDatasetCommentOid)
+            ) {
+                if (commentSourceUpdated.hasOwnProperty(analysisResult.analysisDatasetCommentOid)) {
+                    commentSourceUpdated[analysisResult.analysisDatasetCommentOid].analysisResults.push(analysisResultOid);
+                } else {
+                    commentSourceUpdated[analysisResult.analysisDatasetCommentOid] = {
+                        itemDefs: [],
+                        itemGroups: [],
+                        whereClauses: [],
+                        codeLists: [],
+                        metaDataVersion: [],
+                        analysisResults: [analysisResultOid],
+                    };
+                }
+            }
+        });
+    }
     // Add sources
     let updatedComments = {};
     Object.keys(commentSourceUpdated).forEach( commentOid => {
@@ -377,7 +407,7 @@ const handleAddItemGroups = (state, action) => {
     const { itemGroups, itemGroupComments } = action.updateObj;
     let newState = { ...state };
     Object.values(itemGroups).forEach( itemGroupData => {
-        newState = handleAddVariables(newState, { updateObj: itemGroupData });
+        newState = handleAddComments(newState, { updateObj: itemGroupData });
     });
     // Add itemGroup comments;
     if (Object.keys(itemGroupComments).length !== 0) {
@@ -493,7 +523,9 @@ const comments = (state = {}, action) => {
         case DEL_VARS:
             return handleDeleteVariables(state, action);
         case ADD_VARS:
-            return handleAddVariables(state, action);
+            return handleAddComments(state, action);
+        case ADD_ANALYSISRESULTS:
+            return handleAddComments(state, action);
         case ADD_ITEMGROUPS:
             return handleAddItemGroups(state, action);
         case DEL_RESULTDISPLAY:

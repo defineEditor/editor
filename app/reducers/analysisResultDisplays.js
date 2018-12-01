@@ -6,6 +6,7 @@ import {
     UPD_RESULTDISPLAYORDER,
     UPD_ANALYSISRESULTORDER,
     ADD_ANALYSISRESULT,
+    ADD_ANALYSISRESULTS,
     DEL_ANALYSISRESULT,
     UPD_ANALYSISRESULT,
 } from "constants/action-types";
@@ -151,6 +152,27 @@ const deleteAnalysisResults = (state, action) => {
         analysisResults: newAnalysisResults,
     };
 };
+
+const addAnalysisResults = (state, action) => {
+    const { analysisResults, resultDisplayOid, position } = action.updateObj;
+
+    let newAnalysisResults = { ...state.analysisResults, ...analysisResults };
+
+    let newResultDisplay = { ...state.resultDisplays[resultDisplayOid] };
+    let newAnalysisResultOrder = newResultDisplay.analysisResultOrder.slice();
+    if (position - 1 <= newAnalysisResultOrder.length) {
+        newAnalysisResultOrder = newAnalysisResultOrder.slice(0, position - 1).concat(Object.keys(analysisResults).concat(newAnalysisResultOrder.slice(position - 1))) ;
+    } else {
+        newAnalysisResultOrder = newAnalysisResultOrder.concat(Object.keys(analysisResults));
+    }
+    newResultDisplay.analysisResultOrder = newAnalysisResultOrder;
+    return {
+        ...state,
+        resultDisplays: { ...state.resultDisplays, [resultDisplayOid]: newResultDisplay },
+        analysisResults: newAnalysisResults,
+    };
+};
+
 const analysisResultDisplays = (state = {}, action) => {
     switch (action.type) {
         case UPD_ARMSTATUS:
@@ -167,6 +189,8 @@ const analysisResultDisplays = (state = {}, action) => {
             return updateAnalysisResultOrder(state, action);
         case ADD_ANALYSISRESULT:
             return addAnalysisResult(state, action);
+        case ADD_ANALYSISRESULTS:
+            return addAnalysisResults(state, action);
         case UPD_ANALYSISRESULT:
             return updateAnalysisResult(state, action);
         case DEL_ANALYSISRESULT:

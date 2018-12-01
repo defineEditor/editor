@@ -9,6 +9,7 @@ import {
     DEL_RESULTDISPLAY,
     DEL_ANALYSISRESULT,
     UPD_ANALYSISRESULT,
+    ADD_ANALYSISRESULTS,
 } from "constants/action-types";
 import { WhereClause } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -153,7 +154,7 @@ const deleteItemGroups = (state, action) => {
     return newState;
 };
 
-const handleAddVariables = (state, action) => {
+const handleAddWhereClauses = (state, action) => {
     if (Object.keys(action.updateObj.whereClauses).length > 0) {
         return { ...state, ...action.updateObj.whereClauses };
     } else {
@@ -230,7 +231,9 @@ const whereClauses = (state = {}, action) => {
         case ADD_VALUELIST:
             return createNewWhereClause(state, action);
         case ADD_VARS:
-            return handleAddVariables(state, action);
+            return handleAddWhereClauses(state, action);
+        case ADD_ANALYSISRESULTS:
+            return handleAddWhereClauses(state, action);
         case ADD_ITEMGROUPS:
             return handleAddItemGroups(state, action);
         case INSERT_VALLVL:

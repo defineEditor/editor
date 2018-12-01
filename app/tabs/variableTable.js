@@ -778,12 +778,14 @@ class ConnectedVariableTable extends React.Component {
                 >
                     {renderColumns(this.state.columns)}
                 </BootstrapTable>
-                <ItemMenu
-                    onClose={this.handleMenuClose}
-                    onAddVariable={ (orderNumber) => { this.setState({ showAddVariable: true, insertPosition: orderNumber }); } }
-                    itemMenuParams={this.state.itemMenuParams}
-                    anchorEl={this.state.anchorEl}
-                />
+                { this.state.anchorEl !== null &&
+                        <ItemMenu
+                            onClose={this.handleMenuClose}
+                            onAddVariable={ (orderNumber) => { this.setState({ showAddVariable: true, insertPosition: orderNumber }); } }
+                            itemMenuParams={this.state.itemMenuParams}
+                            anchorEl={this.state.anchorEl}
+                        />
+                }
                 { this.state.showFilter &&
                         <VariableTabFilter
                             itemGroupOid={this.props.itemGroupOid}

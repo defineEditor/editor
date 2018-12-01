@@ -9,6 +9,7 @@ import {
     UI_UPDMAIN,
     UI_UPDCOPYBUFFER,
     UI_TOGGLEREVIEWMODE,
+    ADD_ODM,
 } from 'constants/action-types';
 import { ui } from 'constants/initialValues.js';
 
@@ -92,6 +93,11 @@ const handleDummyAction = (state, action) => {
     return { ...state, main: { ...state.main, dummyActionTimeStamp: new Date().toString() } };
 };
 
+const handleOdmChange = (state, action) => {
+    // Set copy buffer to blank
+    return { ...state, copyBuffer: {} };
+};
+
 const main = (state = initialState, action) => {
     switch (action.type) {
         case UI_TOGGLEMAINMENU:
@@ -114,6 +120,8 @@ const main = (state = initialState, action) => {
             return updateCopyBuffer(state, action);
         case DUMMY_ACTION:
             return handleDummyAction(state, action);
+        case ADD_ODM:
+            return handleOdmChange(state, action);
         default: {
             if (action.type !== undefined
                 && state.isCurrentDefineSaved

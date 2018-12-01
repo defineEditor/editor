@@ -4,7 +4,22 @@ import { copyComment } from 'utils/copyVariables.js';
 import { WhereClause } from 'elements.js';
 import { AnalysisResult } from 'core/armStructure.js';
 
-const copyAnalysisResults = ({mdv, sourceMdv, analysisResultOidList, existingOids} = {}) => {
+const copyAnalysisResults = ({
+    mdv,
+    sourceMdv,
+    analysisResultOidList,
+    sameDefine,
+    detachComments,
+    existingOids = {
+        itemDefs: [],
+        methods: [],
+        comments: [],
+        codeLists: [],
+        whereClauses: [],
+        valueLists: [],
+        analysisResults: [],
+    },
+} = {}) => {
     let rawAnalysisResults = mdv.analysisResultDisplays.analysisResults;
     let sourceAnalysisResults = sourceMdv.analysisResultDisplays.analysisResults;
     let analysisResults = {};
@@ -16,16 +31,16 @@ const copyAnalysisResults = ({mdv, sourceMdv, analysisResultOidList, existingOid
         let newAnalysisResultOid = getOid('AnalysisResult', undefined, currentAnalysisResults);
         Object.values(analysisResult.analysisDatasets).forEach( analysisDataset => {
             // TODO when copied from a different Define-XML, need to look for dataset and variables based on their names
-            if (analysisDataset.whereClauseOid !== undefined && sourceMdv.itemGroups.hasOwnProperty(analysisDataset.oid)) {
-                let whereClause = clone(sourceMdv.whereClauses[analysisResult.whereClauseOid]);
+            if (analysisDataset.whereClauseOid !== undefined && sourceMdv.itemGroups.hasOwnProperty(analysisDataset.itemGroupOid)) {
+                let whereClause = clone(sourceMdv.whereClauses[analysisDataset.whereClauseOid]);
                 let newWhereClauseOid = getOid('WhereClause', undefined, currentWhereClauses);
                 currentWhereClauses.push(newWhereClauseOid);
                 whereClauses[newWhereClauseOid] = { ...new WhereClause({
                     ...whereClause,
                     oid: newWhereClauseOid,
-                    sources: { analysisResults: {newAnalysisResultOid: [analysisDataset.oid]} }
+                    sources: { analysisResults: {newAnalysisResultOid: [analysisDataset.itemGroupOid]} }
                 }) };
-                analysisResult.whereClauseOid = newWhereClauseOid;
+                analysisDataset.whereClauseOid = newWhereClauseOid;
             }
         });
         analysisResults[newAnalysisResultOid] = { ...new AnalysisResult({

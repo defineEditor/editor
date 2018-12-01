@@ -4,6 +4,7 @@ import {
     DEL_RESULTDISPLAY,
     UPD_RESULTDISPLAYORDER,
     ADD_ANALYSISRESULT,
+    ADD_ANALYSISRESULTS,
     DEL_ANALYSISRESULT,
     UPD_ANALYSISRESULT,
     UPD_ANALYSISRESULTORDER,
@@ -48,6 +49,13 @@ export const updateAnalysisResult = (updateObj) => (
 export const addAnalysisResult = (updateObj) => (
     {
         type: ADD_ANALYSISRESULT,
+        updateObj,
+    }
+);
+
+export const addAnalysisResults = (updateObj) => (
+    {
+        type: ADD_ANALYSISRESULTS,
         updateObj,
     }
 );
