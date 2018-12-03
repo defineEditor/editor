@@ -2,14 +2,13 @@ import getOid from 'utils/getOid.js';
 import clone from 'clone';
 import { copyComment } from 'utils/copyVariables.js';
 import { WhereClause } from 'elements.js';
-import { AnalysisResult } from 'core/armStructure.js';
+import { AnalysisResult, ResultDisplay } from 'core/armStructure.js';
 
 const copyAnalysisResults = ({
     mdv,
     sourceMdv,
     analysisResultOidList,
     sameDefine,
-    detachComments,
     existingOids = {
         itemDefs: [],
         methods: [],
@@ -18,6 +17,7 @@ const copyAnalysisResults = ({
         whereClauses: [],
         valueLists: [],
         analysisResults: [],
+        resultDisplays: [],
     },
 } = {}) => {
     let rawAnalysisResults = mdv.analysisResultDisplays.analysisResults;
@@ -30,17 +30,20 @@ const copyAnalysisResults = ({
         let analysisResult = clone(sourceAnalysisResults[analysisResultOid]);
         let newAnalysisResultOid = getOid('AnalysisResult', undefined, currentAnalysisResults);
         Object.values(analysisResult.analysisDatasets).forEach( analysisDataset => {
-            // TODO when copied from a different Define-XML, need to look for dataset and variables based on their names
-            if (analysisDataset.whereClauseOid !== undefined && sourceMdv.itemGroups.hasOwnProperty(analysisDataset.itemGroupOid)) {
-                let whereClause = clone(sourceMdv.whereClauses[analysisDataset.whereClauseOid]);
-                let newWhereClauseOid = getOid('WhereClause', undefined, currentWhereClauses);
-                currentWhereClauses.push(newWhereClauseOid);
-                whereClauses[newWhereClauseOid] = { ...new WhereClause({
-                    ...whereClause,
-                    oid: newWhereClauseOid,
-                    sources: { analysisResults: {newAnalysisResultOid: [analysisDataset.itemGroupOid]} }
-                }) };
-                analysisDataset.whereClauseOid = newWhereClauseOid;
+            if (sameDefine) {
+                if (analysisDataset.whereClauseOid !== undefined && sourceMdv.itemGroups.hasOwnProperty(analysisDataset.itemGroupOid)) {
+                    let whereClause = clone(sourceMdv.whereClauses[analysisDataset.whereClauseOid]);
+                    let newWhereClauseOid = getOid('WhereClause', undefined, currentWhereClauses);
+                    currentWhereClauses.push(newWhereClauseOid);
+                    whereClauses[newWhereClauseOid] = { ...new WhereClause({
+                        ...whereClause,
+                        oid: newWhereClauseOid,
+                        sources: { analysisResults: {newAnalysisResultOid: [analysisDataset.itemGroupOid]} }
+                    }) };
+                    analysisDataset.whereClauseOid = newWhereClauseOid;
+                }
+            } else {
+                // TODO when copied from a different Define-XML, need to look for dataset and variables based on their names
             }
         });
         analysisResults[newAnalysisResultOid] = { ...new AnalysisResult({
@@ -88,4 +91,53 @@ const copyAnalysisResults = ({
     return { analysisResults, whereClauses, comments };
 };
 
-export default  { copyAnalysisResults };
+const copyResultDisplays = ({
+    mdv,
+    sourceMdv,
+    resultDisplayOidList,
+    sameDefine,
+    existingOids = {
+        itemDefs: [],
+        methods: [],
+        comments: [],
+        codeLists: [],
+        whereClauses: [],
+        valueLists: [],
+        analysisResults: [],
+        resultDisplays: [],
+    },
+} = {}) => {
+    let rawResultDisplays = mdv.analysisResultDisplays.resultDisplays;
+    let sourceResultDisplays = sourceMdv.analysisResultDisplays.resultDisplays;
+    let resultDisplays = {};
+    let comments = {};
+    let analysisResults = {};
+    let whereClauses = {};
+    let currentResultDisplays = Object.keys(rawResultDisplays).concat(existingOids.resultDisplays);
+    let currentExistingOids = clone(existingOids);
+    resultDisplayOidList.forEach( resultDisplayOid => {
+        let resultDisplay = clone(sourceResultDisplays[resultDisplayOid]);
+        let newResultDisplayOid = getOid('ResultDisplay', undefined, currentResultDisplays);
+        resultDisplays[newResultDisplayOid] = { ...new ResultDisplay({
+            ...resultDisplay,
+            oid: newResultDisplayOid,
+        }) };
+        currentResultDisplays.push(newResultDisplayOid);
+        let copiedAnalysisResults = copyAnalysisResults({
+            mdv,
+            sourceMdv,
+            analysisResultOidList: resultDisplay.analysisResultOrder,
+            sameDefine,
+            existingOids: currentExistingOids,
+        });
+        comments = { ...comments, ...copiedAnalysisResults.comments };
+        analysisResults = { ...analysisResults, ...copiedAnalysisResults.analysisResults };
+        whereClauses = { ...whereClauses, ...copiedAnalysisResults.whereClauses };
+        currentExistingOids.comments = currentExistingOids.comments.slice().concat(Object.keys(comments));
+        currentExistingOids.whereClauses = currentExistingOids.whereClauses.slice().concat(Object.keys(whereClauses));
+        currentExistingOids.analysisResults = currentExistingOids.analysisResults.slice().concat(Object.keys(analysisResults));
+    });
+    return { resultDisplays, analysisResults, whereClauses, comments };
+};
+
+export default  { copyAnalysisResults, copyResultDisplays };

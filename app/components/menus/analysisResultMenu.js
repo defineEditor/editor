@@ -52,7 +52,6 @@ class ConnectedAnalysisResultMenu extends React.Component {
             buffer: {
                 analysisResultOid: this.props.analysisResultMenuParams.analysisResultOid,
             }
-
         });
         this.props.onClose();
     }
@@ -67,7 +66,6 @@ class ConnectedAnalysisResultMenu extends React.Component {
             sourceMdv,
             analysisResultOidList: [ buffer.analysisResultOid ],
             sameDefine : true,
-            detachComments: true,
         });
 
         let position = mdv.analysisResultDisplays.resultDisplays[resultDisplayOid].analysisResultOrder.indexOf(analysisResultOid) + shift + 1;

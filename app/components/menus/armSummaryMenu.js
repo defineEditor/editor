@@ -3,17 +3,21 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import Divider from '@material-ui/core/Divider';
 import getArmResultDisplayOids from 'utils/getArmResultDisplayOids.js';
+import { copyResultDisplays } from 'utils/armUtils.js';
 import {
     deleteResultDisplays,
-    selectGroup
+    selectGroup,
+    updateCopyBuffer,
 } from 'actions/index.js';
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
         deleteResultDisplays : (deleteObj) => dispatch(deleteResultDisplays(deleteObj)),
-        selectGroup         : (updateObj) => dispatch(selectGroup(updateObj)),
+        selectGroup          : (updateObj) => dispatch(selectGroup(updateObj)),
+        updateCopyBuffer     : (updateObj) => dispatch(updateCopyBuffer(updateObj)),
     };
 };
 
@@ -22,6 +26,8 @@ const mapStateToProps = state => {
         analysisResultDisplays : state.present.odm.study.metaDataVersion.analysisResultDisplays,
         armDetailsTabIndex     : state.present.ui.tabs.tabNames.indexOf('Analysis Results'),
         reviewMode             : state.present.ui.main.reviewMode,
+        buffer                 : state.present.ui.main.copyBuffer['resultDisplays'],
+        mdv                    : state.present.odm.study.metaDataVersion,
     };
 };
 
@@ -61,6 +67,40 @@ class ConnectedArmSummaryMenu extends React.Component {
         this.props.onClose();
     }
 
+    copy = () => {
+        this.props.updateCopyBuffer({
+            tab: 'resultDisplays',
+            buffer: {
+                resultDisplayOid: this.props.armSummaryMenuParams.resultDisplayOid,
+            }
+        });
+        this.props.onClose();
+    }
+
+    paste = (shift) => () => {
+        const { resultDisplayOid } = this.props.armSummaryMenuParams;
+        let buffer = this.props.buffer;
+        let mdv = this.props.mdv;
+        let sourceMdv = mdv;
+        let { resultDisplays, analysisResults, whereClauses, comments } = copyResultDisplays({
+            mdv,
+            sourceMdv,
+            resultDisplayOidList: [ buffer.resultDisplayOid ],
+            sameDefine : true,
+        });
+
+        let position = this.props.analysisResultDisplays.resultDisplayOrder.indexOf(resultDisplayOid) + shift + 1;
+
+        this.props.addResultDisplays({
+            position,
+            resultDisplays,
+            analysisResults,
+            comments,
+            whereClauses,
+        });
+        this.props.onClose();
+    }
+
     render() {
 
         return (
@@ -76,15 +116,35 @@ class ConnectedArmSummaryMenu extends React.Component {
                         },
                     }}
                 >
-                    <MenuItem key='InsertAboveDialog' onClick={this.insertRecordDialog(0)} disabled={this.props.reviewMode}>
-                        Insert Above
-                    </MenuItem>
-                    <MenuItem key='InsertBelowDialog' onClick={this.insertRecordDialog(1)} disabled={this.props.reviewMode}>
-                        Insert Below
-                    </MenuItem>
                     <MenuItem key='EditResultDisplay' onClick={this.editResultDisplayValues}>
                         View Details
                     </MenuItem>
+                    <Divider/>
+                    <MenuItem key='InsertAboveDialog' onClick={this.insertRecordDialog(0)} disabled={this.props.reviewMode}>
+                        Insert New Above
+                    </MenuItem>
+                    <MenuItem key='InsertBelowDialog' onClick={this.insertRecordDialog(1)} disabled={this.props.reviewMode}>
+                        Insert New Below
+                    </MenuItem>
+                    <Divider/>
+                    <MenuItem key='Copy' onClick={this.copy} disabled={this.props.reviewMode}>
+                        Copy
+                    </MenuItem>
+                    <MenuItem
+                        key='PasteAbove'
+                        onClick={this.paste(0)}
+                        disabled={this.props.reviewMode || this.props.buffer === undefined}
+                    >
+                        Paste Above
+                    </MenuItem>
+                    <MenuItem
+                        key='PasteBelow'
+                        onClick={this.paste(1)}
+                        disabled={this.props.reviewMode || this.props.buffer === undefined}
+                    >
+                        Paste Below
+                    </MenuItem>
+                    <Divider/>
                     <MenuItem key='Delete' onClick={this.deleteResultDisplay} disabled={this.props.reviewMode}>
                         Delete
                     </MenuItem>
