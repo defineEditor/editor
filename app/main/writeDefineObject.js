@@ -12,11 +12,21 @@ function writeDefineObject(mainWindow, defineObject, backupFlag) {
         outputFile = path.join(pathToDefines, defineObject.defineId + '.nogz');
     }
 
-    var zip = new jszip();
+    let zip = new jszip();
     zip.file('odm.json', JSON.stringify(defineObject.odm));
     if (defineObject.hasOwnProperty('tabs')) {
         zip.file('tabs.json', JSON.stringify(defineObject.tabs));
     }
+    // Write technical information
+    let info = {
+        datetime: new Date().toISOString(),
+        appVersion: app.getVersion(),
+        defineVersion: defineObject.odm.study.metaDataVersion.defineVersion,
+    };
+    if (defineObject.hasOwnProperty('userName')) {
+        info.userName = defineObject.userName;
+    }
+    zip.file('info.json', JSON.stringify(info));
 
     function saveFile() {
         zip

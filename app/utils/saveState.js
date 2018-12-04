@@ -39,6 +39,7 @@ function saveState(type) {
                     defineId: stateToSave.odm.defineId,
                     tabs: stateToSave.ui.tabs,
                     odm: stateToSave.odm,
+                    userName: stateToSave.settings.general.userName,
                 },
                 type === 'backup' ? true : false
             );

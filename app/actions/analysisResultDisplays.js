@@ -1,5 +1,6 @@
 import {
     ADD_RESULTDISPLAY,
+    ADD_RESULTDISPLAYS,
     UPD_RESULTDISPLAY,
     DEL_RESULTDISPLAY,
     UPD_RESULTDISPLAYORDER,
@@ -21,6 +22,13 @@ export const updateResultDisplay = (updateObj) => (
 export const addResultDisplay = (updateObj) => (
     {
         type: ADD_RESULTDISPLAY,
+        updateObj,
+    }
+);
+
+export const addResultDisplays = (updateObj) => (
+    {
+        type: ADD_RESULTDISPLAYS,
         updateObj,
     }
 );

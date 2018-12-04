@@ -118,11 +118,6 @@ const copyResultDisplays = ({
     resultDisplayOidList.forEach( resultDisplayOid => {
         let resultDisplay = clone(sourceResultDisplays[resultDisplayOid]);
         let newResultDisplayOid = getOid('ResultDisplay', undefined, currentResultDisplays);
-        resultDisplays[newResultDisplayOid] = { ...new ResultDisplay({
-            ...resultDisplay,
-            oid: newResultDisplayOid,
-        }) };
-        currentResultDisplays.push(newResultDisplayOid);
         let copiedAnalysisResults = copyAnalysisResults({
             mdv,
             sourceMdv,
@@ -130,6 +125,12 @@ const copyResultDisplays = ({
             sameDefine,
             existingOids: currentExistingOids,
         });
+        resultDisplays[newResultDisplayOid] = { ...new ResultDisplay({
+            ...resultDisplay,
+            oid: newResultDisplayOid,
+            analysisResultOrder: Object.keys(copiedAnalysisResults.analysisResults),
+        }) };
+        currentResultDisplays.push(newResultDisplayOid);
         comments = { ...comments, ...copiedAnalysisResults.comments };
         analysisResults = { ...analysisResults, ...copiedAnalysisResults.analysisResults };
         whereClauses = { ...whereClauses, ...copiedAnalysisResults.whereClauses };

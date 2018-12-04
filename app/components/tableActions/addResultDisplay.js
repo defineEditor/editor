@@ -46,7 +46,7 @@ const mapStateToProps = state => {
     };
 };
 
-const tabNames = ['New Result Display', 'This Define', 'Another Define'];
+const tabNames = ['New Result Display', 'Another Define'];
 
 function TabContainer(props) {
     return (
@@ -119,13 +119,6 @@ class AddResultDisplayConnected extends React.Component {
                                     onClose={this.props.onClose}
                                 />
                             )}
-                            {tabNames[currentTab] === 'This Define' &&
-                                <AddResultDisplaySimple
-                                    itemGroupOid={this.props.itemGroupOid}
-                                    position={this.props.position}
-                                    onClose={this.props.onClose}
-                                />
-                            }
                             {tabNames[currentTab] === 'Another Define' &&
                                 <AddResultDisplaySimple
                                     itemGroupOid={this.props.itemGroupOid}

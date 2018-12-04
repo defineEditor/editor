@@ -7,6 +7,7 @@ import Divider from '@material-ui/core/Divider';
 import getArmResultDisplayOids from 'utils/getArmResultDisplayOids.js';
 import { copyResultDisplays } from 'utils/armUtils.js';
 import {
+    addResultDisplays,
     deleteResultDisplays,
     selectGroup,
     updateCopyBuffer,
@@ -15,6 +16,7 @@ import {
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
+        addResultDisplays    : (updateObj) => dispatch(addResultDisplays(updateObj)),
         deleteResultDisplays : (deleteObj) => dispatch(deleteResultDisplays(deleteObj)),
         selectGroup          : (updateObj) => dispatch(selectGroup(updateObj)),
         updateCopyBuffer     : (updateObj) => dispatch(updateCopyBuffer(updateObj)),

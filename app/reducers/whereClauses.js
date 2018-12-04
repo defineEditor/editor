@@ -10,6 +10,7 @@ import {
     DEL_ANALYSISRESULT,
     UPD_ANALYSISRESULT,
     ADD_ANALYSISRESULTS,
+    ADD_RESULTDISPLAYS,
 } from "constants/action-types";
 import { WhereClause } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -233,6 +234,8 @@ const whereClauses = (state = {}, action) => {
         case ADD_VARS:
             return handleAddWhereClauses(state, action);
         case ADD_ANALYSISRESULTS:
+            return handleAddWhereClauses(state, action);
+        case ADD_RESULTDISPLAYS:
             return handleAddWhereClauses(state, action);
         case ADD_ITEMGROUPS:
             return handleAddItemGroups(state, action);

@@ -1,6 +1,7 @@
 import {
     UPD_ARMSTATUS,
     ADD_RESULTDISPLAY,
+    ADD_RESULTDISPLAYS,
     UPD_RESULTDISPLAY,
     DEL_RESULTDISPLAY,
     UPD_RESULTDISPLAYORDER,
@@ -173,12 +174,34 @@ const addAnalysisResults = (state, action) => {
     };
 };
 
+const addResultDisplays = (state, action) => {
+    const { analysisResults, resultDisplays, position } = action.updateObj;
+
+    let newAnalysisResults = { ...state.analysisResults, ...analysisResults };
+    let newResultDisplays = { ...state.resultDisplays, ...resultDisplays };
+
+    let newResultDisplayOrder = state.resultDisplayOrder.slice();
+    if (position - 1 <= newResultDisplayOrder.length) {
+        newResultDisplayOrder = newResultDisplayOrder.slice(0, position - 1).concat(Object.keys(resultDisplays).concat(newResultDisplayOrder.slice(position - 1))) ;
+    } else {
+        newResultDisplayOrder = newResultDisplayOrder.concat(Object.keys(resultDisplays));
+    }
+    return {
+        ...state,
+        resultDisplays     : newResultDisplays,
+        analysisResults    : newAnalysisResults,
+        resultDisplayOrder : newResultDisplayOrder,
+    };
+};
+
 const analysisResultDisplays = (state = {}, action) => {
     switch (action.type) {
         case UPD_ARMSTATUS:
             return updateArmStatus(state, action);
         case ADD_RESULTDISPLAY:
             return addResultDisplay(state, action);
+        case ADD_RESULTDISPLAYS:
+            return addResultDisplays(state, action);
         case UPD_RESULTDISPLAY:
             return updateResultDisplay(state, action);
         case DEL_RESULTDISPLAY:

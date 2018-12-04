@@ -14,6 +14,7 @@ import {
     DEL_ANALYSISRESULT,
     UPD_ANALYSISRESULT,
     ADD_ANALYSISRESULTS,
+    ADD_RESULTDISPLAYS,
 } from "constants/action-types";
 import { Comment, TranslatedText } from 'elements.js';
 import deepEqual from 'fast-deep-equal';
@@ -525,6 +526,8 @@ const comments = (state = {}, action) => {
         case ADD_VARS:
             return handleAddComments(state, action);
         case ADD_ANALYSISRESULTS:
+            return handleAddComments(state, action);
+        case ADD_RESULTDISPLAYS:
             return handleAddComments(state, action);
         case ADD_ITEMGROUPS:
             return handleAddItemGroups(state, action);
