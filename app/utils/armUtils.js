@@ -38,7 +38,7 @@ const copyAnalysisResults = ({
                     whereClauses[newWhereClauseOid] = { ...new WhereClause({
                         ...whereClause,
                         oid: newWhereClauseOid,
-                        sources: { analysisResults: {newAnalysisResultOid: [analysisDataset.itemGroupOid]} }
+                        sources: { analysisResults: {[newAnalysisResultOid]: [analysisDataset.itemGroupOid]} }
                     }) };
                     analysisDataset.whereClauseOid = newWhereClauseOid;
                 }

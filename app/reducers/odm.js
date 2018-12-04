@@ -4,6 +4,7 @@ import {
     UPD_LOADACTUALDATA,
     STUDY_DEL,
     DEFINE_DEL,
+    UPD_ARMSTATUS,
 } from 'constants/action-types';
 import study from 'reducers/study.js';
 
@@ -11,6 +12,14 @@ const initialState = {};
 
 const updateOdmAttrs = (state, action) => {
     return { ...state, ...action.updateObj };
+};
+
+const updateArmStatus = (state, action) => {
+    if (action.updateObj.armStatus === false) {
+        return { ...state, arm: undefined };
+    } else if (action.updateObj.armStatus === true) {
+        return { ...state, arm: 'http://www.cdisc.org/ns/arm/v1.0' };
+    }
 };
 
 const handleDefineDelete = (state, action) => {
@@ -45,6 +54,8 @@ const odm = (state = initialState, action) => {
             return updateOdmAttrs(state, action);
         case UPD_LOADACTUALDATA:
             return loadActualData({...state, study: study(state.study, action)}, action);
+        case UPD_ARMSTATUS:
+            return updateArmStatus({...state, study: study(state.study, action)}, action);
         case DEFINE_DEL:
             return handleDefineDelete(state, action);
         case STUDY_DEL:

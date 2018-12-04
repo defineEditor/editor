@@ -145,7 +145,18 @@ class ConnectedAnalysisResultEditor extends React.Component {
             // If datasets were changed, update the list of variables for paramOid selection
             if (updateObj.hasOwnProperty('analysisDatasets')) {
                 let listOfVariables = this.getListOfVariables(updateObj.analysisDatasets);
-                this.setState({ ...updateObj, listOfVariables });
+                // If parameterOid is not in the list of new variables, set it to ''
+                let inList = true;
+                let parameterOid = this.state.parameterOid;
+                if (parameterOid !== undefined && parameterOid !== '') {
+                    inList = listOfVariables.some(item => (Object.keys(item)[0] === parameterOid));
+                }
+                if (!inList) {
+                    this.setState({ ...updateObj, listOfVariables, parameterOid: '' });
+                } else {
+                    this.setState({ ...updateObj, listOfVariables });
+                }
+
             } else {
                 this.setState({ ...updateObj });
             }

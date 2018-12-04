@@ -57,6 +57,7 @@ function createOdm (data, version) {
             'xmlns:def'           : data.def,
             'xmlns:xlink'         : data.xlink,
             'xmlns:xsi'           : data.xsi,
+            'xmlns:arm'           : undefined,
             'xsi:schemalocation'  : data.schemaLocation,
             'ODMVersion'          : data.odmVersion,
             'FileType'            : data.fileType,
