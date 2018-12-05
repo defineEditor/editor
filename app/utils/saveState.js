@@ -40,6 +40,7 @@ function saveState(type) {
                     tabs: stateToSave.ui.tabs,
                     odm: stateToSave.odm,
                     userName: stateToSave.settings.general.userName,
+                    studyId: stateToSave.ui.main.currentStudyId,
                 },
                 type === 'backup' ? true : false
             );

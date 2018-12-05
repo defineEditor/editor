@@ -131,13 +131,18 @@ class ConnectedStudyTile extends React.Component {
         } else if (this.props.currentDefineId === '' || this.props.isCurrentDefineSaved) {
             // If no Define-XMLs are edited at the moment, specify the Define
             this.handleMenuClose();
-            this.props.changePage({ page: 'editor', defineId });
+            this.props.changePage({
+                page: 'editor',
+                defineId,
+                studyId: this.props.study.id,
+            });
         } else {
             this.props.openModal({
                 type: 'CHANGE_DEFINE',
                 props: {
                     currentDefineId: this.props.currentDefineId,
                     defineId,
+                    studyId: this.props.study.id,
                 }
             });
             this.handleMenuClose();

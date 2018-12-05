@@ -22,6 +22,8 @@ function writeDefineObject(mainWindow, defineObject, backupFlag) {
         datetime: new Date().toISOString(),
         appVersion: app.getVersion(),
         defineVersion: defineObject.odm.study.metaDataVersion.defineVersion,
+        defineId: defineObject.defineId,
+        studyId: defineObject.studyId,
     };
     if (defineObject.hasOwnProperty('userName')) {
         info.userName = defineObject.userName;

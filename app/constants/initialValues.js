@@ -7,6 +7,7 @@ const main = (() => {
         mainMenuOpened: false,
         currentPage: 'studies',
         currentDefineId: '',
+        currentStudyId: '',
         isCurrentDefineSaved: true,
         quitNormally: null,
         reviewMode: false,

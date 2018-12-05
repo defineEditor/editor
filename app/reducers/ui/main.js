@@ -30,6 +30,7 @@ const changePage = (state, action) => {
             mainMenuOpened: false,
             currentPage: action.updateObj.page,
             currentDefineId: action.updateObj.defineId,
+            currentStudyId: action.updateObj.studyId,
             isCurrentDefineSaved: true,
         };
     } else {
@@ -42,11 +43,12 @@ const changePage = (state, action) => {
 };
 
 const handleDefineDelete = (state, action) => {
-    // If Define or study is removed and it is a current define, set currentDefineId to blank
+    // If Define or study is removed and it is a current define, set currentDefine/StudyId to blank
     if (action.deleteObj.defineId === state.currentDefineId) {
         return {
             ...state,
             currentDefineId: '',
+            currentStudyId: '',
             isCurrentDefineSaved: true,
         };
     } else {
@@ -62,6 +64,7 @@ const handleStudyDelete = (state, action) => {
         return {
             ...state,
             currentDefineId: '',
+            currentStudyId: '',
             isCurrentDefineSaved: true,
         };
     } else {
