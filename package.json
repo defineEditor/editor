@@ -214,7 +214,6 @@
     "csvtojson": "^2.0.8",
     "devtron": "^1.4.0",
     "downshift": "^1.31.16",
-    "draft-js": "^0.10.5",
     "electron-debug": "^2.0.0",
     "electron-store": "^2.0.0",
     "electron-unhandled": "^1.1.0",
