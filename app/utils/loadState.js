@@ -10,8 +10,22 @@ function loadState() {
     let state = { ...store.get() };
 
     // Load constants
-    state.stdConstants = stdConstants;
+    const extensionStore = new eStore({
+        name: 'stdConstantExtensions',
+    });
+    let stdConstantExtensions = extensionStore.get();
 
+    Object.keys(stdConstantExtensions).forEach(constant => {
+        if (stdConstants.hasOwnProperty(constant)) {
+            if (Array.isArray(stdConstants[constant])) {
+                stdConstants[constant] = stdConstants[constant].concat(stdConstantExtensions[constant]);
+            } else {
+                stdConstants[constant] = { ...stdConstants[constant], ...stdConstantExtensions[constant] };
+            }
+        }
+    });
+
+    state.stdConstants = stdConstants;
     // Update UI structure with initial values, this is required when schema changed and old UI does not have required properties
     Object.keys(uiInitialValues).forEach( uiType =>  {
         if (state.hasOwnProperty('ui') && state.ui.hasOwnProperty(uiType)) {

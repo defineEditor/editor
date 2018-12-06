@@ -8,7 +8,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
-import { ipcRenderer } from 'electron';
+import saveState from 'utils/saveState.js';
 import {
     changePage,
     closeModal,
@@ -35,6 +35,9 @@ const mapStateToProps = state => {
     return {
         odm: state.present.odm,
         tabs: state.present.ui.tabs,
+        studies: state.present.studies,
+        defines: state.present.defines,
+        currentStudyId: state.present.ui.main.currentStudyId,
     };
 };
 
@@ -49,12 +52,7 @@ const mapDispatchToProps = dispatch => {
 class ConnectedModalChangeDefine extends React.Component {
 
     onSave = () => {
-        ipcRenderer.send('writeDefineObject', {
-            odm: this.props.odm,
-            tabs: this.props.tabs,
-            defineId: this.props.currentDefineId,
-        });
-        this.props.appSave({defineId: this.props.currentDefineId});
+        saveState();
         this.props.changePage({ page: 'editor', defineId: this.props.defineId });
         this.props.closeModal();
     }
@@ -80,6 +78,17 @@ class ConnectedModalChangeDefine extends React.Component {
     render () {
         const { classes } = this.props;
 
+        // Get the names of the current Define and Study
+        let studyName;
+        if (this.props.studies.allIds.includes(this.props.currentStudyId)) {
+            studyName = this.props.studies.byId[this.props.currentStudyId].name;
+        }
+
+        let defineName;
+        if (this.props.defines.allIds.includes(this.props.currentDefineId)) {
+            defineName = this.props.defines.byId[this.props.currentDefineId].name;
+        }
+
         return (
             <Dialog
                 disableBackdropClick
@@ -96,7 +105,12 @@ class ConnectedModalChangeDefine extends React.Component {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        You have unsaved changed in your current Define-XML. Save them before opening a new Define-XML document?
+                        You have unsaved changed in your current Define-XML document
+                        (
+                        {studyName !== undefined && 'Study: ' + studyName + ', '}
+                        {defineName !== undefined && 'Define: ' + defineName}
+                        ).
+                        Save them before opening a new Define-XML document?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -119,8 +133,11 @@ ConnectedModalChangeDefine.propTypes = {
     classes: PropTypes.object.isRequired,
     defineId: PropTypes.string.isRequired,
     currentDefineId: PropTypes.string.isRequired,
+    currentStudyId: PropTypes.string.isRequired,
     odm: PropTypes.object.isRequired,
     tabs: PropTypes.object.isRequired,
+    studies: PropTypes.object.isRequired,
+    defines: PropTypes.object.isRequired,
     appSave: PropTypes.func.isRequired,
     changePage: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
