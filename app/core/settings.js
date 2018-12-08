@@ -94,6 +94,7 @@ class ConnectedSettings extends React.Component {
           'lengthForAllDataTypes',
           'textInstantProcessing',
           'enableSelectForStdCodedValues',
+          'enableTablePagination',
           'alwaysSaveDefineXml',
       ].includes(name)) {
           this.setState({ [category]: { ...this.state[category], [name]: checked } });
@@ -266,6 +267,17 @@ class ConnectedSettings extends React.Component {
                                           />
                                       }
                                       label = 'Enable item selection for the Coded Value column'
+                                  />
+                                  <FormControlLabel
+                                      control={
+                                          <Switch
+                                              checked={this.state.editor.enableTablePagination}
+                                              onChange={this.handleChange('editor', 'enableTablePagination')}
+                                              color='primary'
+                                              className={classes.switch}
+                                          />
+                                      }
+                                      label = 'Enable Table Pagination'
                                   />
                               </FormGroup>
                           </Grid>

@@ -6,6 +6,7 @@ import {
     UI_SELECTCOLUMNS,
     UI_UPDATEFILTER,
     UI_LOADTABS,
+    UI_CHANGETABLEPAGEDETAILS,
 } from "constants/action-types";
 import { ui } from 'constants/initialValues.js';
 
@@ -29,7 +30,6 @@ const changeTab = (state, action) => {
             currentTab: action.updateObj.selectedTab,
         };
     }
-
 };
 
 const setVlmState = (state, action) => {
@@ -158,7 +158,6 @@ const loadTabs = (state, action) => {
                     isDifferent = true;
                     return true;
                 }
-
             });
         }
         if (isDifferent) {
@@ -169,6 +168,17 @@ const loadTabs = (state, action) => {
     } else {
         return initialState;
     }
+};
+
+const changeTablePageDetails = (state, action) => {
+    let currentTab = state.currentTab;
+    let newSettings = state.settings.slice();
+    let newSetting = { ...state.settings[currentTab], ...action.updateObj };
+    newSettings.splice(currentTab, 1, newSetting);
+    return {
+        ...state,
+        settings: newSettings,
+    };
 };
 
 const tabs = (state = initialState, action) => {
@@ -187,6 +197,8 @@ const tabs = (state = initialState, action) => {
             return updateFilter(state, action);
         case UI_LOADTABS:
             return loadTabs(state, action);
+        case UI_CHANGETABLEPAGEDETAILS:
+            return changeTablePageDetails(state, action);
         default:
             return state;
     }

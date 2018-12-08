@@ -15,6 +15,7 @@ import {
     UI_UPDMAIN,
     UI_TOGGLEREVIEWMODE,
     UI_UPDCOPYBUFFER,
+    UI_CHANGETABLEPAGEDETAILS,
 } from 'constants/action-types';
 
 export const changeTab = updateObj => ({
@@ -59,6 +60,11 @@ export const setStudyOrderType = updateObj => ({
 
 export const toggleAddDefineForm = updateObj => ({
     type: UI_TOGGLEADDDEFINEFORM,
+    updateObj
+});
+
+export const changeTablePageDetails = updateObj => ({
+    type: UI_CHANGETABLEPAGEDETAILS,
     updateObj
 });
 

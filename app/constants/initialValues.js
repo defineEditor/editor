@@ -94,6 +94,8 @@ const editor = {
     lengthForAllDataTypes: false,
     textInstantProcessing: false,
     enableSelectForStdCodedValues: true,
+    enableTablePagination: false,
+    defaultRowsPerPage: 25,
 };
 
 const define = {

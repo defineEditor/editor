@@ -22,6 +22,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import OpenDrawer from '@material-ui/icons/ArrowUpward';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
+import TablePagination from '@material-ui/core/TablePagination';
 import getTableData from 'utils/getTableData.js';
 import getTableDataForFilter from 'utils/getTableDataForFilter.js';
 import applyFilter from 'utils/applyFilter.js';
@@ -46,6 +47,7 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 import {
     updateItemDef, updateItemRef, updateItemRefKeyOrder, updateItemCodeListDisplayFormat,
     updateItemDescription, deleteVariables, updateNameLabelWhereClause, setVlmState,
+    changeTablePageDetails,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -77,19 +79,24 @@ const mapDispatchToProps = dispatch => {
         updateItemDescription           : (source, updateObj, prevObj) => dispatch(updateItemDescription(source, updateObj, prevObj)),
         deleteVariables                 : (source, deleteObj) => dispatch(deleteVariables(source, deleteObj)),
         setVlmState                     : (source, updateObj) => dispatch(setVlmState(source, updateObj)),
+        changeTablePageDetails          : (updateObj) => dispatch(changeTablePageDetails(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        mdv           : state.present.odm.study.metaDataVersion,
-        dataTypes     : state.present.stdConstants.dataTypes,
-        stdColumns    : state.present.stdConstants.columns.variables,
-        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
-        tabSettings   : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
-        showRowSelect : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
-        filter        : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].filter,
-        reviewMode    : state.present.ui.main.reviewMode,
+        mdv                   : state.present.odm.study.metaDataVersion,
+        dataTypes             : state.present.stdConstants.dataTypes,
+        stdColumns            : state.present.stdConstants.columns.variables,
+        defineVersion         : state.present.odm.study.metaDataVersion.defineVersion,
+        tabSettings           : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
+        showRowSelect         : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
+        filter                : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].filter,
+        reviewMode            : state.present.ui.main.reviewMode,
+        enableTablePagination : state.present.settings.editor.enableTablePagination,
+        defaultRowsPerPage    : state.present.settings.editor.defaultRowsPerPage,
+        page                  : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].page,
+        rowsPerPage           : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowsPerPage,
     };
 };
 
@@ -301,6 +308,36 @@ class ConnectedVariableTable extends React.Component {
                 window.scrollTo(0, 0);
             }
             this.setState({ setScrollY: false });
+        }
+    }
+
+    componentDidMount() {
+        if (this.props.enableTablePagination) {
+            window.addEventListener('keydown', this.onKeyDown);
+        }
+    }
+
+    componentWillUnmount() {
+        if (this.props.enableTablePagination) {
+            window.removeEventListener('keydown', this.onKeyDown);
+        }
+    }
+
+    onKeyDown = (event)  => {
+        if (this.props.enableTablePagination) {
+            let { page } = this.props.tabSettings;
+            if (!Number.isInteger(page)) {
+                page = 0;
+            }
+            if (event.ctrlKey && (event.keyCode === 219)) {
+                if (page > 0) {
+                    this.handleChangePage(event, page - 1);
+                }
+            } else if (event.ctrlKey && (event.keyCode === 221)) {
+                // Theoretically it should be checked that the limit is reached,
+                // but TablePagination will automatically reduce the page if the limit is reached
+                this.handleChangePage(event, page + 1);
+            }
         }
     }
 
@@ -701,10 +738,42 @@ class ConnectedVariableTable extends React.Component {
         return true;
     }
 
+    handleChangePage = (event, page) => {
+        this.props.changeTablePageDetails({page});
+    };
+
+    handleChangeRowsPerPage = event => {
+        this.props.changeTablePageDetails({rowsPerPage: event.target.value});
+    };
+
     render () {
         // Extract data required for the variable table
         const mdv = this.props.mdv;
+        let { page, rowsPerPage } = this.props.tabSettings;
+        if (!Number.isInteger(page)) {
+            page = 0;
+        }
+        if (!Number.isInteger(rowsPerPage)) {
+            rowsPerPage = this.props.defaultRowsPerPage;
+        }
         const variables = this.getData();
+        // Get the number of variable level items (excluding VLM)
+        const varNum = variables.filter( item => (item.vlmLevel === 0)).length;
+        // If pagination is enabled, show only some variables, do not apply pagination rules to VLM
+        let dataToShow;
+        if (this.props.enableTablePagination) {
+            let currentVarNumber = -1;
+            dataToShow = variables.filter( item => {
+                if (item.vlmLevel === 0) {
+                    currentVarNumber += 1;
+                }
+                if ( page * rowsPerPage <= currentVarNumber && currentVarNumber < page * rowsPerPage + rowsPerPage) {
+                    return true;
+                }
+            });
+        } else {
+            dataToShow = variables;
+        }
 
         // Editor settings
         const cellEditProp = {
@@ -749,7 +818,7 @@ class ConnectedVariableTable extends React.Component {
         }
 
         return (
-            <React.Fragment>
+            <div>
                 <h3 className={this.props.classes.tableTitle}>
                     {mdv.itemGroups[this.props.itemGroupOid].name + ' (' + getDescription(mdv.itemGroups[this.props.itemGroupOid]) + ')'}
                     <Button
@@ -763,7 +832,7 @@ class ConnectedVariableTable extends React.Component {
                     </Button>
                 </h3>
                 <BootstrapTable
-                    data={variables}
+                    data={dataToShow}
                     options={options}
                     search
                     striped
@@ -778,6 +847,23 @@ class ConnectedVariableTable extends React.Component {
                 >
                     {renderColumns(this.state.columns)}
                 </BootstrapTable>
+                { this.props.enableTablePagination &&
+                        <TablePagination
+                            component="div"
+                            count={varNum}
+                            page={page}
+                            rowsPerPage={rowsPerPage}
+                            backIconButtonProps={{
+                                'aria-label': 'Previous Page',
+                            }}
+                            nextIconButtonProps={{
+                                'aria-label': 'Next Page',
+                            }}
+                            onChangePage={this.handleChangePage}
+                            onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                            rowsPerPageOptions={[10,25,50,100]}
+                        />
+                }
                 { this.state.anchorEl !== null &&
                         <ItemMenu
                             onClose={this.handleMenuClose}
@@ -814,7 +900,7 @@ class ConnectedVariableTable extends React.Component {
                     />
                 )
                 }
-            </React.Fragment>
+            </div>
         );
     }
 }
@@ -836,6 +922,7 @@ ConnectedVariableTable.propTypes = {
     updateItemDescription           : PropTypes.func.isRequired,
     deleteVariables                 : PropTypes.func.isRequired,
     setVlmState                     : PropTypes.func.isRequired,
+    changeTablePageDetails          : PropTypes.func.isRequired,
     reviewMode                      : PropTypes.bool,
 };
 
