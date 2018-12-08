@@ -225,7 +225,7 @@
     "react-bootstrap-table": "DmitryMK/react-bootstrap-table",
     "react-dom": "^16.5.2",
     "react-hot-loader": "^4.3.11",
-    "react-redux": "^5.0.7",
+    "react-redux": "^6.0.0",
     "react-select": "^1.2.1",
     "react-sortable-hoc": "^0.7.4",
     "redux": "^4.0.0",
