@@ -134,11 +134,17 @@ const loadTabs = (state, action) => {
                 return true;
             }
         });
-        // Check if there are any differences in columns
+        // Check if there are any differences in settings
         if (!isDifferent) {
             let actualSettings = action.updateObj.settings;
             initialState.settings.some( (setting, index) => {
                 let actualSetting = actualSettings[index];
+                // Check if any high-level setting properties changed
+                isDifferent = Object.keys(setting).some( settingProp => (!actualSetting.hasOwnProperty(settingProp) && setting[settingProp] !== undefined));
+                if (isDifferent) {
+                    console.log(setting, actualSetting);
+                    return true;
+                }
                 if (setting.hasOwnProperty('columns') && actualSetting.hasOwnProperty('columns')) {
                     let actualColumnsNames = Object.keys(actualSetting.columns);
                     let initialColumnsNames = Object.keys(setting.columns);
@@ -173,7 +179,16 @@ const loadTabs = (state, action) => {
 const changeTablePageDetails = (state, action) => {
     let currentTab = state.currentTab;
     let newSettings = state.settings.slice();
-    let newSetting = { ...state.settings[currentTab], ...action.updateObj };
+    let paginationGroup;
+    if (state.settings[currentTab].pagination.hasOwnProperty(action.updateObj.groupOid)) {
+        paginationGroup = { ...state.settings[currentTab].pagination[action.updateObj.groupOid], ...action.updateObj.details };
+    } else {
+        paginationGroup = { ...action.updateObj.details };
+    }
+    let newSetting = {
+        ...state.settings[currentTab],
+        pagination: { ...state.settings[currentTab].pagination, [action.updateObj.groupOid]: paginationGroup }
+    };
     newSettings.splice(currentTab, 1, newSetting);
     return {
         ...state,

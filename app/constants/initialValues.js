@@ -34,6 +34,9 @@ const tabs = (() => {
         if (['Datasets', 'Variables', 'Codelists', 'Coded Values', 'ARM Summary'].includes(tabNames[i])) {
             settings[i].rowSelect = {};
         }
+        if (['Variables'].includes(tabNames[i])) {
+            settings[i].pagination = {};
+        }
         // When tab has multiple tables
         if (['Variables', 'Coded Values', 'Analysis Results'].includes(tabNames[i])) {
             settings[i].vlmState = {};

@@ -16,6 +16,7 @@ import deepEqual from 'fast-deep-equal';
 import NavigationBar from 'core/navigationBar.js';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import SaveCancel from 'editors/saveCancel.js';
+import getSelectionList from 'utils/getSelectionList.js';
 import { updateSettings } from 'actions/index.js';
 
 const styles = theme => ({
@@ -46,7 +47,12 @@ const styles = theme => ({
     ctLocation: {
         width: '90%',
         margin: theme.spacing.unit
-    }
+    },
+    rowsPerPage: {
+        width: '60px',
+        marginLeft: theme.spacing.unit * 2,
+        marginRight: theme.spacing.unit,
+    },
 });
 
 const mapDispatchToProps = dispatch => {
@@ -200,7 +206,7 @@ class ConnectedSettings extends React.Component {
                                               className={classes.switch}
                                           />
                                       }
-                                      label = 'Write changes to Define-XML when saving the current Define-XML document'
+                                      label='Write changes to Define-XML when saving the current Define-XML document'
                                   />
                               </FormGroup>
                           </Grid>
@@ -222,7 +228,7 @@ class ConnectedSettings extends React.Component {
                                               className={classes.switch}
                                           />
                                       }
-                                      label = 'Remove unused codelists when saving as Define-XML'
+                                      label='Remove unused codelists when saving as Define-XML'
                                   />
                                   <FormControlLabel
                                       control={
@@ -233,7 +239,7 @@ class ConnectedSettings extends React.Component {
                                               className={classes.switch}
                                           />
                                       }
-                                      label = 'Populate Name and Label values from Where Clause'
+                                      label='Populate Name and Label values from Where Clause'
                                   />
                                   <FormControlLabel
                                       control={
@@ -244,7 +250,7 @@ class ConnectedSettings extends React.Component {
                                               className={classes.switch}
                                           />
                                       }
-                                      label = 'Allow to set length for all datatypes. In any case a Define-XML file will have Length set only for valid datatypes.'
+                                      label='Allow to set length for all datatypes. In any case a Define-XML file will have Length set only for valid datatypes.'
                                   />
                                   <FormControlLabel
                                       control={
@@ -255,7 +261,7 @@ class ConnectedSettings extends React.Component {
                                               className={classes.switch}
                                           />
                                       }
-                                      label = 'Instantly process text in Comments and Methods. (Turn off for slow computers)'
+                                      label='Instantly process text in Comments and Methods.'
                                   />
                                   <FormControlLabel
                                       control={
@@ -266,7 +272,7 @@ class ConnectedSettings extends React.Component {
                                               className={classes.switch}
                                           />
                                       }
-                                      label = 'Enable item selection for the Coded Value column'
+                                      label='Enable item selection for the Coded Value column'
                                   />
                                   <FormControlLabel
                                       control={
@@ -277,7 +283,21 @@ class ConnectedSettings extends React.Component {
                                               className={classes.switch}
                                           />
                                       }
-                                      label = 'Enable Table Pagination'
+                                      label='Enable table pagination'
+                                  />
+                                  <FormControlLabel
+                                      control={
+                                          <TextField
+                                              value={this.state.editor.defaultRowsPerPage}
+                                              disabled={!this.state.editor.enableTablePagination}
+                                              className={classes.rowsPerPage}
+                                              onChange={this.handleChange('editor', 'defaultRowsPerPage')}
+                                              select
+                                          >
+                                              {getSelectionList([10,25,50,100])}
+                                          </TextField>
+                                      }
+                                      label=" Default Number of Rows Per Page"
                                   />
                               </FormGroup>
                           </Grid>

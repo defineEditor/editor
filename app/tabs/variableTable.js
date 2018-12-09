@@ -95,8 +95,6 @@ const mapStateToProps = state => {
         reviewMode            : state.present.ui.main.reviewMode,
         enableTablePagination : state.present.settings.editor.enableTablePagination,
         defaultRowsPerPage    : state.present.settings.editor.defaultRowsPerPage,
-        page                  : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].page,
-        rowsPerPage           : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowsPerPage,
     };
 };
 
@@ -200,7 +198,6 @@ function variableNameLabelWhereClauseFormatter (cell, row) {
                 mdv={row.mdv}
             />
         );
-
     }
 }
 
@@ -325,7 +322,10 @@ class ConnectedVariableTable extends React.Component {
 
     onKeyDown = (event)  => {
         if (this.props.enableTablePagination) {
-            let { page } = this.props.tabSettings;
+            let page;
+            if (this.props.tabSettings.pagination.hasOwnProperty(this.props.itemGroupOid)) {
+                page = this.props.tabSettings.pagination[this.props.itemGroupOid].page;
+            }
             if (!Number.isInteger(page)) {
                 page = 0;
             }
@@ -739,17 +739,22 @@ class ConnectedVariableTable extends React.Component {
     }
 
     handleChangePage = (event, page) => {
-        this.props.changeTablePageDetails({page});
+        this.props.changeTablePageDetails({ groupOid: this.props.itemGroupOid, details: { page } });
     };
 
     handleChangeRowsPerPage = event => {
-        this.props.changeTablePageDetails({rowsPerPage: event.target.value});
+        this.props.changeTablePageDetails({ groupOid: this.props.itemGroupOid, details: { rowsPerPage: event.target.value } });
     };
 
     render () {
         // Extract data required for the variable table
         const mdv = this.props.mdv;
-        let { page, rowsPerPage } = this.props.tabSettings;
+        let page;
+        let rowsPerPage;
+        if (this.props.tabSettings.pagination.hasOwnProperty(this.props.itemGroupOid)) {
+            page = this.props.tabSettings.pagination[this.props.itemGroupOid].page;
+            rowsPerPage = this.props.tabSettings.pagination[this.props.itemGroupOid].rowsPerPage;
+        }
         if (!Number.isInteger(page)) {
             page = 0;
         }
