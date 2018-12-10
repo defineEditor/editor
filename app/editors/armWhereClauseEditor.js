@@ -26,7 +26,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import WhereClauseInteractiveEditor from 'editors/whereClauseInteractiveEditor.js';
 import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
-import { WhereClause } from 'elements.js';
+import { WhereClause } from 'core/defineStructure.js';
 
 const styles = theme => ({
     dialog: {

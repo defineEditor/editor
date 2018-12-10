@@ -38,7 +38,7 @@ import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 import CommentMethodTable from 'components/utils/commentMethodTable.js';
 import getMethodSourceLabels from 'utils/getMethodSourceLabels.js';
 import SelectMethodIcon from '@material-ui/icons/OpenInNew';
-import { Method, TranslatedText, FormalExpression } from 'elements.js';
+import { Method, TranslatedText, FormalExpression } from 'core/defineStructure.js';
 import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({

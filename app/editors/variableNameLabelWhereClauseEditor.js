@@ -22,7 +22,7 @@ import VariableWhereClauseEditor from 'editors/variableWhereClauseEditor.js';
 import SaveCancel from 'editors/saveCancel.js';
 import CommentEditor from 'editors/commentEditor.js';
 import getOidByName from 'utils/getOidByName.js';
-import { WhereClause, RangeCheck, TranslatedText } from 'elements.js';
+import { WhereClause, RangeCheck, TranslatedText } from 'core/defineStructure.js';
 
 const styles = theme => ({
     root: {

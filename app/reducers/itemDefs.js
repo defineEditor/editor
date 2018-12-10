@@ -29,7 +29,7 @@ import {
     UPD_LOADACTUALDATA,
     ADD_ITEMGROUPS,
 } from "constants/action-types";
-import { ItemDef, TranslatedText, Origin } from 'elements.js';
+import { ItemDef, TranslatedText, Origin } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
 
 const updateItemDef = (state, action) => {

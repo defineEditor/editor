@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { CodeListItem, EnumeratedItem, Alias } from 'elements.js';
+import { CodeListItem, EnumeratedItem, Alias } from 'core/defineStructure.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
 import deepEqual from 'fast-deep-equal';
 

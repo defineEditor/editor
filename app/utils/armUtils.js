@@ -15,7 +15,7 @@
 import getOid from 'utils/getOid.js';
 import clone from 'clone';
 import { copyComment } from 'utils/copyVariables.js';
-import { WhereClause } from 'elements.js';
+import { WhereClause } from 'core/defineStructure.js';
 import { AnalysisResult, ResultDisplay } from 'core/armStructure.js';
 
 const copyAnalysisResults = ({

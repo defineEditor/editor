@@ -20,7 +20,7 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { addVariable } from 'actions/index.js';
-import { ItemRef, ItemDef } from 'elements.js';
+import { ItemRef, ItemDef } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 
 const styles = theme => ({

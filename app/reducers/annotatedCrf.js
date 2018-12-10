@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { Document } from 'elements.js';
+import { Document } from 'core/defineStructure.js';
 import {
     UPD_LEAFS,
 } from "constants/action-types";

@@ -24,7 +24,7 @@ import {
     TranslatedText,
     PdfPageRef,
     Document,
-} from 'elements.js';
+} from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 
 function parseDocument (doc) {

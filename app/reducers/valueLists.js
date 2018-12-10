@@ -26,7 +26,7 @@ import {
     UPD_VLMITEMREFORDER,
     UPD_ITEMREFKEYORDER,
 } from "constants/action-types";
-import { ValueList, ItemRef } from 'elements.js';
+import { ValueList, ItemRef } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 
 const addValueList = (state, action) => {

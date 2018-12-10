@@ -18,7 +18,7 @@ import {
     MetaDataVersion,
     GlobalVariables,
     Standard
-} from 'elements.js';
+} from 'core/defineStructure.js';
 import { remote } from 'electron';
 import getOid from 'utils/getOid.js';
 import getCtPublishingSet from 'utils/getCtPublishingSet.js';

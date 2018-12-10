@@ -26,7 +26,7 @@ import getSelectionList from 'utils/getSelectionList.js';
 import SaveCancel from 'editors/saveCancel.js';
 import getOidByName from 'utils/getOidByName.js';
 import { getDecode } from 'utils/defineStructureUtils.js';
-import { WhereClause, RangeCheck } from 'elements.js';
+import { WhereClause, RangeCheck } from 'core/defineStructure.js';
 
 const styles = theme => ({
     textField: {

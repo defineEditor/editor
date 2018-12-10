@@ -31,7 +31,7 @@ import Button from '@material-ui/core/Button';
 import getDatasetDataForImport from 'utils/getDatasetDataForImport.js';
 import { copyVariables, copyComment } from 'utils/copyVariables.js';
 import { addItemGroups } from 'actions/index.js';
-import { ItemGroup } from 'elements.js';
+import { ItemGroup } from 'core/defineStructure.js';
 import CommentFormatter from 'formatters/commentFormatter.js';
 import getOid from 'utils/getOid.js';
 

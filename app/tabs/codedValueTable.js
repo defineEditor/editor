@@ -33,7 +33,7 @@ import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import CodedValueEditor from 'editors/codedValueEditor.js';
 import CodedValueOrderEditor from 'components/orderEditors/codedValueOrderEditor.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
-import { TranslatedText } from 'elements.js';
+import { TranslatedText } from 'core/defineStructure.js';
 import SelectColumns from 'utils/selectColumns.js';
 import renderColumns from 'utils/renderColumns.js';
 import CodedValueMenu from 'components/menus/codedValueMenu.js';

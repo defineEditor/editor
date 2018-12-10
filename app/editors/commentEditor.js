@@ -29,7 +29,7 @@ import AddIcon from '@material-ui/icons/AddCircle';
 import SelectCommentIcon from '@material-ui/icons/OpenInNew';
 import DetachCommentIcon from '@material-ui/icons/CallSplit';
 import Tooltip from '@material-ui/core/Tooltip';
-import {Comment, TranslatedText} from 'elements.js';
+import {Comment, TranslatedText} from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 import CommentMethodTable from 'components/utils/commentMethodTable.js';

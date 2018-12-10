@@ -22,7 +22,7 @@ import Switch from '@material-ui/core/Switch';
 import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
 import ItemSelect from 'utils/itemSelect.js';
-import { PdfPageRef } from 'elements.js';
+import { PdfPageRef } from 'core/defineStructure.js';
 
 const pageRefTypes = [{'PhysicalRef': 'Physical Reference'},{'NamedDestination': 'Named Destination'}];
 

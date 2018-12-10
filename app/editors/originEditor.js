@@ -30,7 +30,7 @@ import ClearIcon from '@material-ui/icons/Clear';
 import getSelectionList from 'utils/getSelectionList.js';
 import getModelFromStandard from 'utils/getModelFromStandard.js';
 import DocumentEditor from 'editors/documentEditor.js';
-import { Origin, TranslatedText } from 'elements.js';
+import { Origin, TranslatedText } from 'core/defineStructure.js';
 import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({

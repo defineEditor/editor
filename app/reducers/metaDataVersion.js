@@ -25,7 +25,7 @@ import valueLists from 'reducers/valueLists.js';
 import leafs from 'reducers/leafs.js';
 import order from 'reducers/order.js';
 import analysisResultDisplays from 'reducers/analysisResultDisplays.js';
-import { MetaDataVersion } from 'elements.js';
+import { MetaDataVersion } from 'core/defineStructure.js';
 import {
     UPD_MDV,
     UPD_MODEL,

@@ -29,7 +29,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Tooltip from '@material-ui/core/Tooltip';
-import { Leaf } from 'elements.js';
+import { Leaf } from 'core/defineStructure.js';
 import GeneralOrderEditor from 'components/orderEditors/generalOrderEditor.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getOid from 'utils/getOid.js';

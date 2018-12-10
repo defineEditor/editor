@@ -31,7 +31,7 @@ import {
     UPD_KEYORDER,
     INSERT_VAR,
 } from "constants/action-types";
-import { ItemGroup, TranslatedText, DatasetClass, Leaf, ItemRef } from 'elements.js';
+import { ItemGroup, TranslatedText, DatasetClass, Leaf, ItemRef } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 
 const addItemGroup = (state, action) => {

@@ -24,7 +24,7 @@ import React from 'react';
 import clone from 'clone';
 import ItemSelect from 'utils/itemSelect.js';
 import { addDocument } from 'utils/defineStructureUtils.js';
-import { PdfPageRef } from 'elements.js';
+import { PdfPageRef } from 'core/defineStructure.js';
 
 const styles = theme => ({
     button: {

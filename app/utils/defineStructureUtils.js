@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { Document, TranslatedText } from 'elements.js';
+import { Document, TranslatedText } from 'core/defineStructure.js';
 
 export const addDocument = (object, document) => {
     if (object.hasOwnProperty('documents')) {

@@ -28,7 +28,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Switch from '@material-ui/core/Switch';
-import { Standard } from 'elements.js';
+import { Standard } from 'core/defineStructure.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getModelFromStandard from 'utils/getModelFromStandard.js';
 

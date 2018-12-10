@@ -34,7 +34,7 @@ import {
     DEL_ITEMGROUPS,
     UPD_STDCT,
 } from "constants/action-types";
-import { CodeList, CodeListItem, ExternalCodeList, EnumeratedItem, Alias } from 'elements.js';
+import { CodeList, CodeListItem, ExternalCodeList, EnumeratedItem, Alias } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 import { getItemsWithAliasExtendedValue }  from 'utils/codeListUtils.js';
 

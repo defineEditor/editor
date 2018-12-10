@@ -18,7 +18,7 @@ import compareCodeLists from 'utils/compareCodeLists.js';
 import compareMethods from 'utils/compareMethods.js';
 import compareComments from 'utils/compareComments.js';
 import compareLeafs from 'utils/compareLeafs.js';
-import { ItemDef, ItemRef, ValueList, WhereClause, CodeList, Leaf } from 'elements.js';
+import { ItemDef, ItemRef, ValueList, WhereClause, CodeList, Leaf } from 'core/defineStructure.js';
 
 const copyItems = ({currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, parentItemDefOid, copyVlm, existingOids} = {}) => {
     let itemDefs = {};

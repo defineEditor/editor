@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { BasicFunctions } from 'elements.js';
+import { BasicFunctions } from 'core/defineStructure.js';
 
 class AnalysisResultDisplays {
     constructor ({

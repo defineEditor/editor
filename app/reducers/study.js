@@ -17,7 +17,7 @@ import {
 } from 'constants/action-types';
 import metaDataVersion from 'reducers/metaDataVersion.js';
 import globalVariables from 'reducers/globalVariables.js';
-import { Study } from 'elements.js';
+import { Study } from 'core/defineStructure.js';
 const initialState = new Study();
 
 const study = (state = initialState, action) => {

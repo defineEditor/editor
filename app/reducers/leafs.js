@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { Leaf } from 'elements.js';
+import { Leaf } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 import {
     UPD_LEAFS,

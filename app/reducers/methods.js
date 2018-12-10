@@ -20,7 +20,7 @@ import {
     ADD_VARS,
     ADD_ITEMGROUPS,
 } from "constants/action-types";
-import { Method, TranslatedText } from 'elements.js';
+import { Method, TranslatedText } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
 

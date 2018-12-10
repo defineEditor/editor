@@ -25,7 +25,7 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import Tooltip from '@material-ui/core/Tooltip';
-import { Standard } from 'elements.js';
+import { Standard } from 'core/defineStructure.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getOid from 'utils/getOid.js';
 

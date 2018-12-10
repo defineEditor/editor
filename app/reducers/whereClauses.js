@@ -26,7 +26,7 @@ import {
     ADD_ANALYSISRESULTS,
     ADD_RESULTDISPLAYS,
 } from "constants/action-types";
-import { WhereClause } from 'elements.js';
+import { WhereClause } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
 
 const deleteWhereClause = (state, action) => {

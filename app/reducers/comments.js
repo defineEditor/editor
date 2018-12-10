@@ -30,7 +30,7 @@ import {
     ADD_ANALYSISRESULTS,
     ADD_RESULTDISPLAYS,
 } from "constants/action-types";
-import { Comment, TranslatedText } from 'elements.js';
+import { Comment, TranslatedText } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
 
