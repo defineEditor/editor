@@ -1,8 +1,8 @@
 {
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
-  "version": "0.8.12-04",
-  "license": "GPL-3.0",
+  "version": "0.8.12-10",
+  "license": "AGPL-3.0-only",
   "private": "true",
   "description": "Visual Define-XML Editor",
   "scripts": {

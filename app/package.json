@@ -2,7 +2,7 @@
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
   "private": "true",
-  "version": "0.8.12-04",
+  "version": "0.8.12-10",
   "description": "Editor for CDISC Define-XML standard",
   "main": "./main.prod.js",
   "author": {
@@ -14,6 +14,6 @@
     "electron-rebuild": "node -r babel-register ../internals/scripts/ElectronRebuild.js",
     "postinstall": "npm run electron-rebuild"
   },
-  "license": "GPL-3.0",
+  "license": "AGPL-3.0-only",
   "dependencies": {}
 }
