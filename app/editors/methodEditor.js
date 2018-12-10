@@ -215,7 +215,7 @@ class ConnectedMethodEditor extends React.Component {
             formalExpressionExists = (method.formalExpressions[0] !== undefined);
             // Check for special characters
             // eslint-disable-next-line no-control-regex
-            let issues = checkForSpecialChars(methodText, new RegExp(/[^\u000A\u0020-\u007f]/,'g'));
+            let issues = checkForSpecialChars(methodText, new RegExp(/[^\u000A\u000D\u0020-\u007f]/,'g'));
             if (issues.length > 0) {
                 issue = true;
                 helperText = issues.join('\n');

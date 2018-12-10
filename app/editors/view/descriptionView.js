@@ -56,7 +56,7 @@ class ConnectedDescriptionView extends React.Component {
         if (descriptionText !== undefined) {
             // Check for special characters
             // eslint-disable-next-line no-control-regex
-            let issues = checkForSpecialChars(descriptionText, new RegExp(/[^\u000A\u0020-\u007f]/,'g'));
+            let issues = checkForSpecialChars(descriptionText, new RegExp(/[^\u000A\u000D\u0020-\u007f]/,'g'));
             if (issues.length > 0) {
                 issue = true;
                 helperText = issues.join('\n');

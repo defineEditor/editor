@@ -213,7 +213,7 @@ class ConnectedCommentEditor extends React.Component {
             }
             // Check for special characters
             // eslint-disable-next-line no-control-regex
-            let issues = checkForSpecialChars(commentText, new RegExp(/[^\u000A\u0020-\u007f]/,'g'));
+            let issues = checkForSpecialChars(commentText, new RegExp(/[^\u000A\u000D\u0020-\u007f]/,'g'));
             if (issues.length > 0) {
                 issue = true;
                 helperText = issues.join('\n');

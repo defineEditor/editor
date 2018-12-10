@@ -197,7 +197,7 @@ const codeLists = {
     },
     usedBy: {
         text     : 'Used By',
-        hidden   : false,
+        hidden   : true,
         editable : false,
         width    : '15%',
         tdStyle  : { whiteSpace: 'pre-wrap', overflowWrap: 'break-word' },

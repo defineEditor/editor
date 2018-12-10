@@ -283,7 +283,7 @@ class ConnectedArmSummaryTable extends React.Component {
 
     render () {
         let tableData = [];
-        // Extract data required for the dataset table
+        // Extract data required for the table
         const resultDisplays = this.props.analysisResultDisplays.resultDisplays;
         const resultDisplayOrder = this.props.analysisResultDisplays.resultDisplayOrder;
         resultDisplayOrder.forEach((resultDisplayOid, index) => {

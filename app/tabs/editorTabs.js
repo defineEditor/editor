@@ -61,7 +61,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     let hasArm;
-    if (state.present.odm.study.metaDataVersion.analysisResultDisplays !== undefined) {
+    if (state.present.odm.study.metaDataVersion.analysisResultDisplays !== undefined
+        && Object.keys(state.present.odm.study.metaDataVersion.analysisResultDisplays).length > 0
+    ) {
         hasArm = true;
     } else {
         hasArm = false;

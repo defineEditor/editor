@@ -72,7 +72,6 @@ const styles = theme => ({
 
 // TODO move to store
 const comparators = ['EQ','NE','LT','LE','GT','GE','IN','NOTIN'];
-const comparatorsLimited = ['EQ','NE','LT','LE','GT','GE'];
 
 class WhereClauseEditorInteractive extends React.Component {
     constructor (props) {
@@ -261,6 +260,14 @@ class WhereClauseEditorInteractive extends React.Component {
             this.setState({
                 rangeChecks: result,
             });
+        } else if (name === 'checkValuesMultipleValueType') {
+            // Split values into an array
+            let checkValues = updateObj.target.value.split(',');
+            // Remove leading and trailing blanks
+            result[index].checkValues = checkValues.map( value => (value.trim()) );
+            this.setState({
+                rangeChecks: result,
+            });
         } else if (name === 'addRangeCheck') {
             let newIndex = result.length;
             result[newIndex] = {};
@@ -333,8 +340,14 @@ class WhereClauseEditorInteractive extends React.Component {
         this.state.rangeChecks.forEach( (rangeCheck, index) => {
             const hasCodeList = this.state.listOfCodeValues[rangeCheck.itemOid] !== undefined;
             const multipleValuesSelect = (['IN','NOTIN'].indexOf(rangeCheck.comparator) >= 0);
+            const multipleValuesType = multipleValuesSelect && !hasCodeList;
             const valueSelect = hasCodeList && ['EQ','NE','IN','NOTIN'].indexOf(rangeCheck.comparator) >= 0;
-            const value = multipleValuesSelect && valueSelect ? rangeCheck.checkValues : rangeCheck.checkValues[0];
+            let value;
+            if (!multipleValuesType) {
+                value = multipleValuesSelect && valueSelect ? rangeCheck.checkValues : rangeCheck.checkValues[0];
+            } else {
+                value = rangeCheck.checkValues.join(', ');
+            }
 
             result.push(
                 <Grid container spacing={8} key={index} alignItems='flex-end'>
@@ -390,10 +403,10 @@ class WhereClauseEditorInteractive extends React.Component {
                             onChange={this.handleChange('comparator', index)}
                             className={classes.textFieldComparator}
                         >
-                            {getSelectionList(hasCodeList ? comparators : comparatorsLimited)}
+                            {getSelectionList(comparators)}
                         </TextField>
                     </Grid>
-                    { valueSelect ? (
+                    { valueSelect && (
                         <Grid item className={classes.valuesGridItem}>
                             <TextField
                                 label='Values'
@@ -408,7 +421,20 @@ class WhereClauseEditorInteractive extends React.Component {
                                 {getSelectionList(this.state.listOfCodeValues[rangeCheck.itemOid])}
                             </TextField>
                         </Grid>
-                    ) : (
+                    )}
+                    { multipleValuesType && (
+                        <Grid item>
+                            <TextField
+                                label='Values'
+                                fullWidth
+                                multiline
+                                defaultValue={value}
+                                onBlur={this.handleChange('checkValuesMultipleValueType', index)}
+                                className={classes.textFieldValues}
+                            />
+                        </Grid>
+                    )}
+                    { (!multipleValuesType && !valueSelect) && (
                         <Grid item>
                             <TextField
                                 label='Values'
@@ -419,8 +445,7 @@ class WhereClauseEditorInteractive extends React.Component {
                                 className={classes.textFieldValues}
                             />
                         </Grid>
-                    )
-                    }
+                    )}
                 </Grid>
             );
 

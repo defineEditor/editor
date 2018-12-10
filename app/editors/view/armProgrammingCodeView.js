@@ -78,7 +78,7 @@ class ConnectedArmProgrammingCodeView extends React.Component {
             if (code !== '') {
                 // Check for special characters
                 // eslint-disable-next-line no-control-regex
-                let issues = checkForSpecialChars(code, new RegExp(/[^\u0009\u000A\u0020-\u007f]/,'g'));
+                let issues = checkForSpecialChars(code, new RegExp(/[^\u0009\u000A\u000D\u0020-\u007f]/,'g'));
                 if (issues.length > 0) {
                     issueCode = true;
                     helperTextCode = issues.join('\n');
