@@ -67,7 +67,7 @@ class ConnectedModalChangeDefine extends React.Component {
 
     onSave = () => {
         saveState();
-        this.props.changePage({ page: 'editor', defineId: this.props.defineId });
+        this.props.changePage({ page: 'editor', defineId: this.props.defineId, studyId: this.props.studyId });
         this.props.closeModal();
     }
 
@@ -76,7 +76,7 @@ class ConnectedModalChangeDefine extends React.Component {
     }
 
     onDiscard = () => {
-        this.props.changePage({ page: 'editor', defineId: this.props.defineId });
+        this.props.changePage({ page: 'editor', defineId: this.props.defineId, studyId: this.props.studyId });
         this.props.closeModal();
     }
 

@@ -178,7 +178,7 @@ class Origin extends BasicFunctions {
 
 class WhereClause {
     constructor({ oid, commentOid, sources, rangeChecks = [] } = {}) {
-        this.oid = oid || getOid(this.constructor.name);
+        this.oid = oid || getOid('WhereClause');
         this.commentOid = commentOid;
         this.rangeChecks = rangeChecks;
         // List of ItemGroups/itemRefs from which the whereClause is linked
@@ -291,7 +291,7 @@ class CodeList extends BasicFunctions {
         sources
     } = {}) {
         super();
-        this.oid = oid || getOid(this.constructor.name);
+        this.oid = oid || getOid('CodeList');
         this.name = name;
         this.dataType = dataType;
         this.standardOid = standardOid;
@@ -582,7 +582,7 @@ class MetaDataVersion extends BasicFunctions {
         order = { itemGroupOrder: [], codeListOrder: [], leafOrder: [] }
     } = {}) {
         super();
-        this.oid = oid || getOid(this.constructor.name);
+        this.oid = oid || getOid('MetaDataVersion');
         this.name = name;
         this.defineVersion = defineVersion;
         this.description = description;
@@ -637,7 +637,7 @@ class Standard {
         isDefault,
         commentOid
     } = {}) {
-        this.oid = oid || getOid(this.constructor.name);
+        this.oid = oid || getOid('Standard');
         this.name = name;
         this.type = type;
         this.publishingSet = publishingSet;
@@ -741,7 +741,7 @@ class ItemGroup extends BasicFunctions {
         keyOrder = []
     } = {}) {
         super();
-        this.oid = oid || getOid(this.constructor.name);
+        this.oid = oid || getOid('ItemGroup');
         this.name = name;
         this.domain = domain;
         this.datasetName = datasetName;
@@ -828,7 +828,7 @@ class ItemDef extends BasicFunctions {
         sources
     } = {}) {
         super();
-        this.oid = oid || getOid(this.constructor.name);
+        this.oid = oid || getOid('ItemDef');
         this.name = name || '';
         this.dataType = dataType;
         this.length = length;
@@ -888,7 +888,7 @@ class ItemRef {
         this.isNotStandard = isNotStandatd;
         this.hasNoData = hasNoData; // 2.1
         // Non-define XML properties
-        this.oid = oid || getOid(this.constructor.name);
+        this.oid = oid || getOid('ItemRef');
     }
 }
 
@@ -902,7 +902,7 @@ class ValueList extends BasicFunctions {
         sources
     } = {}) {
         super();
-        this.oid = oid || getOid(this.constructor.name);
+        this.oid = oid || getOid('ValueList');
         this.itemRefs = itemRefs;
         this.itemRefOrder = itemRefOrder;
         this.descriptions = descriptions; // 2.1D
