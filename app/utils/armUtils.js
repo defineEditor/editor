@@ -57,7 +57,15 @@ const copyAnalysisResults = ({
                     analysisDataset.whereClauseOid = newWhereClauseOid;
                 }
             } else {
-                // TODO when copied from a different Define-XML, need to look for dataset and variables based on their names
+                // Check if the target MDV has a dataset with the same name
+                let sourceName = sourceMdv.itemGroups[analysisDataset.itemGroupOid].name;
+                Object.values(mdv.itemGroups).some( itemGroup => {
+                    if (itemGroup.name === sourceName) {
+                        //
+                    }
+                });
+
+
             }
         });
         analysisResults[newAnalysisResultOid] = { ...new AnalysisResult({
