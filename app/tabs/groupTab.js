@@ -16,11 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListSubheader from '@material-ui/core/ListSubheader';
-import Drawer from '@material-ui/core/Drawer';
+import GroupTabDrawer from 'tabs/groupTabDrawer.js';
 import VariableTable from 'tabs/variableTable.js';
 import CodedValueTable from 'tabs/codedValueTable.js';
 import AnalysisResultTable from 'tabs/analysisResultTable.js';
@@ -32,26 +28,8 @@ import {
 } from 'actions/index.js';
 
 const styles = theme => ({
-    list: {
-        minWidth: 250,
-    },
     root: {
         outline: 'none',
-    },
-    currentItem: {
-        fontWeight: 'bold',
-    },
-    currentLine: {
-        backgroundColor: '#EEEEEE',
-    },
-    filteredGroup: {
-        color: theme.palette.primary.main,
-    },
-    notFilteredGroup: {
-        color: theme.palette.grey[500],
-    },
-    drawer: {
-        zIndex: 9001,
     },
 });
 
@@ -127,47 +105,6 @@ class ConnectedGroupTab extends React.Component {
         } else {
             this.setState({drawerOpened: !this.state.drawerOpened});
         }
-    }
-
-    getGroupList = (currentGroupOid, filteredGroupOids) => {
-        let result = this.props.groupOrder
-            .filter(groupOid => {
-                if (this.props.groupClass === 'Coded Values') {
-                    return ['decoded','enumerated'].includes(this.props.groups[groupOid].codeListType);
-                } else {
-                    return true;
-                }
-            })
-            .map(groupOid => {
-                if (groupOid === currentGroupOid) {
-                    return (
-                        <ListItem button key={groupOid} onClick={this.selectGroup(groupOid)} className={this.props.classes.currentLine}>
-                            <ListItemText primary={
-                                <span className={this.props.classes.currentItem}>
-                                    {this.props.groups[groupOid].name}
-                                </span>
-                            }/>
-                        </ListItem>
-                    );
-                } else if (!this.props.filter.isEnabled || this.props.groupClass !== 'Variables') {
-                    return (
-                        <ListItem button key={groupOid} onClick={this.selectGroup(groupOid)}>
-                            <ListItemText primary={this.props.groups[groupOid].name}/>
-                        </ListItem>
-                    );
-                } else {
-                    return (
-                        <ListItem button key={groupOid} onClick={this.selectGroup(groupOid)}>
-                            <ListItemText primary={
-                                <span className={filteredGroupOids.includes(groupOid) ? this.props.classes.filteredGroup : this.props.classes.notFilteredGroup}>
-                                    {this.props.groups[groupOid].name}
-                                </span>
-                            }/>
-                        </ListItem>
-                    );
-                }
-            });
-        return result;
     }
 
     getFilteredGroupOids = () => {
@@ -252,18 +189,18 @@ class ConnectedGroupTab extends React.Component {
                         ref={this.rootRef}
                         className={classes.root}
                     >
-                        <Drawer open={this.state.drawerOpened} onClose={() => this.toggleDrawer()} className={classes.drawer}>
-                            <div
-                                tabIndex={0}
-                                role="button"
-                            >
-                                <div className={classes.list}>
-                                    <List subheader={<ListSubheader disableSticky>{groupName}</ListSubheader>}>
-                                        {this.state.drawerOpened && this.getGroupList(groupOid, filteredGroupOids)}
-                                    </List>
-                                </div>
-                            </div>
-                        </Drawer>
+                        <GroupTabDrawer
+                            isOpened={this.state.drawerOpened}
+                            onClose={() => this.toggleDrawer()}
+                            groupName={groupName}
+                            groupOrder={this.props.groupOrder}
+                            groupClass={this.props.groupClass}
+                            groups={this.props.groups}
+                            filter={this.props.filter}
+                            groupOid={groupOid}
+                            filteredGroupOids={filteredGroupOids}
+                            selectGroup={this.selectGroup}
+                        />
                         { this.props.groupClass === 'Variables' &&
                             <VariableTable key={groupOid} itemGroupOid={groupOid} openDrawer={() => this.toggleDrawer()}/>
                         }
