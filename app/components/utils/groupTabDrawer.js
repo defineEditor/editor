@@ -83,7 +83,7 @@ class GroupTabDrawer extends React.Component {
             if (groupOid === currentGroupOid) {
                 return (
                     <ListItem button key={groupOid} className={this.props.classes.currentLine} onClick={this.props.selectGroup(groupOid)}>
-                        <ListItemText 
+                        <ListItemText
                             primary={
                                 <span className={this.props.classes.currentItem}>
                                     {this.props.groups[groupOid].name}
@@ -96,7 +96,7 @@ class GroupTabDrawer extends React.Component {
             } else if (!this.props.filter.isEnabled || this.props.groupClass !== 'Variables') {
                 return (
                     <ListItem button key={groupOid} onClick={this.props.selectGroup(groupOid)}>
-                        <ListItemText 
+                        <ListItemText
                             primary={this.props.groups[groupOid].name}
                             secondary={lastItemToolTip}
                         />
@@ -105,7 +105,7 @@ class GroupTabDrawer extends React.Component {
             } else {
                 return (
                     <ListItem button key={groupOid} onClick={this.props.selectGroup(groupOid)}>
-                        <ListItemText 
+                        <ListItemText
                             primary={
                                 <span className={filteredGroupOids.includes(groupOid) ? this.props.classes.filteredGroup : this.props.classes.notFilteredGroup}>
                                     {this.props.groups[groupOid].name}
@@ -152,13 +152,13 @@ class GroupTabDrawer extends React.Component {
                 open={this.props.isOpened}
                 onClose={this.props.onClose}
             >
-                <div 
+                <div
                     className={classes.divDrawer}
                     tabIndex={0}
                     role='button'
                 >
                     <div className={classes.list}>
-                        <TextField 
+                        <TextField
                             className={classes.textField}
                             id='outlined-filter'
                             variant='outlined'

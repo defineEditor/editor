@@ -16,7 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import GroupTabDrawer from 'tabs/groupTabDrawer.js';
+import GroupTabDrawer from 'components/utils/groupTabDrawer.js';
 import VariableTable from 'tabs/variableTable.js';
 import CodedValueTable from 'tabs/codedValueTable.js';
 import AnalysisResultTable from 'tabs/analysisResultTable.js';
