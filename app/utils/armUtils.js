@@ -43,8 +43,12 @@ const copyAnalysisResults = ({
     analysisResultOidList.forEach( analysisResultOid => {
         let analysisResult = clone(sourceAnalysisResults[analysisResultOid]);
         let newAnalysisResultOid = getOid('AnalysisResult', undefined, currentAnalysisResults);
+        // Copy Analysis Datasets data
+        let itemRefList = {};
         Object.values(analysisResult.analysisDatasets).forEach( analysisDataset => {
+            // Check if datasets/variables should be copied
             if (sameDefine) {
+                // In case of the same Define there is no need to copy anything
                 if (analysisDataset.whereClauseOid !== undefined && sourceMdv.itemGroups.hasOwnProperty(analysisDataset.itemGroupOid)) {
                     let whereClause = clone(sourceMdv.whereClauses[analysisDataset.whereClauseOid]);
                     let newWhereClauseOid = getOid('WhereClause', undefined, currentWhereClauses);
@@ -59,15 +63,78 @@ const copyAnalysisResults = ({
             } else {
                 // Check if the target MDV has a dataset with the same name
                 let sourceName = sourceMdv.itemGroups[analysisDataset.itemGroupOid].name;
-                Object.values(mdv.itemGroups).some( itemGroup => {
+                let sameDatasetOid;
+                const sameDatasetExists = Object.values(mdv.itemGroups).some( itemGroup => {
                     if (itemGroup.name === sourceName) {
-                        //
+                        sameDatasetOid = itemGroup.oid;
+                        return true;
                     }
                 });
 
+                // Find which variables need to be copied
+                let sourceItemRefList = [];
+                if (sameDatasetExists) {
+                    let sameDataset = mdv.itemGroups[sameDatasetOid];
+                    analysisDataset.analysisVariableOids.forEach( itemOid => {
+                        let variableName = sourceMdv.itemDefs[itemOid].name;
+                        let sameVariableExists = Object.keys(sameDataset.itemRefs).some( itemRefOid => {
+                            if (mdv.itemDefs[sameDataset.itemRefs[itemRefOid].itemOid].name === variableName) {
+                                return true;
+                            }
+                        });
+                        // If the same variable does not exist in the current MDV, add corresponding ItemRefOid to the list
+                        if (!sameVariableExists) {
+                            let sourceItemRefs = sourceMdv.itemGroups[analysisDataset.itemGroupOid].itemRefs;
+                            Object.keys(sourceItemRefs).some(itemRefOid => {
+                                if (sourceItemRefs[itemRefOid].itemOid === itemOid) {
+                                    sourceItemRefList.push(itemRefOid);
+                                    return true;
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    analysisDataset.analysisVariableOids.forEach( itemOid => {
+                        let sourceItemRefs = sourceMdv.itemGroups[analysisDataset.itemGroupOid].itemRefs;
+                        Object.keys(sourceItemRefs).some(itemRefOid => {
+                            if (sourceItemRefs[itemRefOid].itemOid === itemOid) {
+                                sourceItemRefList.push(itemRefOid);
+                                return true;
+                            }
+                        });
+                    });
+                }
+                itemRefList[analysisDataset.itemGroupOid] = sourceMdv.itemGroups[analysisDataset.itemGroupOid].itemRefs;
 
+                // Copy where clause and variables from it.
+                // In case of the same Define there is no need to copy anything
+                // TODO: Copy where clause
+                if (analysisDataset.whereClauseOid !== undefined && sourceMdv.itemGroups.hasOwnProperty(analysisDataset.itemGroupOid)) {
+                    let whereClause = clone(sourceMdv.whereClauses[analysisDataset.whereClauseOid]);
+                    let newWhereClauseOid = getOid('WhereClause', undefined, currentWhereClauses);
+                    currentWhereClauses.push(newWhereClauseOid);
+                    whereClauses[newWhereClauseOid] = { ...new WhereClause({
+                        ...whereClause,
+                        oid: newWhereClauseOid,
+                        sources: { analysisResults: {[newAnalysisResultOid]: [analysisDataset.itemGroupOid]} }
+                    }) };
+                    analysisDataset.whereClauseOid = newWhereClauseOid;
+                }
             }
+            // Copy ItemGroups
+            // TODO: Need to distinguish situations when the same datasets exists and only some vairables are copied vs dataset is copied
+            /*
+            const { itemGroups, itemGroupComments } = copyItemGroups({
+                mdv,
+                sourceMdv,
+                sameDefine,
+                itemRefList,
+                purpose: this.state.purpose,
+                itemGroupList: this.state.selected,
+            });
+            */
         });
+        // Create new analysis results
         analysisResults[newAnalysisResultOid] = { ...new AnalysisResult({
             ...analysisResult,
             oid: newAnalysisResultOid,

@@ -19,7 +19,17 @@ import compareCodeLists from 'utils/compareCodeLists.js';
 import compareMethods from 'utils/compareMethods.js';
 import compareComments from 'utils/compareComments.js';
 import compareLeafs from 'utils/compareLeafs.js';
-import { ItemDef, ItemRef, ValueList, WhereClause, CodeList, Leaf } from 'core/defineStructure.js';
+import { ItemDef, ItemRef, ItemGroup, ValueList, WhereClause, CodeList, Leaf } from 'core/defineStructure.js';
+
+const defaultExistingOids = {
+    itemGroups: [],
+    itemDefs: [],
+    methods: [],
+    comments: [],
+    codeLists: [],
+    whereClauses: [],
+    valueLists: [],
+};
 
 const copyItems = ({currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, parentItemDefOid, copyVlm, existingOids} = {}) => {
     let itemDefs = {};
@@ -178,17 +188,8 @@ const copyVariables = ({
     copyVlm,
     detachMethods,
     detachComments,
-    existingOids = {
-        itemDefs: [],
-        methods: [],
-        comments: [],
-        codeLists: [],
-        whereClauses: [],
-        valueLists: [],
-    },
-    copiedItems = {
-        codeLists: {},
-    }
+    existingOids = defaultExistingOids,
+    copiedItems = { codeLists: {} }
 } = {}
 ) => {
     let { itemDefs, itemRefs, valueLists, whereClauses, processedItemDefs, processedItemRefs } = copyItems({
@@ -470,4 +471,87 @@ const copyVariables = ({
     });
 };
 
-export default  { copyVariables, copyComment };
+const copyItemGroups = ({
+    mdv,
+    sourceMdv,
+    sameDefine,
+    itemGroupList,
+    itemRefList = {},
+    purpose,
+    copyVlm = true,
+    detachComments = true,
+    detachMethods = true,
+    existingOids = defaultExistingOids,
+    copiedItems = { codeLists: {} }
+} = {}
+) => {
+    let itemGroups = {};
+    let itemGroupComments = {};
+    let currentGroupOids = mdv.order.itemGroupOrder.concat(existingOids.itemGroups);
+    let newExistingOids = clone(existingOids);
+    let newCopiedItems = clone(copiedItems);
+    itemGroupList.forEach( sourceItemGroupOid => {
+        let sourceGroup = sourceMdv.itemGroups[sourceItemGroupOid];
+        let itemGroupOid = getOid('ItemGroup', undefined, currentGroupOids);
+        currentGroupOids.push(itemGroupOid);
+        // If only a subset of itemRefs was requested
+        let itemRefs;
+        if (itemRefList.hasOwnProperty(itemGroupOid)) {
+            itemRefList[itemGroupOid].forEach(itemRefOid => {
+                itemRefs[itemRefOid] = sourceGroup.itemRefs[itemRefOid];
+            });
+        } else {
+            itemRefs = sourceGroup.itemRefs;
+        }
+        let currentGroup = { ...new ItemGroup({ ...sourceGroup, oid: itemGroupOid, purpose }) };
+        // Copy itemGroup comment if it exists
+        if (currentGroup.commentOid !== undefined) {
+            let { newCommentOid, comment, duplicateFound } = copyComment({
+                sourceCommentOid: sourceGroup.commentOid,
+                mdv: mdv,
+                sourceMdv: sourceMdv,
+                searchForDuplicate: (detachComments === false && sameDefine === false),
+                itemGroupOid,
+                existingOids: newExistingOids,
+            });
+            currentGroup.commentOid = newCommentOid;
+            if (!duplicateFound) {
+                itemGroupComments[newCommentOid] = comment;
+                newExistingOids.comments.push(newCommentOid);
+            }
+        }
+        // Copy Variables
+        let result = copyVariables({
+            mdv,
+            sourceMdv,
+            currentGroup,
+            sourceGroup,
+            itemRefList: Object.keys(currentGroup.itemRefs),
+            itemGroupOid,
+            sameDefine,
+            sourceItemGroupOid,
+            copyVlm,
+            detachMethods,
+            detachComments,
+            existingOids: newExistingOids,
+            copiedItems: newCopiedItems,
+        });
+        // Update the list of OIDs, so that they are not reused;
+        newExistingOids.itemGroups.push(currentGroup.oid);
+        ['itemDefs','methods', 'comments', 'codeLists', 'whereClauses', 'valueLists'].forEach( type => {
+            newExistingOids[type] = newExistingOids[type].concat(Object.keys(result[type]));
+        });
+        ['codeLists'].forEach( type => {
+            newCopiedItems[type] = { ...newCopiedItems[type], ...result.codeLists };
+        });
+        currentGroup.itemRefs = result.itemRefs[itemGroupOid];
+        currentGroup.keyOrder = currentGroup.keyOrder.map( itemRefOid => (result.processedItemRefs[itemRefOid]));
+        currentGroup.itemRefOrder = currentGroup.itemRefOrder.map( itemRefOid => (result.processedItemRefs[itemRefOid]));
+        result.itemGroup = currentGroup;
+
+        itemGroups[itemGroupOid] = result;
+    });
+    return { itemGroups, itemGroupComments, existingOids: newExistingOids, copiedItems: newCopiedItems };
+};
+
+export default  { copyVariables, copyComment, copyItemGroups };
