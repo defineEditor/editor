@@ -14,7 +14,7 @@
 
 import getOid from 'utils/getOid.js';
 import clone from 'clone';
-import { copyComment } from 'utils/copyVariables.js';
+import { copyComment } from 'utils/copyUtils.js';
 import { WhereClause } from 'core/defineStructure.js';
 import { AnalysisResult, ResultDisplay } from 'core/armStructure.js';
 
@@ -45,6 +45,9 @@ const copyAnalysisResults = ({
         let newAnalysisResultOid = getOid('AnalysisResult', undefined, currentAnalysisResults);
         // Copy Analysis Datasets data
         let itemRefList = {};
+        let itemGroupList = [];
+        let itemGroupDatasetExistList = [];
+        let newAnalysisDatasets;
         Object.values(analysisResult.analysisDatasets).forEach( analysisDataset => {
             // Check if datasets/variables should be copied
             if (sameDefine) {
@@ -61,19 +64,24 @@ const copyAnalysisResults = ({
                     analysisDataset.whereClauseOid = newWhereClauseOid;
                 }
             } else {
+                // In case ARM is copied from a different study, corresponding datasets/variables (both AnalysisDataset and WhereClause)
+                // should be copied into the new study if they do not exist already
+
                 // Check if the target MDV has a dataset with the same name
-                let sourceName = sourceMdv.itemGroups[analysisDataset.itemGroupOid].name;
+                let sourceDatasetOid = analysisDataset.itemGroupOid;
+                let sourceName = sourceMdv.itemGroups[sourceDatasetOid].name;
                 let sameDatasetOid;
                 const sameDatasetExists = Object.values(mdv.itemGroups).some( itemGroup => {
                     if (itemGroup.name === sourceName) {
                         sameDatasetOid = itemGroup.oid;
+                        itemGroupDatasetExistList.push(sourceDatasetOid);
                         return true;
                     }
                 });
 
-                // Find which variables need to be copied
                 let sourceItemRefList = [];
                 if (sameDatasetExists) {
+                    // Find which variables need to be copied
                     let sameDataset = mdv.itemGroups[sameDatasetOid];
                     analysisDataset.analysisVariableOids.forEach( itemOid => {
                         let variableName = sourceMdv.itemDefs[itemOid].name;
@@ -84,7 +92,7 @@ const copyAnalysisResults = ({
                         });
                         // If the same variable does not exist in the current MDV, add corresponding ItemRefOid to the list
                         if (!sameVariableExists) {
-                            let sourceItemRefs = sourceMdv.itemGroups[analysisDataset.itemGroupOid].itemRefs;
+                            let sourceItemRefs = sourceMdv.itemGroups[sourceDatasetOid].itemRefs;
                             Object.keys(sourceItemRefs).some(itemRefOid => {
                                 if (sourceItemRefs[itemRefOid].itemOid === itemOid) {
                                     sourceItemRefList.push(itemRefOid);
@@ -95,7 +103,7 @@ const copyAnalysisResults = ({
                     });
                 } else {
                     analysisDataset.analysisVariableOids.forEach( itemOid => {
-                        let sourceItemRefs = sourceMdv.itemGroups[analysisDataset.itemGroupOid].itemRefs;
+                        let sourceItemRefs = sourceMdv.itemGroups[sourceDatasetOid].itemRefs;
                         Object.keys(sourceItemRefs).some(itemRefOid => {
                             if (sourceItemRefs[itemRefOid].itemOid === itemOid) {
                                 sourceItemRefList.push(itemRefOid);
@@ -104,11 +112,12 @@ const copyAnalysisResults = ({
                         });
                     });
                 }
-                itemRefList[analysisDataset.itemGroupOid] = sourceMdv.itemGroups[analysisDataset.itemGroupOid].itemRefs;
+                itemRefList[sourceDatasetOid] = sourceItemRefList;
+                itemGroupList.push(sourceDatasetOid);
 
                 // Copy where clause and variables from it.
-                // In case of the same Define there is no need to copy anything
                 // TODO: Copy where clause
+                /*
                 if (analysisDataset.whereClauseOid !== undefined && sourceMdv.itemGroups.hasOwnProperty(analysisDataset.itemGroupOid)) {
                     let whereClause = clone(sourceMdv.whereClauses[analysisDataset.whereClauseOid]);
                     let newWhereClauseOid = getOid('WhereClause', undefined, currentWhereClauses);
@@ -120,7 +129,22 @@ const copyAnalysisResults = ({
                     }) };
                     analysisDataset.whereClauseOid = newWhereClauseOid;
                 }
+                */
             }
+            /*
+            if (!sameDatasetExists) {
+                // If the dataset does not exist, copy the dataset with a subset of variables
+                const { itemGroups, itemGroupComments } = copyItemGroups({
+                    mdv,
+                    sourceMdv,
+                    sameDefine,
+                    itemRefList,
+                    itemGroupList,
+                });
+            } else {
+                // If the dataset exists, copy the the variable only
+            }
+            */
             // Copy ItemGroups
             // TODO: Need to distinguish situations when the same datasets exists and only some vairables are copied vs dataset is copied
             /*
@@ -134,10 +158,15 @@ const copyAnalysisResults = ({
             });
             */
         });
+        // In case of the same define, use the same analysis dataset/variable OID, only with WhereClause copied
+        if (sameDefine) {
+            newAnalysisDatasets = analysisResult.analysisDatasets;
+        }
         // Create new analysis results
         analysisResults[newAnalysisResultOid] = { ...new AnalysisResult({
             ...analysisResult,
             oid: newAnalysisResultOid,
+            analysisDatasets: newAnalysisDatasets,
         }) };
         currentAnalysisResults.push(newAnalysisResultOid);
     });
