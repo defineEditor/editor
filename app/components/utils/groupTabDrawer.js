@@ -45,6 +45,7 @@ const styles = theme => ({
     textField: {
         marginLeft: theme.spacing.unit * 1.3,
         marginTop: theme.spacing.unit * 1.3,
+        paddingRight: theme.spacing.unit * 2.5
     },
 });
 
@@ -162,6 +163,7 @@ class GroupTabDrawer extends React.Component {
                             className={classes.textField}
                             id='outlined-filter'
                             variant='outlined'
+                            fullWidth
                             label={this.props.groupName}
                             autoFocus={true}
                             onFocus={this.handleFocusTextField}
