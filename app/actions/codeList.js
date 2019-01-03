@@ -61,10 +61,11 @@ export const updateExternalCodeList = (oid, updateObj) => (
     }
 );
 
-export const addCodeList = (updateObj) => (
+export const addCodeList = (updateObj, orderNumber) => (
     {
         type: ADD_CODELIST,
         updateObj,
+        orderNumber,
     }
 );
 

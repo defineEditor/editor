@@ -21,9 +21,14 @@ import {
 } from "constants/action-types";
 
 const addCodeList = (state, action) => {
-    let newState = state.slice();
-    newState.push(action.updateObj.oid);
-    return newState;
+    if (action.orderNumber === undefined) {
+        let newState = state.slice();
+        newState.push(action.updateObj.oid);
+        return newState;
+    } else {
+        let newState = state.slice(0, action.orderNumber).concat(action.updateObj.oid).concat(state.slice(action.orderNumber));
+        return newState;
+    }
 };
 
 const updateCodeListOrder = (state, action) => {
