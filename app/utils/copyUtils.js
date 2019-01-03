@@ -479,7 +479,7 @@ const copyItemGroups = ({
         } else {
             itemRefs = sourceGroup.itemRefs;
         }
-        let currentGroup = { ...new ItemGroup({ ...sourceGroup, oid: itemGroupOid, purpose }) };
+        let currentGroup = { ...new ItemGroup({ ...sourceGroup, oid: itemGroupOid, purpose: purpose || sourceGroup.purpose }) };
         // Copy itemGroup comment if it exists
         if (currentGroup.commentOid !== undefined) {
             let { newCommentOid, comment, duplicateFound } = copyComment({
