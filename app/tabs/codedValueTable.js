@@ -20,6 +20,7 @@ import clone from 'clone';
 import deepEqual from 'fast-deep-equal';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
@@ -502,15 +503,14 @@ class ConnectedCodedValueTable extends React.Component {
             <React.Fragment>
                 <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
                     {codeListTitle}
-                    <Button
-                        color="default"
-                        variant='fab'
-                        mini
+                    <Fab
+                        size='small'
+                        color='default'
                         onClick={this.props.openDrawer}
                         className={this.props.classes.drawerButton}
                     >
                         <OpenDrawer/>
-                    </Button>
+                    </Fab>
                     {codeListVariables}
                 </h3>
                 { nonEditable && (

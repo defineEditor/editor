@@ -19,7 +19,7 @@ import { connect } from 'react-redux';
 import { toggleRowSelect } from 'actions/index.js';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import DoneIcon from '@material-ui/icons/DoneAll';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 
 const styles = theme => ({
     editButton: {
@@ -57,10 +57,9 @@ class ToggleRowSelectConnected extends React.Component {
             rowSelect = this.props.tabs.settings[this.props.tabs.currentTab].rowSelect[this.props.oid];
         }
         return (
-            <Button
-                color="default"
-                variant='fab'
-                mini
+            <Fab
+                color='default'
+                size='small'
                 disabled={this.props.disabled}
                 onClick={this.handleChange}
                 className={classes.editButton}
@@ -71,7 +70,7 @@ class ToggleRowSelectConnected extends React.Component {
                     <DoneIcon/>
                 )
                 }
-            </Button>
+            </Fab>
         );
     }
 }

@@ -16,7 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import IconButton from '@material-ui/core/IconButton';
 import Slider from '@material-ui/lab/Slider';
 import Grid from '@material-ui/core/Grid';
@@ -123,9 +123,8 @@ class RedoUndoConnected extends React.Component {
                         />
                     </Grid>
                     <Grid item>
-                        <Button
-                            variant='fab'
-                            mini
+                        <Fab
+                            size='small'
                             color='default'
                             disabled={this.props.pastLength === 0}
                             aria-label='Undo'
@@ -133,12 +132,11 @@ class RedoUndoConnected extends React.Component {
                             onClick={this.props.undo}
                         >
                             <UndoIcon/>
-                        </Button>
+                        </Fab>
                     </Grid>
                     <Grid item>
-                        <Button
-                            variant='fab'
-                            mini
+                        <Fab
+                            size='small'
                             color='default'
                             disabled={this.props.futureLength === 0}
                             aria-label='Redo'
@@ -146,7 +144,7 @@ class RedoUndoConnected extends React.Component {
                             onClick={this.props.redo}
                         >
                             <RedoIcon/>
-                        </Button>
+                        </Fab>
                     </Grid>
                     <Grid item>
                         <IconButton

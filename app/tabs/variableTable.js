@@ -27,6 +27,7 @@ import VariableTabFilter from 'utils/variableTabFilter.js';
 import VariableTabUpdate from 'utils/variableTabUpdate.js';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import grey from '@material-ui/core/colors/grey';
 import indigo from '@material-ui/core/colors/indigo';
 import IconButton from '@material-ui/core/IconButton';
@@ -840,15 +841,14 @@ class ConnectedVariableTable extends React.Component {
             <div>
                 <h3 className={this.props.classes.tableTitle}>
                     {mdv.itemGroups[this.props.itemGroupOid].name + ' (' + getDescription(mdv.itemGroups[this.props.itemGroupOid]) + ')'}
-                    <Button
-                        color="default"
-                        variant='fab'
-                        mini
+                    <Fab
+                        size='small'
+                        color='default'
                         onClick={this.props.openDrawer}
                         className={this.props.classes.drawerButton}
                     >
                         <OpenDrawer/>
-                    </Button>
+                    </Fab>
                 </h3>
                 <BootstrapTable
                     data={dataToShow}

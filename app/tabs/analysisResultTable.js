@@ -17,6 +17,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
 import OpenDrawer from '@material-ui/icons/ArrowUpward';
@@ -113,15 +114,14 @@ class ConnectedAnalysisResultTable extends React.Component {
                                 </h3>
                             </Grid>
                             <Grid>
-                                <Button
-                                    color="default"
-                                    variant='fab'
-                                    mini
+                                <Fab
+                                    size='small'
+                                    color='default'
                                     onClick={this.props.openDrawer}
                                     className={this.props.classes.drawerButton}
                                 >
                                     <OpenDrawer/>
-                                </Button>
+                                </Fab>
                             </Grid>
                         </Grid>
                     </Grid>

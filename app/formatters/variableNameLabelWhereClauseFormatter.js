@@ -15,7 +15,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import Grid from '@material-ui/core/Grid';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
@@ -73,15 +73,14 @@ class VariableNameLabelWhereClauseFormatter extends React.Component {
                     </Grid>
                     {hasVlm &&
                             <Grid item>
-                                <Button
-                                    variant='fab'
-                                    mini
+                                <Fab
+                                    size='small'
                                     color='default'
                                     onClick={this.props.toggleVlmRow(this.props.itemOid)}
                                     className={classes.expandIcon}
                                 >
                                     {state === 'collaps' ? <ExpandMoreIcon/> : <ExpandLessIcon/>}
-                                </Button>
+                                </Fab>
 
                             </Grid>
                     }
