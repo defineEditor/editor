@@ -59,6 +59,7 @@ const styles = theme => ({
 const mapStateToProps = state => {
     return {
         model: state.present.odm.study.metaDataVersion.model,
+        ctExists: Object.keys(state.present.stdCodeLists).length > 0,
     };
 };
 
@@ -84,6 +85,12 @@ class AddCodeListConnected extends React.Component {
         this.setState({ currentTab });
     }
 
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.props.onClose();
+        }
+    }
+
     render() {
         const { classes } = this.props;
         const { currentTab } = this.state;
@@ -95,6 +102,8 @@ class AddCodeListConnected extends React.Component {
                     disableEscapeKeyDown
                     open
                     PaperProps={{className: classes.dialog}}
+                    onKeyDown={this.onKeyDown}
+                    tabIndex='0'
                 >
                     <DialogTitle className={classes.title}>
                         <Grid container spacing={0} justify='space-between' alignItems='center'>
@@ -122,7 +131,11 @@ class AddCodeListConnected extends React.Component {
                                 textColor='primary'
                             >
                                 { tabNames.map( tab => {
-                                    return <Tab key={tab} label={tab} />;
+                                    if (!this.props.ctExists && tab === 'Controlled Terminology') {
+                                        return <Tab key={tab} label={tab} disabled/>;
+                                    } else {
+                                        return <Tab key={tab} label={tab} />;
+                                    }
                                 })
                                 }
                             </Tabs>
@@ -159,6 +172,7 @@ AddCodeListConnected.propTypes = {
     classes       : PropTypes.object.isRequired,
     model         : PropTypes.string.isRequired,
     position      : PropTypes.number,
+    ctExists      : PropTypes.bool,
     onClose       : PropTypes.func.isRequired,
 };
 

@@ -118,6 +118,7 @@ class ControlledTerminologyEditor extends React.Component {
                             label='Controlled Terminology'
                             value={standardOid}
                             select
+                            autoFocus
                             onChange={this.handleChange('updateCt',standardOid)}
                             className={this.props.classes.inputField}
                         >

@@ -84,6 +84,12 @@ class AddDatasetConnected extends React.Component {
         this.setState({ currentTab });
     }
 
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.props.onClose();
+        }
+    }
+
     render() {
         const { classes } = this.props;
         const { currentTab } = this.state;
@@ -95,6 +101,8 @@ class AddDatasetConnected extends React.Component {
                     disableEscapeKeyDown
                     open
                     PaperProps={{className: classes.dialog}}
+                    onKeyDown={this.onKeyDown}
+                    tabIndex='0'
                 >
                     <DialogTitle className={classes.title}>
                         <Grid container spacing={0} justify='space-between' alignItems='center'>

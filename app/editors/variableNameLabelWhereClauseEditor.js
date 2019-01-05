@@ -76,7 +76,6 @@ wcRegex.whereClause = new RegExp(
     , 'i'
 );
 
-
 class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
     constructor (props) {
         super(props);
