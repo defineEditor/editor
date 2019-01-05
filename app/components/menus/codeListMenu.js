@@ -17,9 +17,12 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import Divider from '@material-ui/core/Divider';
+import getOid from 'utils/getOid.js';
 import {
     deleteCodeLists,
-    selectGroup
+    selectGroup,
+    addCodeList,
 } from 'actions/index.js';
 
 // Redux functions
@@ -27,6 +30,7 @@ const mapDispatchToProps = dispatch => {
     return {
         deleteCodeLists : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
         selectGroup     : (updateObj) => dispatch(selectGroup(updateObj)),
+        addCodeList     : (updateObj, orderNumber) => dispatch(addCodeList(updateObj, orderNumber)),
     };
 };
 
@@ -35,10 +39,18 @@ const mapStateToProps = state => {
         codeLists           : state.present.odm.study.metaDataVersion.codeLists,
         codedValuesTabIndex : state.present.ui.tabs.tabNames.indexOf('Coded Values'),
         reviewMode          : state.present.ui.main.reviewMode,
+        codeListOrder       : state.present.odm.study.metaDataVersion.order.codeListOrder,
     };
 };
 
 class ConnectedCodeListMenu extends React.Component {
+
+    insertRecord = (shift) => () => {
+        let codeListOid = getOid('CodeList', undefined, Object.keys(this.props.codeLists));
+        let orderNumber = this.props.codeListOrder.indexOf(this.props.codeListMenuParams.codeListOid) + shift;
+        this.props.addCodeList({oid: codeListOid, name: '', codeListType: 'decoded'}, orderNumber);
+        this.props.onClose();
+    }
 
     deleteCodeList = () => {
         let codeLists = this.props.codeLists;
@@ -83,6 +95,13 @@ class ConnectedCodeListMenu extends React.Component {
                         },
                     }}
                 >
+                    <MenuItem key='Insert Row Above' onClick={this.insertRecord(0)} disabled={this.props.reviewMode}>
+                       Insert Row Above
+                    </MenuItem>
+                    <MenuItem key='Insert Row Below' onClick={this.insertRecord(1)} disabled={this.props.reviewMode}>
+                       Insert Row Below
+                    </MenuItem>
+                    <Divider/>
                     { !(this.props.codeListMenuParams.codeListType === 'external') && (
                         <MenuItem key='EditCodelistValues' onClick={this.editCodeListValues}>
                             View Codelist Values
@@ -100,6 +119,7 @@ class ConnectedCodeListMenu extends React.Component {
 ConnectedCodeListMenu.propTypes = {
     codeListMenuParams : PropTypes.object.isRequired,
     codeLists          : PropTypes.object.isRequired,
+    codeListOrder      : PropTypes.array.isRequired,
     reviewMode         : PropTypes.bool,
 };
 
