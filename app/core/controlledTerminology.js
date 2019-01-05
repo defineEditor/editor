@@ -106,7 +106,13 @@ class ConnectedControlledTerminology extends React.Component {
         let ctIds = this.props.controlledTerminology.allIds;
 
         const sortByVersion = (ct1, ct2) => {
-            return ctList[ct1].version > ctList[ct2].version ? -1 : 1;
+            if (ctList[ct1].version > ctList[ct2].version) {
+                return -1;
+            } else if (ctList[ct1].version < ctList[ct2].version) {
+                return 1;
+            } else {
+                return ctList[ct1].name > ctList[ct2].name ? 1 : -1;
+            }
         };
 
         return ctIds.sort(sortByVersion).map(ctId => {

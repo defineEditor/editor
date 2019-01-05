@@ -99,158 +99,166 @@ class ConnectedAddDefineForm extends React.Component {
         };
     }
 
-  saveDefineAsObject = (defineId, defineData, pathToDefineXml) => {
-      // Calculate define Stats
-      let stats = {};
-      stats.datasets = Object.keys(defineData.study.metaDataVersion.itemGroups).length;
-      stats.codeLists = Object.keys(defineData.study.metaDataVersion.codeLists).length;
-      const countVariables = (varNum, itemDefOid) => {
-          let item = defineData.study.metaDataVersion.itemDefs[itemDefOid];
-          let varCount = varNum;
-          Object.keys(item.sources).forEach( sourceType => {
-              varCount += item.sources[sourceType].length;
-          });
-          return varCount;
-      };
-      stats.variables = Object.keys(defineData.study.metaDataVersion.itemDefs).reduce(countVariables,0);
-      let define = {
-          ...new Define({
-              id: defineId,
-              name: defineData.defineName,
-              pathToFile: pathToDefineXml,
-              stats,
-          })
-      };
-      this.props.addDefine({ define, studyId: this.props.study.id });
-      ipcRenderer.send('writeDefineObject', { odm: defineData, defineId });
-  };
+    saveDefineAsObject = (defineId, defineData, pathToDefineXml) => {
+        // Calculate define Stats
+        let stats = {};
+        stats.datasets = Object.keys(defineData.study.metaDataVersion.itemGroups).length;
+        stats.codeLists = Object.keys(defineData.study.metaDataVersion.codeLists).length;
+        const countVariables = (varNum, itemDefOid) => {
+            let item = defineData.study.metaDataVersion.itemDefs[itemDefOid];
+            let varCount = varNum;
+            Object.keys(item.sources).forEach( sourceType => {
+                varCount += item.sources[sourceType].length;
+            });
+            return varCount;
+        };
+        stats.variables = Object.keys(defineData.study.metaDataVersion.itemDefs).reduce(countVariables,0);
+        let define = {
+            ...new Define({
+                id: defineId,
+                name: defineData.defineName,
+                pathToFile: pathToDefineXml,
+                stats,
+            })
+        };
+        this.props.addDefine({ define, studyId: this.props.study.id });
+        ipcRenderer.send('writeDefineObject', { odm: defineData, defineId });
+    };
 
-  handleNext = data => {
-      const { activeStep } = this.state;
-      if (activeStep === 1) {
-          if (data.defineCreationMethod === 'new') {
-              if (this.state.defineCreationMethod !== 'new') {
-                  this.setState({
-                      activeStep: 2,
-                      defineCreationMethod: 'new',
-                      defineData: null
-                  });
-              } else {
-                  this.setState({
-                      activeStep: 2
-                  });
-              }
-          } else if (data.defineCreationMethod === 'import') {
-              this.setState({
-                  activeStep: 3,
-                  defineCreationMethod: 'import',
-                  defineData: data.defineData,
-                  pathToDefineXml : data.pathToDefineXml,
-              });
-          }
-      } else if (activeStep === 2) {
-          if (this.state.defineCreationMethod === 'new') {
-              this.setState({
-                  activeStep: 3,
-                  defineData: data.defineData
-              });
-          }
-      } else if (activeStep === 3) {
-          this.setState({
-              activeStep: 1,
-              defineCreationMethod: 'new',
-              defineData: null
-          });
-          let defineId = getOid('Define', undefined, this.props.defines.allIds);
-          let defineData = this.state.defineData;
-          defineData.defineId = defineId;
-          defineData.defineName = data;
-          this.saveDefineAsObject(defineId, defineData, this.state.pathToDefineXml);
-          this.props.toggleAddDefineForm({});
-      }
-  };
+    handleNext = data => {
+        const { activeStep } = this.state;
+        if (activeStep === 1) {
+            if (data.defineCreationMethod === 'new') {
+                if (this.state.defineCreationMethod !== 'new') {
+                    this.setState({
+                        activeStep: 2,
+                        defineCreationMethod: 'new',
+                        defineData: null
+                    });
+                } else {
+                    this.setState({
+                        activeStep: 2
+                    });
+                }
+            } else if (data.defineCreationMethod === 'import') {
+                this.setState({
+                    activeStep: 3,
+                    defineCreationMethod: 'import',
+                    defineData: data.defineData,
+                    pathToDefineXml : data.pathToDefineXml,
+                });
+            }
+        } else if (activeStep === 2) {
+            if (this.state.defineCreationMethod === 'new') {
+                this.setState({
+                    activeStep: 3,
+                    defineData: data.defineData
+                });
+            }
+        } else if (activeStep === 3) {
+            this.setState({
+                activeStep: 1,
+                defineCreationMethod: 'new',
+                defineData: null
+            });
+            let defineId = getOid('Define', undefined, this.props.defines.allIds);
+            let defineData = this.state.defineData;
+            defineData.defineId = defineId;
+            defineData.defineName = data;
+            this.saveDefineAsObject(defineId, defineData, this.state.pathToDefineXml);
+            this.props.toggleAddDefineForm({});
+        }
+    };
 
-  handleBack = () => {
-      const { activeStep } = this.state;
-      if (activeStep === 2) {
-          this.setState({
-              activeStep: 1
-          });
-      } else if (activeStep === 3) {
-          if (this.state.defineCreationMethod === 'new') {
-              this.setState({
-                  activeStep: 2
-              });
-          } else if (this.state.defineCreationMethod === 'import') {
-              this.setState({
-                  activeStep: 1
-              });
-          }
-      }
-  };
+    handleBack = () => {
+        const { activeStep } = this.state;
+        if (activeStep === 2) {
+            this.setState({
+                activeStep: 1
+            });
+        } else if (activeStep === 3) {
+            if (this.state.defineCreationMethod === 'new') {
+                this.setState({
+                    activeStep: 2
+                });
+            } else if (this.state.defineCreationMethod === 'import') {
+                this.setState({
+                    activeStep: 1
+                });
+            }
+        }
+    };
 
-  handleCancel = () => {
-      this.props.toggleAddDefineForm({});
-  };
+    handleCancel = () => {
+        this.props.toggleAddDefineForm({});
+    };
 
-  render() {
-      const { classes } = this.props;
-      const steps = getSteps();
-      const { activeStep } = this.state;
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.handleCancel();
+        }
+    }
 
-      return (
-          <Dialog
-              disableBackdropClick
-              disableEscapeKeyDown
-              open={this.props.defineForm}
-              PaperProps={{ className: classes.dialog }}
-          >
-              <DialogTitle>Add Define-XML</DialogTitle>
-              <DialogContent>
-                  <Stepper activeStep={activeStep - 1}>
-                      {steps.map((label, index) => {
-                          const props = {};
-                          const labelProps = {};
-                          return (
-                              <Step key={label} {...props}>
-                                  <StepLabel {...labelProps}>{label}</StepLabel>
-                              </Step>
-                          );
-                      })}
-                  </Stepper>
-                  {activeStep === 1 && (
-                      <AddDefineFormStep1
-                          onNext={this.handleNext}
-                          onCancel={this.handleCancel}
-                          defineCreationMethod={this.state.defineCreationMethod}
-                          defineData={this.state.defineData}
-                      />
-                  )}
-                  {activeStep === 2 && (
-                      <AddDefineFormStep2
-                          onNext={this.handleNext}
-                          onBack={this.handleBack}
-                          onCancel={this.handleCancel}
-                          settings={this.props.settings}
-                          study={this.props.study}
-                          defineData={this.state.defineData}
-                          standardNames={this.props.standardNames}
-                          controlledTerminology={this.props.controlledTerminology}
-                      />
-                  )}
-                  {activeStep === 3 && (
-                      <AddDefineFormStep3
-                          onNext={this.handleNext}
-                          onBack={this.handleBack}
-                          onCancel={this.handleCancel}
-                          defineData={this.state.defineData}
-                          defineCreationMethod={this.state.defineCreationMethod}
-                      />
-                  )}
-              </DialogContent>
-          </Dialog>
-      );
-  }
+    render() {
+        const { classes } = this.props;
+        const steps = getSteps();
+        const { activeStep } = this.state;
+
+        return (
+            <Dialog
+                disableBackdropClick
+                disableEscapeKeyDown
+                open={this.props.defineForm}
+                PaperProps={{ className: classes.dialog }}
+                onKeyDown={this.onKeyDown}
+                tabIndex='0'
+            >
+                <DialogTitle>Add Define-XML</DialogTitle>
+                <DialogContent>
+                    <Stepper activeStep={activeStep - 1}>
+                        {steps.map((label, index) => {
+                            const props = {};
+                            const labelProps = {};
+                            return (
+                                <Step key={label} {...props}>
+                                    <StepLabel {...labelProps}>{label}</StepLabel>
+                                </Step>
+                            );
+                        })}
+                    </Stepper>
+                    {activeStep === 1 && (
+                        <AddDefineFormStep1
+                            onNext={this.handleNext}
+                            onCancel={this.handleCancel}
+                            defineCreationMethod={this.state.defineCreationMethod}
+                            defineData={this.state.defineData}
+                        />
+                    )}
+                    {activeStep === 2 && (
+                        <AddDefineFormStep2
+                            onNext={this.handleNext}
+                            onBack={this.handleBack}
+                            onCancel={this.handleCancel}
+                            settings={this.props.settings}
+                            study={this.props.study}
+                            defineData={this.state.defineData}
+                            standardNames={this.props.standardNames}
+                            controlledTerminology={this.props.controlledTerminology}
+                        />
+                    )}
+                    {activeStep === 3 && (
+                        <AddDefineFormStep3
+                            onNext={this.handleNext}
+                            onBack={this.handleBack}
+                            onCancel={this.handleCancel}
+                            defineData={this.state.defineData}
+                            defineCreationMethod={this.state.defineCreationMethod}
+                        />
+                    )}
+                </DialogContent>
+            </Dialog>
+        );
+    }
 }
 
 ConnectedAddDefineForm.propTypes = {
