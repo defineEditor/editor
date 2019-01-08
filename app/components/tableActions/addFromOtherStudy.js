@@ -21,6 +21,8 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import getSelectionList from 'utils/getSelectionList.js';
 import AddDatasetFromDefine from 'components/tableActions/addDatasetFromDefine.js';
+import AddVariableFromDefine from 'components/tableActions/addVariableFromDefine.js';
+import AddResultDisplayFromDefine from 'components/tableActions/addResultDisplayFromDefine.js';
 
 const styles = theme => ({
     root: {
@@ -45,7 +47,7 @@ const mapStateToProps = (state, props) => {
     };
 };
 
-class addDatasetFromOtherStudyConnected extends React.Component {
+class addFromOtherStudyConnected extends React.Component {
     constructor(props) {
         super(props);
 
@@ -107,6 +109,7 @@ class addDatasetFromOtherStudyConnected extends React.Component {
 
     render() {
         const { classes } = this.props;
+        const sourceExists = Object.keys(this.state.sourceOdm).length > 0;
         return (
             <Grid container spacing={0} className={classes.root}>
                 <Grid item>
@@ -131,9 +134,30 @@ class addDatasetFromOtherStudyConnected extends React.Component {
                         {getSelectionList(this.state.defineList)}
                     </TextField>
                 </Grid>
-                { Object.keys(this.state.sourceOdm).length > 0 &&
+                { sourceExists && this.props.type === 'variable' &&
+                        <Grid item xs={12}>
+                            <AddVariableFromDefine
+                                sourceMdv={this.state.sourceOdm.study.metaDataVersion}
+                                sourceDefineId={this.state.sourceOdm.defineId}
+                                itemGroupOid={this.props.itemGroupOid}
+                                position={this.props.position}
+                                onClose={this.props.onClose}
+                            />
+                        </Grid>
+                }
+                { sourceExists && this.props.type === 'dataset' &&
                         <Grid item xs={12}>
                             <AddDatasetFromDefine
+                                sourceMdv={this.state.sourceOdm.study.metaDataVersion}
+                                sourceDefineId={this.state.sourceOdm.defineId}
+                                position={this.props.position}
+                                onClose={this.props.onClose}
+                            />
+                        </Grid>
+                }
+                { sourceExists && this.props.type === 'resultDisplay' &&
+                        <Grid item xs={12}>
+                            <AddResultDisplayFromDefine
                                 sourceMdv={this.state.sourceOdm.study.metaDataVersion}
                                 sourceDefineId={this.state.sourceOdm.defineId}
                                 position={this.props.position}
@@ -146,15 +170,17 @@ class addDatasetFromOtherStudyConnected extends React.Component {
     }
 }
 
-addDatasetFromOtherStudyConnected.propTypes = {
+addFromOtherStudyConnected.propTypes = {
     classes: PropTypes.object.isRequired,
     studies: PropTypes.object.isRequired,
     defines: PropTypes.object.isRequired,
+    type: PropTypes.string.isRequired,
+    itemGroupOid: PropTypes.string,
     position: PropTypes.string,
     onClose: PropTypes.func.isRequired,
 };
 
-const AddDatasetFromOtherStudy = connect(mapStateToProps)(
-    addDatasetFromOtherStudyConnected
+const AddFromOtherStudy = connect(mapStateToProps)(
+    addFromOtherStudyConnected
 );
-export default withStyles(styles)(AddDatasetFromOtherStudy);
+export default withStyles(styles)(AddFromOtherStudy);

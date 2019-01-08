@@ -28,7 +28,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ClearIcon from '@material-ui/icons/Clear';
 import AddVariableSimple from 'components/tableActions/addVariableSimple.js';
 import AddVariableFromDefine from 'components/tableActions/addVariableFromDefine.js';
-import AddVariableFromOtherStudy from 'components/tableActions/addVariableFromOtherStudy.js';
+import AddFromOtherStudy from 'components/tableActions/addFromOtherStudy.js';
 
 const styles = theme => ({
     dialog: {
@@ -145,9 +145,10 @@ class AddVariableConnected extends React.Component {
                                     />
                             }
                             {tabNames[currentTab] === 'Another Define' &&
-                                    <AddVariableFromOtherStudy
+                                    <AddFromOtherStudy
                                         itemGroupOid={this.props.itemGroupOid}
                                         position={this.props.position}
+                                        type='variable'
                                         onClose={this.props.onClose}
                                     />
                             }

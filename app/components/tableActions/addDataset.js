@@ -28,7 +28,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ClearIcon from '@material-ui/icons/Clear';
 import AddDatasetSimple from 'components/tableActions/addDatasetSimple.js';
 import AddDatasetFromDefine from 'components/tableActions/addDatasetFromDefine.js';
-import AddDatasetFromOtherStudy from 'components/tableActions/addDatasetFromOtherStudy.js';
+import AddFromOtherStudy from 'components/tableActions/addFromOtherStudy.js';
 
 const styles = theme => ({
     dialog: {
@@ -142,8 +142,9 @@ class AddDatasetConnected extends React.Component {
                                     />
                             }
                             {tabNames[currentTab] === 'Another Define' &&
-                                    <AddDatasetFromOtherStudy
+                                    <AddFromOtherStudy
                                         position={this.props.position}
+                                        type='dataset'
                                         onClose={this.props.onClose}
                                     />
                             }

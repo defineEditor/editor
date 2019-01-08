@@ -27,6 +27,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import IconButton from '@material-ui/core/IconButton';
 import ClearIcon from '@material-ui/icons/Clear';
 import AddResultDisplaySimple from 'components/tableActions/addResultDisplaySimple.js';
+import AddFromOtherStudy from 'components/tableActions/addFromOtherStudy.js';
 
 const styles = theme => ({
     dialog: {
@@ -120,7 +121,7 @@ class AddResultDisplayConnected extends React.Component {
                                 textColor='primary'
                             >
                                 { tabNames.map( tab => {
-                                    return <Tab key={tab} label={tab} disabled={tab !== 'New Result Display'} />;
+                                    return <Tab key={tab} label={tab}/>;
                                 })
                                 }
                             </Tabs>
@@ -134,9 +135,9 @@ class AddResultDisplayConnected extends React.Component {
                                 />
                             )}
                             {tabNames[currentTab] === 'Another Define' &&
-                                <AddResultDisplaySimple
-                                    itemGroupOid={this.props.itemGroupOid}
+                                <AddFromOtherStudy
                                     position={this.props.position}
+                                    type='resultDisplay'
                                     onClose={this.props.onClose}
                                 />
                             }

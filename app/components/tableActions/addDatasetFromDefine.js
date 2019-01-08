@@ -204,7 +204,7 @@ class AddDatasetFromDefineConnected extends React.Component {
         this.setState({ [name]: !this.state[name] });
     }
 
-    getVariableTable(defineVersion, classes) {
+    getDatasetTable(defineVersion, classes) {
         const { selected, page, rowsPerPage, searchString, itemGroupsData } = this.state;
 
         let data;
@@ -376,7 +376,7 @@ class AddDatasetFromDefineConnected extends React.Component {
         const { defineVersion, classes } = this.props;
         return (
             <div className={classes.root}>
-                {this.getVariableTable(
+                {this.getDatasetTable(
                     defineVersion,
                     classes
                 )}
