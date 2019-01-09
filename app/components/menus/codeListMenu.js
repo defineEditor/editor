@@ -49,6 +49,14 @@ const mapStateToProps = state => {
 
 class ConnectedCodeListMenu extends React.Component {
 
+    componentDidMount() {
+        window.addEventListener('keydown', this.onKeyDown);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('keydown', this.onKeyDown);
+    }
+
     insertRecord = (shift) => () => {
         let codeListOid = getOid('CodeList', undefined, Object.keys(this.props.codeLists));
         let orderNumber = this.props.codeListOrder.indexOf(this.props.codeListMenuParams.codeListOid) + shift;
@@ -85,6 +93,22 @@ class ConnectedCodeListMenu extends React.Component {
         //insert the codelist
         this.props.addCodeList(codeList, orderNumber);
         this.props.onClose();
+    }
+
+    onKeyDown = (event)  => {
+        // Run only when menu is opened
+        if (Boolean(this.props.anchorEl) === true) {
+            if (event.keyCode === 73) {
+                this.insertRecord(1)();
+            } else if (event.keyCode === 67) {
+                this.copy();
+            } else if (event.keyCode === 80
+                &&
+                !(this.props.reviewMode || this.props.buffer === undefined) ) {
+                this.paste(1)();
+                this.copy();
+            }
+        }
     }
 
     deleteCodeList = () => {
@@ -134,17 +158,17 @@ class ConnectedCodeListMenu extends React.Component {
                         Insert Row Above
                     </MenuItem>
                     <MenuItem key='Insert Row Below' onClick={this.insertRecord(1)} disabled={this.props.reviewMode}>
-                        Insert Row Below
+                        <u>I</u>nsert Row Below
                     </MenuItem>
                     <Divider/>
                     <MenuItem key='Copy Codelist' onClick={this.copy} disabled={this.props.reviewMode}>
-                        Copy Codelist
+                        <u>C</u>opy Codelist
                     </MenuItem>
                     <MenuItem key='Paste Codelist Above' onClick={this.paste(0)} disabled={this.props.reviewMode || this.props.buffer === undefined}>
                         Paste Codelist Above
                     </MenuItem>
                     <MenuItem key='Paste Codellist Below' onClick={this.paste(1)} disabled={this.props.reviewMode || this.props.buffer === undefined}>
-                        Paste Codelist Below
+                        <u>P</u>aste Codelist Below
                     </MenuItem>
                     <Divider/>
                     { !(this.props.codeListMenuParams.codeListType === 'external') && (
