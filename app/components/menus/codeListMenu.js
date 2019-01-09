@@ -70,10 +70,15 @@ class ConnectedCodeListMenu extends React.Component {
     paste = (shift) => () => {
         //copy codelist from the buffer
         let codeList = clone(this.props.codeLists[this.props.buffer.codeListOid]);
-        //change codelist OID and remove links to other codelists, if available
+        //change codelist OID and remove links to other codelists/CT, if available
         codeList.oid = getOid('CodeList', undefined, this.props.codeListOrder);
         if (codeList.hasOwnProperty('linkedCodeListOid')) {
             delete codeList.linkedCodeListOid;
+        }
+        if (codeList.hasOwnProperty('standardOid')) {
+            delete codeList.standardOid;
+            delete codeList.alias;
+            delete codeList.cdiscSubmissionValue;
         }
         //determine the place to insert the codelist to
         let orderNumber = this.props.codeListOrder.indexOf(this.props.codeListMenuParams.codeListOid) + shift;
