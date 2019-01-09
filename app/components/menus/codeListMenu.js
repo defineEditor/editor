@@ -19,18 +19,21 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import getOid from 'utils/getOid.js';
+import clone from 'clone';
 import {
     deleteCodeLists,
     selectGroup,
     addCodeList,
+    updateCopyBuffer,
 } from 'actions/index.js';
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        deleteCodeLists : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
-        selectGroup     : (updateObj) => dispatch(selectGroup(updateObj)),
-        addCodeList     : (updateObj, orderNumber) => dispatch(addCodeList(updateObj, orderNumber)),
+        deleteCodeLists     : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
+        selectGroup         : (updateObj) => dispatch(selectGroup(updateObj)),
+        addCodeList         : (updateObj, orderNumber) => dispatch(addCodeList(updateObj, orderNumber)),
+        updateCopyBuffer    : (updateObj) => dispatch(updateCopyBuffer(updateObj)),
     };
 };
 
@@ -40,6 +43,7 @@ const mapStateToProps = state => {
         codedValuesTabIndex : state.present.ui.tabs.tabNames.indexOf('Coded Values'),
         reviewMode          : state.present.ui.main.reviewMode,
         codeListOrder       : state.present.odm.study.metaDataVersion.order.codeListOrder,
+        buffer              : state.present.ui.main.copyBuffer['codeLists'],
     };
 };
 
@@ -49,6 +53,32 @@ class ConnectedCodeListMenu extends React.Component {
         let codeListOid = getOid('CodeList', undefined, Object.keys(this.props.codeLists));
         let orderNumber = this.props.codeListOrder.indexOf(this.props.codeListMenuParams.codeListOid) + shift;
         this.props.addCodeList({oid: codeListOid, name: '', codeListType: 'decoded'}, orderNumber);
+        this.props.onClose();
+    }
+
+    copy = () => {
+        this.props.updateCopyBuffer({
+            tab: 'codeLists',
+            buffer: {
+                codeListOid: this.props.codeListMenuParams.codeListOid,
+            }
+
+        });
+        this.props.onClose();
+    }
+
+    paste = (shift) => () => {
+        //copy codelist from the buffer
+        let codeList = clone(this.props.codeLists[this.props.buffer.codeListOid]);
+        //change codelist OID and remove links to other codelists, if available
+        codeList.oid = getOid('CodeList', undefined, this.props.codeListOrder);
+        if (codeList.hasOwnProperty('linkedCodeListOid')) {
+            delete codeList.linkedCodeListOid;
+        }
+        //determine the place to insert the codelist to
+        let orderNumber = this.props.codeListOrder.indexOf(this.props.codeListMenuParams.codeListOid) + shift;
+        //insert the codelist
+        this.props.addCodeList(codeList, orderNumber);
         this.props.onClose();
     }
 
@@ -96,10 +126,20 @@ class ConnectedCodeListMenu extends React.Component {
                     }}
                 >
                     <MenuItem key='Insert Row Above' onClick={this.insertRecord(0)} disabled={this.props.reviewMode}>
-                       Insert Row Above
+                        Insert Row Above
                     </MenuItem>
                     <MenuItem key='Insert Row Below' onClick={this.insertRecord(1)} disabled={this.props.reviewMode}>
-                       Insert Row Below
+                        Insert Row Below
+                    </MenuItem>
+                    <Divider/>
+                    <MenuItem key='Copy Codelist' onClick={this.copy} disabled={this.props.reviewMode}>
+                        Copy Codelist
+                    </MenuItem>
+                    <MenuItem key='Paste Codelist Above' onClick={this.paste(0)} disabled={this.props.reviewMode || this.props.buffer === undefined}>
+                        Paste Codelist Above
+                    </MenuItem>
+                    <MenuItem key='Paste Codellist Below' onClick={this.paste(1)} disabled={this.props.reviewMode || this.props.buffer === undefined}>
+                        Paste Codelist Below
                     </MenuItem>
                     <Divider/>
                     { !(this.props.codeListMenuParams.codeListType === 'external') && (
