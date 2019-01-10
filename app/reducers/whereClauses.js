@@ -89,6 +89,8 @@ const deleteWhereClauseRefereces = (state, action) => {
     // { valueListOid1: whereClauseOid1, valueListOid2: whereClauseOid2 }
     // action.deleteObj.valueListOids contains:
     // [valueListOid1, valueListOid2]
+    // action.deleteObj.rangeChangeWhereClauseOids contains:
+    // [itemDefOid1, itemDefOid2]
     let newState = { ...state };
     Object.keys(action.deleteObj.whereClauseOids).forEach( valueListOid => {
         let subAction = {};
@@ -100,6 +102,20 @@ const deleteWhereClauseRefereces = (state, action) => {
                 newState = deleteWhereClause(newState, subAction);
             }
         });
+    });
+    // If a variable was removed and is references in a where clause, remove reference to it from the where clause
+    Object.keys(action.deleteObj.rangeChangeWhereClauseOids).forEach( whereClauseOid => {
+        if (newState.hasOwnProperty(whereClauseOid)) {
+            let whereClause = newState[whereClauseOid];
+            let deletedItemOids = action.deleteObj.rangeChangeWhereClauseOids[whereClauseOid];
+            let newRangeChecks = whereClause.rangeChecks.slice();
+            newRangeChecks.forEach( (rangeCheck, index) => {
+                if (deletedItemOids.includes(rangeCheck.itemOid)) {
+                    newRangeChecks.splice(index, 1, { ...rangeCheck, itemOid: undefined, itemGroupOid: undefined });
+                }
+            });
+            newState = { ...newState, [whereClauseOid] : { ...whereClause, rangeChecks: newRangeChecks } };
+        }
     });
     return newState;
 };
@@ -164,6 +180,7 @@ const deleteItemGroups = (state, action) => {
         let subAction = {deleteObj: {}, source: { itemGroupOid }};
         subAction.deleteObj.whereClauseOids = action.deleteObj.itemGroupData[itemGroupOid].whereClauseOids;
         subAction.deleteObj.valueListOids = action.deleteObj.itemGroupData[itemGroupOid].valueListOids;
+        subAction.deleteObj.rangeChangeWhereClauseOids = action.deleteObj.itemGroupData[itemGroupOid].rangeChangeWhereClauseOids;
         newState = deleteWhereClauseRefereces(newState, subAction);
     });
     return newState;

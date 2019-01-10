@@ -61,6 +61,24 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
             return mdv.valueLists[valueListOid].itemRefs[itemRefOid].whereClauseOid;
         });
     });
+    // Some of the where clauses can use deleted variables, collect such variables
+    let rangeChangeWhereClauseOids = {};
+    Object.keys(mdv.whereClauses).forEach( whereClauseOid => {
+        const whereClause = mdv.whereClauses[whereClauseOid];
+        let matchedOids = [];
+        Object.values(whereClause.rangeChecks).forEach( rangeCheck => {
+            if (rangeCheck.itemGroupOid === itemGroupOid || rangeCheck.itemGroupOid === undefined) {
+                // Search for the deleted itemDefs
+                if (itemDefOids.includes(rangeCheck.itemOid)) {
+                    matchedOids.push(rangeCheck.itemOid);
+                }
+            }
+        });
+        if (matchedOids.length > 0) {
+            rangeChangeWhereClauseOids[whereClauseOid] = matchedOids;
+        }
+    });
+
     // Form an object of comments to remove {commentOid: [itemOid1, itemOid2, ...]}
     let commentOids = { itemDefs: {}, whereClauses:  {} };
     // Comments which are referenced by ItemDefs with multiple sources cannot be deleted at this stage
@@ -192,6 +210,31 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
         });
     });
 
+    // ARM analysis datasets using the variable
+    // Find analysisResults using corresponding dataset
+    let analysisResultOids = {};
+    if (mdv.analysisResultDisplays !== undefined && Object.keys(mdv.analysisResultDisplays).length > 0) {
+        Object.keys(mdv.analysisResultDisplays.analysisResults).forEach( analysisResultOid => {
+            const analysisResult = mdv.analysisResultDisplays.analysisResults[analysisResultOid];
+            Object.values(analysisResult.analysisDatasets).forEach( analysisDataset => {
+                if (analysisDataset.itemGroupOid === itemGroupOid) {
+                    // Search for the deleted itemDefs
+                    let matchedOids = [];
+                    analysisDataset.analysisVariableOids.forEach( itemDefOid => {
+                        if (itemDefOids.includes(itemDefOid)) {
+                            matchedOids.push(itemDefOid);
+                        }
+                    });
+                    if (analysisResultOids[analysisResultOid] === undefined) {
+                        analysisResultOids[analysisResultOid] = { [itemGroupOid]: matchedOids };
+                    } else {
+                        analysisResultOids[analysisResultOid][itemGroupOid] = matchedOids;
+                    }
+                }
+            });
+        });
+    }
+
     return (
         {
             itemRefOids,
@@ -204,7 +247,9 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
             vlmMethodOids,
             codeListOids,
             valueListOids,
-            whereClauseOids
+            whereClauseOids,
+            analysisResultOids,
+            rangeChangeWhereClauseOids,
         }
     );
 }

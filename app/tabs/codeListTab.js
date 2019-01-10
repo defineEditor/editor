@@ -398,6 +398,17 @@ class ConnectedCodeListTable extends React.Component {
                         </Button>
                     </Grid>
                     <Grid item>
+                        <Button
+                            color='default'
+                            mini
+                            onClick={this.attachStandardCodeList}
+                            disabled={this.props.reviewMode}
+                            variant='contained'
+                        >
+                            Link Codelists
+                        </Button>
+                    </Grid>
+                    <Grid item>
                         <CodeListOrderEditor/>
                     </Grid>
                 </Grid>
