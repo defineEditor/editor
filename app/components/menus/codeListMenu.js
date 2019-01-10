@@ -80,7 +80,7 @@ class ConnectedCodeListMenu extends React.Component {
         let codeList = clone(this.props.codeLists[this.props.buffer.codeListOid]);
         //change codelist OID/name and remove sources/links to other codelists, if available
         codeList.oid = getOid('CodeList', undefined, this.props.codeListOrder);
-        codeList.name = codeList.name + "_COPY";
+        codeList.name = codeList.name + " (Copy)";
         codeList.linkedCodeListOid = undefined;
         codeList.sources = undefined;
         //determine the place to insert the codelist to
@@ -99,7 +99,6 @@ class ConnectedCodeListMenu extends React.Component {
                 this.copy();
             } else if (event.keyCode === 80 && !(this.props.buffer === undefined) ) {
                 this.paste(1)();
-                //this.copy();
             }
         }
     }
