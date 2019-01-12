@@ -24,6 +24,7 @@ import {
     UI_UPDCOPYBUFFER,
     UI_TOGGLEREVIEWMODE,
     ADD_ODM,
+    DEL_CODELISTS,
 } from 'constants/action-types';
 import { ui } from 'constants/initialValues.js';
 
@@ -106,6 +107,14 @@ const updateCopyBuffer = (state, action) => {
     return { ...state, copyBuffer: { ...state.copyBuffer, [action.updateObj.tab] : action.updateObj.buffer } };
 };
 
+const deleteCodeLists = (state, action) => {
+    if (state.copyBuffer.hasOwnProperty('codeLists') && action.deleteObj.codeListOids.includes(state.copyBuffer.codeLists.codeListOid)) {
+        return { ...state, copyBuffer: { ...state.copyBuffer, codeLists: undefined }, };
+    } else {
+        return state;
+    }
+};
+
 const handleDummyAction = (state, action) => {
     return { ...state, main: { ...state.main, dummyActionTimeStamp: new Date().toString() } };
 };
@@ -139,6 +148,8 @@ const main = (state = initialState, action) => {
             return handleDummyAction(state, action);
         case ADD_ODM:
             return handleOdmChange(state, action);
+        case DEL_CODELISTS:
+            return deleteCodeLists(state, action);
         default: {
             if (action.type !== undefined
                 && state.isCurrentDefineSaved
