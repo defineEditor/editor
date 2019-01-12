@@ -213,6 +213,22 @@ function codeListTypeFormatter (cell, row) {
     }
 }
 
+function compareArrays (array1, length1, array2, length2) {
+    if (length1 === 0 || length2 === 0) {
+        // if one of arrays is empty, then return false. This is done to avoid 'false positive' when comparing two empty arrays
+        return false;
+    } else if (length1 !== length2) {
+        return false;
+    } else {
+        for (let i = 0; i < length1; i++) {
+            if (array1[i] !== array2[i]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 class ConnectedCodeListTable extends React.Component {
     constructor(props) {
         super(props);
@@ -398,6 +414,17 @@ class ConnectedCodeListTable extends React.Component {
                         </Button>
                     </Grid>
                     <Grid item>
+                        <Button
+                            color='default'
+                            mini
+                            onClick={this.linkCodelists}
+                            disabled={this.props.reviewMode}
+                            variant='contained'
+                        >
+                            Link Codelists
+                        </Button>
+                    </Grid>
+                    <Grid item>
                         <CodeListOrderEditor/>
                     </Grid>
                 </Grid>
@@ -434,6 +461,48 @@ class ConnectedCodeListTable extends React.Component {
             this.props.updateCodeListsStandard(updatedCodeListData);
         }
     }
+
+    linkCodelists = () => {
+        // retrieve enumerated codelists to an object;
+        let enumeratedCodeLists = Object.keys(this.props.codeLists)
+            // filter codelists to enumerated
+            .filter( codeList => this.props.codeLists[codeList].codeListType === 'enumerated')
+            // create new object that includes only filtered codelists
+            .reduce( (object, key) => {
+                // map assigns array of codelist values to property 'key'
+                object[key] = this.props.codeLists[key].itemOrder.map( item => {
+                    return this.props.codeLists[key].enumeratedItems[item].codedValue;
+                });
+                return object;
+            }, {} );
+        // analogously retrieve decoded codelists to an object;
+        let decodedCodeLists = Object.keys(this.props.codeLists)
+            .filter( codeList => this.props.codeLists[codeList].codeListType === 'decoded')
+            .reduce( (object, key) => {
+                object[key] = this.props.codeLists[key].itemOrder.map( item => {
+                    return this.props.codeLists[key].codeListItems[item].decodes[0].value;
+                });
+                return object;
+            }, {} );
+        // create object with codelists to link: property enumerateCodeList - value decodedCodeList
+        const linkedCodeLists = Object.keys(enumeratedCodeLists)
+            // iterate on  enumeratedCodelists properties
+            .reduce( (object, key) => {
+                // iterate on decodedCodelists properties
+                // stop on finding a match/delete the respective decodedCodelists property to avoid comparing to already linked codelist
+                Object.keys(decodedCodeLists).some( (element, index) => {
+                    return compareArrays(enumeratedCodeLists[key], enumeratedCodeLists[key].length, decodedCodeLists[element], decodedCodeLists[element].length) ?
+                        ((object[key] = element, delete decodedCodeLists[element]), true) : false;
+                });
+                return object;
+            }, {} );
+        // this is for 'use' of linkedCodeLists to commit without eslint error/to delete
+        if (linkedCodeLists) {
+            return;
+        }
+        return;
+    }
+
     deleteRows = () => {
         let codeLists = this.props.codeLists;
         let codeListOids = this.state.selectedRows;
