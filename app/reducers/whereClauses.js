@@ -175,7 +175,42 @@ const deleteItemGroups = (state, action) => {
     // action.deleteObj.itemGroupData contains:
     // {[itemGroupOid] : whereClauseOids: { vlOid1: [wcOid1, ...], vlmOid2 : [...], ....]}}
     // {[itemGroupOid] : valueListOids: { [vlOid1, vlOid2, ...]}}
+    // action.deleteObj.analysisResultOids contains:
+    // { [itemGroupOid1: { analysisResultsOid1: { itemGroupOid1: [itemOid1, itemOid2, ...] } ] }
+
     let newState = { ...state };
+
+    // Transform the delete object to { analysisResultOid1: [itemGroupOid1, ...], ...}
+    let itemGroupsToDelete = {};
+    Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
+        const analysisResultOids = action.deleteObj.itemGroupData[itemGroupOid].analysisResultOids;
+        Object.keys(analysisResultOids).forEach( analysisResultOid => {
+            if (itemGroupsToDelete.hasOwnProperty(analysisResultOid) && !itemGroupsToDelete[analysisResultOid].includes(itemGroupOid)) {
+                itemGroupsToDelete[analysisResultOid].push(itemGroupOid);
+            } else {
+                itemGroupsToDelete[analysisResultOid] = [itemGroupOid];
+            }
+        });
+    });
+    // Remove corresponding refences to ARM
+    Object.keys(newState).forEach( whereClauseOid => {
+        const whereClause = newState[whereClauseOid];
+        let sources = whereClause.sources.analysisResults;
+        const arList = Object.keys(itemGroupsToDelete);
+        if (sources !== undefined) {
+            Object.keys(sources).forEach( analysisResultOid => {
+                if (arList.includes(analysisResultOid)) {
+                    itemGroupsToDelete[analysisResultOid].forEach( itemGroupOid => {
+                        let subAction = {};
+                        subAction.whereClause = whereClause;
+                        subAction.source ={ type: 'analysisResults', oid: itemGroupOid, typeOid: analysisResultOid };
+                        newState = deleteWhereClause(newState, subAction);
+                    });
+                }
+            });
+        }
+    });
+
     Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
         let subAction = {deleteObj: {}, source: { itemGroupOid }};
         subAction.deleteObj.whereClauseOids = action.deleteObj.itemGroupData[itemGroupOid].whereClauseOids;
