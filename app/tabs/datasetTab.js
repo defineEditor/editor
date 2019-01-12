@@ -307,12 +307,18 @@ class ConnectedDatasetTable extends React.Component {
         }
     }
 
+    cleanSelection = () => {
+        if (this.state.selectedRows.length > 0)  {
+            this.setState({ selectedRows: [] });
+        }
+    }
+
     createCustomButtonGroup = props => {
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={16}>
                     <Grid item>
-                        <ToggleRowSelect oid='overall' disabled={this.props.reviewMode}/>
+                        <ToggleRowSelect oid='overall' disabled={this.props.reviewMode} cleanSelection={this.cleanSelection}/>
                     </Grid>
                     <Grid item>
                         <Button

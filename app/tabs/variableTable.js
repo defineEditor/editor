@@ -571,12 +571,18 @@ class ConnectedVariableTable extends React.Component {
         this.props.setVlmState({ itemGroupOid: this.props.itemGroupOid }, { vlmState });
     }
 
+    cleanSelection = () => {
+        if (this.state.selectedRows.length > 0 || Object.keys(this.state.selectedVlmRows).length > 0) {
+            this.setState({selectedVlmRows: {}, selectedRows: []});
+        }
+    }
+
     createCustomButtonGroup = props => {
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={16}>
                     <Grid item>
-                        <ToggleRowSelect oid='overall' disabled={this.props.reviewMode}/>
+                        <ToggleRowSelect oid='overall' disabled={this.props.reviewMode} cleanSelection={this.cleanSelection}/>
                     </Grid>
                     <Grid item>
                         <Button

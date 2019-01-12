@@ -311,6 +311,12 @@ class ConnectedCodedValueTable extends React.Component {
         return true;
     }
 
+    cleanSelection = () => {
+        if (this.state.selectedRows.length > 0)  {
+            this.setState({ selectedRows: [] });
+        }
+    }
+
     createCustomButtonGroup = props => {
         let codeList = this.props.codeLists[this.props.codeListOid];
         let enumAndHasLinked = (codeList.codeListType === 'enumerated' && codeList.linkedCodeListOid !== undefined);
@@ -323,7 +329,7 @@ class ConnectedCodedValueTable extends React.Component {
             <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={16}>
                     <Grid item>
-                        <ToggleRowSelect oid='overall' disabled={this.props.reviewMode}/>
+                        <ToggleRowSelect oid='overall' disabled={this.props.reviewMode} cleanSelection={this.cleanSelection}/>
                     </Grid>
                     <Grid item>
                         <Button
