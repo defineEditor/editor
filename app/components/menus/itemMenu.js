@@ -224,7 +224,6 @@ class ConnectedItemMenu extends React.Component {
                 &&
                 !(this.props.reviewMode || (this.props.buffer === undefined || this.props.buffer.vlmLevel !== this.props.itemMenuParams.vlmLevel)) ) {
                 this.paste(1)();
-                this.copy();
             }
         }
     }
