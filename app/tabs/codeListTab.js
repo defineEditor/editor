@@ -49,6 +49,7 @@ import {
     updateCodeListsStandard,
     updateExternalCodeList,
     deleteCodeLists,
+    updateLinkCodeLists,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -65,6 +66,7 @@ const mapDispatchToProps = dispatch => {
         updateCodeListsStandard : (updateObj) => dispatch(updateCodeListsStandard(updateObj)),
         updateExternalCodeList  : (oid, updateObj) => dispatch(updateExternalCodeList(oid, updateObj)),
         deleteCodeLists         : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
+        updateLinkCodeLists     : (updateObj) => dispatch(updateLinkCodeLists(updateObj)),
     };
 };
 
@@ -497,10 +499,10 @@ class ConnectedCodeListTable extends React.Component {
                 return object;
             }, {} );
         // this is for 'use' of linkedCodeLists to commit without eslint error/to delete
-        if (linkedCodeLists) {
-            return;
+        if (Object.keys(linkedCodeLists).length !== 0) {
+            // perform an action only if there are codelists to link
+            this.props.updateLinkCodeLists(linkedCodeLists);
         }
-        return;
     }
 
     deleteRows = () => {
