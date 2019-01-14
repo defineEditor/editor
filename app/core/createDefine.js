@@ -334,7 +334,7 @@ function createWhereClauseDef (data, version) {
             let rangeCheckObj = {
                 '@Comparator'  : rangeCheck.comparator,
                 '@SoftHard'    : rangeCheck.softHard,
-                '@def:ItemOID' : rangeCheck.itemOid,
+                '@def:ItemOID' : rangeCheck.itemOid||'',
                 'CheckValue'   : []
             };
             // Add check values
