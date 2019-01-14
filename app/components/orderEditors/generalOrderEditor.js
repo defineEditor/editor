@@ -1,6 +1,6 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
+* and edit XML files created using the CDISC Define-XML standard.                  *
 * Copyright (C) 2018 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
@@ -24,7 +24,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItem from '@material-ui/core/ListItem';
 import List from '@material-ui/core/List';
 import LowPriority from '@material-ui/icons/LowPriority';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import Grid from '@material-ui/core/Grid';
 import SaveCancel from 'editors/saveCancel.js';
 
@@ -162,16 +162,15 @@ class GeneralOrderEditor extends React.Component {
         return (
             <React.Fragment>
                 { !this.props.noButton &&
-                        <Button
-                            color="default"
-                            variant='fab'
-                            mini
+                        <Fab
+                            color='default'
+                            size='small'
                             onClick={this.handleOpen}
                             className={classes.editButton}
                             disabled={this.props.disabled}
                         >
                             <LowPriority/>
-                        </Button>
+                        </Fab>
                 }
                 <Dialog
                     disableBackdropClick

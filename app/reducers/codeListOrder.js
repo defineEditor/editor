@@ -1,6 +1,6 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
+* and edit XML files created using the CDISC Define-XML standard.                  *
 * Copyright (C) 2018 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
@@ -21,9 +21,14 @@ import {
 } from "constants/action-types";
 
 const addCodeList = (state, action) => {
-    let newState = state.slice();
-    newState.push(action.updateObj.oid);
-    return newState;
+    if (action.orderNumber === undefined) {
+        let newState = state.slice();
+        newState.push(action.updateObj.oid);
+        return newState;
+    } else {
+        let newState = state.slice(0, action.orderNumber).concat(action.updateObj.oid).concat(state.slice(action.orderNumber));
+        return newState;
+    }
 };
 
 const updateCodeListOrder = (state, action) => {

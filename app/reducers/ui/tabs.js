@@ -1,6 +1,6 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
+* and edit XML files created using the CDISC Define-XML standard.                  *
 * Copyright (C) 2018 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
@@ -153,10 +153,9 @@ const loadTabs = (state, action) => {
             let actualSettings = action.updateObj.settings;
             initialState.settings.some( (setting, index) => {
                 let actualSetting = actualSettings[index];
-                // Check if any high-level setting properties changed
+                // Check if any of the high-level setting properties changed
                 isDifferent = Object.keys(setting).some( settingProp => (!actualSetting.hasOwnProperty(settingProp) && setting[settingProp] !== undefined));
                 if (isDifferent) {
-                    console.log(setting, actualSetting);
                     return true;
                 }
                 if (setting.hasOwnProperty('columns') && actualSetting.hasOwnProperty('columns')) {

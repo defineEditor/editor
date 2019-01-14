@@ -1,6 +1,6 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
+* and edit XML files created using the CDISC Define-XML standard.                  *
 * Copyright (C) 2018 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
@@ -23,7 +23,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import WhereClauseInteractiveEditor from 'editors/whereClauseInteractiveEditor.js';
 import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
 
@@ -134,15 +134,14 @@ class VariableWhereClauseEditor extends React.Component {
                 {interactiveMode && (
                     <Grid item xs={12} className={classes.whereClause}>
                         {this.state.whereClauseLine}
-                        <Button
-                            variant="fab"
-                            mini
-                            color="default"
+                        <Fab
+                            size='small'
+                            color='default'
                             onClick={this.handleOpen}
                             className={classes.editButton}
                         >
                             <EditIcon />
-                        </Button>
+                        </Fab>
                         <Dialog
                             disableBackdropClick
                             disableEscapeKeyDown

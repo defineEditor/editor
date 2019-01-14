@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
+* and edit XML files created using the CDISC Define-XML standard.                  *
+* Copyright (C) 2018, 2019 Dmitry Kolosov                                          *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -13,6 +13,7 @@
 ***********************************************************************************/
 
 import getOid from 'utils/getOid.js';
+import getOidByName from 'utils/getOidByName.js';
 import clone from 'clone';
 import compareCodeLists from 'utils/compareCodeLists.js';
 import compareMethods from 'utils/compareMethods.js';
@@ -425,11 +426,34 @@ const copyVariables = ({
                 Object.keys(mdv.itemGroups).includes(rangeCheck.itemGroupOid)
                 &&
                 Object.keys(mdv.itemDefs).includes(rangeCheck.itemOid)
+                &&
+                sameDefine
             ) {
                 // Do nothing - the variable is already in the metadata
             } else {
-                rangeCheck.itemGroupOid = undefined;
-                rangeCheck.itemOid = undefined;
+                // Search for the variable in the current dataset
+                let newItemOid;
+                if (sourceMdv.itemDefs.hasOwnProperty(rangeCheck.itemOid)) {
+                    newItemOid = getOidByName(mdv, 'itemDefs', sourceMdv.itemDefs[rangeCheck.itemOid].name, currentGroup.oid);
+                }
+
+                if (newItemOid !== undefined) {
+                    rangeCheck.itemGroupOid = currentGroup.oid;
+                    rangeCheck.itemOid = newItemOid;
+                } else {
+                    // Search for the variable in the current Define
+                    if (sourceMdv.itemGroups.hasOwnProperty(rangeCheck.itemGroupOid)) {
+                        // If the name is not found, it will be set to undefined
+                        rangeCheck.itemGroupOid  = getOidByName(mdv, 'itemGroups', sourceMdv.itemGroups[rangeCheck.itemGroupOid].name);
+                    } else {
+                        rangeCheck.itemGroupOid  = undefined;
+                    }
+                    if (sourceMdv.itemDefs.hasOwnProperty(rangeCheck.itemOid)) {
+                        rangeCheck.itemOid = getOidByName(mdv, 'itemDefs', sourceMdv.itemDefs[rangeCheck.itemOid].name, rangeCheck.itemGroupOid);
+                    } else {
+                        rangeCheck.itemOid  = undefined;
+                    }
+                }
             }
         });
     });

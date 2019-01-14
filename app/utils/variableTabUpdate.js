@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
+* and edit XML files created using the CDISC Define-XML standard.                  *
+* Copyright (C) 2018, 2019 Dmitry Kolosov                                          *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -27,6 +27,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import Typography from '@material-ui/core/Typography';
 import getSelectionList from 'utils/getSelectionList.js';
 import VariableTabUpdateField from 'utils/variableTabUpdateField.js';
@@ -482,28 +483,26 @@ class ConnectedVariableTabUpdate extends React.Component {
                     <Grid container spacing={16} alignItems='flex-end'>
                         <Grid item xs={12}>
                             <Typography>
-                                <Button
+                                <Fab
                                     aria-owns={showSelectedRecords ? 'selectedRecordsPopover' : null}
                                     aria-haspopup="true"
-                                    variant='fab'
+                                    size='small'
                                     key='items'
-                                    mini
                                     onClick={(event) => {event.preventDefault(); this.handlePopoverOpen(event);}}
                                     className={classes.filteredItemsCount}
                                     disabled={ this.state.selectedItems.length === 0 }
                                 >
                                     {itemNum}
-                                </Button>
+                                </Fab>
                                 &nbsp;&nbsp;items are selected for update.&nbsp;&nbsp;&nbsp;&nbsp;
-                                <Button
+                                <Fab
                                     color='default'
-                                    variant='fab'
+                                    size='small'
                                     key='filter'
-                                    mini
                                     onClick={ () => { this.setState({ showFilter: true }); } }
                                 >
                                     <FilterListIcon />
-                                </Button>
+                                </Fab>
                             </Typography>
                         </Grid>
                         <Grid item xs={12} className={classes.controlButtons}>

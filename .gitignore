@@ -9,5 +9,6 @@ app/temp
 app/main.prod*
 *.swp
 *.log
+*~
 .tern-project
 .eslintcache

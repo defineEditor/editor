@@ -1,6 +1,6 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
+* and edit XML files created using the CDISC Define-XML standard.                  *
 * Copyright (C) 2018 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
@@ -334,7 +334,7 @@ function createWhereClauseDef (data, version) {
             let rangeCheckObj = {
                 '@Comparator'  : rangeCheck.comparator,
                 '@SoftHard'    : rangeCheck.softHard,
-                '@def:ItemOID' : rangeCheck.itemOid,
+                '@def:ItemOID' : rangeCheck.itemOid||'',
                 'CheckValue'   : []
             };
             // Add check values

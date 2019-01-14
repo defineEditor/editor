@@ -1,6 +1,6 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
+* and edit XML files created using the CDISC Define-XML standard.                  *
 * Copyright (C) 2018 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
@@ -20,6 +20,7 @@ import clone from 'clone';
 import deepEqual from 'fast-deep-equal';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
@@ -310,6 +311,12 @@ class ConnectedCodedValueTable extends React.Component {
         return true;
     }
 
+    cleanSelection = () => {
+        if (this.state.selectedRows.length > 0)  {
+            this.setState({ selectedRows: [] });
+        }
+    }
+
     createCustomButtonGroup = props => {
         let codeList = this.props.codeLists[this.props.codeListOid];
         let enumAndHasLinked = (codeList.codeListType === 'enumerated' && codeList.linkedCodeListOid !== undefined);
@@ -322,7 +329,7 @@ class ConnectedCodedValueTable extends React.Component {
             <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={16}>
                     <Grid item>
-                        <ToggleRowSelect oid='overall' disabled={this.props.reviewMode}/>
+                        <ToggleRowSelect oid='overall' disabled={this.props.reviewMode} cleanSelection={this.cleanSelection}/>
                     </Grid>
                     <Grid item>
                         <Button
@@ -502,15 +509,14 @@ class ConnectedCodedValueTable extends React.Component {
             <React.Fragment>
                 <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
                     {codeListTitle}
-                    <Button
-                        color="default"
-                        variant='fab'
-                        mini
+                    <Fab
+                        size='small'
+                        color='default'
                         onClick={this.props.openDrawer}
                         className={this.props.classes.drawerButton}
                     >
                         <OpenDrawer/>
-                    </Button>
+                    </Fab>
                     {codeListVariables}
                 </h3>
                 { nonEditable && (

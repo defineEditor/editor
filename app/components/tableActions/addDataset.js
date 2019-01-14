@@ -1,6 +1,6 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
+* and edit XML files created using the CDISC Define-XML standard.                  *
 * Copyright (C) 2018 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
@@ -84,6 +84,12 @@ class AddDatasetConnected extends React.Component {
         this.setState({ currentTab });
     }
 
+    onKeyDown = (event)  => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.props.onClose();
+        }
+    }
+
     render() {
         const { classes } = this.props;
         const { currentTab } = this.state;
@@ -95,6 +101,8 @@ class AddDatasetConnected extends React.Component {
                     disableEscapeKeyDown
                     open
                     PaperProps={{className: classes.dialog}}
+                    onKeyDown={this.onKeyDown}
+                    tabIndex='0'
                 >
                     <DialogTitle className={classes.title}>
                         <Grid container spacing={0} justify='space-between' alignItems='center'>

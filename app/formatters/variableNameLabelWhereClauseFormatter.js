@@ -1,6 +1,6 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
+* and edit XML files created using the CDISC Define-XML standard.                  *
 * Copyright (C) 2018 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
@@ -15,7 +15,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import Grid from '@material-ui/core/Grid';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
@@ -73,15 +73,14 @@ class VariableNameLabelWhereClauseFormatter extends React.Component {
                     </Grid>
                     {hasVlm &&
                             <Grid item>
-                                <Button
-                                    variant='fab'
-                                    mini
+                                <Fab
+                                    size='small'
                                     color='default'
                                     onClick={this.props.toggleVlmRow(this.props.itemOid)}
                                     className={classes.expandIcon}
                                 >
                                     {state === 'collaps' ? <ExpandMoreIcon/> : <ExpandLessIcon/>}
-                                </Button>
+                                </Fab>
 
                             </Grid>
                     }

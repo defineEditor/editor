@@ -1,6 +1,6 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
+* and edit XML files created using the CDISC Define-XML standard.                  *
 * Copyright (C) 2018 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
@@ -24,6 +24,8 @@ import {
     ADD_ANALYSISRESULTS,
     DEL_ANALYSISRESULT,
     UPD_ANALYSISRESULT,
+    DEL_VARS,
+    DEL_ITEMGROUPS,
 } from "constants/action-types";
 import { AnalysisResultDisplays, ResultDisplay, AnalysisResult } from 'core/armStructure.js';
 import getOid from 'utils/getOid.js';
@@ -208,6 +210,78 @@ const addResultDisplays = (state, action) => {
     };
 };
 
+const handleDeleteVariables = (state, action) => {
+    // action.deleteObj.analysisResultOids contains:
+    // { analysisResultsOid1: { itemGroupOid1: [itemOid1, itemOid2, ...] } }
+    let analysisResultOids = action.deleteObj.analysisResultOids;
+    if (Object.keys(action.deleteObj.analysisResultOids).length > 0) {
+        // Delete corresponding variables references in analysis datasets
+        let newAnalysisResults = { ...state.analysisResults };
+        Object.keys(analysisResultOids).forEach( analysisResultOid => {
+            const analysisResult = newAnalysisResults[analysisResultOid];
+            let newAnalysisDatasets = { ...analysisResult.analysisDatasets };
+            Object.values(analysisResult.analysisDatasets).forEach( analysisDataset => {
+                if (Object.keys(analysisResultOids[analysisResultOid]).includes(analysisDataset.itemGroupOid)) {
+                    let newAnalysisVariableOids = analysisDataset.analysisVariableOids.slice();
+                    analysisResultOids[analysisResultOid][analysisDataset.itemGroupOid].forEach( itemDefOid => {
+                        newAnalysisVariableOids.splice(newAnalysisVariableOids.indexOf(itemDefOid),1);
+                    });
+                    newAnalysisDatasets = {
+                        ...newAnalysisDatasets,
+                        [analysisDataset.itemGroupOid]: { ...analysisDataset, analysisVariableOids: newAnalysisVariableOids }
+                    };
+                }
+            });
+            newAnalysisResults = { ...newAnalysisResults, [analysisResultOid]: { ...analysisResult, analysisDatasets: newAnalysisDatasets } };
+        });
+        return { ...state, analysisResults: newAnalysisResults };
+    } else {
+        return state;
+    }
+};
+
+const handleDeleteItemGroups = (state, action) => {
+    // action.deleteObj.analysisResultOids contains:
+    // { [itemGroupOid1: { analysisResultsOid1: { itemGroupOid1: [itemOid1, itemOid2, ...] } ] }
+    // Transform the delete object to { analysisResultOid1: [itemGroupOid1, ...], ...}
+    let itemGroupsToDelete = {};
+    Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
+        const analysisResultOids = action.deleteObj.itemGroupData[itemGroupOid].analysisResultOids;
+        Object.keys(analysisResultOids).forEach( analysisResultOid => {
+            if (itemGroupsToDelete.hasOwnProperty(analysisResultOid) && !itemGroupsToDelete[analysisResultOid].includes(itemGroupOid)) {
+                itemGroupsToDelete[analysisResultOid].push(itemGroupOid);
+            } else {
+                itemGroupsToDelete[analysisResultOid] = [itemGroupOid];
+            }
+        });
+    });
+
+    // Delete corresponding analysisDatasets from analysisResult references
+    if (Object.keys(itemGroupsToDelete).length > 0) {
+        let newAnalysisResults = { ...state.analysisResults };
+        Object.keys(itemGroupsToDelete).forEach( analysisResultOid => {
+            const analysisResult = newAnalysisResults[analysisResultOid];
+            let newAnalysisDatasets = { ...analysisResult.analysisDatasets };
+            let newAnalysisDatasetOrder = analysisResult.analysisDatasetOrder.slice();
+            Object.values(itemGroupsToDelete[analysisResultOid]).forEach( itemGroupOid => {
+                delete newAnalysisDatasets[itemGroupOid];
+                newAnalysisDatasetOrder.splice(newAnalysisDatasetOrder.indexOf(itemGroupOid), 1);
+            });
+            newAnalysisResults = {
+                ...newAnalysisResults,
+                [analysisResultOid]: {
+                    ...analysisResult,
+                    analysisDatasets     : newAnalysisDatasets,
+                    analysisDatasetOrder : newAnalysisDatasetOrder,
+                }
+            };
+        });
+        return { ...state, analysisResults: newAnalysisResults };
+    } else {
+        return state;
+    }
+};
+
 const analysisResultDisplays = (state = {}, action) => {
     switch (action.type) {
         case UPD_ARMSTATUS:
@@ -232,6 +306,10 @@ const analysisResultDisplays = (state = {}, action) => {
             return updateAnalysisResult(state, action);
         case DEL_ANALYSISRESULT:
             return deleteAnalysisResults(state, action);
+        case DEL_VARS:
+            return handleDeleteVariables(state, action);
+        case DEL_ITEMGROUPS:
+            return handleDeleteItemGroups(state, action);
         default:
             return state;
     }

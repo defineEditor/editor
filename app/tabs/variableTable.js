@@ -1,6 +1,6 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
+* and edit XML files created using the CDISC Define-XML standard.                  *
 * Copyright (C) 2018 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
@@ -27,6 +27,7 @@ import VariableTabFilter from 'utils/variableTabFilter.js';
 import VariableTabUpdate from 'utils/variableTabUpdate.js';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import grey from '@material-ui/core/colors/grey';
 import indigo from '@material-ui/core/colors/indigo';
 import IconButton from '@material-ui/core/IconButton';
@@ -570,12 +571,18 @@ class ConnectedVariableTable extends React.Component {
         this.props.setVlmState({ itemGroupOid: this.props.itemGroupOid }, { vlmState });
     }
 
+    cleanSelection = () => {
+        if (this.state.selectedRows.length > 0 || Object.keys(this.state.selectedVlmRows).length > 0) {
+            this.setState({selectedVlmRows: {}, selectedRows: []});
+        }
+    }
+
     createCustomButtonGroup = props => {
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={16}>
                     <Grid item>
-                        <ToggleRowSelect oid='overall' disabled={this.props.reviewMode}/>
+                        <ToggleRowSelect oid='overall' disabled={this.props.reviewMode} cleanSelection={this.cleanSelection}/>
                     </Grid>
                     <Grid item>
                         <Button
@@ -840,15 +847,14 @@ class ConnectedVariableTable extends React.Component {
             <div>
                 <h3 className={this.props.classes.tableTitle}>
                     {mdv.itemGroups[this.props.itemGroupOid].name + ' (' + getDescription(mdv.itemGroups[this.props.itemGroupOid]) + ')'}
-                    <Button
-                        color="default"
-                        variant='fab'
-                        mini
+                    <Fab
+                        size='small'
+                        color='default'
                         onClick={this.props.openDrawer}
                         className={this.props.classes.drawerButton}
                     >
                         <OpenDrawer/>
-                    </Button>
+                    </Fab>
                 </h3>
                 <BootstrapTable
                     data={dataToShow}

@@ -1,6 +1,6 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
+* and edit XML files created using the CDISC Define-XML standard.                  *
 * Copyright (C) 2018 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
@@ -680,10 +680,11 @@ const handleItemsBulkUpdate = (state, action) => {
                 // Remove itemOids as source for all updated codeLists
                 // It would be better to use deleteCodeListReferences, but the code below works as well
                 let codeList = state[codeListOid];
-                let newSources = codeList.sources.itemDefs.slice();
-                newSources.forEach( (itemDefOid, index) => {
+                let sources = codeList.sources.itemDefs;
+                let newSources = sources.slice();
+                sources.forEach( itemDefOid => {
                     if (itemDefOids.includes(itemDefOid)) {
-                        newSources.splice(index, 1);
+                        newSources.splice(newSources.indexOf(itemDefOid), 1);
                     }
                 });
                 if (newSources.length !== codeList.sources.itemDefs.length) {

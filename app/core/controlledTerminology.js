@@ -1,6 +1,6 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
+* and edit XML files created using the CDISC Define-XML standard.                  *
 * Copyright (C) 2018 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
@@ -106,7 +106,13 @@ class ConnectedControlledTerminology extends React.Component {
         let ctIds = this.props.controlledTerminology.allIds;
 
         const sortByVersion = (ct1, ct2) => {
-            return ctList[ct1].version > ctList[ct2].version ? -1 : 1;
+            if (ctList[ct1].version > ctList[ct2].version) {
+                return -1;
+            } else if (ctList[ct1].version < ctList[ct2].version) {
+                return 1;
+            } else {
+                return ctList[ct1].name > ctList[ct2].name ? 1 : -1;
+            }
         };
 
         return ctIds.sort(sortByVersion).map(ctId => {

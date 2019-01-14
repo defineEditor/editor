@@ -1,6 +1,6 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
+* and edit XML files created using the CDISC Define-XML standard.                  *
 * Copyright (C) 2018 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
@@ -135,11 +135,21 @@ class ArmAnalysisVariableEditor extends React.Component {
                 </Grid>
                 <Grid item xs={12}>
                     <List dense>
-                        {this.props.analysisVariables.map(oid => (
-                            <ListItem key={oid} disableGutters className={classes.listItem}>
-                                <ListItemText primary={this.props.itemDefs[oid].name + ' (' + getDescription(this.props.itemDefs[oid]) + ')'} />
-                            </ListItem>
-                        ))}
+                        {this.props.analysisVariables.map(oid => {
+                            if (this.props.itemDefs.hasOwnProperty(oid)) {
+                                return (
+                                    <ListItem key={oid} disableGutters className={classes.listItem}>
+                                        <ListItemText primary={this.props.itemDefs[oid].name + ' (' + getDescription(this.props.itemDefs[oid]) + ')'} />
+                                    </ListItem>
+                                );
+                            } else {
+                                return (
+                                    <ListItem key={oid} disableGutters className={classes.listItem}>
+                                        <ListItemText primary={ 'Invalid variable reference: ' + oid } />
+                                    </ListItem>
+                                );
+                            }
+                        })}
                     </List>
                 </Grid>
                 <Menu
@@ -172,7 +182,7 @@ class ArmAnalysisVariableEditor extends React.Component {
                 >
                     {this.props.analysisVariables.map(oid => (
                         <MenuItem key={oid} onClick={() => (this.handleRemoveClose(oid))}>
-                            {this.props.itemDefs[oid].name}
+                            {this.props.itemDefs[oid] !== undefined ? this.props.itemDefs[oid].name : oid}
                         </MenuItem>
                     ))}
                 </Menu>

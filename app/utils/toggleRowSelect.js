@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using CDISC Define-XML standard.                      *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
+* and edit XML files created using the CDISC Define-XML standard.                  *
+* Copyright (C) 2018, 2019 Dmitry Kolosov                                          *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -19,7 +19,7 @@ import { connect } from 'react-redux';
 import { toggleRowSelect } from 'actions/index.js';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import DoneIcon from '@material-ui/icons/DoneAll';
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 
 const styles = theme => ({
     editButton: {
@@ -43,6 +43,11 @@ const mapStateToProps = state => {
 class ToggleRowSelectConnected extends React.Component {
 
     handleChange = () => {
+        if (this.props.tabs.settings[this.props.tabs.currentTab].rowSelect[this.props.oid]) {
+            // If the selection is switched off, clean selection buffer
+            this.props.cleanSelection();
+        }
+
         let source = {
             tabIndex : this.props.tabs.currentTab,
             oid      : this.props.oid,
@@ -57,10 +62,9 @@ class ToggleRowSelectConnected extends React.Component {
             rowSelect = this.props.tabs.settings[this.props.tabs.currentTab].rowSelect[this.props.oid];
         }
         return (
-            <Button
-                color="default"
-                variant='fab'
-                mini
+            <Fab
+                color='default'
+                size='small'
                 disabled={this.props.disabled}
                 onClick={this.handleChange}
                 className={classes.editButton}
@@ -71,15 +75,16 @@ class ToggleRowSelectConnected extends React.Component {
                     <DoneIcon/>
                 )
                 }
-            </Button>
+            </Fab>
         );
     }
 }
 
 ToggleRowSelectConnected.propTypes = {
-    tabs     : PropTypes.object.isRequired,
-    oid      : PropTypes.string.isRequired,
-    disabled : PropTypes.bool,
+    tabs           : PropTypes.object.isRequired,
+    oid            : PropTypes.string.isRequired,
+    cleanSelection : PropTypes.func.isRequired,
+    disabled       : PropTypes.bool,
 };
 
 const ToggleRowSelect = connect(mapStateToProps, mapDispatchToProps)(ToggleRowSelectConnected);
