@@ -345,8 +345,7 @@ const updateLinkCodeLists = (state, action) => {
     Object.keys(action.updateObj).forEach( (key) => {
         newState = updateCodeList(newState, { type: UPD_CODELIST, oid: key, updateObj: {linkedCodeListOid: action.updateObj[key]} });
     });
-    return { ...newState };
-    //return updateCodeList(state, { type: UPD_CODELIST, oid: 'CL.AGEGR1', updateObj: {linkedCodeListOid: 'CL.AGEGR1N'} });
+    return newState;
 };
 
 const addCodeList = (state, action) => {
