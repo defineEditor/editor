@@ -100,7 +100,7 @@ class ConnectedMainMenu extends React.Component {
     }
 
     print = () => {
-        remote.getCurrentWindow().webContents.print();
+        remote.getCurrentWindow().webContents.executeJavaScript("window.print()");
     }
 
     save = (noToggle) => {
