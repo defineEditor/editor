@@ -27,6 +27,7 @@ import {
     ADD_CODEDVALUES,
     DEL_CODEDVALUES,
     UPD_CODEDVALUEORDER,
+    UPD_LINKCODELISTS,
 } from "constants/action-types";
 
 // Codelist actions
@@ -127,5 +128,12 @@ export const updateCodedValueOrder = (codeListOid, itemOrder) => (
         type: UPD_CODEDVALUEORDER,
         codeListOid,
         itemOrder,
+    }
+);
+
+export const updateLinkCodeLists = (updateObj) => (
+    {
+        type: UPD_LINKCODELISTS,
+        updateObj,
     }
 );
