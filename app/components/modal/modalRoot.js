@@ -15,12 +15,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import ModalDeleteStudy from 'utils/modalDeleteStudy.js';
-import ModalDeleteDefine from 'utils/modalDeleteDefine.js';
-import ModalChangeDefine from 'utils/modalChangeDefine.js';
-import ModalQuitApplication from 'utils/modalQuitApplication.js';
-import ModalInitialMessage from 'utils/modalInitialMessage.js';
-import ModalBugReport from 'utils/modalBugReport.js';
+import ModalDeleteStudy from 'components/modal/modalDeleteStudy.js';
+import ModalDeleteDefine from 'components/modal/modalDeleteDefine.js';
+import ModalChangeDefine from 'components/modal/modalChangeDefine.js';
+import ModalQuitApplication from 'components/modal/modalQuitApplication.js';
+import ModalInitialMessage from 'components/modal/modalInitialMessage.js';
+import ModalAttachStdCodeLists from 'components/modal/modalAttachStdCodeLists.js';
+import ModalBugReport from 'components/modal/modalBugReport.js';
 
 const mapStateToProps = state => {
     return {
@@ -33,6 +34,7 @@ const MODAL_COMPONENTS = {
     'DELETE_DEFINE': ModalDeleteDefine,
     'CHANGE_DEFINE': ModalChangeDefine,
     'INITIAL_MESSAGE': ModalInitialMessage,
+    'ATTACH_STD_CODELISTS': ModalAttachStdCodeLists,
     'BUG_REPORT': ModalBugReport,
     'QUIT': ModalQuitApplication,
 };
