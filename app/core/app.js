@@ -16,7 +16,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import ModalRoot from 'utils/modalRoot.js';
+import ModalRoot from 'components/modal/modalRoot.js';
 import MainMenu from 'core/mainMenu.js';
 import Editor from 'core/editor.js';
 import ControlledTerminology from 'core/controlledTerminology.js';

@@ -40,6 +40,10 @@ function loadState() {
     });
 
     state.stdConstants = stdConstants;
+    // If there is any modal loaded in the current state, disable it
+    if (state.ui.hasOwnProperty('modal') && state.ui.modal.type !== '') {
+        state.ui.modal = uiInitialValues.modal;
+    }
     // Update UI structure with initial values, this is required when schema changed and old UI does not have required properties
     Object.keys(uiInitialValues).forEach( uiType =>  {
         if (state.hasOwnProperty('ui') && state.ui.hasOwnProperty(uiType)) {
