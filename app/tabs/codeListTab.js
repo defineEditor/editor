@@ -45,6 +45,7 @@ import CodeListMenu from 'components/menus/codeListMenu.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
+import compareCodeListItems from 'utils/compareCodeListItems.js';
 import {
     updateCodeList,
     updateCodeListStandard,
@@ -151,22 +152,6 @@ function codeListTypeFormatter (cell, row) {
         });
         return (typeDecode);
     }
-}
-
-function compareArrays (array1, array2) {
-    if (array1.length === 0 || array2.length === 0) {
-        // if one of arrays is empty, then return false. This is done to avoid 'false positive' when comparing two empty arrays
-        return false;
-    } else if (array1.length !== array2.length) {
-        return false;
-    } else {
-        for (let i = 0; i < array1.length; i++) {
-            if (array1[i] !== array2[i]) {
-                return false;
-            }
-        }
-    }
-    return true;
 }
 
 class ConnectedCodeListTable extends React.Component {
@@ -446,7 +431,7 @@ class ConnectedCodeListTable extends React.Component {
                 // iterate on enumeratedCodelists properties
                 // stop on finding a match/delete the respective enumeratedCodelists property to avoid comparing to already linked codelist
                 Object.keys(enumeratedCodeLists).some( (element, index) => {
-                    return compareArrays(decodedCodeLists[key], enumeratedCodeLists[element]) ?
+                    return compareCodeListItems(decodedCodeLists[key], enumeratedCodeLists[element]) ?
                         ((object[key] = element, delete enumeratedCodeLists[element]), true) : false;
                 });
                 return object;
