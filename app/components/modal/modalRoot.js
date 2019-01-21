@@ -21,6 +21,7 @@ import ModalChangeDefine from 'components/modal/modalChangeDefine.js';
 import ModalQuitApplication from 'components/modal/modalQuitApplication.js';
 import ModalInitialMessage from 'components/modal/modalInitialMessage.js';
 import ModalAttachStdCodeLists from 'components/modal/modalAttachStdCodeLists.js';
+import ModalLinkCodeLists from 'components/modal/modalLinkCodeLists.js';
 import ModalBugReport from 'components/modal/modalBugReport.js';
 
 const mapStateToProps = state => {
@@ -35,6 +36,7 @@ const MODAL_COMPONENTS = {
     'CHANGE_DEFINE': ModalChangeDefine,
     'INITIAL_MESSAGE': ModalInitialMessage,
     'ATTACH_STD_CODELISTS': ModalAttachStdCodeLists,
+    'LINK_CODELISTS': ModalLinkCodeLists,
     'BUG_REPORT': ModalBugReport,
     'QUIT': ModalQuitApplication,
 };
