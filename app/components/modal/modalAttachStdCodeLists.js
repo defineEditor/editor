@@ -18,11 +18,12 @@ import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import Switch from '@material-ui/core/Switch';
+import Checkbox from '@material-ui/core/Checkbox';
+import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -40,11 +41,19 @@ const styles = theme => ({
         paddingBottom : theme.spacing.unit * 1,
         position      : 'absolute',
         borderRadius  : '10px',
-        top           : '40%',
-        transform     : 'translate(0%, calc(-50%+0.5px))',
+        top           : '10%',
+        width         : '50%',
+        transform     : 'translate(0%, calc(-10%+0.5px))',
         overflowX     : 'auto',
         maxHeight     : '85%',
         overflowY     : 'auto',
+    },
+    ignorePattern: {
+        width: '40%',
+        marginLeft: theme.spacing.unit * 4,
+    },
+    checkBox: {
+        marginLeft: theme.spacing.unit * 2,
     },
 });
 
@@ -58,32 +67,14 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        updateCodeListsStandard: updateObj => dispatch(updateCodeListsStandard(updateCodeListsStandard)),
+        updateCodeListsStandard: (updateObj) => dispatch(updateCodeListsStandard(updateObj)),
         closeModal: () => dispatch(closeModal()),
     };
 };
 
-const populateStdCodeListInfo = ( { stdCodeLists, codeLists } = {} ) => {
+const attachStdCodeListByCCode = ( { stdCodeLists, codeLists } = {} ) => {
     let stdCodeListInfo = {};
-    // Find all codelists using the removed CT
-    // Get names of all the new/updated CT codelists
-    // Get relationship between names and codeListOids
-    let stdNames = {};
-    let stdNameCodeListOids = {};
-    Object.values(stdCodeLists).forEach( standard => {
-        stdNames[standard.oid] = [];
-        stdNameCodeListOids[standard.oid] = {};
-        Object.values(standard.codeLists).forEach( codeList => {
-            stdNames[standard.oid].push(codeList.name);
-            stdNameCodeListOids[standard.oid][codeList.name] = codeList.oid;
-        });
-    });
-    // Check if newly added or updated CTs match any of the codelists
     Object.values(codeLists).forEach( codeList => {
-        let name = codeList.name;
-        // Remove parenthesis to handle situations like 'No Yes Response (Subset Y)'
-        let nameWithoutParen = codeList.name.replace(/\s*\(.*\)\s*$/,'');
-        // Try to apply an std only if there is no std already or the std was removed/update
         if (codeList.standardOid === undefined) {
             if (codeList.alias !== undefined && codeList.alias.name !== undefined) {
                 Object.values(stdCodeLists).some( standard => {
@@ -94,19 +85,65 @@ const populateStdCodeListInfo = ( { stdCodeLists, codeLists } = {} ) => {
                         return true;
                     }
                 });
-            } else {
-                Object.keys(stdNames).some( standardOid => {
-                    if (stdNames[standardOid].includes(name)) {
-                        let stdCodeList = stdCodeLists[standardOid].codeLists[stdNameCodeListOids[standardOid][name]];
-                        stdCodeListInfo[codeList.oid] = getStdCodeListInfo({ stdCodeList, codeList, standardOid });
-                        return true;
-                    } else if (stdNames[standardOid].includes(nameWithoutParen)) {
-                        let stdCodeList = stdCodeLists[standardOid].codeLists[stdNameCodeListOids[standardOid][nameWithoutParen]];
-                        stdCodeListInfo[codeList.oid] = getStdCodeListInfo({ stdCodeList, codeList, standardOid });
-                        return true;
-                    }
-                });
             }
+        }
+    });
+    return stdCodeListInfo;
+};
+
+const attachStdCodeListByName = ( { stdCodeLists, codeLists, options } = {} ) => {
+    let stdCodeListInfo = {};
+    // Find all codelists using the removed CT
+    // Get names of all the new/updated CT codelists
+    // Get relationship between names and codeListOids
+    let stdNames = {};
+    let stdNameCodeListOids = {};
+    Object.values(stdCodeLists).forEach( standard => {
+        stdNames[standard.oid] = [];
+        stdNameCodeListOids[standard.oid] = {};
+        Object.values(standard.codeLists).forEach( codeList => {
+            let stdNameUpdated = codeList.name;
+            // Update names if corresponding options were set
+            if (options.ignoreRegex) {
+                stdNameUpdated = stdNameUpdated.replace(new RegExp(options.ignoreRegex),'');
+            }
+            if (options.ignoreWhitespaces) {
+                stdNameUpdated = stdNameUpdated.replace(/\s*/g,'');
+            }
+            if (!options.matchCase) {
+                stdNameUpdated = stdNameUpdated.toLowerCase();
+            }
+            stdNames[standard.oid].push(stdNameUpdated);
+            stdNameCodeListOids[standard.oid][stdNameUpdated] = codeList.oid;
+        });
+    });
+    // Check if newly added or updated CTs match any of the codelists
+    Object.values(codeLists).forEach( codeList => {
+        let name = codeList.name;
+        // Update names if corresponding options were set
+        let nameUpdated = name;
+        if (options.ignoreRegex) {
+            nameUpdated = nameUpdated.replace(new RegExp(options.ignoreRegex),'');
+        }
+        if (options.ignoreWhitespaces) {
+            nameUpdated = nameUpdated.replace(/\s*/g,'');
+        }
+        if (!options.matchCase) {
+            nameUpdated = nameUpdated.toLowerCase();
+        }
+        // Try to apply an std only if there is no std already or the std was removed/update
+        if (codeList.standardOid === undefined) {
+            Object.keys(stdNames).some( standardOid => {
+                if (stdNames[standardOid].includes(name)) {
+                    let stdCodeList = stdCodeLists[standardOid].codeLists[stdNameCodeListOids[standardOid][name]];
+                    stdCodeListInfo[codeList.oid] = getStdCodeListInfo({ stdCodeList, codeList, standardOid });
+                    return true;
+                } else if (stdNames[standardOid].includes(nameUpdated)) {
+                    let stdCodeList = stdCodeLists[standardOid].codeLists[stdNameCodeListOids[standardOid][nameUpdated]];
+                    stdCodeListInfo[codeList.oid] = getStdCodeListInfo({ stdCodeList, codeList, standardOid });
+                    return true;
+                }
+            });
         }
     });
     return stdCodeListInfo;
@@ -137,23 +174,65 @@ class ConnectedModalAttachStdCodelists extends React.Component {
         this.state = {
             matchByName: true,
             matchByValue: false,
+            matchByCcode: false,
+            nameIgnoreRegex: '\\s*\\(.*\\)\\s*$',
+            nameMatchCase: true,
+            nameIgnoreWhitespaces: false,
+            valueMatchCase: true,
+            valueIgnoreWhitespaces: false,
+            updateDecodes: false,
+            updateCodeListName: false,
         };
     }
 
     handleChange = (name) => (event, checked) => {
         if ([
-            'matchByName',
-            'matchByValue',
+            'nameMatchCase',
+            'nameIgnoreWhitespaces',
+            'valueMatchCase',
+            'valueIgnoreWhitespaces',
+            'updateDecodes',
+            'updateCodeListName',
         ].includes(name)) {
             this.setState({ [name]: checked });
+        } else if ('matchByName' === name) {
+            this.setState({ [name]: checked, matchByValue: false, matchByCcode: false });
+        } else if ('matchByValue' === name) {
+            this.setState({ [name]: checked, matchByName: false, matchByCcode: false });
+        } else if ('matchByCcode' === name) {
+            this.setState({ [name]: checked, matchByName: false, matchByValue: false });
+        } else if ('nameIgnoreRegex' === name) {
+            // If the name consists only of spaces, set it to blank
+            // as it is hard to visually identify this. User can use \s to remove spaces
+            if (/^\s+$/.test(event.target.value)) {
+                this.setState({ [name]: '' });
+            } else {
+                this.setState({ [name]: event.target.value });
+            }
+
         }
     };
 
     onAttach = () => {
-        let updatedCodeListData = populateStdCodeListInfo({
-            stdCodeLists: this.props.stdCodeLists,
-            codeLists: this.props.codeLists
-        });
+        let updatedCodeListData = {};
+        if (this.state.matchByName) {
+            updatedCodeListData = attachStdCodeListByName({
+                stdCodeLists : this.props.stdCodeLists,
+                codeLists    : this.props.codeLists,
+                options      : {
+                    matchCase         : this.state.nameMatchCase,
+                    ignoreWhitespaces : this.state.nameIgnoreWhitespaces,
+                    ignoreRegex       : this.state.nameIgnoreRegex,
+                }
+            });
+        } else if (this.state.matchByCcode) {
+            updatedCodeListData = attachStdCodeListByCCode({
+                stdCodeLists : this.props.stdCodeLists,
+                codeLists    : this.props.codeLists,
+            });
+        } else if (this.state.matchByValue) {
+            // TODO
+        }
         if (Object.keys(updatedCodeListData).length > 0) {
             this.props.updateCodeListsStandard(updatedCodeListData);
         }
@@ -177,6 +256,15 @@ class ConnectedModalAttachStdCodelists extends React.Component {
 
     render () {
         const { classes } = this.props;
+        // Validate regex
+        let regexIsInvalid = false;
+        if (this.state.nameIgnoreRegex !== '') {
+            try {
+                new RegExp(this.state.nameIgnoreRegex);
+            } catch(e) {
+                regexIsInvalid = true;
+            }
+        }
 
         return (
             <Dialog
@@ -193,71 +281,182 @@ class ConnectedModalAttachStdCodelists extends React.Component {
                     Populate Standard Codelists
                 </DialogTitle>
                 <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        <Grid
-                            container
-                            spacing={16}
-                        >
-                            <Grid item xs={12}>
-                                <Typography variant="display1" gutterBottom align="left">
-                                    Connection Methods
-                                </Typography>
-                                <Grid container>
-                                    <Grid item xs={12}>
-                                        <FormGroup>
-                                            <FormControlLabel
-                                                control={
-                                                    <Switch
-                                                        checked={this.state.matchByName}
-                                                        onChange={this.handleChange('matchByName')}
-                                                        color='primary'
-                                                        className={classes.switch}
+                    <Grid
+                        container
+                        spacing={16}
+                    >
+                        <Grid item xs={12}>
+                            <Typography variant="h5" gutterBottom align="left">
+                                Match Options
+                            </Typography>
+                            <Grid container>
+                                <Grid item xs={12}>
+                                    <FormGroup>
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={this.state.matchByName}
+                                                    onChange={this.handleChange('matchByName')}
+                                                    color='primary'
+                                                    className={classes.switch}
+                                                />
+                                            }
+                                            label='Match by name'
+                                        />
+                                        { this.state.matchByName &&
+                                                [
+                                                    ( <TextField
+                                                        label='Exclude pattern'
+                                                        value={this.state.nameIgnoreRegex}
+                                                        onChange={this.handleChange('nameIgnoreRegex')}
+                                                        className={classes.ignorePattern}
+                                                        error={regexIsInvalid}
+                                                        helperText='By default text in the last parentheses is ignored.'
+                                                        key='nameIgnoreRegex'
                                                     />
-                                                }
-                                                label='Match by name'
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Switch
-                                                        checked={this.state.matchByValue}
-                                                        onChange={this.handleChange('matchByValue')}
-                                                        color='primary'
-                                                        className={classes.switch}
+                                                    ),( <FormControlLabel
+                                                        control={
+                                                            <Checkbox
+                                                                checked={this.state.nameMatchCase}
+                                                                onChange={this.handleChange('nameMatchCase')}
+                                                                color='primary'
+                                                                value='nameMatchCase'
+                                                            />
+                                                        }
+                                                        label='Match Case'
+                                                        key='nameMatchCase'
+                                                        className={classes.checkBox}
                                                     />
-                                                }
-                                                label='Match by values'
-                                            />
-                                        </FormGroup>
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Typography variant="display1" gutterBottom align="left">
-                                    Update Settings
-                                </Typography>
-                                <Grid container>
-                                    <Grid item xs={12}>
-                                        <FormGroup>
-                                            <FormControlLabel
-                                                control={
-                                                    <Switch
-                                                        checked={this.state.populateDecodes}
-                                                        onChange={this.handleChange('populateDecodes')}
-                                                        color='primary'
-                                                        className={classes.switch}
+                                                    ),( <FormControlLabel
+                                                        control={
+                                                            <Checkbox
+                                                                checked={this.state.nameIgnoreWhitespaces}
+                                                                onChange={this.handleChange('nameIgnoreWhitespaces')}
+                                                                color='primary'
+                                                                value='nameIgnoreWhitespaces'
+                                                            />
+                                                        }
+                                                        label='Ignore Whitespaces'
+                                                        key='nameIgnoreWhitespaces'
+                                                        className={classes.checkBox}
                                                     />
-                                                }
-                                                label='Update decode values from the standard codelist'
-                                            />
-                                        </FormGroup>
-                                    </Grid>
+                                                    )
+                                                ]
+                                        }
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={this.state.matchByValue}
+                                                    onChange={this.handleChange('matchByValue')}
+                                                    color='primary'
+                                                    className={classes.switch}
+                                                />
+                                            }
+                                            label='Match by values'
+                                        />
+                                        { this.state.matchByValue &&
+                                                [
+                                                    ( <FormControlLabel
+                                                        control={
+                                                            <Checkbox
+                                                                checked={this.state.valueMatchCase}
+                                                                onChange={this.handleChange('valueMatchCase')}
+                                                                color='primary'
+                                                                value='valueMatchCase'
+                                                            />
+                                                        }
+                                                        label='Match Case'
+                                                        key='valueMatchCase'
+                                                        className={classes.checkBox}
+                                                    />
+                                                    ),( <FormControlLabel
+                                                        control={
+                                                            <Checkbox
+                                                                checked={this.state.valueIgnoreWhitespaces}
+                                                                onChange={this.handleChange('valueIgnoreWhitespaces')}
+                                                                color='primary'
+                                                                value='valueIgnoreWhitespaces'
+                                                            />
+                                                        }
+                                                        label='Ignore Whitespaces'
+                                                        key='valueIgnoreWhitespaces'
+                                                        className={classes.checkBox}
+                                                    />
+                                                    )
+                                                ]
+                                        }
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={this.state.matchByCcode}
+                                                    onChange={this.handleChange('matchByCcode')}
+                                                    color='primary'
+                                                    className={classes.switch}
+                                                />
+                                            }
+                                            label='Match by C-Code'
+                                        />
+                                    </FormGroup>
                                 </Grid>
                             </Grid>
                         </Grid>
-                    </DialogContentText>
+                        <Grid item xs={12}>
+                            <Typography variant="h5" gutterBottom align="left">
+                                Update Settings
+                            </Typography>
+                            <Grid container>
+                                <Grid item xs={12}>
+                                    <FormGroup>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={this.state.updateDecodes}
+                                                    onChange={this.handleChange('updateDecodes')}
+                                                    color='primary'
+                                                    value='updateDecodes'
+                                                />
+                                            }
+                                            label='Update decode values from the standard codelist'
+                                        />
+                                    </FormGroup>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <FormGroup>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={this.state.updateCodeListName}
+                                                    onChange={this.handleChange('updateCodeListName')}
+                                                    color='primary'
+                                                    value='updateCodeListName'
+                                                />
+                                            }
+                                            label='Update codelist name with the name from the standard'
+                                        />
+                                    </FormGroup>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    { this.state.matchByValue && (!this.state.valueMatchCase || this.state.valueIgnoreWhitespaces) &&
+                            <Typography variant="body2" gutterBottom align="left" color='primary'>
+                                In case codelist values are different from the standard codelist values,
+                                but matched
+                                { !this.state.valueMatchCase && ' as case-insensetive' }
+                                { (!this.state.valueMatchCase && this.state.valueIgnoreWhitespaces) && ' or' }
+                                { this.state.valueIgnoreWhitespaces && ' ignoring whitespaces' }
+                                , they will be replaced with the standard values.
+                            </Typography>
+                    }
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={this.onAttach} color="primary">
+                    <Button
+                        onClick={this.onAttach}
+                        color="primary"
+                        disabled={
+                            (!this.state.matchByName && !this.state.matchByValue && !this.state.matchByCcode) || (this.state.matchByName && regexIsInvalid)
+                        }
+                    >
                         Populate
                     </Button>
                     <Button onClick={this.onCancel} color="primary">
