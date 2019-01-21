@@ -33,12 +33,21 @@ function compareCodeListItems(array1, array2, options = {}) {
     } else if (array1.length !== array2.length) {
         return false;
     } else {
-        // apply sorting option
-        let array1Sorted = options.ignoreCodeListOrder ? array1.sort() : array1;
-        let array2Sorted = options.ignoreCodeListOrder ? array2.sort() : array2;
-        for (let i = 0; i < array1.length; i++) {
-            if (modifyCodeListItem(options)(array1Sorted[i]) !== modifyCodeListItem(options)(array2Sorted[i])) {
-                return false;
+        if (options.ignoreCodeListOrder) {
+            // if sorting is needed: first modifications are applied to each element, then the codelist sorting is performed
+            let array1Modified = array1.map(item => modifyCodeListItem(options)(item)).sort();
+            let array2Modified = array2.map(item => modifyCodeListItem(options)(item)).sort();
+            for (let i = 0; i < array1.length; i++) {
+                if (array1Modified[i] !== array2Modified[i]) {
+                    return false;
+                }
+            }
+        } else {
+            // if the sorting is not needed: modify elements during compare
+            for (let i = 0; i < array1.length; i++) {
+                if (modifyCodeListItem(options)(array1[i]) !== modifyCodeListItem(options)(array2[i])) {
+                    return false;
+                }
             }
         }
     }

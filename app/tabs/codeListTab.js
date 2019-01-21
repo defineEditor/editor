@@ -39,20 +39,19 @@ import CodeListFormatNameEditor from 'editors/codeListFormatNameEditor.js';
 import CodeListStandardEditor from 'editors/codeListStandardEditor.js';
 import ExternalCodeListEditor from 'editors/externalCodeListEditor.js';
 import Public from '@material-ui/icons/Public';
+import CallMerge from '@material-ui/icons/CallMerge';
 import SelectColumns from 'utils/selectColumns.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import CodeListMenu from 'components/menus/codeListMenu.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
-import compareCodeListItems from 'utils/compareCodeListItems.js';
 import {
     updateCodeList,
     updateCodeListStandard,
     openModal,
     updateExternalCodeList,
     deleteCodeLists,
-    updateLinkCodeLists,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -72,7 +71,6 @@ const mapDispatchToProps = dispatch => {
         openModal               : (updateObj) => dispatch(openModal(updateObj)),
         updateExternalCodeList  : (oid, updateObj) => dispatch(updateExternalCodeList(oid, updateObj)),
         deleteCodeLists         : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
-        updateLinkCodeLists     : (updateObj) => dispatch(updateLinkCodeLists(updateObj)),
     };
 };
 
@@ -347,15 +345,17 @@ class ConnectedCodeListTable extends React.Component {
                         </Tooltip>
                     </Grid>
                     <Grid item>
-                        <Button
-                            color='default'
-                            mini
-                            onClick={this.linkCodeLists}
-                            disabled={this.props.reviewMode}
-                            variant='contained'
-                        >
-                            Link Codelists
-                        </Button>
+                        <Tooltip title={'Link Decoded and Enumerated Codelists'} placement='bottom' enterDelay={1000}>
+                            <Fab
+                                color='default'
+                                size='small'
+                                onClick={this.linkCodeLists}
+                                className={this.props.classes.fab}
+                                disabled={this.props.reviewMode}
+                            >
+                                <CallMerge/>
+                            </Fab>
+                        </Tooltip>
                     </Grid>
                     <Grid item>
                         <CodeListOrderEditor/>
@@ -393,53 +393,10 @@ class ConnectedCodeListTable extends React.Component {
     }
 
     linkCodeLists = () => {
-        // retrieve enumerated codelists to an object;
-        let enumeratedCodeLists = Object.keys(this.props.codeLists)
-            // filter codelists to enumerated
-            .filter( codeList => this.props.codeLists[codeList].codeListType === 'enumerated' && !this.props.codeLists[codeList].linkedCodeListOid)
-            // create new object that includes only filtered codelists
-            .reduce( (object, key) => {
-                // map assigns array of codelist values to property 'key'
-                object[key] = this.props.codeLists[key].itemOrder.map( item => {
-                    return this.props.codeLists[key].enumeratedItems[item].codedValue;
-                });
-                return object;
-            }, {} );
-        // analogously retrieve decoded codelists to an object;
-        let decodedCodeLists = Object.keys(this.props.codeLists)
-            .filter( codeList => this.props.codeLists[codeList].codeListType === 'decoded' && !this.props.codeLists[codeList].linkedCodeListOid)
-            .reduce( (object, key) => {
-                object[key] = this.props.codeLists[key].itemOrder.map( item => {
-                    return (this.props.codeLists[key].codeListItems[item].decodes[0] || { value: '' }).value;
-                });
-                return object;
-            }, {} );
-        // create object with codelists to link: property decodedCodeList - value enumeratedCodeList
-        const linkedCodeLists = Object.keys(decodedCodeLists)
-            // sort the array of keys to put text decoded codelists first
-            .sort( (first, second) => {
-                if (this.props.codeLists[first].dataType === this.props.codeLists[second].dataType) {
-                    return 0;
-                } else if (this.props.codeLists[first].dataType === 'text') {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            })
-            // iterate on decodedCodelists properties
-            .reduce( (object, key) => {
-                // iterate on enumeratedCodelists properties
-                // stop on finding a match/delete the respective enumeratedCodelists property to avoid comparing to already linked codelist
-                Object.keys(enumeratedCodeLists).some( (element, index) => {
-                    return compareCodeListItems(decodedCodeLists[key], enumeratedCodeLists[element]) ?
-                        ((object[key] = element, delete enumeratedCodeLists[element]), true) : false;
-                });
-                return object;
-            }, {} );
-        if (Object.keys(linkedCodeLists).length !== 0) {
-            // perform an action only if there are codelists to link
-            this.props.updateLinkCodeLists(linkedCodeLists);
-        }
+        this.props.openModal({
+            type: 'LINK_CODELISTS',
+            props: {},
+        });
     }
 
     deleteRows = () => {
