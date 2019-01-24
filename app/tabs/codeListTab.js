@@ -387,7 +387,7 @@ class ConnectedCodeListTable extends React.Component {
 
     attachStandardCodeList = () => {
         this.props.openModal({
-            type: 'ATTACH_STD_CODELISTS',
+            type: 'POPULATE_STD_CODELISTS',
             props: {}
         });
     }

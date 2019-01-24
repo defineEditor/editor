@@ -29,10 +29,12 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Button from '@material-ui/core/Button';
 import { getItemsWithAliasExtendedValue }  from 'utils/codeListUtils.js';
+import InternalHelp from 'components/utils/internalHelp.js';
 import {
     updateCodeListsStandard,
     closeModal,
 } from 'actions/index.js';
+import { CODELIST_POPULATESTD } from 'constants/help.js';
 
 const styles = theme => ({
     dialog: {
@@ -67,12 +69,12 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        updateCodeListsStandard: (updateObj) => dispatch(updateCodeListsStandard(updateObj)),
-        closeModal: () => dispatch(closeModal()),
+        updateCodeListsStandard : (updateObj) => dispatch(updateCodeListsStandard(updateObj)),
+        closeModal              : () => dispatch(closeModal()),
     };
 };
 
-const attachStdCodeListByCCode = ( { stdCodeLists, codeLists } = {} ) => {
+const attachStdCodeListByCCode = ( { stdCodeLists, codeLists, options } = {} ) => {
     let stdCodeListInfo = {};
     Object.values(codeLists).forEach( codeList => {
         if (codeList.standardOid === undefined) {
@@ -81,7 +83,7 @@ const attachStdCodeListByCCode = ( { stdCodeLists, codeLists } = {} ) => {
                     let stdCodeListOid = standard.nciCodeOids[codeList.alias.name];
                     if (stdCodeListOid !== undefined) {
                         let stdCodeList = standard.codeLists[stdCodeListOid];
-                        stdCodeListInfo[codeList.oid] = getStdCodeListInfo({ stdCodeList, codeList, standardOid: standard.oid });
+                        stdCodeListInfo[codeList.oid] = getStdCodeListInfo({ stdCodeList, codeList, standardOid: standard.oid, options });
                         return true;
                     }
                 });
@@ -136,11 +138,11 @@ const attachStdCodeListByName = ( { stdCodeLists, codeLists, options } = {} ) =>
             Object.keys(stdNames).some( standardOid => {
                 if (stdNames[standardOid].includes(name)) {
                     let stdCodeList = stdCodeLists[standardOid].codeLists[stdNameCodeListOids[standardOid][name]];
-                    stdCodeListInfo[codeList.oid] = getStdCodeListInfo({ stdCodeList, codeList, standardOid });
+                    stdCodeListInfo[codeList.oid] = getStdCodeListInfo({ stdCodeList, codeList, standardOid, options });
                     return true;
                 } else if (stdNames[standardOid].includes(nameUpdated)) {
                     let stdCodeList = stdCodeLists[standardOid].codeLists[stdNameCodeListOids[standardOid][nameUpdated]];
-                    stdCodeListInfo[codeList.oid] = getStdCodeListInfo({ stdCodeList, codeList, standardOid });
+                    stdCodeListInfo[codeList.oid] = getStdCodeListInfo({ stdCodeList, codeList, standardOid, options });
                     return true;
                 }
             });
@@ -149,12 +151,17 @@ const attachStdCodeListByName = ( { stdCodeLists, codeLists, options } = {} ) =>
     return stdCodeListInfo;
 };
 
-const getStdCodeListInfo = ({ stdCodeList, codeList, standardOid }) => {
+const getStdCodeListInfo = ({ stdCodeList, codeList, standardOid, options }) => {
     let result = {
         standardOid,
         alias: stdCodeList.alias,
         cdiscSubmissionValue: stdCodeList.cdiscSubmissionValue,
     };
+
+    if (options.updateCodeListName) {
+        result.name = stdCodeList.name;
+    }
+
     let itemsName;
     if (codeList.codeListType === 'decoded') {
         itemsName = 'codeListItems';
@@ -162,7 +169,7 @@ const getStdCodeListInfo = ({ stdCodeList, codeList, standardOid }) => {
         itemsName = 'enumeratedItems';
     }
     if (itemsName !== undefined) {
-        result[itemsName] = getItemsWithAliasExtendedValue(codeList[itemsName], stdCodeList, codeList.codeListType);
+        result[itemsName] = getItemsWithAliasExtendedValue(codeList[itemsName], stdCodeList, codeList.codeListType, options);
     }
     return result;
 };
@@ -219,16 +226,13 @@ class ConnectedModalAttachStdCodelists extends React.Component {
             updatedCodeListData = attachStdCodeListByName({
                 stdCodeLists : this.props.stdCodeLists,
                 codeLists    : this.props.codeLists,
-                options      : {
-                    matchCase         : this.state.nameMatchCase,
-                    ignoreWhitespaces : this.state.nameIgnoreWhitespaces,
-                    ignoreRegex       : this.state.nameIgnoreRegex,
-                }
+                options      : { ...this.state },
             });
         } else if (this.state.matchByCcode) {
             updatedCodeListData = attachStdCodeListByCCode({
                 stdCodeLists : this.props.stdCodeLists,
                 codeLists    : this.props.codeLists,
+                options      : { ...this.state },
             });
         } else if (this.state.matchByValue) {
             // TODO
@@ -279,6 +283,7 @@ class ConnectedModalAttachStdCodelists extends React.Component {
             >
                 <DialogTitle id="alert-dialog-title">
                     Populate Standard Codelists
+                    <InternalHelp data={CODELIST_POPULATESTD} />
                 </DialogTitle>
                 <DialogContent>
                     <Grid
@@ -338,48 +343,6 @@ class ConnectedModalAttachStdCodelists extends React.Component {
                                                         }
                                                         label='Ignore Whitespaces'
                                                         key='nameIgnoreWhitespaces'
-                                                        className={classes.checkBox}
-                                                    />
-                                                    )
-                                                ]
-                                        }
-                                        <FormControlLabel
-                                            control={
-                                                <Switch
-                                                    checked={this.state.matchByValue}
-                                                    onChange={this.handleChange('matchByValue')}
-                                                    color='primary'
-                                                    className={classes.switch}
-                                                />
-                                            }
-                                            label='Match by values'
-                                        />
-                                        { this.state.matchByValue &&
-                                                [
-                                                    ( <FormControlLabel
-                                                        control={
-                                                            <Checkbox
-                                                                checked={this.state.valueMatchCase}
-                                                                onChange={this.handleChange('valueMatchCase')}
-                                                                color='primary'
-                                                                value='valueMatchCase'
-                                                            />
-                                                        }
-                                                        label='Match Case'
-                                                        key='valueMatchCase'
-                                                        className={classes.checkBox}
-                                                    />
-                                                    ),( <FormControlLabel
-                                                        control={
-                                                            <Checkbox
-                                                                checked={this.state.valueIgnoreWhitespaces}
-                                                                onChange={this.handleChange('valueIgnoreWhitespaces')}
-                                                                color='primary'
-                                                                value='valueIgnoreWhitespaces'
-                                                            />
-                                                        }
-                                                        label='Ignore Whitespaces'
-                                                        key='valueIgnoreWhitespaces'
                                                         className={classes.checkBox}
                                                     />
                                                     )

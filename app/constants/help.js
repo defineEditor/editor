@@ -15,13 +15,16 @@
 export const CODELIST_POPULATESTD = {
     title: 'Populate Standards Codelists',
     content:`
-# About
-Each codelist can be connected to a codelist from the CDISC Controlled Terminology.
-# Connection methods
-* By name. Codelist names are be compared with each other. It is possible to ignore case,
- ignore whitespaces (including trailing and leading spaces), specify exclude pattern.
- The exclude pattern is used to remove part of the codelist name before comparison.
- This can be used to address situations, when a codelist name in Define-XML states that it is a subset: **No Yes Response (Y Subset)**.
- The default value **\\s*\\(.*\\)\\s*$** removes the last parenthesis, so that the example above would match **No Yes Response** codelist.
+### About
+Each codelist can be connected to a codelist from the standard Controlled Terminology.
+### Match Options
+* **Match by name**. Codelist names are be compared with each other. It is possible use the following options which are applied to both values:
+  * **Match Case**. When disabled '**No Yes Reponse**' matches '**No yes response**'
+  * **Ignore Whitespaces**. (including trailing and leading spaces). When enabled '**No Yes Reponse**' matches '** No   YesResponse   **'
+  * **Exclude Pattern**. A regular expression used to remove part of the codelist name before comparison.
+ The default value **\\s*\\(.*\\)\\s*$** removes the last parenthesis.
+ When specified '**No Yes Reponse**' matches '**No Yes Response (Y Subset)**'
+* **Match by C-Code**. In case imported Define-XML has standard CT C-Codes specified for the codelists,
+ it will be used to select corresponding codelists in the Standard CT.
 `
 };
