@@ -20,6 +20,14 @@ const getSourceLabels = (sources, mdv) => {
         if ((mdv.hasOwnProperty(source) || source === 'analysisResults') && sources[source].length > 0) {
             result[source] = [];
             sources[source].forEach(oid => {
+                // In case the Define-XML contains broken source link, do nothing
+                if ((source === 'analysisResults' && !mdv.analysisResultDisplays[source].hasOwnProperty(oid))
+                    ||
+                    (source !== 'analysisResults' && !mdv[source].hasOwnProperty(oid))
+                ) {
+                    return;
+                }
+
                 if (source === 'itemDefs' && mdv[source][oid].parentItemDefOid !== undefined) {
                     // Value level case;
                     let parentItemDefOid = mdv[source][oid].parentItemDefOid;
