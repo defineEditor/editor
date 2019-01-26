@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-// this function returns the function to modify a codelist element based on given options
+// this function modifies a codelist item as per options given
 function modifyCodeListItem(options = {}, string){
     let result = string;
     result = options.ignoreCase ? result.toUpperCase() : result;
