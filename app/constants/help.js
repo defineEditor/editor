@@ -15,9 +15,9 @@
 export const CODELIST_POPULATESTD = {
     title: 'Populate Standards Codelists',
     content:`
-### About
+##### About
 Each codelist can be connected to a codelist from a standard Controlled Terminology.
-### Match Options
+##### Match Options
 * **Match by name**. Codelist names are be compared with each other. It is possible to use the following options which are applied on both sides:
   * **Match Case**. When disabled '**No Yes Reponse**' matches '**No yes response**'
   * **Ignore Whitespaces**. (including trailing and leading spaces). When enabled '**No Yes Reponse**' matches '** No   YesResponse   **'

@@ -150,6 +150,12 @@ class ConnectedMainMenu extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary='Settings'/>
                             </ListItem>
+                            <ListItem button key='about' onClick={() => this.props.changePage({ page: 'about' })}>
+                                <ListItemIcon>
+                                    <Settings/>
+                                </ListItemIcon>
+                                <ListItemText primary='About'/>
+                            </ListItem>
                             <Divider/>
                             <ListItem button key='search' onClick={() => {this.props.toggleMainMenu(); this.props.onToggleFindInPage(300);}}>
                                 <ListItemIcon>
