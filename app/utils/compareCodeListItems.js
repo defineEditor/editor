@@ -16,7 +16,7 @@
 function modifyCodeListItem(options = {}, string){
     let result = string;
     result = options.ignoreCase ? result.toUpperCase() : result;
-    result = options.ignoreExcessiveWhiteSpaces ? result.replace(/\s+/gi, ' ').trim() : result;
+    result = options.ignoreExcessiveWhiteSpaces ? result.replace(/\s+/gi, '').trim() : result;
     return result;
 }
 

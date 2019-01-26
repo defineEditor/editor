@@ -20,11 +20,27 @@ Each codelist can be connected to a codelist from a standard Controlled Terminol
 ### Match Options
 * **Match by name**. Codelist names are be compared with each other. It is possible to use the following options which are applied on both sides:
   * **Match Case**. When disabled '**No Yes Reponse**' matches '**No yes response**'
-  * **Ignore Whitespaces**. (including trailing and leading spaces). When enabled '**No Yes Reponse**' matches '** No   YesResponse   **'
+  * **Ignore Whitespaces** (including trailing and leading spaces). When enabled '**No Yes Reponse**' matches '** No   YesResponse   **'
   * **Exclude Pattern**. A regular expression used to a remove part of the codelist name before the comparison.
  Default value **\\s*\\(.*\\)\\s*$** removes the last parentheses.
  When specified, '**No Yes Reponse**' matches '**No Yes Response (Y Subset)**'
 * **Match by C-Code**. In case the imported Define-XML has a standard C-Code specified for the codelists,
  it will be used to select a corresponding codelist in the standard Controlled Terminology.
+`
+};
+
+export const CODELIST_LINK = {
+    title: 'Link Decoded and Enumerated Codelists',
+    content:`
+### About
+The links between decoded and enumerated codelists can be set automatically.
+### Match Options
+* **Match by values**. Codelists are compared with each other item by item. You can use the following compare options which are applied on both decoded and enumerated codelists:
+  * **Match codelist item order**. When enabled the codelists are linked if they have matching items in the same order.
+  * **Match Case**. When disabled '**No Yes Reponse**' matches '**No yes response**'.
+  * **Ignore Whitespaces** (including trailing and leading spaces). When enabled '**No Yes Reponse**' matches '** No   YesResponse   **'.
+
+Regardless of the compare options you specify neither the codelists, nor their values are updated. When a matching pair is found, however,
+the enumerated codelist inherits all items of the corresponding decoded codelist.
 `
 };

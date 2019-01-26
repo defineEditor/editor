@@ -29,6 +29,8 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Button from '@material-ui/core/Button';
 import compareCodeListItems from 'utils/compareCodeListItems.js';
+import InternalHelp from 'components/utils/internalHelp.js';
+import { CODELIST_LINK } from 'constants/help.js';
 import {
     closeModal,
     updateLinkCodeLists,
@@ -41,12 +43,11 @@ const styles = theme => ({
         paddingBottom : theme.spacing.unit * 1,
         position      : 'absolute',
         borderRadius  : '10px',
-        top           : '40%',
+        top           : '10%',
         transform     : 'translate(0%, calc(-50%+0.5px))',
         overflowX     : 'auto',
         maxHeight     : '85%',
-        maxWidth      : '50%',
-        minWidth      : '50%',
+        width         : '50%',
         overflowY     : 'auto',
     },
     checkBox: {
@@ -172,6 +173,7 @@ class ConnectedModalLinkCodeLists extends React.Component {
             >
                 <DialogTitle id="alert-dialog-title">
                     Link Decoded and Enumerated Codelists
+                    <InternalHelp data={CODELIST_LINK} />
                 </DialogTitle>
                 <DialogContent>
                     <Grid
@@ -255,12 +257,9 @@ class ConnectedModalLinkCodeLists extends React.Component {
                                 , they will be replaced with the decoded codelist values.
                             </Typography>
                     }
-                    { this.state.matchByValue &&
+                    { this.state.matchByValue && !this.state.valueMatchCodeListOrder &&
                             <Typography variant="body2" gutterBottom align="left" color='primary'>
-                                The codelists will be compared
-                                { (this.state.valueMatchCodeListOrder && ' considering ') ||
-                                    (!this.state.valueMatchCodeListOrder && ' regardless of ') }
-                                item order.
+                                The codelist items order will be ignored during compare.
                             </Typography>
                     }
                 </DialogContent>
