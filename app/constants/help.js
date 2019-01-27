@@ -37,8 +37,8 @@ The links between decoded and enumerated codelists can be set automatically.
 ### Match Options
 * **Match by values**. Codelists are compared with each other item by item. You can use the following compare options which are applied on both decoded and enumerated codelists:
   * **Match codelist item order**. When enabled the codelists are linked if they have matching items in the same order.
-  * **Match Case**. When disabled '**No Yes Reponse**' matches '**No yes response**'.
-  * **Ignore Whitespaces** (including trailing and leading spaces). When enabled '**No Yes Reponse**' matches '** No   YesResponse   **'.
+  * **Match case**. When disabled '**No Yes Reponse**' matches '**No yes response**'.
+  * **Ignore whitespaces** (including trailing and leading spaces). When enabled '**No Yes Reponse**' matches '** No   YesResponse   **'.
 
 Regardless of the compare options you specify neither the codelists, nor their values are updated. When a matching pair is found, however,
 the enumerated codelist inherits all items of the corresponding decoded codelist.
