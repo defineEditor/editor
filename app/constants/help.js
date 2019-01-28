@@ -33,14 +33,13 @@ export const CODELIST_LINK = {
     title: 'Link Decoded and Enumerated Codelists',
     content:`
 ### About
-The links between decoded and enumerated codelists can be set automatically.
+A pair of linked codelists, is a pair of Enumerated and Decoded codelists, where values of the Enumerated codelist are equal to decoded values of the Decoded codelist. This function allow to search for such pairs of Decoded and Enumerated codelists and link them automatically.
 ### Match Options
-* **Match by values**. Codelists are compared with each other item by item. You can use the following compare options which are applied on both decoded and enumerated codelists:
+* **Match by values**. Codelists are compared with each other item by item. You can use the following compare options which are applied on both Decoded and Enumerated codelists:
   * **Match codelist item order**. When enabled the codelists are linked if they have matching items in the same order.
-  * **Match case**. When disabled '**No Yes Reponse**' matches '**No yes response**'.
-  * **Ignore whitespaces** (including trailing and leading spaces). When enabled '**No Yes Reponse**' matches '** No   YesResponse   **'.
+  * **Match case**. When disabled '**Pulse Rate**' matches '**Pulse rate**'.
+  * **Ignore whitespaces** (including trailing and leading spaces). When enabled '**Pulse Rate**' matches '** PulseRate   **'.
 
-Regardless of the compare options you specify neither the codelists, nor their values are updated. When a matching pair is found, however,
-the enumerated codelist inherits all items of the corresponding decoded codelist.
+In case two codelists are linked together, values of the Enumerated codelist are updated with decode values of the Decoded codelist. The options control how the codelists are linked, but not how the values are updated.
 `
 };
