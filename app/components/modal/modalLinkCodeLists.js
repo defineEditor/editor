@@ -77,8 +77,8 @@ class ConnectedModalLinkCodeLists extends React.Component {
             matchByName: false,
             matchByValue: true,
             valueMatchCodeListOrder: false,
-            valueMatchCase: false,
-            valueIgnoreWhiteSpaces: true,
+            valueMatchCase: true,
+            valueIgnoreWhiteSpaces: false,
         };
     }
 
