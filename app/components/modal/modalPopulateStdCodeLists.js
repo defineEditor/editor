@@ -328,7 +328,7 @@ class ConnectedModalAttachStdCodelists extends React.Component {
                                                                 value='nameMatchCase'
                                                             />
                                                         }
-                                                        label='Match Case'
+                                                        label='Match case'
                                                         key='nameMatchCase'
                                                         className={classes.checkBox}
                                                     />
@@ -341,7 +341,7 @@ class ConnectedModalAttachStdCodelists extends React.Component {
                                                                 value='nameIgnoreWhitespaces'
                                                             />
                                                         }
-                                                        label='Ignore Whitespaces'
+                                                        label='Ignore whitespaces'
                                                         key='nameIgnoreWhitespaces'
                                                         className={classes.checkBox}
                                                     />

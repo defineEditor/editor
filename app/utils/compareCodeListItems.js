@@ -12,17 +12,12 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-// this function returns the function to modify a codelist element based on given options
-function modifyCodeListItem(options = {}) {
-    let functionToUpperCase = function(string) {
-        return options.ignoreCase ? string.toUpperCase() : string;
-    };
-    let functionConvertWhiteSpaces = function(string) {
-        return options.ignoreExcessiveWhiteSpaces ? string.replace(/\s+/gi, ' ').trim() : string;
-    };
-    return function(string) {
-        return functionToUpperCase(functionConvertWhiteSpaces(string));
-    };
+// this function modifies a codelist item as per options given
+function modifyCodeListItem(options = {}, string){
+    let result = string;
+    result = options.ignoreCase ? result.toUpperCase() : result;
+    result = options.ignoreExcessiveWhiteSpaces ? result.replace(/\s+/gi, '').trim() : result;
+    return result;
 }
 
 // the main function to compare two codelist sets considering given options
@@ -35,8 +30,8 @@ function compareCodeListItems(array1, array2, options = {}) {
     } else {
         if (options.ignoreCodeListOrder) {
             // if sorting is needed: first modifications are applied to each element, then the codelist sorting is performed
-            let array1Modified = array1.map(item => modifyCodeListItem(options)(item)).sort();
-            let array2Modified = array2.map(item => modifyCodeListItem(options)(item)).sort();
+            let array1Modified = array1.map(item => modifyCodeListItem(options, item)).sort();
+            let array2Modified = array2.map(item => modifyCodeListItem(options, item)).sort();
             for (let i = 0; i < array1.length; i++) {
                 if (array1Modified[i] !== array2Modified[i]) {
                     return false;
@@ -45,7 +40,7 @@ function compareCodeListItems(array1, array2, options = {}) {
         } else {
             // if the sorting is not needed: modify elements during compare
             for (let i = 0; i < array1.length; i++) {
-                if (modifyCodeListItem(options)(array1[i]) !== modifyCodeListItem(options)(array2[i])) {
+                if (modifyCodeListItem(options, array1[i]) !== modifyCodeListItem(options, array2[i])) {
                     return false;
                 }
             }

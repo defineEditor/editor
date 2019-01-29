@@ -23,11 +23,14 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import Switch from '@material-ui/core/Switch';
+import Checkbox from '@material-ui/core/Checkbox';
 import Typography from '@material-ui/core/Typography';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Button from '@material-ui/core/Button';
 import compareCodeListItems from 'utils/compareCodeListItems.js';
+import InternalHelp from 'components/utils/internalHelp.js';
+import { CODELIST_LINK } from 'constants/help.js';
 import {
     closeModal,
     updateLinkCodeLists,
@@ -40,12 +43,15 @@ const styles = theme => ({
         paddingBottom : theme.spacing.unit * 1,
         position      : 'absolute',
         borderRadius  : '10px',
-        top           : '40%',
+        top           : '10%',
         transform     : 'translate(0%, calc(-50%+0.5px))',
         overflowX     : 'auto',
         maxHeight     : '85%',
-        maxWidth      : '70%',
+        width         : '50%',
         overflowY     : 'auto',
+    },
+    checkBox: {
+        marginLeft: theme.spacing.unit * 2,
     },
 });
 
@@ -68,34 +74,34 @@ class ConnectedModalLinkCodeLists extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            ignoreCodeListOrder: true,
-            ignoreCase: true,
-            ignoreExcessiveWhiteSpaces: true,
+            matchByName: false,
+            matchByValue: true,
+            valueMatchCodeListOrder: false,
+            valueMatchCase: true,
+            valueIgnoreWhiteSpaces: false,
         };
     }
 
     handleChange = (name) => (event, checked) => {
         if ([
-            'ignoreCodeListOrder',
-            'ignoreCase',
-            'ignoreExcessiveWhiteSpaces',
+            'valueMatchCodeListOrder',
+            'valueMatchCase',
+            'valueIgnoreWhiteSpaces',
         ].includes(name)) {
             this.setState({ [name]: checked });
+        } else if ('matchByName' === name) {
+            this.setState({ [name]: checked, matchByValue: false });
+        } else if ('matchByValue' === name) {
+            this.setState({ [name]: checked, matchByName: false });
         }
-    }
-
-    onKeyDown = (event)  => {
-        if (event.key === 'Escape' || event.keyCode === 27) {
-            this.onCancel();
-        }
-    }
+    };
 
     onLinkCodeLists = () => {
         // create codelist compare options
         let compareOptions = {
-            ignoreCodeListOrder: this.state.ignoreCodeListOrder,
-            ignoreCase: this.state.ignoreCase,
-            ignoreExcessiveWhiteSpaces: this.state.ignoreExcessiveWhiteSpaces,
+            ignoreCodeListOrder: !this.state.valueMatchCodeListOrder,
+            ignoreCase: !this.state.valueMatchCase,
+            ignoreExcessiveWhiteSpaces: this.state.valueIgnoreWhiteSpaces,
         };
         // retrieve enumerated codelists to an object
         let enumeratedCodeLists = Object.keys(this.props.codeLists)
@@ -167,6 +173,7 @@ class ConnectedModalLinkCodeLists extends React.Component {
             >
                 <DialogTitle id="alert-dialog-title">
                     Link Decoded and Enumerated Codelists
+                    <InternalHelp data={CODELIST_LINK} />
                 </DialogTitle>
                 <DialogContent>
                     <Grid
@@ -174,11 +181,8 @@ class ConnectedModalLinkCodeLists extends React.Component {
                         spacing={16}
                     >
                         <Grid item xs={12}>
-                            <Typography variant='body1' gutterBottom align='left'>
-                                The codelists will be compared against each other based on the rules selected below.
-                                Already linked codelists are excluded from the comparison and their links are left as they are.
-                                Regardless of the rules you choose, codelists&apos; items will not be updated.
-                                However, when a matching pair is found, enumarated codelist fully inherits decoded codelist items.
+                            <Typography variant="h5" gutterBottom align="left">
+                                Match Options
                             </Typography>
                             <Grid container>
                                 <Grid item xs={12}>
@@ -186,47 +190,90 @@ class ConnectedModalLinkCodeLists extends React.Component {
                                         <FormControlLabel
                                             control={
                                                 <Switch
-                                                    checked={this.state.ignoreCodeListOrder}
-                                                    onChange={this.handleChange('ignoreCodeListOrder')}
+                                                    checked={this.state.matchByValue}
+                                                    onChange={this.handleChange('matchByValue')}
                                                     color='primary'
                                                     className={classes.switch}
                                                 />
                                             }
-                                            label='Ignore codelist order'
+                                            label='Match by values'
                                         />
-                                        <FormControlLabel
-                                            control={
-                                                <Switch
-                                                    checked={this.state.ignoreCase}
-                                                    onChange={this.handleChange('ignoreCase')}
-                                                    color='primary'
-                                                    className={classes.switch}
-                                                />
-                                            }
-                                            label='Ignore codelist case'
-                                        />
-                                        <FormControlLabel
-                                            control={
-                                                <Switch
-                                                    checked={this.state.ignoreExcessiveWhiteSpaces}
-                                                    onChange={this.handleChange('ignoreExcessiveWhiteSpaces')}
-                                                    color='primary'
-                                                    className={classes.switch}
-                                                />
-                                            }
-                                            label='Ignore multiple whitespace characters, leading and trailing blanks'
-                                        />
+                                        { this.state.matchByValue &&
+                                                [
+                                                    ( <FormControlLabel
+                                                        control={
+                                                            <Checkbox
+                                                                checked={this.state.valueMatchCodeListOrder}
+                                                                onChange={this.handleChange('valueMatchCodeListOrder')}
+                                                                color='primary'
+                                                                value='valueMatchCodeListOrder'
+                                                            />
+                                                        }
+                                                        label='Match codelist item order'
+                                                        key='valueMatchCodeListOrder'
+                                                        className={classes.checkBox}
+                                                    />
+                                                    ),( <FormControlLabel
+                                                        control={
+                                                            <Checkbox
+                                                                checked={this.state.valueMatchCase}
+                                                                onChange={this.handleChange('valueMatchCase')}
+                                                                color='primary'
+                                                                value='valueMatchCase'
+                                                            />
+                                                        }
+                                                        label='Match case'
+                                                        key='valueMatchCase'
+                                                        className={classes.checkBox}
+                                                    />
+                                                    ),( <FormControlLabel
+                                                        control={
+                                                            <Checkbox
+                                                                checked={this.state.valueIgnoreWhiteSpaces}
+                                                                onChange={this.handleChange('valueIgnoreWhiteSpaces')}
+                                                                color='primary'
+                                                                value='valueIgnoreWhiteSpaces'
+                                                            />
+                                                        }
+                                                        label='Ignore whitespaces, leading and trailing blanks'
+                                                        key='valueIgnoreWhiteSpaces'
+                                                        className={classes.checkBox}
+                                                    />
+                                                    )
+                                                ]
+                                        }
                                     </FormGroup>
                                 </Grid>
                             </Grid>
                         </Grid>
                     </Grid>
+                    { this.state.matchByValue && (!this.state.valueMatchCase || this.state.valueIgnoreWhiteSpaces) &&
+                            <Typography variant="body2" gutterBottom align="left" color='primary'>
+                                In case enumerated codelist values are different from corresponding decoded codelist values,
+                                but matched
+                                { !this.state.valueMatchCase && ' as case-insensetive' }
+                                { (!this.state.valueMatchCase && this.state.valueIgnoreWhiteSpaces) && ' or' }
+                                { this.state.valueIgnoreWhiteSpaces && ' ignoring whitespaces' }
+                                , they will be replaced with the decoded codelist values.
+                            </Typography>
+                    }
+                    { this.state.matchByValue && !this.state.valueMatchCodeListOrder &&
+                            <Typography variant="body2" gutterBottom align="left" color='primary'>
+                                The codelist items order will be ignored during compare.
+                            </Typography>
+                    }
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={this.onLinkCodeLists} color="primary">
+                    <Button
+                        onClick={this.onLinkCodeLists}
+                        color='primary'
+                        disabled={
+                            (!this.state.matchByName && !this.state.matchByValue)
+                        }
+                    >
                         Link Codelists
                     </Button>
-                    <Button onClick={this.onCancel} color="primary">
+                    <Button onClick={this.onCancel} color='primary'>
                         Cancel
                     </Button>
                 </DialogActions>
@@ -236,9 +283,9 @@ class ConnectedModalLinkCodeLists extends React.Component {
 }
 
 ConnectedModalLinkCodeLists.propTypes = {
-    classes: PropTypes.object.isRequired,
-    codeLists: PropTypes.object.isRequired,
-    closeModal: PropTypes.func.isRequired,
+    classes    : PropTypes.object.isRequired,
+    codeLists  : PropTypes.object.isRequired,
+    closeModal : PropTypes.func.isRequired,
 };
 
 const ModalLinkCodeLists = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalLinkCodeLists);
