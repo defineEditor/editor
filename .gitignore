@@ -1,0 +1,14 @@
+data
+node_modules
+dll
+release*
+app/dist
+test
+flow-typed/npm
+app/temp
+app/main.prod*
+*.swp
+*.log
+*~
+.tern-project
+.eslintcache

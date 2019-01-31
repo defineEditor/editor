@@ -1,0 +1,38 @@
+/*
+ * @NOTE: Prepend a `~` to css file paths that are in your node_modules
+ *        See https://github.com/webpack-contrib/sass-loader#imports
+ */
+@import '~bootstrap/dist/css/bootstrap.css';
+@import '~react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
+@import '~react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
+
+@import '~typeface-roboto/index.css';
+@import '~typeface-roboto-mono/index.css';
+
+
+.vlmRow:nth-of-type(odd){
+    background-color: #E3F2FD !important;
+}
+
+.vlmRow:nth-of-type(odd):hover {
+    background-color: #BBDEFB !important;
+}
+
+.vlmRow:nth-of-type(even){
+    background-color: #E1F5FE !important;
+}
+
+.vlmRow:nth-of-type(even):hover {
+    background-color: #B3E5FC !important;
+}
+
+.react-bs-container-body {
+  width: 100%;
+  overflow: visible;
+}
+
+@media print {
+    .doNotPrint{
+        display: none !important;
+    }
+}
