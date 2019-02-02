@@ -34,6 +34,8 @@ const codeListTypes =  [
     {'external': 'External'},
 ];
 
+const comparators = ['EQ','NE','LT','LE','GT','GE','IN','NOTIN'];
+
 const standardNames = {
     '2.0.0': [
         'SDTM-IG',
@@ -156,6 +158,7 @@ const stdConstants = {
     documentTypes,
     columns,
     originTypes,
+    comparators,
     classTypes,
     variableRoles,
     armAnalysisReason,

@@ -45,7 +45,10 @@ const styles = theme => ({
     },
     title: {
         flexWrap: 'nowrap',
-    }
+    },
+    data: {
+        whiteSpace: 'pre-wrap',
+    },
 });
 
 // Redux functions
@@ -109,10 +112,10 @@ class ConnectedCodeListFormatter extends React.Component {
                             {codeListTable.map( code => {
                                 return (
                                     <TableRow key={code.oid}>
-                                        <TableCell>{code.value}</TableCell>
-                                        {isDecoded && <TableCell>{code.decode}</TableCell>}
-                                        {isCcoded && <TableCell>{code.ccode}</TableCell>}
-                                        {isRanked && <TableCell>{code.rank}</TableCell>}
+                                        <TableCell className={classes.data}>{code.value}</TableCell>
+                                        {isDecoded && <TableCell className={classes.data}>{code.decode}</TableCell>}
+                                        {isCcoded && <TableCell className={classes.data}>{code.ccode}</TableCell>}
+                                        {isRanked && <TableCell className={classes.data}>{code.rank}</TableCell>}
                                     </TableRow>
                                 );
                             })}
