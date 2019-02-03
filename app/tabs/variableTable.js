@@ -30,8 +30,11 @@ import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 import grey from '@material-ui/core/colors/grey';
 import indigo from '@material-ui/core/colors/indigo';
+import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import UnfoldLess from '@material-ui/icons/UnfoldLess';
+import UnfoldMore from '@material-ui/icons/UnfoldMore';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
@@ -62,7 +65,7 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 import {
     updateItemDef, updateItemRef, updateItemRefKeyOrder, updateItemCodeListDisplayFormat,
     updateItemDescription, deleteVariables, updateNameLabelWhereClause, setVlmState,
-    changeTablePageDetails,
+    changeTablePageDetails, updateSettings,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -95,6 +98,7 @@ const mapDispatchToProps = dispatch => {
         deleteVariables                 : (source, deleteObj) => dispatch(deleteVariables(source, deleteObj)),
         setVlmState                     : (source, updateObj) => dispatch(setVlmState(source, updateObj)),
         changeTablePageDetails          : (updateObj) => dispatch(changeTablePageDetails(updateObj)),
+        updateSettings                  : updateObj => dispatch(updateSettings(updateObj)),
     };
 };
 
@@ -324,15 +328,11 @@ class ConnectedVariableTable extends React.Component {
     }
 
     componentDidMount() {
-        if (this.props.enableTablePagination) {
-            window.addEventListener('keydown', this.onKeyDown);
-        }
+        window.addEventListener('keydown', this.onKeyDown);
     }
 
     componentWillUnmount() {
-        if (this.props.enableTablePagination) {
-            window.removeEventListener('keydown', this.onKeyDown);
-        }
+        window.removeEventListener('keydown', this.onKeyDown);
     }
 
     onKeyDown = (event)  => {
@@ -657,6 +657,22 @@ class ConnectedVariableTable extends React.Component {
                                     </Button>
                                 </Grid>
                         }
+                        <Grid item>
+                            <Tooltip
+                                title={this.props.enableTablePagination ? 'Disable Pagination' : 'Enable Pagination'}
+                                placement='bottom' enterDelay={1000}
+                            >
+                                <Fab size='small' color='default'
+                                    onClick={ () => {this.props.updateSettings({ editor: { enableTablePagination: !this.props.enableTablePagination } });}}
+                                >
+                                    { this.props.enableTablePagination ? (
+                                        <UnfoldMore/>
+                                    ) : (
+                                        <UnfoldLess/>
+                                    )}
+                                </Fab>
+                            </Tooltip>
+                        </Grid>
                         <Grid item>
                             <Button
                                 variant="contained"
