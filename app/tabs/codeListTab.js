@@ -551,10 +551,11 @@ class ConnectedCodeListTable extends React.Component {
         let selectRowProp;
         if (this.props.showRowSelect) {
             selectRowProp = {
-                mode        : 'checkbox',
-                onSelect    : this.onRowSelected,
-                onSelectAll : this.onAllRowSelected,
-                columnWidth : '48px',
+                mode          : 'checkbox',
+                clickToSelect : true,
+                onSelect      : this.onRowSelected,
+                onSelectAll   : this.onAllRowSelected,
+                columnWidth   : '48px',
             };
         } else {
             selectRowProp = undefined;
@@ -576,7 +577,7 @@ class ConnectedCodeListTable extends React.Component {
                     hover
                     remote={ true }
                     version='4'
-                    cellEdit={this.props.reviewMode ? undefined : cellEditProp}
+                    cellEdit={this.props.reviewMode || this.props.showRowSelect ? undefined : cellEditProp}
                     keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}
                     headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
                     selectRow={selectRowProp}

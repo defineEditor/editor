@@ -467,10 +467,11 @@ class ConnectedDatasetTable extends React.Component {
         let selectRowProp;
         if (this.props.showRowSelect) {
             selectRowProp = {
-                mode        : 'checkbox',
-                onSelect    : this.onRowSelected,
-                onSelectAll : this.onAllRowSelected,
-                columnWidth : '48px',
+                mode          : 'checkbox',
+                clickToSelect : true,
+                onSelect      : this.onRowSelected,
+                onSelectAll   : this.onAllRowSelected,
+                columnWidth   : '48px',
             };
         } else {
             selectRowProp = undefined;
@@ -495,7 +496,7 @@ class ConnectedDatasetTable extends React.Component {
                     hover
                     remote={ true }
                     version='4'
-                    cellEdit={this.props.reviewMode ? undefined : cellEditProp}
+                    cellEdit={this.props.reviewMode || this.props.showRowSelect ? undefined : cellEditProp}
                     keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}
                     tableHeaderClass={classes.tableHeader}
                     selectRow={selectRowProp}
