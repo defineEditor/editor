@@ -31,13 +31,6 @@
   overflow: visible;
 }
 
-input[type="checkbox"] {
-  box-sizing: border-box;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-}
-
 @media print {
     .doNotPrint{
         display: none !important;

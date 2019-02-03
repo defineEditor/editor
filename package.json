@@ -100,11 +100,13 @@
     "email": "dmitry.m.kolosov@gmail.com",
     "url": ""
   },
-  "contributors": [{
-    "name": "Sergei Krivtcov",
-    "email": "",
-    "url": ""
-  }],
+  "contributors": [
+    {
+      "name": "Sergei Krivtcov",
+      "email": "",
+      "url": ""
+    }
+  ],
   "bugs": {
     "url": "http://github.com/defineEditor/"
   },
