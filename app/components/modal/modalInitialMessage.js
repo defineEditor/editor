@@ -97,7 +97,7 @@ class ConnectedModalInitialMessage extends React.Component {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        This is a pre-release version of the application and it should not be used for production purposes.
+                        This is a beta version of the application. 
                         <br/>
                         Check&nbsp;
                         <a onClick={this.openLink} href='http://defineeditor.com/downloads'>

@@ -20,6 +20,7 @@ import openDefineXml from './main/openDefineXml.js';
 import selectFolder from './main/selectFolder.js';
 import writeDefineObject from './main/writeDefineObject.js';
 import loadDefineObject from './main/loadDefineObject.js';
+import copySampleStudy from './main/copySampleStudy.js';
 import loadControlledTerminology from './main/loadControlledTerminology.js';
 import deleteDefineObject from './main/deleteDefineObject.js';
 import scanControlledTerminologyFolder from './main/scanControlledTerminologyFolder.js';
@@ -137,6 +138,10 @@ ipcMain.on('openDocument', (event, defineLocation, pdfLink) => {
 // Open file using external application
 ipcMain.on('openFileInExternalApp', (event, defineLocation, fileLink) => {
     openFileInExternalApp(mainWindow, defineLocation, fileLink);
+});
+// Copy sample study data from the app directory to the user config directory 
+ipcMain.on('copySampleStudy', (event) => {
+    copySampleStudy(mainWindow);
 });
 
 ipcMain.on('quitConfirmed', (event) => {

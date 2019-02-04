@@ -19,11 +19,7 @@ import {
     APP_SAVE,
     STUDY_DEL
 } from 'constants/action-types';
-
-const initialState = {
-    byId: {},
-    allIds: []
-};
+import { defines as initialState } from 'constants/initialValues.js';
 
 const addDefine = (state, action) => {
     return {

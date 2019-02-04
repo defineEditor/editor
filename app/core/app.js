@@ -15,6 +15,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { ipcRenderer } from 'electron';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import ModalRoot from 'components/modal/modalRoot.js';
 import MainMenu from 'core/mainMenu.js';
@@ -27,6 +28,7 @@ import RedoUndo from 'utils/redoUndo.js';
 import FindInPage from 'utils/findInPage.js';
 import {
     openModal,
+    updateMainUi,
 } from 'actions/index.js';
 
 const theme = createMuiTheme({
@@ -51,12 +53,14 @@ const mapStateToProps = state => {
     return {
         currentPage: state.present.ui.main.currentPage,
         showInitialMessage: state.present.ui.main.showInitialMessage,
+        sampleStudyCopied: state.present.ui.main.sampleStudyCopied,
     };
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        openModal: updateObj => dispatch(openModal(updateObj)),
+        openModal    : updateObj => dispatch(openModal(updateObj)),
+        updateMainUi : (updateObj) => dispatch(updateMainUi(updateObj)),
     };
 };
 
@@ -76,6 +80,12 @@ class ConnectedApp extends Component {
                 type: 'INITIAL_MESSAGE',
                 props: {}
             });
+        }
+        if (!this.props.sampleStudyCopied) {
+            ipcRenderer.once('sampleStudyCopied', (event) => {
+                this.props.updateMainUi({ sampleStudyCopied: true });
+            });
+            ipcRenderer.send('copySampleStudy');
         }
     }
 

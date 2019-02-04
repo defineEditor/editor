@@ -12,26 +12,23 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { createStore } from "redux";
-import rootReducer from "reducers/rootReducer";
-import loadState from "utils/loadState.js";
-import undoable from 'redux-undo';
-import { throttle } from 'throttle-debounce';
-import saveState from 'utils/saveState.js';
+import fs from 'fs';
+import path from 'path';
+import { app } from 'electron';
+import { promisify } from 'util';
 
-const filterActions = (action, currentState, previousHistory) => {
-    return !action.type.startsWith('UI_');
-};
+const copyFile = promisify(fs.copyFile);
 
-const store = createStore(
-    undoable(rootReducer, { filter: filterActions }),
-    loadState(),
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
-);
+async function copySampleStudy(mainWindow) {
+    let destinationFile = path.join(app.getPath('userData'), 'defines', 'NG.DEF.SAMPLE.SDTM.nogz');
+    let sampleFile = path.join( __dirname, '..',  'static', 'sampleStudy', 'NG.DEF.SAMPLE.SDTM.nogz');
 
-// Save state every 5 minutes as a backup
-store.subscribe(
-    throttle(300000, () => {saveState('backup');})
-);
+    try {
+        await copyFile(sampleFile, destinationFile, fs.constants.COPYFILE_EXCL);
+        mainWindow.webContents.send('sampleStudyCopied');
+    } catch (err) {
+        // File already exists
+    }
+}
 
-export default store;
+module.exports = copySampleStudy;
