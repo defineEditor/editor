@@ -13,8 +13,6 @@
 ***********************************************************************************/
 
 import React from 'react';
-//import PropTypes from 'prop-types';
-//import TextField from '@material-ui/core/TextField';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import { connect } from 'react-redux';
 import Typography from '@material-ui/core/Typography';
@@ -30,7 +28,8 @@ import { updateSettings } from 'actions/index.js';
 
 const mapStateToProps = state => {
     return {
-        showWarningSetting     : state.present.settings.editor.codeListTypeUpdateWarning,
+        showWarningSetting      : state.present.settings.editor.codeListTypeUpdateWarning,
+        codeLists               : state.present.odm.study.metaDataVersion.codeLists,
     };
 };
 
@@ -54,7 +53,18 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
         // depending on editor setting and type change attempted, either show dialog or change the type
         if (this.props.showWarningSetting &&
             (this.props.defaultValue === 'decoded' && newCodeListType === 'enumerated') ) {
-            this.dialogOpen(newCodeListType);
+            // retrieve codelist decodes to an array
+            let decodes = this.props.codeLists[this.props.row.oid].itemOrder.map( item => {
+                return (this.props.codeLists[this.props.row.oid].codeListItems[item].decodes[0] || { value: '' }).value;
+            });
+            // check if all decodes consist of whitespace characters
+            if (decodes.some(item => new RegExp(/\S/g).test(item))) {
+                // open dialog if there is a non-whitespace decode in the array
+                this.dialogOpen(newCodeListType);
+            } else {
+                // if all decodes are empty change the type straightaway
+                this.props.onUpdate(newCodeListType);
+            }
         } else {
             this.props.onUpdate(newCodeListType);
         }
@@ -74,7 +84,9 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
     }
 
     onDialogOk = () => {
+        // check if the Never Show Again was selected
         if (!this.state.warningShowAgain) {
+            // if so, update the corresponding setting
             this.props.updateSettings({
                 editor: {
                     codeListTypeUpdateWarning: false,
@@ -86,6 +98,7 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
     }
 
     onDialogCancel = () => {
+        // if Cancel is hit in the dialog, ignore the checkbox status and close the dialog
         this.setState({
             warningShowAgain: true,
         });
@@ -110,11 +123,11 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
                     <DialogTitle id="alert-dialog-title">{"Change codelist type?"}</DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
-                            When you change a codelist type from
+                            If you change a codelist type from
                             {this.props.defaultValue === 'decoded' && ' decoded '}
                             to
                             {this.state.newCodeListType === 'enumerated' && ' enumeration'}
-                            , the data in the Coded Value column of the codelist will be lost.
+                            , the data in the Decode column of the codelist will be lost.
                         </DialogContentText>
                         <FormControlLabel
                             control={
