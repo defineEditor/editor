@@ -467,7 +467,7 @@ const addCodedValue = (state, action, skipLinkedCodeListUpdate) => {
     if (codeList.codeListType === 'decoded') {
         let newCodeListItems = {
             ...codeList.codeListItems,
-            [newOid]: { ...new CodeListItem({ codedValue: action.updateObj.codedValue, decodes: [''] }) },
+            [newOid]: { ...new CodeListItem({ codedValue: action.updateObj.codedValue, decodes: [{ value: '' }] }) },
         };
         newCodeList = { ...new CodeList({ ...state[action.codeListOid], codeListItems: newCodeListItems, itemOrder: newItemOrder }) };
     } else if (codeList.codeListType === 'enumerated') {
