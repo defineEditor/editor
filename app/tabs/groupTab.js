@@ -163,9 +163,20 @@ class ConnectedGroupTab extends React.Component {
 
         let groupOid;
 
-        if (this.props.groupOid !== undefined && this.props.groupOrder.includes(this.props.groupOid)) {
+        if (this.props.groupOid !== undefined && this.props.groupOrder.includes(this.props.groupOid)
+        ) {
             groupOid = this.props.groupOid;
         } else if (this.props.groupOrder.length > 0) {
+            groupOid = this.props.groupOrder[0];
+        }
+        // If user managed to switch to external codelist
+        // (last reviewed codelist was changed to External and then user went back to coded Values)
+        // then do not load it
+        // Theoretically the first codelist can be external, in this case user needs to manually select another one
+        if (this.props.groupClass === 'Coded Values'
+            && this.props.mdv.codeLists.hasOwnProperty(this.props.groupOid)
+            && this.props.mdv.codeLists[this.props.groupOid].codeListType === 'external'
+        ) {
             groupOid = this.props.groupOrder[0];
         }
         let groupName;

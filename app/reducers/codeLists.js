@@ -190,8 +190,8 @@ const updateCodeListType = (state, action) => {
         newState = state;
     }
 
-    if (currentCodeList.externalCodeList !== undefined) {
-        // If it is an external codelist, just remove the link
+    if (currentCodeList.externalCodeList !== undefined || currentCodeList.codeListType === 'external') {
+        // If it is an external codelist, remove the link and add items
         let newCodeList = { ...new CodeList({ ...newState[action.oid], ...action.updateObj, externalCodeList: undefined }) };
         return {...newState, [action.oid]: newCodeList};
     } else if (currentCodeList.enumeratedItems !== undefined && newType  === 'decoded') {
@@ -228,6 +228,7 @@ const updateCodeListType = (state, action) => {
             ...action.updateObj,
             codeListItems   : undefined,
             enumeratedItems : undefined,
+            itemOrder       : [],
         }) };
         return {...newState, [action.oid]: newCodeList};
     } else {

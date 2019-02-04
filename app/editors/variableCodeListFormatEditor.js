@@ -96,7 +96,7 @@ class VariableCodeListFormatEditor extends React.Component {
         let issue = false;
         let helperText = '';
         if (displayFormat !== undefined) {
-            let issues = checkForSpecialChars(displayFormat, new RegExp(/[^$a-zA-Z_0-9]/,'g'), 'Invalid character' );
+            let issues = checkForSpecialChars(displayFormat, new RegExp(/[^$.a-zA-Z_0-9]/,'g'), 'Invalid character' );
             // Check label length is withing 40 chars
             if (displayFormat.length > 32) {
                 let issueText = `Value length is ${displayFormat.length}, which exceeds 32 characters.`;

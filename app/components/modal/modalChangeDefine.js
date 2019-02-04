@@ -26,7 +26,6 @@ import saveState from 'utils/saveState.js';
 import {
     changePage,
     closeModal,
-    appSave,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -58,7 +57,6 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         changePage: updateObj => dispatch(changePage(updateObj)),
-        appSave : (updateObj) => dispatch(appSave(updateObj)),
         closeModal: () => dispatch(closeModal()),
     };
 };
@@ -152,7 +150,6 @@ ConnectedModalChangeDefine.propTypes = {
     tabs: PropTypes.object.isRequired,
     studies: PropTypes.object.isRequired,
     defines: PropTypes.object.isRequired,
-    appSave: PropTypes.func.isRequired,
     changePage: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
 };
