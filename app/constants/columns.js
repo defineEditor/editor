@@ -24,13 +24,13 @@ const datasets = {
     name: {
         text    : 'Name',
         width   : '110px',
-        tdStyle : {whiteSpace: 'normal'},
+        tdStyle : {whiteSpace: 'pre-wrap'},
         thStyle : {whiteSpace: 'normal'}
     },
     description: {
         text    : 'Description',
         width   : '15%',
-        tdStyle : { whiteSpace: 'normal' },
+        tdStyle : { whiteSpace: 'pre-wrap' },
         thStyle : { whiteSpace: 'normal' }
     },
     datasetClass: {
@@ -42,7 +42,7 @@ const datasets = {
     domainAttrs: {
         text    : 'Domain',
         width   : '115px',
-        tdStyle : { whiteSpace: 'normal', overflowWrap: 'break-word' },
+        tdStyle : { whiteSpace: 'pre-wrap', overflowWrap: 'break-word' },
         thStyle : { whiteSpace: 'normal' },
     },
     flags: {
@@ -54,7 +54,7 @@ const datasets = {
     structure: {
         text    : 'Structure',
         width   : '10%',
-        tdStyle : { whiteSpace: 'normal' },
+        tdStyle : { whiteSpace: 'pre-wrap' },
         thStyle : { whiteSpace: 'normal' },
     },
     keys: {
@@ -73,7 +73,7 @@ const datasets = {
         dataField : 'leaf',
         text      : 'Location',
         width     : '7%',
-        tdStyle   : { whiteSpace: 'normal' },
+        tdStyle   : { whiteSpace: 'pre-wrap' },
         thStyle   : { whiteSpace: 'normal' }
     }
 };
@@ -91,14 +91,14 @@ const variables = {
         text    : 'Position, Key',
         width   : '110px',
         hidden  : true,
-        tdStyle : { whiteSpace: 'normal' },
+        tdStyle : { whiteSpace: 'pre-wrap' },
         thStyle : { whiteSpace: 'normal' }
     },
     nameLabelWhereClause: {
         text    : 'Name, Label, Where Clause',
         width   : '300px',
         hidden  : false,
-        tdStyle : { whiteSpace: 'normal' },
+        tdStyle : { whiteSpace: 'pre-wrap' },
         thStyle : { whiteSpace: 'normal' }
     },
     dataType: {
@@ -112,14 +112,14 @@ const variables = {
         text    : 'Length',
         width   : '115px',
         hidden  : false,
-        tdStyle : { whiteSpace: 'normal' },
+        tdStyle : { whiteSpace: 'pre-wrap' },
         thStyle : { whiteSpace: 'normal' }
     },
     roleAttrs: {
         text    : 'Role',
         width   : '150px',
         hidden  : true,
-        tdStyle : { whiteSpace: 'normal' },
+        tdStyle : { whiteSpace: 'pre-wrap' },
         thStyle : { whiteSpace: 'normal' }
     },
     mandatory: {
@@ -133,14 +133,14 @@ const variables = {
         text    : 'Codelist, Display Format',
         width   : '130px',
         hidden  : false,
-        tdStyle : { whiteSpace: 'normal', overFlowWrap: 'break-word', wordBreak: 'break-word' },
+        tdStyle : { whiteSpace: 'pre-wrap', overFlowWrap: 'break-word', wordBreak: 'break-word' },
         thStyle : { whiteSpace: 'normal' }
     },
     description: {
         text    : 'Description',
         width   : '99%',
         hidden  : false,
-        tdStyle : { whiteSpace: 'normal' },
+        tdStyle : { whiteSpace: 'pre-wrap' },
         thStyle : { whiteSpace: 'normal' },
     },
 };
@@ -158,7 +158,7 @@ const codeLists = {
         text    : 'Name',
         width   : '20%',
         hidden  : false,
-        tdStyle : {whiteSpace: 'normal'},
+        tdStyle : {whiteSpace: 'pre-wrap'},
         thStyle : {whiteSpace: 'normal'}
     },
     codeListType: {
@@ -179,13 +179,13 @@ const codeLists = {
         text    : 'Format Name',
         hidden  : false,
         width   : '140px',
-        tdStyle : { whiteSpace: 'normal' },
+        tdStyle : { whiteSpace: 'pre-wrap' },
         thStyle : { whiteSpace: 'normal' },
     },
     linkedCodeList: {
         text    : 'Linked Codelist',
         width   : '10%',
-        tdStyle : { whiteSpace: 'normal' },
+        tdStyle : { whiteSpace: 'pre-wrap' },
         thStyle : { whiteSpace: 'normal' },
     },
     standardData: {
@@ -216,23 +216,23 @@ const codedValues = {
     },
     value: {
         text    : 'Coded Value',
-        tdStyle : { whiteSpace: 'normal', width: '30px', overflow: 'inherit !important' },
+        tdStyle : { whiteSpace: 'pre-wrap', width: '30px', overflow: 'inherit !important' },
         thStyle : { whiteSpace: 'normal', width: '30px' },
     },
     decode: {
         text    : 'Decode',
-        tdStyle : { whiteSpace: 'normal' },
+        tdStyle : { whiteSpace: 'pre-wrap' },
         thStyle : { whiteSpace: 'normal' }
     },
     rank: {
         text    : 'Rank',
-        tdStyle : { whiteSpace: 'normal' },
+        tdStyle : { whiteSpace: 'pre-wrap' },
         thStyle : { whiteSpace: 'normal' },
         hidden  : true,
     },
     ccode: {
         text     : 'C-code',
-        tdStyle  : { whiteSpace: 'normal' },
+        tdStyle  : { whiteSpace: 'pre-wrap' },
         thStyle  : { whiteSpace: 'normal' },
         editable : false,
     },
@@ -251,14 +251,14 @@ const armSummary = {
         text    : 'Name',
         width   : '30%',
         hidden  : false,
-        tdStyle : {whiteSpace: 'normal'},
+        tdStyle : {whiteSpace: 'pre-wrap'},
         thStyle : {whiteSpace: 'normal'}
     },
     description: {
         text    : 'Description',
         hidden  : false,
         width   : '70%',
-        tdStyle : { whiteSpace: 'normal' },
+        tdStyle : { whiteSpace: 'pre-wrap' },
         thStyle : { whiteSpace: 'normal' },
     },
 };

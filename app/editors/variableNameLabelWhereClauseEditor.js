@@ -315,7 +315,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
 
             // Remove surrounding quotes
             checkValues = checkValues.map( checkValue => {
-                if ( /^(["']).*\1$/.test(checkValues) ) {
+                if ( /^(["']).*\1$/.test(checkValue) ) {
                     return checkValue.replace(/^(.)(.*)\1$/,'$2');
                 } else {
                     return checkValue;

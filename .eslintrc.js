@@ -13,7 +13,8 @@ module.exports = {
     react: {
       createClass: 'createReactClass', // Regex for Component Factory to use,
       // default to 'createReactClass'
-      pragma: 'React' // Pragma to use, default to 'React'
+      pragma: 'React', // Pragma to use, default to 'React'
+      version: 'detect'
     },
     propWrapperFunctions: ['forbidExtraProps'] // The names of any functions used to wrap the
     // propTypes object, e.g. `forbidExtraProps`.

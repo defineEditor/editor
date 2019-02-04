@@ -16,6 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import { ipcRenderer } from 'electron';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
@@ -24,9 +25,9 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import saveState from 'utils/saveState.js';
 import {
-    changePage,
-    closeModal,
+    appQuit,
     appSave,
+    closeModal,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -44,42 +45,40 @@ const styles = theme => ({
     },
 });
 
-// Redux functions
-const mapStateToProps = state => {
-    return {
-        odm: state.present.odm,
-        tabs: state.present.ui.tabs,
-        studies: state.present.studies,
-        defines: state.present.defines,
-        currentStudyId: state.present.ui.main.currentStudyId,
-    };
-};
-
 const mapDispatchToProps = dispatch => {
     return {
-        changePage: updateObj => dispatch(changePage(updateObj)),
-        appSave : (updateObj) => dispatch(appSave(updateObj)),
         closeModal: () => dispatch(closeModal()),
+        appQuit: () => dispatch(appQuit()),
+        appSave: (updateObj) => dispatch(appSave(updateObj)),
     };
 };
 
-class ConnectedModalChangeDefine extends React.Component {
+class ConnectedModalQuitApplication extends React.Component {
 
     onSave = () => {
-        saveState();
-        this.props.changePage({ page: 'editor', defineId: this.props.defineId, studyId: this.props.studyId });
+        this.props.appQuit();
         this.props.closeModal();
+        this.props.appSave({defineId: this.props.defineId});
+        saveState('noWrite');
+        ipcRenderer.once('writeDefineObjectFinished', () => { ipcRenderer.send('quitConfirmed'); window.close();} );
+        ipcRenderer.send('writeDefineObject', {
+            defineId: this.props.defineId,
+            tabs: this.props.tabs,
+            odm: this.props.odm,
+        });
+    }
+
+    onDiscard = () => {
+        this.props.appQuit();
+        this.props.closeModal();
+        saveState('noWrite');
+        ipcRenderer.send('quitConfirmed');
+        window.close();
     }
 
     onCancel = () => {
         this.props.closeModal();
     }
-
-    onDiscard = () => {
-        this.props.changePage({ page: 'editor', defineId: this.props.defineId, studyId: this.props.studyId });
-        this.props.closeModal();
-    }
-
 
     onKeyDown = (event)  => {
         if (event.key === 'Escape' || event.keyCode === 27) {
@@ -91,17 +90,6 @@ class ConnectedModalChangeDefine extends React.Component {
 
     render () {
         const { classes } = this.props;
-
-        // Get the names of the current Define and Study
-        let studyName;
-        if (this.props.studies.allIds.includes(this.props.currentStudyId)) {
-            studyName = this.props.studies.byId[this.props.currentStudyId].name;
-        }
-
-        let defineName;
-        if (this.props.defines.allIds.includes(this.props.currentDefineId)) {
-            defineName = this.props.defines.byId[this.props.currentDefineId].name;
-        }
 
         return (
             <Dialog
@@ -115,16 +103,11 @@ class ConnectedModalChangeDefine extends React.Component {
                 tabIndex='0'
             >
                 <DialogTitle id="alert-dialog-title">
-                    Change Define
+                    Quit Visual Define-XML Editor
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        You have unsaved changed in your current Define-XML document
-                        (
-                        {studyName !== undefined && 'Study: ' + studyName + ', '}
-                        {defineName !== undefined && 'Define: ' + defineName}
-                        ).
-                        Save them before opening a new Define-XML document?
+                        You have unsaved changes in your current Define-XML file. Would you like to save the changes before closing the application?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -132,7 +115,7 @@ class ConnectedModalChangeDefine extends React.Component {
                         Save
                     </Button>
                     <Button onClick={this.onDiscard} color="primary">
-                       Discard
+                        Discard Changes
                     </Button>
                     <Button onClick={this.onCancel} color="primary">
                         Cancel
@@ -143,19 +126,15 @@ class ConnectedModalChangeDefine extends React.Component {
     }
 }
 
-ConnectedModalChangeDefine.propTypes = {
+ConnectedModalQuitApplication.propTypes = {
     classes: PropTypes.object.isRequired,
+    appQuit: PropTypes.func.isRequired,
+    appSave: PropTypes.func.isRequired,
+    closeModal: PropTypes.func.isRequired,
     defineId: PropTypes.string.isRequired,
-    currentDefineId: PropTypes.string.isRequired,
-    currentStudyId: PropTypes.string.isRequired,
     odm: PropTypes.object.isRequired,
     tabs: PropTypes.object.isRequired,
-    studies: PropTypes.object.isRequired,
-    defines: PropTypes.object.isRequired,
-    appSave: PropTypes.func.isRequired,
-    changePage: PropTypes.func.isRequired,
-    closeModal: PropTypes.func.isRequired,
 };
 
-const ModalChangeDefine = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalChangeDefine);
-export default withStyles(styles)(ModalChangeDefine);
+const ModalQuitApplication = connect(undefined, mapDispatchToProps)(ConnectedModalQuitApplication);
+export default withStyles(styles)(ModalQuitApplication);

@@ -24,7 +24,7 @@ import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     main: {
-        whiteSpace: 'normal',
+        whiteSpace: 'pre-wrap',
     },
     nameLabel: {
         flexWrap: 'nowrap',

@@ -16,12 +16,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import ModalRoot from 'utils/modalRoot.js';
+import ModalRoot from 'components/modal/modalRoot.js';
 import MainMenu from 'core/mainMenu.js';
 import Editor from 'core/editor.js';
 import ControlledTerminology from 'core/controlledTerminology.js';
 import Settings from 'core/settings.js';
 import Studies from 'core/studies.js';
+import About from 'core/about.js';
 import RedoUndo from 'utils/redoUndo.js';
 import FindInPage from 'utils/findInPage.js';
 import {
@@ -113,6 +114,7 @@ class ConnectedApp extends Component {
                 {this.props.currentPage === 'editor' && <Editor onToggleRedoUndo={this.toggleRedoUndo}/>}
                 {this.props.currentPage === 'controlledTerminology' && <ControlledTerminology />}
                 {this.props.currentPage === 'settings' && <Settings />}
+                {this.props.currentPage === 'about' && <About />}
                 <ModalRoot />
                 { this.state.showRedoUndo && <RedoUndo onToggleRedoUndo={this.toggleRedoUndo}/> }
                 { this.state.showFindInPage && <FindInPage onToggleFindInPage={this.toggleFindInPage}/> }

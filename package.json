@@ -1,7 +1,7 @@
 {
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
-  "version": "0.9.01-14",
+  "version": "1.0.0-beta.1",
   "license": "AGPL-3.0-only",
   "private": "true",
   "description": "Visual Define-XML Editor",
@@ -100,8 +100,15 @@
     "email": "dmitry.m.kolosov@gmail.com",
     "url": ""
   },
+  "contributors": [
+    {
+      "name": "Sergei Krivtcov",
+      "email": "",
+      "url": ""
+    }
+  ],
   "bugs": {
-    "url": ""
+    "url": "http://github.com/defineEditor/"
   },
   "keywords": [
     "define-xml",
@@ -109,7 +116,7 @@
     "odm",
     "specifications"
   ],
-  "homepage": "",
+  "homepage": "http://defineeditor.com",
   "jest": {
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/internals/mocks/fileMock.js",
@@ -150,7 +157,7 @@
     "cross-spawn": "^6.0.5",
     "css-loader": "^0.28.11",
     "detect-port": "^1.2.3",
-    "electron": "^2.0.4",
+    "electron": "^4.0.1",
     "electron-builder": "^20.14.7",
     "electron-devtools-installer": "^2.2.4",
     "electron-rebuild": "^1.7.3",
@@ -225,6 +232,7 @@
     "react-bootstrap-table": "DmitryMK/react-bootstrap-table",
     "react-dom": "^16.5.2",
     "react-hot-loader": "^4.3.11",
+    "react-markdown": "^4.0.6",
     "react-redux": "^6.0.0",
     "react-select": "^1.2.1",
     "react-sortable-hoc": "^0.7.4",

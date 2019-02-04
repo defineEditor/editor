@@ -54,7 +54,7 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-class ConnectedModalInitialMessage extends React.Component {
+class ConnectedModalBugReport extends React.Component {
 
     constructor (props) {
         super(props);
@@ -150,11 +150,11 @@ class ConnectedModalInitialMessage extends React.Component {
     }
 }
 
-ConnectedModalInitialMessage.propTypes = {
+ConnectedModalBugReport.propTypes = {
     classes: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
     reset: PropTypes.func.isRequired,
 };
 
-const ModalInitialMessage = connect(undefined, mapDispatchToProps)(ConnectedModalInitialMessage);
-export default withStyles(styles)(ModalInitialMessage);
+const ModalBugReport = connect(undefined, mapDispatchToProps)(ConnectedModalBugReport);
+export default withStyles(styles)(ModalBugReport);

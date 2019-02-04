@@ -16,15 +16,25 @@ import { CodeListItem, EnumeratedItem, Alias } from 'core/defineStructure.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
 import deepEqual from 'fast-deep-equal';
 
-export const getItemsWithAliasExtendedValue = (sourceItems, standardCodeList, codeListType) => {
+export const getItemsWithAliasExtendedValue = (sourceItems, standardCodeList, codeListType, options) => {
     // Get enumeratedItems/codeListItems and populate Alias and ExtendedValue for each of the items
+    // Possible options:
+    // options.updateDecodes - use decodes from the standard codelist
     let newItems = {};
     let standardCodedValues = getCodedValuesAsArray(standardCodeList);
     Object.keys(sourceItems).forEach( itemOid => {
         if (standardCodedValues.includes(sourceItems[itemOid].codedValue)) {
-            // Add alias from the standard codelist if it is different
+            // Add alias from the standard codelist if it is different or the values/decodes should be updated
             let standardItemOid = Object.keys(standardCodeList.codeListItems)[standardCodedValues.indexOf(sourceItems[itemOid].codedValue)];
-            if (!deepEqual(sourceItems[itemOid].alias, standardCodeList.codeListItems[standardItemOid].alias)){
+            // If decodes are compared, create a corresponding flag
+            let differentDecodes = false;
+            if (options.updateDecodes && codeListType === 'decoded') {
+                if (!deepEqual(sourceItems[itemOid].decodes, standardCodeList.codeListItems[standardItemOid].decodes)) {
+                    differentDecodes = true;
+                }
+            }
+
+            if (!deepEqual(sourceItems[itemOid].alias, standardCodeList.codeListItems[standardItemOid].alias) || differentDecodes){
                 if (codeListType === 'enumerated') {
                     newItems[itemOid] = { ...new EnumeratedItem({
                         ...sourceItems[itemOid],
@@ -34,6 +44,7 @@ export const getItemsWithAliasExtendedValue = (sourceItems, standardCodeList, co
                     newItems[itemOid] = { ...new CodeListItem({
                         ...sourceItems[itemOid],
                         alias: { ...new Alias({ ...standardCodeList.codeListItems[standardItemOid].alias }) },
+                        decodes: differentDecodes ? standardCodeList.codeListItems[standardItemOid].decodes.slice() : sourceItems.decodes,
                     }) };
                 }
             } else {

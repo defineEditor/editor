@@ -26,6 +26,7 @@ import getSelectionList from 'utils/getSelectionList.js';
 import SaveCancel from 'editors/saveCancel.js';
 import getOidByName from 'utils/getOidByName.js';
 import { getDecode } from 'utils/defineStructureUtils.js';
+import { comparators } from 'constants/stdConstants.js';
 import { WhereClause, RangeCheck } from 'core/defineStructure.js';
 
 const styles = theme => ({
@@ -68,10 +69,6 @@ const styles = theme => ({
         margin: theme.spacing.unit / 4,
     },
 });
-
-
-// TODO move to store
-const comparators = ['EQ','NE','LT','LE','GT','GE','IN','NOTIN'];
 
 class WhereClauseEditorInteractive extends React.Component {
     constructor (props) {
@@ -126,21 +123,29 @@ class WhereClauseEditorInteractive extends React.Component {
             if (mdv.itemDefs.hasOwnProperty(currentItemOid) && mdv.codeLists.hasOwnProperty(mdv.itemDefs[currentItemOid].codeListOid)) {
                 currentCodeList =  mdv.codeLists[mdv.itemDefs[currentItemOid].codeListOid];
             }
-            if (currentCodeList !== undefined) {
-                if (currentCodeList.codeListType !== 'external') {
-                    listOfCodeValues[currentItemOid] = [];
-                    if (currentCodeList.codeListType === 'decoded') {
-                        Object.keys(currentCodeList.codeListItems).forEach( itemOid => {
-                            let item = currentCodeList.codeListItems[itemOid];
-                            listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue + ' (' + getDecode(item) + ')'});
-                        });
-                    } else if (currentCodeList.codeListType === 'enumerated') {
-                        Object.keys(currentCodeList.enumeratedItems).forEach( itemOid => {
-                            let item = currentCodeList.enumeratedItems[itemOid];
-                            listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue});
-                        });
-                    }
+            if (currentCodeList !== undefined && currentCodeList.codeListType !== 'external') {
+                listOfCodeValues[currentItemOid] = [];
+                let allCodeListValues = [];
+                if (currentCodeList.codeListType === 'decoded') {
+                    Object.keys(currentCodeList.codeListItems).forEach( itemOid => {
+                        let item = currentCodeList.codeListItems[itemOid];
+                        allCodeListValues.push(item.codedValue);
+                        listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue + ' (' + getDecode(item) + ')'});
+                    });
+                } else if (currentCodeList.codeListType === 'enumerated') {
+                    Object.keys(currentCodeList.enumeratedItems).forEach( itemOid => {
+                        let item = currentCodeList.enumeratedItems[itemOid];
+                        allCodeListValues.push(item.codedValue);
+                        listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue});
+                    });
                 }
+                // If the current value(s) is not in the codelist, still add it into the list
+                rangeCheck.checkValues.forEach( value => {
+                    if (!allCodeListValues.includes(value)) {
+                        listOfCodeValues[currentItemOid].push({[value]: value});
+                    }
+                });
+
             }
         });
 

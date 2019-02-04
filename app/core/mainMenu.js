@@ -100,7 +100,7 @@ class ConnectedMainMenu extends React.Component {
     }
 
     print = () => {
-        remote.getCurrentWindow().webContents.print();
+        remote.getCurrentWindow().webContents.executeJavaScript("window.print()");
     }
 
     save = (noToggle) => {
@@ -149,6 +149,12 @@ class ConnectedMainMenu extends React.Component {
                                     <Settings/>
                                 </ListItemIcon>
                                 <ListItemText primary='Settings'/>
+                            </ListItem>
+                            <ListItem button key='about' onClick={() => this.props.changePage({ page: 'about' })}>
+                                <ListItemIcon>
+                                    <Settings/>
+                                </ListItemIcon>
+                                <ListItemText primary='About'/>
                             </ListItem>
                             <Divider/>
                             <ListItem button key='search' onClick={() => {this.props.toggleMainMenu(); this.props.onToggleFindInPage(300);}}>

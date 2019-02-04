@@ -33,6 +33,7 @@ import {
     ADD_ITEMGROUPS,
     DEL_ITEMGROUPS,
     UPD_STDCT,
+    UPD_LINKCODELISTS,
 } from "constants/action-types";
 import { CodeList, CodeListItem, ExternalCodeList, EnumeratedItem, Alias } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
@@ -189,8 +190,8 @@ const updateCodeListType = (state, action) => {
         newState = state;
     }
 
-    if (currentCodeList.externalCodeList !== undefined) {
-        // If it is an external codelist, just remove the link
+    if (currentCodeList.externalCodeList !== undefined || currentCodeList.codeListType === 'external') {
+        // If it is an external codelist, remove the link and add items
         let newCodeList = { ...new CodeList({ ...newState[action.oid], ...action.updateObj, externalCodeList: undefined }) };
         return {...newState, [action.oid]: newCodeList};
     } else if (currentCodeList.enumeratedItems !== undefined && newType  === 'decoded') {
@@ -227,6 +228,7 @@ const updateCodeListType = (state, action) => {
             ...action.updateObj,
             codeListItems   : undefined,
             enumeratedItems : undefined,
+            itemOrder       : [],
         }) };
         return {...newState, [action.oid]: newCodeList};
     } else {
@@ -336,6 +338,15 @@ const updateCodeList = (state, action) => {
     } else {
         return {...state, [action.oid]: newCodeList};
     }
+};
+
+const updateLinkCodeLists = (state, action) => {
+    // action.updateObj: an object of structure [codelistOID]: linkedCodelistOID
+    let newState = { ...state };
+    Object.keys(action.updateObj).forEach( (key) => {
+        newState = updateCodeList(newState, { type: UPD_CODELIST, oid: key, updateObj: {linkedCodeListOid: action.updateObj[key]} });
+    });
+    return newState;
 };
 
 const addCodeList = (state, action) => {
@@ -456,7 +467,7 @@ const addCodedValue = (state, action, skipLinkedCodeListUpdate) => {
     if (codeList.codeListType === 'decoded') {
         let newCodeListItems = {
             ...codeList.codeListItems,
-            [newOid]: { ...new CodeListItem({ codedValue: action.updateObj.codedValue }) },
+            [newOid]: { ...new CodeListItem({ codedValue: action.updateObj.codedValue, decodes: [''] }) },
         };
         newCodeList = { ...new CodeList({ ...state[action.codeListOid], codeListItems: newCodeListItems, itemOrder: newItemOrder }) };
     } else if (codeList.codeListType === 'enumerated') {
@@ -842,6 +853,8 @@ const codeLists = (state = {}, action) => {
             return updateCodeListsStandard(state, action);
         case UPD_CODELISTEXT:
             return updateExternalCodeList(state, action);
+        case UPD_LINKCODELISTS:
+            return updateLinkCodeLists(state, action);
         case UPD_ITEMCLDF:
             return handleItemDefUpdate(state, action);
         case UPD_ITEMSBULK:
