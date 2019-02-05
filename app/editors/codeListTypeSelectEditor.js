@@ -50,19 +50,29 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
     }
 
     onCodeListTypeSelect = (newCodeListType) => {
-        // depending on editor setting and type change attempted, either show dialog or change the type
-        if (this.props.showWarningSetting &&
-            (this.props.defaultValue === 'decoded' && newCodeListType === 'enumerated') ) {
-            // retrieve codelist decodes to an array
-            let decodes = this.props.codeLists[this.props.row.oid].itemOrder.map( item => {
-                return (this.props.codeLists[this.props.row.oid].codeListItems[item].decodes[0] || { value: '' }).value;
-            });
-            // check if all decodes consist of whitespace characters
-            if (decodes.some(item => new RegExp(/\S/g).test(item))) {
-                // open dialog if there is a non-whitespace decode in the array
+        // depending on editor setting and codelist type change attempted, either show dialog or change the type
+        if (this.props.showWarningSetting && this.props.defaultValue === 'decoded' && newCodeListType !== 'decoded') {
+            // dataLoss (true/false) shows if a codelist type change leads to loss of data
+            let dataLoss;
+            switch(newCodeListType) {
+                case 'enumerated':
+                    // dataLoss = true, if there is a non-empty element in 'Decode' column of the codelist
+                    // dataLoss = false otherwise
+                    dataLoss = this.props.codeLists[this.props.row.oid].itemOrder.some( item =>
+                        new RegExp(/\S/g).test((this.props.codeLists[this.props.row.oid].codeListItems[item].decodes[0] || { value: '' }).value)
+                    );
+                    break;
+                case 'external':
+                    // likewise dataLoss = true, if there is a non-empty element in 'Decode' OR 'Coded Value' columns of the codelist
+                    dataLoss = this.props.codeLists[this.props.row.oid].itemOrder.some( item =>
+                        new RegExp(/\S/g).test((this.props.codeLists[this.props.row.oid].codeListItems[item].decodes[0] || { value: '' }).value) ||
+                        new RegExp(/\S/g).test(this.props.codeLists[this.props.row.oid].codeListItems[item].codedValue)
+                    );
+                    break;
+            }
+            if (dataLoss) {
                 this.dialogOpen(newCodeListType);
             } else {
-                // if all decodes are empty change the type straightaway
                 this.props.onUpdate(newCodeListType);
             }
         } else {
@@ -126,8 +136,10 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
                             If you change a codelist type from
                             {this.props.defaultValue === 'decoded' && ' decoded '}
                             to
-                            {this.state.newCodeListType === 'enumerated' && ' enumeration'}
-                            , the data in the Decode column of the codelist will be lost.
+                            {(this.state.newCodeListType === 'enumerated' && ' enumeration') || (this.state.newCodeListType === 'external' && ' external')}
+                            , the data in the
+                            {(this.state.newCodeListType === 'enumerated' && ' Decode column ') || (this.state.newCodeListType === 'external' && ' Coded Value and Decode columns ')}
+                            of the codelist will be lost.
                         </DialogContentText>
                         <FormControlLabel
                             control={
