@@ -51,22 +51,28 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
 
     onCodeListTypeSelect = (newCodeListType) => {
         // depending on editor setting and codelist type change attempted, either show dialog or change the type
-        if (this.props.showWarningSetting && this.props.defaultValue === 'decoded' && newCodeListType !== 'decoded') {
+        if (this.props.showWarningSetting && ['decoded to enumerated', 'decoded to external', 'enumerated to external'].includes(this.props.defaultValue + ' to ' + newCodeListType)) {
             // dataLoss (true/false) shows if a codelist type change leads to loss of data
             let dataLoss;
-            switch(newCodeListType) {
-                case 'enumerated':
+            switch(this.props.defaultValue + ' to ' + newCodeListType) {
+                case 'decoded to enumerated':
                     // dataLoss = true, if there is a non-empty element in 'Decode' column of the codelist
                     // dataLoss = false otherwise
                     dataLoss = this.props.codeLists[this.props.row.oid].itemOrder.some( item =>
                         new RegExp(/\S/g).test((this.props.codeLists[this.props.row.oid].codeListItems[item].decodes[0] || { value: '' }).value)
                     );
                     break;
-                case 'external':
+                case 'decoded to external':
                     // likewise dataLoss = true, if there is a non-empty element in 'Decode' OR 'Coded Value' columns of the codelist
                     dataLoss = this.props.codeLists[this.props.row.oid].itemOrder.some( item =>
                         new RegExp(/\S/g).test((this.props.codeLists[this.props.row.oid].codeListItems[item].decodes[0] || { value: '' }).value) ||
-                        new RegExp(/\S/g).test(this.props.codeLists[this.props.row.oid].codeListItems[item].codedValue)
+                        new RegExp(/\S/g).test(this.props.codeLists[this.props.row.oid].enumeratedItems[item].codedValue)
+                    );
+                    break;
+                case 'enumerated to external':
+                    // likewise dataLoss = true, if there is a non-empty element in 'Coded Value' column of the codelist
+                    dataLoss = this.props.codeLists[this.props.row.oid].itemOrder.some( item =>
+                        new RegExp(/\S/g).test(this.props.codeLists[this.props.row.oid].enumeratedItems[item].codedValue)
                     );
                     break;
             }
@@ -130,15 +136,19 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description"
                 >
-                    <DialogTitle id="alert-dialog-title">{"Change codelist type?"}</DialogTitle>
+                    <DialogTitle id="alert-dialog-title">{"Changing Codelist Type"}</DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
                             If you change a codelist type from
-                            {this.props.defaultValue === 'decoded' && ' decoded '}
+                            {(this.props.defaultValue === 'decoded' && ' decoded ') || (this.props.defaultValue === 'enumerated' && ' enumeration ')}
                             to
                             {(this.state.newCodeListType === 'enumerated' && ' enumeration') || (this.state.newCodeListType === 'external' && ' external')}
                             , the data in the
-                            {(this.state.newCodeListType === 'enumerated' && ' Decode column ') || (this.state.newCodeListType === 'external' && ' Coded Value and Decode columns ')}
+                            {
+                                (this.props.defaultValue + ' to ' + this.state.newCodeListType === 'decoded to enumerated' && ' Decode column ') ||
+                                (this.props.defaultValue + ' to ' + this.state.newCodeListType === 'decoded to external' && ' Coded Value and Decode columns ') ||
+                                (this.props.defaultValue + ' to ' + this.state.newCodeListType === 'enumerated to external' && ' Coded Value column ')
+                            }
                             of the codelist will be lost.
                         </DialogContentText>
                         <FormControlLabel
