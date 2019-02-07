@@ -57,7 +57,7 @@ class BasicFunctions {
         let updatedFlag = false;
         // No description yet
         if (this.descriptions.length === 0) {
-            this.descriptions.push(new TranslatedText({lang: 'language', value: value}));
+            this.descriptions.push(new TranslatedText({lang: language, value: value}));
             updatedFlag = true;
         } else {
         // Search for a description with a specific language and update it

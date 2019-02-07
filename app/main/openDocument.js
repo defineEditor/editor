@@ -14,7 +14,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import {dialog, BrowserWindow} from 'electron';
+import {dialog, shell} from 'electron';
 
 async function openDocument (mainWindow, defineLocation, pdfLink) {
     // Check the file exists
@@ -23,6 +23,10 @@ async function openDocument (mainWindow, defineLocation, pdfLink) {
     let pathToPdf = fullPdfLink.replace(/(.pdf)(#.*)$/,'$1');
 
     if (fs.existsSync(pathToPdf)) {
+        // TODO temporary fix of https://github.com/electron/electron/issues/12337
+        // To update once it is fixed in the application
+        shell.openItem(pathToPdf);
+        /*
         let pdfWindow = new BrowserWindow({
             width: 1024,
             height: 728,
@@ -32,6 +36,7 @@ async function openDocument (mainWindow, defineLocation, pdfLink) {
         });
         pdfWindow.setMenu(null);
         pdfWindow.loadURL('file://' + fullPdfLink);
+        */
     } else {
         dialog.showMessageBox(
             mainWindow,

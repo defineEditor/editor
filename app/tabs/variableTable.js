@@ -407,6 +407,8 @@ class ConnectedVariableTable extends React.Component {
                         });
                         vlmFilteredOids = applyFilter(data, this.props.filter);
                     }
+                    // Get the VLM data
+                    // During filtering it is possible that some of the elements will be undefined or empty, remove them
                     let vlmData = getTableData({
                         source        : mdv.valueLists[mdv.itemDefs[itemOid].valueListOid],
                         datasetName   : dataset.name,
@@ -417,7 +419,7 @@ class ConnectedVariableTable extends React.Component {
                         defineVersion : this.props.defineVersion,
                         vlmLevel      : 1,
                         filteredOids  : vlmFilteredOids,
-                    });
+                    }).filter( el => (el != undefined));
                     // For all VLM which are expanded, add VLM data to Variables
                     // If  there is no parent variable (in case of filter), add VLM for that parent at the end
                     let startIndex = variables.map(item => item.oid).indexOf(itemOid) + 1;
@@ -806,7 +808,8 @@ class ConnectedVariableTable extends React.Component {
         if (this.props.enableTablePagination) {
             let currentVarNumber = -1;
             dataToShow = variables.filter( item => {
-                if (item.vlmLevel === 0) {
+                // currentVarNumber === -1 check is added in case a filter is applied and VLM is the first record
+                if (item.vlmLevel === 0 || currentVarNumber === -1) {
                     currentVarNumber += 1;
                 }
                 if ( page * rowsPerPage <= currentVarNumber && currentVarNumber < page * rowsPerPage + rowsPerPage) {
