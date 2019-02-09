@@ -14,6 +14,7 @@
 
 import React from 'react';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
+import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import Typography from '@material-ui/core/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -38,6 +39,22 @@ const mapDispatchToProps = dispatch => {
         updateSettings : updateObj => dispatch(updateSettings(updateObj)),
     };
 };
+
+const styles = theme => ({
+    dialog: {
+        paddingLeft   : theme.spacing.unit * 2,
+        paddingRight  : theme.spacing.unit * 2,
+        paddingBottom : theme.spacing.unit * 1,
+        position      : 'absolute',
+        borderRadius  : '10px',
+        top           : '10%',
+        transform     : 'translate(0%, calc(-50%+0.5px))',
+        overflowX     : 'auto',
+        maxHeight     : '85%',
+        width         : '50%',
+        overflowY     : 'auto',
+    },
+});
 
 class ConnectedCodeListTypeSelectEditor extends React.Component {
 
@@ -128,6 +145,7 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
     }
 
     render() {
+        const { classes } = this.props;
         return(
             <div>
                 <Dialog
@@ -135,6 +153,7 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
                     onClose={this.dialogClose}
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description"
+                    PaperProps={{className: classes.dialog}}
                 >
                     <DialogTitle id="alert-dialog-title">{"Changing Codelist Type"}</DialogTitle>
                     <DialogContent>
@@ -190,4 +209,4 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
 }
 
 const CodeListTypeSelectEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodeListTypeSelectEditor);
-export default CodeListTypeSelectEditor;
+export default withStyles(styles)(CodeListTypeSelectEditor);

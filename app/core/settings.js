@@ -364,6 +364,17 @@ class ConnectedSettings extends React.Component {
                                         }
                                         label='Change of a codelist type which will lead to removal of coded value or decode columns'
                                     />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.editor.codeListDeleteWarning}
+                                                onChange={this.handleChange('popUp', 'onCodeListDelete')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Delete a codelist, which is used by a variable'
+                                    />
                                 </FormGroup>
                             </Grid>
                         </Grid>

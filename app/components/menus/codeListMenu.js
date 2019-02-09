@@ -25,25 +25,28 @@ import {
     selectGroup,
     addCodeList,
     updateCopyBuffer,
+    openModal,
 } from 'actions/index.js';
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        deleteCodeLists     : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
-        selectGroup         : (updateObj) => dispatch(selectGroup(updateObj)),
-        addCodeList         : (updateObj, orderNumber) => dispatch(addCodeList(updateObj, orderNumber)),
-        updateCopyBuffer    : (updateObj) => dispatch(updateCopyBuffer(updateObj)),
+        deleteCodeLists  : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
+        selectGroup      : (updateObj) => dispatch(selectGroup(updateObj)),
+        addCodeList      : (updateObj, orderNumber) => dispatch(addCodeList(updateObj, orderNumber)),
+        updateCopyBuffer : (updateObj) => dispatch(updateCopyBuffer(updateObj)),
+        openModal        : (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        codeLists           : state.present.odm.study.metaDataVersion.codeLists,
-        codedValuesTabIndex : state.present.ui.tabs.tabNames.indexOf('Coded Values'),
-        reviewMode          : state.present.ui.main.reviewMode,
-        codeListOrder       : state.present.odm.study.metaDataVersion.order.codeListOrder,
-        buffer              : state.present.ui.main.copyBuffer['codeLists'],
+        codeLists                 : state.present.odm.study.metaDataVersion.codeLists,
+        codedValuesTabIndex       : state.present.ui.tabs.tabNames.indexOf('Coded Values'),
+        reviewMode                : state.present.ui.main.reviewMode,
+        codeListOrder             : state.present.odm.study.metaDataVersion.order.codeListOrder,
+        buffer                    : state.present.ui.main.copyBuffer['codeLists'],
+        showDeleteCodeListWarning : state.present.settings.editor.codeListDeleteWarning,
     };
 };
 
@@ -117,7 +120,17 @@ class ConnectedCodeListMenu extends React.Component {
             codeListOids,
             itemDefOids,
         };
-        this.props.deleteCodeLists(deleteObj);
+        // check if the prompt option is enabled and codelist being deleted are used by variables
+        if (this.props.showDeleteCodeListWarning && itemDefOids.length !== 0) {
+            // if the check is enabled and codelists are used by some variables, open modal to confirm deletion
+            this.props.openModal({
+                type: 'DELETE_CODELISTS',
+                props: {deleteObj}
+            });
+        } else {
+            // otherwise, delete the codelists straightaway
+            this.props.deleteCodeLists(deleteObj);
+        }
         this.props.onClose();
     }
 

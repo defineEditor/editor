@@ -1,4 +1,3 @@
-
 /***********************************************************************************
  * This file is part of Visual Define-XML Editor. A program which allows to review  *
  * and edit XML files created using the CDISC Define-XML standard.                  *
@@ -64,8 +63,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal              : () => dispatch(closeModal()),
-        updateLinkCodeLists     : (updateObj) => dispatch(updateLinkCodeLists(updateObj)),
+        closeModal          : () => dispatch(closeModal()),
+        updateLinkCodeLists : (updateObj) => dispatch(updateLinkCodeLists(updateObj)),
     };
 };
 
