@@ -727,7 +727,7 @@ class ItemGroup extends BasicFunctions {
         isReferenceData,
         purpose,
         structure,
-        datasetClass,
+        datasetClass = {},
         archiveLocationId,
         commentOid,
         isNotStandard,
