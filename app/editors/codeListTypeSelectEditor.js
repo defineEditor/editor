@@ -28,8 +28,8 @@ import { updateSettings } from 'actions/index.js';
 
 const mapStateToProps = state => {
     return {
-        showWarningSetting      : state.present.settings.editor.codeListTypeUpdateWarning,
-        codeLists               : state.present.odm.study.metaDataVersion.codeLists,
+        showWarningSetting  : state.present.settings.editor.codeListTypeUpdateWarning,
+        codeLists           : state.present.odm.study.metaDataVersion.codeLists,
     };
 };
 
@@ -66,7 +66,7 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
                     // likewise dataLoss = true, if there is a non-empty element in 'Decode' OR 'Coded Value' columns of the codelist
                     dataLoss = this.props.codeLists[this.props.row.oid].itemOrder.some( item =>
                         new RegExp(/\S/g).test((this.props.codeLists[this.props.row.oid].codeListItems[item].decodes[0] || { value: '' }).value) ||
-                        new RegExp(/\S/g).test(this.props.codeLists[this.props.row.oid].enumeratedItems[item].codedValue)
+                        new RegExp(/\S/g).test(this.props.codeLists[this.props.row.oid].codeListItems[item].codedValue)
                     );
                     break;
                 case 'enumerated to external':
@@ -165,7 +165,7 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
                         />
                         {!this.state.warningShowAgain &&
                             <Typography variant="body2" gutterBottom align="left" color='primary'>
-                                You can change this later in settings under Warnings section
+                                You can change this later in Settings under the Warnings section
                             </Typography>
                         }
                     </DialogContent>
