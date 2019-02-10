@@ -33,7 +33,7 @@ const styles = theme => ({
     }
 });
 
-class SaveClose extends React.Component {
+class SaveCancel extends React.Component {
     render () {
         const { classes } = this.props;
         const mini = this.props.mini;
@@ -51,7 +51,7 @@ class SaveClose extends React.Component {
                                 </Button>
                             </Grid>
                             <Grid item>
-                                <Button color='secondary' size='small' onClick={this.props.cancel} variant='contained' className={style} disabled={this.props.disabled}>
+                                <Button color='secondary' size='small' onClick={this.props.cancel} variant='contained' className={style}>
                                     { this.props.icon && <ClearIcon className={classes.icon}/>}
                                     Cancel
                                 </Button>
@@ -66,7 +66,7 @@ class SaveClose extends React.Component {
                                 </IconButton>
                             </Grid>
                             <Grid item xs={6}>
-                                <IconButton color='secondary' onClick={this.props.cancel} className={style} disabled={this.props.disabled}>
+                                <IconButton color='secondary' onClick={this.props.cancel} className={style}>
                                     <ClearIcon/>
                                 </IconButton>
                             </Grid>
@@ -77,7 +77,7 @@ class SaveClose extends React.Component {
     }
 }
 
-SaveClose.propTypes = {
+SaveCancel.propTypes = {
     mini    : PropTypes.bool,
     icon    : PropTypes.bool,
     save    : PropTypes.func.isRequired,
@@ -86,4 +86,4 @@ SaveClose.propTypes = {
     justify : PropTypes.string,
 };
 
-export default withStyles(styles)(SaveClose);
+export default withStyles(styles)(SaveCancel);

@@ -171,7 +171,6 @@ VariableWhereClauseEditor.propTypes = {
     handleChange: PropTypes.func.isRequired,
     validationCheck: PropTypes.func.isRequired,
     whereClause: PropTypes.object,
-    whereClauseManual: PropTypes.string,
     mdv: PropTypes.object,
     dataset: PropTypes.object.isRequired,
     wcEditingMode: PropTypes.string.isRequired

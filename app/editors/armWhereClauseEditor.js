@@ -25,6 +25,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import WhereClauseInteractiveEditor from 'editors/whereClauseInteractiveEditor.js';
+import WhereClauseManualEditor from 'editors/whereClauseManualEditor.js';
 import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
 import { WhereClause } from 'core/defineStructure.js';
 
@@ -63,6 +64,8 @@ class ConnectedArmWhereClauseEditor extends React.Component {
 
         this.state = {
             dialogOpened: false,
+            interactiveMode: true,
+            whereClause: this.props.whereClause,
         };
     }
 
@@ -70,17 +73,26 @@ class ConnectedArmWhereClauseEditor extends React.Component {
         this.setState({ dialogOpened: false });
     };
 
+    changeEditingMode = (rangeChecks) => {
+        let whereClause;
+        if (rangeChecks.length > 0) {
+            whereClause = { ...new WhereClause({ ...this.state.whereClause, rangeChecks }) };
+        }
+        this.setState({ interactiveMode: !this.state.interactiveMode, whereClause });
+    };
+
     handleSaveAndClose = rangeChecks => {
         let whereClause;
         if (rangeChecks.length > 0) {
-            whereClause = { ...new WhereClause({ ...this.props.whereClause, rangeChecks }) };
+            whereClause = { ...new WhereClause({ ...this.state.whereClause, rangeChecks }) };
         }
         this.props.onChange(whereClause);
-        this.setState({ dialogOpened: false });
+        this.setState({ whereClause, dialogOpened: false });
     };
 
     render() {
         const { classes, whereClause, mdv } = this.props;
+        const interactiveMode = this.state.interactiveMode;
 
         let whereClauseLine = '';
         if (whereClause !== undefined) {
@@ -115,14 +127,28 @@ class ConnectedArmWhereClauseEditor extends React.Component {
                     >
                         <DialogTitle>Selection Criteria</DialogTitle>
                         <DialogContent>
-                            <WhereClauseInteractiveEditor
-                                whereClause={this.props.whereClause}
-                                mdv={this.props.mdv}
-                                dataset={this.props.itemGroup}
-                                onSave={this.handleSaveAndClose}
-                                onCancel={this.handleCancelAndClose}
-                                fixedDataset={true}
-                            />
+                            {!interactiveMode && (
+                                <WhereClauseManualEditor
+                                    whereClause={this.state.whereClause}
+                                    mdv={this.props.mdv}
+                                    dataset={this.props.itemGroup}
+                                    onSave={this.handleSaveAndClose}
+                                    onCancel={this.handleCancelAndClose}
+                                    onChangeEditingMode={this.changeEditingMode}
+                                    fixedDataset={true}
+                                />
+                            )}
+                            {interactiveMode && (
+                                <WhereClauseInteractiveEditor
+                                    whereClause={this.state.whereClause}
+                                    mdv={this.props.mdv}
+                                    dataset={this.props.itemGroup}
+                                    onSave={this.handleSaveAndClose}
+                                    onCancel={this.handleCancelAndClose}
+                                    onChangeEditingMode={this.changeEditingMode}
+                                    fixedDataset={true}
+                                />
+                            )}
                         </DialogContent>
                     </Dialog>
                 </Grid>
