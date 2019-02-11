@@ -27,9 +27,16 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { updateSettings } from 'actions/index.js';
 
 const mapStateToProps = state => {
+    let showWarningSetting = true;
+
+    const editorSettings = state.present.settings.editor;
+    if (editorSettings.promptWhen && editorSettings.promptWhen.codeListTypeUpdateWarning) {
+        showWarningSetting = editorSettings.promptWhen.codeListTypeUpdateWarning;
+    }
+
     return {
-        showWarningSetting  : state.present.settings.editor.codeListTypeUpdateWarning,
-        codeLists           : state.present.odm.study.metaDataVersion.codeLists,
+        codeLists: state.present.odm.study.metaDataVersion.codeLists,
+        showWarningSetting,
     };
 };
 

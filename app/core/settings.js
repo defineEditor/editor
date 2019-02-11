@@ -117,6 +117,8 @@ class ConnectedSettings extends React.Component {
     handleChange = (category, name) => (event, checked) => {
         if (name === 'controlledTerminologyLocation') {
             this.setState({ [category]: { ...this.state[category], [name]: event } });
+        } else if ( category === 'promptWhen' ) {
+            this.setState({ editor: { ...this.state.editor, promptWhen: { ...this.state.editor.promptWhen, [name]: checked } } });
         } else if ([
             'removeUnusedCodeListsInDefineXml',
             'getNameLabelFromWhereClause',
@@ -125,7 +127,6 @@ class ConnectedSettings extends React.Component {
             'enableSelectForStdCodedValues',
             'enableTablePagination',
             'alwaysSaveDefineXml',
-            'codeListTypeUpdateWarning',
         ].includes(name)) {
             this.setState({ [category]: { ...this.state[category], [name]: checked } });
         } else if (['sourceSystem'].includes(name)) {
@@ -342,8 +343,8 @@ class ConnectedSettings extends React.Component {
                                     <FormControlLabel
                                         control={
                                             <Switch
-                                                checked={this.state.editor.codeListTypeUpdateWarning}
-                                                onChange={this.handleChange('editor', 'codeListTypeUpdateWarning')}
+                                                checked={this.state.editor.promptWhen.codeListTypeUpdateWarning}
+                                                onChange={this.handleChange('promptWhen', 'codeListTypeUpdateWarning')}
                                                 color='primary'
                                                 className={classes.switch}
                                             />

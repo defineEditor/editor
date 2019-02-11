@@ -105,6 +105,10 @@ const general = {
     alwaysSaveDefineXml: true,
 };
 
+const promptWhen = {
+    codeListTypeUpdateWarning: true,
+};
+
 const editor = {
     removeUnusedCodeListsInDefineXml: true,
     getNameLabelFromWhereClause: true,
@@ -113,7 +117,7 @@ const editor = {
     enableSelectForStdCodedValues: true,
     enableTablePagination: false,
     defaultRowsPerPage: 25,
-    codeListTypeUpdateWarning: true,
+    promptWhen,
 };
 
 const define = {
