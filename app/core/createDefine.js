@@ -14,6 +14,7 @@
 
 import xmlBuilder from 'xmlbuilder';
 import createArm from './createArm.js';
+import os from 'os';
 import { createTranslatedText, createDocumentRef } from './createUtils.js';
 
 function splitAttributes(match) {
@@ -40,7 +41,7 @@ function createDefine (data, version) {
         pretty           : true,
         indent           : '  ',
         offset           : 1,
-        newline          : '\n',
+        newline          : os.EOL,
         spacebeforeslash : ''
     });
 
@@ -534,15 +535,15 @@ function createCodeList (data, version) {
         // Add EnumeratedItem
         if (data.enumeratedItems !== undefined) {
             result['EnumeratedItem'] = [];
-            data.itemOrder.forEach(function (enumeratedItemOid) {
-                result['EnumeratedItem'].push(createEnumeratedItem(data.enumeratedItems[enumeratedItemOid], version));
+            data.itemOrder.forEach(function (enumeratedItemOid, position) {
+                result['EnumeratedItem'].push(createEnumeratedItem(data.enumeratedItems[enumeratedItemOid], position, version));
             });
         }
         // Add CodeListItem
         if (data.codeListItems !== undefined) {
             result['CodeListItem'] = [];
-            data.itemOrder.forEach(function (codeListItemOid) {
-                result['CodeListItem'].push(createCodeListItem(data.codeListItems[codeListItemOid], version));
+            data.itemOrder.forEach(function (codeListItemOid, position) {
+                result['CodeListItem'].push(createCodeListItem(data.codeListItems[codeListItemOid], position, version));
             });
         }
         // Add ExternalCodeList
@@ -558,13 +559,13 @@ function createCodeList (data, version) {
     return result;
 }
 
-function createEnumeratedItem (data, version) {
+function createEnumeratedItem (data, position, version) {
     let result = {};
     if (version === '2.0.0') {
         let attributes = {
             'CodedValue'        : data.codedValue,
             'Rank'              : data.rank,
-            'OrderNumber'       : data.orderNumber,
+            'OrderNumber'       : position + 1,
             'def:ExtendedValue' : data.extendedValue
         };
         for (let attr in attributes) {
@@ -581,13 +582,13 @@ function createEnumeratedItem (data, version) {
     return result;
 }
 
-function createCodeListItem (data, version) {
+function createCodeListItem (data, position, version) {
     let result = {};
     if (version === '2.0.0') {
         let attributes = {
             'CodedValue'        : data.codedValue,
             'Rank'              : data.rank,
-            'OrderNumber'       : data.orderNumber,
+            'OrderNumber'       : position + 1,
             'def:ExtendedValue' : data.extendedValue
         };
         for (let attr in attributes) {

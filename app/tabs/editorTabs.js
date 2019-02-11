@@ -193,7 +193,7 @@ class ConnectedEditorTabs extends React.Component {
                 </div>
                 <TabContainer>
                     <br/>
-                    {tabNames[currentTab] === 'Standards' && <StandardTable/>}
+                    {tabNames[currentTab] === 'Standards' && <StandardTable hasArm={this.props.hasArm}/>}
                     {tabNames[currentTab] === 'Datasets' && <DatasetTable/>}
                     {tabNames[currentTab] === 'Variables' && <GroupTab groupClass='Variables'/>}
                     {tabNames[currentTab] === 'Codelists' && <CodeListTable/>}

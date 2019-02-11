@@ -1,7 +1,7 @@
 {
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "license": "AGPL-3.0-only",
   "private": "true",
   "description": "Visual Define-XML Editor",
@@ -100,11 +100,13 @@
     "email": "dmitry.m.kolosov@gmail.com",
     "url": ""
   },
-  "contributors": [{
-    "name": "Sergei Krivtcov",
-    "email": "",
-    "url": ""
-  }],
+  "contributors": [
+    {
+      "name": "Sergei Krivtcov",
+      "email": "",
+      "url": ""
+    }
+  ],
   "bugs": {
     "url": "http://github.com/defineEditor/"
   },
@@ -240,7 +242,8 @@
     "throttle-debounce": "^2.0.1",
     "typeface-roboto": "^0.0.54",
     "typeface-roboto-mono": "^0.0.54",
-    "xml2js": "^0.4.19"
+    "xml2js": "^0.4.19",
+    "xmlbuilder": "^10.1.1"
   },
   "devEngines": {
     "node": ">=7.x",

@@ -20,7 +20,7 @@ import TextField from '@material-ui/core/TextField';
 import { AnalysisDataset } from 'core/armStructure.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import ArmAnalysisVariableEditor from 'editors/armAnalysisVariableEditor.js';
-import ArmWhereClauseEditor from 'editors/armWhereClauseEditor.js';
+import WhereClauseEditor from 'editors/whereClauseEditor.js';
 
 const styles = theme => ({
     datasetSelect: {
@@ -77,10 +77,12 @@ class ArmDatasetEditor extends React.Component {
                     </TextField>
                 </Grid>
                 <Grid item xs={12}>
-                    <ArmWhereClauseEditor
+                    <WhereClauseEditor
                         itemGroup={this.props.itemGroups[analysisDataset.itemGroupOid]}
+                        label='Selection Criteria'
                         whereClause={this.props.whereClause}
                         onChange={this.handleChange('changeWhereClause')}
+                        fixedDataset={true}
                     />
                 </Grid>
                 <Grid item xs={12}>

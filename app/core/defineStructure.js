@@ -118,7 +118,7 @@ class BasicFunctions {
         // No description yet
         if (this.descriptions.length === 0) {
             this.descriptions.push(
-                new TranslatedText({ lang: 'language', value: value })
+                new TranslatedText({ lang: language, value: value })
             );
             updatedFlag = true;
         } else {
@@ -727,7 +727,7 @@ class ItemGroup extends BasicFunctions {
         isReferenceData,
         purpose,
         structure,
-        datasetClass,
+        datasetClass = {},
         archiveLocationId,
         commentOid,
         isNotStandard,

@@ -18,6 +18,8 @@ import clone from 'clone';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
+import Switch from '@material-ui/core/Switch';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -26,6 +28,7 @@ import getSelectionList from 'utils/getSelectionList.js';
 import SaveCancel from 'editors/saveCancel.js';
 import getOidByName from 'utils/getOidByName.js';
 import { getDecode } from 'utils/defineStructureUtils.js';
+import { comparators } from 'constants/stdConstants.js';
 import { WhereClause, RangeCheck } from 'core/defineStructure.js';
 
 const styles = theme => ({
@@ -68,10 +71,6 @@ const styles = theme => ({
         margin: theme.spacing.unit / 4,
     },
 });
-
-
-// TODO move to store
-const comparators = ['EQ','NE','LT','LE','GT','GE','IN','NOTIN'];
 
 class WhereClauseEditorInteractive extends React.Component {
     constructor (props) {
@@ -117,6 +116,7 @@ class WhereClauseEditorInteractive extends React.Component {
             Object.keys(mdv.itemGroups[currentItemGroupOid].itemRefs).forEach( itemRefOid => {
                 listOfVariables[currentItemGroupOid].push(mdv.itemDefs[mdv.itemGroups[currentItemGroupOid].itemRefs[itemRefOid].itemOid].name);
             });
+            listOfVariables[currentItemGroupOid].sort();
         });
         // Get codelist for all of the variables in range checks
         let listOfCodeValues = {};
@@ -126,21 +126,29 @@ class WhereClauseEditorInteractive extends React.Component {
             if (mdv.itemDefs.hasOwnProperty(currentItemOid) && mdv.codeLists.hasOwnProperty(mdv.itemDefs[currentItemOid].codeListOid)) {
                 currentCodeList =  mdv.codeLists[mdv.itemDefs[currentItemOid].codeListOid];
             }
-            if (currentCodeList !== undefined) {
-                if (currentCodeList.codeListType !== 'external') {
-                    listOfCodeValues[currentItemOid] = [];
-                    if (currentCodeList.codeListType === 'decoded') {
-                        Object.keys(currentCodeList.codeListItems).forEach( itemOid => {
-                            let item = currentCodeList.codeListItems[itemOid];
-                            listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue + ' (' + getDecode(item) + ')'});
-                        });
-                    } else if (currentCodeList.codeListType === 'enumerated') {
-                        Object.keys(currentCodeList.enumeratedItems).forEach( itemOid => {
-                            let item = currentCodeList.enumeratedItems[itemOid];
-                            listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue});
-                        });
-                    }
+            if (currentCodeList !== undefined && currentCodeList.codeListType !== 'external') {
+                listOfCodeValues[currentItemOid] = [];
+                let allCodeListValues = [];
+                if (currentCodeList.codeListType === 'decoded') {
+                    currentCodeList.itemOrder.forEach( oid => {
+                        let item = currentCodeList.codeListItems[oid];
+                        allCodeListValues.push(item.codedValue);
+                        listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue + ' (' + getDecode(item) + ')'});
+                    });
+                } else if (currentCodeList.codeListType === 'enumerated') {
+                    currentCodeList.itemOrder.forEach( oid => {
+                        let item = currentCodeList.enumeratedItems[oid];
+                        allCodeListValues.push(item.codedValue);
+                        listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue});
+                    });
                 }
+                // If the current value(s) is not in the codelist, still add it into the list
+                rangeCheck.checkValues.forEach( value => {
+                    if (!allCodeListValues.includes(value)) {
+                        listOfCodeValues[currentItemOid].push({[value]: value});
+                    }
+                });
+
             }
         });
 
@@ -161,6 +169,7 @@ class WhereClauseEditorInteractive extends React.Component {
             Object.keys(mdv.itemGroups[itemGroupOid].itemRefs).forEach( itemRefOid => {
                 result[itemGroupOid].push(mdv.itemDefs[mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid].name);
             });
+            result[itemGroupOid].sort();
         }
         return result;
     }
@@ -173,12 +182,12 @@ class WhereClauseEditorInteractive extends React.Component {
             if (currentCodeList !== undefined && currentCodeList.codeListType !== 'external') {
                 result[itemOid] = [];
                 if (currentCodeList.codeListType === 'decoded') {
-                    Object.keys(currentCodeList.codeListItems).forEach( oid => {
+                    currentCodeList.itemOrder.forEach( oid => {
                         let item = currentCodeList.codeListItems[oid];
                         result[itemOid].push({[item.codedValue]: item.codedValue + ' (' + getDecode(item) + ')'});
                     });
                 } else {
-                    Object.keys(currentCodeList.enumeratedItems).forEach( oid => {
+                    currentCodeList.itemOrder.forEach( oid => {
                         let item = currentCodeList.enumeratedItems[oid];
                         result[itemOid].push({[item.codedValue]: item.codedValue});
                     });
@@ -283,7 +292,7 @@ class WhereClauseEditorInteractive extends React.Component {
             // Reset all other values
             let updatedListOfVariables = this.updateListOfVariables(result[newIndex].itemGroupOid);
             // Use --TESTCD/PARAMCD if they are present
-            if ( updatedListOfVariables[result[newIndex].itemGroupOid].includes('PARAMCD')) {
+            if (updatedListOfVariables[result[newIndex].itemGroupOid].includes('PARAMCD')) {
                 result[newIndex].itemName = 'PARAMCD';
             } else {
                 // Look for any --TESTCD
@@ -299,7 +308,7 @@ class WhereClauseEditorInteractive extends React.Component {
             }
             result[newIndex].comparator = 'EQ';
             result[newIndex].checkValues = [''];
-            if (result[newIndex].itemOid !== undefined) {
+            if (result[newIndex].itemName !== undefined) {
                 result[newIndex].itemOid = getOidByName(this.props.mdv, 'itemDefs',result[newIndex].itemName);
                 this.setState({
                     rangeChecks      : result,
@@ -318,6 +327,15 @@ class WhereClauseEditorInteractive extends React.Component {
                 rangeChecks: result,
             });
         }
+    }
+
+    changeEditingMode = () => {
+        // Convert to real range checks
+        let result = [];
+        this.state.rangeChecks.forEach( rangeCheck => {
+            result.push({ ...new RangeCheck(rangeCheck) });
+        });
+        this.props.onChangeEditingMode(result);
     }
 
     save = () => {
@@ -476,11 +494,30 @@ class WhereClauseEditorInteractive extends React.Component {
 
         return (
             <Grid container spacing={16} alignItems='flex-end'>
+                { this.props.onChangeEditingMode !== undefined && (
+                    <Grid item xs={12}>
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={true}
+                                    onChange={this.changeEditingMode}
+                                    className={classes.switch}
+                                    color="primary"
+                                />
+                            }
+                            label={'Interactive Mode'}
+                            className={classes.formControl}
+                        />
+                    </Grid>
+                )}
                 {this.getRangeChecks()}
                 <Grid item xs={12} className={classes.saveCancelButtons}>
                     <Grid container spacing={16} justify='flex-start'>
                         <Grid item>
-                            <SaveCancel save={this.save} cancel={this.cancel}/>
+                            <SaveCancel
+                                save={this.save} cancel={this.cancel}
+                                disabled={this.props.isRequired && this.state.rangeChecks.length === 0}
+                            />
                         </Grid>
                     </Grid>
                 </Grid>
@@ -490,13 +527,15 @@ class WhereClauseEditorInteractive extends React.Component {
 }
 
 WhereClauseEditorInteractive.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    onSave       : PropTypes.func.isRequired,
-    onCancel     : PropTypes.func.isRequired,
-    whereClause  : PropTypes.object,
-    mdv          : PropTypes.object.isRequired,
-    dataset      : PropTypes.object.isRequired,
-    fixedDataset : PropTypes.bool,
+    classes             : PropTypes.object.isRequired,
+    onSave              : PropTypes.func.isRequired,
+    onCancel            : PropTypes.func.isRequired,
+    whereClause         : PropTypes.object,
+    mdv                 : PropTypes.object.isRequired,
+    dataset             : PropTypes.object.isRequired,
+    onChangeEditingMode : PropTypes.func,
+    fixedDataset        : PropTypes.bool,
+    isRequired          : PropTypes.bool,
 };
 
 export default withStyles(styles)(WhereClauseEditorInteractive);

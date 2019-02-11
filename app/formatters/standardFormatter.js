@@ -71,7 +71,8 @@ class StandardFormatter extends React.Component {
 
     render () {
         const { classes } = this.props;
-        const isAdam = (getModelFromStandard(Object.values(this.props.standards)[0].name) === 'ADaM');
+        const standard = Object.values(this.props.standards).filter(std => (std.isDefault === 'Yes'))[0].name;
+        const isAdam = (getModelFromStandard(standard) === 'ADaM');
 
         return (
             <Paper className={classes.mainPart} elevation={4}>

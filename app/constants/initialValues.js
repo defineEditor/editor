@@ -113,6 +113,7 @@ const editor = {
     enableSelectForStdCodedValues: true,
     enableTablePagination: false,
     defaultRowsPerPage: 25,
+    codeListTypeUpdateWarning: true,
 };
 
 const define = {

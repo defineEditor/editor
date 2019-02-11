@@ -41,11 +41,11 @@ function loadState() {
 
     state.stdConstants = stdConstants;
     // If there is any modal loaded in the current state, disable it
-    if (state.ui.hasOwnProperty('modal') && state.ui.modal.type !== '') {
+    if (state.hasOwnProperty('ui') && state.ui.hasOwnProperty('modal') && state.ui.modal.type !== '') {
         state.ui.modal = uiInitialValues.modal;
     }
     // If the comment/method table is shown, disable it
-    if (state.ui.hasOwnProperty('main') && state.ui.main.showCommentMethodTable === true) {
+    if (state.hasOwnProperty('ui') && state.ui.hasOwnProperty('main') && state.ui.main.showCommentMethodTable === true) {
         state.ui.main.showCommentMethodTable = false;
     }
     // Update UI structure with initial values, this is required when schema changed and old UI does not have required properties

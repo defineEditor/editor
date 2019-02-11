@@ -94,14 +94,6 @@ const mapStateToProps = state => {
         otherAttrs = state.present.defines.byId[defineId];
     }
 
-    // Check if Analysis Result Metadata is present
-    let hasArm;
-    if (state.present.odm.study.metaDataVersion.analysisResultDisplays !== undefined) {
-        hasArm = true;
-    } else {
-        hasArm = false;
-    }
-
     return {
         globalVariables       : state.present.odm.study.globalVariables,
         studyOid              : state.present.odm.study.oid,
@@ -113,7 +105,6 @@ const mapStateToProps = state => {
         controlledTerminology : state.present.controlledTerminology,
         stdCodeLists          : state.present.stdCodeLists,
         tabs                  : state.present.ui.tabs,
-        hasArm,
         mdvAttrs,
         odmAttrs,
         comments,

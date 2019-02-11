@@ -125,6 +125,7 @@ class ConnectedSettings extends React.Component {
             'enableSelectForStdCodedValues',
             'enableTablePagination',
             'alwaysSaveDefineXml',
+            'codeListTypeUpdateWarning',
         ].includes(name)) {
             this.setState({ [category]: { ...this.state[category], [name]: checked } });
         } else if (['sourceSystem'].includes(name)) {
@@ -326,6 +327,28 @@ class ConnectedSettings extends React.Component {
                                             </TextField>
                                         }
                                         label=" Default Number of Rows Per Page"
+                                    />
+                                </FormGroup>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography variant="display1" gutterBottom align="left">
+                            Warnings
+                        </Typography>
+                        <Grid container>
+                            <Grid item xs={12}>
+                                <FormGroup>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.editor.codeListTypeUpdateWarning}
+                                                onChange={this.handleChange('editor', 'codeListTypeUpdateWarning')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Prompt when a codelist type change may lead to the codelist item data loss'
                                     />
                                 </FormGroup>
                             </Grid>

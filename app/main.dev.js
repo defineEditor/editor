@@ -62,6 +62,7 @@ function createWindow() {
         center: true,
         show: false,
         icon: __dirname + '/static/images/misc/mainIcon64x64.png',
+        webPreferences: { nodeIntegration: true },
     });
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);

@@ -67,7 +67,7 @@ function parseTranslatedText (item) {
     } else {
         args = {
             lang  : item['translatedText'][0]['$']['lang'],
-            value : item['translatedText'][0]['_']
+            value : item['translatedText'][0]['_'] || '',
         };
     }
 

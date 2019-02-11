@@ -30,8 +30,11 @@ import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 import grey from '@material-ui/core/colors/grey';
 import indigo from '@material-ui/core/colors/indigo';
+import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import UnfoldLess from '@material-ui/icons/UnfoldLess';
+import UnfoldMore from '@material-ui/icons/UnfoldMore';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
@@ -62,7 +65,7 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 import {
     updateItemDef, updateItemRef, updateItemRefKeyOrder, updateItemCodeListDisplayFormat,
     updateItemDescription, deleteVariables, updateNameLabelWhereClause, setVlmState,
-    changeTablePageDetails,
+    changeTablePageDetails, updateSettings,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -95,6 +98,7 @@ const mapDispatchToProps = dispatch => {
         deleteVariables                 : (source, deleteObj) => dispatch(deleteVariables(source, deleteObj)),
         setVlmState                     : (source, updateObj) => dispatch(setVlmState(source, updateObj)),
         changeTablePageDetails          : (updateObj) => dispatch(changeTablePageDetails(updateObj)),
+        updateSettings                  : updateObj => dispatch(updateSettings(updateObj)),
     };
 };
 
@@ -324,15 +328,11 @@ class ConnectedVariableTable extends React.Component {
     }
 
     componentDidMount() {
-        if (this.props.enableTablePagination) {
-            window.addEventListener('keydown', this.onKeyDown);
-        }
+        window.addEventListener('keydown', this.onKeyDown);
     }
 
     componentWillUnmount() {
-        if (this.props.enableTablePagination) {
-            window.removeEventListener('keydown', this.onKeyDown);
-        }
+        window.removeEventListener('keydown', this.onKeyDown);
     }
 
     onKeyDown = (event)  => {
@@ -407,6 +407,8 @@ class ConnectedVariableTable extends React.Component {
                         });
                         vlmFilteredOids = applyFilter(data, this.props.filter);
                     }
+                    // Get the VLM data
+                    // During filtering it is possible that some of the elements will be undefined or empty, remove them
                     let vlmData = getTableData({
                         source        : mdv.valueLists[mdv.itemDefs[itemOid].valueListOid],
                         datasetName   : dataset.name,
@@ -417,7 +419,7 @@ class ConnectedVariableTable extends React.Component {
                         defineVersion : this.props.defineVersion,
                         vlmLevel      : 1,
                         filteredOids  : vlmFilteredOids,
-                    });
+                    }).filter( el => (el != undefined));
                     // For all VLM which are expanded, add VLM data to Variables
                     // If  there is no parent variable (in case of filter), add VLM for that parent at the end
                     let startIndex = variables.map(item => item.oid).indexOf(itemOid) + 1;
@@ -658,6 +660,22 @@ class ConnectedVariableTable extends React.Component {
                                 </Grid>
                         }
                         <Grid item>
+                            <Tooltip
+                                title={this.props.enableTablePagination ? 'Disable Pagination' : 'Enable Pagination'}
+                                placement='bottom' enterDelay={1000}
+                            >
+                                <Fab size='small' color='default'
+                                    onClick={ () => {this.props.updateSettings({ editor: { enableTablePagination: !this.props.enableTablePagination } });}}
+                                >
+                                    { this.props.enableTablePagination ? (
+                                        <UnfoldMore/>
+                                    ) : (
+                                        <UnfoldLess/>
+                                    )}
+                                </Fab>
+                            </Tooltip>
+                        </Grid>
+                        <Grid item>
                             <Button
                                 variant="contained"
                                 color={this.props.filter.isEnabled ? 'primary' : 'default'}
@@ -790,7 +808,8 @@ class ConnectedVariableTable extends React.Component {
         if (this.props.enableTablePagination) {
             let currentVarNumber = -1;
             dataToShow = variables.filter( item => {
-                if (item.vlmLevel === 0) {
+                // currentVarNumber === -1 check is added in case a filter is applied and VLM is the first record
+                if (item.vlmLevel === 0 || currentVarNumber === -1) {
                     currentVarNumber += 1;
                 }
                 if ( page * rowsPerPage <= currentVarNumber && currentVarNumber < page * rowsPerPage + rowsPerPage) {
@@ -811,10 +830,11 @@ class ConnectedVariableTable extends React.Component {
         let selectRowProp;
         if (this.props.showRowSelect) {
             selectRowProp = {
-                mode        : 'checkbox',
-                onSelect    : this.onRowSelected,
-                onSelectAll : this.onAllRowSelected,
-                columnWidth : '48px',
+                mode          : 'checkbox',
+                clickToSelect : true,
+                onSelect      : this.onRowSelected,
+                onSelectAll   : this.onAllRowSelected,
+                columnWidth   : '48px',
             };
         } else {
             selectRowProp = undefined;
@@ -865,7 +885,7 @@ class ConnectedVariableTable extends React.Component {
                     remote={ true }
                     keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}
                     version='4'
-                    cellEdit={this.props.reviewMode ? undefined : cellEditProp}
+                    cellEdit={this.props.reviewMode || this.props.showRowSelect ? undefined : cellEditProp}
                     headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
                     selectRow={selectRowProp}
                     trClassName={this.highLightVlmRows}
