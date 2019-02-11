@@ -163,11 +163,15 @@ class ArmAnalysisVariableEditor extends React.Component {
                         },
                     }}
                 >
-                    {nonAnalysisVariables.map(oid => (
-                        <MenuItem key={oid} onClick={() => (this.handleAddClose(oid))}>
-                            {this.props.itemDefs[oid].name}
-                        </MenuItem>
-                    ))}
+                    {nonAnalysisVariables
+                        .sort((oid1, oid2) => (
+                            this.props.itemDefs[oid1].name > this.props.itemDefs[oid2].name ? 1 : -1
+                        ))
+                        .map(oid => (
+                            <MenuItem key={oid} onClick={() => (this.handleAddClose(oid))}>
+                                {this.props.itemDefs[oid].name}
+                            </MenuItem>
+                        ))}
                 </Menu>
                 <Menu
                     id="remove-variable-menu"

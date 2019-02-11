@@ -34,6 +34,7 @@ import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import CodeListOrderEditor from 'components/orderEditors/codeListOrderEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
+import CodeListTypeSelectEditor from 'editors/codeListTypeSelectEditor.js';
 import LinkedCodeListEditor from 'editors/linkedCodeListEditor.js';
 import CodeListFormatNameEditor from 'editors/codeListFormatNameEditor.js';
 import CodeListStandardEditor from 'editors/codeListStandardEditor.js';
@@ -111,6 +112,10 @@ function simpleSelectEditor (onUpdate, props) {
     return (<SimpleSelectEditor onUpdate={onUpdate} {...props} autoFocus={true}/>);
 }
 
+function codeListTypeSelectEditor (onUpdate, props) {
+    return (<CodeListTypeSelectEditor onUpdate={onUpdate} {...props} autoFocus={true}/>);
+}
+
 function linkedCodeListEditor (onUpdate, props) {
     return (<LinkedCodeListEditor onUpdate={onUpdate} {...props}/>);
 }
@@ -176,7 +181,7 @@ class ConnectedCodeListTable extends React.Component {
             },
             codeListType: {
                 dataFormat   : codeListTypeFormatter,
-                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: props.stdConstants.codeListTypes}},
+                customEditor : {getElement: codeListTypeSelectEditor, customEditorParameters: {options: props.stdConstants.codeListTypes}},
             },
             dataType: {
                 customEditor: {getElement: simpleSelectEditor, customEditorParameters: {options: props.stdConstants.dataTypes}},

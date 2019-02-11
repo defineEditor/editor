@@ -332,17 +332,6 @@ class ConnectedDatasetTable extends React.Component {
                     </Grid>
                     <Grid item>
                         <Button
-                            color='default'
-                            mini
-                            onClick={console.log}
-                            variant='contained'
-                            disabled={!this.props.showRowSelect || this.props.reviewMode}
-                        >
-                            Update
-                        </Button>
-                    </Grid>
-                    <Grid item>
-                        <Button
                             color='secondary'
                             mini
                             onClick={this.deleteRows}
