@@ -25,6 +25,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import WhereClauseInteractiveEditor from 'editors/whereClauseInteractiveEditor.js';
+import WhereClauseManualEditor from 'editors/whereClauseManualEditor.js';
 import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
 import { WhereClause } from 'core/defineStructure.js';
 
@@ -48,6 +49,10 @@ const styles = theme => ({
         margin: '0',
         marginBottom : '8px',
     },
+    whereClause: {
+        whiteSpace: 'normal',
+        overflowWrap: 'break-word'
+    },
 });
 
 const mapStateToProps = state => {
@@ -56,13 +61,15 @@ const mapStateToProps = state => {
     };
 };
 
-class ConnectedArmWhereClauseEditor extends React.Component {
+class ConnectedWhereClauseEditor extends React.Component {
 
     constructor (props) {
         super(props);
 
         this.state = {
             dialogOpened: false,
+            interactiveMode: true,
+            whereClause: this.props.whereClause,
         };
     }
 
@@ -70,17 +77,26 @@ class ConnectedArmWhereClauseEditor extends React.Component {
         this.setState({ dialogOpened: false });
     };
 
+    changeEditingMode = (rangeChecks) => {
+        let whereClause;
+        if (rangeChecks.length > 0) {
+            whereClause = { ...new WhereClause({ ...this.state.whereClause, rangeChecks }) };
+        }
+        this.setState({ interactiveMode: !this.state.interactiveMode, whereClause });
+    };
+
     handleSaveAndClose = rangeChecks => {
         let whereClause;
         if (rangeChecks.length > 0) {
-            whereClause = { ...new WhereClause({ ...this.props.whereClause, rangeChecks }) };
+            whereClause = { ...new WhereClause({ ...this.state.whereClause, rangeChecks }) };
         }
         this.props.onChange(whereClause);
-        this.setState({ dialogOpened: false });
+        this.setState({ whereClause, dialogOpened: false });
     };
 
     render() {
         const { classes, whereClause, mdv } = this.props;
+        const interactiveMode = this.state.interactiveMode;
 
         let whereClauseLine = '';
         if (whereClause !== undefined) {
@@ -90,9 +106,9 @@ class ConnectedArmWhereClauseEditor extends React.Component {
         return (
             <Grid container justify='space-around'>
                 <Grid item xs={12}>
-                    <Typography variant="body2" className={classes.caption}>
-                        Selection Criteria
-                        <Tooltip title='Edit Selection Criteria' placement='bottom' enterDelay={1000}>
+                    <Typography variant="body2">
+                        {this.props.label}
+                        <Tooltip title={ `Edit ${this.props.label}` } placement='bottom' enterDelay={1000}>
                             <span>
                                 <IconButton
                                     onClick={ () => { this.setState({ dialogOpened: !this.state.dialogOpened });} }
@@ -105,7 +121,7 @@ class ConnectedArmWhereClauseEditor extends React.Component {
                         </Tooltip>
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} className={classes.whereClause}>
                     {whereClauseLine}
                     <Dialog
                         disableBackdropClick
@@ -113,16 +129,32 @@ class ConnectedArmWhereClauseEditor extends React.Component {
                         open={this.state.dialogOpened}
                         PaperProps={{ className: classes.dialog }}
                     >
-                        <DialogTitle>Selection Criteria</DialogTitle>
+                        <DialogTitle>{this.props.label}</DialogTitle>
                         <DialogContent>
-                            <WhereClauseInteractiveEditor
-                                whereClause={this.props.whereClause}
-                                mdv={this.props.mdv}
-                                dataset={this.props.itemGroup}
-                                onSave={this.handleSaveAndClose}
-                                onCancel={this.handleCancelAndClose}
-                                fixedDataset={true}
-                            />
+                            {!interactiveMode && (
+                                <WhereClauseManualEditor
+                                    whereClause={this.state.whereClause}
+                                    mdv={this.props.mdv}
+                                    dataset={this.props.itemGroup}
+                                    onSave={this.handleSaveAndClose}
+                                    onCancel={this.handleCancelAndClose}
+                                    onChangeEditingMode={this.changeEditingMode}
+                                    fixedDataset={this.props.fixedDataset}
+                                    isRequired={this.props.isRequired}
+                                />
+                            )}
+                            {interactiveMode && (
+                                <WhereClauseInteractiveEditor
+                                    whereClause={this.state.whereClause}
+                                    mdv={this.props.mdv}
+                                    dataset={this.props.itemGroup}
+                                    onSave={this.handleSaveAndClose}
+                                    onCancel={this.handleCancelAndClose}
+                                    onChangeEditingMode={this.changeEditingMode}
+                                    fixedDataset={this.props.fixedDataset}
+                                    isRequired={this.props.isRequired}
+                                />
+                            )}
                         </DialogContent>
                     </Dialog>
                 </Grid>
@@ -131,12 +163,15 @@ class ConnectedArmWhereClauseEditor extends React.Component {
     }
 }
 
-ConnectedArmWhereClauseEditor.propTypes = {
-    itemGroup   : PropTypes.object.isRequired,
-    whereClause : PropTypes.object,
-    mdv         : PropTypes.object.isRequired,
-    onChange    : PropTypes.func.isRequired,
+ConnectedWhereClauseEditor.propTypes = {
+    itemGroup    : PropTypes.object.isRequired,
+    label        : PropTypes.string.isRequired,
+    whereClause  : PropTypes.object,
+    mdv          : PropTypes.object.isRequired,
+    fixedDataset : PropTypes.bool,
+    isRequired   : PropTypes.bool,
+    onChange     : PropTypes.func.isRequired,
 };
 
-const ArmWhereClauseEditor = connect(mapStateToProps)(ConnectedArmWhereClauseEditor);
-export default withStyles(styles)(ArmWhereClauseEditor);
+const WhereClauseEditor = connect(mapStateToProps)(ConnectedWhereClauseEditor);
+export default withStyles(styles)(WhereClauseEditor);

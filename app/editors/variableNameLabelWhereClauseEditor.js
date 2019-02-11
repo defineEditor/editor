@@ -18,11 +18,10 @@ import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import Grid from '@material-ui/core/Grid';
 import VariableNameLabelEditor from 'editors/variableNameLabelEditor.js';
-import VariableWhereClauseEditor from 'editors/variableWhereClauseEditor.js';
+import WhereClauseEditor from 'editors/whereClauseEditor.js';
 import SaveCancel from 'editors/saveCancel.js';
 import CommentEditor from 'editors/commentEditor.js';
-import getOidByName from 'utils/getOidByName.js';
-import { WhereClause, RangeCheck, TranslatedText } from 'core/defineStructure.js';
+import { WhereClause, TranslatedText } from 'core/defineStructure.js';
 
 const styles = theme => ({
     root: {
@@ -39,42 +38,6 @@ const mapStateToProps = state => {
         getNameLabelFromWhereClause : state.present.settings.editor.getNameLabelFromWhereClause,
     };
 };
-
-let wcRegex = {
-    variable                : new RegExp('(?:\\w+\\.)?\\w+'),
-    variableParse           : new RegExp('((?:\\w+\\.)?\\w+)'),
-    datasetVariableParse    : new RegExp('(\\w+)\\.(\\w+)'),
-    item                    : new RegExp('\\s*(?:["][^"]+["]|[\'][^\']+[\']|[^\'",][^,\\s]*)\\s*'),
-    itemParse               : new RegExp('\\s*(["][^"]+["]|[\'][^\']+[\']|[^\',"][^,\\s]*)\\s*'),
-    comparatorSingle        : new RegExp('(?:eq|ne|lt|gt|ge)'),
-    comparatorSingleParse   : new RegExp('(eq|ne|lt|gt|ge)'),
-    comparatorMultiple      : new RegExp('(?:in|notin)'),
-    comparatorMultipleParse : new RegExp('(in|notin)'),
-};
-
-
-wcRegex.rangeCheck = new RegExp(
-    wcRegex.variable.source + '\\s+(?:'
-    + wcRegex.comparatorSingle.source + '\\s+' + wcRegex.item.source
-    + '|' + wcRegex.comparatorMultiple.source + '\\s+\\('
-    + wcRegex.item.source + '(?:,' + wcRegex.item.source + ')*\\))'
-    ,'i'
-);
-
-wcRegex.rangeCheckExtract = new RegExp('(' + wcRegex.rangeCheck.source + ')' ,'i');
-
-wcRegex.rangeCheckParse = new RegExp(
-    wcRegex.variableParse.source + '\\s+(?:'
-    + wcRegex.comparatorSingleParse.source + '\\s+' + wcRegex.itemParse.source
-    + '|' + wcRegex.comparatorMultipleParse.source + '\\s+\\(('
-    + wcRegex.item.source + '(?:,' + wcRegex.item.source + ')*)\\))'
-    ,'i'
-);
-
-wcRegex.whereClause = new RegExp(
-    '^(' + wcRegex.rangeCheck.source + ')(?:\\s+and\\s+(' + wcRegex.rangeCheck.source + '))*$'
-    , 'i'
-);
 
 class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
     constructor (props) {
@@ -107,19 +70,9 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
     }
 
     handleChange = name => updateObj => {
-        if (name === 'whereClauseManual') {
-            this.setWhereClauseManual(updateObj.target.value);
-        } else if (name === 'wcEditingMode') {
-            if (updateObj.target.checked === true) {
-                this.setState({ [name]: 'interactive' });
-            } else {
-                this.setState({ [name]: 'manual' });
-            }
-        } else if (name === 'whereClauseInteractive') {
-            let rangeChecks = [];
-            updateObj.forEach( rawRangeCheck => {
-                rangeChecks.push({ ...new RangeCheck(rawRangeCheck) });
-            });
+        if (name === 'whereClause') {
+            let whereClause = updateObj;
+            let rangeChecks = updateObj ? updateObj.rangeChecks : [];
             // Populate current name and label if they are blank and EQ range is used
             let additionalAttrs = {};
             if (this.props.getNameLabelFromWhereClause && rangeChecks.length === 1 && rangeChecks[0].comparator === 'EQ') {
@@ -143,12 +96,15 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
                 }
             }
             this.setState({
-                whereClause: { ...new WhereClause({
-                    ...this.state.whereClause,
-                    rangeChecks: rangeChecks,
-                }) },
+                whereClause,
                 ...additionalAttrs,
             });
+        } else if (name === 'wcEditingMode') {
+            if (updateObj.target.checked === true) {
+                this.setState({ [name]: 'interactive' });
+            } else {
+                this.setState({ [name]: 'manual' });
+            }
         } else if (name === 'comment') {
             if (updateObj === undefined) {
                 this.setState({
@@ -190,150 +146,6 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
                 this.setState({ descriptions: bpItemDefs[itemDefOid].descriptions });
                 return;
             }
-        });
-    }
-
-    validateWhereClause = (input) => {
-        // Trim leading and trailing spaces;
-        let whereClauseLine = input.trim();
-        // Quick Check
-        if (wcRegex.whereClause.test(whereClauseLine) === false) {
-            return false;
-        }
-        let result = [];
-        // Detailed check: check that proper variables are specified
-        let rawWhereClause = wcRegex.whereClause.exec(whereClauseLine);
-        // Remove all undefined range checks (coming from (AND condition) part)
-        rawWhereClause = rawWhereClause.filter(element => element !== undefined);
-        // If there is more than one range check, extract them one by one;
-        let rawRangeChecks = [];
-        if (rawWhereClause.length >= 3) {
-            let rawRanges = whereClauseLine;
-            let rawRangeCheck = wcRegex.rangeCheckExtract.exec(rawRanges);
-            let nextRangeCheckRegex = new RegExp(wcRegex.rangeCheck.source + '(?:AND)?(.*)$','i');
-            while (rawRangeCheck !== null) {
-                rawRangeChecks.push(rawRangeCheck[1]);
-                rawRanges = rawRanges.replace(nextRangeCheckRegex, '$1');
-                rawRangeCheck = wcRegex.rangeCheckExtract.exec(rawRanges);
-            }
-        } else {
-            // Only 1 range check is provided;
-            rawRangeChecks.push(rawWhereClause[1]);
-        }
-        // Extract variable names
-        rawRangeChecks.forEach( (rawRangeCheck, index) => {
-            // Default to failed
-            result[index] = false;
-            let rangeCheckElements = wcRegex.rangeCheckParse.exec(rawRangeCheck).slice(1);
-            // Remove all undefined elements (come from the (in|notin) vs (eq,ne,...) fork)
-            rangeCheckElements = rangeCheckElements.filter(element => element !== undefined);
-            let itemOid, itemGroupOid;
-            if (/\./.test(rangeCheckElements[0])) {
-                // If variable part contains dataset name;
-                itemGroupOid = getOidByName(this.props.mdv, 'itemGroups',rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$1'));
-                if (itemGroupOid !== undefined) {
-                    itemOid = getOidByName(this.props.mdv, 'ItemRefs', rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$2'), itemGroupOid);
-                }
-            } else {
-                // If variable part does not contain dataset name, use the current dataset;
-                itemGroupOid = this.state.dataset.oid;
-                if (itemGroupOid !== undefined) {
-                    itemOid = getOidByName(this.props.mdv, 'ItemRefs', rangeCheckElements[0], itemGroupOid);
-                }
-            }
-            if (itemOid !== undefined && itemGroupOid !== undefined) {
-                result[index] = true;
-            }
-        });
-        // Return true only if all results are true;
-        return result.reduce((acc, value) => acc && value,true);
-    }
-
-    setWhereClauseManual = (whereClauseLine) => {
-        // Do nothing if the where clause in invalid;
-        if (!this.validateWhereClause(whereClauseLine)) {
-            return;
-        }
-        // Remove all new line characters
-        whereClauseLine = whereClauseLine.replace(/[\r\n\t]/g,' ');
-        // Extract raw range checks
-        let rawWhereClause = wcRegex.whereClause.exec(whereClauseLine);
-        // Remove all undefined range checks (coming from (AND condition) part)
-        rawWhereClause = rawWhereClause.filter(element => element !== undefined);
-        // If there is more than one range check, extract them one by one;
-        let rawRangeChecks = [];
-        if (rawWhereClause.length >= 3) {
-            let rawRanges = whereClauseLine;
-            let rawRangeCheck = wcRegex.rangeCheckExtract.exec(rawRanges);
-            let nextRangeCheckRegex = new RegExp(wcRegex.rangeCheck.source + '(?:AND)?(.*)$','i');
-            while (rawRangeCheck !== null) {
-                rawRangeChecks.push(rawRangeCheck[1]);
-                rawRanges = rawRanges.replace(nextRangeCheckRegex, '$1');
-                rawRangeCheck = wcRegex.rangeCheckExtract.exec(rawRanges);
-            }
-        } else {
-            // Only 1 range check is provided;
-            rawRangeChecks.push(rawWhereClause[1]);
-        }
-        // Parse each range check;
-        let rangeChecks = [];
-        rawRangeChecks.forEach( rawRangeCheck => {
-            let rangeCheckElements = wcRegex.rangeCheckParse.exec(rawRangeCheck).slice(1);
-            // Remove all undefined elements (come from the (in|notin) vs (eq,ne,...) fork)
-            rangeCheckElements = rangeCheckElements.filter(element => element !== undefined);
-            let itemOid, itemGroupOid;
-            if (/\./.test(rangeCheckElements[0])) {
-                // If variable part contains dataset name;
-                itemGroupOid = getOidByName(this.props.mdv, 'itemGroups',rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$1'));
-                if (itemGroupOid !== undefined) {
-                    itemOid = getOidByName(this.props.mdv, 'ItemRefs', rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$2'), itemGroupOid);
-                }
-            } else {
-                // If variable part does not contain dataset name, use the current dataset;
-                itemGroupOid = this.state.dataset.oid;
-                if (itemGroupOid !== undefined) {
-                    itemOid = getOidByName(this.props.mdv, 'ItemRefs', rangeCheckElements[0], itemGroupOid);
-                }
-            }
-            let comparator = rangeCheckElements[1].toUpperCase();
-            // Parse Check values
-            let checkValues = [];
-            if (['IN','NOTIN'].indexOf(comparator) >= 0) {
-                let rawCheckValues = rangeCheckElements[2].trim();
-                // Extract values one by one when comparator is IN or NOT IN
-                let value = wcRegex.itemParse.exec(rawCheckValues);
-                let nextValueRegex = new RegExp(wcRegex.item.source + ',?(.*$)');
-                while (value !== null) {
-                    checkValues.push(value[1]);
-                    rawCheckValues = rawCheckValues.replace(nextValueRegex, '$1').trim();
-                    value = wcRegex.itemParse.exec(rawCheckValues);
-                }
-            } else {
-                // Only 1 element is possible for other operators;
-                checkValues.push(rangeCheckElements[2].trim());
-            }
-
-            // Remove surrounding quotes
-            checkValues = checkValues.map( checkValue => {
-                if ( /^(["']).*\1$/.test(checkValue) ) {
-                    return checkValue.replace(/^(.)(.*)\1$/,'$2');
-                } else {
-                    return checkValue;
-                }
-            });
-            rangeChecks.push({ ...new RangeCheck({
-                comparator   : comparator,
-                itemOid      : itemOid,
-                itemGroupOid : itemGroupOid,
-                checkValues  : checkValues
-            }) });
-        });
-        // Create and set the new WhereClause
-        this.setState({
-            whereClause: { ...new WhereClause({
-                ...this.state.whereClause,
-                rangeChecks: rangeChecks,
-            }) }
         });
     }
 
@@ -389,13 +201,13 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
                     {vlmLevel > 0 &&
                             <React.Fragment>
                                 <Grid item xs={12}>
-                                    <VariableWhereClauseEditor
-                                        handleChange={this.handleChange}
+                                    <WhereClauseEditor
+                                        itemGroup={this.state.dataset}
+                                        label='Where Clause'
                                         whereClause={this.state.whereClause}
-                                        validationCheck={this.validateWhereClause}
-                                        wcEditingMode={this.state.wcEditingMode}
-                                        dataset={this.state.dataset}
-                                        mdv={this.props.mdv}
+                                        onChange={this.handleChange('whereClause')}
+                                        fixedDataset={false}
+                                        isRequired={true}
                                     />
                                 </Grid>
                                 <Grid item xs={12}>
