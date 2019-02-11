@@ -16,7 +16,7 @@ import { CodeListItem, EnumeratedItem, Alias } from 'core/defineStructure.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
 import deepEqual from 'fast-deep-equal';
 
-export const getItemsWithAliasExtendedValue = (sourceItems, standardCodeList, codeListType, options) => {
+export const getItemsWithAliasExtendedValue = (sourceItems, standardCodeList, codeListType, options = {}) => {
     // Get enumeratedItems/codeListItems and populate Alias and ExtendedValue for each of the items
     // Possible options:
     // options.updateDecodes - use decodes from the standard codelist

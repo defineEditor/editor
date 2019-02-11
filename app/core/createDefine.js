@@ -14,6 +14,7 @@
 
 import xmlBuilder from 'xmlbuilder';
 import createArm from './createArm.js';
+import os from 'os';
 import { createTranslatedText, createDocumentRef } from './createUtils.js';
 
 function splitAttributes(match) {
@@ -40,7 +41,7 @@ function createDefine (data, version) {
         pretty           : true,
         indent           : '  ',
         offset           : 1,
-        newline          : '\n',
+        newline          : os.EOL,
         spacebeforeslash : ''
     });
 

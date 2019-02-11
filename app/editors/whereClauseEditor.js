@@ -49,6 +49,10 @@ const styles = theme => ({
         margin: '0',
         marginBottom : '8px',
     },
+    whereClause: {
+        whiteSpace: 'normal',
+        overflowWrap: 'break-word'
+    },
 });
 
 const mapStateToProps = state => {
@@ -57,7 +61,7 @@ const mapStateToProps = state => {
     };
 };
 
-class ConnectedArmWhereClauseEditor extends React.Component {
+class ConnectedWhereClauseEditor extends React.Component {
 
     constructor (props) {
         super(props);
@@ -102,9 +106,9 @@ class ConnectedArmWhereClauseEditor extends React.Component {
         return (
             <Grid container justify='space-around'>
                 <Grid item xs={12}>
-                    <Typography variant="body2" className={classes.caption}>
-                        Selection Criteria
-                        <Tooltip title='Edit Selection Criteria' placement='bottom' enterDelay={1000}>
+                    <Typography variant="body2">
+                        {this.props.label}
+                        <Tooltip title={ `Edit ${this.props.label}` } placement='bottom' enterDelay={1000}>
                             <span>
                                 <IconButton
                                     onClick={ () => { this.setState({ dialogOpened: !this.state.dialogOpened });} }
@@ -117,7 +121,7 @@ class ConnectedArmWhereClauseEditor extends React.Component {
                         </Tooltip>
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} className={classes.whereClause}>
                     {whereClauseLine}
                     <Dialog
                         disableBackdropClick
@@ -125,7 +129,7 @@ class ConnectedArmWhereClauseEditor extends React.Component {
                         open={this.state.dialogOpened}
                         PaperProps={{ className: classes.dialog }}
                     >
-                        <DialogTitle>Selection Criteria</DialogTitle>
+                        <DialogTitle>{this.props.label}</DialogTitle>
                         <DialogContent>
                             {!interactiveMode && (
                                 <WhereClauseManualEditor
@@ -135,7 +139,8 @@ class ConnectedArmWhereClauseEditor extends React.Component {
                                     onSave={this.handleSaveAndClose}
                                     onCancel={this.handleCancelAndClose}
                                     onChangeEditingMode={this.changeEditingMode}
-                                    fixedDataset={true}
+                                    fixedDataset={this.props.fixedDataset}
+                                    isRequired={this.props.isRequired}
                                 />
                             )}
                             {interactiveMode && (
@@ -146,7 +151,8 @@ class ConnectedArmWhereClauseEditor extends React.Component {
                                     onSave={this.handleSaveAndClose}
                                     onCancel={this.handleCancelAndClose}
                                     onChangeEditingMode={this.changeEditingMode}
-                                    fixedDataset={true}
+                                    fixedDataset={this.props.fixedDataset}
+                                    isRequired={this.props.isRequired}
                                 />
                             )}
                         </DialogContent>
@@ -157,12 +163,15 @@ class ConnectedArmWhereClauseEditor extends React.Component {
     }
 }
 
-ConnectedArmWhereClauseEditor.propTypes = {
-    itemGroup   : PropTypes.object.isRequired,
-    whereClause : PropTypes.object,
-    mdv         : PropTypes.object.isRequired,
-    onChange    : PropTypes.func.isRequired,
+ConnectedWhereClauseEditor.propTypes = {
+    itemGroup    : PropTypes.object.isRequired,
+    label        : PropTypes.string.isRequired,
+    whereClause  : PropTypes.object,
+    mdv          : PropTypes.object.isRequired,
+    fixedDataset : PropTypes.bool,
+    isRequired   : PropTypes.bool,
+    onChange     : PropTypes.func.isRequired,
 };
 
-const ArmWhereClauseEditor = connect(mapStateToProps)(ConnectedArmWhereClauseEditor);
-export default withStyles(styles)(ArmWhereClauseEditor);
+const WhereClauseEditor = connect(mapStateToProps)(ConnectedWhereClauseEditor);
+export default withStyles(styles)(WhereClauseEditor);

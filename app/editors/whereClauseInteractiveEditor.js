@@ -130,14 +130,14 @@ class WhereClauseEditorInteractive extends React.Component {
                 listOfCodeValues[currentItemOid] = [];
                 let allCodeListValues = [];
                 if (currentCodeList.codeListType === 'decoded') {
-                    Object.keys(currentCodeList.codeListItems).forEach( itemOid => {
-                        let item = currentCodeList.codeListItems[itemOid];
+                    currentCodeList.itemOrder.forEach( oid => {
+                        let item = currentCodeList.codeListItems[oid];
                         allCodeListValues.push(item.codedValue);
                         listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue + ' (' + getDecode(item) + ')'});
                     });
                 } else if (currentCodeList.codeListType === 'enumerated') {
-                    Object.keys(currentCodeList.enumeratedItems).forEach( itemOid => {
-                        let item = currentCodeList.enumeratedItems[itemOid];
+                    currentCodeList.itemOrder.forEach( oid => {
+                        let item = currentCodeList.enumeratedItems[oid];
                         allCodeListValues.push(item.codedValue);
                         listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue});
                     });
@@ -182,12 +182,12 @@ class WhereClauseEditorInteractive extends React.Component {
             if (currentCodeList !== undefined && currentCodeList.codeListType !== 'external') {
                 result[itemOid] = [];
                 if (currentCodeList.codeListType === 'decoded') {
-                    Object.keys(currentCodeList.codeListItems).forEach( oid => {
+                    currentCodeList.itemOrder.forEach( oid => {
                         let item = currentCodeList.codeListItems[oid];
                         result[itemOid].push({[item.codedValue]: item.codedValue + ' (' + getDecode(item) + ')'});
                     });
                 } else {
-                    Object.keys(currentCodeList.enumeratedItems).forEach( oid => {
+                    currentCodeList.itemOrder.forEach( oid => {
                         let item = currentCodeList.enumeratedItems[oid];
                         result[itemOid].push({[item.codedValue]: item.codedValue});
                     });
@@ -514,7 +514,10 @@ class WhereClauseEditorInteractive extends React.Component {
                 <Grid item xs={12} className={classes.saveCancelButtons}>
                     <Grid container spacing={16} justify='flex-start'>
                         <Grid item>
-                            <SaveCancel save={this.save} cancel={this.cancel}/>
+                            <SaveCancel
+                                save={this.save} cancel={this.cancel}
+                                disabled={this.props.isRequired && this.state.rangeChecks.length === 0}
+                            />
                         </Grid>
                     </Grid>
                 </Grid>
@@ -532,6 +535,7 @@ WhereClauseEditorInteractive.propTypes = {
     dataset             : PropTypes.object.isRequired,
     onChangeEditingMode : PropTypes.func,
     fixedDataset        : PropTypes.bool,
+    isRequired          : PropTypes.bool,
 };
 
 export default withStyles(styles)(WhereClauseEditorInteractive);

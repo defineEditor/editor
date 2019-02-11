@@ -255,29 +255,34 @@ class WhereClauseManualEditor extends React.Component {
 
     render() {
         const { classes } = this.props;
-        const wcIsInvalid = !validateWhereClauseLine(
+        let wcIsInvalid = !validateWhereClauseLine(
             this.state.whereClauseLine,
             this.props.mdv,
             this.props.dataset.oid,
             this.props.fixedDataset,
         );
 
+        if (this.props.isRequired && this.state.whereClauseLine === '') {
+            wcIsInvalid = true;
+        }
+
         return (
             <Grid container spacing={16} alignItems='flex-end'>
                 { this.props.onChangeEditingMode !== undefined && (
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={false}
-                                onChange={this.changeEditingMode}
-                                className={classes.switch}
-                                color="primary"
-                            />
-                        }
-                        label={'Manual Mode'}
-                        className={classes.formControl}
-                    />
-
+                    <Grid item xs={12}>
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={false}
+                                    onChange={this.changeEditingMode}
+                                    className={classes.switch}
+                                    color="primary"
+                                />
+                            }
+                            label={'Manual Mode'}
+                            className={classes.formControl}
+                        />
+                    </Grid>
                 )}
                 <Grid item xs={12}>
                     <TextField
@@ -309,6 +314,7 @@ WhereClauseManualEditor.propTypes = {
     onChangeEditingMode : PropTypes.func,
     mdv                 : PropTypes.object,
     fixedDataset        : PropTypes.bool,
+    isRequired          : PropTypes.bool,
 };
 
 export default withStyles(styles)(WhereClauseManualEditor);
