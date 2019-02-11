@@ -242,7 +242,8 @@
     "throttle-debounce": "^2.0.1",
     "typeface-roboto": "^0.0.54",
     "typeface-roboto-mono": "^0.0.54",
-    "xml2js": "^0.4.19"
+    "xml2js": "^0.4.19",
+    "xmlbuilder": "^10.1.1"
   },
   "devEngines": {
     "node": ">=7.x",
