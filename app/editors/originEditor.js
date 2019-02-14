@@ -30,8 +30,8 @@ import ClearIcon from '@material-ui/icons/Clear';
 import getSelectionList from 'utils/getSelectionList.js';
 import getModelFromStandard from 'utils/getModelFromStandard.js';
 import DocumentEditor from 'editors/documentEditor.js';
-import { Origin, TranslatedText } from 'core/defineStructure.js';
-import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
+import { Origin, Document, TranslatedText } from 'core/defineStructure.js';
+import { addDocument, deleteDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     button: {
@@ -92,20 +92,51 @@ class ConnectedOriginEditor extends React.Component {
                 newOrigin = { ...new Origin() };
             }
             if (name === 'type') {
-                // TODO: If the selected TYPE is CRF, check if there is CRF document attached to the origin
-                // If not, create it with PhysicalRef type
-                // TODO: If the selected TYPE is Predecessor, check if there is a description
-                // If not, create it
                 newOrigin = clone(origin);
                 newOrigin.type = updateObj.target.value;
+                // If the selected TYPE is CRF, check if there is CRF document attached to the origin
+                // If not, create it
+                if (this.props.defineVersion === '2.0.0') {
+                    if (updateObj.target.value === 'CRF' && newOrigin.documents.length === 0) {
+                        // Check if there is aCRF
+                        Object.values(this.props.leafs).some( leaf => {
+                            if (leaf.type === 'annotatedCrf') {
+                                addDocument(newOrigin, { ... new Document({ leafId: leaf.id }) });
+                                return true;
+                            }
+                        });
+                    }
+                    if (updateObj.target.value !== 'CRF' && origin.type === 'CRF' && origin.documents.length === 1) {
+                        // If type is changed from CRF and there is CRF without page references, delete it
+                        let leafId = origin.documents[0].leafId;
+                        if (this.props.leafs.hasOwnProperty(leafId)
+                            && this.props.leafs[leafId].type === 'annotatedCrf'
+                            && origin.documents[0].pdfPageRefs.length === 0
+                        ) {
+                            deleteDocument(newOrigin, leafId);
+                        }
+                    }
+                }
+                // If the selected TYPE is Predecessor, check if there is a description
+                // If not, create it
+                if (this.props.defineVersion === '2.0.0') {
+                    if (updateObj.target.value === 'Predecessor' && newOrigin.descriptions.length === 0) {
+                        newOrigin.descriptions.push({ ...new TranslatedText({ value: '', lang: this.props.lang }) });
+                    }
+                    if (updateObj.target.value !== 'Predecessor'
+                        && origin.type === 'Predecessor'
+                        && origin.descriptions.length === 1
+                        && origin.descriptions[0].value === ''
+                    ) {
+                        newOrigin.descriptions = [];
+                    }
+                }
             }
             if (name === 'addDescription') {
                 newOrigin = clone(origin);
                 newOrigin.descriptions.push({ ...new TranslatedText({ value: '', lang: this.props.lang }) });
             }
             if (name === 'updateDescription') {
-                // TODO: this is slow as each keypress updates the upstate
-                // Consider changing to local state or ref
                 newOrigin = clone(origin);
                 setDescription(newOrigin, updateObj.target.value);
             }

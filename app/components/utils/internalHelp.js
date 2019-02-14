@@ -62,7 +62,7 @@ class InternalHelp extends React.Component {
 
         return (
             <React.Fragment>
-                <IconButton color='default' onClick={this.open} className={classes.icon}>
+                <IconButton color='primary' onClick={this.open} className={classes.icon}>
                     <HelpIcon/>
                 </IconButton>
                 <Dialog
