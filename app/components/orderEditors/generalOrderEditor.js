@@ -19,6 +19,7 @@ import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc'
 import deepEqual from 'fast-deep-equal';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
+import Tooltip from '@material-ui/core/Tooltip';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItem from '@material-ui/core/ListItem';
@@ -162,6 +163,7 @@ class GeneralOrderEditor extends React.Component {
         return (
             <React.Fragment>
                 { !this.props.noButton &&
+                    <Tooltip title={`Change ${this.props.title.toLowerCase()}`} placement='bottom' enterDelay={1000}>
                         <Fab
                             color='default'
                             size='small'
@@ -171,6 +173,7 @@ class GeneralOrderEditor extends React.Component {
                         >
                             <LowPriority/>
                         </Fab>
+                    </Tooltip>
                 }
                 <Dialog
                     disableBackdropClick

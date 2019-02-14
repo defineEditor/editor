@@ -108,6 +108,7 @@ class AddVariableSimpleConnected extends React.Component {
         let itemRef = { ... new ItemRef({
             oid     : itemRefOid,
             itemOid : itemDefOid,
+            mandatory : 'No',
         }) };
         this.props.addVariable({itemGroupOid: this.props.itemGroupOid}, itemRef, itemDef, this.state.orderNumber);
         this.resetState();

@@ -309,7 +309,7 @@ const updateKeyOrder = (state, action) => {
 
 const insertVariable = (state, action) => {
     let itemRefOid = getOid('ItemRef', undefined, state[action.itemGroupOid].itemRefOrder);
-    let itemRef = { ...new ItemRef({ oid: itemRefOid, itemOid: action.itemDefOid }) };
+    let itemRef = { ...new ItemRef({ oid: itemRefOid, itemOid: action.itemDefOid, mandatory: 'No' }) };
     let itemRefs = { ...state[action.itemGroupOid].itemRefs, [itemRefOid]: itemRef };
     let itemRefOrder = state[action.itemGroupOid].itemRefOrder.slice();
     if (action.orderNumber === 0) {
