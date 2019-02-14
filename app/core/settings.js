@@ -117,8 +117,6 @@ class ConnectedSettings extends React.Component {
     handleChange = (category, name) => (event, checked) => {
         if (name === 'controlledTerminologyLocation') {
             this.setState({ [category]: { ...this.state[category], [name]: event } });
-        } else if ( category === 'promptWhen' ) {
-            this.setState({ editor: { ...this.state.editor, promptWhen: { ...this.state.editor.promptWhen, [name]: checked } } });
         } else if ([
             'removeUnusedCodeListsInDefineXml',
             'getNameLabelFromWhereClause',
@@ -127,7 +125,7 @@ class ConnectedSettings extends React.Component {
             'enableSelectForStdCodedValues',
             'enableTablePagination',
             'alwaysSaveDefineXml',
-        ].includes(name)) {
+        ].includes(name) || category === 'popUp') {
             this.setState({ [category]: { ...this.state[category], [name]: checked } });
         } else if (['sourceSystem'].includes(name)) {
             if (event.target.value === '') {
@@ -335,7 +333,7 @@ class ConnectedSettings extends React.Component {
                     </Grid>
                     <Grid item xs={12}>
                         <Typography variant="display1" gutterBottom align="left">
-                            Warnings
+                            Pop-up windows
                         </Typography>
                         <Grid container>
                             <Grid item xs={12}>
@@ -343,13 +341,28 @@ class ConnectedSettings extends React.Component {
                                     <FormControlLabel
                                         control={
                                             <Switch
-                                                checked={this.state.editor.promptWhen.codeListTypeUpdateWarning}
-                                                onChange={this.handleChange('promptWhen', 'codeListTypeUpdateWarning')}
+                                                checked={this.state.popUp.onStartUp}
+                                                onChange={this.handleChange('popUp', 'onStartUp')}
                                                 color='primary'
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Prompt when a codelist type change may lead to the codelist item data loss'
+                                        label='Start-up message'
+                                    />
+                                </FormGroup>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <FormGroup>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.popUp.onCodeListTypeUpdate}
+                                                onChange={this.handleChange('popUp', 'onCodeListTypeUpdate')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Change of a codelist type which will lead to removal of coded value or decode columns'
                                     />
                                 </FormGroup>
                             </Grid>

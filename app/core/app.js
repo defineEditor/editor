@@ -50,7 +50,7 @@ const theme = createMuiTheme({
 const mapStateToProps = state => {
     return {
         currentPage: state.present.ui.main.currentPage,
-        showInitialMessage: state.present.ui.main.showInitialMessage,
+        showInitialMessage: state.present.settings.popUp.onStartUp,
     };
 };
 

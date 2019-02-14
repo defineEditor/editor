@@ -65,16 +65,7 @@ function loadState() {
     // Update Settings structure with initial values, in case some settings were added
     Object.keys(initialSettings).forEach( settingType =>  {
         if (state.hasOwnProperty('settings') && state.settings.hasOwnProperty(settingType)) {
-            // PromptWhen is an object, so needs to be handled separately
-            if (settingType === 'editor') {
-                if (state.settings.editor.hasOwnProperty('promptWhen')) {
-                    state.settings.editor.promptWhen = { ...initialSettings.editor.promptWhen, ...state.settings.editor.promptWhen };
-                } else {
-                    state.settings.editor.promptWhen = { ...initialSettings.editor.promptWhen };
-                }
-            }
             state.settings[settingType] = { ...initialSettings[settingType], ...state.settings[settingType] };
-
         } else {
             if (!state.hasOwnProperty('settings')) {
                 state.settings = {};
