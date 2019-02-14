@@ -28,8 +28,8 @@ import { updateSettings } from 'actions/index.js';
 
 const mapStateToProps = state => {
     return {
-        showWarningSetting  : state.present.settings.editor.codeListTypeUpdateWarning,
-        codeLists           : state.present.odm.study.metaDataVersion.codeLists,
+        showWarningSetting: state.present.settings.popUp.onCodeListTypeUpdate,
+        codeLists: state.present.odm.study.metaDataVersion.codeLists,
     };
 };
 
@@ -104,8 +104,8 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
         if (!this.state.warningShowAgain) {
             // if so, update the corresponding setting
             this.props.updateSettings({
-                editor: {
-                    codeListTypeUpdateWarning: false,
+                popUp: {
+                    onCodeListTypeUpdate: false,
                 },
             });
         }
@@ -165,7 +165,7 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
                         />
                         {!this.state.warningShowAgain &&
                             <Typography variant="body2" gutterBottom align="left" color='primary'>
-                                You can change this later in Settings under the Warnings section
+                                You can change this later in Settings under the Pop-up section
                             </Typography>
                         }
                     </DialogContent>

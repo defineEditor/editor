@@ -26,7 +26,6 @@ const main = (() => {
         quitNormally: null,
         reviewMode: false,
         showDataInput: false,
-        showInitialMessage: true,
         copyBuffer: {},
         dummyActionTimeStamp: '',
     };
@@ -105,6 +104,11 @@ const general = {
     alwaysSaveDefineXml: true,
 };
 
+const popUp = {
+    onCodeListTypeUpdate: true,
+    onStartUp: true,
+};
+
 const editor = {
     removeUnusedCodeListsInDefineXml: true,
     getNameLabelFromWhereClause: true,
@@ -113,7 +117,6 @@ const editor = {
     enableSelectForStdCodedValues: true,
     enableTablePagination: false,
     defaultRowsPerPage: 25,
-    codeListTypeUpdateWarning: true,
 };
 
 const define = {
@@ -127,7 +130,8 @@ const define = {
 const settings = {
     general,
     editor,
-    define
+    define,
+    popUp,
 };
 
 const initialValues = {

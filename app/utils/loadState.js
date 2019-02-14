@@ -14,7 +14,10 @@
 
 import eStore from 'electron-store';
 import stdConstants from 'constants/stdConstants.js';
-import { ui as uiInitialValues } from 'constants/initialValues.js';
+import {
+    ui as uiInitialValues,
+    settings as initialSettings,
+} from 'constants/initialValues.js';
 
 function loadState() {
     const store = new eStore({
@@ -57,6 +60,17 @@ function loadState() {
                 state.ui = {};
             }
             state.ui[uiType] = { ...uiInitialValues[uiType] };
+        }
+    });
+    // Update Settings structure with initial values, in case some settings were added
+    Object.keys(initialSettings).forEach( settingType =>  {
+        if (state.hasOwnProperty('settings') && state.settings.hasOwnProperty(settingType)) {
+            state.settings[settingType] = { ...initialSettings[settingType], ...state.settings[settingType] };
+        } else {
+            if (!state.hasOwnProperty('settings')) {
+                state.settings = {};
+            }
+            state.settings[settingType] = { ...initialSettings[settingType] };
         }
     });
 
