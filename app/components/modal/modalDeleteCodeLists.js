@@ -25,6 +25,12 @@ import Typography from '@material-ui/core/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 import {
     closeModal,
     updateSettings,
@@ -33,7 +39,8 @@ import {
 
 const mapStateToProps = state => {
     return {
-        codeLists : state.present.odm.study.metaDataVersion.codeLists,
+        codeLists: state.present.odm.study.metaDataVersion.codeLists,
+        itemDefs: state.present.odm.study.metaDataVersion.itemDefs,
     };
 };
 
@@ -56,8 +63,12 @@ const styles = theme => ({
         transform     : 'translate(0%, calc(-50%+0.5px))',
         overflowX     : 'auto',
         maxHeight     : '85%',
-        width         : '50%',
+        width         : '70%',
         overflowY     : 'auto',
+    },
+    paper: {
+        width: '100%',
+        marginTop: theme.spacing.unit * 1,
     },
 });
 
@@ -112,8 +123,33 @@ class ConnectedModalDeleteCodeLists extends React.Component {
                 <DialogTitle id="alert-dialog-title">Deleting {deleteTitle}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        Default text
+                        Some variables reference to the {deleteTitle} being deleted:
                     </DialogContentText>
+                    <Paper className={classes.paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Codelist</TableCell>
+                                    <TableCell align="right">Referenced to by</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {this.props.deleteObj.codeListOids.map( item => (
+                                    <TableRow key={item}>
+                                        <TableCell component="th" scope="row">{this.props.codeLists[item].name} [{item}]</TableCell>
+                                        <TableCell align="right">
+                                            {this.props.codeLists[item].sources.itemDefs.slice(0, 2)
+                                                .map(source => (this.props.itemDefs[source].descriptions[0] || { value: '' }).value + ' [' + source + ']')
+                                                .join(', ')}
+                                            {this.props.codeLists[item].sources.itemDefs.length > 2 &&
+                                                ' and ' + (this.props.codeLists[item].sources.itemDefs.length - 2) + ' more'
+                                            }
+                                        </TableCell>
+                                    </TableRow>
+                                ) )}
+                            </TableBody>
+                        </Table>
+                    </Paper>
                     <FormControlLabel
                         control={
                             <Checkbox

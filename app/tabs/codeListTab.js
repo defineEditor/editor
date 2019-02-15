@@ -520,6 +520,7 @@ class ConnectedCodeListTable extends React.Component {
                 onSelect      : this.onRowSelected,
                 onSelectAll   : this.onAllRowSelected,
                 columnWidth   : '48px',
+                selected      : this.state.selectedRows,
             };
         } else {
             selectRowProp = undefined;
