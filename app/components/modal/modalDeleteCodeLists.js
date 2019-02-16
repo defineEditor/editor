@@ -31,6 +31,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import getSourceLabels from 'utils/getSourceLabels.js';
 import {
     closeModal,
     updateSettings,
@@ -41,30 +42,31 @@ const mapStateToProps = state => {
     return {
         codeLists: state.present.odm.study.metaDataVersion.codeLists,
         itemDefs: state.present.odm.study.metaDataVersion.itemDefs,
+        mdv: state.present.odm.study.metaDataVersion,
     };
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal      : () => dispatch(closeModal()),
-        updateSettings  : updateObj => dispatch(updateSettings(updateObj)),
-        deleteCodeLists : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
+        closeModal: () => dispatch(closeModal()),
+        updateSettings: updateObj => dispatch(updateSettings(updateObj)),
+        deleteCodeLists: (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
     };
 };
 
 const styles = theme => ({
     dialog: {
-        paddingLeft   : theme.spacing.unit * 2,
-        paddingRight  : theme.spacing.unit * 2,
-        paddingBottom : theme.spacing.unit * 1,
-        position      : 'absolute',
-        borderRadius  : '10px',
-        top           : '10%',
-        transform     : 'translate(0%, calc(-50%+0.5px))',
-        overflowX     : 'auto',
-        maxHeight     : '85%',
-        width         : '70%',
-        overflowY     : 'auto',
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        position: 'absolute',
+        borderRadius: '10px',
+        top: '10%',
+        transform: 'translate(0%, calc(-50%+0.5px))',
+        overflowX: 'auto',
+        maxHeight: '85%',
+        width: '70%',
+        overflowY: 'auto',
     },
     paper: {
         width: '100%',
@@ -73,8 +75,7 @@ const styles = theme => ({
 });
 
 class ConnectedModalDeleteCodeLists extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             warningShowAgain: true,
@@ -109,44 +110,39 @@ class ConnectedModalDeleteCodeLists extends React.Component {
         this.props.closeModal();
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
         let codeListQuantity = this.props.deleteObj.codeListOids.length === 1 ? 'one' : 'many';
         let deleteTitle = codeListQuantity === 'one' ? 'Codelist' : 'Codelists';
-        return(
+        return (
             <Dialog
                 open
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
-                PaperProps={{className: classes.dialog}}
+                PaperProps={{ className: classes.dialog }}
             >
                 <DialogTitle id="alert-dialog-title">Deleting {deleteTitle}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        Some variables reference to the {deleteTitle} being deleted:
+                        Some variables reference the {deleteTitle} being deleted:
                     </DialogContentText>
                     <Paper className={classes.paper}>
                         <Table>
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Codelist</TableCell>
-                                    <TableCell align="right">Referenced to by</TableCell>
+                                    <TableCell align="right">Referenced by</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {this.props.deleteObj.codeListOids.map( item => (
+                                {this.props.deleteObj.codeListOids.map(item => (
                                     <TableRow key={item}>
-                                        <TableCell component="th" scope="row">{this.props.codeLists[item].name} [{item}]</TableCell>
+                                        <TableCell component="th" scope="row">{this.props.codeLists[item].name}</TableCell>
                                         <TableCell align="right">
-                                            {this.props.codeLists[item].sources.itemDefs.slice(0, 2)
-                                                .map(source => (this.props.itemDefs[source].descriptions[0] || { value: '' }).value + ' [' + source + ']')
-                                                .join(', ')}
-                                            {this.props.codeLists[item].sources.itemDefs.length > 2 &&
-                                                ' and ' + (this.props.codeLists[item].sources.itemDefs.length - 2) + ' more'
-                                            }
+                                            {getSourceLabels(this.props.codeLists[item].sources, this.props.mdv).labelParts.join(',')}
                                         </TableCell>
                                     </TableRow>
-                                ) )}
+                                ))}
                             </TableBody>
                         </Table>
                     </Paper>
@@ -182,9 +178,10 @@ class ConnectedModalDeleteCodeLists extends React.Component {
 }
 
 ConnectedModalDeleteCodeLists.propTypes = {
-    classes    : PropTypes.object.isRequired,
-    codeLists  : PropTypes.object.isRequired,
-    closeModal : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    codeLists: PropTypes.object.isRequired,
+    closeModal: PropTypes.func.isRequired,
+    mdv: PropTypes.object.isRequired,
 };
 
 const ModalDeleteCodeLists = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalDeleteCodeLists);
