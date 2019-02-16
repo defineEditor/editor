@@ -54,6 +54,18 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
+const CustomTableCell = withStyles(theme => ({
+    head: {
+        backgroundColor: theme.palette.primary.main,
+        color: '#EEEEEE',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    body: {
+        fontSize: 14,
+    },
+}))(TableCell);
+
 const styles = theme => ({
     dialog: {
         paddingLeft: theme.spacing.unit * 2,
@@ -82,6 +94,14 @@ class ConnectedModalDeleteCodeLists extends React.Component {
         };
     }
 
+    onKeyDown = (event) => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.onDialogCancel();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.onDialogOk();
+        }
+    }
+
     onCheckBoxClick = () => {
         this.setState({
             warningShowAgain: !this.state.warningShowAgain,
@@ -98,8 +118,8 @@ class ConnectedModalDeleteCodeLists extends React.Component {
                 },
             });
         }
-        this.props.deleteCodeLists(this.props.deleteObj);
         this.props.closeModal();
+        this.props.deleteCodeLists(this.props.deleteObj);
     }
 
     onDialogCancel = () => {
@@ -120,6 +140,7 @@ class ConnectedModalDeleteCodeLists extends React.Component {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
                 PaperProps={{ className: classes.dialog }}
+                onKeyDown={this.onKeyDown}
             >
                 <DialogTitle id="alert-dialog-title">Deleting {deleteTitle}</DialogTitle>
                 <DialogContent>
@@ -130,8 +151,8 @@ class ConnectedModalDeleteCodeLists extends React.Component {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>Codelist</TableCell>
-                                    <TableCell align="right">Referenced by</TableCell>
+                                    <CustomTableCell>Codelist</CustomTableCell>
+                                    <CustomTableCell align="right">Referenced by</CustomTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -139,7 +160,7 @@ class ConnectedModalDeleteCodeLists extends React.Component {
                                     <TableRow key={item}>
                                         <TableCell component="th" scope="row">{this.props.codeLists[item].name}</TableCell>
                                         <TableCell align="right">
-                                            {getSourceLabels(this.props.codeLists[item].sources, this.props.mdv).labelParts.join(',')}
+                                            {getSourceLabels(this.props.codeLists[item].sources, this.props.mdv, false, 2).labelParts.join(',')}
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -165,7 +186,7 @@ class ConnectedModalDeleteCodeLists extends React.Component {
                     }
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={this.onDialogOk} color="primary" autoFocus>
+                    <Button onClick={this.onDialogOk} color="primary">
                         Delete {deleteTitle}
                     </Button>
                     <Button onClick={this.onDialogCancel} color="primary">

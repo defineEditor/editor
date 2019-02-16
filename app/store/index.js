@@ -12,9 +12,9 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { createStore } from "redux";
-import rootReducer from "reducers/rootReducer";
-import loadState from "utils/loadState.js";
+import { createStore } from 'redux';
+import rootReducer from 'reducers/rootReducer';
+import loadState from 'utils/loadState.js';
 import undoable from 'redux-undo';
 import { throttle } from 'throttle-debounce';
 import saveState from 'utils/saveState.js';
@@ -31,7 +31,7 @@ const store = createStore(
 
 // Save state every minute as a backup
 store.subscribe(
-    throttle(60000, () => {saveState('backup');})
+    throttle(60000, () => { saveState('backup'); })
 );
 
 export default store;
