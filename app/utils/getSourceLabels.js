@@ -66,7 +66,7 @@ const getSourceLabels = (sources, mdv, displayGroupName = true, displayThisManyS
                 } else if (group === 'itemGroups') {
                     groupName = 'Datasets: ';
                 } else if (group === 'whereClauses') {
-                    groupName = 'Where Clauses:\n: ';
+                    groupName = 'Where Clauses:\n';
                 } else if (group === 'analysisResults') {
                     groupName = 'Analysis Results: ';
                 }
