@@ -77,17 +77,18 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        mdv           : state.present.odm.study.metaDataVersion,
-        codeLists     : state.present.odm.study.metaDataVersion.codeLists,
-        codeListOrder : state.present.odm.study.metaDataVersion.order.codeListOrder,
-        standards     : state.present.odm.study.metaDataVersion.standards,
-        stdCodeLists  : state.present.stdCodeLists,
-        stdConstants  : state.present.stdConstants,
-        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
-        tabs          : state.present.ui.tabs,
-        tabSettings   : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
-        showRowSelect : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
-        reviewMode    : state.present.ui.main.reviewMode,
+        mdv                       : state.present.odm.study.metaDataVersion,
+        codeLists                 : state.present.odm.study.metaDataVersion.codeLists,
+        codeListOrder             : state.present.odm.study.metaDataVersion.order.codeListOrder,
+        standards                 : state.present.odm.study.metaDataVersion.standards,
+        stdCodeLists              : state.present.stdCodeLists,
+        stdConstants              : state.present.stdConstants,
+        defineVersion             : state.present.odm.study.metaDataVersion.defineVersion,
+        tabs                      : state.present.ui.tabs,
+        tabSettings               : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
+        showRowSelect             : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
+        reviewMode                : state.present.ui.main.reviewMode,
+        showDeleteCodeListWarning : state.present.settings.editor.codeListDeleteWarning,
     };
 };
 
@@ -418,7 +419,17 @@ class ConnectedCodeListTable extends React.Component {
             codeListOids,
             itemDefOids,
         };
-        this.props.deleteCodeLists(deleteObj);
+        // check if the prompt option is enabled and codelist being deleted are used by variables
+        if (this.props.showDeleteCodeListWarning && itemDefOids.length !== 0) {
+            // if the check is enabled and codelists are used by some variables, open modal to confirm deletion
+            this.props.openModal({
+                type: 'DELETE_CODELISTS',
+                props: {deleteObj}
+            });
+        } else {
+            // otherwise, delete the codelists straightaway
+            this.props.deleteCodeLists(deleteObj);
+        }
         this.setState({ selectedRows: [] });
     }
 
@@ -509,6 +520,7 @@ class ConnectedCodeListTable extends React.Component {
                 onSelect      : this.onRowSelected,
                 onSelectAll   : this.onAllRowSelected,
                 columnWidth   : '48px',
+                selected      : this.state.selectedRows,
             };
         } else {
             selectRowProp = undefined;

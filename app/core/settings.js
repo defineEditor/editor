@@ -71,8 +71,8 @@ const styles = theme => ({
 
 const mapDispatchToProps = dispatch => {
     return {
-        updateSettings : updateObj => dispatch(updateSettings(updateObj)),
-        openModal      : (updateObj) => dispatch(openModal(updateObj)),
+        updateSettings: updateObj => dispatch(updateSettings(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
@@ -83,16 +83,16 @@ const mapStateToProps = state => {
 };
 
 class ConnectedSettings extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = clone(this.props.settings);
     }
 
-    componentDidMount() {
+    componentDidMount () {
         ipcRenderer.on('selectedFolder', this.setCTLocation);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         ipcRenderer.removeListener('selectedFolder', this.setCTLocation);
         // If settings are not saved, open a confirmation window
         let diff = this.getSettingsDiff();
@@ -177,7 +177,7 @@ class ConnectedSettings extends React.Component {
         }
     };
 
-    render() {
+    render () {
         const { classes } = this.props;
         let settingsNotChanged = deepEqual(this.state, this.props.settings);
         return (
@@ -322,7 +322,7 @@ class ConnectedSettings extends React.Component {
                                                 onChange={this.handleChange('editor', 'defaultRowsPerPage')}
                                                 select
                                             >
-                                                {getSelectionList([10,25,50,100])}
+                                                {getSelectionList([10, 25, 50, 100])}
                                             </TextField>
                                         }
                                         label=" Default Number of Rows Per Page"
@@ -363,6 +363,17 @@ class ConnectedSettings extends React.Component {
                                             />
                                         }
                                         label='Change of a codelist type which will lead to removal of coded value or decode columns'
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.popUp.onCodeListDelete}
+                                                onChange={this.handleChange('popUp', 'onCodeListDelete')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Delete a codelist, which is used by a variable'
                                     />
                                 </FormGroup>
                             </Grid>

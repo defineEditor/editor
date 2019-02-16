@@ -25,42 +25,44 @@ import {
     selectGroup,
     addCodeList,
     updateCopyBuffer,
+    openModal,
 } from 'actions/index.js';
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        deleteCodeLists     : (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
-        selectGroup         : (updateObj) => dispatch(selectGroup(updateObj)),
-        addCodeList         : (updateObj, orderNumber) => dispatch(addCodeList(updateObj, orderNumber)),
-        updateCopyBuffer    : (updateObj) => dispatch(updateCopyBuffer(updateObj)),
+        deleteCodeLists: (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
+        selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
+        addCodeList: (updateObj, orderNumber) => dispatch(addCodeList(updateObj, orderNumber)),
+        updateCopyBuffer: (updateObj) => dispatch(updateCopyBuffer(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        codeLists           : state.present.odm.study.metaDataVersion.codeLists,
-        codedValuesTabIndex : state.present.ui.tabs.tabNames.indexOf('Coded Values'),
-        reviewMode          : state.present.ui.main.reviewMode,
-        codeListOrder       : state.present.odm.study.metaDataVersion.order.codeListOrder,
-        buffer              : state.present.ui.main.copyBuffer['codeLists'],
+        codeLists: state.present.odm.study.metaDataVersion.codeLists,
+        codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
+        reviewMode: state.present.ui.main.reviewMode,
+        codeListOrder: state.present.odm.study.metaDataVersion.order.codeListOrder,
+        buffer: state.present.ui.main.copyBuffer['codeLists'],
+        showDeleteCodeListWarning: state.present.settings.popUp.onCodeListDelete,
     };
 };
 
 class ConnectedCodeListMenu extends React.Component {
-
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
     insertRecord = (shift) => () => {
         let codeListOid = getOid('CodeList', undefined, Object.keys(this.props.codeLists));
         let orderNumber = this.props.codeListOrder.indexOf(this.props.codeListMenuParams.codeListOid) + shift;
-        this.props.addCodeList({oid: codeListOid, name: '', codeListType: 'decoded'}, orderNumber);
+        this.props.addCodeList({ oid: codeListOid, name: '', codeListType: 'decoded' }, orderNumber);
         this.props.onClose();
     }
 
@@ -76,28 +78,28 @@ class ConnectedCodeListMenu extends React.Component {
     }
 
     paste = (shift) => () => {
-        //copy codelist from the buffer
+        // copy codelist from the buffer
         let codeList = clone(this.props.codeLists[this.props.buffer.codeListOid]);
-        //change codelist OID/name and remove sources/links to other codelists, if available
+        // change codelist OID/name and remove sources/links to other codelists, if available
         codeList.oid = getOid('CodeList', undefined, this.props.codeListOrder);
-        codeList.name = codeList.name + " (Copy)";
+        codeList.name = codeList.name + ' (Copy)';
         codeList.linkedCodeListOid = undefined;
         codeList.sources = undefined;
-        //determine the place to insert the codelist to
+        // determine the place to insert the codelist to
         let orderNumber = this.props.codeListOrder.indexOf(this.props.codeListMenuParams.codeListOid) + shift;
-        //insert the codelist
+        // insert the codelist
         this.props.addCodeList(codeList, orderNumber);
         this.props.onClose();
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         // Run only when menu is opened
         if (Boolean(this.props.anchorEl) === true && !this.props.reviewMode) {
             if (event.keyCode === 73) {
                 this.insertRecord(1)();
             } else if (event.keyCode === 67) {
                 this.copy();
-            } else if (event.keyCode === 80 && !(this.props.buffer === undefined) ) {
+            } else if (event.keyCode === 80 && !(this.props.buffer === undefined)) {
                 this.paste(1)();
             }
         }
@@ -109,7 +111,7 @@ class ConnectedCodeListMenu extends React.Component {
         // Get the list of ItemOIDs for which the codelists should be removed;
         let itemDefOids = [];
         codeListOids.forEach(codeListOid => {
-            codeLists[codeListOid].sources.itemDefs.forEach( itemDefOid => {
+            codeLists[codeListOid].sources.itemDefs.forEach(itemDefOid => {
                 itemDefOids.push(itemDefOid);
             });
         });
@@ -117,22 +119,31 @@ class ConnectedCodeListMenu extends React.Component {
             codeListOids,
             itemDefOids,
         };
-        this.props.deleteCodeLists(deleteObj);
+        // check if the prompt option is enabled and codelist being deleted are used by variables
+        if (this.props.showDeleteCodeListWarning && itemDefOids.length !== 0) {
+            // if the check is enabled and codelists are used by some variables, open modal to confirm deletion
+            this.props.openModal({
+                type: 'DELETE_CODELISTS',
+                props: { deleteObj }
+            });
+        } else {
+            // otherwise, delete the codelists straightaway
+            this.props.deleteCodeLists(deleteObj);
+        }
         this.props.onClose();
     }
 
     editCodeListValues = () => {
         let updateObj = {
-            tabIndex       : this.props.codedValuesTabIndex,
-            groupOid       : this.props.codeListMenuParams.codeListOid,
-            scrollPosition : {},
+            tabIndex: this.props.codedValuesTabIndex,
+            groupOid: this.props.codeListMenuParams.codeListOid,
+            scrollPosition: {},
         };
         this.props.selectGroup(updateObj);
         this.props.onClose();
     }
 
-    render() {
-
+    render () {
         return (
             <React.Fragment>
                 <Menu
@@ -178,10 +189,10 @@ class ConnectedCodeListMenu extends React.Component {
 }
 
 ConnectedCodeListMenu.propTypes = {
-    codeListMenuParams : PropTypes.object.isRequired,
-    codeLists          : PropTypes.object.isRequired,
-    codeListOrder      : PropTypes.array.isRequired,
-    reviewMode         : PropTypes.bool,
+    codeListMenuParams: PropTypes.object.isRequired,
+    codeLists: PropTypes.object.isRequired,
+    codeListOrder: PropTypes.array.isRequired,
+    reviewMode: PropTypes.bool,
 };
 
 const CodeListMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodeListMenu);
