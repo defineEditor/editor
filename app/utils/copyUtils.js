@@ -31,7 +31,7 @@ const defaultExistingOids = {
     valueLists: [],
 };
 
-const copyItems = ({currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, parentItemDefOid, copyVlm, existingOids} = {}) => {
+const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, parentItemDefOid, copyVlm, existingOids } = {}) => {
     let itemDefs = {};
     let itemRefs = { [currentGroup.oid]: {} };
     let valueLists = {};
@@ -42,7 +42,7 @@ const copyItems = ({currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, pare
     let currentItemRefs = currentGroup.itemRefOrder.slice();
     let currentValueLists = Object.keys(mdv.valueLists).concat(existingOids.valueLists);
     let currentWhereClauses = Object.keys(mdv.whereClauses).concat(existingOids.whereClauses);
-    itemRefList.forEach( itemRefOid => {
+    itemRefList.forEach(itemRefOid => {
         let itemRef = clone(sourceGroup.itemRefs[itemRefOid]);
         let newItemRefOid = getOid('ItemRef', undefined, currentItemRefs);
         let newItemDefOid = getOid('ItemDef', undefined, currentItemDefs);
@@ -63,16 +63,16 @@ const copyItems = ({currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, pare
         itemRefs[currentGroup.oid][newItemRefOid] = { ...new ItemRef({ ...itemRef, oid: newItemRefOid, itemOid: newItemDefOid }) };
         let sources;
         if (parentItemDefOid !== undefined) {
-            sources = {itemGroups: [], valueLists: [currentGroup.oid]};
+            sources = { itemGroups: [], valueLists: [currentGroup.oid] };
         } else {
-            sources = {itemGroups: [currentGroup.oid], valueLists: []};
+            sources = { itemGroups: [currentGroup.oid], valueLists: [] };
         }
         processedItemDefs[itemRef.itemOid] = newItemDefOid;
-        itemDefs[newItemDefOid] = {...new ItemDef({
+        itemDefs[newItemDefOid] = { ...new ItemDef({
             ...clone(sourceMdv.itemDefs[itemRef.itemOid]),
             oid: newItemDefOid,
             parentItemDefOid,
-            sources})
+            sources })
         };
         // Check if VLM is attached
         if (copyVlm === true && itemDefs[newItemDefOid].valueListOid !== undefined) {
@@ -81,7 +81,7 @@ const copyItems = ({currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, pare
             itemDefs[newItemDefOid].valueListOid = newValueListOid;
             currentValueLists.push(newValueListOid);
             valueLists[newValueListOid] = { ...new ValueList({
-                ...valueList, itemRefs: {}, itemRefOrder: [], oid: newValueListOid, sources: {itemDefs: [newItemDefOid]}
+                ...valueList, itemRefs: {}, itemRefOrder: [], oid: newValueListOid, sources: { itemDefs: [newItemDefOid] }
             }) };
             let vlCopy = copyItems({
                 currentGroup: valueLists[newValueListOid],
@@ -95,8 +95,8 @@ const copyItems = ({currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, pare
             });
             // Add ItemRefs with new OIDs to the valueList
             valueLists[newValueListOid].itemRefs = vlCopy.itemRefs[newValueListOid];
-            valueLists[newValueListOid].itemRefOrder = valueList.itemRefOrder.map( itemRefOid => (vlCopy.processedItemRefs[itemRefOid]));
-            valueLists[newValueListOid].keyOrder = valueList.keyOrder.map( itemRefOid => (vlCopy.processedItemRefs[itemRefOid]));
+            valueLists[newValueListOid].itemRefOrder = valueList.itemRefOrder.map(itemRefOid => (vlCopy.processedItemRefs[itemRefOid]));
+            valueLists[newValueListOid].keyOrder = valueList.keyOrder.map(itemRefOid => (vlCopy.processedItemRefs[itemRefOid]));
             // No need to update itemRefs as VLM itemRefs are already included in ValueList
             itemDefs = { ...itemDefs, ...vlCopy.itemDefs };
             valueLists = { ...valueLists, ...vlCopy.valueLists };
@@ -109,7 +109,7 @@ const copyItems = ({currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, pare
     return { itemDefs, itemRefs, valueLists, whereClauses, processedItemDefs, processedItemRefs };
 };
 
-const copyMethod = ({sourceMethodOid, mdv, sourceMdv, searchForDuplicate, groupOid, itemRefOid, vlm, existingOids} = {}) => {
+const copyMethod = ({ sourceMethodOid, mdv, sourceMdv, searchForDuplicate, groupOid, itemRefOid, vlm, existingOids } = {}) => {
     let method = clone(sourceMdv.methods[sourceMethodOid]);
     let methodOids = Object.keys(mdv.methods).concat(existingOids.methods);
     let name = method.name;
@@ -124,7 +124,7 @@ const copyMethod = ({sourceMethodOid, mdv, sourceMdv, searchForDuplicate, groupO
                 matchingIds.push(methodOid);
             }
         });
-        matchingIds.some( methodOid => {
+        matchingIds.some(methodOid => {
             if (compareMethods(mdv.methods[methodOid], method)) {
                 newMethodOid = methodOid;
                 duplicateFound = true;
@@ -144,7 +144,7 @@ const copyMethod = ({sourceMethodOid, mdv, sourceMdv, searchForDuplicate, groupO
     return { newMethodOid, method, duplicateFound };
 };
 
-const copyComment = ({sourceCommentOid, mdv, sourceMdv, searchForDuplicate, itemDefOid, whereClauseOid, itemGroupOid, analysisResultOid, existingOids} = {}) => {
+const copyComment = ({ sourceCommentOid, mdv, sourceMdv, searchForDuplicate, itemDefOid, whereClauseOid, itemGroupOid, analysisResultOid, existingOids } = {}) => {
     let comment = clone(sourceMdv.comments[sourceCommentOid]);
     let commentOids = Object.keys(mdv.comments).concat(existingOids.comments);
     // Search for the same name in the existing comments
@@ -208,7 +208,7 @@ const copyVariables = ({
     let codeListSources = {};
     if (sameDefine === false) {
         let codeListOids = Object.keys(mdv.codeLists).concat(existingOids.codeLists);
-        Object.keys(itemDefs).forEach( itemDefOid => {
+        Object.keys(itemDefs).forEach(itemDefOid => {
             let sourceCodeListOid = itemDefs[itemDefOid].codeListOid;
             if (sourceCodeListOid !== undefined && !processedCodeLists.hasOwnProperty(sourceCodeListOid)) {
                 let codeList = { ...new CodeList({
@@ -230,7 +230,7 @@ const copyVariables = ({
                 });
                 // Perform deep compare of the codelists
                 let newCodeListOid;
-                matchingIds.some( codeListOid => {
+                matchingIds.some(codeListOid => {
                     if (Object.keys(mdv.codeLists).includes(codeListOid)) {
                         if (compareCodeLists(mdv.codeLists[codeListOid], codeList)) {
                             newCodeListOid = codeListOid;
@@ -265,7 +265,7 @@ const copyVariables = ({
             }
         });
         // Add sources for all newly added codelists
-        Object.keys(codeLists).forEach( codeListOid => {
+        Object.keys(codeLists).forEach(codeListOid => {
             let codeList = codeLists[codeListOid];
             codeList.sources.itemDefs = codeListSources[codeListOid].itemDefs;
         });
@@ -274,7 +274,7 @@ const copyVariables = ({
     let methods = {};
     if (sameDefine === false || detachMethods === true) {
         // Variable-level methods
-        Object.keys(itemRefs[itemGroupOid]).forEach( itemRefOid => {
+        Object.keys(itemRefs[itemGroupOid]).forEach(itemRefOid => {
             let itemRef = itemRefs[itemGroupOid][itemRefOid];
             if (itemRef.methodOid !== undefined) {
                 let { newMethodOid, method, duplicateFound } = copyMethod({
@@ -295,8 +295,8 @@ const copyVariables = ({
         });
         // Value-level methods
         if (copyVlm === true) {
-            Object.keys(valueLists).forEach( valueListOid => {
-                Object.keys(valueLists[valueListOid].itemRefs).forEach( itemRefOid => {
+            Object.keys(valueLists).forEach(valueListOid => {
+                Object.keys(valueLists[valueListOid].itemRefs).forEach(itemRefOid => {
                     let itemRef = valueLists[valueListOid].itemRefs[itemRefOid];
                     if (itemRef.methodOid !== undefined) {
                         let { newMethodOid, method, duplicateFound } = copyMethod({
@@ -323,7 +323,7 @@ const copyVariables = ({
     let comments = {};
     if (sameDefine === false || detachComments === true) {
         // ItemDef comments
-        Object.keys(itemDefs).forEach( itemDefOid => {
+        Object.keys(itemDefs).forEach(itemDefOid => {
             let itemDef = itemDefs[itemDefOid];
             if (itemDef.commentOid !== undefined) {
                 let { newCommentOid, comment, duplicateFound } = copyComment({
@@ -342,7 +342,7 @@ const copyVariables = ({
         });
         // Where Clause Comments
         if (copyVlm === true) {
-            Object.keys(whereClauses).forEach( whereClauseOid => {
+            Object.keys(whereClauses).forEach(whereClauseOid => {
                 let whereClause = whereClauses[whereClauseOid];
                 if (whereClause.commentOid !== undefined) {
                     let { newCommentOid, comment, duplicateFound } = copyComment({
@@ -367,31 +367,31 @@ const copyVariables = ({
     if (sameDefine === false) {
         let leafIds = [];
         // Check which documents are referenced in methods or comments
-        Object.keys(methods).forEach( methodOid => {
+        Object.keys(methods).forEach(methodOid => {
             let documents = methods[methodOid].documents;
             if (documents.length > 0) {
-                documents.forEach( doc =>  {
+                documents.forEach(doc => {
                     if (!leafIds.includes(doc.leafId)) {
                         leafIds.push(doc.leafId);
                     }
                 });
             }
         });
-        Object.keys(comments).forEach( commentOid => {
+        Object.keys(comments).forEach(commentOid => {
             let documents = comments[commentOid].documents;
             if (documents.length > 0) {
-                documents.forEach( doc =>  {
+                documents.forEach(doc => {
                     if (!leafIds.includes(doc.leafId)) {
                         leafIds.push(doc.leafId);
                     }
                 });
             }
         });
-        Object.keys(itemDefs).forEach( itemDefOid => {
-            itemDefs[itemDefOid].origins.forEach( origin => {
+        Object.keys(itemDefs).forEach(itemDefOid => {
+            itemDefs[itemDefOid].origins.forEach(origin => {
                 let documents = origin.documents;
                 if (documents.length > 0) {
-                    documents.forEach( doc =>  {
+                    documents.forEach(doc => {
                         if (!leafIds.includes(doc.leafId)) {
                             leafIds.push(doc.leafId);
                         }
@@ -401,8 +401,8 @@ const copyVariables = ({
         });
         // Compare leafs with the existing leafs;
         let finalLeafIds = leafIds.slice();
-        leafIds.forEach( sourceLeafId => {
-            Object.keys(mdv.leafs).some( leafId => {
+        leafIds.forEach(sourceLeafId => {
+            Object.keys(mdv.leafs).some(leafId => {
                 if (compareLeafs(sourceMdv.leafs[sourceLeafId], mdv.leafs[leafId])) {
                     finalLeafIds.splice(finalLeafIds.indexOf(sourceLeafId), 1);
                     return true;
@@ -410,24 +410,22 @@ const copyVariables = ({
             });
         });
 
-        finalLeafIds.forEach( leafId => {
+        finalLeafIds.forEach(leafId => {
             leafs[leafId] = { ...new Leaf({ ...sourceMdv.leafs[leafId] }) };
         });
     }
 
     // Update WhereClause refereces;
-    Object.keys(whereClauses).forEach( whereClauseOid => {
+    Object.keys(whereClauses).forEach(whereClauseOid => {
         let whereClause = whereClauses[whereClauseOid];
         // Check that selection variable exists either in the copied variables or in the current mdv
-        whereClause.rangeChecks.forEach( rangeCheck => {
-            if ( rangeCheck.itemGroupOid === sourceGroup.oid && Object.keys(processedItemDefs).includes(rangeCheck.itemOid) ) {
+        whereClause.rangeChecks.forEach(rangeCheck => {
+            if (rangeCheck.itemGroupOid === sourceGroup.oid && Object.keys(processedItemDefs).includes(rangeCheck.itemOid)) {
                 rangeCheck.itemGroupOid = currentGroup.oid;
                 rangeCheck.itemOid = processedItemDefs[rangeCheck.itemOid];
             } else if (
-                Object.keys(mdv.itemGroups).includes(rangeCheck.itemGroupOid)
-                &&
-                Object.keys(mdv.itemDefs).includes(rangeCheck.itemOid)
-                &&
+                Object.keys(mdv.itemGroups).includes(rangeCheck.itemGroupOid) &&
+                Object.keys(mdv.itemDefs).includes(rangeCheck.itemOid) &&
                 sameDefine
             ) {
                 // Do nothing - the variable is already in the metadata
@@ -445,14 +443,14 @@ const copyVariables = ({
                     // Search for the variable in the current Define
                     if (sourceMdv.itemGroups.hasOwnProperty(rangeCheck.itemGroupOid)) {
                         // If the name is not found, it will be set to undefined
-                        rangeCheck.itemGroupOid  = getOidByName(mdv, 'itemGroups', sourceMdv.itemGroups[rangeCheck.itemGroupOid].name);
+                        rangeCheck.itemGroupOid = getOidByName(mdv, 'itemGroups', sourceMdv.itemGroups[rangeCheck.itemGroupOid].name);
                     } else {
-                        rangeCheck.itemGroupOid  = undefined;
+                        rangeCheck.itemGroupOid = undefined;
                     }
                     if (sourceMdv.itemDefs.hasOwnProperty(rangeCheck.itemOid)) {
                         rangeCheck.itemOid = getOidByName(mdv, 'itemDefs', sourceMdv.itemDefs[rangeCheck.itemOid].name, rangeCheck.itemGroupOid);
                     } else {
-                        rangeCheck.itemOid  = undefined;
+                        rangeCheck.itemOid = undefined;
                     }
                 }
             }
@@ -490,18 +488,18 @@ const copyItemGroups = ({
     let currentGroupOids = mdv.order.itemGroupOrder.concat(existingOids.itemGroups);
     let newExistingOids = clone(existingOids);
     let newCopiedItems = clone(copiedItems);
-    itemGroupList.forEach( sourceItemGroupOid => {
+    itemGroupList.forEach(sourceItemGroupOid => {
         let sourceGroup = sourceMdv.itemGroups[sourceItemGroupOid];
         let itemGroupOid = getOid('ItemGroup', undefined, currentGroupOids);
         currentGroupOids.push(itemGroupOid);
         // If only a subset of itemRefs was requested
-        let itemRefs;
-        if (itemRefList.hasOwnProperty(itemGroupOid)) {
-            itemRefList[itemGroupOid].forEach(itemRefOid => {
-                itemRefs[itemRefOid] = sourceGroup.itemRefs[itemRefOid];
+        let itemRefsToCopy = [];
+        if (itemRefList.hasOwnProperty(sourceItemGroupOid)) {
+            itemRefList[sourceItemGroupOid].forEach(itemRefOid => {
+                itemRefsToCopy.push(itemRefOid);
             });
         } else {
-            itemRefs = sourceGroup.itemRefs;
+            itemRefsToCopy = Object.keys(sourceGroup.itemRefs);
         }
         let currentGroup = { ...new ItemGroup({ ...sourceGroup, oid: itemGroupOid, purpose: purpose || sourceGroup.purpose }) };
         // Copy itemGroup comment if it exists
@@ -526,7 +524,7 @@ const copyItemGroups = ({
             sourceMdv,
             currentGroup,
             sourceGroup,
-            itemRefList: Object.keys(currentGroup.itemRefs),
+            itemRefList: itemRefsToCopy,
             itemGroupOid,
             sameDefine,
             sourceItemGroupOid,
@@ -538,15 +536,15 @@ const copyItemGroups = ({
         });
         // Update the list of OIDs, so that they are not reused;
         newExistingOids.itemGroups.push(currentGroup.oid);
-        ['itemDefs','methods', 'comments', 'codeLists', 'whereClauses', 'valueLists'].forEach( type => {
+        ['itemDefs', 'methods', 'comments', 'codeLists', 'whereClauses', 'valueLists'].forEach(type => {
             newExistingOids[type] = newExistingOids[type].concat(Object.keys(result[type]));
         });
-        ['codeLists'].forEach( type => {
+        ['codeLists'].forEach(type => {
             newCopiedItems[type] = { ...newCopiedItems[type], ...result.codeLists };
         });
         currentGroup.itemRefs = result.itemRefs[itemGroupOid];
-        currentGroup.keyOrder = currentGroup.keyOrder.map( itemRefOid => (result.processedItemRefs[itemRefOid]));
-        currentGroup.itemRefOrder = currentGroup.itemRefOrder.map( itemRefOid => (result.processedItemRefs[itemRefOid]));
+        currentGroup.keyOrder = currentGroup.keyOrder.map(itemRefOid => (result.processedItemRefs[itemRefOid]));
+        currentGroup.itemRefOrder = currentGroup.itemRefOrder.map(itemRefOid => (result.processedItemRefs[itemRefOid]));
         result.itemGroup = currentGroup;
 
         itemGroups[itemGroupOid] = result;
@@ -554,4 +552,4 @@ const copyItemGroups = ({
     return { itemGroups, itemGroupComments, existingOids: newExistingOids, copiedItems: newCopiedItems };
 };
 
-export default  { copyVariables, copyComment, copyItemGroups };
+export default { copyVariables, copyComment, copyItemGroups };

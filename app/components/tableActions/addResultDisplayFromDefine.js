@@ -22,17 +22,34 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TablePagination from '@material-ui/core/TablePagination';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import Button from '@material-ui/core/Button';
-import { copyItemGroups } from 'utils/copyUtils.js';
-import { addItemGroups } from 'actions/index.js';
+import { addResultDisplays } from 'actions/index.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
+import { copyResultDisplays } from 'utils/armUtils.js';
 
 const styles = theme => ({
+    dialog: {
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        position: 'absolute',
+        borderRadius: '10px',
+        top: '20%',
+        width: '55%',
+        transform: 'translate(0%, calc(-20%+0.5px))',
+        overflowX: 'auto',
+        maxHeight: '85%',
+        overflowY: 'auto',
+    },
     root: {
         width: '100%',
         overflowX: 'auto'
@@ -66,7 +83,7 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        addItemGroups: (updateObj) => dispatch(addItemGroups(updateObj))
+        addResultDisplays: (updateObj) => dispatch(addResultDisplays(updateObj))
     };
 };
 
@@ -100,9 +117,9 @@ const getInitialValues = (props) => {
         resultDisplayOrder.forEach((resultDisplayOid, index) => {
             const resultDisplay = resultDisplays[resultDisplayOid];
             let row = {
-                oid          : resultDisplay.oid,
-                name         : resultDisplay.name,
-                description  : getDescription(resultDisplay),
+                oid: resultDisplay.oid,
+                name: resultDisplay.name,
+                description: getDescription(resultDisplay),
             };
             resultDisplaysData[index] = row;
         });
@@ -112,7 +129,7 @@ const getInitialValues = (props) => {
 };
 
 class AddResultDisplayFromDefineConnected extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         const { resultDisplaysData } = getInitialValues(props);
@@ -122,13 +139,15 @@ class AddResultDisplayFromDefineConnected extends React.Component {
             searchString: '',
             sourceDefineId: props.sourceDefineId,
             resultDisplaysData,
+            showMissingItemsMessage: false,
+            copiedResultDisplaysData: {},
             detachComments: true,
-            rowsPerPage : 25,
+            rowsPerPage: 25,
             page: 0,
         };
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
+    static getDerivedStateFromProps (nextProps, prevState) {
         // If source ODM has changed
         if (nextProps.sourceDefineId !== prevState.sourceDefineId) {
             return ({ ...getInitialValues(nextProps), sourceDefineId: nextProps.sourceDefineId });
@@ -139,8 +158,8 @@ class AddResultDisplayFromDefineConnected extends React.Component {
 
     handleSelectAllClick = (event, checked) => {
         if (checked) {
-            const itemGroupOids = this.props.sourceMdv.order.itemGroupOrder;
-            this.setState({ selected: itemGroupOids });
+            const resultDisplayOids = this.props.sourceMdv.analysisResultDisplays.resultDisplayOrder;
+            this.setState({ selected: resultDisplayOids });
         } else {
             this.setState({ selected: [] });
         }
@@ -167,24 +186,38 @@ class AddResultDisplayFromDefineConnected extends React.Component {
         this.setState({ selected: newSelected });
     };
 
-    handleAddResultDisplays = () => {
+    handleAddResultDisplays = (forceCopy) => {
         let { mdv, sourceMdv, position, sameDefine } = this.props;
-        const { itemGroups, itemGroupComments } = copyItemGroups({
-            mdv,
-            sourceMdv,
-            sameDefine,
-            itemGroupList: this.state.selected,
-        });
-        // Get position to insert
-        let positionUpd = position || (mdv.order.itemGroupOrder.length + 1);
 
-        this.props.addItemGroups({
-            position: positionUpd,
-            itemGroups,
-            itemGroupComments,
-        });
+        let copiedResultDisplaysData = this.state.copiedResultDisplaysData;
 
-        this.props.onClose();
+        // When handleAddResultDisplays is called from the window reprting about missing variables, there is no need to copy once again
+        if (Object.keys(copiedResultDisplaysData).length === 0) {
+            copiedResultDisplaysData = copyResultDisplays({
+                mdv,
+                sourceMdv,
+                resultDisplayOidList: this.state.selected,
+                sameDefine,
+            });
+        }
+
+        let { resultDisplays, analysisResults, whereClauses, comments, missingItemRefListByResultDisplay } = copiedResultDisplaysData;
+
+        let positionUpd = position || (mdv.analysisResultDisplays.resultDisplayOrder.length + 1);
+
+        if (Object.keys(missingItemRefListByResultDisplay).length === 0 || forceCopy === true) {
+            this.props.addResultDisplays({
+                position: positionUpd,
+                resultDisplays,
+                analysisResults,
+                comments,
+                whereClauses,
+            });
+
+            this.props.onClose();
+        } else {
+            this.setState({ showMissingItemsMessage: true, copiedResultDisplaysData });
+        }
     };
 
     handleChangePage = (event, page) => {
@@ -203,19 +236,23 @@ class AddResultDisplayFromDefineConnected extends React.Component {
         this.setState({ [name]: !this.state[name] });
     }
 
-    getResultDisplayTable(defineVersion, classes) {
+    cancelCopy = () => {
+        this.setState({ showMissingItemsMessage: false, copiedResultDisplaysData: {} });
+    }
+
+    getResultDisplayTable (defineVersion, classes) {
         const { selected, page, rowsPerPage, searchString, resultDisplaysData } = this.state;
 
         let data;
 
         if (searchString !== '') {
-            data = resultDisplaysData.filter( row => {
+            data = resultDisplaysData.filter(row => {
                 if (/[A-Z]/.test(searchString)) {
-                    return row.name.includes(searchString)
-                        || row.description.includes(searchString);
+                    return row.name.includes(searchString) ||
+                        row.description.includes(searchString);
                 } else {
-                    return row.name.toLowerCase().includes(searchString.toLowerCase())
-                        || row.description.toLowerCase().includes(searchString.toLowerCase());
+                    return row.name.toLowerCase().includes(searchString.toLowerCase()) ||
+                        row.description.toLowerCase().includes(searchString.toLowerCase());
                 }
             });
         } else {
@@ -331,14 +368,75 @@ class AddResultDisplayFromDefineConnected extends React.Component {
                         }}
                         onChangePage={this.handleChangePage}
                         onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                        rowsPerPageOptions={[25,50,100]}
+                        rowsPerPageOptions={[25, 50, 100]}
                     />
                 </Grid>
             </Grid>
         );
     }
 
-    render() {
+    getTableOfMissingVariables = () => {
+        const CustomTableCell = withStyles(theme => ({
+            head: {
+                backgroundColor: theme.palette.primary.main,
+                color: '#EEEEEE',
+                fontSize: 16,
+                fontWeight: 'bold',
+            },
+            body: {
+                fontSize: 14,
+                whiteSpace: 'pre-wrap',
+            },
+        }))(TableCell);
+
+        let missingItemRefListByResultDisplay = this.state.copiedResultDisplaysData.missingItemRefListByResultDisplay;
+
+        if (missingItemRefListByResultDisplay === undefined) {
+            return null;
+        }
+
+        let sourceMdv = this.props.sourceMdv;
+
+        let tableData = {};
+        Object.keys(missingItemRefListByResultDisplay).forEach(resultDisplayOid => {
+            let variableList = [];
+            // Get names of variables
+            Object.keys(missingItemRefListByResultDisplay[resultDisplayOid]).forEach(itemGroupOid => {
+                missingItemRefListByResultDisplay[resultDisplayOid][itemGroupOid].forEach(itemRefOid => {
+                    variableList.push(
+                        sourceMdv.itemGroups[itemGroupOid].name + '.' +
+                        sourceMdv.itemDefs[sourceMdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid].name
+                    );
+                });
+            });
+            tableData[sourceMdv.analysisResultDisplays.resultDisplays[resultDisplayOid].name] = variableList.join('\n');
+        });
+
+        return (
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        <CustomTableCell>Result Display</CustomTableCell>
+                        <CustomTableCell>Missing Refereced Variables</CustomTableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {Object.keys(tableData).map(resultDisplayName => (
+                        <TableRow key={resultDisplayName}>
+                            <CustomTableCell>
+                                {resultDisplayName}
+                            </CustomTableCell>
+                            <CustomTableCell>
+                                {tableData[resultDisplayName]}
+                            </CustomTableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        );
+    }
+
+    render () {
         const { defineVersion, classes } = this.props;
         return (
             <div className={classes.root}>
@@ -346,6 +444,30 @@ class AddResultDisplayFromDefineConnected extends React.Component {
                     defineVersion,
                     classes
                 )}
+                <Dialog
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                    open={this.state.showMissingItemsMessage}
+                    onClose={this.close}
+                    PaperProps={{ className: classes.dialog }}
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        Missing Variables
+                    </DialogTitle>
+                    <DialogContent>
+                        Some of the result displays are referencing variables, which are not in the current Define-XML document.
+                        Either add those variables to the current document or continue the copy, removing references to all missing variables
+                    </DialogContent>
+                    {this.getTableOfMissingVariables()}
+                    <DialogActions>
+                        <Button onClick={ () => { this.handleAddResultDisplays(true); } } color="primary">
+                            Copy and remove missing references
+                        </Button>
+                        <Button onClick={this.cancelCopy} color="primary">
+                            Cancel
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </div>
         );
     }
