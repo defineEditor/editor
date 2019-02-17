@@ -47,7 +47,7 @@ const styles = theme => ({
     },
     button: {
         margin: '0',
-        marginBottom : '8px',
+        marginBottom: '8px',
     },
     whereClause: {
         whiteSpace: 'normal',
@@ -62,7 +62,6 @@ const mapStateToProps = state => {
 };
 
 class ConnectedWhereClauseEditor extends React.Component {
-
     constructor (props) {
         super(props);
 
@@ -74,7 +73,7 @@ class ConnectedWhereClauseEditor extends React.Component {
     }
 
     handleCancelAndClose = () => {
-        this.setState({ dialogOpened: false });
+        this.setState({ dialogOpened: false, interactiveMode: true });
     };
 
     changeEditingMode = (rangeChecks) => {
@@ -91,10 +90,10 @@ class ConnectedWhereClauseEditor extends React.Component {
             whereClause = { ...new WhereClause({ ...this.state.whereClause, rangeChecks }) };
         }
         this.props.onChange(whereClause);
-        this.setState({ whereClause, dialogOpened: false });
+        this.setState({ whereClause, dialogOpened: false, interactiveMode: true });
     };
 
-    render() {
+    render () {
         const { classes, whereClause, mdv } = this.props;
         const interactiveMode = this.state.interactiveMode;
 
@@ -111,7 +110,7 @@ class ConnectedWhereClauseEditor extends React.Component {
                         <Tooltip title={ `Edit ${this.props.label}` } placement='bottom' enterDelay={1000}>
                             <span>
                                 <IconButton
-                                    onClick={ () => { this.setState({ dialogOpened: !this.state.dialogOpened });} }
+                                    onClick={ () => { this.setState({ dialogOpened: !this.state.dialogOpened }); } }
                                     color='primary'
                                     className={classes.button}
                                 >
@@ -164,13 +163,13 @@ class ConnectedWhereClauseEditor extends React.Component {
 }
 
 ConnectedWhereClauseEditor.propTypes = {
-    itemGroup    : PropTypes.object.isRequired,
-    label        : PropTypes.string.isRequired,
-    whereClause  : PropTypes.object,
-    mdv          : PropTypes.object.isRequired,
-    fixedDataset : PropTypes.bool,
-    isRequired   : PropTypes.bool,
-    onChange     : PropTypes.func.isRequired,
+    itemGroup: PropTypes.object.isRequired,
+    label: PropTypes.string.isRequired,
+    whereClause: PropTypes.object,
+    mdv: PropTypes.object.isRequired,
+    fixedDataset: PropTypes.bool,
+    isRequired: PropTypes.bool,
+    onChange: PropTypes.func.isRequired,
 };
 
 const WhereClauseEditor = connect(mapStateToProps)(ConnectedWhereClauseEditor);
