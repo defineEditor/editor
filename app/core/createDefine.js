@@ -19,14 +19,16 @@ import { createTranslatedText, createDocumentRef } from './createUtils.js';
 
 function splitAttributes (match) {
     let tab = match.substr(0, match.indexOf('<'));
-    return match.replace(/\s(\S+=".*?")/g, '\n' + tab + '  $1');
+    // In Windows tab includes line feed, so remove it
+    tab = tab.replace(/[^ ]/g, '');
+    return match.replace(/\s(\S+=".*?")/g, os.EOL + tab + '  $1');
 }
 
-function escapeFunc(str) {
-    return str.replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\r(?!\n)/g, "&#xD;");// this matches only lonely carriage return characters
+function escapeFunc (str) {
+    return str.replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\r(?!\n)/g, '&#xD;');// this matches only lonely carriage return characters
 }
 
 function createDefine (data, version) {

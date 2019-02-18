@@ -461,7 +461,7 @@ class AddResultDisplayFromDefineConnected extends React.Component {
                     {this.getTableOfMissingVariables()}
                     <DialogActions>
                         <Button onClick={ () => { this.handleAddResultDisplays(true); } } color="primary">
-                            Copy and remove missing references
+                            Continue and remove missing references
                         </Button>
                         <Button onClick={this.cancelCopy} color="primary">
                             Cancel

@@ -333,7 +333,7 @@ class ConnectedSettings extends React.Component {
                     </Grid>
                     <Grid item xs={12}>
                         <Typography variant="display1" gutterBottom align="left">
-                            Pop-up windows
+                            Notifications
                         </Typography>
                         <Grid container>
                             <Grid item xs={12}>

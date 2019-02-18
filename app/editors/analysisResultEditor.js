@@ -390,7 +390,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
                     </Grid>
                     <Grid item xs={12}>
                         <Grid container justify='space-between' spacing={8}>
-                            <Grid item>
+                            <Grid item xs={this.state.analysisReasonManual && 4}>
                                 <TextField
                                     label='Analysis Reason'
                                     value={this.state.analysisReason}
@@ -418,7 +418,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
                                     {!this.state.analysisReasonManual && getSelectionList(armAnalysisReason)}
                                 </TextField>
                             </Grid>
-                            <Grid item>
+                            <Grid item xs={this.state.analysisPurposeManual && 4}>
                                 <TextField
                                     label='Analysis Purpose'
                                     value={this.state.analysisPurpose}
