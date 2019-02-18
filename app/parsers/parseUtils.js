@@ -36,13 +36,13 @@ function removeNamespace (obj) {
     }
 }
 
-function populateValueListSources(valueLists, itemDefs) {
+function populateValueListSources (valueLists, itemDefs) {
     // Connect valueList to its sources
     // Required as a separate function, because valueLists are connected to itemDefs and itemDefs are connected to valueLists
-    Object.keys(valueLists).forEach( valueListOid => {
+    Object.keys(valueLists).forEach(valueListOid => {
         let sources = [];
         let valueList = valueLists[valueListOid];
-        Object.keys(itemDefs).forEach( itemDefOid => {
+        Object.keys(itemDefs).forEach(itemDefOid => {
             if (itemDefs[itemDefOid].valueListOid === valueList.oid) {
                 sources.push(itemDefOid);
             }
@@ -92,9 +92,9 @@ function convertAttrsToLCC (obj) {
 
 // Get an array of IDs using a specific target ID;
 // Source is an object, with IDs as property names
-function getListOfSourceIds(source, targetName, targetId) {
+function getListOfSourceIds (source, targetName, targetId) {
     if (source !== undefined) {
-        return Object.keys(source).filter( oid => {
+        return Object.keys(source).filter(oid => {
             return source[oid][targetName] === targetId;
         });
     } else {
@@ -103,22 +103,21 @@ function getListOfSourceIds(source, targetName, targetId) {
 }
 
 // Get ItemGroupOids for where clauses
-function populateItemGroupOidInWhereClause(mdv) {
+function populateItemGroupOidInWhereClause (mdv) {
     Object.keys(mdv.whereClauses).forEach(whereClauseOid => {
         let wc = mdv.whereClauses[whereClauseOid];
         // Get source datasets for the WhereClause
         let sourceItemGroups = [];
-        wc.sources.valueLists.forEach( vlOid => {
-            mdv.valueLists[vlOid].sources.itemDefs.forEach( itemDefOid => {
-                mdv.itemDefs[itemDefOid].sources.itemGroups.forEach ( itemGroupOid => {
+        wc.sources.valueLists.forEach(vlOid => {
+            mdv.valueLists[vlOid].sources.itemDefs.forEach(itemDefOid => {
+                mdv.itemDefs[itemDefOid].sources.itemGroups.forEach(itemGroupOid => {
                     if (!sourceItemGroups.includes(itemGroupOid)) {
                         sourceItemGroups.push(itemGroupOid);
                     }
-
                 });
             });
         });
-        wc.rangeChecks.forEach( rangeCheck => {
+        wc.rangeChecks.forEach(rangeCheck => {
             if (rangeCheck.itemGroupOid === undefined && rangeCheck.itemOid !== undefined) {
                 // If itemOid has only 1 source dataset, use it
                 if (mdv.itemDefs.hasOwnProperty(rangeCheck.itemOid)) {
@@ -127,14 +126,22 @@ function populateItemGroupOidInWhereClause(mdv) {
                     } else {
                         // Check if the dataset(s) using the WC has the variable
                         let itemGroupOids = [];
-                        sourceItemGroups.forEach( itemGroupOid => {
+                        sourceItemGroups.forEach(itemGroupOid => {
                             if (mdv.itemDefs[rangeCheck.itemOid].sources.itemGroups.includes(itemGroupOid)) {
                                 itemGroupOids.push(itemGroupOid);
                             }
                         });
                         // If there is only one match, safely assume that it is the one to use
                         if (itemGroupOids.length === 1) {
-                            rangeCheck.itemGroup = itemGroupOids[0];
+                            rangeCheck.itemGroupOid = itemGroupOids[0];
+                        } else {
+                            // This is a really strange situation
+                            // Although it may look confusing it is not a mistake to take the first dataset, because it makes no difference
+                            if (itemGroupOids.length > 0) {
+                                rangeCheck.itemGroupOid = itemGroupOids[0];
+                            } else if (mdv.itemDefs[rangeCheck.itemOid].sources.itemGroups.length > 0) {
+                                rangeCheck.itemGroupOid = mdv.itemDefs[rangeCheck.itemOid].sources.itemGroups[0];
+                            }
                         }
                     }
                 }

@@ -32,7 +32,15 @@ import {
 // Parse functions
 function parseLeafs (leafsRaw, mdv) {
     let leafs = {};
+    // No leafs in the data
+    if (leafsRaw === undefined) {
+        return leafs;
+    }
     leafsRaw.forEach(function (leafRaw) {
+        // If it is a blank leaf, skip it
+        if (!leafRaw.hasOwnProperty('$')) {
+            return;
+        }
         // If the file has PDF extension, set the corresponding class
         let isPdf = false;
         if (/.pdf\s*$/i.test(leafRaw['$']['href'])) {

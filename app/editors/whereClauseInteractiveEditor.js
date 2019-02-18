@@ -33,29 +33,29 @@ import { WhereClause, RangeCheck } from 'core/defineStructure.js';
 
 const styles = theme => ({
     textField: {
-        whiteSpace : 'normal',
-        minWidth   : '120px',
+        whiteSpace: 'normal',
+        minWidth: '120px',
     },
     textFieldComparator: {
-        whiteSpace : 'normal',
-        minWidth   : '50px',
+        whiteSpace: 'normal',
+        minWidth: '50px',
     },
     textFieldValues: {
-        whiteSpace : 'normal',
-        minWidth   : '100px',
-        marginLeft : theme.spacing.unit,
+        whiteSpace: 'normal',
+        minWidth: '100px',
+        marginLeft: theme.spacing.unit,
     },
     valuesGridItem: {
-        maxWidth   : '60%',
-        marginLeft : theme.spacing.unit,
+        maxWidth: '60%',
+        marginLeft: theme.spacing.unit,
     },
     buttonLine: {
-        marginTop    : theme.spacing.unit * 2,
-        marginBottom : theme.spacing.unit * 2,
+        marginTop: theme.spacing.unit * 2,
+        marginBottom: theme.spacing.unit * 2,
     },
     andLine: {
-        marginLeft : theme.spacing.unit * 8,
-        marginTop  : theme.spacing.unit * 2,
+        marginLeft: theme.spacing.unit * 8,
+        marginTop: theme.spacing.unit * 2,
     },
     button: {
         marginLeft: theme.spacing.unit,
@@ -64,8 +64,8 @@ const styles = theme => ({
         marginTop: theme.spacing.unit * 4,
     },
     chips: {
-        display  : 'flex',
-        flexWrap : 'wrap',
+        display: 'flex',
+        flexWrap: 'wrap',
     },
     chip: {
         margin: theme.spacing.unit / 4,
@@ -86,14 +86,14 @@ class WhereClauseEditorInteractive extends React.Component {
         } else {
             whereClause = this.props.whereClause;
         }
-        whereClause.rangeChecks.forEach( rawRangeCheck => {
+        whereClause.rangeChecks.forEach(rawRangeCheck => {
             let rangeCheck = clone(rawRangeCheck);
             rangeCheck.itemName = mdv.itemDefs.hasOwnProperty(rawRangeCheck.itemOid) ? mdv.itemDefs[rawRangeCheck.itemOid].name : '';
             if (rawRangeCheck.itemGroupOid !== undefined && mdv.itemGroups.hasOwnProperty(rawRangeCheck.itemGroupOid)) {
                 rangeCheck.itemGroupName = mdv.itemGroups[rawRangeCheck.itemGroupOid].name;
             } else if (
-                (rawRangeCheck.itemGroupOid === undefined && rawRangeCheck.itemOid !== undefined)
-                || whereClauseIsNew
+                (rawRangeCheck.itemGroupOid === undefined && rawRangeCheck.itemOid !== undefined) ||
+                whereClauseIsNew
             ) {
                 rangeCheck.itemGroupName = this.props.dataset.name;
                 rangeCheck.itemGroupOid = this.props.dataset.oid;
@@ -102,71 +102,70 @@ class WhereClauseEditorInteractive extends React.Component {
         });
         // Get the list of datasets for drop-down selection
         let listOfDatasets = [];
-        Object.keys(mdv.itemGroups).forEach( itemGroupOid => {
+        Object.keys(mdv.itemGroups).forEach(itemGroupOid => {
             listOfDatasets.push(mdv.itemGroups[itemGroupOid].name);
         });
         // Get the list of varialbes for each dataset in range checks for drop-down selection
         let listOfVariables = {};
-        rangeChecks.forEach( rangeCheck => {
+        rangeChecks.forEach(rangeCheck => {
             let currentItemGroupOid = rangeCheck.itemGroupOid;
             if (currentItemGroupOid === undefined) {
                 return;
             }
             listOfVariables[currentItemGroupOid] = [];
-            Object.keys(mdv.itemGroups[currentItemGroupOid].itemRefs).forEach( itemRefOid => {
+            Object.keys(mdv.itemGroups[currentItemGroupOid].itemRefs).forEach(itemRefOid => {
                 listOfVariables[currentItemGroupOid].push(mdv.itemDefs[mdv.itemGroups[currentItemGroupOid].itemRefs[itemRefOid].itemOid].name);
             });
             listOfVariables[currentItemGroupOid].sort();
         });
         // Get codelist for all of the variables in range checks
         let listOfCodeValues = {};
-        rangeChecks.forEach( rangeCheck => {
+        rangeChecks.forEach(rangeCheck => {
             let currentItemOid = rangeCheck.itemOid;
             let currentCodeList;
             if (mdv.itemDefs.hasOwnProperty(currentItemOid) && mdv.codeLists.hasOwnProperty(mdv.itemDefs[currentItemOid].codeListOid)) {
-                currentCodeList =  mdv.codeLists[mdv.itemDefs[currentItemOid].codeListOid];
+                currentCodeList = mdv.codeLists[mdv.itemDefs[currentItemOid].codeListOid];
             }
             if (currentCodeList !== undefined && currentCodeList.codeListType !== 'external') {
                 listOfCodeValues[currentItemOid] = [];
                 let allCodeListValues = [];
                 if (currentCodeList.codeListType === 'decoded') {
-                    currentCodeList.itemOrder.forEach( oid => {
+                    currentCodeList.itemOrder.forEach(oid => {
                         let item = currentCodeList.codeListItems[oid];
                         allCodeListValues.push(item.codedValue);
-                        listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue + ' (' + getDecode(item) + ')'});
+                        listOfCodeValues[currentItemOid].push({ [item.codedValue]: item.codedValue + ' (' + getDecode(item) + ')' });
                     });
                 } else if (currentCodeList.codeListType === 'enumerated') {
-                    currentCodeList.itemOrder.forEach( oid => {
+                    currentCodeList.itemOrder.forEach(oid => {
                         let item = currentCodeList.enumeratedItems[oid];
                         allCodeListValues.push(item.codedValue);
-                        listOfCodeValues[currentItemOid].push({[item.codedValue]: item.codedValue});
+                        listOfCodeValues[currentItemOid].push({ [item.codedValue]: item.codedValue });
                     });
                 }
                 // If the current value(s) is not in the codelist, still add it into the list
-                rangeCheck.checkValues.forEach( value => {
+                rangeCheck.checkValues.forEach(value => {
                     if (!allCodeListValues.includes(value)) {
-                        listOfCodeValues[currentItemOid].push({[value]: value});
+                        listOfCodeValues[currentItemOid].push({ [value]: value });
                     }
                 });
-
             }
         });
 
         this.state = {
-            rangeChecks      : rangeChecks,
-            listOfDatasets   : listOfDatasets,
-            listOfVariables  : listOfVariables,
-            listOfCodeValues : listOfCodeValues,
+            rangeChecks: rangeChecks,
+            listOfDatasets: listOfDatasets,
+            listOfVariables: listOfVariables,
+            listOfCodeValues: listOfCodeValues,
         };
     }
 
     updateListOfVariables = (itemGroupOid) => {
         let mdv = this.props.mdv;
-        let result = Object.assign({},this.state.listOfVariables);
+        let result = Object.assign({}, this.state.listOfVariables);
         // Update the list only if the dataset is not yet present
         if (Object.keys(result).indexOf(itemGroupOid) < 0) {
             result[itemGroupOid] = [];
-            Object.keys(mdv.itemGroups[itemGroupOid].itemRefs).forEach( itemRefOid => {
+            Object.keys(mdv.itemGroups[itemGroupOid].itemRefs).forEach(itemRefOid => {
                 result[itemGroupOid].push(mdv.itemDefs[mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid].name);
             });
             result[itemGroupOid].sort();
@@ -175,21 +174,21 @@ class WhereClauseEditorInteractive extends React.Component {
     }
 
     updateListOfCodeValues = (itemOid) => {
-        let result = Object.assign({},this.state.listOfCodeValues);
+        let result = Object.assign({}, this.state.listOfCodeValues);
         // Update the list only if the codes are not yet present
         if (Object.keys(result).indexOf(itemOid) < 0) {
             let currentCodeList = this.props.mdv.codeLists[this.props.mdv.itemDefs[itemOid].codeListOid];
             if (currentCodeList !== undefined && currentCodeList.codeListType !== 'external') {
                 result[itemOid] = [];
                 if (currentCodeList.codeListType === 'decoded') {
-                    currentCodeList.itemOrder.forEach( oid => {
+                    currentCodeList.itemOrder.forEach(oid => {
                         let item = currentCodeList.codeListItems[oid];
-                        result[itemOid].push({[item.codedValue]: item.codedValue + ' (' + getDecode(item) + ')'});
+                        result[itemOid].push({ [item.codedValue]: item.codedValue + ' (' + getDecode(item) + ')' });
                     });
                 } else {
-                    currentCodeList.itemOrder.forEach( oid => {
+                    currentCodeList.itemOrder.forEach(oid => {
                         let item = currentCodeList.enumeratedItems[oid];
-                        result[itemOid].push({[item.codedValue]: item.codedValue});
+                        result[itemOid].push({ [item.codedValue]: item.codedValue });
                     });
                 }
             }
@@ -199,8 +198,8 @@ class WhereClauseEditorInteractive extends React.Component {
 
     handleChange = (name, index) => (updateObj) => {
         // Copy the whole object (checkValues array are not properly copied, but this is not important);
-        let result = this.state.rangeChecks.map( rangeCheck => {
-            return Object.assign({},rangeCheck);
+        let result = this.state.rangeChecks.map(rangeCheck => {
+            return Object.assign({}, rangeCheck);
         });
         if (name === 'itemGroup') {
             // Do nothing if name did not change
@@ -213,11 +212,11 @@ class WhereClauseEditorInteractive extends React.Component {
             let updatedListOfVariables = this.updateListOfVariables(result[index].itemGroupOid);
             result[index].itemName = undefined;
             // Use --TESTCD/PARAMCD if they are present
-            if ( updatedListOfVariables[result[index].itemGroupOid].includes('PARAMCD')) {
+            if (updatedListOfVariables[result[index].itemGroupOid].includes('PARAMCD')) {
                 result[index].itemName = 'PARAMCD';
             } else {
                 // Look for any --TESTCD
-                updatedListOfVariables[result[index].itemGroupOid].some( name => {
+                updatedListOfVariables[result[index].itemGroupOid].some(name => {
                     if (/^\w+TESTCD$/.test(name)) {
                         result[index].itemName = name;
                         return true;
@@ -231,9 +230,9 @@ class WhereClauseEditorInteractive extends React.Component {
             result[index].comparator = 'EQ';
             result[index].checkValues = [''];
             this.setState({
-                rangeChecks     : result,
-                listOfVariables : updatedListOfVariables,
-                listOfCodeValues : this.updateListOfCodeValues(result[index].itemOid)
+                rangeChecks: result,
+                listOfVariables: updatedListOfVariables,
+                listOfCodeValues: this.updateListOfCodeValues(result[index].itemOid)
             });
         } else if (name === 'item') {
             // Do nothing if name did not change
@@ -246,8 +245,8 @@ class WhereClauseEditorInteractive extends React.Component {
             result[index].comparator = 'EQ';
             result[index].checkValues = [''];
             this.setState({
-                rangeChecks      : result,
-                listOfCodeValues : this.updateListOfCodeValues(result[index].itemOid)
+                rangeChecks: result,
+                listOfCodeValues: this.updateListOfCodeValues(result[index].itemOid)
             });
         } else if (name === 'comparator') {
             if (result[index].comparator === updateObj.target.value) {
@@ -255,10 +254,8 @@ class WhereClauseEditorInteractive extends React.Component {
             }
             result[index].comparator = updateObj.target.value;
             // Reset check values if there are multiple values selected and changing from IN/NOT to a comparator with a single value
-            if (['NOTIN','IN'].indexOf(this.state.rangeChecks[index].comparator) >= 0
-                &&
-                ['NOTIN','IN'].indexOf(result[index].comparator) < 0
-                &&
+            if (['NOTIN', 'IN'].indexOf(this.state.rangeChecks[index].comparator) >= 0 &&
+                ['NOTIN', 'IN'].indexOf(result[index].comparator) < 0 &&
                 result[index].checkValues.length > 1
             ) {
                 result[index].checkValues = [''];
@@ -280,7 +277,7 @@ class WhereClauseEditorInteractive extends React.Component {
             // Split values into an array
             let checkValues = updateObj.target.value.split(',');
             // Remove leading and trailing blanks
-            result[index].checkValues = checkValues.map( value => (value.trim()) );
+            result[index].checkValues = checkValues.map(value => (value.trim()));
             this.setState({
                 rangeChecks: result,
             });
@@ -288,7 +285,7 @@ class WhereClauseEditorInteractive extends React.Component {
             let newIndex = result.length;
             result[newIndex] = {};
             result[newIndex].itemGroupName = this.props.dataset.name;
-            result[newIndex].itemGroupOid = getOidByName(this.props.mdv, 'itemGroups',result[newIndex].itemGroupName);
+            result[newIndex].itemGroupOid = getOidByName(this.props.mdv, 'itemGroups', result[newIndex].itemGroupName);
             // Reset all other values
             let updatedListOfVariables = this.updateListOfVariables(result[newIndex].itemGroupOid);
             // Use --TESTCD/PARAMCD if they are present
@@ -296,7 +293,7 @@ class WhereClauseEditorInteractive extends React.Component {
                 result[newIndex].itemName = 'PARAMCD';
             } else {
                 // Look for any --TESTCD
-                updatedListOfVariables[result[newIndex].itemGroupOid].some( name => {
+                updatedListOfVariables[result[newIndex].itemGroupOid].some(name => {
                     if (/^\w+TESTCD$/.test(name)) {
                         result[newIndex].itemName = name;
                         return true;
@@ -309,20 +306,20 @@ class WhereClauseEditorInteractive extends React.Component {
             result[newIndex].comparator = 'EQ';
             result[newIndex].checkValues = [''];
             if (result[newIndex].itemName !== undefined) {
-                result[newIndex].itemOid = getOidByName(this.props.mdv, 'itemDefs',result[newIndex].itemName);
+                result[newIndex].itemOid = getOidByName(this.props.mdv, 'itemDefs', result[newIndex].itemName);
                 this.setState({
-                    rangeChecks      : result,
-                    listOfVariables  : updatedListOfVariables,
-                    listOfCodeValues : this.updateListOfCodeValues(result[index].itemOid),
+                    rangeChecks: result,
+                    listOfVariables: updatedListOfVariables,
+                    listOfCodeValues: this.updateListOfCodeValues(result[newIndex].itemOid),
                 });
             } else {
                 this.setState({
-                    rangeChecks      : result,
-                    listOfVariables  : updatedListOfVariables,
+                    rangeChecks: result,
+                    listOfVariables: updatedListOfVariables,
                 });
             }
         } else if (name === 'deleteRangeCheck') {
-            result.splice(index,1);
+            result.splice(index, 1);
             this.setState({
                 rangeChecks: result,
             });
@@ -332,7 +329,7 @@ class WhereClauseEditorInteractive extends React.Component {
     changeEditingMode = () => {
         // Convert to real range checks
         let result = [];
-        this.state.rangeChecks.forEach( rangeCheck => {
+        this.state.rangeChecks.forEach(rangeCheck => {
             result.push({ ...new RangeCheck(rangeCheck) });
         });
         this.props.onChangeEditingMode(result);
@@ -341,7 +338,7 @@ class WhereClauseEditorInteractive extends React.Component {
     save = () => {
         // Convert to real range checks
         let result = [];
-        this.state.rangeChecks.forEach( rangeCheck => {
+        this.state.rangeChecks.forEach(rangeCheck => {
             result.push({ ...new RangeCheck(rangeCheck) });
         });
         this.props.onSave(result);
@@ -352,7 +349,7 @@ class WhereClauseEditorInteractive extends React.Component {
     }
 
     getRangeChecks = () => {
-        const {classes} = this.props;
+        const { classes } = this.props;
 
         let result = [(
             <Grid container spacing={8} key='buttonLine' alignItems='flex-end'>
@@ -361,7 +358,7 @@ class WhereClauseEditorInteractive extends React.Component {
                         color='default'
                         size='small'
                         variant='contained'
-                        onClick={this.handleChange('addRangeCheck',0)}
+                        onClick={this.handleChange('addRangeCheck', 0)}
                         className={classes.button}
                     >
                         Add condition
@@ -369,11 +366,11 @@ class WhereClauseEditorInteractive extends React.Component {
                 </Grid>
             </Grid>
         )];
-        this.state.rangeChecks.forEach( (rangeCheck, index) => {
+        this.state.rangeChecks.forEach((rangeCheck, index) => {
             const hasCodeList = this.state.listOfCodeValues[rangeCheck.itemOid] !== undefined;
-            const multipleValuesSelect = (['IN','NOTIN'].indexOf(rangeCheck.comparator) >= 0);
+            const multipleValuesSelect = (['IN', 'NOTIN'].indexOf(rangeCheck.comparator) >= 0);
             const multipleValuesType = multipleValuesSelect && !hasCodeList;
-            const valueSelect = hasCodeList && ['EQ','NE','IN','NOTIN'].indexOf(rangeCheck.comparator) >= 0;
+            const valueSelect = hasCodeList && ['EQ', 'NE', 'IN', 'NOTIN'].indexOf(rangeCheck.comparator) >= 0;
             let value;
             if (!multipleValuesType) {
                 value = multipleValuesSelect && valueSelect ? rangeCheck.checkValues : rangeCheck.checkValues[0];
@@ -393,7 +390,7 @@ class WhereClauseEditorInteractive extends React.Component {
                     <Grid item>
                         <IconButton
                             color='secondary'
-                            onClick={this.handleChange('deleteRangeCheck',index)}
+                            onClick={this.handleChange('deleteRangeCheck', index)}
                             className={classes.button}
                         >
                             <RemoveIcon />
@@ -405,7 +402,7 @@ class WhereClauseEditorInteractive extends React.Component {
                                     label='Dataset'
                                     fullWidth
                                     select={true}
-                                    value={rangeCheck.itemGroupName||''}
+                                    value={rangeCheck.itemGroupName || ''}
                                     onChange={this.handleChange('itemGroup', index)}
                                     className={classes.textField}
                                 >
@@ -419,13 +416,12 @@ class WhereClauseEditorInteractive extends React.Component {
                             fullWidth
                             autoFocus
                             select={true}
-                            value={rangeCheck.itemName||''}
+                            value={rangeCheck.itemName || ''}
                             onChange={this.handleChange('item', index)}
                             className={classes.textField}
                         >
                             {
-                                this.state.listOfVariables.hasOwnProperty(rangeCheck.itemGroupOid)
-                                &&
+                                this.state.listOfVariables.hasOwnProperty(rangeCheck.itemGroupOid) &&
                                 getSelectionList(this.state.listOfVariables[rangeCheck.itemGroupOid])
                             }
                         </TextField>
@@ -450,7 +446,7 @@ class WhereClauseEditorInteractive extends React.Component {
                                 fullWidth
                                 multiline
                                 value={value}
-                                SelectProps={{multiple: multipleValuesSelect}}
+                                SelectProps={{ multiple: multipleValuesSelect }}
                                 onChange={this.handleChange('checkValues', index)}
                                 className={classes.textFieldValues}
                             >
@@ -484,13 +480,12 @@ class WhereClauseEditorInteractive extends React.Component {
                     )}
                 </Grid>
             );
-
         });
         return result;
     }
 
-    render() {
-        const {classes} = this.props;
+    render () {
+        const { classes } = this.props;
 
         return (
             <Grid container spacing={16} alignItems='flex-end'>
@@ -527,16 +522,15 @@ class WhereClauseEditorInteractive extends React.Component {
 }
 
 WhereClauseEditorInteractive.propTypes = {
-    classes             : PropTypes.object.isRequired,
-    onSave              : PropTypes.func.isRequired,
-    onCancel            : PropTypes.func.isRequired,
-    whereClause         : PropTypes.object,
-    mdv                 : PropTypes.object.isRequired,
-    dataset             : PropTypes.object.isRequired,
-    onChangeEditingMode : PropTypes.func,
-    fixedDataset        : PropTypes.bool,
-    isRequired          : PropTypes.bool,
+    classes: PropTypes.object.isRequired,
+    onSave: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    whereClause: PropTypes.object,
+    mdv: PropTypes.object.isRequired,
+    dataset: PropTypes.object.isRequired,
+    onChangeEditingMode: PropTypes.func,
+    fixedDataset: PropTypes.bool,
+    isRequired: PropTypes.bool,
 };
 
 export default withStyles(styles)(WhereClauseEditorInteractive);
-

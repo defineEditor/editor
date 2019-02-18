@@ -17,6 +17,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import ModalDeleteStudy from 'components/modal/modalDeleteStudy.js';
 import ModalDeleteDefine from 'components/modal/modalDeleteDefine.js';
+import ModalDeleteCodeLists from 'components/modal/modalDeleteCodeLists.js';
 import ModalChangeDefine from 'components/modal/modalChangeDefine.js';
 import ModalQuitApplication from 'components/modal/modalQuitApplication.js';
 import ModalInitialMessage from 'components/modal/modalInitialMessage.js';
@@ -34,6 +35,7 @@ const mapStateToProps = state => {
 const MODAL_COMPONENTS = {
     'DELETE_STUDY': ModalDeleteStudy,
     'DELETE_DEFINE': ModalDeleteDefine,
+    'DELETE_CODELISTS': ModalDeleteCodeLists,
     'CHANGE_DEFINE': ModalChangeDefine,
     'INITIAL_MESSAGE': ModalInitialMessage,
     'POPULATE_STD_CODELISTS': ModalPopulateStdCodeLists,

@@ -14,6 +14,7 @@
 
 import React from 'react';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
+import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import Typography from '@material-ui/core/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -28,20 +29,35 @@ import { updateSettings } from 'actions/index.js';
 
 const mapStateToProps = state => {
     return {
-        showWarningSetting  : state.present.settings.editor.codeListTypeUpdateWarning,
-        codeLists           : state.present.odm.study.metaDataVersion.codeLists,
+        showWarningSetting: state.present.settings.popUp.onCodeListTypeUpdate,
+        codeLists: state.present.odm.study.metaDataVersion.codeLists,
     };
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        updateSettings : updateObj => dispatch(updateSettings(updateObj)),
+        updateSettings: updateObj => dispatch(updateSettings(updateObj)),
     };
 };
 
-class ConnectedCodeListTypeSelectEditor extends React.Component {
+const styles = theme => ({
+    dialog: {
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        position: 'absolute',
+        borderRadius: '10px',
+        top: '10%',
+        transform: 'translate(0%, calc(-50%+0.5px))',
+        overflowX: 'auto',
+        maxHeight: '85%',
+        width: '50%',
+        overflowY: 'auto',
+    },
+});
 
-    constructor(props) {
+class ConnectedCodeListTypeSelectEditor extends React.Component {
+    constructor (props) {
         super(props);
         this.state = {
             warningOpen: false,
@@ -54,24 +70,24 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
         if (this.props.showWarningSetting && ['decoded to enumerated', 'decoded to external', 'enumerated to external'].includes(this.props.defaultValue + ' to ' + newCodeListType)) {
             // dataLoss (true/false) shows if a codelist type change leads to loss of data
             let dataLoss;
-            switch(this.props.defaultValue + ' to ' + newCodeListType) {
+            switch (this.props.defaultValue + ' to ' + newCodeListType) {
                 case 'decoded to enumerated':
                     // dataLoss = true, if there is a non-empty element in 'Decode' column of the codelist
                     // dataLoss = false otherwise
-                    dataLoss = this.props.codeLists[this.props.row.oid].itemOrder.some( item =>
+                    dataLoss = this.props.codeLists[this.props.row.oid].itemOrder.some(item =>
                         new RegExp(/\S/g).test((this.props.codeLists[this.props.row.oid].codeListItems[item].decodes[0] || { value: '' }).value)
                     );
                     break;
                 case 'decoded to external':
                     // likewise dataLoss = true, if there is a non-empty element in 'Decode' OR 'Coded Value' columns of the codelist
-                    dataLoss = this.props.codeLists[this.props.row.oid].itemOrder.some( item =>
+                    dataLoss = this.props.codeLists[this.props.row.oid].itemOrder.some(item =>
                         new RegExp(/\S/g).test((this.props.codeLists[this.props.row.oid].codeListItems[item].decodes[0] || { value: '' }).value) ||
                         new RegExp(/\S/g).test(this.props.codeLists[this.props.row.oid].codeListItems[item].codedValue)
                     );
                     break;
                 case 'enumerated to external':
                     // likewise dataLoss = true, if there is a non-empty element in 'Coded Value' column of the codelist
-                    dataLoss = this.props.codeLists[this.props.row.oid].itemOrder.some( item =>
+                    dataLoss = this.props.codeLists[this.props.row.oid].itemOrder.some(item =>
                         new RegExp(/\S/g).test(this.props.codeLists[this.props.row.oid].enumeratedItems[item].codedValue)
                     );
                     break;
@@ -104,8 +120,8 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
         if (!this.state.warningShowAgain) {
             // if so, update the corresponding setting
             this.props.updateSettings({
-                editor: {
-                    codeListTypeUpdateWarning: false,
+                popUp: {
+                    onCodeListTypeUpdate: false,
                 },
             });
         }
@@ -127,16 +143,18 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
         });
     }
 
-    render() {
-        return(
+    render () {
+        const { classes } = this.props;
+        return (
             <div>
                 <Dialog
                     open={this.state.warningOpen}
                     onClose={this.dialogClose}
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description"
+                    PaperProps={{ className: classes.dialog }}
                 >
-                    <DialogTitle id="alert-dialog-title">{"Changing Codelist Type"}</DialogTitle>
+                    <DialogTitle id="alert-dialog-title">{'Changing Codelist Type'}</DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
                             If you change a codelist type from
@@ -165,7 +183,7 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
                         />
                         {!this.state.warningShowAgain &&
                             <Typography variant="body2" gutterBottom align="left" color='primary'>
-                                You can change this later in Settings under the Warnings section
+                                You can change this later in Settings under the Notifications section
                             </Typography>
                         }
                     </DialogContent>
@@ -190,4 +208,4 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
 }
 
 const CodeListTypeSelectEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodeListTypeSelectEditor);
-export default CodeListTypeSelectEditor;
+export default withStyles(styles)(CodeListTypeSelectEditor);
