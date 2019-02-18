@@ -19,12 +19,12 @@ import {
     appSave,
 } from 'actions/index.js';
 
-function saveDefineXml(odm, pathToFile) {
-    ipcRenderer.once('defineSaved', (event, defineId) => {store.dispatch(appSave({ defineId }));} );
+function saveDefineXml (odm, pathToFile) {
+    ipcRenderer.once('defineSaved', (event, defineId) => { store.dispatch(appSave({ defineId })); });
     ipcRenderer.send('saveDefine', { odm, pathToFile });
 }
 
-function saveState(type) {
+function saveState (type) {
     const eStore = new EStore({
         name: 'state',
     });
@@ -40,12 +40,12 @@ function saveState(type) {
                 let defineId = stateToSave.odm.defineId;
                 let pathToFile = stateToSave.defines.byId[defineId].pathToFile;
                 let odm = stateToSave.odm;
-                if (alwaysSaveDefineXml === true && pathToFile !== undefined) {
+                if (alwaysSaveDefineXml === true && pathToFile !== undefined && pathToFile !== '') {
                     ipcRenderer.once('writeDefineObjectFinished', (event) => {
                         saveDefineXml(odm, pathToFile);
                     });
                 } else {
-                    ipcRenderer.once('writeDefineObjectFinished', (event, defineId) => {store.dispatch(appSave({ defineId }));} );
+                    ipcRenderer.once('writeDefineObjectFinished', (event, defineId) => { store.dispatch(appSave({ defineId })); });
                 }
             }
             ipcRenderer.send('writeDefineObject',
@@ -56,7 +56,7 @@ function saveState(type) {
                     userName: stateToSave.settings.general.userName,
                     studyId: stateToSave.ui.main.currentStudyId,
                 },
-                type === 'backup' ? true : false
+                type === 'backup'
             );
         }
     }
