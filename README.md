@@ -1,33 +1,35 @@
 # Visual Define-XML Editor
 
-A cross-platform desktop application which allows to edit and review Define-XML 2.0 and ARM 1.0 files.
+A cross-platform desktop application which allows to edit and review files created using Define-XML 2.0 and ARM 1.0 CDISC standards.
 
 Visit [defineeditor.com](http://defineeditor.com) to learn more about the Editor.
 
 # Installation
 
-A compiled version of the application can be downloaded from [defineeditor.com](http://defineeditor.com/downloads).
+A compiled version of the application can be downloaded from the [site](http://defineeditor.com/downloads).
 
 # Support
 
 * [Github Issues](https://github.com/defineEditor/editor/issues)
 * [Telegram](https://t.me/defineeditor)
-* [the.old.way@defineeditor.com](the.old.way@defineeditor.com)
+* [support@defineeditor.com](support@defineeditor.com)
 
 # Building the application from source
 
 ### Prerequisites
 
+The following software is needed to compile the application:
+* Git
 * Node.js (v10+)
 * Yarn
 
 ### Installing
 
-Clone the repository
+Clone the repository:
 ```
 git clone https://github.com/defineEditor/editor.git
 ```
-Install all required dependencies
+Install all required dependencies:
 ```
 yarn install
 ```
@@ -42,15 +44,15 @@ yarn package-mac
 
 ## Running in development mode
 
-To run the application in the development mode use the following command:
+To run the application in a development mode use the following command:
 ```
 yarn dev
 ```
 
 ## Authors
 
-* **Dmitry Kolosov**
-* **Sergei Krivtcov**
+* [**Dmitry Kolosov**](https://www.linkedin.com/in/sergey-krivtsov-677419b4/)
+* [**Sergei Krivtcov**](https://www.linkedin.com/in/sergey-krivtsov-677419b4/)
 
 ## License
 
