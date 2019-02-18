@@ -28,7 +28,7 @@ import Typography from '@material-ui/core/Typography';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Button from '@material-ui/core/Button';
-import { getItemsWithAliasExtendedValue }  from 'utils/codeListUtils.js';
+import { getItemsWithAliasExtendedValue } from 'utils/codeListUtils.js';
 import InternalHelp from 'components/utils/internalHelp.js';
 import {
     updateCodeListsStandard,
@@ -38,17 +38,17 @@ import { CODELIST_POPULATESTD } from 'constants/help.js';
 
 const styles = theme => ({
     dialog: {
-        paddingLeft   : theme.spacing.unit * 2,
-        paddingRight  : theme.spacing.unit * 2,
-        paddingBottom : theme.spacing.unit * 1,
-        position      : 'absolute',
-        borderRadius  : '10px',
-        top           : '10%',
-        width         : '50%',
-        transform     : 'translate(0%, calc(-10%+0.5px))',
-        overflowX     : 'auto',
-        maxHeight     : '85%',
-        overflowY     : 'auto',
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        position: 'absolute',
+        borderRadius: '10px',
+        top: '10%',
+        width: '50%',
+        transform: 'translate(0%, calc(-10%+0.5px))',
+        overflowX: 'auto',
+        maxHeight: '85%',
+        overflowY: 'auto',
     },
     ignorePattern: {
         width: '40%',
@@ -62,24 +62,24 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        codeLists     : state.present.odm.study.metaDataVersion.codeLists,
-        stdCodeLists  : state.present.stdCodeLists,
+        codeLists: state.present.odm.study.metaDataVersion.codeLists,
+        stdCodeLists: state.present.stdCodeLists,
     };
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        updateCodeListsStandard : (updateObj) => dispatch(updateCodeListsStandard(updateObj)),
-        closeModal              : () => dispatch(closeModal()),
+        updateCodeListsStandard: (updateObj) => dispatch(updateCodeListsStandard(updateObj)),
+        closeModal: () => dispatch(closeModal()),
     };
 };
 
-const attachStdCodeListByCCode = ( { stdCodeLists, codeLists, options } = {} ) => {
+const attachStdCodeListByCCode = ({ stdCodeLists, codeLists, options } = {}) => {
     let stdCodeListInfo = {};
-    Object.values(codeLists).forEach( codeList => {
+    Object.values(codeLists).forEach(codeList => {
         if (codeList.standardOid === undefined) {
             if (codeList.alias !== undefined && codeList.alias.name !== undefined) {
-                Object.values(stdCodeLists).some( standard => {
+                Object.values(stdCodeLists).some(standard => {
                     let stdCodeListOid = standard.nciCodeOids[codeList.alias.name];
                     if (stdCodeListOid !== undefined) {
                         let stdCodeList = standard.codeLists[stdCodeListOid];
@@ -93,24 +93,24 @@ const attachStdCodeListByCCode = ( { stdCodeLists, codeLists, options } = {} ) =
     return stdCodeListInfo;
 };
 
-const attachStdCodeListByName = ( { stdCodeLists, codeLists, options } = {} ) => {
+const attachStdCodeListByName = ({ stdCodeLists, codeLists, options } = {}) => {
     let stdCodeListInfo = {};
     // Find all codelists using the removed CT
     // Get names of all the new/updated CT codelists
     // Get relationship between names and codeListOids
     let stdNames = {};
     let stdNameCodeListOids = {};
-    Object.values(stdCodeLists).forEach( standard => {
+    Object.values(stdCodeLists).forEach(standard => {
         stdNames[standard.oid] = [];
         stdNameCodeListOids[standard.oid] = {};
-        Object.values(standard.codeLists).forEach( codeList => {
+        Object.values(standard.codeLists).forEach(codeList => {
             let stdNameUpdated = codeList.name;
             // Update names if corresponding options were set
             if (options.ignoreRegex) {
-                stdNameUpdated = stdNameUpdated.replace(new RegExp(options.ignoreRegex),'');
+                stdNameUpdated = stdNameUpdated.replace(new RegExp(options.ignoreRegex), '');
             }
             if (options.ignoreWhitespaces) {
-                stdNameUpdated = stdNameUpdated.replace(/\s*/g,'');
+                stdNameUpdated = stdNameUpdated.replace(/\s*/g, '');
             }
             if (!options.matchCase) {
                 stdNameUpdated = stdNameUpdated.toLowerCase();
@@ -120,22 +120,22 @@ const attachStdCodeListByName = ( { stdCodeLists, codeLists, options } = {} ) =>
         });
     });
     // Check if newly added or updated CTs match any of the codelists
-    Object.values(codeLists).forEach( codeList => {
+    Object.values(codeLists).forEach(codeList => {
         let name = codeList.name;
         // Update names if corresponding options were set
         let nameUpdated = name;
         if (options.ignoreRegex) {
-            nameUpdated = nameUpdated.replace(new RegExp(options.ignoreRegex),'');
+            nameUpdated = nameUpdated.replace(new RegExp(options.ignoreRegex), '');
         }
         if (options.ignoreWhitespaces) {
-            nameUpdated = nameUpdated.replace(/\s*/g,'');
+            nameUpdated = nameUpdated.replace(/\s*/g, '');
         }
         if (!options.matchCase) {
             nameUpdated = nameUpdated.toLowerCase();
         }
         // Try to apply an std only if there is no std already or the std was removed/update
         if (codeList.standardOid === undefined) {
-            Object.keys(stdNames).some( standardOid => {
+            Object.keys(stdNames).some(standardOid => {
                 if (stdNames[standardOid].includes(name)) {
                     let stdCodeList = stdCodeLists[standardOid].codeLists[stdNameCodeListOids[standardOid][name]];
                     stdCodeListInfo[codeList.oid] = getStdCodeListInfo({ stdCodeList, codeList, standardOid, options });
@@ -175,8 +175,7 @@ const getStdCodeListInfo = ({ stdCodeList, codeList, standardOid, options }) => 
 };
 
 class ConnectedModalAttachStdCodelists extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             matchByName: true,
@@ -202,13 +201,13 @@ class ConnectedModalAttachStdCodelists extends React.Component {
             'updateCodeListName',
         ].includes(name)) {
             this.setState({ [name]: checked });
-        } else if ('matchByName' === name) {
+        } else if (name === 'matchByName') {
             this.setState({ [name]: checked, matchByValue: false, matchByCcode: false });
-        } else if ('matchByValue' === name) {
+        } else if (name === 'matchByValue') {
             this.setState({ [name]: checked, matchByName: false, matchByCcode: false });
-        } else if ('matchByCcode' === name) {
+        } else if (name === 'matchByCcode') {
             this.setState({ [name]: checked, matchByName: false, matchByValue: false });
-        } else if ('nameIgnoreRegex' === name) {
+        } else if (name === 'nameIgnoreRegex') {
             // If the name consists only of spaces, set it to blank
             // as it is hard to visually identify this. User can use \s to remove spaces
             if (/^\s+$/.test(event.target.value)) {
@@ -216,7 +215,6 @@ class ConnectedModalAttachStdCodelists extends React.Component {
             } else {
                 this.setState({ [name]: event.target.value });
             }
-
         }
     };
 
@@ -224,23 +222,23 @@ class ConnectedModalAttachStdCodelists extends React.Component {
         let updatedCodeListData = {};
         if (this.state.matchByName) {
             updatedCodeListData = attachStdCodeListByName({
-                stdCodeLists : this.props.stdCodeLists,
-                codeLists    : this.props.codeLists,
-                options      : { ...this.state },
+                stdCodeLists: this.props.stdCodeLists,
+                codeLists: this.props.codeLists,
+                options: { ...this.state },
             });
         } else if (this.state.matchByCcode) {
             updatedCodeListData = attachStdCodeListByCCode({
-                stdCodeLists : this.props.stdCodeLists,
-                codeLists    : this.props.codeLists,
-                options      : { ...this.state },
+                stdCodeLists: this.props.stdCodeLists,
+                codeLists: this.props.codeLists,
+                options: { ...this.state },
             });
         } else if (this.state.matchByValue) {
             // TODO
         }
+        this.props.closeModal();
         if (Object.keys(updatedCodeListData).length > 0) {
             this.props.updateCodeListsStandard(updatedCodeListData);
         }
-        this.props.closeModal();
     }
 
     onCancel = () => {
@@ -250,7 +248,7 @@ class ConnectedModalAttachStdCodelists extends React.Component {
     attachStandardCodeList = () => {
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.onCancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -264,8 +262,8 @@ class ConnectedModalAttachStdCodelists extends React.Component {
         let regexIsInvalid = false;
         if (this.state.nameIgnoreRegex !== '') {
             try {
-                new RegExp(this.state.nameIgnoreRegex);
-            } catch(e) {
+                RegExp(this.state.nameIgnoreRegex);
+            } catch (e) {
                 regexIsInvalid = true;
             }
         }
@@ -277,7 +275,7 @@ class ConnectedModalAttachStdCodelists extends React.Component {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
                 open
-                PaperProps={{className: classes.dialog}}
+                PaperProps={{ className: classes.dialog }}
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >
@@ -310,7 +308,7 @@ class ConnectedModalAttachStdCodelists extends React.Component {
                                         />
                                         { this.state.matchByName &&
                                                 [
-                                                    ( <TextField
+                                                    (<TextField
                                                         label='Exclude pattern'
                                                         value={this.state.nameIgnoreRegex}
                                                         onChange={this.handleChange('nameIgnoreRegex')}
@@ -319,7 +317,7 @@ class ConnectedModalAttachStdCodelists extends React.Component {
                                                         helperText='By default text in the last parentheses is ignored.'
                                                         key='nameIgnoreRegex'
                                                     />
-                                                    ),( <FormControlLabel
+                                                    ), (<FormControlLabel
                                                         control={
                                                             <Checkbox
                                                                 checked={this.state.nameMatchCase}
@@ -332,7 +330,7 @@ class ConnectedModalAttachStdCodelists extends React.Component {
                                                         key='nameMatchCase'
                                                         className={classes.checkBox}
                                                     />
-                                                    ),( <FormControlLabel
+                                                    ), (<FormControlLabel
                                                         control={
                                                             <Checkbox
                                                                 checked={this.state.nameIgnoreWhitespaces}

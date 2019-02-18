@@ -14,15 +14,14 @@
 
 import { getWhereClauseAsText, getDescription } from 'utils/defineStructureUtils.js';
 
-const getSourceLabels = (sources, mdv) => {
+const getSourceLabels = (sources, mdv, displayGroupName = true, displayThisManySources = 0) => {
     let result = {};
     for (let source in sources) {
         if ((mdv.hasOwnProperty(source) || source === 'analysisResults') && sources[source].length > 0) {
             result[source] = [];
             sources[source].forEach(oid => {
                 // In case the Define-XML contains broken source link, do nothing
-                if ((source === 'analysisResults' && !mdv.analysisResultDisplays[source].hasOwnProperty(oid))
-                    ||
+                if ((source === 'analysisResults' && !mdv.analysisResultDisplays[source].hasOwnProperty(oid)) ||
                     (source !== 'analysisResults' && !mdv[source].hasOwnProperty(oid))
                 ) {
                     return;
@@ -31,21 +30,21 @@ const getSourceLabels = (sources, mdv) => {
                 if (source === 'itemDefs' && mdv[source][oid].parentItemDefOid !== undefined) {
                     // Value level case;
                     let parentItemDefOid = mdv[source][oid].parentItemDefOid;
-                    mdv[source][parentItemDefOid].sources.itemGroups.forEach( itemGroupOid => {
-                        result[source].push(mdv.itemGroups[itemGroupOid].name + '.' +  mdv[source][parentItemDefOid].name + '.' + mdv[source][oid].name);
+                    mdv[source][parentItemDefOid].sources.itemGroups.forEach(itemGroupOid => {
+                        result[source].push(mdv.itemGroups[itemGroupOid].name + '.' + mdv[source][parentItemDefOid].name + '.' + mdv[source][oid].name);
                     });
                 } else if (source === 'itemDefs') {
                     // For itemDefs also get a dataset name
-                    mdv[source][oid].sources.itemGroups.forEach( itemGroupOid => {
-                        result[source].push(mdv.itemGroups[itemGroupOid].name + '.' +  mdv[source][oid].name);
+                    mdv[source][oid].sources.itemGroups.forEach(itemGroupOid => {
+                        result[source].push(mdv.itemGroups[itemGroupOid].name + '.' + mdv[source][oid].name);
                     });
                 } else if (source === 'whereClauses') {
-                    result[source].push(getWhereClauseAsText(mdv[source][oid],mdv));
+                    result[source].push(getWhereClauseAsText(mdv[source][oid], mdv));
                 } else if (source === 'analysisResults') {
-                    if (mdv.hasOwnProperty('analysisResultDisplays')
-                        && mdv.analysisResultDisplays.hasOwnProperty('analysisResults')
-                        && mdv.analysisResultDisplays.analysisResults.hasOwnProperty(oid)
-                    ){
+                    if (mdv.hasOwnProperty('analysisResultDisplays') &&
+                        mdv.analysisResultDisplays.hasOwnProperty('analysisResults') &&
+                        mdv.analysisResultDisplays.analysisResults.hasOwnProperty(oid)
+                    ) {
                         result[source].push(getDescription(mdv.analysisResultDisplays[source][oid]));
                     }
                 } else {
@@ -59,15 +58,38 @@ const getSourceLabels = (sources, mdv) => {
     let count = 0;
     for (let group in result) {
         if (result.hasOwnProperty(group)) {
-            if (group === 'itemDefs') {
-                labelParts.push('Variables: ' + result[group].join(', '));
-            } else if (group === 'itemGroups') {
-                labelParts.push('Datasets: ' + result[group].join(', '));
-            } else if (group === 'whereClauses') {
-                labelParts.push('Where Clauses:\n' + result[group].join(',\n'));
-            } else if (group === 'analysisResults') {
-                labelParts.push('Analysis Results: ' + result[group].join(', '));
+            // set group name if required
+            let groupName;
+            if (displayGroupName) {
+                if (group === 'itemDefs') {
+                    groupName = 'Variables: ';
+                } else if (group === 'itemGroups') {
+                    groupName = 'Datasets: ';
+                } else if (group === 'whereClauses') {
+                    groupName = 'Where Clauses:\n';
+                } else if (group === 'analysisResults') {
+                    groupName = 'Analysis Results: ';
+                }
+            } else {
+                groupName = '';
             }
+            // set group content separator
+            let groupContentSeparator;
+            if (group === 'whereClauses') {
+                groupContentSeparator = ',\n';
+            } else {
+                groupContentSeparator = ', ';
+            }
+            // set group Content
+            let groupContent;
+            if (displayThisManySources === 0) {
+                groupContent = result[group].join(groupContentSeparator);
+            } else {
+                groupContent = result[group].slice(0, displayThisManySources).join(groupContentSeparator) +
+                    (result[group].length > displayThisManySources ? (' and ' + (result[group].length - displayThisManySources) + ' more') : (''));
+            }
+            // write the result
+            labelParts.push(groupName + groupContent);
             count += result[group].length;
         }
     }
