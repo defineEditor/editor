@@ -41,26 +41,40 @@ const styles = theme => ({
 });
 
 class AddDefineFormStep1 extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.state = {
-            defineCreationMethod : this.props.defineCreationMethod,
-            defineData           : this.props.defineData,
-            pathToDefineXml      : this.props.pathToDefineXml,
-            parsingErrors        : [],
+            defineCreationMethod: this.props.defineCreationMethod,
+            defineData: this.props.defineData,
+            pathToDefineXml: this.props.pathToDefineXml,
+            parsingErrors: [],
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         ipcRenderer.on('define', this.loadDefine);
+        ipcRenderer.on('defineReadError', this.updateError);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         ipcRenderer.removeListener('define', this.loadDefine);
+        ipcRenderer.removeListener('defineReadError', this.updateError);
+    }
+
+    updateError = (error, errorText) => {
+        if (error) {
+            // Do nothing
+        }
+        if (errorText !== undefined && typeof errorText === 'string') {
+            this.setState({ parsingErrors: [errorText] });
+        }
     }
 
     loadDefine = (error, data, pathToDefineXml) => {
+        if (error) {
+            // Do nothing
+        }
         try {
             let defineData = parseDefine(data);
             let checkResult = checkDefineXml(defineData);
@@ -70,10 +84,9 @@ class AddDefineFormStep1 extends React.Component {
                 this.setState({ parsingErrors: checkResult });
                 throw new Error(checkResult);
             }
-        }
-        catch (error) {
-            if (this.state.parsingErrors.length === 0 ) {
-                this.setState( { parsingErrors: [error.message] } );
+        } catch (error) {
+            if (this.state.parsingErrors.length === 0) {
+                this.setState({ parsingErrors: [error.message] });
             }
             throw new Error('Could not process the Define-XML file. Verify a valid Define-XML file is selected. ' + error.message);
         }
@@ -88,10 +101,12 @@ class AddDefineFormStep1 extends React.Component {
     }
 
     openDefineXml = () => {
+        // Reset errors
+        this.setState({ parsingErrors: [], defineData: null });
         ipcRenderer.send('openDefineXml', 'Open Define-XML');
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
 
         return (
@@ -111,9 +126,13 @@ class AddDefineFormStep1 extends React.Component {
                         { this.state.defineCreationMethod === 'import' && (
                             <React.Fragment>
                                 <Grid container spacing={8} justify='flex-start' alignItems='center'>
+                                    <Typography variant='body1' color='primary'>
+                                        It is important to verify that the imported Define-XML file does not have any structural (technical) issues.
+                                        Otherwise it might result in application issues and you might not be able to save the changes done in the editor.
+                                    </Typography>
                                     <Grid item>
                                         { this.state.defineData === null ? (
-                                            <Typography variant="body1">
+                                            <Typography variant='body1'>
                                                 Select Define-XML
                                             </Typography>
                                         ) : (
@@ -140,7 +159,7 @@ class AddDefineFormStep1 extends React.Component {
                                     <Typography variant="caption" color='secondary'>
                                         Import Failed. Verify a valid Define-XML is imported.
                                         <br/>
-                                        {this.state.parsingErrors.map( (error, index) => (
+                                        {this.state.parsingErrors.map((error, index) => (
                                             <div key={index}>
                                                 {error}
                                                 <br/>
@@ -183,11 +202,11 @@ class AddDefineFormStep1 extends React.Component {
 }
 
 AddDefineFormStep1.propTypes = {
-    classes              : PropTypes.object.isRequired,
-    defineCreationMethod : PropTypes.string.isRequired,
-    defineData           : PropTypes.object,
-    onNext               : PropTypes.func.isRequired,
-    onCancel             : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    defineCreationMethod: PropTypes.string.isRequired,
+    defineData: PropTypes.object,
+    onNext: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(AddDefineFormStep1);

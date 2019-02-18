@@ -24,6 +24,12 @@ export const addDocument = (object, document) => {
     }
 };
 
+export const deleteDocument = (object, leafIdToDelete) => {
+    if (object.hasOwnProperty('documents')) {
+        object.documents = object.documents.filter( doc => doc.leafId !== leafIdToDelete );
+    }
+};
+
 export const getDescription = (object, language) => {
     if (object.descriptions.length === 1) {
         return object.descriptions[0].value;

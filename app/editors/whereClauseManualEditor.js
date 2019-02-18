@@ -36,33 +36,33 @@ const styles = theme => ({
 });
 
 let wcRegex = {
-    variable                : new RegExp('(?:\\w+\\.)?\\w+'),
-    variableParse           : new RegExp('((?:\\w+\\.)?\\w+)'),
-    datasetVariableParse    : new RegExp('(\\w+)\\.(\\w+)'),
-    item                    : new RegExp('\\s*(?:["][^"]+["]|[\'][^\']+[\']|[^\'",][^,\\s]*)\\s*'),
-    itemParse               : new RegExp('\\s*(["][^"]+["]|[\'][^\']+[\']|[^\',"][^,\\s]*)\\s*'),
-    comparatorSingle        : new RegExp('(?:eq|ne|lt|gt|ge)'),
-    comparatorSingleParse   : new RegExp('(eq|ne|lt|gt|ge)'),
-    comparatorMultiple      : new RegExp('(?:in|notin)'),
-    comparatorMultipleParse : new RegExp('(in|notin)'),
+    variable: new RegExp('(?:\\w+\\.)?\\w+'),
+    variableParse: new RegExp('((?:\\w+\\.)?\\w+)'),
+    datasetVariableParse: new RegExp('(\\w+)\\.(\\w+)'),
+    item: new RegExp('\\s*(?:["][^"]*["]|[\'][^\']*[\']|[^\'",][^,\\s]*)\\s*'),
+    itemParse: new RegExp('\\s*(["][^"]*["]|[\'][^\']*[\']|[^\',"][^,\\s]*)\\s*'),
+    comparatorSingle: new RegExp('(?:eq|ne|lt|gt|ge)'),
+    comparatorSingleParse: new RegExp('(eq|ne|lt|gt|ge)'),
+    comparatorMultiple: new RegExp('(?:in|notin)'),
+    comparatorMultipleParse: new RegExp('(in|notin)'),
 };
 
 wcRegex.rangeCheck = new RegExp(
-    wcRegex.variable.source + '\\s+(?:'
-    + wcRegex.comparatorSingle.source + '\\s+' + wcRegex.item.source
-    + '|' + wcRegex.comparatorMultiple.source + '\\s+\\('
-    + wcRegex.item.source + '(?:,' + wcRegex.item.source + ')*\\))'
-    ,'i'
+    wcRegex.variable.source + '\\s+(?:' +
+    wcRegex.comparatorSingle.source + '\\s+' + wcRegex.item.source +
+    '|' + wcRegex.comparatorMultiple.source + '\\s+\\(' +
+    wcRegex.item.source + '(?:,' + wcRegex.item.source + ')*\\))'
+    , 'i'
 );
 
-wcRegex.rangeCheckExtract = new RegExp('(' + wcRegex.rangeCheck.source + ')' ,'i');
+wcRegex.rangeCheckExtract = new RegExp('(' + wcRegex.rangeCheck.source + ')', 'i');
 
 wcRegex.rangeCheckParse = new RegExp(
-    wcRegex.variableParse.source + '\\s+(?:'
-    + wcRegex.comparatorSingleParse.source + '\\s+' + wcRegex.itemParse.source
-    + '|' + wcRegex.comparatorMultipleParse.source + '\\s+\\(('
-    + wcRegex.item.source + '(?:,' + wcRegex.item.source + ')*)\\))'
-    ,'i'
+    wcRegex.variableParse.source + '\\s+(?:' +
+    wcRegex.comparatorSingleParse.source + '\\s+' + wcRegex.itemParse.source +
+    '|' + wcRegex.comparatorMultipleParse.source + '\\s+\\((' +
+    wcRegex.item.source + '(?:,' + wcRegex.item.source + ')*)\\))'
+    , 'i'
 );
 
 wcRegex.whereClause = new RegExp(
@@ -90,7 +90,7 @@ const validateWhereClauseLine = (rawWhereClauseLine, mdv, datasetOid, fixedDatas
     if (rawWhereClause.length >= 3) {
         let rawRanges = whereClauseLine;
         let rawRangeCheck = wcRegex.rangeCheckExtract.exec(rawRanges);
-        let nextRangeCheckRegex = new RegExp(wcRegex.rangeCheck.source + '(?:AND)?(.*)$','i');
+        let nextRangeCheckRegex = new RegExp(wcRegex.rangeCheck.source + '(?:AND)?(.*)$', 'i');
         while (rawRangeCheck !== null) {
             rawRangeChecks.push(rawRangeCheck[1]);
             rawRanges = rawRanges.replace(nextRangeCheckRegex, '$1');
@@ -101,7 +101,7 @@ const validateWhereClauseLine = (rawWhereClauseLine, mdv, datasetOid, fixedDatas
         rawRangeChecks.push(rawWhereClause[1]);
     }
     // Extract variable names
-    rawRangeChecks.forEach( (rawRangeCheck, index) => {
+    rawRangeChecks.forEach((rawRangeCheck, index) => {
         // Default to failed
         result[index] = false;
         let rangeCheckElements = wcRegex.rangeCheckParse.exec(rawRangeCheck).slice(1);
@@ -110,13 +110,13 @@ const validateWhereClauseLine = (rawWhereClauseLine, mdv, datasetOid, fixedDatas
         let itemOid, itemGroupOid;
         if (/\./.test(rangeCheckElements[0])) {
             // If variable part contains dataset name;
-            itemGroupOid = getOidByName(mdv, 'itemGroups',rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$1'));
+            itemGroupOid = getOidByName(mdv, 'itemGroups', rangeCheckElements[0].replace(wcRegex.datasetVariableParse, '$1'));
             if (itemGroupOid !== undefined) {
                 if (fixedDataset === true && itemGroupOid !== datasetOid) {
                     // If dataset needs to be fixed, fail the validation if any other dataset is used
                     return false;
                 }
-                itemOid = getOidByName(mdv, 'ItemRefs', rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$2'), itemGroupOid);
+                itemOid = getOidByName(mdv, 'ItemRefs', rangeCheckElements[0].replace(wcRegex.datasetVariableParse, '$2'), itemGroupOid);
             }
         } else {
             // If variable part does not contain dataset name, use the current dataset;
@@ -130,7 +130,7 @@ const validateWhereClauseLine = (rawWhereClauseLine, mdv, datasetOid, fixedDatas
         }
     });
     // Return true only if all results are true;
-    return result.reduce((acc, value) => acc && value,true);
+    return result.reduce((acc, value) => acc && value, true);
 };
 
 const convertWhereClauseLineToRangeChecks = (whereClauseLine, mdv, datasetOid) => {
@@ -138,7 +138,7 @@ const convertWhereClauseLineToRangeChecks = (whereClauseLine, mdv, datasetOid) =
         return [];
     }
     // Remove all new line characters
-    whereClauseLine = whereClauseLine.replace(/[\r\n\t]/g,' ');
+    whereClauseLine = whereClauseLine.replace(/[\r\n\t]/g, ' ');
     // Extract raw range checks
     let rawWhereClause = wcRegex.whereClause.exec(whereClauseLine);
     // Remove all undefined range checks (coming from (AND condition) part)
@@ -148,7 +148,7 @@ const convertWhereClauseLineToRangeChecks = (whereClauseLine, mdv, datasetOid) =
     if (rawWhereClause.length >= 3) {
         let rawRanges = whereClauseLine;
         let rawRangeCheck = wcRegex.rangeCheckExtract.exec(rawRanges);
-        let nextRangeCheckRegex = new RegExp(wcRegex.rangeCheck.source + '(?:AND)?(.*)$','i');
+        let nextRangeCheckRegex = new RegExp(wcRegex.rangeCheck.source + '(?:AND)?(.*)$', 'i');
         while (rawRangeCheck !== null) {
             rawRangeChecks.push(rawRangeCheck[1]);
             rawRanges = rawRanges.replace(nextRangeCheckRegex, '$1');
@@ -160,16 +160,16 @@ const convertWhereClauseLineToRangeChecks = (whereClauseLine, mdv, datasetOid) =
     }
     // Parse each range check;
     let rangeChecks = [];
-    rawRangeChecks.forEach( rawRangeCheck => {
+    rawRangeChecks.forEach(rawRangeCheck => {
         let rangeCheckElements = wcRegex.rangeCheckParse.exec(rawRangeCheck).slice(1);
         // Remove all undefined elements (come from the (in|notin) vs (eq,ne,...) fork)
         rangeCheckElements = rangeCheckElements.filter(element => element !== undefined);
         let itemOid, itemGroupOid;
         if (/\./.test(rangeCheckElements[0])) {
             // If variable part contains dataset name;
-            itemGroupOid = getOidByName(mdv, 'itemGroups',rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$1'));
+            itemGroupOid = getOidByName(mdv, 'itemGroups', rangeCheckElements[0].replace(wcRegex.datasetVariableParse, '$1'));
             if (itemGroupOid !== undefined) {
-                itemOid = getOidByName(mdv, 'ItemRefs', rangeCheckElements[0].replace(wcRegex.datasetVariableParse,'$2'), itemGroupOid);
+                itemOid = getOidByName(mdv, 'ItemRefs', rangeCheckElements[0].replace(wcRegex.datasetVariableParse, '$2'), itemGroupOid);
             }
         } else {
             // If variable part does not contain dataset name, use the current dataset;
@@ -181,7 +181,7 @@ const convertWhereClauseLineToRangeChecks = (whereClauseLine, mdv, datasetOid) =
         let comparator = rangeCheckElements[1].toUpperCase();
         // Parse Check values
         let checkValues = [];
-        if (['IN','NOTIN'].indexOf(comparator) >= 0) {
+        if (['IN', 'NOTIN'].indexOf(comparator) >= 0) {
             let rawCheckValues = rangeCheckElements[2].trim();
             // Extract values one by one when comparator is IN or NOT IN
             let value = wcRegex.itemParse.exec(rawCheckValues);
@@ -197,25 +197,25 @@ const convertWhereClauseLineToRangeChecks = (whereClauseLine, mdv, datasetOid) =
         }
 
         // Remove surrounding quotes
-        checkValues = checkValues.map( checkValue => {
-            if ( /^(["']).*\1$/.test(checkValue) ) {
-                return checkValue.replace(/^(.)(.*)\1$/,'$2');
+        checkValues = checkValues.map(checkValue => {
+            if (/^(["']).*\1$/.test(checkValue)) {
+                return checkValue.replace(/^(.)(.*)\1$/, '$2');
             } else {
                 return checkValue;
             }
         });
         rangeChecks.push({ ...new RangeCheck({
-            comparator   : comparator,
-            itemOid      : itemOid,
-            itemGroupOid : itemGroupOid,
-            checkValues  : checkValues
+            comparator: comparator,
+            itemOid: itemOid,
+            itemGroupOid: itemGroupOid,
+            checkValues: checkValues
         }) });
     });
     return rangeChecks;
 };
 
 class WhereClauseManualEditor extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         let whereClauseLine;
         if (props.whereClause === undefined) {
@@ -253,7 +253,7 @@ class WhereClauseManualEditor extends React.Component {
         this.props.onCancel();
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
         let wcIsInvalid = !validateWhereClauseLine(
             this.state.whereClauseLine,
@@ -308,13 +308,13 @@ class WhereClauseManualEditor extends React.Component {
 }
 
 WhereClauseManualEditor.propTypes = {
-    classes             : PropTypes.object.isRequired,
-    dataset             : PropTypes.object.isRequired,
-    whereClause         : PropTypes.object,
-    onChangeEditingMode : PropTypes.func,
-    mdv                 : PropTypes.object,
-    fixedDataset        : PropTypes.bool,
-    isRequired          : PropTypes.bool,
+    classes: PropTypes.object.isRequired,
+    dataset: PropTypes.object.isRequired,
+    whereClause: PropTypes.object,
+    onChangeEditingMode: PropTypes.func,
+    mdv: PropTypes.object,
+    fixedDataset: PropTypes.bool,
+    isRequired: PropTypes.bool,
 };
 
 export default withStyles(styles)(WhereClauseManualEditor);

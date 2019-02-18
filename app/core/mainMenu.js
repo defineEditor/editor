@@ -30,6 +30,7 @@ import Settings from '@material-ui/icons/Settings';
 import Save from '@material-ui/icons/Save';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import History from '@material-ui/icons/History';
+import Info from '@material-ui/icons/Info';
 import Print from '@material-ui/icons/Print';
 import Search from '@material-ui/icons/Search';
 import Review from '@material-ui/icons/RemoveRedEye';
@@ -53,14 +54,14 @@ const styles = theme => ({
         zIndex: 9001,
     },
     drawerHeader: {
-        display         : 'flex',
-        alignItems      : 'center',
-        justifyContent  : 'flex-end',
-        padding         : '0 8px',
-        backgroundColor : theme.palette.primary.main,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        padding: '0 8px',
+        backgroundColor: theme.palette.primary.main,
     },
     reviewModeSwitch: {
-        margin     : 'none',
+        margin: 'none',
     },
 });
 
@@ -76,31 +77,30 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        toggleMainMenu : () => dispatch(toggleMainMenu()),
-        changePage : (updateObj) => dispatch(changePage(updateObj)),
-        updateMainUi : (updateObj) => dispatch(updateMainUi(updateObj)),
-        toggleReviewMode : (updateObj) => dispatch(toggleReviewMode(updateObj)),
+        toggleMainMenu: () => dispatch(toggleMainMenu()),
+        changePage: (updateObj) => dispatch(changePage(updateObj)),
+        updateMainUi: (updateObj) => dispatch(updateMainUi(updateObj)),
+        toggleReviewMode: (updateObj) => dispatch(toggleReviewMode(updateObj)),
     };
 };
 
 class ConnectedMainMenu extends React.Component {
-
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.ctrlKey && (event.keyCode === 77)) {
             this.props.toggleMainMenu();
         }
     }
 
     print = () => {
-        remote.getCurrentWindow().webContents.executeJavaScript("window.print()");
+        remote.getCurrentWindow().webContents.executeJavaScript('window.print()');
     }
 
     save = (noToggle) => {
@@ -110,7 +110,7 @@ class ConnectedMainMenu extends React.Component {
         }
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
         return (
             <Drawer open={this.props.mainMenuOpened} onClose={this.props.toggleMainMenu} className={classes.drawer}>
@@ -152,12 +152,12 @@ class ConnectedMainMenu extends React.Component {
                             </ListItem>
                             <ListItem button key='about' onClick={() => this.props.changePage({ page: 'about' })}>
                                 <ListItemIcon>
-                                    <Settings/>
+                                    <Info/>
                                 </ListItemIcon>
                                 <ListItemText primary='About'/>
                             </ListItem>
                             <Divider/>
-                            <ListItem button key='search' onClick={() => {this.props.toggleMainMenu(); this.props.onToggleFindInPage(300);}}>
+                            <ListItem button key='search' onClick={() => { this.props.toggleMainMenu(); this.props.onToggleFindInPage(300); }}>
                                 <ListItemIcon>
                                     <Search/>
                                 </ListItemIcon>
@@ -165,49 +165,49 @@ class ConnectedMainMenu extends React.Component {
                             </ListItem>
                             { this.props.currentPage === 'editor' && ([
                                 (
-                                    <ListItem button key='redoundo' onClick={() => {this.props.toggleMainMenu(); this.props.onToggleRedoUndo(); }}>
+                                    <ListItem button key='redoundo' onClick={() => { this.props.toggleMainMenu(); this.props.onToggleRedoUndo(); }}>
                                         <ListItemIcon>
                                             <History/>
                                         </ListItemIcon>
                                         <ListItemText primary='History'/>
                                     </ListItem>
-                                ) , (
+                                ), (
                                     <ListItem button key='save' onClick={this.save}>
                                         <ListItemIcon>
                                             <Save/>
                                         </ListItemIcon>
                                         <ListItemText primary='Save'/>
                                     </ListItem>
-                                ) , (
-                                    <ListItem button key='saveAs' onClick={() => {sendDefineObject(); this.props.toggleMainMenu();}}>
+                                ), (
+                                    <ListItem button key='saveAs' onClick={() => { sendDefineObject(); this.props.toggleMainMenu(); }}>
                                         <ListItemIcon>
                                             <SaveAlt/>
                                         </ListItemIcon>
                                         <ListItemText primary='Save As'/>
                                     </ListItem>
-                                ) , (
-                                    <ListItem button key='print' onClick={() => {this.print(); this.props.toggleMainMenu();}}>
+                                ), (
+                                    <ListItem button key='print' onClick={() => { this.print(); this.props.toggleMainMenu(); }}>
                                         <ListItemIcon>
                                             <Print/>
                                         </ListItemIcon>
                                         <ListItemText primary='Print'/>
                                     </ListItem>
-                                ) , (
-                                    <ListItem button key='dataInput' onClick={() => {this.props.updateMainUi({showDataInput: true}); this.props.toggleMainMenu();}}>
+                                ), (
+                                    <ListItem button key='dataInput' onClick={() => { this.props.updateMainUi({ showDataInput: true }); this.props.toggleMainMenu(); }}>
                                         <ListItemIcon>
                                             <Archive/>
                                         </ListItemIcon>
                                         <ListItemText primary='Import Length'/>
                                     </ListItem>
-                                ) , (
-                                    <ListItem button key='commentMethod' onClick={() => {this.props.updateMainUi({showCommentMethodTable: true}); this.props.toggleMainMenu();}}>
+                                ), (
+                                    <ListItem button key='commentMethod' onClick={() => { this.props.updateMainUi({ showCommentMethodTable: true }); this.props.toggleMainMenu(); }}>
                                         <ListItemIcon>
                                             <Description/>
                                         </ListItemIcon>
                                         <ListItemText primary='Comments/Methods'/>
                                     </ListItem>
-                                ) , (
-                                    <ListItem button key='reviewModeToggle' onClick={() => {this.props.toggleReviewMode();}}>
+                                ), (
+                                    <ListItem button key='reviewModeToggle' onClick={() => { this.props.toggleReviewMode(); }}>
                                         <ListItemIcon>
                                             { this.props.reviewMode === true ? (
                                                 <Review/>
@@ -223,14 +223,14 @@ class ConnectedMainMenu extends React.Component {
                                                     className={classes.reviewModeSwitch}
                                                     key='switch'
                                                 />
-                                            ),(
+                                            ), (
                                                 <span key='modeText'> Review Mode</span>
                                             )]
                                         }/>
                                     </ListItem>
                                 )]
                             )}
-                            <ListItem button key='quit' onClick={() => {this.props.toggleMainMenu(); remote.app.quit();}}>
+                            <ListItem button key='quit' onClick={() => { this.props.toggleMainMenu(); remote.app.quit(); }}>
                                 <ListItemIcon>
                                     <Close/>
                                 </ListItemIcon>
@@ -245,17 +245,17 @@ class ConnectedMainMenu extends React.Component {
 }
 
 ConnectedMainMenu.propTypes = {
-    classes            : PropTypes.object.isRequired,
-    mainMenuOpened     : PropTypes.bool.isRequired,
-    currentPage        : PropTypes.string.isRequired,
-    currentDefineId    : PropTypes.string.isRequired,
-    reviewMode         : PropTypes.bool.isRequired,
-    toggleMainMenu     : PropTypes.func.isRequired,
-    onToggleRedoUndo   : PropTypes.func.isRequired,
-    onToggleFindInPage : PropTypes.func.isRequired,
-    changePage         : PropTypes.func.isRequired,
-    toggleReviewMode   : PropTypes.func.isRequired,
-    updateMainUi       : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    mainMenuOpened: PropTypes.bool.isRequired,
+    currentPage: PropTypes.string.isRequired,
+    currentDefineId: PropTypes.string.isRequired,
+    reviewMode: PropTypes.bool.isRequired,
+    toggleMainMenu: PropTypes.func.isRequired,
+    onToggleRedoUndo: PropTypes.func.isRequired,
+    onToggleFindInPage: PropTypes.func.isRequired,
+    changePage: PropTypes.func.isRequired,
+    toggleReviewMode: PropTypes.func.isRequired,
+    updateMainUi: PropTypes.func.isRequired,
 };
 
 const MainMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedMainMenu);

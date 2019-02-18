@@ -1,4 +1,3 @@
-
 /***********************************************************************************
  * This file is part of Visual Define-XML Editor. A program which allows to review  *
  * and edit XML files created using the CDISC Define-XML standard.                  *
@@ -38,17 +37,17 @@ import {
 
 const styles = theme => ({
     dialog: {
-        paddingLeft   : theme.spacing.unit * 2,
-        paddingRight  : theme.spacing.unit * 2,
-        paddingBottom : theme.spacing.unit * 1,
-        position      : 'absolute',
-        borderRadius  : '10px',
-        top           : '10%',
-        transform     : 'translate(0%, calc(-50%+0.5px))',
-        overflowX     : 'auto',
-        maxHeight     : '85%',
-        width         : '50%',
-        overflowY     : 'auto',
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        position: 'absolute',
+        borderRadius: '10px',
+        top: '10%',
+        transform: 'translate(0%, calc(-50%+0.5px))',
+        overflowX: 'auto',
+        maxHeight: '85%',
+        width: '50%',
+        overflowY: 'auto',
     },
     checkBox: {
         marginLeft: theme.spacing.unit * 2,
@@ -58,20 +57,19 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        codeLists     : state.present.odm.study.metaDataVersion.codeLists,
+        codeLists: state.present.odm.study.metaDataVersion.codeLists,
     };
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal              : () => dispatch(closeModal()),
-        updateLinkCodeLists     : (updateObj) => dispatch(updateLinkCodeLists(updateObj)),
+        closeModal: () => dispatch(closeModal()),
+        updateLinkCodeLists: (updateObj) => dispatch(updateLinkCodeLists(updateObj)),
     };
 };
 
 class ConnectedModalLinkCodeLists extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             matchByName: false,
@@ -82,6 +80,14 @@ class ConnectedModalLinkCodeLists extends React.Component {
         };
     }
 
+    onKeyDown = (event) => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.onCancel();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.onLinkCodeLists();
+        }
+    }
+
     handleChange = (name) => (event, checked) => {
         if ([
             'valueMatchCodeListOrder',
@@ -89,9 +95,9 @@ class ConnectedModalLinkCodeLists extends React.Component {
             'valueIgnoreWhiteSpaces',
         ].includes(name)) {
             this.setState({ [name]: checked });
-        } else if ('matchByName' === name) {
+        } else if (name === 'matchByName') {
             this.setState({ [name]: checked, matchByValue: false });
-        } else if ('matchByValue' === name) {
+        } else if (name === 'matchByValue') {
             this.setState({ [name]: checked, matchByName: false });
         }
     };
@@ -106,28 +112,28 @@ class ConnectedModalLinkCodeLists extends React.Component {
         // retrieve enumerated codelists to an object
         let enumeratedCodeLists = Object.keys(this.props.codeLists)
             // filter codelists to enumerated
-            .filter( codeList => this.props.codeLists[codeList].codeListType === 'enumerated' && !this.props.codeLists[codeList].linkedCodeListOid)
+            .filter(codeList => this.props.codeLists[codeList].codeListType === 'enumerated' && !this.props.codeLists[codeList].linkedCodeListOid)
             // create new object that includes only filtered codelists
-            .reduce( (object, key) => {
+            .reduce((object, key) => {
                 // map assigns array of codelist values to property 'key'
-                object[key] = this.props.codeLists[key].itemOrder.map( item => {
+                object[key] = this.props.codeLists[key].itemOrder.map(item => {
                     return this.props.codeLists[key].enumeratedItems[item].codedValue;
                 });
                 return object;
-            }, {} );
+            }, {});
         // analogously retrieve decoded codelists to an object;
         let decodedCodeLists = Object.keys(this.props.codeLists)
-            .filter( codeList => this.props.codeLists[codeList].codeListType === 'decoded' && !this.props.codeLists[codeList].linkedCodeListOid)
-            .reduce( (object, key) => {
-                object[key] = this.props.codeLists[key].itemOrder.map( item => {
+            .filter(codeList => this.props.codeLists[codeList].codeListType === 'decoded' && !this.props.codeLists[codeList].linkedCodeListOid)
+            .reduce((object, key) => {
+                object[key] = this.props.codeLists[key].itemOrder.map(item => {
                     return (this.props.codeLists[key].codeListItems[item].decodes[0] || { value: '' }).value;
                 });
                 return object;
-            }, {} );
+            }, {});
         // create object with codelists to link: property decodedCodeList - value enumeratedCodeList
         const linkedCodeLists = Object.keys(decodedCodeLists)
             // sort the array of keys to put text decoded codelists first
-            .sort( (first, second) => {
+            .sort((first, second) => {
                 if (this.props.codeLists[first].dataType === this.props.codeLists[second].dataType) {
                     return 0;
                 } else if (this.props.codeLists[first].dataType === 'text') {
@@ -137,20 +143,22 @@ class ConnectedModalLinkCodeLists extends React.Component {
                 }
             })
             // iterate on decodedCodelists properties
-            .reduce( (object, key) => {
+            .reduce((object, key) => {
                 // iterate on enumeratedCodelists properties
                 // stop on finding a match/delete the respective enumeratedCodelists property to avoid comparing to already linked codelist
-                Object.keys(enumeratedCodeLists).some( (element, index) => {
-                    return compareCodeListItems(decodedCodeLists[key], enumeratedCodeLists[element], compareOptions) ?
-                        ((object[key] = element, delete enumeratedCodeLists[element]), true) : false;
+                Object.keys(enumeratedCodeLists).some((element, index) => {
+                    // the rule is disabled to assign object property when some triggers
+                    // eslint-disable-next-line no-return-assign
+                    return compareCodeListItems(decodedCodeLists[key], enumeratedCodeLists[element], compareOptions)
+                        ? ((object[key] = element, delete enumeratedCodeLists[element]), true) : false;
                 });
                 return object;
-            }, {} );
+            }, {});
+        this.props.closeModal();
         if (Object.keys(linkedCodeLists).length !== 0) {
             // perform an action only if there are codelists to link
             this.props.updateLinkCodeLists(linkedCodeLists);
         }
-        this.props.closeModal();
     }
 
     onCancel = () => {
@@ -167,7 +175,7 @@ class ConnectedModalLinkCodeLists extends React.Component {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
                 open
-                PaperProps={{className: classes.dialog}}
+                PaperProps={{ className: classes.dialog }}
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >
@@ -200,7 +208,7 @@ class ConnectedModalLinkCodeLists extends React.Component {
                                         />
                                         { this.state.matchByValue &&
                                                 [
-                                                    ( <FormControlLabel
+                                                    (<FormControlLabel
                                                         control={
                                                             <Checkbox
                                                                 checked={this.state.valueMatchCodeListOrder}
@@ -213,7 +221,7 @@ class ConnectedModalLinkCodeLists extends React.Component {
                                                         key='valueMatchCodeListOrder'
                                                         className={classes.checkBox}
                                                     />
-                                                    ),( <FormControlLabel
+                                                    ), (<FormControlLabel
                                                         control={
                                                             <Checkbox
                                                                 checked={this.state.valueMatchCase}
@@ -226,7 +234,7 @@ class ConnectedModalLinkCodeLists extends React.Component {
                                                         key='valueMatchCase'
                                                         className={classes.checkBox}
                                                     />
-                                                    ),( <FormControlLabel
+                                                    ), (<FormControlLabel
                                                         control={
                                                             <Checkbox
                                                                 checked={this.state.valueIgnoreWhiteSpaces}
@@ -283,9 +291,9 @@ class ConnectedModalLinkCodeLists extends React.Component {
 }
 
 ConnectedModalLinkCodeLists.propTypes = {
-    classes    : PropTypes.object.isRequired,
-    codeLists  : PropTypes.object.isRequired,
-    closeModal : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    codeLists: PropTypes.object.isRequired,
+    closeModal: PropTypes.func.isRequired,
 };
 
 const ModalLinkCodeLists = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalLinkCodeLists);

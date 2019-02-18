@@ -17,9 +17,18 @@ import createArm from './createArm.js';
 import os from 'os';
 import { createTranslatedText, createDocumentRef } from './createUtils.js';
 
-function splitAttributes(match) {
-    let tab = match.substr(0,match.indexOf('<'));
-    return match.replace(/\s(\S+=".*?")/g,'\n' + tab + '  $1');
+function splitAttributes (match) {
+    let tab = match.substr(0, match.indexOf('<'));
+    // In Windows tab includes line feed, so remove it
+    tab = tab.replace(/[^ ]/g, '');
+    return match.replace(/\s(\S+=".*?")/g, os.EOL + tab + '  $1');
+}
+
+function escapeFunc (str) {
+    return str.replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\r(?!\n)/g, '&#xD;');// this matches only lonely carriage return characters
 }
 
 function createDefine (data, version) {
@@ -38,11 +47,11 @@ function createDefine (data, version) {
 
     let xmlRoot = createOdm(data, version);
     let result = xmlRoot.toString({
-        pretty           : true,
-        indent           : '  ',
-        offset           : 1,
-        newline          : os.EOL,
-        spacebeforeslash : ''
+        pretty: true,
+        indent: '  ',
+        offset: 1,
+        newline: os.EOL,
+        spacebeforeslash: ''
     });
 
     // Split long lines
@@ -65,28 +74,28 @@ function createDefine (data, version) {
 }
 
 function createOdm (data, version) {
-    let xmlRoot = xmlBuilder.create('ODM');
+    let xmlRoot = xmlBuilder.create('ODM', { stringify: { elEscape: escapeFunc } });
     if (version === '2.0.0') {
         let attributes = {
-            'xmlns'               : data.xmlns,
-            'xmlns:def'           : data.def,
-            'xmlns:xlink'         : data.xlink,
-            'xmlns:xsi'           : data.xsi,
-            'xmlns:arm'           : undefined,
-            'xsi:schemalocation'  : data.schemaLocation,
-            'ODMVersion'          : data.odmVersion,
-            'FileType'            : data.fileType,
-            'FileOID'             : data.fileOid,
-            'CreationDateTime'    : new Date().toISOString().replace(/(.*)\..*/,'$1'),
-            'AsOfDateTime'        : data.asOfDateTime,
-            'Originator'          : data.originator,
-            'SourceSystem'        : data.sourceSystem,
-            'SourceSystemVersion' : data.sourceSystemVersion
+            'xmlns': data.xmlns,
+            'xmlns:def': data.def,
+            'xmlns:xlink': data.xlink,
+            'xmlns:xsi': data.xsi,
+            'xmlns:arm': undefined,
+            'xsi:schemalocation': data.schemaLocation,
+            'ODMVersion': data.odmVersion,
+            'FileType': data.fileType,
+            'FileOID': data.fileOid,
+            'CreationDateTime': new Date().toISOString().replace(/(.*)\..*/, '$1'),
+            'AsOfDateTime': data.asOfDateTime,
+            'Originator': data.originator,
+            'SourceSystem': data.sourceSystem,
+            'SourceSystemVersion': data.sourceSystemVersion
         };
         // If ARM is present, add its namespace
-        if (data.hasOwnProperty('study')
-            && data.study.hasOwnProperty('metaDataVersion')
-            && data.study.metaDataVersion.hasOwnProperty('analysisResultDisplays')
+        if (data.hasOwnProperty('study') &&
+            data.study.hasOwnProperty('metaDataVersion') &&
+            data.study.metaDataVersion.hasOwnProperty('analysisResultDisplays')
         ) {
             attributes['xmlns:arm'] = data.arm;
         }
@@ -136,12 +145,12 @@ function createMetaDataVersion (data, version) {
         let standardName = data.standards[Object.keys(data.standards).filter(stdOid => (data.standards[stdOid].type !== 'CT'))[0]].name;
         let standardVersion = data.standards[Object.keys(data.standards).filter(stdOid => (data.standards[stdOid].type !== 'CT'))[0]].version;
         let attributes = {
-            'OID'                 : data.oid,
-            'Name'                : data.name,
-            'Description'         : data.description,
-            'def:DefineVersion'   : version,
-            'def:StandardName'    : standardName,
-            'def:StandardVersion' : standardVersion,
+            'OID': data.oid,
+            'Name': data.name,
+            'Description': data.description,
+            'def:DefineVersion': version,
+            'def:StandardName': standardName,
+            'def:StandardVersion': standardVersion,
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -150,7 +159,7 @@ function createMetaDataVersion (data, version) {
         }
         // AnnotatedCRF
         if (Object.keys(data.annotatedCrf).length !== 0) {
-            let annotatedCrf = {'def:AnnotatedCRF': {'def:DocumentRef': []}};
+            let annotatedCrf = { 'def:AnnotatedCRF': { 'def:DocumentRef': [] } };
             Object.keys(data.annotatedCrf).forEach(function (documentOid) {
                 annotatedCrf['def:AnnotatedCRF']['def:DocumentRef'].push(createDocumentRef(data.annotatedCrf[documentOid], version));
             });
@@ -158,7 +167,7 @@ function createMetaDataVersion (data, version) {
         }
         // SupplementalDoc
         if (Object.keys(data.supplementalDoc).length !== 0) {
-            let supplementalDoc = {'def:SupplementalDoc': {'def:DocumentRef': []}};
+            let supplementalDoc = { 'def:SupplementalDoc': { 'def:DocumentRef': [] } };
             Object.keys(data.supplementalDoc).forEach(function (documentOid) {
                 supplementalDoc['def:SupplementalDoc']['def:DocumentRef'].push(createDocumentRef(data.supplementalDoc[documentOid], version));
             });
@@ -167,9 +176,9 @@ function createMetaDataVersion (data, version) {
             xmlRoot.com('********************');
             xmlRoot.ele(supplementalDoc);
         }
+        // ValueListDef
         if (Object.keys(data.valueLists).length !== 0) {
-            // ValueListDef
-            let valueListDefs = {'def:ValueListDef': []};
+            let valueListDefs = { 'def:ValueListDef': [] };
             Object.keys(data.valueLists).forEach(function (valueListOid) {
                 valueListDefs['def:ValueListDef'].push(createValueListDef(data.valueLists[valueListOid], version));
             });
@@ -177,8 +186,10 @@ function createMetaDataVersion (data, version) {
             xmlRoot.com('Value List Definitions ');
             xmlRoot.com('***********************');
             xmlRoot.ele(valueListDefs);
-            // WhereClauseDef
-            let whereClauseDefs = {'def:WhereClauseDef': []};
+        }
+        // WhereClauseDef
+        if (Object.keys(data.whereClauses).length !== 0) {
+            let whereClauseDefs = { 'def:WhereClauseDef': [] };
             Object.keys(data.whereClauses).forEach(function (whereClauseOid) {
                 whereClauseDefs['def:WhereClauseDef'].push(createWhereClauseDef(data.whereClauses[whereClauseOid], version));
             });
@@ -188,7 +199,7 @@ function createMetaDataVersion (data, version) {
             xmlRoot.ele(whereClauseDefs);
         }
         // ItemGroupDef
-        let itemGroupDefs = {'ItemGroupDef': []};
+        let itemGroupDefs = { 'ItemGroupDef': [] };
         data.order.itemGroupOrder.forEach(function (itemGroupOid) {
             itemGroupDefs['ItemGroupDef'].push(createItemGroupDef(data.itemGroups[itemGroupOid], version));
         });
@@ -197,7 +208,7 @@ function createMetaDataVersion (data, version) {
         xmlRoot.com('*********************');
         xmlRoot.ele(itemGroupDefs);
         // ItemDef
-        let itemDefs = {'ItemDef': []};
+        let itemDefs = { 'ItemDef': [] };
         Object.keys(data.itemDefs).forEach(function (itemOid) {
             itemDefs['ItemDef'].push(createItemDef(data.itemDefs[itemOid], version));
         });
@@ -207,7 +218,7 @@ function createMetaDataVersion (data, version) {
         xmlRoot.ele(itemDefs);
         // CodeList
         if (data.order.codeListOrder.length !== 0) {
-            let codeLists = {'CodeList': []};
+            let codeLists = { 'CodeList': [] };
             data.order.codeListOrder.forEach(function (codeListOid) {
                 codeLists['CodeList'].push(createCodeList(data.codeLists[codeListOid], version));
             });
@@ -218,7 +229,7 @@ function createMetaDataVersion (data, version) {
         }
         // MethodDef
         if (Object.keys(data.methods).length !== 0) {
-            let methodDefs = {'MethodDef': []};
+            let methodDefs = { 'MethodDef': [] };
             Object.keys(data.methods).forEach(function (methodOid) {
                 methodDefs['MethodDef'].push(createMethodDef(data.methods[methodOid], version));
             });
@@ -229,7 +240,7 @@ function createMetaDataVersion (data, version) {
         }
         // CommentDef
         if (Object.keys(data.comments).length !== 0) {
-            let commentDefs = {'def:CommentDef': []};
+            let commentDefs = { 'def:CommentDef': [] };
             Object.keys(data.comments).forEach(function (commentOid) {
                 commentDefs['def:CommentDef'].push(createCommentDef(data.comments[commentOid], version));
             });
@@ -240,7 +251,7 @@ function createMetaDataVersion (data, version) {
         }
         // leaf
         if (data.order.leafOrder.length !== 0) {
-            let leaf = {'def:leaf': []};
+            let leaf = { 'def:leaf': [] };
             data.order.leafOrder.forEach(function (leafOid) {
                 leaf['def:leaf'].push(createLeaf(data.leafs[leafOid], version));
             });
@@ -251,7 +262,7 @@ function createMetaDataVersion (data, version) {
         }
         // Analysis Result Metadata
         if (data.hasOwnProperty('analysisResultDisplays') && Object.keys(data.analysisResultDisplays).length !== 0) {
-            let analysisResultDisplays = {'arm:AnalysisResultDisplays': [createArm(data.analysisResultDisplays)]};
+            let analysisResultDisplays = { 'arm:AnalysisResultDisplays': [createArm(data.analysisResultDisplays)] };
             xmlRoot.com('***********************************');
             xmlRoot.com('Analysis Result Display Definitions');
             xmlRoot.com('***********************************');
@@ -293,13 +304,13 @@ function createItemRef (data, version) {
     let result = {};
     if (version === '2.0.0') {
         let attributes = {
-            'ItemOID'         : data.itemOid,
-            'OrderNumber'     : data.orderNumber,
-            'Mandatory'       : data.mandatory,
-            'KeySequence'     : data.keySequence,
-            'MethodOID'       : data.methodOid,
-            'Role'            : data.role,
-            'RoleCodeListOID' : data.roleCodeListOid,
+            'ItemOID': data.itemOid,
+            'OrderNumber': data.orderNumber,
+            'Mandatory': data.mandatory,
+            'KeySequence': data.keySequence,
+            'MethodOID': data.methodOid,
+            'Role': data.role,
+            'RoleCodeListOID': data.roleCodeListOid,
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -308,7 +319,7 @@ function createItemRef (data, version) {
         }
         // Add WhereClauseRef
         if (data.whereClauseOid !== undefined) {
-            result['def:WhereClauseRef'] = {'@WhereClauseOID': data.whereClauseOid};
+            result['def:WhereClauseRef'] = { '@WhereClauseOID': data.whereClauseOid };
         }
     }
 
@@ -322,7 +333,7 @@ function createWhereClauseDef (data, version) {
             'OID': data.oid
         };
         if (data.commentOid !== undefined) {
-            Object.assign(attributes, {'def:CommentOID': data.commentOid});
+            Object.assign(attributes, { 'def:CommentOID': data.commentOid });
         }
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -333,10 +344,10 @@ function createWhereClauseDef (data, version) {
         result['RangeCheck'] = [];
         data.rangeChecks.forEach(function (rangeCheck) {
             let rangeCheckObj = {
-                '@Comparator'  : rangeCheck.comparator,
-                '@SoftHard'    : rangeCheck.softHard,
-                '@def:ItemOID' : rangeCheck.itemOid||'',
-                'CheckValue'   : []
+                '@Comparator': rangeCheck.comparator,
+                '@SoftHard': rangeCheck.softHard,
+                '@def:ItemOID': rangeCheck.itemOid || '',
+                'CheckValue': []
             };
             // Add check values
             rangeCheck.checkValues.forEach(function (checkValue) {
@@ -357,17 +368,17 @@ function createItemGroupDef (data, version) {
             datasetClass = data.datasetClass.name;
         }
         let attributes = {
-            'OID'                   : data.oid,
-            'Name'                  : data.name,
-            'Repeating'             : data.repeating,
-            'IsReferenceData'       : data.isReferenceData,
-            'SASDatasetName'        : data.datasetName,
-            'Domain'                : data.domain,
-            'Purpose'               : data.purpose,
-            'def:Structure'         : data.structure,
-            'def:Class'             : datasetClass,
-            'def:ArchiveLocationID' : data.archiveLocationId,
-            'def:CommentOID'        : data.commentOid,
+            'OID': data.oid,
+            'Name': data.name,
+            'Repeating': data.repeating,
+            'IsReferenceData': data.isReferenceData,
+            'SASDatasetName': data.datasetName,
+            'Domain': data.domain,
+            'Purpose': data.purpose,
+            'def:Structure': data.structure,
+            'def:Class': datasetClass,
+            'def:ArchiveLocationID': data.archiveLocationId,
+            'def:CommentOID': data.commentOid,
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -409,8 +420,8 @@ function createAlias (data, version) {
     let result = {};
     if (version === '2.0.0') {
         let attributes = {
-            'Context' : data.context,
-            'Name'    : data.name
+            'Context': data.context,
+            'Name': data.name
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -426,8 +437,8 @@ function createLeaf (data, version) {
     let result = {};
     if (version === '2.0.0') {
         let attributes = {
-            'ID'         : data.id,
-            'xlink:href' : data.href
+            'ID': data.id,
+            'xlink:href': data.href
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -447,16 +458,16 @@ function createItemDef (data, version) {
     let result = {};
     if (version === '2.0.0') {
         let attributes = {
-            'OID'               : data.oid,
-            'Name'              : data.name,
-            'DataType'          : data.dataType,
-            'Length'            : ['text', 'integer', 'float'].includes(data.dataType) ? data.length : undefined,
-            'SignificantDigits' : data.fractionDigits,
-            'SASFieldName'      : data.fieldName,
-            'def:DisplayFormat' : data.displayFormat
+            'OID': data.oid,
+            'Name': data.name,
+            'DataType': data.dataType,
+            'Length': ['text', 'integer', 'float'].includes(data.dataType) ? data.length : undefined,
+            'SignificantDigits': data.fractionDigits,
+            'SASFieldName': data.fieldName,
+            'def:DisplayFormat': data.displayFormat
         };
         if (data.commentOid !== undefined) {
-            Object.assign(attributes, {'def:CommentOID': data.commentOid});
+            Object.assign(attributes, { 'def:CommentOID': data.commentOid });
         }
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -472,7 +483,7 @@ function createItemDef (data, version) {
         }
         // Add CodelistRef
         if (data.codeListOid !== undefined) {
-            result['CodeListRef'] = {'@CodeListOID': data.codeListOid};
+            result['CodeListRef'] = { '@CodeListOID': data.codeListOid };
         }
         // Add Origin
         // 2.0.0 allows only one origin
@@ -481,7 +492,7 @@ function createItemDef (data, version) {
         }
         // Add ValueListRef
         if (data.valueListOid !== undefined) {
-            result['def:ValueListRef'] = {'@ValueListOID': data.valueListOid};
+            result['def:ValueListRef'] = { '@ValueListOID': data.valueListOid };
         }
     }
 
@@ -522,10 +533,10 @@ function createCodeList (data, version) {
     let result = {};
     if (version === '2.0.0') {
         let attributes = {
-            'OID'           : data.oid,
-            'Name'          : data.name,
-            'DataType'      : data.dataType,
-            'SASFormatName' : data.formatName
+            'OID': data.oid,
+            'Name': data.name,
+            'DataType': data.dataType,
+            'SASFormatName': data.formatName
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -563,10 +574,10 @@ function createEnumeratedItem (data, position, version) {
     let result = {};
     if (version === '2.0.0') {
         let attributes = {
-            'CodedValue'        : data.codedValue,
-            'Rank'              : data.rank,
-            'OrderNumber'       : position + 1,
-            'def:ExtendedValue' : data.extendedValue
+            'CodedValue': data.codedValue,
+            'Rank': data.rank,
+            'OrderNumber': position + 1,
+            'def:ExtendedValue': data.extendedValue
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -586,10 +597,10 @@ function createCodeListItem (data, position, version) {
     let result = {};
     if (version === '2.0.0') {
         let attributes = {
-            'CodedValue'        : data.codedValue,
-            'Rank'              : data.rank,
-            'OrderNumber'       : position + 1,
-            'def:ExtendedValue' : data.extendedValue
+            'CodedValue': data.codedValue,
+            'Rank': data.rank,
+            'OrderNumber': position + 1,
+            'def:ExtendedValue': data.extendedValue
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -617,10 +628,10 @@ function createExternalCodeList (data, version) {
     let result = {};
     if (version === '2.0.0') {
         let attributes = {
-            'Dictionary' : data.dictionary,
-            'Version'    : data.version,
-            'ref'        : data.ref,
-            'href'       : data.href
+            'Dictionary': data.dictionary,
+            'Version': data.version,
+            'ref': data.ref,
+            'href': data.href
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -636,9 +647,9 @@ function createMethodDef (data, version) {
     let result = {};
     if (version === '2.0.0') {
         let attributes = {
-            'OID'  : data.oid,
-            'Name' : data.name,
-            'Type' : data.type
+            'OID': data.oid,
+            'Name': data.name,
+            'Type': data.type
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -665,8 +676,8 @@ function createMethodDef (data, version) {
             data.formalExpressions.forEach(function (formalExpression) {
                 // Context is required, so if the define is wrong, set it to blank
                 result['FormalExpression'].push({
-                    '#text'    : formalExpression.value,
-                    '@Context' : formalExpression.context || ''
+                    '#text': formalExpression.value,
+                    '@Context': formalExpression.context || ''
                 });
             });
         }

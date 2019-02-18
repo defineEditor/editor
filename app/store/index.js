@@ -12,9 +12,9 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { createStore } from "redux";
-import rootReducer from "reducers/rootReducer";
-import loadState from "utils/loadState.js";
+import { createStore } from 'redux';
+import rootReducer from 'reducers/rootReducer';
+import loadState from 'utils/loadState.js';
 import undoable from 'redux-undo';
 import { throttle } from 'throttle-debounce';
 import saveState from 'utils/saveState.js';
@@ -23,15 +23,19 @@ const filterActions = (action, currentState, previousHistory) => {
     return !action.type.startsWith('UI_');
 };
 
+const actionSanitizer = (action) => (
+    action.type === 'STDCDL_LOAD' && action.updateObj ? { ...action, updateObj: { ...action.updateObj, ctList: {} } } : action
+);
+
 const store = createStore(
     undoable(rootReducer, { filter: filterActions }),
     loadState(),
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__({ actionSanitizer }),
 );
 
 // Save state every minute as a backup
 store.subscribe(
-    throttle(60000, () => {saveState('backup');})
+    throttle(60000, () => { saveState('backup'); })
 );
 
 export default store;

@@ -22,14 +22,13 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import saveState from 'utils/saveState.js';
 import {
     closeModal,
-    updateMainUi,
+    updateSettings,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -45,16 +44,12 @@ const styles = theme => ({
         maxHeight     : '85%',
         overflowY     : 'auto',
     },
-    checkbox: {
-        position : 'relative',
-        float    : 'right',
-    },
 });
 
 const mapDispatchToProps = dispatch => {
     return {
         closeModal: () => dispatch(closeModal()),
-        updateMainUi: (updateObj) => dispatch(updateMainUi(updateObj)),
+        updateSettings: (updateObj) => dispatch(updateSettings(updateObj)),
     };
 };
 
@@ -69,8 +64,13 @@ class ConnectedModalInitialMessage extends React.Component {
 
     onClose = () => {
         this.props.closeModal();
-        if (this.state.doNotShowAgain === true) {
-            this.props.updateMainUi({ showInitialMessage: false });
+        if (this.state.doNotShowAgain) {
+            // if so, update the corresponding setting
+            this.props.updateSettings({
+                popUp: {
+                    onStartUp: false,
+                },
+            });
             saveState();
         }
     }
@@ -105,8 +105,6 @@ class ConnectedModalInitialMessage extends React.Component {
                         </a>
                         &nbsp;for the latest available version.
                     </DialogContentText>
-                </DialogContent>
-                <FormGroup row className={classes.checkbox}>
                     <FormControlLabel
                         control={
                             <Checkbox
@@ -118,10 +116,9 @@ class ConnectedModalInitialMessage extends React.Component {
                         }
                         label="Do not show again"
                     />
-                </FormGroup>
-                <br clear='all'/>
+                </DialogContent>
                 <DialogActions>
-                    <Button onClick={this.onClose} color="primary">
+                    <Button onClick={this.onClose} color="primary" autoFocus>
                         Close
                     </Button>
                 </DialogActions>

@@ -28,13 +28,13 @@ const dataTypes = [
     'durationDatetime',
 ];
 
-const codeListTypes =  [
-    {'enumerated': 'Enumeration'},
-    {'decoded': 'Decoded'},
-    {'external': 'External'},
+const codeListTypes = [
+    { 'enumerated': 'Enumeration' },
+    { 'decoded': 'Decoded' },
+    { 'external': 'External' },
 ];
 
-const comparators = ['EQ','NE','LT','LE','GT','GE','IN','NOTIN'];
+const comparators = ['EQ', 'NE', 'LT', 'LE', 'GT', 'GE', 'IN', 'NOTIN'];
 
 const standardNames = {
     '2.0.0': [
@@ -80,15 +80,15 @@ const originTypes = {
 };
 
 const typeLabel = {
-    annotatedCrf    : 'Annotated CRF',
-    supplementalDoc : 'Supplemental Document',
-    other           : 'Other',
+    annotatedCrf: 'Annotated CRF',
+    supplementalDoc: 'Supplemental Document',
+    other: 'Other',
 };
 
 const typeOrder = {
-    annotatedCrf    : 1,
-    supplementalDoc : 2,
-    other           : 3,
+    annotatedCrf: 1,
+    supplementalDoc: 2,
+    other: 3,
 };
 
 const documentTypes = {
@@ -98,31 +98,31 @@ const documentTypes = {
 
 const classTypes = {
     'ADaM': {
-        'BASIC DATA STRUCTURE'                 : 'BDS',
-        'OCCURRENCE DATA STRUCTURE'            : 'OCCDS',
-        'SUBJECT LEVEL ANALYSIS DATASET'       : 'ADSL',
-        'ADAM OTHER'                           : 'Other',
-        'INTEGRATED BASIC DATA STRUCTURE'      : 'IBDS',
-        'INTEGRATED OCCURRENCE DATA STRUCTURE' : 'IOCCDS',
-        'INTEGRATED SUBJECT LEVEL'             : 'IADSL',
+        'BASIC DATA STRUCTURE': 'BDS',
+        'OCCURRENCE DATA STRUCTURE': 'OCCDS',
+        'SUBJECT LEVEL ANALYSIS DATASET': 'ADSL',
+        'ADAM OTHER': 'Other',
+        'INTEGRATED BASIC DATA STRUCTURE': 'IBDS',
+        'INTEGRATED OCCURRENCE DATA STRUCTURE': 'IOCCDS',
+        'INTEGRATED SUBJECT LEVEL': 'IADSL',
     },
     'SDTM': {
-        'TRIAL DESIGN'    : 'TD',
-        'SPECIAL PURPOSE' : 'SP',
-        'INTERVENTIONS'   : 'INTERV',
-        'EVENTS'          : 'EVENTS',
-        'FINDINGS'        : 'FIND',
-        'FINDINGS ABOOUT' : 'FA',
-        'RELATIONSHIP'    : 'REL',
+        'TRIAL DESIGN': 'TD',
+        'SPECIAL PURPOSE': 'SP',
+        'INTERVENTIONS': 'INTERV',
+        'EVENTS': 'EVENTS',
+        'FINDINGS': 'FIND',
+        'FINDINGS ABOOUT': 'FA',
+        'RELATIONSHIP': 'REL',
     },
     'SEND': {
-        'TRIAL DESIGN'    : 'TD',
-        'SPECIAL PURPOSE' : 'SP',
-        'INTERVENTIONS'   : 'INTERV',
-        'EVENTS'          : 'EVENTS',
-        'FINDINGS'        : 'FIND',
-        'FINDINGS ABOOUT' : 'FA',
-        'RELATIONSHIP'    : 'REL',
+        'TRIAL DESIGN': 'TD',
+        'SPECIAL PURPOSE': 'SP',
+        'INTERVENTIONS': 'INTERV',
+        'EVENTS': 'EVENTS',
+        'FINDINGS': 'FIND',
+        'FINDINGS ABOOUT': 'FA',
+        'RELATIONSHIP': 'REL',
     }
 };
 
@@ -139,16 +139,16 @@ const variableRoles = [
 ];
 
 const armAnalysisReason = {
-    'DATA DRIVEN'                    : 'Data Drived',
-    'REQUESTED BY REGULATORY AGENCY' : 'Requested by Regulatory Agency',
-    'SPECIFIED IN PROTOCOL'          : 'Specified in Protocol',
-    'SPECIFIED IN SAP'               : 'Specified in SAP',
+    'DATA DRIVEN': 'Data Driven',
+    'REQUESTED BY REGULATORY AGENCY': 'Requested by Regulatory Agency',
+    'SPECIFIED IN PROTOCOL': 'Specified in Protocol',
+    'SPECIFIED IN SAP': 'Specified in SAP',
 };
 
 const armAnalysisPurpose = {
-    'EXPLORATORY OUTCOME MEASURE' : 'Exploratory Outcome Measure',
-    'PRIMARY OUTCOME MEASURE'     : 'Primary Outcome Measure',
-    'SECONDARY OUTCOME MEASURE'   : 'Secondary Outcome Measure',
+    'EXPLORATORY OUTCOME MEASURE': 'Exploratory Outcome Measure',
+    'PRIMARY OUTCOME MEASURE': 'Primary Outcome Measure',
+    'SECONDARY OUTCOME MEASURE': 'Secondary Outcome Measure',
 };
 
 const stdConstants = {

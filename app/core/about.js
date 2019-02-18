@@ -63,14 +63,16 @@ const styles = theme => ({
 });
 
 class About extends React.Component {
-
     openLink = (event) => {
         event.preventDefault();
         shell.openExternal(event.target.href);
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
+        // Get release notes link
+        const releaseNotesLink = 'http://defineeditor.com/releases/#version-' + remote.app.getVersion().replace('.', '-');
+
         return (
             <div className={classes.root}>
                 <NavigationBar />
@@ -82,7 +84,13 @@ class About extends React.Component {
                         <Typography variant='body1' align='center' color='primary' gutterBottom>
                             Application Version: { remote.app.getVersion() }
                         </Typography>
-                        <Typography variant='body1' align='center' color='textSecondary' paragraph>
+                        <Typography variant='body1' align='center' color='default' gutterBottom>
+                            See&nbsp;
+                            <a onClick={this.openLink} href={releaseNotesLink}>
+                                release notes
+                            </a> for the list of changes.
+                        </Typography>
+                        <Typography variant='h6' align='center' color='default' paragraph>
                             An open-source application, which allows to review and edit XML files created using the CDISC Define-XML standard.
                         </Typography>
                     </div>
@@ -134,7 +142,7 @@ class About extends React.Component {
                             <Card className={classes.card}>
                                 <div className={classes.cardContent}>
                                     <CardContent>
-                                        <Typography variant='h6' color='primary'>Source Code and Roadmap</Typography>
+                                        <Typography variant='h6' color='primary'>Source Code and Development</Typography>
                                         <Typography variant='body1' paragraph>
                                             <a onClick={this.openLink} href='https://github.com/defineEditor'>
                                                 GitHub

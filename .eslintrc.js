@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ['standard', 'eslint:recommended', 'plugin:react/recommended'],
+  extends: ['eslint:recommended', 'standard', 'plugin:react/recommended'],
   parser: 'babel-eslint',
   parserOptions: {
     ecmaVersion: 8,
@@ -21,7 +21,7 @@ module.exports = {
     // If this isn't set, any propTypes wrapped in
     // a function will be skipped.
   },
-  plugins: ['react'],
+  plugins: ['react', 'standard'],
   rules: {
     // enable additional rules
     indent: ['error', 4, { SwitchCase: 1 }],
@@ -29,6 +29,7 @@ module.exports = {
     semi: ['error', 'always'],
     'react/no-string-refs': 0,
     'react/prop-types': 0,
+    'comma-dangle': 0,
     'no-console': 0
   }
 };
