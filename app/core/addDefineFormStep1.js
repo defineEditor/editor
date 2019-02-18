@@ -54,10 +54,18 @@ class AddDefineFormStep1 extends React.Component {
 
     componentDidMount() {
         ipcRenderer.on('define', this.loadDefine);
+        ipcRenderer.on('defineReadError', this.updateError);
     }
 
     componentWillUnmount() {
         ipcRenderer.removeListener('define', this.loadDefine);
+        ipcRenderer.removeListener('defineReadError', this.updateError);
+    }
+
+    updateError = (error, errorText) => {
+        if (errorText !== undefined && typeof errorText === 'string') {
+            this.setState({ parsingErrors: [errorText] });
+        }
     }
 
     loadDefine = (error, data, pathToDefineXml) => {
@@ -88,6 +96,8 @@ class AddDefineFormStep1 extends React.Component {
     }
 
     openDefineXml = () => {
+        // Reset errors
+        this.setState({ parsingErrors: [], defineData: null });
         ipcRenderer.send('openDefineXml', 'Open Define-XML');
     }
 

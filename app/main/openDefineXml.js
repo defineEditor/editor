@@ -22,10 +22,18 @@ function sendToRender (mainWindow, pathToDefineXml) {
     };
 }
 
+function sendErrorToRender (mainWindow)  {
+    return function (errorObject) {
+        mainWindow.webContents.send('defineReadError', errorObject.message);
+    };
+}
+
 const readDefineXml = (mainWindow) => (pathToDefineXml) => {
     if (pathToDefineXml !== undefined && pathToDefineXml.length > 0) {
         let xml = Promise.resolve(readXml(pathToDefineXml[0]));
-        xml.then(sendToRender(mainWindow, pathToDefineXml[0]));
+        xml
+            .then(sendToRender(mainWindow, pathToDefineXml[0]))
+            .catch(sendErrorToRender(mainWindow));
     }
 };
 
