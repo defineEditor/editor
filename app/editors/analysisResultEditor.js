@@ -19,7 +19,12 @@ import { withStyles } from '@material-ui/core/styles';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
 import Grid from '@material-ui/core/Grid';
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
+import EditIcon from '@material-ui/icons/Edit';
+import ListIcon from '@material-ui/icons/List';
 import TextField from '@material-ui/core/TextField';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
 import SaveCancel from 'editors/saveCancel.js';
 import CommentEditor from 'editors/commentEditor.js';
@@ -34,7 +39,7 @@ import {
 
 const styles = theme => ({
     root: {
-        outline   : 'none',
+        outline: 'none',
     },
     paramter: {
         minWidth: '200px',
@@ -49,16 +54,14 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        mdv          : state.present.odm.study.metaDataVersion,
-        stdConstants : state.present.stdConstants,
-        lang         : state.present.odm.study.metaDataVersion.lang,
+        mdv: state.present.odm.study.metaDataVersion,
+        stdConstants: state.present.stdConstants,
+        lang: state.present.odm.study.metaDataVersion.lang,
     };
 };
 
 class ConnectedAnalysisResultEditor extends React.Component {
-
     constructor (props) {
-
         super(props);
 
         this.rootRef = React.createRef();
@@ -85,7 +88,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
         }
         // Extract all where clauses
         let whereClauses = {};
-        Object.values(analysisDatasets).forEach( analysisDataset => {
+        Object.values(analysisDatasets).forEach(analysisDataset => {
             if (analysisDataset.whereClauseOid !== undefined && props.mdv.whereClauses.hasOwnProperty(analysisDataset.whereClauseOid)) {
                 whereClauses[analysisDataset.itemGroupOid] = props.mdv.whereClauses[analysisDataset.whereClauseOid];
             }
@@ -102,21 +105,22 @@ class ConnectedAnalysisResultEditor extends React.Component {
             analysisDatasetOrder,
             analysisDatasetsComment,
             listOfVariables,
-            whereClauses
+            whereClauses,
+            analysisReasonManual: false,
+            analysisPurposeManual: false,
         };
     }
-
 
     getListOfVariables = (analysisDatasets) => {
         let result = [];
         const mdv = this.props.mdv;
         const itemGroups = mdv.itemGroups;
-        Object.values(analysisDatasets).forEach( analysisDataset => {
+        Object.values(analysisDatasets).forEach(analysisDataset => {
             let itemGroupOid = analysisDataset.itemGroupOid;
             if (itemGroups.hasOwnProperty(itemGroupOid)) {
                 let itemGroup = itemGroups[itemGroupOid];
                 let datasetName = itemGroup.name;
-                itemGroup.itemRefOrder.forEach( itemRefOid => {
+                itemGroup.itemRefOrder.forEach(itemRefOid => {
                     let itemDef = mdv.itemDefs[itemGroup.itemRefs[itemRefOid].itemOid];
                     if (itemDef.name === 'PARAMCD') {
                         result.unshift({ [itemDef.oid]: datasetName + '.' + itemDef.name });
@@ -170,7 +174,6 @@ class ConnectedAnalysisResultEditor extends React.Component {
                 } else {
                     this.setState({ ...updateObj, listOfVariables });
                 }
-
             } else {
                 this.setState({ ...updateObj });
             }
@@ -235,12 +238,12 @@ class ConnectedAnalysisResultEditor extends React.Component {
         // Comments;
         let commentData;
         let originalComment;
-        if (originalAnalysisResult.analysisDatasetsCommentOid !== undefined
-            && this.props.mdv.comments.hasOwnProperty(originalAnalysisResult.analysisDatasetsCommentOid)) {
+        if (originalAnalysisResult.analysisDatasetsCommentOid !== undefined &&
+            this.props.mdv.comments.hasOwnProperty(originalAnalysisResult.analysisDatasetsCommentOid)) {
             originalComment = this.props.mdv.comments[originalAnalysisResult.analysisDatasetsCommentOid];
         }
-        if (analysisResult.analysisDatasetsCommentOid !== originalAnalysisResult.analysisDatasetsCommentOid
-            || !deepEqual(this.state.analysisDatasetsComment, originalComment)
+        if (analysisResult.analysisDatasetsCommentOid !== originalAnalysisResult.analysisDatasetsCommentOid ||
+            !deepEqual(this.state.analysisDatasetsComment, originalComment)
         ) {
             commentData = { oldCommentOid: originalAnalysisResult.analysisDatasetsCommentOid, comment: this.state.analysisDatasetsComment };
         }
@@ -249,14 +252,14 @@ class ConnectedAnalysisResultEditor extends React.Component {
         let whereClauseData = {};
         let totalWcChanged = 0;
         let originalWhereClauses = {};
-        Object.values(originalAnalysisResult.analysisDatasets).forEach( analysisDataset => {
+        Object.values(originalAnalysisResult.analysisDatasets).forEach(analysisDataset => {
             if (analysisDataset.whereClauseOid !== undefined && this.props.mdv.whereClauses.hasOwnProperty(analysisDataset.whereClauseOid)) {
                 originalWhereClauses[analysisDataset.itemGroupOid] = this.props.mdv.whereClauses[analysisDataset.whereClauseOid];
             }
         });
         // Where clauses which were removed;
         whereClauseData.removed = {};
-        Object.keys(originalWhereClauses).forEach( itemGroupOid => {
+        Object.keys(originalWhereClauses).forEach(itemGroupOid => {
             if (originalWhereClauses[itemGroupOid] !== undefined && newWhereClauses[itemGroupOid] === undefined) {
                 let wcOid = originalWhereClauses[itemGroupOid].oid;
                 if (whereClauseData.removed.hasOwnProperty(wcOid)) {
@@ -268,18 +271,18 @@ class ConnectedAnalysisResultEditor extends React.Component {
         });
         // Added
         whereClauseData.added = {};
-        Object.keys(newWhereClauses).forEach( itemGroupOid => {
+        Object.keys(newWhereClauses).forEach(itemGroupOid => {
             if (newWhereClauses[itemGroupOid] !== undefined && originalWhereClauses[itemGroupOid] === undefined) {
                 let wcOid = newWhereClauses[itemGroupOid].oid;
                 let newWhereClause = newWhereClauses[itemGroupOid];
                 // Update sources
-                if (newWhereClause.sources.analysisResults !== undefined
-                    && newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid)
-                    && !newWhereClause.sources.analysisResults[this.props.analysisResultOid].includes(itemGroupOid)
+                if (newWhereClause.sources.analysisResults !== undefined &&
+                    newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid) &&
+                    !newWhereClause.sources.analysisResults[this.props.analysisResultOid].includes(itemGroupOid)
                 ) {
                     newWhereClause.sources.analysisResults[this.props.analysisResultOid].push(itemGroupOid);
-                } else if (newWhereClause.sources.analysisResults !== undefined
-                    && !newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid)
+                } else if (newWhereClause.sources.analysisResults !== undefined &&
+                    !newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid)
                 ) {
                     newWhereClause.sources.analysisResults[this.props.analysisResultOid] = [itemGroupOid];
                 } else {
@@ -291,21 +294,21 @@ class ConnectedAnalysisResultEditor extends React.Component {
         });
         // Changed
         whereClauseData.changed = {};
-        Object.keys(newWhereClauses).forEach( itemGroupOid => {
-            if (newWhereClauses[itemGroupOid] !== undefined
-                && originalWhereClauses[itemGroupOid] !== undefined
-                && !deepEqual(newWhereClauses[itemGroupOid], originalWhereClauses[itemGroupOid])
+        Object.keys(newWhereClauses).forEach(itemGroupOid => {
+            if (newWhereClauses[itemGroupOid] !== undefined &&
+                originalWhereClauses[itemGroupOid] !== undefined &&
+                !deepEqual(newWhereClauses[itemGroupOid], originalWhereClauses[itemGroupOid])
             ) {
                 let wcOid = newWhereClauses[itemGroupOid].oid;
                 let newWhereClause = newWhereClauses[itemGroupOid];
                 // Update sources
-                if (newWhereClause.sources.analysisResults !== undefined
-                    && newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid)
-                    && !newWhereClause.sources.analysisResults[this.props.analysisResultOid].includes(itemGroupOid)
+                if (newWhereClause.sources.analysisResults !== undefined &&
+                    newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid) &&
+                    !newWhereClause.sources.analysisResults[this.props.analysisResultOid].includes(itemGroupOid)
                 ) {
                     newWhereClause.sources.analysisResults[this.props.analysisResultOid].push(itemGroupOid);
-                } else if (newWhereClause.sources.analysisResults !== undefined
-                    && !newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid)
+                } else if (newWhereClause.sources.analysisResults !== undefined &&
+                    !newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid)
                 ) {
                     newWhereClause.sources.analysisResults[this.props.analysisResultOid] = [itemGroupOid];
                 } else {
@@ -318,20 +321,20 @@ class ConnectedAnalysisResultEditor extends React.Component {
         // Total number of where clauses changed
         totalWcChanged = Object.keys(whereClauseData.removed).length + Object.keys(whereClauseData.added).length + Object.keys(whereClauseData.changed).length;
 
-        if (originalAnalysisResult.analysisDatasetsCommentOid !== undefined
-            && this.props.mdv.comments.hasOwnProperty(originalAnalysisResult.analysisDatasetsCommentOid)) {
+        if (originalAnalysisResult.analysisDatasetsCommentOid !== undefined &&
+            this.props.mdv.comments.hasOwnProperty(originalAnalysisResult.analysisDatasetsCommentOid)) {
             originalComment = this.props.mdv.comments[originalAnalysisResult.analysisDatasetsCommentOid];
         }
-        if (analysisResult.analysisDatasetsCommentOid !== originalAnalysisResult.analysisDatasetsCommentOid
-            || !deepEqual(this.state.analysisDatasetsComment, originalComment)
+        if (analysisResult.analysisDatasetsCommentOid !== originalAnalysisResult.analysisDatasetsCommentOid ||
+            !deepEqual(this.state.analysisDatasetsComment, originalComment)
         ) {
             commentData = { oldCommentOid: originalAnalysisResult.analysisDatasetsCommentOid, comment: this.state.analysisDatasetsComment };
         }
 
         // Keep only parts which have changed
         for (let prop in analysisResult) {
-            if ( ['analysisDatasetsComment','listOfVariables','descriptionText','whereClauses'].includes(prop)
-                || deepEqual(analysisResult[prop], originalAnalysisResult[prop])) {
+            if (['analysisDatasetsComment', 'listOfVariables', 'descriptionText', 'whereClauses'].includes(prop) ||
+                deepEqual(analysisResult[prop], originalAnalysisResult[prop])) {
                 delete analysisResult[prop];
             }
         }
@@ -340,13 +343,13 @@ class ConnectedAnalysisResultEditor extends React.Component {
                 oid: this.props.analysisResultOid,
                 commentData,
                 whereClauseData,
-                updates: { ... analysisResult },
+                updates: { ...analysisResult },
             });
         }
         this.props.onUpdateFinished();
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.props.onUpdateFinished();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -357,6 +360,21 @@ class ConnectedAnalysisResultEditor extends React.Component {
 
     render () {
         const { classes } = this.props;
+
+        // Extend standard codelist with values which were edited by user
+        let armAnalysisReason;
+        if (this.state.analysisReason !== undefined && !this.props.stdConstants.armAnalysisReason.hasOwnProperty(this.state.analysisReason)) {
+            armAnalysisReason = { ...this.props.stdConstants.armAnalysisReason, [this.state.analysisReason]: this.state.analysisReason };
+        } else {
+            armAnalysisReason = this.props.stdConstants.armAnalysisReason;
+        }
+        let armAnalysisPurpose;
+        if (this.state.analysisPurpose !== undefined && !this.props.stdConstants.armAnalysisPurpose.hasOwnProperty(this.state.analysisPurpose)) {
+            armAnalysisPurpose = { ...this.props.stdConstants.armAnalysisPurpose, [this.state.analysisPurpose]: this.state.analysisPurpose };
+        } else {
+            armAnalysisPurpose = this.props.stdConstants.armAnalysisPurpose;
+        }
+
         return (
             <div className={classes.root} onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef}>
                 <Grid container spacing={8}>
@@ -377,10 +395,27 @@ class ConnectedAnalysisResultEditor extends React.Component {
                                     label='Analysis Reason'
                                     value={this.state.analysisReason}
                                     fullWidth
-                                    select
+                                    select={!this.state.analysisReasonManual}
                                     onChange={this.handleChange('main')('analysisReason')}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <Tooltip
+                                                    title={ this.state.analysisReasonManual ? 'Switch to selection' : 'Switch to manual editing' }
+                                                    placement='bottom' enterDelay={1000}
+                                                >
+                                                    <IconButton
+                                                        onClick={ () => { this.setState({ analysisReasonManual: !this.state.analysisReasonManual }); } }
+                                                        color='primary'
+                                                        className={classes.button}
+                                                    >
+                                                        { this.state.analysisReasonManual ? <ListIcon /> : <EditIcon /> }
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </InputAdornment>
+                                        ) }}
                                 >
-                                    {getSelectionList(this.props.stdConstants.armAnalysisReason)}
+                                    {!this.state.analysisReasonManual && getSelectionList(armAnalysisReason)}
                                 </TextField>
                             </Grid>
                             <Grid item>
@@ -388,10 +423,27 @@ class ConnectedAnalysisResultEditor extends React.Component {
                                     label='Analysis Purpose'
                                     value={this.state.analysisPurpose}
                                     fullWidth
-                                    select
+                                    select={!this.state.analysisPurposeManual}
                                     onChange={this.handleChange('main')('analysisPurpose')}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <Tooltip
+                                                    title={ this.state.analysisPurposeManual ? 'Switch to selection' : 'Switch to manual editing' }
+                                                    placement='bottom' enterDelay={1000}
+                                                >
+                                                    <IconButton
+                                                        onClick={ () => { this.setState({ analysisPurposeManual: !this.state.analysisPurposeManual }); } }
+                                                        color='primary'
+                                                        className={classes.button}
+                                                    >
+                                                        { this.state.analysisPurposeManual ? <ListIcon /> : <EditIcon /> }
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </InputAdornment>
+                                        ) }}
                                 >
-                                    {getSelectionList(this.props.stdConstants.armAnalysisPurpose)}
+                                    {!this.state.analysisPurposeManual && getSelectionList(armAnalysisPurpose)}
                                 </TextField>
                             </Grid>
                             <Grid item>
@@ -448,9 +500,9 @@ class ConnectedAnalysisResultEditor extends React.Component {
 }
 
 ConnectedAnalysisResultEditor.propTypes = {
-    analysisResultOid : PropTypes.string.isRequired,
-    classes           : PropTypes.object.isRequired,
-    onUpdateFinished  : PropTypes.func.isRequired,
+    analysisResultOid: PropTypes.string.isRequired,
+    classes: PropTypes.object.isRequired,
+    onUpdateFinished: PropTypes.func.isRequired,
 };
 
 const AnalysisResultEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedAnalysisResultEditor);

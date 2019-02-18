@@ -1,7 +1,7 @@
 {
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "license": "AGPL-3.0-only",
   "private": "true",
   "description": "Visual Define-XML Editor",
@@ -21,7 +21,9 @@
     "package": "npm run build && build --publish never",
     "package-all": "npm run build && build -mwl",
     "package-linux": "npm run build && build --linux",
+    "package-mac": "npm run build && build --mac",
     "package-win": "npm run build && build --win --x64",
+    "package-win32": "npm run build && build --win --ia32",
     "postinstall": "node -r babel-register internals/scripts/CheckNativeDep.js && npm run flow-typed && npm run build-dll && electron-builder install-app-deps && node node_modules/fbjs-scripts/node/check-dev-engines.js package.json",
     "postlint-fix": "prettier --ignore-path .eslintignore --single-quote --write '**/*.js'",
     "precommit": "lint-staged",
@@ -66,6 +68,9 @@
           "path": "/Applications"
         }
       ]
+    },
+    "nsis": {
+        "artifactName": "${productName} Setup ${version} ${arch}.${ext}"
     },
     "win": {
       "target": [

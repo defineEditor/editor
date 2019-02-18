@@ -22,6 +22,13 @@ function splitAttributes (match) {
     return match.replace(/\s(\S+=".*?")/g, '\n' + tab + '  $1');
 }
 
+function escapeFunc(str) {
+    return str.replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\r(?!\n)/g, "&#xD;");// this matches only lonely carriage return characters
+}
+
 function createDefine (data, version) {
     // Use the same version as before if the version is not specified
     // Use 2.0.0 by default
@@ -65,7 +72,7 @@ function createDefine (data, version) {
 }
 
 function createOdm (data, version) {
-    let xmlRoot = xmlBuilder.create('ODM');
+    let xmlRoot = xmlBuilder.create('ODM', { stringify: { elEscape: escapeFunc } });
     if (version === '2.0.0') {
         let attributes = {
             'xmlns': data.xmlns,
