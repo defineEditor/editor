@@ -113,8 +113,8 @@ class ConnectedModalDeleteCodeLists extends React.Component {
         if (!this.state.warningShowAgain) {
             // if so, update the corresponding setting
             this.props.updateSettings({
-                editor: {
-                    codeListDeleteWarning: false,
+                popUp: {
+                    onCodeListDelete: false,
                 },
             });
         }
@@ -181,7 +181,7 @@ class ConnectedModalDeleteCodeLists extends React.Component {
                     />
                     {!this.state.warningShowAgain &&
                         <Typography variant="body2" gutterBottom align="left" color='primary'>
-                            You can change this later in Settings under the Pop-up section
+                            You can change this later in Settings under the Notifications section
                         </Typography>
                     }
                 </DialogContent>
