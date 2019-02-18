@@ -51,7 +51,7 @@ yarn dev
 
 ## Authors
 
-* [**Dmitry Kolosov**](https://www.linkedin.com/in/sergey-krivtsov-677419b4/)
+* [**Dmitry Kolosov**](https://www.linkedin.com/in/dmitry-kolosov-91751413/)
 * [**Sergei Krivtcov**](https://www.linkedin.com/in/sergey-krivtsov-677419b4/)
 
 ## License
