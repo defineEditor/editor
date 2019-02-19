@@ -16,6 +16,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
+import {
+    openModal,
+    updateCodeList,
+} from 'actions/index.js';
 
 // Redux functions
 const mapStateToProps = state => {
@@ -24,8 +28,14 @@ const mapStateToProps = state => {
     };
 };
 
-class ConnectedLinkedCodeListEditor extends React.Component {
+const mapDispatchToProps = dispatch => {
+    return {
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
+        updateCodeList: (oid, updateObj) => dispatch(updateCodeList(oid, updateObj)),
+    };
+};
 
+class ConnectedLinkedCodeListEditor extends React.Component {
     getLinkableCodelists = (type) => {
         let linkedCodeListType;
         if (type === 'decoded') {
@@ -34,22 +44,61 @@ class ConnectedLinkedCodeListEditor extends React.Component {
             linkedCodeListType = 'decoded';
         }
         // Get list of codelists with decodes for enumeration codelist and vice versa for linked codelist selection;
-        return Object.keys(this.props.codeLists).filter( codeListOid => {
+        return Object.keys(this.props.codeLists).filter(codeListOid => {
             return this.props.codeLists[codeListOid].codeListType === linkedCodeListType;
-        }).map( codeListOid => {
+        }).map(codeListOid => {
             if (this.props.codeLists[codeListOid].linkedCodeListOid !== undefined) {
-                return {[this.props.codeLists[codeListOid].oid]: this.props.codeLists[codeListOid].name + ' (Linked)'};
+                return { [this.props.codeLists[codeListOid].oid]: this.props.codeLists[codeListOid].name + ' (Linked)' };
             } else {
-                return {[this.props.codeLists[codeListOid].oid]: this.props.codeLists[codeListOid].name};
+                return { [this.props.codeLists[codeListOid].oid]: this.props.codeLists[codeListOid].name };
             }
         });
     }
 
-    handleChange = (updateObj) => {
-        if (updateObj === '') {
-            this.props.onUpdate(undefined);
+    handleChange = (selectedCodeListOid) => {
+        this.props.onUpdate(this.props.defaultValue);
+        // when Esc is pressed, do nothing and exit editor
+        if (selectedCodeListOid === undefined) {
+            return;
+        }
+        // Linking a codelist may change of the enumeration codelist, so provide standardCodelist for the enumerated codelist
+        let standardCodeListOid;
+        let standardOid;
+        if (selectedCodeListOid !== '') {
+            let codeList = this.props.codeLists[this.props.row.oid];
+            let linkedCodeList = this.props.codeLists[selectedCodeListOid];
+            if (codeList.codeListType === 'enumerated' &&
+                codeList.standardOid !== undefined &&
+                this.props.stdCodeLists.hasOwnProperty(codeList.standardOid) &&
+                this.props.stdCodeLists[codeList.standardOid].nciCodeOids.hasOwnProperty(codeList.alias.name)
+            ) {
+                standardCodeListOid = this.props.stdCodeLists[codeList.standardOid].nciCodeOids[codeList.alias.name];
+                standardOid = codeList.standardOid;
+                // updateObj.standardCodeList = this.props.stdCodeLists[codeList.standardOid].codeLists[standardCodeListOid];
+            } else if (linkedCodeList.codeListType === 'enumerated' &&
+                linkedCodeList.standardOid !== undefined &&
+                this.props.stdCodeLists.hasOwnProperty(linkedCodeList.standardOid) &&
+                this.props.stdCodeLists[linkedCodeList.standardOid].nciCodeOids.hasOwnProperty(linkedCodeList.alias.name)
+            ) {
+                standardCodeListOid = this.props.stdCodeLists[linkedCodeList.standardOid].nciCodeOids[linkedCodeList.alias.name];
+                standardOid = linkedCodeList.standardOid;
+                // updateObj.standardCodeList = this.props.stdCodeLists[linkedCodeList.standardOid].codeLists[standardCodeListOid];
+            }
+        }
+        // updateObj['linkedCodeListOid'] = selectedCodeListOid;
+        // this.props.updateCodeList(row.oid, updateObj);
+        if (selectedCodeListOid === '') {
+            this.props.updateCodeList(this.props.row.oid, { linkedCodeListOid: undefined });
         } else {
-            this.props.onUpdate(updateObj);
+            // TODO: add clause to check if modal is needed
+            this.props.updateCodeList(this.props.row.oid, {
+                linkedCodeListOid: selectedCodeListOid,
+                standardCodeList: standardCodeListOid ? this.props.stdCodeLists[standardOid].codeLists[standardCodeListOid] : undefined,
+            });
+            this.props.openModal({
+                type: 'LINK_CODELIST',
+                props: { codeListOid: this.props.row.oid, linkedCodeListOid: selectedCodeListOid, standardCodeListOid, standardOid }
+            });
         }
     }
 
@@ -70,11 +119,11 @@ class ConnectedLinkedCodeListEditor extends React.Component {
 }
 
 ConnectedLinkedCodeListEditor.propTypes = {
-    codeLists    : PropTypes.object.isRequired,
-    defaultValue : PropTypes.string.isRequired,
-    row          : PropTypes.object.isRequired,
-    onUpdate     : PropTypes.func
+    codeLists: PropTypes.object.isRequired,
+    defaultValue: PropTypes.string.isRequired,
+    row: PropTypes.object.isRequired,
+    onUpdate: PropTypes.func
 };
 
-const LinkedCodeListEditor = connect(mapStateToProps)(ConnectedLinkedCodeListEditor);
+const LinkedCodeListEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedLinkedCodeListEditor);
 export default LinkedCodeListEditor;

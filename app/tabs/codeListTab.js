@@ -253,36 +253,14 @@ class ConnectedCodeListTable extends React.Component {
     }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
-        if (cellValue === '' && cellName === 'linkedCodeList') {
-            cellValue = undefined;
+        if (['linkedCodeList'].includes(cellName)) {
+            // For this cells reducers are called within the editor
+            return true;
         }
         // Update on if the value changed
         if (!deepEqual(row[cellName], cellValue)) {
             let updateObj = {};
-            if (cellName === 'linkedCodeList') {
-                // Linking a codelist may change of the enumeration codelist, so provide standardCodelist for the enumerated codelist
-                if (cellValue !== undefined) {
-                    let codeList = this.props.codeLists[row.oid];
-                    let linkedCodeList = this.props.codeLists[cellValue];
-                    if (codeList.codeListType === 'enumerated' &&
-                        codeList.standardOid !== undefined &&
-                        this.props.stdCodeLists.hasOwnProperty(codeList.standardOid) &&
-                        this.props.stdCodeLists[codeList.standardOid].nciCodeOids.hasOwnProperty(codeList.alias.name)
-                    ) {
-                        let standardCodeListOid = this.props.stdCodeLists[codeList.standardOid].nciCodeOids[codeList.alias.name];
-                        updateObj.standardCodeList = this.props.stdCodeLists[codeList.standardOid].codeLists[standardCodeListOid];
-                    } else if (linkedCodeList.codeListType === 'enumerated' &&
-                        linkedCodeList.standardOid !== undefined &&
-                        this.props.stdCodeLists.hasOwnProperty(linkedCodeList.standardOid) &&
-                        this.props.stdCodeLists[linkedCodeList.standardOid].nciCodeOids.hasOwnProperty(linkedCodeList.alias.name)
-                    ) {
-                        let standardCodeListOid = this.props.stdCodeLists[linkedCodeList.standardOid].nciCodeOids[linkedCodeList.alias.name];
-                        updateObj.standardCodeList = this.props.stdCodeLists[linkedCodeList.standardOid].codeLists[standardCodeListOid];
-                    }
-                }
-                updateObj['linkedCodeListOid'] = cellValue;
-                this.props.updateCodeList(row.oid, updateObj);
-            } else if (cellName === 'standardData' && row.codeListType !== 'external') {
+            if (cellName === 'standardData' && row.codeListType !== 'external') {
                 if (!deepEqual(cellValue, row[cellName])) {
                     updateObj = { ...cellValue };
                     if (cellValue.standardOid !== undefined && cellValue.alias !== undefined && this.props.stdCodeLists.hasOwnProperty(cellValue.standardOid)) {

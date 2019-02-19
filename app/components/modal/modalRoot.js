@@ -22,6 +22,7 @@ import ModalChangeDefine from 'components/modal/modalChangeDefine.js';
 import ModalQuitApplication from 'components/modal/modalQuitApplication.js';
 import ModalInitialMessage from 'components/modal/modalInitialMessage.js';
 import ModalPopulateStdCodeLists from 'components/modal/modalPopulateStdCodeLists.js';
+import ModalLinkCodeList from 'components/modal/modalLinkCodeList.js';
 import ModalLinkCodeLists from 'components/modal/modalLinkCodeLists.js';
 import ModalBugReport from 'components/modal/modalBugReport.js';
 import ModalSaveSettings from 'components/modal/modalSaveSettings.js';
@@ -40,14 +41,14 @@ const MODAL_COMPONENTS = {
     'INITIAL_MESSAGE': ModalInitialMessage,
     'POPULATE_STD_CODELISTS': ModalPopulateStdCodeLists,
     'SAVE_SETTINGS': ModalSaveSettings,
+    'LINK_CODELIST': ModalLinkCodeList,
     'LINK_CODELISTS': ModalLinkCodeLists,
     'BUG_REPORT': ModalBugReport,
     'QUIT': ModalQuitApplication,
 };
 
 class ConnectedModalRoot extends React.Component {
-
-    render() {
+    render () {
         if (!this.props.modal.type) {
             return null;
         }
