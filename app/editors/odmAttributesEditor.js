@@ -24,19 +24,17 @@ import EditingControlIcons from 'editors/editingControlIcons.js';
 
 const styles = theme => ({
     root: {
-        padding   : 16,
-        marginTop : theme.spacing.unit * 3,
-        width     : '100%',
-        outline   : 'none',
+        padding: 16,
+        marginTop: theme.spacing.unit * 3,
+        width: '100%',
+        outline: 'none',
     },
     inputField: {
     },
 });
 
 class OdmAttributesEditor extends React.Component {
-
     constructor (props) {
-
         super(props);
 
         const { odmAttrs } = this.props;
@@ -53,7 +51,7 @@ class OdmAttributesEditor extends React.Component {
         this.props.onSave(this.state);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.props.onCancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -116,12 +114,12 @@ class OdmAttributesEditor extends React.Component {
 }
 
 OdmAttributesEditor.propTypes = {
-    odmAttrs  : PropTypes.object.isRequired,
-    classes   : PropTypes.object.isRequired,
-    onSave    : PropTypes.func.isRequired,
-    onCancel  : PropTypes.func.isRequired,
-    onHelp    : PropTypes.func,
-    onComment : PropTypes.func,
+    odmAttrs: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    onSave: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    onHelp: PropTypes.func,
+    onComment: PropTypes.func,
 };
 
 export default withStyles(styles)(OdmAttributesEditor);

@@ -37,7 +37,7 @@ const styles = theme => ({
 });
 
 class AddDefineFormStep3 extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.state = {
@@ -53,7 +53,7 @@ class AddDefineFormStep3 extends React.Component {
       this.props.onNext(this.state.name);
   };
 
-  render() {
+  render () {
       const { classes } = this.props;
 
       return (

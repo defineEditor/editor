@@ -15,7 +15,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import deepEqual from 'fast-deep-equal';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -31,33 +31,33 @@ import SaveCancel from 'editors/saveCancel.js';
 
 const styles = theme => ({
     dialog: {
-        paddingLeft   : theme.spacing.unit * 2,
-        paddingRight  : theme.spacing.unit * 2,
-        paddingBottom : theme.spacing.unit * 1,
-        position      : 'absolute',
-        borderRadius  : '10px',
-        border        : '2px solid',
-        borderColor   : 'primary',
-        top           : '10%',
-        transform     : 'translate(0%, calc(-10%+0.5px))',
-        overflowX     : 'none',
-        maxHeight     : '90%',
-        overflowY     : 'auto',
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        position: 'absolute',
+        borderRadius: '10px',
+        border: '2px solid',
+        borderColor: 'primary',
+        top: '10%',
+        transform: 'translate(0%, calc(-10%+0.5px))',
+        overflowX: 'none',
+        maxHeight: '90%',
+        overflowY: 'auto',
     },
     editButton: {
         transform: 'translate(0%, -6%)',
     },
     list: {
-        backgroundColor : '#F9F9F9',
-        padding         : '0px',
-        maxHeight       : '600px',
-        overflowX       : 'auto',
+        backgroundColor: '#F9F9F9',
+        padding: '0px',
+        maxHeight: '600px',
+        overflowX: 'auto',
     },
     listItem: {
-        borderWidth     : '1px',
-        backgroundColor : '#FFFFFF',
-        borderStyle     : 'solid',
-        borderColor     : 'rgba(0, 0, 0, 0.12)',
+        borderWidth: '1px',
+        backgroundColor: '#FFFFFF',
+        borderStyle: 'solid',
+        borderColor: 'rgba(0, 0, 0, 0.12)',
     },
     sortableHelper: {
         zIndex: 3000,
@@ -92,19 +92,19 @@ class GeneralOrderEditor extends React.Component {
         super(props);
 
         this.state = {
-            dialogOpened : props.noButton ? true : false,
-            items        : props.items,
-            initialItems : props.items,
+            dialogOpened: !!props.noButton,
+            items: props.items,
+            initialItems: props.items,
         };
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
+    static getDerivedStateFromProps (nextProps, prevState) {
         // Store prevUserId in state so we can compare when props change.
         // Clear out any previously-loaded user data (so we don't render stale stuff).
         if (!deepEqual(nextProps.items, prevState.initialItems)) {
             return {
-                items        : nextProps.items,
-                initialItems : nextProps.items,
+                items: nextProps.items,
+                initialItems: nextProps.items,
             };
         }
 
@@ -113,8 +113,8 @@ class GeneralOrderEditor extends React.Component {
 
     resetState = () => {
         this.setState({
-            dialogOpened : this.props.noButton ? true : false,
-            items        : this.props.items,
+            dialogOpened: !!this.props.noButton,
+            items: this.props.items,
         });
     }
 
@@ -142,13 +142,13 @@ class GeneralOrderEditor extends React.Component {
         }
     }
 
-    handleChange = ({oldIndex, newIndex}) => {
+    handleChange = ({ oldIndex, newIndex }) => {
         this.setState({
             items: arrayMove(this.state.items, oldIndex, newIndex),
         });
     };
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.handleCancelAndClose();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -156,8 +156,8 @@ class GeneralOrderEditor extends React.Component {
         }
     }
 
-    render() {
-        const {classes} = this.props;
+    render () {
+        const { classes } = this.props;
         const paperWidth = this.props.width ? this.props.width : '300px';
 
         return (
@@ -179,7 +179,7 @@ class GeneralOrderEditor extends React.Component {
                     disableBackdropClick
                     disableEscapeKeyDown
                     open={this.state.dialogOpened}
-                    PaperProps={{className: classes.dialog, style: {width: paperWidth}}}
+                    PaperProps={{ className: classes.dialog, style: { width: paperWidth } }}
                     onKeyDown={this.onKeyDown}
                     tabIndex='0'
                 >
@@ -208,15 +208,14 @@ class GeneralOrderEditor extends React.Component {
 }
 
 GeneralOrderEditor.propTypes = {
-    classes  : PropTypes.object.isRequired,
-    items    : PropTypes.array.isRequired,
-    onSave   : PropTypes.func.isRequired,
-    title    : PropTypes.string.isRequired,
-    width    : PropTypes.string,
-    noButton : PropTypes.bool,
-    onCancel : PropTypes.func,
-    disabled : PropTypes.bool,
+    classes: PropTypes.object.isRequired,
+    items: PropTypes.array.isRequired,
+    onSave: PropTypes.func.isRequired,
+    title: PropTypes.string.isRequired,
+    width: PropTypes.string,
+    noButton: PropTypes.bool,
+    onCancel: PropTypes.func,
+    disabled: PropTypes.bool,
 };
 
 export default withStyles(styles)(GeneralOrderEditor);
-

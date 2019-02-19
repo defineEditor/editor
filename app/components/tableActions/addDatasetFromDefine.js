@@ -102,7 +102,7 @@ const getInitialValues = (props) => {
 };
 
 class AddDatasetFromDefineConnected extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         const { itemGroupsData } = getInitialValues(props);
@@ -123,12 +123,12 @@ class AddDatasetFromDefineConnected extends React.Component {
             detachMethods: true,
             detachComments: true,
             copyVlm: true,
-            rowsPerPage : 25,
+            rowsPerPage: 25,
             page: 0,
         };
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
+    static getDerivedStateFromProps (nextProps, prevState) {
         // If source ODM has changed
         if (nextProps.sourceDefineId !== prevState.sourceDefineId) {
             return ({ ...getInitialValues(nextProps), sourceDefineId: nextProps.sourceDefineId });
@@ -204,21 +204,21 @@ class AddDatasetFromDefineConnected extends React.Component {
         this.setState({ [name]: !this.state[name] });
     }
 
-    getDatasetTable(defineVersion, classes) {
+    getDatasetTable (defineVersion, classes) {
         const { selected, page, rowsPerPage, searchString, itemGroupsData } = this.state;
 
         let data;
 
         if (searchString !== '') {
-            data = itemGroupsData.filter( row => {
+            data = itemGroupsData.filter(row => {
                 if (/[A-Z]/.test(searchString)) {
-                    return row.name.includes(searchString)
-                        || row.description.includes(searchString)
-                        || row.class.includes(searchString);
+                    return row.name.includes(searchString) ||
+                        row.description.includes(searchString) ||
+                        row.class.includes(searchString);
                 } else {
-                    return row.name.toLowerCase().includes(searchString.toLowerCase())
-                        || row.description.toLowerCase().includes(searchString.toLowerCase())
-                        || row.class.toLowerCase().includes(searchString.toLowerCase());
+                    return row.name.toLowerCase().includes(searchString.toLowerCase()) ||
+                        row.description.toLowerCase().includes(searchString.toLowerCase()) ||
+                        row.class.toLowerCase().includes(searchString.toLowerCase());
                 }
             });
         } else {
@@ -365,14 +365,14 @@ class AddDatasetFromDefineConnected extends React.Component {
                         }}
                         onChangePage={this.handleChangePage}
                         onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                        rowsPerPageOptions={[25,50,100]}
+                        rowsPerPageOptions={[25, 50, 100]}
                     />
                 </Grid>
             </Grid>
         );
     }
 
-    render() {
+    render () {
         const { defineVersion, classes } = this.props;
         return (
             <div className={classes.root}>

@@ -28,8 +28,8 @@ import { ipcRenderer } from 'electron';
 
 const styles = theme => ({
     mainPart: {
-        padding   : 16,
-        marginTop : theme.spacing.unit * 3,
+        padding: 16,
+        marginTop: theme.spacing.unit * 3,
     },
     typeColumn: {
         width: '20%',
@@ -38,10 +38,10 @@ const styles = theme => ({
 
 const CustomTableCell = withStyles(theme => ({
     head: {
-        backgroundColor : theme.palette.primary.main,
-        color           : '#EEEEEE',
-        fontSize        : 16,
-        fontWeight      : 'bold',
+        backgroundColor: theme.palette.primary.main,
+        color: '#EEEEEE',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     body: {
         fontSize: 14,
@@ -49,7 +49,6 @@ const CustomTableCell = withStyles(theme => ({
 }))(TableCell);
 
 class DocumentTableFormatter extends React.Component {
-
     openPdf = (event) => {
         event.preventDefault();
         ipcRenderer.send('openDocument', path.dirname(this.props.pathToDefine), event.target.attributes[0].value);
@@ -101,13 +100,13 @@ class DocumentTableFormatter extends React.Component {
 }
 
 DocumentTableFormatter.propTypes = {
-    leafs         : PropTypes.object.isRequired,
-    leafOrder     : PropTypes.array.isRequired,
-    documentTypes : PropTypes.object.isRequired,
-    classes       : PropTypes.object.isRequired,
-    onEdit        : PropTypes.func.isRequired,
-    pathToDefine  : PropTypes.string,
-    onComment     : PropTypes.func,
+    leafs: PropTypes.object.isRequired,
+    leafOrder: PropTypes.array.isRequired,
+    documentTypes: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    onEdit: PropTypes.func.isRequired,
+    pathToDefine: PropTypes.string,
+    onComment: PropTypes.func,
 };
 
 export default withStyles(styles)(DocumentTableFormatter);

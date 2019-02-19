@@ -14,12 +14,12 @@
 
 import { getDescription } from 'utils/defineStructureUtils.js';
 // Extract data required for the table;
-function getDatasetDataForImport ({source, defineVersion}={}) {
+function getDatasetDataForImport ({ source, defineVersion } = {}) {
     let result = [];
     Object.values(source.itemGroups).forEach((itemGroup, index) => {
         let currentDataset = {
-            oid : itemGroup.oid,
-            name : itemGroup.name,
+            oid: itemGroup.oid,
+            name: itemGroup.name,
             description: getDescription(itemGroup),
             class: itemGroup.datasetClass.name,
             comment: itemGroup.commentOid !== undefined ? source.comments[itemGroup.commentOid] : undefined,

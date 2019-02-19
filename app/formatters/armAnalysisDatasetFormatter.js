@@ -50,7 +50,7 @@ class ArmAnalysisDatasetFormatter extends React.Component {
             <Grid container spacing={8}>
                 <Grid item xs={12}>
                     <Typography variant="headline" className={classes.title}>
-                        <span onClick={() => {this.props.selectGroup(itemGroupOid);}}>{datasetName}</span>
+                        <span onClick={() => { this.props.selectGroup(itemGroupOid); }}>{datasetName}</span>
                     </Typography>
                 </Grid>
                 { whereClauseText !== undefined && (
@@ -69,7 +69,7 @@ class ArmAnalysisDatasetFormatter extends React.Component {
                             Analysis Variables
                         </Typography>
                         <List>
-                            {Object.values(variables).map( (variable, index) => (
+                            {Object.values(variables).map((variable, index) => (
                                 <ListItem key={index} disableGutters className={classes.variable}>
                                     <ListItemText primary={variable} disableTypography className={classes.textValues}/>
                                 </ListItem>
@@ -83,9 +83,9 @@ class ArmAnalysisDatasetFormatter extends React.Component {
 }
 
 ArmAnalysisDatasetFormatter.propTypes = {
-    classes     : PropTypes.object,
-    dsData      : PropTypes.object.isRequired,
-    selectGroup : PropTypes.func.isRequired,
+    classes: PropTypes.object,
+    dsData: PropTypes.object.isRequired,
+    selectGroup: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(ArmAnalysisDatasetFormatter);

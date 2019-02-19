@@ -79,7 +79,7 @@ const mapDispatchToProps = dispatch => {
 };
 
 class ConnectedStudyTile extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.state = {
@@ -89,7 +89,7 @@ class ConnectedStudyTile extends React.Component {
         };
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
+    static getDerivedStateFromProps (nextProps, prevState) {
         // Check if defineIds changed
         let allPresent = prevState.study.defineIds.every(defineId =>
             nextProps.study.defineIds.includes(defineId)
@@ -196,17 +196,17 @@ class ConnectedStudyTile extends React.Component {
 
     getSummary = () => {
         let totalSummary = { datasets: 0, variables: 0, codeLists: 0 };
-        this.state.study.defineIds.forEach( defineId => {
+        this.state.study.defineIds.forEach(defineId => {
             let stats = this.props.defines.byId[defineId].stats;
             if (stats) {
-                Object.keys(stats).forEach( stat => {
+                Object.keys(stats).forEach(stat => {
                     totalSummary[stat] += stats[stat];
                 });
             }
         });
-        return  totalSummary.datasets + ' dataset' + (totalSummary.datasets !== 0 ? 's, ' : ', ')
-                + totalSummary.variables + ' variable' + (totalSummary.variables !== 0 ? 's, ' : ', ')
-                + totalSummary.codeLists + ' codelist' + (totalSummary.codeLists !== 0 ? 's.' : '.')
+        return totalSummary.datasets + ' dataset' + (totalSummary.datasets !== 0 ? 's, ' : ', ') +
+                totalSummary.variables + ' variable' + (totalSummary.variables !== 0 ? 's, ' : ', ') +
+                totalSummary.codeLists + ' codelist' + (totalSummary.codeLists !== 0 ? 's.' : '.')
         ;
     };
 
@@ -222,7 +222,7 @@ class ConnectedStudyTile extends React.Component {
         this.setState({ study: { ...this.props.study }, editMode: false });
     };
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.onCancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -230,7 +230,7 @@ class ConnectedStudyTile extends React.Component {
         }
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
         const { anchorEl } = this.state;
 
@@ -238,7 +238,7 @@ class ConnectedStudyTile extends React.Component {
 
         // Get last changed data
         let lastChanged;
-        let defineChangeDates = this.state.study.defineIds.map( defineId => ( this.props.defines.byId[defineId].lastChanged ) );
+        let defineChangeDates = this.state.study.defineIds.map(defineId => (this.props.defines.byId[defineId].lastChanged));
         // As dates are stored in ISO format, they can be sorted alphabetically;
         if (defineChangeDates.length > 0) {
             defineChangeDates.sort();
@@ -246,7 +246,6 @@ class ConnectedStudyTile extends React.Component {
         } else {
             lastChanged = '';
         }
-
 
         return (
             <div

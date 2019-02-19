@@ -27,23 +27,23 @@ import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 
 const styles = theme => ({
     iconButton: {
-        marginLeft   : '0px',
-        marginRight  : '0px',
-        marginBottom : '8px',
+        marginLeft: '0px',
+        marginRight: '0px',
+        marginBottom: '8px',
     },
     resultDisplayInput: {
-        marginBottom : '8px',
+        marginBottom: '8px',
     },
     helperText: {
-        whiteSpace : 'pre-wrap',
-        color      : theme.palette.primary.main,
+        whiteSpace: 'pre-wrap',
+        color: theme.palette.primary.main,
     },
 });
 
 const mapStateToProps = state => {
     return {
-        leafs : state.present.odm.study.metaDataVersion.leafs,
-        lang  : state.present.odm.study.metaDataVersion.lang,
+        leafs: state.present.odm.study.metaDataVersion.leafs,
+        lang: state.present.odm.study.metaDataVersion.lang,
     };
 };
 
@@ -56,7 +56,7 @@ class ConnectedDescriptionView extends React.Component {
         if (descriptionText !== undefined) {
             // Check for special characters
             // eslint-disable-next-line no-control-regex
-            let issues = checkForSpecialChars(descriptionText, new RegExp(/[^\u000A\u000D\u0020-\u007f]/,'g'));
+            let issues = checkForSpecialChars(descriptionText, new RegExp(/[^\u000A\u000D\u0020-\u007f]/, 'g'));
             if (issues.length > 0) {
                 issue = true;
                 helperText = issues.join('\n');
@@ -89,7 +89,7 @@ class ConnectedDescriptionView extends React.Component {
                         rowsMax="10"
                         autoFocus
                         helperText={issue && helperText}
-                        FormHelperTextProps={{className: classes.helperText}}
+                        FormHelperTextProps={{ className: classes.helperText }}
                         value={descriptionText}
                         className={classes.resultDisplayInput}
                         onChange={this.props.onChange('textUpdate')}
@@ -106,11 +106,11 @@ class ConnectedDescriptionView extends React.Component {
 }
 
 ConnectedDescriptionView.propTypes = {
-    descriptionText : PropTypes.string.isRequired,
-    docObj          : PropTypes.object.isRequired,
-    leafs           : PropTypes.object.isRequired,
-    lang            : PropTypes.string.isRequired,
-    onChange        : PropTypes.func.isRequired,
+    descriptionText: PropTypes.string.isRequired,
+    docObj: PropTypes.object.isRequired,
+    leafs: PropTypes.object.isRequired,
+    lang: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
 };
 
 const DescriptionView = connect(mapStateToProps)(ConnectedDescriptionView);

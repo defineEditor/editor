@@ -29,23 +29,22 @@ import {
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        deleteAnalysisResults : (deleteObj) => dispatch(deleteAnalysisResults(deleteObj)),
-        addAnalysisResults : (updateObj) => dispatch(addAnalysisResults(updateObj)),
-        updateCopyBuffer : (updateObj) => dispatch(updateCopyBuffer(updateObj)),
+        deleteAnalysisResults: (deleteObj) => dispatch(deleteAnalysisResults(deleteObj)),
+        addAnalysisResults: (updateObj) => dispatch(addAnalysisResults(updateObj)),
+        updateCopyBuffer: (updateObj) => dispatch(updateCopyBuffer(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        analysisResultDisplays : state.present.odm.study.metaDataVersion.analysisResultDisplays,
-        mdv                    : state.present.odm.study.metaDataVersion,
-        reviewMode             : state.present.ui.main.reviewMode,
-        buffer                 : state.present.ui.main.copyBuffer['analysisResults'],
+        analysisResultDisplays: state.present.odm.study.metaDataVersion.analysisResultDisplays,
+        mdv: state.present.odm.study.metaDataVersion,
+        reviewMode: state.present.ui.main.reviewMode,
+        buffer: state.present.ui.main.copyBuffer['analysisResults'],
     };
 };
 
 class ConnectedAnalysisResultMenu extends React.Component {
-
     delete = () => {
         let analysisResults = this.props.analysisResultDisplays.analysisResults;
         let analysisResultOids = [this.props.analysisResultMenuParams.analysisResultOid];
@@ -79,7 +78,7 @@ class ConnectedAnalysisResultMenu extends React.Component {
             mdv,
             sourceMdv,
             analysisResultOidList: [ buffer.analysisResultOid ],
-            sameDefine : true,
+            sameDefine: true,
         });
 
         let position = mdv.analysisResultDisplays.resultDisplays[resultDisplayOid].analysisResultOrder.indexOf(analysisResultOid) + shift + 1;
@@ -94,7 +93,7 @@ class ConnectedAnalysisResultMenu extends React.Component {
         this.props.onClose();
     }
 
-    render() {
+    render () {
         return (
             <React.Fragment>
                 <Menu
@@ -136,10 +135,10 @@ class ConnectedAnalysisResultMenu extends React.Component {
 }
 
 ConnectedAnalysisResultMenu.propTypes = {
-    analysisResultMenuParams : PropTypes.object.isRequired,
-    analysisResultDisplays   : PropTypes.object.isRequired,
-    updateCopyBuffer         : PropTypes.func.isRequired,
-    reviewMode               : PropTypes.bool,
+    analysisResultMenuParams: PropTypes.object.isRequired,
+    analysisResultDisplays: PropTypes.object.isRequired,
+    updateCopyBuffer: PropTypes.func.isRequired,
+    reviewMode: PropTypes.bool,
 };
 
 const AnalysisResultMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedAnalysisResultMenu);

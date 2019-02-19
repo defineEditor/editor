@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-function getCodeListStandardOids(codeLists, stdCodeLists) {
+function getCodeListStandardOids (codeLists, stdCodeLists) {
     let result = {};
     if (codeLists !== undefined) {
         Object.keys(codeLists).forEach(codeListOid => {
@@ -21,7 +21,7 @@ function getCodeListStandardOids(codeLists, stdCodeLists) {
                 codeLists[codeListOid].standardOid === undefined &&
                 codeLists[codeListOid].alias.context === 'nci:ExtCodeID'
             ) {
-                Object.keys(stdCodeLists).some( stdId => {
+                Object.keys(stdCodeLists).some(stdId => {
                     let stdCodeList = stdCodeLists[stdId];
                     if (Object.keys(stdCodeList.nciCodeOids).includes(codeLists[codeListOid].alias.name)) {
                         let stdCodeListOid =

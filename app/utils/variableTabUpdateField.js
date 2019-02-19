@@ -30,15 +30,13 @@ import OriginEditor from 'editors/originEditor.js';
 
 const styles = theme => ({
     textField: {
-        whiteSpace : 'normal',
-        minWidth   : '200px',
-        marginRight : theme.spacing.unit,
+        whiteSpace: 'normal',
+        minWidth: '200px',
+        marginRight: theme.spacing.unit,
     },
 });
 
-
 class VariableTabUpdateField extends React.Component {
-
     handleChange = (name) => (event) => {
         if (name === 'setObject') {
             this.props.onChange('updateValue')({ value: event });
@@ -57,7 +55,7 @@ class VariableTabUpdateField extends React.Component {
         }
     }
 
-    render() {
+    render () {
         const { classes, field, updateAttrs } = this.props;
         const { updateType, attr, updateValue } = field;
         const editor = updateAttrs[field.attr].editor;
@@ -137,7 +135,7 @@ class VariableTabUpdateField extends React.Component {
                             stateless
                         />
                     )}
-                    { updateType === 'replace' && ['TextField', 'MethodEditor', 'CommentEditor'].includes(editor)  && (
+                    { updateType === 'replace' && ['TextField', 'MethodEditor', 'CommentEditor'].includes(editor) && (
                         <Grid container spacing={8} alignItems='flex-start'>
                             <Grid item>
                                 <TextField
@@ -230,13 +228,12 @@ class VariableTabUpdateField extends React.Component {
 }
 
 VariableTabUpdateField.propTypes = {
-    classes     : PropTypes.object.isRequired,
-    onChange    : PropTypes.func.isRequired,
-    attrList    : PropTypes.array.isRequired,
-    updateAttrs : PropTypes.object.isRequired,
-    field       : PropTypes.object.isRequired,
-    values      : PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    onChange: PropTypes.func.isRequired,
+    attrList: PropTypes.array.isRequired,
+    updateAttrs: PropTypes.object.isRequired,
+    field: PropTypes.object.isRequired,
+    values: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(VariableTabUpdateField);
-

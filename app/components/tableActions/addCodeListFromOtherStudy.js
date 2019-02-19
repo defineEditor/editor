@@ -59,18 +59,18 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = (state, props) => {
     return {
-        studies       : state.present.studies,
-        defines       : state.present.defines,
-        standards     : state.present.odm.study.metaDataVersion.standards,
-        codeListOrder : state.present.odm.study.metaDataVersion.order.codeListOrder,
-        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
+        studies: state.present.studies,
+        defines: state.present.defines,
+        standards: state.present.odm.study.metaDataVersion.standards,
+        codeListOrder: state.present.odm.study.metaDataVersion.order.codeListOrder,
+        defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
     };
 };
 
 const getCodeListList = (mdv) => {
     let result = {};
     if (mdv !== undefined) {
-        Object.keys(mdv.codeLists).forEach( codeListOid => {
+        Object.keys(mdv.codeLists).forEach(codeListOid => {
             if (['decoded', 'enumerated'].includes(mdv.codeLists[codeListOid].codeListType)) {
                 result[codeListOid] = mdv.codeLists[codeListOid].name;
             }
@@ -80,14 +80,14 @@ const getCodeListList = (mdv) => {
 };
 
 class ConnectedAddCodeListFromOtherStudy extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         let studyList = {};
-        props.studies.allIds.forEach( studyId => { studyList[studyId] = props.studies.byId[studyId].name; });
+        props.studies.allIds.forEach(studyId => { studyList[studyId] = props.studies.byId[studyId].name; });
         let studyId = props.studies.allIds[0];
         let defineList = {};
-        props.studies.byId[studyId].defineIds.forEach( defineId => { defineList[defineId] = props.defines.byId[defineId].name; });
+        props.studies.byId[studyId].defineIds.forEach(defineId => { defineList[defineId] = props.defines.byId[defineId].name; });
         let defineId = '';
         let sourceOdm = {};
 
@@ -106,11 +106,11 @@ class ConnectedAddCodeListFromOtherStudy extends React.Component {
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         ipcRenderer.on('loadDefineObjectForImport', this.loadOdm);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         ipcRenderer.removeListener('loadDefineObjectForImport', this.loadOdm);
     }
 
@@ -130,7 +130,7 @@ class ConnectedAddCodeListFromOtherStudy extends React.Component {
             }
 
             let defineList = {};
-            this.props.studies.byId[newStudyId].defineIds.forEach( defineId => { defineList[defineId] = this.props.defines.byId[defineId].name; });
+            this.props.studies.byId[newStudyId].defineIds.forEach(defineId => { defineList[defineId] = this.props.defines.byId[defineId].name; });
             this.setState({
                 studyId: newStudyId,
                 defineList,
@@ -150,9 +150,9 @@ class ConnectedAddCodeListFromOtherStudy extends React.Component {
                 sourceOdm: {},
                 codeListOid: null,
                 codeListList: {},
-            }, () => { ipcRenderer.send('loadDefineObject', newDefineId, 'import');});
+            }, () => { ipcRenderer.send('loadDefineObject', newDefineId, 'import'); });
         } else if (name === 'codeList') {
-            this.setState( { codeListOid: updateObj.target.value, selectedCodes: [] });
+            this.setState({ codeListOid: updateObj.target.value, selectedCodes: [] });
         }
     }
 
@@ -172,10 +172,10 @@ class ConnectedAddCodeListFromOtherStudy extends React.Component {
         }
 
         if (items !== undefined) {
-            Object.keys(items).forEach( codeOid => {
+            Object.keys(items).forEach(codeOid => {
                 if (!selectedCodes.includes(codeOid)) {
                     delete items[codeOid];
-                    codeList.itemOrder.splice(codeList.itemOrder.indexOf(codeOid),1);
+                    codeList.itemOrder.splice(codeList.itemOrder.indexOf(codeOid), 1);
                 }
             });
         }
@@ -201,7 +201,7 @@ class ConnectedAddCodeListFromOtherStudy extends React.Component {
         this.props.onClose();
     };
 
-    render() {
+    render () {
         const { defineVersion, classes } = this.props;
         let codeList;
         if (this.state.codeListOid !== null) {
@@ -236,7 +236,7 @@ class ConnectedAddCodeListFromOtherStudy extends React.Component {
                     <TextField
                         label='Codelist'
                         disabled={this.state.defineId === ''}
-                        value={this.state.codeListOid||''}
+                        value={this.state.codeListOid || ''}
                         onChange={this.handleChange('codeList')}
                         className={classes.selectionField}
                         select={Object.keys(this.state.codeListList).length > 0}
@@ -261,14 +261,14 @@ class ConnectedAddCodeListFromOtherStudy extends React.Component {
 }
 
 ConnectedAddCodeListFromOtherStudy.propTypes = {
-    classes       : PropTypes.object.isRequired,
-    codeListOrder : PropTypes.array.isRequired,
-    studies       : PropTypes.object.isRequired,
-    defines       : PropTypes.object.isRequired,
-    standards     : PropTypes.object.isRequired,
-    defineVersion : PropTypes.string.isRequired,
-    addCodeList   : PropTypes.func.isRequired,
-    onClose       : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    codeListOrder: PropTypes.array.isRequired,
+    studies: PropTypes.object.isRequired,
+    defines: PropTypes.object.isRequired,
+    standards: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    addCodeList: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
 };
 
 const AddCodeListFromOtherStudy = connect(mapStateToProps, mapDispatchToProps)(

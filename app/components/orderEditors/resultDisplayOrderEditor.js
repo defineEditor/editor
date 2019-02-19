@@ -27,9 +27,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        resultDisplayOrder : state.present.odm.study.metaDataVersion.analysisResultDisplays.resultDisplayOrder,
-        resultDisplays     : state.present.odm.study.metaDataVersion.analysisResultDisplays.resultDisplays,
-        reviewMode         : state.present.ui.main.reviewMode,
+        resultDisplayOrder: state.present.odm.study.metaDataVersion.analysisResultDisplays.resultDisplayOrder,
+        resultDisplays: state.present.odm.study.metaDataVersion.analysisResultDisplays.resultDisplays,
+        reviewMode: state.present.ui.main.reviewMode,
     };
 };
 
@@ -38,11 +38,11 @@ class ResultDisplayOrderEditorConnected extends React.Component {
         this.props.updateResultDisplayOrder(items.map(item => (item.oid)));
     }
 
-    render() {
+    render () {
         let items = [];
 
-        this.props.resultDisplayOrder.forEach( resultDisplayOid => {
-            items.push({oid: resultDisplayOid, name: this.props.resultDisplays[resultDisplayOid].name});
+        this.props.resultDisplayOrder.forEach(resultDisplayOid => {
+            items.push({ oid: resultDisplayOid, name: this.props.resultDisplays[resultDisplayOid].name });
         });
 
         return (
@@ -52,11 +52,10 @@ class ResultDisplayOrderEditorConnected extends React.Component {
 }
 
 ResultDisplayOrderEditorConnected.propTypes = {
-    resultDisplayOrder : PropTypes.array.isRequired,
-    resultDisplays     : PropTypes.object.isRequired,
-    reviewMode         : PropTypes.bool,
+    resultDisplayOrder: PropTypes.array.isRequired,
+    resultDisplays: PropTypes.object.isRequired,
+    reviewMode: PropTypes.bool,
 };
 
 const ResultDisplayOrderEditor = connect(mapStateToProps, mapDispatchToProps)(ResultDisplayOrderEditorConnected);
 export default ResultDisplayOrderEditor;
-

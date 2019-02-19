@@ -12,22 +12,22 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import eStore from 'electron-store';
+import EStore from 'electron-store';
 import stdConstants from 'constants/stdConstants.js';
 import {
     ui as uiInitialValues,
     settings as initialSettings,
 } from 'constants/initialValues.js';
 
-function loadState() {
-    const store = new eStore({
+function loadState () {
+    const store = new EStore({
         name: 'state',
     });
 
     let state = { ...store.get() };
 
     // Load constants
-    const extensionStore = new eStore({
+    const extensionStore = new EStore({
         name: 'stdConstantExtensions',
     });
     let stdConstantExtensions = extensionStore.get();
@@ -52,7 +52,7 @@ function loadState() {
         state.ui.main.showCommentMethodTable = false;
     }
     // Update UI structure with initial values, this is required when schema changed and old UI does not have required properties
-    Object.keys(uiInitialValues).forEach( uiType =>  {
+    Object.keys(uiInitialValues).forEach(uiType => {
         if (state.hasOwnProperty('ui') && state.ui.hasOwnProperty(uiType)) {
             state.ui[uiType] = { ...uiInitialValues[uiType], ...state.ui[uiType] };
         } else {
@@ -63,7 +63,7 @@ function loadState() {
         }
     });
     // Update Settings structure with initial values, in case some settings were added
-    Object.keys(initialSettings).forEach( settingType =>  {
+    Object.keys(initialSettings).forEach(settingType => {
         if (state.hasOwnProperty('settings') && state.settings.hasOwnProperty(settingType)) {
             state.settings[settingType] = { ...initialSettings[settingType], ...state.settings[settingType] };
         } else {

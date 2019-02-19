@@ -47,20 +47,19 @@ import {
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateGlobalVariablesAndStudyOid : (updateObj) => dispatch(updateGlobalVariablesAndStudyOid(updateObj)),
-        updateMetaDataVersion            : (updateObj) => dispatch(updateMetaDataVersion(updateObj)),
-        updateControlledTerminologies    : (updateObj) => dispatch(updateControlledTerminologies(updateObj)),
-        updateStandards                  : (updateObj) => dispatch(updateStandards(updateObj)),
-        updateModel                      : (updateObj) => dispatch(updateModel(updateObj)),
-        updateArmStatus                  : (updateObj) => dispatch(updateArmStatus(updateObj)),
-        updateOdmAttrs                   : (updateObj) => dispatch(updateOdmAttrs(updateObj)),
-        deleteStdCodeLists               : (updateObj) => dispatch(deleteStdCodeLists(updateObj)),
-        updateDefine                     : (updateObj) => dispatch(updateDefine(updateObj)),
+        updateGlobalVariablesAndStudyOid: (updateObj) => dispatch(updateGlobalVariablesAndStudyOid(updateObj)),
+        updateMetaDataVersion: (updateObj) => dispatch(updateMetaDataVersion(updateObj)),
+        updateControlledTerminologies: (updateObj) => dispatch(updateControlledTerminologies(updateObj)),
+        updateStandards: (updateObj) => dispatch(updateStandards(updateObj)),
+        updateModel: (updateObj) => dispatch(updateModel(updateObj)),
+        updateArmStatus: (updateObj) => dispatch(updateArmStatus(updateObj)),
+        updateOdmAttrs: (updateObj) => dispatch(updateOdmAttrs(updateObj)),
+        deleteStdCodeLists: (updateObj) => dispatch(deleteStdCodeLists(updateObj)),
+        updateDefine: (updateObj) => dispatch(updateDefine(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
-
     let comment;
     let defineVersion = state.present.odm.study.metaDataVersion.defineVersion;
     let mdvCommentOid = state.present.odm.study.metaDataVersion.commentOid;
@@ -81,10 +80,10 @@ const mapStateToProps = state => {
     };
 
     const odmAttrs = {
-        fileOid      : state.present.odm.fileOid,
-        asOfDateTime : state.present.odm.asOfDateTime !== undefined ? state.present.odm.asOfDateTime : '',
-        originator   : state.present.odm.originator !== undefined ? state.present.odm.originator: '',
-        stylesheetLocation   : state.present.odm.stylesheetLocation !== undefined ? state.present.odm.stylesheetLocation: '',
+        fileOid: state.present.odm.fileOid,
+        asOfDateTime: state.present.odm.asOfDateTime !== undefined ? state.present.odm.asOfDateTime : '',
+        originator: state.present.odm.originator !== undefined ? state.present.odm.originator : '',
+        stylesheetLocation: state.present.odm.stylesheetLocation !== undefined ? state.present.odm.stylesheetLocation : '',
     };
 
     const defineId = state.present.odm.defineId;
@@ -95,16 +94,16 @@ const mapStateToProps = state => {
     }
 
     return {
-        globalVariables       : state.present.odm.study.globalVariables,
-        studyOid              : state.present.odm.study.oid,
-        standards             : state.present.odm.study.metaDataVersion.standards,
-        standardOrder         : state.present.odm.study.metaDataVersion.order.standardOrder,
-        lang                  : state.present.odm.study.metaDataVersion.lang,
-        model                 : state.present.odm.study.metaDataVersion.model,
-        stdConstants          : state.present.stdConstants,
-        controlledTerminology : state.present.controlledTerminology,
-        stdCodeLists          : state.present.stdCodeLists,
-        tabs                  : state.present.ui.tabs,
+        globalVariables: state.present.odm.study.globalVariables,
+        studyOid: state.present.odm.study.oid,
+        standards: state.present.odm.study.metaDataVersion.standards,
+        standardOrder: state.present.odm.study.metaDataVersion.order.standardOrder,
+        lang: state.present.odm.study.metaDataVersion.lang,
+        model: state.present.odm.study.metaDataVersion.model,
+        stdConstants: state.present.stdConstants,
+        controlledTerminology: state.present.controlledTerminology,
+        stdCodeLists: state.present.stdCodeLists,
+        tabs: state.present.ui.tabs,
         mdvAttrs,
         odmAttrs,
         comments,
@@ -115,36 +114,36 @@ const mapStateToProps = state => {
 };
 
 class ConnectedStandardTable extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.state = {
-            metaDataEdit              : false,
-            globalVariablesEdit       : false,
-            controlledTerminologyEdit : false,
-            standardEdit              : false,
-            odmAttrsEdit              : false,
-            otherAttrsEdit            : false,
+            metaDataEdit: false,
+            globalVariablesEdit: false,
+            controlledTerminologyEdit: false,
+            standardEdit: false,
+            odmAttrsEdit: false,
+            otherAttrsEdit: false,
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         setScrollPosition(this.props.tabs);
     }
 
     handleChange = (name) => (updateObj) => {
         if (name === 'metaDataVersionEdit') {
-            this.setState({metaDataEdit: true});
+            this.setState({ metaDataEdit: true });
         } else if (name === 'globalVariablesEdit') {
-            this.setState({globalVariablesEdit: true});
+            this.setState({ globalVariablesEdit: true });
         } else if (name === 'controlledTerminologyEdit') {
-            this.setState({controlledTerminologyEdit: true});
+            this.setState({ controlledTerminologyEdit: true });
         } else if (name === 'standardEdit') {
-            this.setState({standardEdit: true});
+            this.setState({ standardEdit: true });
         } else if (name === 'odmAttrsEdit') {
-            this.setState({odmAttrsEdit: true});
+            this.setState({ odmAttrsEdit: true });
         } else if (name === 'otherAttrsEdit') {
-            this.setState({otherAttrsEdit: true});
+            this.setState({ otherAttrsEdit: true });
         }
     }
 
@@ -164,7 +163,7 @@ class ConnectedStandardTable extends React.Component {
             if (Object.keys(updateObj).length > 0) {
                 this.props.updateMetaDataVersion(updateObj);
             }
-            this.setState({metaDataEdit: false});
+            this.setState({ metaDataEdit: false });
         } else if (name === 'globalVariablesAndStudyOid') {
             // Check which properties changed;
             for (let prop in returnValue) {
@@ -178,7 +177,7 @@ class ConnectedStandardTable extends React.Component {
             if (Object.keys(updateObj).length > 0) {
                 this.props.updateGlobalVariablesAndStudyOid(updateObj);
             }
-            this.setState({globalVariablesEdit: false});
+            this.setState({ globalVariablesEdit: false });
         } else if (name === 'controlledTerminology' || name === 'standard') {
             let newStandards = returnValue.standards;
             let oldStandards = {};
@@ -192,21 +191,21 @@ class ConnectedStandardTable extends React.Component {
                     }
                 });
                 // Check which items were added;
-                Object.keys(newStandards).forEach( stdOid => {
+                Object.keys(newStandards).forEach(stdOid => {
                     if (!oldStandards.hasOwnProperty(stdOid) && newStandards[stdOid].name === 'CDISC/NCI' && newStandards[stdOid].type === 'CT') {
                         addedStandards[stdOid] = newStandards[stdOid];
                     }
                 });
                 // Check which items were removed;
-                Object.keys(oldStandards).forEach( stdOid => {
+                Object.keys(oldStandards).forEach(stdOid => {
                     if (!newStandards.hasOwnProperty(stdOid) && oldStandards[stdOid].name === 'CDISC/NCI' && oldStandards[stdOid].type === 'CT') {
                         removedStandardOids.push(stdOid);
                     }
                 });
                 // Check which items were updated;
-                Object.keys(newStandards).forEach( stdOid => {
-                    if (oldStandards.hasOwnProperty(stdOid) && !deepEqual(oldStandards[stdOid], newStandards[stdOid])
-                        && newStandards[stdOid].name === 'CDISC/NCI' && newStandards[stdOid].type === 'CT'
+                Object.keys(newStandards).forEach(stdOid => {
+                    if (oldStandards.hasOwnProperty(stdOid) && !deepEqual(oldStandards[stdOid], newStandards[stdOid]) &&
+                        newStandards[stdOid].name === 'CDISC/NCI' && newStandards[stdOid].type === 'CT'
                     ) {
                         updatedStandards[stdOid] = newStandards[stdOid];
                     }
@@ -218,21 +217,21 @@ class ConnectedStandardTable extends React.Component {
                     }
                 });
                 // Check which items were added;
-                Object.keys(newStandards).forEach( stdOid => {
+                Object.keys(newStandards).forEach(stdOid => {
                     if (!oldStandards.hasOwnProperty(stdOid) && !(newStandards[stdOid].name === 'CDISC/NCI' && newStandards[stdOid].type === 'CT')) {
                         addedStandards[stdOid] = newStandards[stdOid];
                     }
                 });
                 // Check which items were removed;
-                Object.keys(oldStandards).forEach( stdOid => {
+                Object.keys(oldStandards).forEach(stdOid => {
                     if (!newStandards.hasOwnProperty(stdOid) && !(oldStandards[stdOid].name === 'CDISC/NCI' && oldStandards[stdOid].type === 'CT')) {
                         removedStandardOids.push(stdOid);
                     }
                 });
                 // Check which items were updated;
-                Object.keys(newStandards).forEach( stdOid => {
-                    if (oldStandards.hasOwnProperty(stdOid) && !deepEqual(oldStandards[stdOid], newStandards[stdOid])
-                        && !(newStandards[stdOid].name === 'CDISC/NCI' && newStandards[stdOid].type === 'CT')
+                Object.keys(newStandards).forEach(stdOid => {
+                    if (oldStandards.hasOwnProperty(stdOid) && !deepEqual(oldStandards[stdOid], newStandards[stdOid]) &&
+                        !(newStandards[stdOid].name === 'CDISC/NCI' && newStandards[stdOid].type === 'CT')
                     ) {
                         updatedStandards[stdOid] = newStandards[stdOid];
                     }
@@ -240,9 +239,9 @@ class ConnectedStandardTable extends React.Component {
             }
 
             if (name === 'controlledTerminology') {
-                if (Object.keys(updatedStandards).length > 0
-                    || Object.keys(addedStandards).length > 0
-                    || removedStandardOids.length > 0
+                if (Object.keys(updatedStandards).length > 0 ||
+                    Object.keys(addedStandards).length > 0 ||
+                    removedStandardOids.length > 0
                 ) {
                     this.props.updateControlledTerminologies({
                         addedStandards,
@@ -254,8 +253,8 @@ class ConnectedStandardTable extends React.Component {
                     let currentStdCodeListIds = Object.keys(this.props.stdCodeLists);
                     let controlledTerminology = this.props.controlledTerminology;
                     let standards = newStandards;
-                    let ctIds = Object.keys(standards).filter( stdId => (standards[stdId].type === 'CT'));
-                    ctIds.forEach( ctId => {
+                    let ctIds = Object.keys(standards).filter(stdId => (standards[stdId].type === 'CT'));
+                    ctIds.forEach(ctId => {
                         if (!currentStdCodeListIds.includes(ctId) && controlledTerminology.allIds.includes(ctId)) {
                             ctToLoad[ctId] = controlledTerminology.byId[ctId];
                         }
@@ -265,16 +264,16 @@ class ConnectedStandardTable extends React.Component {
                         ipcRenderer.send('loadControlledTerminology', ctToLoad);
                     }
                     // Remove CT from stdCodeLists which are not required by this ODM
-                    let ctIdsToRemove = currentStdCodeListIds.filter( ctId => (!ctIds.includes(ctId)) );
+                    let ctIdsToRemove = currentStdCodeListIds.filter(ctId => (!ctIds.includes(ctId)));
                     if (ctIdsToRemove.length > 0) {
                         this.props.deleteStdCodeLists({ ctIds: ctIdsToRemove });
                     }
                 }
-                this.setState({controlledTerminologyEdit: false});
+                this.setState({ controlledTerminologyEdit: false });
             } else if (name === 'standard') {
-                if (Object.keys(updatedStandards).length > 0
-                    || Object.keys(addedStandards).length > 0
-                    || removedStandardOids.length > 0
+                if (Object.keys(updatedStandards).length > 0 ||
+                    Object.keys(addedStandards).length > 0 ||
+                    removedStandardOids.length > 0
                 ) {
                     this.props.updateStandards({
                         addedStandards,
@@ -282,12 +281,12 @@ class ConnectedStandardTable extends React.Component {
                         updatedStandards,
                     });
                 }
-                this.setState({standardEdit: false});
+                this.setState({ standardEdit: false });
             }
             // Check if the ARM status has changed;
             if (name === 'standard') {
                 if (this.props.hasArm !== returnValue.hasArm) {
-                    this.props.updateArmStatus({armStatus: returnValue.hasArm});
+                    this.props.updateArmStatus({ armStatus: returnValue.hasArm });
                 }
             }
             // Check if the model changed;
@@ -297,7 +296,7 @@ class ConnectedStandardTable extends React.Component {
                         updatedStandards[Object.keys(updatedStandards).filter(stdOid => (updatedStandards[stdOid].isDefault === 'Yes'))[0]].name;
                     let newModel = getModelFromStandard(defaultStandardName);
                     if (newModel !== this.props.model) {
-                        this.props.updateModel({model: newModel});
+                        this.props.updateModel({ model: newModel });
                     }
                 }
             }
@@ -305,7 +304,7 @@ class ConnectedStandardTable extends React.Component {
             // Check which properties changed;
             for (let prop in returnValue) {
                 if (this.props.odmAttrs[prop] !== returnValue[prop]) {
-                    if (returnValue[prop].replace(/ /g,'') === '') {
+                    if (returnValue[prop].replace(/ /g, '') === '') {
                         updateObj[prop] = undefined;
                     } else {
                         updateObj[prop] = returnValue[prop];
@@ -316,14 +315,14 @@ class ConnectedStandardTable extends React.Component {
             if (Object.keys(updateObj).length > 0) {
                 this.props.updateOdmAttrs(updateObj);
             }
-            this.setState({odmAttrsEdit: false});
+            this.setState({ odmAttrsEdit: false });
         } else if (name === 'otherAttrs') {
             updateObj.defineId = this.props.defineId;
             updateObj.properties = {};
             // Check which properties changed
             for (let prop in returnValue) {
                 if (this.props.otherAttrs[prop] !== returnValue[prop]) {
-                    if (returnValue[prop].replace(/ /g,'') === '') {
+                    if (returnValue[prop].replace(/ /g, '') === '') {
                         updateObj.properties[prop] = undefined;
                     } else {
                         updateObj.properties[prop] = returnValue[prop];
@@ -334,31 +333,30 @@ class ConnectedStandardTable extends React.Component {
             if (Object.keys(updateObj.properties).length > 0) {
                 this.props.updateDefine(updateObj);
             }
-            this.setState({otherAttrsEdit: false});
+            this.setState({ otherAttrsEdit: false });
         }
     }
 
     cancel = (name) => () => {
         if (name === 'metaDataVersion') {
-            this.setState({metaDataEdit: false});
+            this.setState({ metaDataEdit: false });
         } else if (name === 'globalVariablesAndStudyOid') {
-            this.setState({globalVariablesEdit: false});
+            this.setState({ globalVariablesEdit: false });
         } else if (name === 'controlledTerminology') {
-            this.setState({controlledTerminologyEdit: false});
+            this.setState({ controlledTerminologyEdit: false });
         } else if (name === 'standard') {
-            this.setState({standardEdit: false});
+            this.setState({ standardEdit: false });
         } else if (name === 'odmAttrs') {
-            this.setState({odmAttrsEdit: false});
+            this.setState({ odmAttrsEdit: false });
         } else if (name === 'otherAttrs') {
-            this.setState({otherAttrsEdit: false});
+            this.setState({ otherAttrsEdit: false });
         }
     }
 
     render () {
-
         return (
             <Grid container spacing={8} alignItems='stretch'>
-                <Grid item xs={6} style={{display: 'flex'}}>
+                <Grid item xs={6} style={{ display: 'flex' }}>
                     { this.state.globalVariablesEdit === true ? (
                         <GlobalVariablesEditor
                             globalVariables={this.props.globalVariables}
@@ -375,7 +373,7 @@ class ConnectedStandardTable extends React.Component {
                     )
                     }
                 </Grid>
-                <Grid item xs={6} style={{display: 'flex'}}>
+                <Grid item xs={6} style={{ display: 'flex' }}>
                     { this.state.metaDataEdit === true ? (
                         <MetaDataVersionEditor
                             mdvAttrs={this.props.mdvAttrs}
@@ -393,7 +391,7 @@ class ConnectedStandardTable extends React.Component {
                     }
                 </Grid>
                 <Grid item xs={12}>
-                    {  this.state.standardEdit === true ? (
+                    { this.state.standardEdit === true ? (
                         <StandardEditor
                             standards={this.props.standards}
                             stdConstants={this.props.stdConstants}
@@ -413,7 +411,7 @@ class ConnectedStandardTable extends React.Component {
                     }
                 </Grid>
                 <Grid item xs={12}>
-                    {  this.state.controlledTerminologyEdit === true ? (
+                    { this.state.controlledTerminologyEdit === true ? (
                         <ControlledTerminologyEditor
                             standards={this.props.standards}
                             standardOrder={this.props.standardOrder}
@@ -434,7 +432,7 @@ class ConnectedStandardTable extends React.Component {
                     }
                 </Grid>
                 <Grid item xs={12}>
-                    {  this.state.odmAttrsEdit === true ? (
+                    { this.state.odmAttrsEdit === true ? (
                         <OdmAttributesEditor
                             odmAttrs={this.props.odmAttrs}
                             onSave={this.save('odmAttrs')}
@@ -449,7 +447,7 @@ class ConnectedStandardTable extends React.Component {
                     }
                 </Grid>
                 <Grid item xs={12}>
-                    {  this.state.otherAttrsEdit === true ? (
+                    { this.state.otherAttrsEdit === true ? (
                         <OtherAttributesEditor
                             otherAttrs={this.props.otherAttrs}
                             onSave={this.save('otherAttrs')}
@@ -469,16 +467,16 @@ class ConnectedStandardTable extends React.Component {
 }
 
 ConnectedStandardTable.propTypes = {
-    globalVariables : PropTypes.object.isRequired,
-    studyOid        : PropTypes.string.isRequired,
-    standards       : PropTypes.object.isRequired,
-    comments        : PropTypes.object.isRequired,
-    model           : PropTypes.string.isRequired,
-    hasArm          : PropTypes.bool.isRequired,
-    mdvAttrs        : PropTypes.object.isRequired,
-    defineVersion   : PropTypes.string.isRequired,
-    stdConstants    : PropTypes.object.isRequired,
-    lang            : PropTypes.string.isRequired,
+    globalVariables: PropTypes.object.isRequired,
+    studyOid: PropTypes.string.isRequired,
+    standards: PropTypes.object.isRequired,
+    comments: PropTypes.object.isRequired,
+    model: PropTypes.string.isRequired,
+    hasArm: PropTypes.bool.isRequired,
+    mdvAttrs: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    stdConstants: PropTypes.object.isRequired,
+    lang: PropTypes.string.isRequired,
 };
 
 const StandardTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedStandardTable);

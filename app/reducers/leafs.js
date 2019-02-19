@@ -18,22 +18,22 @@ import {
     UPD_LEAFS,
     ADD_VARS,
     ADD_ITEMGROUPS,
-} from "constants/action-types";
+} from 'constants/action-types';
 
-const initialState = { ...new Leaf({oid: getOid('Leaf')}) };
+const initialState = { ...new Leaf({ oid: getOid('Leaf') }) };
 
 const updateLeafs = (state, action) => {
     let newState = { ...state };
     // action.updateObj.removedLeafIds - list of removed leaf OIDs
     // action.updateObj.addedLeafs - list of added leafs
     // action.updateObj.updatedLeafs - list of changed leafs
-    action.updateObj.removedLeafIds.forEach( leafId => {
+    action.updateObj.removedLeafIds.forEach(leafId => {
         delete newState[leafId];
     });
-    Object.keys(action.updateObj.addedLeafs).forEach( leafId => {
+    Object.keys(action.updateObj.addedLeafs).forEach(leafId => {
         newState[leafId] = action.updateObj.addedLeafs[leafId];
     });
-    Object.keys(action.updateObj.updatedLeafs).forEach( leafId => {
+    Object.keys(action.updateObj.updatedLeafs).forEach(leafId => {
         newState[leafId] = action.updateObj.updatedLeafs[leafId];
     });
     return newState;
@@ -50,7 +50,7 @@ const handleAddVariables = (state, action) => {
 const handleAddItemGroups = (state, action) => {
     let allLeafs = {};
     const { itemGroups } = action.updateObj;
-    Object.values(itemGroups).forEach( itemGroupData => {
+    Object.values(itemGroups).forEach(itemGroupData => {
         allLeafs = { ...allLeafs, ...itemGroupData.leafs };
     });
     return { ...state, ...allLeafs };

@@ -48,14 +48,14 @@ const mapStateToProps = (state, props) => {
 };
 
 class addFromOtherStudyConnected extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         let studyList = {};
-        props.studies.allIds.forEach( studyId => { studyList[studyId] = props.studies.byId[studyId].name; });
+        props.studies.allIds.forEach(studyId => { studyList[studyId] = props.studies.byId[studyId].name; });
         let studyId = props.studies.allIds[0];
         let defineList = {};
-        props.studies.byId[studyId].defineIds.forEach( defineId => { defineList[defineId] = props.defines.byId[defineId].name; });
+        props.studies.byId[studyId].defineIds.forEach(defineId => { defineList[defineId] = props.defines.byId[defineId].name; });
         let defineId = '';
         let sourceOdm = {};
         this.state = {
@@ -67,11 +67,11 @@ class addFromOtherStudyConnected extends React.Component {
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         ipcRenderer.on('loadDefineObjectForImport', this.loadOdm);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         ipcRenderer.removeListener('loadDefineObjectForImport', this.loadOdm);
     }
 
@@ -90,7 +90,7 @@ class addFromOtherStudyConnected extends React.Component {
             }
 
             let defineList = {};
-            this.props.studies.byId[newStudyId].defineIds.forEach( defineId => { defineList[defineId] = this.props.defines.byId[defineId].name; });
+            this.props.studies.byId[newStudyId].defineIds.forEach(defineId => { defineList[defineId] = this.props.defines.byId[defineId].name; });
             this.setState({
                 studyId: newStudyId,
                 defineList,
@@ -103,11 +103,11 @@ class addFromOtherStudyConnected extends React.Component {
             if (newDefineId === this.state.defineId) {
                 return;
             }
-            this.setState({ defineId: newDefineId, sourceOdm: {} }, () => { ipcRenderer.send('loadDefineObject', newDefineId, 'import');});
+            this.setState({ defineId: newDefineId, sourceOdm: {} }, () => { ipcRenderer.send('loadDefineObject', newDefineId, 'import'); });
         }
     };
 
-    render() {
+    render () {
         const { classes } = this.props;
         const sourceExists = Object.keys(this.state.sourceOdm).length > 0;
         return (

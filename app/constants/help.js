@@ -14,7 +14,7 @@
 
 export const CODELIST_POPULATESTD = {
     title: 'Populate Standards Codelists',
-    content:`
+    content: `
 ##### About
 Each codelist can be connected to a codelist from a standard Controlled Terminology.
 ##### Match Options
@@ -31,7 +31,7 @@ Each codelist can be connected to a codelist from a standard Controlled Terminol
 
 export const CODELIST_LINK = {
     title: 'Link Decoded and Enumerated Codelists',
-    content:`
+    content: `
 ### About
 A pair of linked codelists, is a pair of Enumerated and Decoded codelists, where values of the Enumerated codelist are equal to decoded values of the Decoded codelist. This function allow to search for such pairs of Decoded and Enumerated codelists and link them automatically.
 ### Match Options

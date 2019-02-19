@@ -29,16 +29,16 @@ import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 
 const styles = theme => ({
     iconButton: {
-        marginLeft   : '0px',
-        marginRight  : '0px',
-        marginBottom : '8px',
+        marginLeft: '0px',
+        marginRight: '0px',
+        marginBottom: '8px',
     },
     resultDisplayInput: {
-        marginBottom : '8px',
+        marginBottom: '8px',
     },
     helperText: {
-        whiteSpace : 'pre-wrap',
-        color      : theme.palette.primary.main,
+        whiteSpace: 'pre-wrap',
+        color: theme.palette.primary.main,
     },
     code: {
         fontFamily: 'Courier'
@@ -47,8 +47,8 @@ const styles = theme => ({
 
 const mapStateToProps = state => {
     return {
-        leafs : state.present.odm.study.metaDataVersion.leafs,
-        lang  : state.present.odm.study.metaDataVersion.lang,
+        leafs: state.present.odm.study.metaDataVersion.leafs,
+        lang: state.present.odm.study.metaDataVersion.lang,
     };
 };
 
@@ -69,7 +69,7 @@ class ConnectedArmProgrammingCodeView extends React.Component {
             if (context !== '') {
                 // Check for special characters
                 // eslint-disable-next-line no-control-regex
-                let issues = checkForSpecialChars(context, new RegExp(/[^\u0020-\u007f]/,'g'));
+                let issues = checkForSpecialChars(context, new RegExp(/[^\u0020-\u007f]/, 'g'));
                 if (issues.length > 0) {
                     issueContext = true;
                     helperTextContext = issues.join('\n');
@@ -78,7 +78,7 @@ class ConnectedArmProgrammingCodeView extends React.Component {
             if (code !== '') {
                 // Check for special characters
                 // eslint-disable-next-line no-control-regex
-                let issues = checkForSpecialChars(code, new RegExp(/[^\u0009\u000A\u000D\u0020-\u007f]/,'g'));
+                let issues = checkForSpecialChars(code, new RegExp(/[^\u0009\u000A\u000D\u0020-\u007f]/, 'g'));
                 if (issues.length > 0) {
                     issueCode = true;
                     helperTextCode = issues.join('\n');
@@ -124,7 +124,7 @@ class ConnectedArmProgrammingCodeView extends React.Component {
                                 fullWidth
                                 rowsMax="10"
                                 helperText={issueContext && helperTextContext}
-                                FormHelperTextProps={{className: classes.helperText}}
+                                FormHelperTextProps={{ className: classes.helperText }}
                                 value={context}
                                 className={classes.resultDisplayInput}
                                 onChange={this.props.onChange('contextUpdate')}
@@ -135,11 +135,11 @@ class ConnectedArmProgrammingCodeView extends React.Component {
                                 fullWidth
                                 rowsMax="10"
                                 helperText={issueCode && helperTextCode}
-                                FormHelperTextProps={{className: classes.helperText}}
+                                FormHelperTextProps={{ className: classes.helperText }}
                                 value={code}
                                 className={classes.resultDisplayInput}
                                 onChange={this.props.onChange('codeUpdate')}
-                                InputProps={{classes: {input: classes.code}}}
+                                InputProps={{ classes: { input: classes.code } }}
                             />
                             <DocumentEditor
                                 parentObj={docObj}
@@ -154,10 +154,10 @@ class ConnectedArmProgrammingCodeView extends React.Component {
 }
 
 ConnectedArmProgrammingCodeView.propTypes = {
-    programmingCode : PropTypes.object,
-    leafs           : PropTypes.object.isRequired,
-    lang            : PropTypes.string.isRequired,
-    onChange        : PropTypes.func.isRequired,
+    programmingCode: PropTypes.object,
+    leafs: PropTypes.object.isRequired,
+    lang: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
 };
 
 const ArmProgrammingCodeView = connect(mapStateToProps)(ConnectedArmProgrammingCodeView);

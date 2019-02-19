@@ -30,7 +30,6 @@ const styles = theme => ({
 });
 
 class FormalExpressionEditor extends React.Component {
-
     handleChange = name => event => {
         let newFormalExpression = clone(this.props.value);
         // Overwrite the updated property
@@ -39,7 +38,7 @@ class FormalExpressionEditor extends React.Component {
         this.props.handleChange(newFormalExpression);
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
 
         return (
@@ -61,7 +60,7 @@ class FormalExpressionEditor extends React.Component {
                         fullWidth
                         defaultValue={this.props.value.value}
                         onBlur={this.handleChange('value')}
-                        InputProps={{classes: {input: classes.value}}}
+                        InputProps={{ classes: { input: classes.value } }}
                     />
                 </Grid>
             </Grid>
@@ -70,10 +69,9 @@ class FormalExpressionEditor extends React.Component {
 }
 
 FormalExpressionEditor.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    value        : PropTypes.object,
-    handleChange : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    value: PropTypes.object,
+    handleChange: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(FormalExpressionEditor);
-

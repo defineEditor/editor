@@ -45,7 +45,6 @@ const styles = theme => ({
 });
 
 class GlobalVariablesFormatter extends React.Component {
-
     render () {
         const { classes, analysisResult, mdv } = this.props;
         const { analysisReason, analysisPurpose, parameterOid, documentation, programmingCode, analysisDatasets, analysisDatasetOrder } = analysisResult;
@@ -53,7 +52,7 @@ class GlobalVariablesFormatter extends React.Component {
         if (mdv.itemDefs.hasOwnProperty(parameterOid)) {
             parameterName = mdv.itemDefs[parameterOid].name;
             // Looks for a where clause which is using this parameter
-            Object.values(analysisResult.analysisDatasets).forEach( analysisDataset => {
+            Object.values(analysisResult.analysisDatasets).forEach(analysisDataset => {
                 if (analysisDataset.whereClauseOid !== undefined && mdv.whereClauses.hasOwnProperty(analysisDataset.whereClauseOid)) {
                     let parameterWhereClause = getWhereClauseAsText(mdv.whereClauses[analysisDataset.whereClauseOid], mdv, { itemOid: parameterOid });
                     if (parameterWhereClause !== undefined && parameterWhereClause !== '') {
@@ -64,7 +63,7 @@ class GlobalVariablesFormatter extends React.Component {
         }
         // Parse analysis datasets
         let datasetData = {};
-        analysisDatasetOrder.forEach( analysisDatasetOid => {
+        analysisDatasetOrder.forEach(analysisDatasetOid => {
             const analysisDataset = analysisDatasets[analysisDatasetOid];
             let dsData = {};
             if (mdv.itemGroups.hasOwnProperty(analysisDataset.itemGroupOid)) {
@@ -81,12 +80,12 @@ class GlobalVariablesFormatter extends React.Component {
                 dsData.whereClauseText = getWhereClauseAsText(mdv.whereClauses[analysisDataset.whereClauseOid], mdv, { noDatasetName: true });
             }
             dsData.variables = {};
-            analysisDataset.analysisVariableOids.forEach( itemDefOid => {
+            analysisDataset.analysisVariableOids.forEach(itemDefOid => {
                 if (mdv.itemDefs.hasOwnProperty(itemDefOid)) {
                     let itemDef = mdv.itemDefs[itemDefOid];
                     let description = getDescription(itemDef);
                     if (description !== '') {
-                        dsData.variables[itemDefOid] = `${mdv.itemDefs[itemDefOid].name} (${description})` ;
+                        dsData.variables[itemDefOid] = `${mdv.itemDefs[itemDefOid].name} (${description})`;
                     } else {
                         dsData.variables[itemDefOid] = mdv.itemDefs[itemDefOid].name;
                     }
@@ -137,7 +136,7 @@ class GlobalVariablesFormatter extends React.Component {
                             </Grid>
                             <Grid item xs={12}>
                                 <Grid container spacing={8}>
-                                    { Object.keys(datasetData).map( dsOid => (
+                                    { Object.keys(datasetData).map(dsOid => (
                                         <Grid key={dsOid} item xs={6}>
                                             <ArmAnalysisDatasetFormatter
                                                 key={dsOid}
@@ -166,7 +165,7 @@ class GlobalVariablesFormatter extends React.Component {
                                 <ListItemText primary='Programming Code'/>
                             </Grid>
                             <Grid item xs={12}>
-                                { programmingCode !== undefined  && <ArmProgrammingCodeFormatter programmingCode={programmingCode} leafs={mdv.leafs}/> }
+                                { programmingCode !== undefined && <ArmProgrammingCodeFormatter programmingCode={programmingCode} leafs={mdv.leafs}/> }
                             </Grid>
                         </Grid>
                     </ListItem>
@@ -177,10 +176,10 @@ class GlobalVariablesFormatter extends React.Component {
 }
 
 GlobalVariablesFormatter.propTypes = {
-    classes        : PropTypes.object.isRequired,
-    analysisResult : PropTypes.object.isRequired,
-    mdv            : PropTypes.object.isRequired,
-    selectGroup    : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    analysisResult: PropTypes.object.isRequired,
+    mdv: PropTypes.object.isRequired,
+    selectGroup: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(GlobalVariablesFormatter);

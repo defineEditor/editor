@@ -56,7 +56,7 @@ const styles = theme => ({
 
 // Redux functions
 class CodedValueSelectorTable extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         // Mark all items from the source codelist which are already present in the destination codelist
@@ -79,7 +79,7 @@ class CodedValueSelectorTable extends React.Component {
             disabledOids,
             selected: [],
             searchString: '',
-            rowsPerPage : 25,
+            rowsPerPage: 25,
             page: 0,
         };
     }
@@ -136,7 +136,7 @@ class CodedValueSelectorTable extends React.Component {
         this.setState({ searchString: event.target.value });
     };
 
-    getCodeListTable(codeList, defineVersion, classes) {
+    getCodeListTable (codeList, defineVersion, classes) {
         const { selected, disabledOids, page, rowsPerPage, searchString } = this.state;
         let { codeListTable, isDecoded, isRanked, isCcoded } = getCodeListData(
             codeList,
@@ -144,16 +144,15 @@ class CodedValueSelectorTable extends React.Component {
         );
 
         if (searchString !== '') {
-            codeListTable = codeListTable.filter( row => {
+            codeListTable = codeListTable.filter(row => {
                 if (/[A-Z]/.test(searchString)) {
-                    return row.value.includes(searchString) || isDecoded && row.decode.includes(searchString);
+                    return row.value.includes(searchString) || (isDecoded && row.decode.includes(searchString));
                 } else {
-                    return row.value.toLowerCase().includes(searchString.toLowerCase())
-                        || isDecoded && row.decode.toLowerCase().includes(searchString.toLowerCase());
+                    return row.value.toLowerCase().includes(searchString.toLowerCase()) ||
+                        (isDecoded && row.decode.toLowerCase().includes(searchString.toLowerCase()));
                 }
             });
         }
-
 
         let numSelected = this.state.selected.length;
         let rowCount = codeListTable.length - this.state.disabledOids.length;
@@ -280,14 +279,14 @@ class CodedValueSelectorTable extends React.Component {
                         }}
                         onChangePage={this.handleChangePage}
                         onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                        rowsPerPageOptions={[25,50,100]}
+                        rowsPerPageOptions={[25, 50, 100]}
                     />
                 </Grid>
             </Grid>
         );
     }
 
-    render() {
+    render () {
         const { defineVersion, classes } = this.props;
         return (
             <div className={classes.root}>

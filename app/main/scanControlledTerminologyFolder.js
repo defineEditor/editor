@@ -38,7 +38,7 @@ async function readContents (pathToDir) {
         if (/\.xml$/.test(file)) {
             let stdCodeListOdm;
             try {
-                let xmlData = await readFile(path.join(pathToDir,file));
+                let xmlData = await readFile(path.join(pathToDir, file));
                 let parsedXml = await parseString(xmlData);
                 // Second argument enables quickParse
                 stdCodeListOdm = parseStdCodeLists(parsedXml, true);
@@ -54,7 +54,7 @@ async function readContents (pathToDir) {
                 name: stdCodeListOdm.study.globalVariables.studyName,
                 pathToFile: path.join(pathToDir, file),
                 codeListCount: Object.keys(stdCodeListOdm.study.metaDataVersion.codeLists).length,
-                isCdiscNci: stdCodeListOdm.sourceSystem === 'NCI Thesaurus' ? true : false,
+                isCdiscNci: stdCodeListOdm.sourceSystem === 'NCI Thesaurus',
                 publishingSet: stdCodeListOdm.sourceSystem === 'NCI Thesaurus' ? getCtPublishingSet(id) : undefined,
             };
         } else {
@@ -69,7 +69,7 @@ async function readContents (pathToDir) {
     return stdCodeLists;
 }
 
-async function scanControlledTerminologyFolder(mainWindow, controlledTerminologyLocation) {
+async function scanControlledTerminologyFolder (mainWindow, controlledTerminologyLocation) {
     let result = await readContents(controlledTerminologyLocation);
     mainWindow.send('controlledTerminologyFolderData', result);
 }

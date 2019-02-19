@@ -32,7 +32,7 @@ const main = (() => {
 })();
 
 const tabs = (() => {
-    /* TODO: 'Methods', 'Comments', 'Where Conditions'*/
+    /* TODO: 'Methods', 'Comments', 'Where Conditions' */
     let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents', 'ARM Summary', 'Analysis Results'];
     let tabObjectNames = ['standards', 'datasets', 'variables', 'codeLists', 'codedValues', 'documents', 'armSummary', 'analysisResults'];
 
@@ -63,9 +63,9 @@ const tabs = (() => {
             };
         }
         // Column state
-        if (['Datasets', 'Variables','Codelists','Coded Values', 'ARM Summary'].includes(tabNames[i])) {
+        if (['Datasets', 'Variables', 'Codelists', 'Coded Values', 'ARM Summary'].includes(tabNames[i])) {
             settings[i].columns = {};
-            Object.keys(stdColumns[tabObjectName]).forEach( columnName => {
+            Object.keys(stdColumns[tabObjectName]).forEach(columnName => {
                 settings[i].columns[columnName] = { hidden: stdColumns[tabObjectName][columnName].hidden };
             });
         }
@@ -85,9 +85,9 @@ const modal = {
 };
 
 const studies = {
-    orderType      : 'alphabetical',
-    defineForm     : false,
-    currentStudyId : '',
+    orderType: 'alphabetical',
+    defineForm: false,
+    currentStudyId: '',
 };
 
 const ui = {

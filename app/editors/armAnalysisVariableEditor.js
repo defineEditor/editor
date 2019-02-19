@@ -41,15 +41,13 @@ const styles = theme => ({
 });
 
 class ArmAnalysisVariableEditor extends React.Component {
-
     constructor (props) {
         super(props);
 
         this.state = {
-            addAnchorEl    : null,
-            removeAnchorEl : null,
+            addAnchorEl: null,
+            removeAnchorEl: null,
         };
-
     }
 
     handleAddClick = event => {
@@ -83,14 +81,13 @@ class ArmAnalysisVariableEditor extends React.Component {
         this.setState({ removeAnchorEl: null });
     };
 
-
-    render() {
+    render () {
         const { classes, itemGroup, analysisVariables } = this.props;
         const { removeAnchorEl, addAnchorEl } = this.state;
 
         // Get non-analysis variables
         let nonAnalysisVariables = [];
-        Object.values(itemGroup.itemRefs).forEach( itemRef => {
+        Object.values(itemGroup.itemRefs).forEach(itemRef => {
             if (!analysisVariables.includes(itemRef.itemOid)) {
                 nonAnalysisVariables.push(itemRef.itemOid);
             }
@@ -196,10 +193,10 @@ class ArmAnalysisVariableEditor extends React.Component {
 }
 
 ArmAnalysisVariableEditor.propTypes = {
-    analysisVariables : PropTypes.array.isRequired,
-    itemGroup         : PropTypes.object.isRequired,
-    itemDefs          : PropTypes.object.isRequired,
-    onChange          : PropTypes.func.isRequired,
+    analysisVariables: PropTypes.array.isRequired,
+    itemGroup: PropTypes.object.isRequired,
+    itemDefs: PropTypes.object.isRequired,
+    onChange: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(ArmAnalysisVariableEditor);

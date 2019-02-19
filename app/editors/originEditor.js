@@ -38,9 +38,9 @@ const styles = theme => ({
         margin: theme.spacing.unit,
     },
     iconButton: {
-        marginLeft   : '0px',
-        marginRight  : '0px',
-        marginBottom : '8px',
+        marginLeft: '0px',
+        marginRight: '0px',
+        marginBottom: '8px',
     },
     editorHeading: {
         minWidth: '70px',
@@ -68,21 +68,20 @@ const mapStateToProps = state => {
     }
 
     return {
-        leafs         : state.present.odm.study.metaDataVersion.leafs,
-        lang          : state.present.odm.study.metaDataVersion.lang,
-        stdConstants  : state.present.stdConstants,
-        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
+        leafs: state.present.odm.study.metaDataVersion.leafs,
+        lang: state.present.odm.study.metaDataVersion.lang,
+        stdConstants: state.present.stdConstants,
+        defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
         model,
     };
 };
 
 class ConnectedOriginEditor extends React.Component {
-
     handleChange = (name, originId) => (updateObj) => {
         let origins = this.props.origins;
         let origin = origins[originId];
         let newOrigin;
-        let newOrigins = origins.map( origin => (clone(origin)));
+        let newOrigins = origins.map(origin => (clone(origin)));
 
         if (name === 'deleteOrigin') {
             newOrigins.splice(originId, 1);
@@ -99,9 +98,9 @@ class ConnectedOriginEditor extends React.Component {
                 if (this.props.defineVersion === '2.0.0') {
                     if (updateObj.target.value === 'CRF' && newOrigin.documents.length === 0) {
                         // Check if there is aCRF
-                        Object.values(this.props.leafs).some( leaf => {
+                        Object.values(this.props.leafs).some(leaf => {
                             if (leaf.type === 'annotatedCrf') {
-                                addDocument(newOrigin, { ... new Document({ leafId: leaf.id }) });
+                                addDocument(newOrigin, { ...new Document({ leafId: leaf.id }) });
                                 return true;
                             }
                         });
@@ -109,9 +108,9 @@ class ConnectedOriginEditor extends React.Component {
                     if (updateObj.target.value !== 'CRF' && origin.type === 'CRF' && origin.documents.length === 1) {
                         // If type is changed from CRF and there is CRF without page references, delete it
                         let leafId = origin.documents[0].leafId;
-                        if (this.props.leafs.hasOwnProperty(leafId)
-                            && this.props.leafs[leafId].type === 'annotatedCrf'
-                            && origin.documents[0].pdfPageRefs.length === 0
+                        if (this.props.leafs.hasOwnProperty(leafId) &&
+                            this.props.leafs[leafId].type === 'annotatedCrf' &&
+                            origin.documents[0].pdfPageRefs.length === 0
                         ) {
                             deleteDocument(newOrigin, leafId);
                         }
@@ -123,10 +122,10 @@ class ConnectedOriginEditor extends React.Component {
                     if (updateObj.target.value === 'Predecessor' && newOrigin.descriptions.length === 0) {
                         newOrigin.descriptions.push({ ...new TranslatedText({ value: '', lang: this.props.lang }) });
                     }
-                    if (updateObj.target.value !== 'Predecessor'
-                        && origin.type === 'Predecessor'
-                        && origin.descriptions.length === 1
-                        && origin.descriptions[0].value === ''
+                    if (updateObj.target.value !== 'Predecessor' &&
+                        origin.type === 'Predecessor' &&
+                        origin.descriptions.length === 1 &&
+                        origin.descriptions[0].value === ''
                     ) {
                         newOrigin.descriptions = [];
                     }
@@ -163,12 +162,12 @@ class ConnectedOriginEditor extends React.Component {
         // Get the list of available documents
         let leafs = this.props.leafs;
         let documentList = [];
-        Object.keys(leafs).forEach( (leafId) => {
-            documentList.push({[leafId]: leafs[leafId].title});
+        Object.keys(leafs).forEach((leafId) => {
+            documentList.push({ [leafId]: leafs[leafId].title });
         });
 
         let origin, originType, originDescription;
-        if (this.props.defineVersion === '2.0.0'){
+        if (this.props.defineVersion === '2.0.0') {
             origin = this.props.origins[0];
             if (origin) {
                 originType = origin.type || '';
@@ -191,7 +190,7 @@ class ConnectedOriginEditor extends React.Component {
                             <Tooltip title={origin === undefined ? 'Add Origin' : 'Remove Origin'} placement='bottom' enterDelay={1000}>
                                 <span>
                                     <IconButton
-                                        onClick={origin === undefined ? this.handleChange('addOrigin',0) : this.handleChange('deleteOrigin',0)}
+                                        onClick={origin === undefined ? this.handleChange('addOrigin', 0) : this.handleChange('deleteOrigin', 0)}
                                         className={classes.iconButton}
                                         color={origin === undefined ? 'primary' : 'secondary'}
                                     >
@@ -204,7 +203,7 @@ class ConnectedOriginEditor extends React.Component {
                             <Tooltip title='Add Link to Document' placement='bottom' enterDelay={1000}>
                                 <span>
                                     <IconButton
-                                        onClick={this.handleChange('addDocument',0)}
+                                        onClick={this.handleChange('addDocument', 0)}
                                         disabled={origin === undefined}
                                         className={classes.iconButton}
                                         color={origin !== undefined ? 'primary' : 'default'}
@@ -218,7 +217,7 @@ class ConnectedOriginEditor extends React.Component {
                             <Tooltip title={originDescription === undefined ? 'Add Description' : 'Remove Description'} placement='bottom' enterDelay={1000}>
                                 <span>
                                     <IconButton
-                                        onClick={originDescription === undefined ? this.handleChange('addDescription',0) : this.handleChange('deleteDescription',0)}
+                                        onClick={originDescription === undefined ? this.handleChange('addDescription', 0) : this.handleChange('deleteDescription', 0)}
                                         className={classes.iconButton}
                                         disabled={origin === undefined}
                                         color={originDescription === undefined || origin === undefined ? 'primary' : 'secondary'}
@@ -239,7 +238,7 @@ class ConnectedOriginEditor extends React.Component {
                                             label='Origin Type'
                                             select
                                             value={originType}
-                                            onChange={this.handleChange('type',0)}
+                                            onChange={this.handleChange('type', 0)}
                                             className={classes.originType}
                                         >
                                             {getSelectionList(originTypeList)}
@@ -250,7 +249,7 @@ class ConnectedOriginEditor extends React.Component {
                                                 <TextField
                                                     label='Origin Description'
                                                     defaultValue={originDescription}
-                                                    onBlur={this.handleChange('updateDescription',0)}
+                                                    onBlur={this.handleChange('updateDescription', 0)}
                                                     className={classes.textField}
                                                 >
                                                 </TextField>
@@ -258,7 +257,7 @@ class ConnectedOriginEditor extends React.Component {
                                     }
                                     <DocumentEditor
                                         parentObj={origin}
-                                        handleChange={this.handleChange('updateDocument',0)}
+                                        handleChange={this.handleChange('updateDocument', 0)}
                                         leafs={this.props.leafs}
                                     />
                                 </React.Fragment>
@@ -271,13 +270,13 @@ class ConnectedOriginEditor extends React.Component {
 }
 
 ConnectedOriginEditor.propTypes = {
-    origins       : PropTypes.array.isRequired,
-    leafs         : PropTypes.object.isRequired,
-    stdConstants  : PropTypes.object.isRequired,
-    defineVersion : PropTypes.string.isRequired,
-    model         : PropTypes.string.isRequired,
-    lang          : PropTypes.string.isRequired,
-    onUpdate      : PropTypes.func
+    origins: PropTypes.array.isRequired,
+    leafs: PropTypes.object.isRequired,
+    stdConstants: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    model: PropTypes.string.isRequired,
+    lang: PropTypes.string.isRequired,
+    onUpdate: PropTypes.func
 };
 
 const OriginEditor = connect(mapStateToProps)(ConnectedOriginEditor);

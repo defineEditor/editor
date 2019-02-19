@@ -24,7 +24,6 @@ const styles = theme => ({
     },
 });
 
-
 class ArmDescriptionFormatter extends React.Component {
     render () {
         let description = this.props.description;
@@ -42,9 +41,9 @@ class ArmDescriptionFormatter extends React.Component {
 }
 
 ArmDescriptionFormatter.propTypes = {
-    description : PropTypes.object.isRequired,
-    leafs       : PropTypes.object,
-    greyText    : PropTypes.bool,
+    description: PropTypes.object.isRequired,
+    leafs: PropTypes.object,
+    greyText: PropTypes.bool,
 };
 
 export default withStyles(styles)(ArmDescriptionFormatter);

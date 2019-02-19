@@ -29,7 +29,7 @@ import AddIcon from '@material-ui/icons/AddCircle';
 import SelectCommentIcon from '@material-ui/icons/OpenInNew';
 import DetachCommentIcon from '@material-ui/icons/CallSplit';
 import Tooltip from '@material-ui/core/Tooltip';
-import {Comment, TranslatedText} from 'core/defineStructure.js';
+import { Comment, TranslatedText } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 import CommentMethodTable from 'components/utils/commentMethodTable.js';
@@ -45,20 +45,20 @@ import {
 
 const styles = theme => ({
     iconButton: {
-        marginLeft   : '0px',
-        marginRight  : '0px',
-        marginBottom : '8px',
+        marginLeft: '0px',
+        marginRight: '0px',
+        marginBottom: '8px',
     },
     commentInput: {
-        marginBottom : '8px',
+        marginBottom: '8px',
     },
     multipleSourcesLine: {
-        whiteSpace : 'pre-wrap',
-        color      : 'grey',
+        whiteSpace: 'pre-wrap',
+        color: 'grey',
     },
     helperText: {
-        whiteSpace : 'pre-wrap',
-        color      : theme.palette.primary.main,
+        whiteSpace: 'pre-wrap',
+        color: theme.palette.primary.main,
     },
     root: {
         outline: 'none',
@@ -67,11 +67,11 @@ const styles = theme => ({
 
 const mapStateToProps = state => {
     return {
-        leafs                 : state.present.odm.study.metaDataVersion.leafs,
-        comments              : state.present.odm.study.metaDataVersion.comments,
-        mdv                   : state.present.odm.study.metaDataVersion,
-        lang                  : state.present.odm.study.metaDataVersion.lang,
-        textInstantProcessing : state.present.settings.editor.textInstantProcessing,
+        leafs: state.present.odm.study.metaDataVersion.leafs,
+        comments: state.present.odm.study.metaDataVersion.comments,
+        mdv: state.present.odm.study.metaDataVersion,
+        lang: state.present.odm.study.metaDataVersion.lang,
+        textInstantProcessing: state.present.settings.editor.textInstantProcessing,
     };
 };
 
@@ -98,8 +98,8 @@ class ConnectedCommentEditor extends React.Component {
                 comment = clone(this.props.comment);
             }
             this.state = {
-                comment             : comment,
-                selectCommentOpened : false,
+                comment: comment,
+                selectCommentOpened: false,
             };
         } else {
             this.state = {
@@ -108,7 +108,7 @@ class ConnectedCommentEditor extends React.Component {
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         if (!this.props.stateless) {
             this.rootRef.current.focus();
         }
@@ -119,7 +119,7 @@ class ConnectedCommentEditor extends React.Component {
         let comment = this.props.stateless === true ? this.props.comment : this.state.comment;
         if (name === 'addComment') {
             let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
-            newComment = { ...new Comment({oid: commentOid, descriptions: [ { ...new TranslatedText({lang: this.props.lang, value: ''}) } ]}) };
+            newComment = { ...new Comment({ oid: commentOid, descriptions: [ { ...new TranslatedText({ lang: this.props.lang, value: '' }) } ] }) };
         } else if (name === 'deleteComment') {
             newComment = undefined;
         } else if (name === 'textUpdate') {
@@ -132,11 +132,11 @@ class ConnectedCommentEditor extends React.Component {
             newComment = updateObj;
         } else if (name === 'selectComment') {
             newComment = updateObj;
-            this.setState({selectCommentOpened: false});
+            this.setState({ selectCommentOpened: false });
         } else if (name === 'copyComment') {
             let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
             newComment = { ...new Comment({ ...clone(updateObj), oid: commentOid, sources: undefined }) };
-            this.setState({selectCommentOpened: false});
+            this.setState({ selectCommentOpened: false });
         } else if (name === 'detachComment') {
             let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
             newComment = { ...new Comment({ ...clone(this.props.stateless ? this.props.comment : this.state.comment), oid: commentOid, sources: undefined }) };
@@ -147,15 +147,15 @@ class ConnectedCommentEditor extends React.Component {
             this.props.onUpdate(newComment);
         } else {
             // Otherwise update state locally
-            this.setState({comment: newComment});
+            this.setState({ comment: newComment });
         }
     }
 
     handleSelectDialog = (name) => (updateObj) => {
         if (name === 'openSelectComment') {
-            this.setState({selectCommentOpened: true});
+            this.setState({ selectCommentOpened: true });
         } else if (name === 'closeSelectComment') {
-            this.setState({selectCommentOpened: false});
+            this.setState({ selectCommentOpened: false });
         }
     }
 
@@ -165,15 +165,15 @@ class ConnectedCommentEditor extends React.Component {
         if (!deepEqual(this.state.comment, oldComment)) {
             if (this.state.comment === undefined) {
                 // If comment was removed
-                this.props.deleteItemGroupComment({type: 'itemGroups', oid: row.oid}, row.comment);
+                this.props.deleteItemGroupComment({ type: 'itemGroups', oid: row.oid }, row.comment);
             } else if (oldComment === undefined) {
                 // If comment was added
-                this.props.addItemGroupComment({type: 'itemGroups', oid: row.oid}, this.state.comment);
+                this.props.addItemGroupComment({ type: 'itemGroups', oid: row.oid }, this.state.comment);
             } else if (oldComment.oid !== this.state.comment.oid) {
                 // If comment was replaced
-                this.props.replaceItemGroupComment({type: 'itemGroups', oid: row.oid}, this.state.comment, oldComment.oid);
+                this.props.replaceItemGroupComment({ type: 'itemGroups', oid: row.oid }, this.state.comment, oldComment.oid);
             } else {
-                this.props.updateItemGroupComment({type: 'itemGroups', oid: row.oid}, this.state.comment);
+                this.props.updateItemGroupComment({ type: 'itemGroups', oid: row.oid }, this.state.comment);
             }
         }
         this.props.onUpdate();
@@ -183,7 +183,7 @@ class ConnectedCommentEditor extends React.Component {
         this.props.onUpdate();
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (this.props.stateless !== true) {
             if (event.key === 'Escape' || event.keyCode === 27) {
                 this.cancel();
@@ -200,7 +200,7 @@ class ConnectedCommentEditor extends React.Component {
     render () {
         const { classes } = this.props;
         let comment = this.props.stateless === true ? this.props.comment : this.state.comment;
-        let sourceLabels = {count: 0};
+        let sourceLabels = { count: 0 };
         let usedBy;
         let issue = false;
         let helperText;
@@ -213,7 +213,7 @@ class ConnectedCommentEditor extends React.Component {
             }
             // Check for special characters
             // eslint-disable-next-line no-control-regex
-            let issues = checkForSpecialChars(commentText, new RegExp(/[^\u000A\u000D\u0020-\u007f]/,'g'));
+            let issues = checkForSpecialChars(commentText, new RegExp(/[^\u000A\u000D\u0020-\u007f]/, 'g'));
             if (issues.length > 0) {
                 issue = true;
                 helperText = issues.join('\n');
@@ -266,7 +266,7 @@ class ConnectedCommentEditor extends React.Component {
                                     </IconButton>
                                 </span>
                             </Tooltip>
-                            {(sourceLabels.count > 1)  &&
+                            {(sourceLabels.count > 1) &&
                                     <Tooltip title='Detach Comment' placement='bottom' enterDelay={1000}>
                                         <IconButton
                                             onClick={this.handleChange('detachComment')}
@@ -279,7 +279,7 @@ class ConnectedCommentEditor extends React.Component {
                             }
                         </Typography>
                     </Grid>
-                    {(sourceLabels.count > 1)  &&
+                    {(sourceLabels.count > 1) &&
                             <Grid item xs={12}>
                                 <div className={classes.multipleSourcesLine}>
                                     This comment is used by multiple sources. {usedBy}
@@ -304,7 +304,7 @@ class ConnectedCommentEditor extends React.Component {
                                     autoFocus={this.props.autoFocus}
                                     key={comment.oid}
                                     helperText={issue && helperText}
-                                    FormHelperTextProps={{className: classes.helperText}}
+                                    FormHelperTextProps={{ className: classes.helperText }}
                                     defaultValue={commentText}
                                     className={classes.commentInput}
                                     onBlur={!this.props.textInstantProcessing ? this.handleChange('textUpdate') : undefined}
@@ -330,19 +330,19 @@ class ConnectedCommentEditor extends React.Component {
 }
 
 ConnectedCommentEditor.propTypes = {
-    comment               : PropTypes.oneOfType([
+    comment: PropTypes.oneOfType([
         PropTypes.object,
-        PropTypes.oneOf([""]),
+        PropTypes.oneOf(['']),
     ]),
-    leafs                 : PropTypes.object.isRequired,
-    lang                  : PropTypes.string.isRequired,
-    mdv                   : PropTypes.object.isRequired,
-    comments              : PropTypes.object.isRequired,
-    onUpdate              : PropTypes.func,
-    autoFocus             : PropTypes.bool,
-    stateless             : PropTypes.bool,
-    title                 : PropTypes.string,
-    textInstantProcessing : PropTypes.bool,
+    leafs: PropTypes.object.isRequired,
+    lang: PropTypes.string.isRequired,
+    mdv: PropTypes.object.isRequired,
+    comments: PropTypes.object.isRequired,
+    onUpdate: PropTypes.func,
+    autoFocus: PropTypes.bool,
+    stateless: PropTypes.bool,
+    title: PropTypes.string,
+    textInstantProcessing: PropTypes.bool,
 };
 
 const CommentEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedCommentEditor);

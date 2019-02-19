@@ -42,9 +42,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        model         : state.present.odm.study.metaDataVersion.model,
-        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
-        itemGroupOids : Object.keys(state.present.odm.study.metaDataVersion.itemGroups),
+        model: state.present.odm.study.metaDataVersion.model,
+        defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
+        itemGroupOids: Object.keys(state.present.odm.study.metaDataVersion.itemGroups),
     };
 };
 
@@ -58,10 +58,9 @@ class AddDatasetEditorConnected extends React.Component {
             purpose = 'Tabulation';
         }
         this.state = {
-            name         : '',
+            name: '',
             purpose,
         };
-
     }
 
     resetState = () => {
@@ -72,7 +71,7 @@ class AddDatasetEditorConnected extends React.Component {
             purpose = 'Tabulation';
         }
         this.setState({
-            name         : '',
+            name: '',
             purpose,
         });
     }
@@ -86,8 +85,8 @@ class AddDatasetEditorConnected extends React.Component {
     handleSaveAndClose = (updateObj) => {
         let itemGroupOid = getOid('ItemGroup', undefined, this.props.itemGroupOids);
         let itemGroup = { ...new ItemGroup({
-            oid  : itemGroupOid,
-            name : this.state.name,
+            oid: itemGroupOid,
+            name: this.state.name,
             datasetName: this.state.name,
             purpose: this.state.purpose,
         }) };
@@ -96,14 +95,14 @@ class AddDatasetEditorConnected extends React.Component {
         this.props.onClose();
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.ctrlKey && (event.keyCode === 83)) {
             this.handleSaveAndClose();
         }
     }
 
-    render() {
-        const {classes} = this.props;
+    render () {
+        const { classes } = this.props;
 
         return (
             <Grid container spacing={8} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
@@ -133,13 +132,12 @@ class AddDatasetEditorConnected extends React.Component {
 }
 
 AddDatasetEditorConnected.propTypes = {
-    classes       : PropTypes.object.isRequired,
-    model         : PropTypes.string.isRequired,
-    itemGroupOids : PropTypes.array.isRequired,
-    defineVersion : PropTypes.string.isRequired,
-    disabled      : PropTypes.bool,
+    classes: PropTypes.object.isRequired,
+    model: PropTypes.string.isRequired,
+    itemGroupOids: PropTypes.array.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    disabled: PropTypes.bool,
 };
 
 const AddDatasetEditor = connect(mapStateToProps, mapDispatchToProps)(AddDatasetEditorConnected);
 export default withStyles(styles)(AddDatasetEditor);
-

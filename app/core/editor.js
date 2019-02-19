@@ -54,8 +54,8 @@ const styles = theme => ({
 
 const mapDispatchToProps = dispatch => {
     return {
-        changePage : (updateObj) => dispatch(changePage(updateObj)),
-        updateMainUi : (updateObj) => dispatch(updateMainUi(updateObj)),
+        changePage: (updateObj) => dispatch(changePage(updateObj)),
+        updateMainUi: (updateObj) => dispatch(updateMainUi(updateObj)),
     };
 };
 
@@ -77,7 +77,7 @@ const mapStateToProps = state => {
 };
 
 class ConnectedEditor extends React.Component {
-    componentDidMount() {
+    componentDidMount () {
         if (this.props.currentDefineId !== this.props.loadedDefineId && this.props.currentDefineId) {
             // If the currently loaded define is different, load the correct one
             ipcRenderer.send('loadDefineObject', this.props.currentDefineId, 'initialLoad');
@@ -88,7 +88,7 @@ class ConnectedEditor extends React.Component {
         this.props.changePage({ page: 'studies' });
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
         return (
             <React.Fragment>
@@ -119,7 +119,7 @@ class ConnectedEditor extends React.Component {
                 { this.props.showCommentMethodTable &&
                         <CommentMethodTable
                             type='Comment'
-                            onClose={() => {this.props.updateMainUi({showCommentMethodTable: false});}}
+                            onClose={() => { this.props.updateMainUi({ showCommentMethodTable: false }); }}
                             listOnly={true}
                         />
                 }

@@ -61,11 +61,11 @@ class editingControlIcons extends React.Component {
 }
 
 editingControlIcons.propTypes = {
-    onSave    : PropTypes.func.isRequired,
-    onCancel  : PropTypes.func.isRequired,
-    onHelp    : PropTypes.func,
-    onComment : PropTypes.func,
-    onSort    : PropTypes.func,
+    onSave: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    onHelp: PropTypes.func,
+    onComment: PropTypes.func,
+    onSort: PropTypes.func,
 };
 
 export default withStyles(styles)(editingControlIcons);

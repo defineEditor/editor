@@ -69,7 +69,7 @@ class ConnectedApp extends Component {
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('keydown', this.onKeyDown);
         if (this.props.showInitialMessage) {
             this.props.openModal({
@@ -79,11 +79,11 @@ class ConnectedApp extends Component {
         }
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.ctrlKey && (event.keyCode === 72)) {
             this.toggleRedoUndo();
         }
@@ -100,13 +100,13 @@ class ConnectedApp extends Component {
         if (timeOut > 0) {
             // Timeout is required when toggle is triggered from the main menu
             // Otherwise the input field gets unfocused after main menu closes
-            setTimeout(() => {this.setState({ showFindInPage: !this.state.showFindInPage });} , timeOut);
+            setTimeout(() => { this.setState({ showFindInPage: !this.state.showFindInPage }); }, timeOut);
         } else {
             this.setState({ showFindInPage: !this.state.showFindInPage });
         }
     }
 
-    render() {
+    render () {
         return (
             <MuiThemeProvider theme={theme}>
                 <MainMenu onToggleRedoUndo={this.toggleRedoUndo} onToggleFindInPage={this.toggleFindInPage}/>

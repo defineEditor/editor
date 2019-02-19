@@ -13,19 +13,18 @@
 ***********************************************************************************/
 
 import fs from 'fs';
-import jszip from 'jszip';
+import Jszip from 'jszip';
 import path from 'path';
 import { app } from 'electron';
 import { promisify } from 'util';
 
 const readFile = promisify(fs.readFile);
 
-async function loadDefineObject(mainWindow, defineId, id) {
+async function loadDefineObject (mainWindow, defineId, id) {
     let pathToDefines = path.join(app.getPath('userData'), 'defines');
     let file = path.join(pathToDefines, defineId + '.nogz');
 
-
-    let zip = new jszip();
+    let zip = new Jszip();
     let data = await readFile(file);
 
     let result = {};
@@ -41,7 +40,7 @@ async function loadDefineObject(mainWindow, defineId, id) {
     } else if (id !== 'import') {
         await Promise.all(files.map(async (file) => {
             let contents = await zip.file(file).async('string');
-            result[file.replace(/\.json$/,'')] = JSON.parse(contents);
+            result[file.replace(/\.json$/, '')] = JSON.parse(contents);
         }));
         mainWindow.webContents.send('loadDefineObjectToRender', result, id);
     }

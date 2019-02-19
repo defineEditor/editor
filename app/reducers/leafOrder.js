@@ -17,7 +17,7 @@ import {
     UPD_LEAFORDER,
     ADD_VARS,
     ADD_ITEMGROUPS,
-} from "constants/action-types";
+} from 'constants/action-types';
 
 const updateLeafOrder = (state, action) => {
     let newState = action.leafOrder.slice();
@@ -28,8 +28,8 @@ const updateLeafs = (state, action) => {
     // action.updateObj.removedLeafIds - list of removed leaf IDs
     // action.updateObj.addedLeafs - list of added leafs
     let newLeafOrder = state.slice();
-    action.updateObj.removedLeafIds.forEach( leafId => {
-        newLeafOrder.splice(newLeafOrder.indexOf(leafId),1);
+    action.updateObj.removedLeafIds.forEach(leafId => {
+        newLeafOrder.splice(newLeafOrder.indexOf(leafId), 1);
     });
     newLeafOrder = newLeafOrder.concat(Object.keys(action.updateObj.addedLeafs));
 
@@ -47,8 +47,8 @@ const handleAddVariables = (state, action) => {
 const handleAddItemGroups = (state, action) => {
     let allLeafOids = [];
     const { itemGroups } = action.updateObj;
-    Object.values(itemGroups).forEach( itemGroupData => {
-        Object.keys(itemGroupData.leafs).forEach( leafId => {
+    Object.values(itemGroups).forEach(itemGroupData => {
+        Object.keys(itemGroupData.leafs).forEach(leafId => {
             if (!allLeafOids.includes(leafId)) {
                 allLeafOids.push(leafId);
             }

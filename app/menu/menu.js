@@ -22,14 +22,14 @@ const createMenu = mainWindow => {
             submenu: [
                 {
                     label: 'Save',
-                    click() {
+                    click () {
                         mainWindow.webContents.send('saveState');
                     }
                 },
                 { type: 'separator' },
                 {
                     label: 'Save As Define-XML 2.0',
-                    click() {
+                    click () {
                         mainWindow.webContents.send('sendDefineObjectToMain');
                     }
                 },
@@ -65,7 +65,7 @@ const createMenu = mainWindow => {
             submenu: [
                 {
                     label: 'Learn More',
-                    click() {
+                    click () {
                         require('electron').shell.openExternal('http://google.com');
                     }
                 }

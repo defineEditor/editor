@@ -16,7 +16,7 @@ import fs from 'fs';
 import path from 'path';
 import { app } from 'electron';
 
-function deleteDefineObject(defineId) {
+function deleteDefineObject (defineId) {
     let pathToDefines = path.join(app.getPath('userData'), 'defines');
     let file = path.join(pathToDefines, defineId + '.nogz');
 

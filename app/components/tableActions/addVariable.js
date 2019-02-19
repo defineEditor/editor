@@ -32,40 +32,40 @@ import AddFromOtherStudy from 'components/tableActions/addFromOtherStudy.js';
 
 const styles = theme => ({
     dialog: {
-        paddingLeft   : theme.spacing.unit * 1,
-        paddingRight  : theme.spacing.unit * 1,
-        paddingTop    : theme.spacing.unit * 1,
-        paddingBottom : theme.spacing.unit * 1,
-        position      : 'absolute',
-        borderRadius  : '10px',
-        borderColor   : 'primary',
-        top           : '10%',
-        transform     : 'translate(0%, calc(-10%+0.5px))',
-        overflowX     : 'auto',
-        maxHeight     : '80%',
-        width         : '90%',
-        overflowY     : 'auto',
+        paddingLeft: theme.spacing.unit * 1,
+        paddingRight: theme.spacing.unit * 1,
+        paddingTop: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing.unit * 1,
+        position: 'absolute',
+        borderRadius: '10px',
+        borderColor: 'primary',
+        top: '10%',
+        transform: 'translate(0%, calc(-10%+0.5px))',
+        overflowX: 'auto',
+        maxHeight: '80%',
+        width: '90%',
+        overflowY: 'auto',
     },
     appBar: {
-        transform     : 'translate(0%, calc(-20%+0.5px))',
+        transform: 'translate(0%, calc(-20%+0.5px))',
     },
     title: {
         marginTop: theme.spacing.unit * 5,
-        paddingBottom : 0,
+        paddingBottom: 0,
     },
 });
 
 // Redux functions
 const mapStateToProps = state => {
     return {
-        model         : state.present.odm.study.metaDataVersion.model,
-        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
+        model: state.present.odm.study.metaDataVersion.model,
+        defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
     };
 };
 
 const tabNames = ['New Variable', 'This Define', 'Another Define'];
 
-function TabContainer(props) {
+function TabContainer (props) {
     return (
         <Typography component="div">
             {props.children}
@@ -77,7 +77,7 @@ class AddVariableConnected extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            currentTab : 1,
+            currentTab: 1,
         };
     }
 
@@ -85,13 +85,13 @@ class AddVariableConnected extends React.Component {
         this.setState({ currentTab });
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.props.onClose();
         }
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
         const { currentTab } = this.state;
 
@@ -101,7 +101,7 @@ class AddVariableConnected extends React.Component {
                     disableBackdropClick
                     disableEscapeKeyDown
                     open
-                    PaperProps={{className: classes.dialog}}
+                    PaperProps={{ className: classes.dialog }}
                     onKeyDown={this.onKeyDown}
                     tabIndex='0'
                 >
@@ -130,7 +130,7 @@ class AddVariableConnected extends React.Component {
                                 indicatorColor='primary'
                                 textColor='primary'
                             >
-                                { tabNames.map( tab => {
+                                { tabNames.map(tab => {
                                     return <Tab key={tab} label={tab} />;
                                 })
                                 }
@@ -169,14 +169,13 @@ class AddVariableConnected extends React.Component {
 }
 
 AddVariableConnected.propTypes = {
-    classes       : PropTypes.object.isRequired,
-    model         : PropTypes.string.isRequired,
-    itemGroupOid  : PropTypes.string.isRequired,
-    defineVersion : PropTypes.string.isRequired,
-    position      : PropTypes.number,
-    onClose       : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    model: PropTypes.string.isRequired,
+    itemGroupOid: PropTypes.string.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    position: PropTypes.number,
+    onClose: PropTypes.func.isRequired,
 };
 
 const AddVariable = connect(mapStateToProps)(AddVariableConnected);
 export default withStyles(styles)(AddVariable);
-

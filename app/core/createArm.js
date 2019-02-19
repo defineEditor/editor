@@ -22,15 +22,15 @@ function createArm (rawData, version) {
     // Use 1.0.0 by default
     version = version || '1.0.0';
     // De-normalize ARM
-    Object.values(data.resultDisplays).forEach( resultDisplay => {
+    Object.values(data.resultDisplays).forEach(resultDisplay => {
         resultDisplay.analysisResults = {};
-        resultDisplay.analysisResultOrder.forEach( analysisResultOid => {
+        resultDisplay.analysisResultOrder.forEach(analysisResultOid => {
             resultDisplay.analysisResults[analysisResultOid] = data.analysisResults[analysisResultOid];
         });
     });
 
     if (version === '1.0.0') {
-        result = {'arm:ResultDisplay': []};
+        result = { 'arm:ResultDisplay': [] };
         data.resultDisplayOrder.forEach(function (resultDisplayOid) {
             result['arm:ResultDisplay'].push(createResultDisplay(data.resultDisplays[resultDisplayOid], version));
         });
@@ -44,8 +44,8 @@ function createResultDisplay (data, version) {
     if (version === '1.0.0') {
         // Attributes
         let attributes = {
-            'OID'  : data.oid,
-            'Name' : data.name,
+            'OID': data.oid,
+            'Name': data.name,
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -82,11 +82,11 @@ function createAnalysisResult (data, version) {
     if (version === '1.0.0') {
         // Attributes
         let attributes = {
-            'OID'                 : data.oid,
-            'Name'                : data.name,
-            'ParameterOID'        : data.parameterOid,
-            'AnalysisReason'      : data.analysisReason,
-            'AnalysisPurpose'     : data.analysisPurpose,
+            'OID': data.oid,
+            'Name': data.name,
+            'ParameterOID': data.parameterOid,
+            'AnalysisReason': data.analysisReason,
+            'AnalysisPurpose': data.analysisPurpose,
         };
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
@@ -102,7 +102,7 @@ function createAnalysisResult (data, version) {
             });
         }
         // Add analysis datasets
-        result['arm:AnalysisDatasets'] = { 'arm:AnalysisDataset' : [] };
+        result['arm:AnalysisDatasets'] = { 'arm:AnalysisDataset': [] };
         data.analysisDatasetOrder.forEach(function (oid) {
             result['arm:AnalysisDatasets']['arm:AnalysisDataset'].push(createAnalysisDataset(data.analysisDatasets[oid], version));
         });
@@ -138,13 +138,13 @@ function createAnalysisDataset (data, version) {
         // Child Elements
         // WhereClause Ref
         if (data.whereClauseOid !== undefined) {
-            result['def:WhereClauseRef'] = {'@WhereClauseOID': data.whereClauseOid};
+            result['def:WhereClauseRef'] = { '@WhereClauseOID': data.whereClauseOid };
         }
         // Analysis Variables
         if (data.analysisVariableOids.length > 0) {
             result['arm:AnalysisVariable'] = [];
-            data.analysisVariableOids.forEach ( itemOid => {
-                result['arm:AnalysisVariable'].push({'@ItemOID': itemOid});
+            data.analysisVariableOids.forEach(itemOid => {
+                result['arm:AnalysisVariable'].push({ '@ItemOID': itemOid });
             });
         }
     }

@@ -15,14 +15,14 @@
 import {
     STDCDL_LOAD,
     STDCDL_DEL,
-} from "constants/action-types";
+} from 'constants/action-types';
 import getCtPublishingSet from 'utils/getCtPublishingSet.js';
 
 const initialState = {};
 
 const loadStdCodeLists = (state, action) => {
     let newState = { ...state };
-    Object.keys(action.updateObj.ctList).forEach( ctId => {
+    Object.keys(action.updateObj.ctList).forEach(ctId => {
         // Extract model name;
         let ct = action.updateObj.ctList[ctId];
         if (typeof ct === 'object') {
@@ -32,11 +32,11 @@ const loadStdCodeLists = (state, action) => {
                 publishingSet = getCtPublishingSet(ct.fileOid);
             }
             let controlledTerminology = {
-                codeLists   : ct.study.metaDataVersion.codeLists,
-                description : ct.study.globalVariables.studyDescription,
-                nciCodeOids : ct.study.metaDataVersion.nciCodeOids,
-                version     : ct.sourceSystemVersion,
-                oid         : ct.fileOid,
+                codeLists: ct.study.metaDataVersion.codeLists,
+                description: ct.study.globalVariables.studyDescription,
+                nciCodeOids: ct.study.metaDataVersion.nciCodeOids,
+                version: ct.sourceSystemVersion,
+                oid: ct.fileOid,
                 publishingSet,
             };
             newState = { ...newState, [controlledTerminology.oid]: controlledTerminology };
@@ -48,7 +48,7 @@ const loadStdCodeLists = (state, action) => {
 
 const deleteStdCodeLists = (state, action) => {
     let newState = { ...state };
-    action.deleteObj.ctIds.forEach( ctId => {
+    action.deleteObj.ctIds.forEach(ctId => {
         // Extract model name;
         if (newState.hasOwnProperty(ctId)) {
             delete newState[ctId];

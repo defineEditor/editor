@@ -63,10 +63,10 @@ const mapDispatchToProps = dispatch => {
 
 const CustomTableCell = withStyles(theme => ({
     head: {
-        backgroundColor : theme.palette.primary.main,
-        color           : '#EEEEEE',
-        fontSize        : 16,
-        fontWeight      : 'bold',
+        backgroundColor: theme.palette.primary.main,
+        color: '#EEEEEE',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     body: {
         fontSize: 14,
@@ -74,20 +74,19 @@ const CustomTableCell = withStyles(theme => ({
 }))(TableCell);
 
 class ConnectedControlledTerminology extends React.Component {
-
-    componentDidMount() {
+    componentDidMount () {
         ipcRenderer.on('controlledTerminologyFolderData', this.loadControlledTerminology);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         ipcRenderer.removeListener('controlledTerminologyFolderData', this.loadControlledTerminology);
     }
 
     loadControlledTerminology = (event, data) => {
         let ctList = {};
-        Object.keys(data).forEach( ctId => {
+        Object.keys(data).forEach(ctId => {
             let ct = data[ctId];
-            ctList[ct.id] = { ...new ControlledTerminology ({ ...ct }) };
+            ctList[ct.id] = { ...new ControlledTerminology({ ...ct }) };
         });
         this.props.reloadControlledTerminology({ ctList });
     }
@@ -139,7 +138,7 @@ class ConnectedControlledTerminology extends React.Component {
         });
     };
 
-    render() {
+    render () {
         const { classes } = this.props;
         let ctNum = this.props.controlledTerminology.allIds.length;
         return (

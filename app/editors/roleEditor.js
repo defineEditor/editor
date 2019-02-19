@@ -33,8 +33,8 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        variableRoles : state.present.stdConstants.variableRoles,
-        codeLists     : state.present.odm.study.metaDataVersion.codeLists,
+        variableRoles: state.present.stdConstants.variableRoles,
+        codeLists: state.present.odm.study.metaDataVersion.codeLists,
     };
 };
 
@@ -71,7 +71,7 @@ class ConnectedRoleEditor extends React.Component {
 
         // Get a list of all codeLists;
         let codeListList = {};
-        Object.keys(props.codeLists).forEach( codeListOid => {
+        Object.keys(props.codeLists).forEach(codeListOid => {
             if (props.codeLists[codeListOid].dataType === 'text') {
                 codeListList[codeListOid] = props.codeLists[codeListOid].name + ' (' + codeListOid + ')';
             }
@@ -87,7 +87,7 @@ class ConnectedRoleEditor extends React.Component {
 
     handleChange = name => value => {
         if (name === 'role') {
-            this.setState({[name]: value});
+            this.setState({ [name]: value });
         } else if (name === 'roleCodeListOid') {
             let roleCodeListOid = value;
             let variableRoles;
@@ -124,7 +124,7 @@ class ConnectedRoleEditor extends React.Component {
         this.props.onFinished();
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.cancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -161,11 +161,11 @@ class ConnectedRoleEditor extends React.Component {
 }
 
 ConnectedRoleEditor.propTypes = {
-    classes       : PropTypes.object.isRequired,
-    roleAttrs     : PropTypes.object.isRequired,
-    source        : PropTypes.object.isRequired,
-    variableRoles : PropTypes.array.isRequired,
-    onFinished    : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    roleAttrs: PropTypes.object.isRequired,
+    source: PropTypes.object.isRequired,
+    variableRoles: PropTypes.array.isRequired,
+    onFinished: PropTypes.func.isRequired,
 };
 
 const RoleEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedRoleEditor);

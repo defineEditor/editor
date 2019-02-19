@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-function getCtPublishingSet( id ) {
+function getCtPublishingSet (id) {
     let publishingSet;
     let ctModel = id.replace(/^.*?\.(.*)\..*$/, '$1');
     if (['ADaM', 'SDTM', 'CDASH', 'SEND'].includes(ctModel)) {

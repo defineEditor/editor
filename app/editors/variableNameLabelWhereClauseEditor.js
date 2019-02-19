@@ -32,10 +32,10 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        mdv                         : state.present.odm.study.metaDataVersion,
-        blueprint                   : state.present.odm.study.metaDataVersion,
-        lang                        : state.present.odm.study.metaDataVersion.lang,
-        getNameLabelFromWhereClause : state.present.settings.editor.getNameLabelFromWhereClause,
+        mdv: state.present.odm.study.metaDataVersion,
+        blueprint: state.present.odm.study.metaDataVersion,
+        lang: state.present.odm.study.metaDataVersion.lang,
+        getNameLabelFromWhereClause: state.present.settings.editor.getNameLabelFromWhereClause,
     };
 };
 
@@ -43,8 +43,8 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
     constructor (props) {
         super(props);
         let autoLabel;
-        if ( (this.props.defaultValue.descriptions.length === 0 || this.props.defaultValue.descriptions[0].value)
-            && this.props.blueprint !== undefined
+        if ((this.props.defaultValue.descriptions.length === 0 || this.props.defaultValue.descriptions[0].value) &&
+            this.props.blueprint !== undefined
         ) {
             autoLabel = true;
         } else {
@@ -59,13 +59,13 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
         this.rootRef = React.createRef();
 
         this.state = {
-            name          : this.props.defaultValue.name || '',
-            descriptions  : this.props.defaultValue.descriptions,
-            whereClause   : this.props.defaultValue.whereClause,
-            wcComment     : wcComment,
-            autoLabel     : autoLabel,
-            wcEditingMode : 'interactive',
-            dataset       : this.props.mdv.itemGroups[this.props.row.datasetOid]
+            name: this.props.defaultValue.name || '',
+            descriptions: this.props.defaultValue.descriptions,
+            whereClause: this.props.defaultValue.whereClause,
+            wcComment: wcComment,
+            autoLabel: autoLabel,
+            wcEditingMode: 'interactive',
+            dataset: this.props.mdv.itemGroups[this.props.row.datasetOid]
         };
     }
 
@@ -83,7 +83,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
                 if (codeListOid !== undefined && mdv.codeLists[codeListOid].codeListType === 'decoded') {
                     let value;
                     let codeListItems = mdv.codeLists[codeListOid].codeListItems;
-                    Object.keys(codeListItems).some( codeListItemOid => {
+                    Object.keys(codeListItems).some(codeListItemOid => {
                         if (codeListItems[codeListItemOid].codedValue === rangeChecks[0].checkValues[0]) {
                             value = codeListItems[codeListItemOid].decodes[0].value;
                             return true;
@@ -91,7 +91,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
                     });
                     if (value !== undefined) {
                         let lang = this.props.lang;
-                        additionalAttrs.descriptions = [{ ...new TranslatedText({lang, value}) }];
+                        additionalAttrs.descriptions = [{ ...new TranslatedText({ lang, value }) }];
                     }
                 }
             }
@@ -108,7 +108,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
         } else if (name === 'comment') {
             if (updateObj === undefined) {
                 this.setState({
-                    whereClause:{ ...new WhereClause({
+                    whereClause: { ...new WhereClause({
                         ...this.state.whereClause,
                         commentOid: undefined,
                     }) },
@@ -116,7 +116,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
                 });
             } else {
                 this.setState({
-                    whereClause:{ ...new WhereClause({
+                    whereClause: { ...new WhereClause({
                         ...this.state.whereClause,
                         commentOid: updateObj.oid,
                     }) },
@@ -129,7 +129,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
             // Create a new description;
             let lang = this.props.lang;
             let value = updateObj.target.value;
-            let descriptions = [{ ...new TranslatedText({lang, value}) }];
+            let descriptions = [{ ...new TranslatedText({ lang, value }) }];
             this.setState({ descriptions });
         } else if (name === 'name') {
             // Upcase name value
@@ -141,20 +141,19 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
 
     setAutoLabel = () => {
         let bpItemDefs = this.props.blueprint.itemDefs;
-        Object.keys(bpItemDefs).forEach( itemDefOid => {
+        Object.keys(bpItemDefs).forEach(itemDefOid => {
             if (bpItemDefs[itemDefOid].name === this.state.name) {
                 this.setState({ descriptions: bpItemDefs[itemDefOid].descriptions });
-                return;
             }
         });
     }
 
     save = () => {
         this.props.onUpdate({
-            name         : this.state.name,
-            descriptions : this.state.descriptions,
-            whereClause  : this.state.whereClause,
-            wcComment    : this.state.wcComment,
+            name: this.state.name,
+            descriptions: this.state.descriptions,
+            whereClause: this.state.whereClause,
+            wcComment: this.state.wcComment,
         });
     }
 
@@ -162,7 +161,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
         this.props.onUpdate(this.props.defaultValue);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (this.props.stateless !== true) {
             if (event.key === 'Escape' || event.keyCode === 27) {
                 this.cancel();
@@ -176,7 +175,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
         }
     }
 
-    render() {
+    render () {
         const vlmLevel = this.props.row.vlmLevel;
         let label;
         if (this.state.descriptions.length > 0) {
@@ -230,14 +229,14 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
 }
 
 ConnectedVariableNameLabelWhereClauseEditor.propTypes = {
-    classes                     : PropTypes.object.isRequired,
-    defaultValue                : PropTypes.object.isRequired,
-    onUpdate                    : PropTypes.func.isRequired,
-    blueprint                   : PropTypes.object,
-    getNameLabelFromWhereClause : PropTypes.bool,
-    mdv                         : PropTypes.object,
-    row                         : PropTypes.object.isRequired,
-    lang                        : PropTypes.string.isRequired,
+    classes: PropTypes.object.isRequired,
+    defaultValue: PropTypes.object.isRequired,
+    onUpdate: PropTypes.func.isRequired,
+    blueprint: PropTypes.object,
+    getNameLabelFromWhereClause: PropTypes.bool,
+    mdv: PropTypes.object,
+    row: PropTypes.object.isRequired,
+    lang: PropTypes.string.isRequired,
 };
 
 const VariableNameLabelWhereClauseEditor = connect(mapStateToProps)(ConnectedVariableNameLabelWhereClauseEditor);

@@ -24,14 +24,13 @@ import FormattingControlIcons from 'formatters/formattingControlIcons.js';
 
 const styles = theme => ({
     odmAttributes: {
-        padding   : 16,
-        marginTop : theme.spacing.unit * 3,
-        width     : '100%',
+        padding: 16,
+        marginTop: theme.spacing.unit * 3,
+        width: '100%',
     },
 });
 
 class OdmAttributesFormatter extends React.Component {
-
     render () {
         const { classes, odmAttrs } = this.props;
         const { fileOid, asOfDateTime, originator, stylesheetLocation } = odmAttrs;
@@ -65,10 +64,10 @@ class OdmAttributesFormatter extends React.Component {
 }
 
 OdmAttributesFormatter.propTypes = {
-    odmAttrs  : PropTypes.object.isRequired,
-    classes   : PropTypes.object.isRequired,
-    onEdit    : PropTypes.func.isRequired,
-    onComment : PropTypes.func,
+    odmAttrs: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    onEdit: PropTypes.func.isRequired,
+    onComment: PropTypes.func,
 };
 
 export default withStyles(styles)(OdmAttributesFormatter);

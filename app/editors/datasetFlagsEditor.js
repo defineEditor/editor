@@ -23,8 +23,8 @@ import SaveCancel from 'editors/saveCancel.js';
 
 const styles = theme => ({
     formControl: {
-        whiteSpace   : 'normal',
-        overflowWrap : 'break-word',
+        whiteSpace: 'normal',
+        overflowWrap: 'break-word',
     },
     root: {
         outline: 'none',
@@ -36,13 +36,13 @@ class DatasetFlagsEditor extends React.Component {
         super(props);
         this.rootRef = React.createRef();
         this.state = {
-            repeating       : this.props.defaultValue.repeating === 'Yes',
-            isReferenceData : this.props.defaultValue.isReferenceData === 'Yes',
-            hasNoData       : this.props.defaultValue.hasNoData === 'Yes',
+            repeating: this.props.defaultValue.repeating === 'Yes',
+            isReferenceData: this.props.defaultValue.isReferenceData === 'Yes',
+            hasNoData: this.props.defaultValue.hasNoData === 'Yes',
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.rootRef.current.focus();
     }
 
@@ -52,9 +52,9 @@ class DatasetFlagsEditor extends React.Component {
 
     save = () => {
         let result = {
-            repeating       : this.state.repeating ? 'Yes' : 'No',
-            isReferenceData : this.state.isReferenceData ? 'Yes' : 'No',
-            hasNoData       : this.state.hasNoData ? 'Yes' : 'No',
+            repeating: this.state.repeating ? 'Yes' : 'No',
+            isReferenceData: this.state.isReferenceData ? 'Yes' : 'No',
+            hasNoData: this.state.hasNoData ? 'Yes' : 'No',
         };
         this.props.onUpdate(result);
     }
@@ -63,7 +63,7 @@ class DatasetFlagsEditor extends React.Component {
         this.props.onUpdate(this.props.defaultValue);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.cancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -71,8 +71,8 @@ class DatasetFlagsEditor extends React.Component {
         }
     }
 
-    render() {
-        const {classes} = this.props;
+    render () {
+        const { classes } = this.props;
         return (
             <div
                 onKeyDown={this.onKeyDown}
@@ -131,10 +131,9 @@ class DatasetFlagsEditor extends React.Component {
 }
 
 DatasetFlagsEditor.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    defaultValue : PropTypes.object.isRequired,
-    onUpdate     : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    defaultValue: PropTypes.object.isRequired,
+    onUpdate: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(DatasetFlagsEditor);
-

@@ -52,13 +52,13 @@ class ConnectedDatasetDomainEditor extends React.Component {
         }
 
         this.state = {
-            domain                  : domain,
-            parentDomainDescription : parentDomainDescription,
+            domain: domain,
+            parentDomainDescription: parentDomainDescription,
         };
     }
 
     handleChange = (name) => (event) => {
-        this.setState({[name]: event.target.value});
+        this.setState({ [name]: event.target.value });
     }
 
     save = () => {
@@ -73,8 +73,8 @@ class ConnectedDatasetDomainEditor extends React.Component {
             let alias;
             if (this.state.parentDomainDescription !== '') {
                 alias = {
-                    context : 'DomainDescription',
-                    name    : this.state.parentDomainDescription,
+                    context: 'DomainDescription',
+                    name: this.state.parentDomainDescription,
                 };
             }
             updateObj.alias = alias;
@@ -96,7 +96,7 @@ class ConnectedDatasetDomainEditor extends React.Component {
         this.props.onFinished();
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.cancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -104,12 +104,12 @@ class ConnectedDatasetDomainEditor extends React.Component {
         }
     }
 
-    render() {
+    render () {
         return (
             <div
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
-                style={{outline: 'none'}}
+                style={{ outline: 'none' }}
             >
                 <Grid container spacing={8} alignItems='center'>
                     <Grid item xs={12}>
@@ -129,11 +129,10 @@ class ConnectedDatasetDomainEditor extends React.Component {
 }
 
 ConnectedDatasetDomainEditor.propTypes = {
-    domainAttrs  : PropTypes.object.isRequired,
-    itemGroupOid : PropTypes.string.isRequired,
-    onFinished   : PropTypes.func.isRequired,
+    domainAttrs: PropTypes.object.isRequired,
+    itemGroupOid: PropTypes.string.isRequired,
+    onFinished: PropTypes.func.isRequired,
 };
 
 const DatasetDomainEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedDatasetDomainEditor);
 export default DatasetDomainEditor;
-

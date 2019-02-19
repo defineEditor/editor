@@ -26,19 +26,17 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     metaDataVersion: {
-        padding   : 16,
-        marginTop : theme.spacing.unit * 3,
-        width     : '100%',
-        outline   : 'none',
+        padding: 16,
+        marginTop: theme.spacing.unit * 3,
+        width: '100%',
+        outline: 'none',
     },
     inputField: {
     },
 });
 
 class MetaDataVersionEditor extends React.Component {
-
     constructor (props) {
-
         super(props);
 
         const { mdvAttrs } = this.props;
@@ -61,14 +59,13 @@ class MetaDataVersionEditor extends React.Component {
         this.props.onCancel();
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.cancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
             this.save();
         }
     }
-
 
     render () {
         const { classes, defineVersion } = this.props;
@@ -92,7 +89,7 @@ class MetaDataVersionEditor extends React.Component {
                     <ListItem dense>
                         <TextField
                             label='Description'
-                            value={this.state.description||""}
+                            value={this.state.description || ''}
                             fullWidth
                             multiline
                             onChange={this.handleChange('description')}
@@ -111,13 +108,13 @@ class MetaDataVersionEditor extends React.Component {
 }
 
 MetaDataVersionEditor.propTypes = {
-    mdvAttrs      : PropTypes.object.isRequired,
-    defineVersion : PropTypes.string.isRequired,
-    classes       : PropTypes.object.isRequired,
-    onSave        : PropTypes.func.isRequired,
-    onCancel      : PropTypes.func.isRequired,
-    onHelp        : PropTypes.func,
-    onComment     : PropTypes.func,
+    mdvAttrs: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    classes: PropTypes.object.isRequired,
+    onSave: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    onHelp: PropTypes.func,
+    onComment: PropTypes.func,
 };
 
 export default withStyles(styles)(MetaDataVersionEditor);

@@ -17,19 +17,19 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
     let vlmItemRefOids = vlmItemRefOidsRaw === undefined ? {} : { ...vlmItemRefOidsRaw };
     // For variables, return an array of ItemDef OIDs;
     let itemDefOids = [];
-    itemDefOids = itemRefOids.map( itemRefOid => {
+    itemDefOids = itemRefOids.map(itemRefOid => {
         return mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid;
     });
     // Select ItemRefs with itemDefs having a valueList
     let itemRefOidsWithValueLists = itemRefOids
-        .filter( itemRefOid => {
+        .filter(itemRefOid => {
             let itemOid = mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid;
             return mdv.itemDefs[itemOid].valueListOid !== undefined;
         });
     // For variables having a valueList attached, return an array of ValueList OIDs;
     // It will always have only 1 item
     let valueListOids = {};
-    itemRefOidsWithValueLists.forEach( itemRefOid => {
+    itemRefOidsWithValueLists.forEach(itemRefOid => {
         let itemOid = mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid;
         let valueListOid = mdv.itemDefs[itemOid].valueListOid;
         if (valueListOids.hasOwnProperty(itemOid)) {
@@ -40,7 +40,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
     });
     // For variables having a valueList attached, add all itemRefs of that valueList to vlmItemRefOids;
     itemRefOidsWithValueLists
-        .forEach( itemRefOid => {
+        .forEach(itemRefOid => {
             let itemOid = mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid;
             let valueListOid = mdv.itemDefs[itemOid].valueListOid;
             // It is OK to overwrite existing valueListOids in vlmItemRefOids as the full itemRefs list is included
@@ -49,24 +49,24 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
 
     // For value levels, return an object with arrays of ItemDef OIDs for each valueList OID;
     let vlmItemDefOids = {};
-    Object.keys(vlmItemRefOids).forEach( valueListOid => {
-        vlmItemDefOids[valueListOid] = vlmItemRefOids[valueListOid].map( itemRefOid => {
+    Object.keys(vlmItemRefOids).forEach(valueListOid => {
+        vlmItemDefOids[valueListOid] = vlmItemRefOids[valueListOid].map(itemRefOid => {
             return mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid;
         });
     });
     // For value levels, return an object with arrays of WhereClause OIDs for each valueList OID;
     let whereClauseOids = {};
-    Object.keys(vlmItemRefOids).forEach( valueListOid => {
-        whereClauseOids[valueListOid] = vlmItemRefOids[valueListOid].map( itemRefOid => {
+    Object.keys(vlmItemRefOids).forEach(valueListOid => {
+        whereClauseOids[valueListOid] = vlmItemRefOids[valueListOid].map(itemRefOid => {
             return mdv.valueLists[valueListOid].itemRefs[itemRefOid].whereClauseOid;
         });
     });
     // Some of the where clauses can use deleted variables, collect such variables
     let rangeChangeWhereClauseOids = {};
-    Object.keys(mdv.whereClauses).forEach( whereClauseOid => {
+    Object.keys(mdv.whereClauses).forEach(whereClauseOid => {
         const whereClause = mdv.whereClauses[whereClauseOid];
         let matchedOids = [];
-        Object.values(whereClause.rangeChecks).forEach( rangeCheck => {
+        Object.values(whereClause.rangeChecks).forEach(rangeCheck => {
             if (rangeCheck.itemGroupOid === itemGroupOid || rangeCheck.itemGroupOid === undefined) {
                 // Search for the deleted itemDefs
                 if (itemDefOids.includes(rangeCheck.itemOid)) {
@@ -80,7 +80,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
     });
 
     // Form an object of comments to remove {commentOid: [itemOid1, itemOid2, ...]}
-    let commentOids = { itemDefs: {}, whereClauses:  {} };
+    let commentOids = { itemDefs: {}, whereClauses: {} };
     // Comments which are referenced by ItemDefs with multiple sources cannot be deleted at this stage
     // Get this information, so that a decision to delete them can be taken upstream
     let commentCandidateOids = {};
@@ -93,7 +93,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
     // Form an object of codeLists to remove {codeListOid: [itemOid1, itemOid2, ...]}
     let codeListOids = {};
     // Variable-level
-    itemRefOids.forEach( itemRefOid => {
+    itemRefOids.forEach(itemRefOid => {
         let itemOid = mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid;
         // Comments
         let commentOid = mdv.itemDefs[itemOid].commentOid;
@@ -138,20 +138,17 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
     });
 
     // Value-level
-    Object.keys(vlmItemRefOids).forEach( valueListOid => {
-        vlmItemRefOids[valueListOid].forEach( itemRefOid => {
+    Object.keys(vlmItemRefOids).forEach(valueListOid => {
+        vlmItemRefOids[valueListOid].forEach(itemRefOid => {
             let itemOid = mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid;
             let sourceItemOids = mdv.valueLists[valueListOid].sources.itemDefs;
             // Comments
             let commentOid = mdv.itemDefs[itemOid].commentOid;
             if (commentOid !== undefined) {
                 // Before deleting the comment verify that there is only one itemGroup for that itemDef
-                if ( (mdv.itemDefs[itemOid].sources.itemGroups.length + mdv.itemDefs[itemOid].sources.valueLists.length <= 1)
-                    &&
-                    sourceItemOids.length <= 1
-                    &&
-                    mdv.itemDefs.hasOwnProperty(sourceItemOids[0])
-                    &&
+                if ((mdv.itemDefs[itemOid].sources.itemGroups.length + mdv.itemDefs[itemOid].sources.valueLists.length <= 1) &&
+                    sourceItemOids.length <= 1 &&
+                    mdv.itemDefs.hasOwnProperty(sourceItemOids[0]) &&
                     mdv.itemDefs[sourceItemOids].sources.itemGroups.length <= 1
                 ) {
                     if (commentOids.itemDefs[commentOid] === undefined) {
@@ -196,8 +193,8 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
     });
 
     // Comments referenced from whereClauses
-    Object.keys(whereClauseOids).forEach( valueListOid => {
-        whereClauseOids[valueListOid].forEach( whereClauseOid => {
+    Object.keys(whereClauseOids).forEach(valueListOid => {
+        whereClauseOids[valueListOid].forEach(whereClauseOid => {
             let commentOid = mdv.whereClauses[whereClauseOid].commentOid;
             if (commentOid !== undefined) {
                 if (commentOids.whereClauses[commentOid] === undefined) {
@@ -214,13 +211,13 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
     // Find analysisResults using corresponding dataset
     let analysisResultOids = {};
     if (mdv.analysisResultDisplays !== undefined && Object.keys(mdv.analysisResultDisplays).length > 0) {
-        Object.keys(mdv.analysisResultDisplays.analysisResults).forEach( analysisResultOid => {
+        Object.keys(mdv.analysisResultDisplays.analysisResults).forEach(analysisResultOid => {
             const analysisResult = mdv.analysisResultDisplays.analysisResults[analysisResultOid];
-            Object.values(analysisResult.analysisDatasets).forEach( analysisDataset => {
+            Object.values(analysisResult.analysisDatasets).forEach(analysisDataset => {
                 if (analysisDataset.itemGroupOid === itemGroupOid) {
                     // Search for the deleted itemDefs
                     let matchedOids = [];
-                    analysisDataset.analysisVariableOids.forEach( itemDefOid => {
+                    analysisDataset.analysisVariableOids.forEach(itemDefOid => {
                         if (itemDefOids.includes(itemDefOid)) {
                             matchedOids.push(itemDefOid);
                         }

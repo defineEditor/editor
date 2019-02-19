@@ -17,7 +17,6 @@ import {
 } from 'constants/action-types';
 import { settings as initialState } from 'constants/initialValues.js';
 
-
 const updateSettings = (state, action) => {
     let newState = { ...state };
     Object.keys(action.updateObj).forEach(category => {

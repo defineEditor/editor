@@ -36,40 +36,40 @@ const styles = theme => ({
         margin: theme.spacing.unit,
     },
     chip: {
-        verticalAlign : 'top',
-        marginLeft    : theme.spacing.unit,
+        verticalAlign: 'top',
+        marginLeft: theme.spacing.unit,
     },
     drawerButton: {
-        marginLeft : theme.spacing.unit * 2,
+        marginLeft: theme.spacing.unit * 2,
     },
 });
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        addAnalysisResult    : (updateObj) => dispatch(addAnalysisResult(updateObj)),
+        addAnalysisResult: (updateObj) => dispatch(addAnalysisResult(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        resultDisplays  : state.present.odm.study.metaDataVersion.analysisResultDisplays.resultDisplays,
-        tabSettings     : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
-        reviewMode      : state.present.ui.main.reviewMode,
+        resultDisplays: state.present.odm.study.metaDataVersion.analysisResultDisplays.resultDisplays,
+        tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
+        reviewMode: state.present.ui.main.reviewMode,
     };
 };
 
 class ConnectedAnalysisResultTable extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.state = {
-            resultDisplayOid : this.props.resultDisplayOid,
-            setScrollY       : false,
+            resultDisplayOid: this.props.resultDisplayOid,
+            setScrollY: false,
         };
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
+    static getDerivedStateFromProps (nextProps, prevState) {
         let stateUpdate = {};
         // Store previous groupOid in state so it can be compared with when props change
         if (nextProps.resultDisplayOid !== prevState.resultDisplayOid) {
@@ -81,7 +81,7 @@ class ConnectedAnalysisResultTable extends React.Component {
         }
     }
 
-    componentDidUpdate() {
+    componentDidUpdate () {
         if (this.state.setScrollY) {
             // Restore previous tab scroll position for a specific dataset
             let tabSettings = this.props.tabSettings;
@@ -109,7 +109,7 @@ class ConnectedAnalysisResultTable extends React.Component {
                     <Grid item xs={12}>
                         <Grid container alignItems='center' justify='flex-start' wrap='nowrap'>
                             <Grid>
-                                <h3 style={{marginTop: '20px', marginBottom: '10px', color: grey[600]}}>
+                                <h3 style={{ marginTop: '20px', marginBottom: '10px', color: grey[600] }}>
                                     {resultDisplayTitle}
                                 </h3>
                             </Grid>
@@ -143,7 +143,7 @@ class ConnectedAnalysisResultTable extends React.Component {
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
-                        {resultDisplay.analysisResultOrder.map( (analysisResultOid, index) => (
+                        {resultDisplay.analysisResultOrder.map((analysisResultOid, index) => (
                             <AnalysisResultTile key={index} analysisResultOid={analysisResultOid} resultDisplayOid={this.props.resultDisplayOid}/>
                         ))}
                     </Grid>
@@ -154,9 +154,9 @@ class ConnectedAnalysisResultTable extends React.Component {
 }
 
 ConnectedAnalysisResultTable.propTypes = {
-    resultDisplays    : PropTypes.object.isRequired,
-    resultDisplayOid  : PropTypes.string.isRequired,
-    reviewMode        : PropTypes.bool,
+    resultDisplays: PropTypes.object.isRequired,
+    resultDisplayOid: PropTypes.string.isRequired,
+    reviewMode: PropTypes.bool,
 };
 
 const AnalysisResultTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedAnalysisResultTable);

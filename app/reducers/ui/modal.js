@@ -20,7 +20,6 @@ import { ui } from 'constants/initialValues.js';
 
 const initialState = ui.modal;
 
-
 const closeModal = (state, action) => {
     return initialState;
 };

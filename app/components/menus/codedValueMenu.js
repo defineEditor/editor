@@ -69,7 +69,7 @@ class ConnectedCodedValueMenu extends React.Component {
       this.props.onClose();
   };
 
-  render() {
+  render () {
       let hasStandard = this.props.codedValueMenuParams.hasStandard;
 
       return (

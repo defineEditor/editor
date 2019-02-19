@@ -45,9 +45,9 @@ class OriginFormatter extends React.Component {
 }
 
 OriginFormatter.propTypes = {
-    classes : PropTypes.object.isRequired,
-    origin  : PropTypes.object.isRequired,
-    leafs   : PropTypes.object
+    classes: PropTypes.object.isRequired,
+    origin: PropTypes.object.isRequired,
+    leafs: PropTypes.object
 };
 
 export default withStyles(styles)(OriginFormatter);

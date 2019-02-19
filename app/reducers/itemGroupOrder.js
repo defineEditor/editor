@@ -17,7 +17,7 @@ import {
     ADD_ITEMGROUPS,
     DEL_ITEMGROUPS,
     UPD_ITEMGROUPORDER,
-} from "constants/action-types";
+} from 'constants/action-types';
 
 const addItemGroup = (state, action) => {
     let newState = state.slice();
@@ -33,8 +33,8 @@ const updateItemGroupOrder = (state, action) => {
 const deleteItemGroups = (state, action) => {
     // action.deleteObj.itemGroupOids - oids to remove;
     let newItemGroupOrder = state.slice();
-    action.deleteObj.itemGroupOids.forEach( itemGroupOid => {
-        newItemGroupOrder.splice(newItemGroupOrder.indexOf(itemGroupOid),1);
+    action.deleteObj.itemGroupOids.forEach(itemGroupOid => {
+        newItemGroupOrder.splice(newItemGroupOrder.indexOf(itemGroupOid), 1);
     });
 
     return newItemGroupOrder;
@@ -43,7 +43,7 @@ const deleteItemGroups = (state, action) => {
 const addItemGroups = (state, action) => {
     // action.updateObj.position - position to insert the groups
     const { itemGroups, position } = action.updateObj;
-    return state.slice(0,position).concat(Object.keys(itemGroups)).concat(state.slice(position));
+    return state.slice(0, position).concat(Object.keys(itemGroups)).concat(state.slice(position));
 };
 
 const itemGroupOrder = (state = {}, action) => {

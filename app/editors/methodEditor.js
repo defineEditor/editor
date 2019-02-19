@@ -46,9 +46,9 @@ const styles = theme => ({
         margin: theme.spacing.unit,
     },
     iconButton: {
-        marginLeft   : '0px',
-        marginRight  : '0px',
-        marginBottom : '8px',
+        marginLeft: '0px',
+        marginRight: '0px',
+        marginBottom: '8px',
     },
     editorHeading: {
         minWidth: '70px',
@@ -60,25 +60,25 @@ const styles = theme => ({
         marginLeft: '8px',
     },
     multipleSourcesLine: {
-        whiteSpace : 'pre-wrap',
-        color      : 'grey',
+        whiteSpace: 'pre-wrap',
+        color: 'grey',
     },
     titleLine: {
         height: '40px',
     },
     helperText: {
-        whiteSpace : 'pre-wrap',
-        color      : theme.palette.primary.main,
+        whiteSpace: 'pre-wrap',
+        color: theme.palette.primary.main,
     },
 });
 
 const mapStateToProps = state => {
     return {
-        leafs                 : state.present.odm.study.metaDataVersion.leafs,
-        mdv                   : state.present.odm.study.metaDataVersion,
-        methods               : state.present.odm.study.metaDataVersion.methods,
-        lang                  : state.present.odm.study.metaDataVersion.lang,
-        textInstantProcessing : state.present.settings.editor.textInstantProcessing,
+        leafs: state.present.odm.study.metaDataVersion.leafs,
+        mdv: state.present.odm.study.metaDataVersion,
+        methods: state.present.odm.study.metaDataVersion.methods,
+        lang: state.present.odm.study.metaDataVersion.lang,
+        textInstantProcessing: state.present.settings.editor.textInstantProcessing,
     };
 };
 
@@ -95,8 +95,8 @@ class ConnectedMethodEditor extends React.Component {
                 defaultValue = this.props.method;
             }
             this.state = {
-                method             : defaultValue,
-                selectMethodOpened : false,
+                method: defaultValue,
+                selectMethodOpened: false,
             };
         } else {
             this.state = {
@@ -110,7 +110,7 @@ class ConnectedMethodEditor extends React.Component {
         let method = this.props.stateless === true ? this.props.method : this.state.method;
         if (name === 'addMethod') {
             let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
-            newMethod = { ...new Method({ oid: methodOid, descriptions: [ { ...new TranslatedText({lang: this.props.lang, value: ''}) } ] }) };
+            newMethod = { ...new Method({ oid: methodOid, descriptions: [ { ...new TranslatedText({ lang: this.props.lang, value: '' }) } ] }) };
         } else if (name === 'deleteMethod') {
             newMethod = undefined;
         } else if (name === 'textUpdate') {
@@ -144,11 +144,11 @@ class ConnectedMethodEditor extends React.Component {
             newMethod.formalExpressions[0] = updateObj;
         } else if (name === 'selectMethod') {
             newMethod = updateObj;
-            this.setState({selectMethodOpened: false});
+            this.setState({ selectMethodOpened: false });
         } else if (name === 'copyMethod') {
             let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
             newMethod = { ...new Method({ ...clone(updateObj), oid: methodOid, sources: undefined }) };
-            this.setState({selectMethodOpened: false});
+            this.setState({ selectMethodOpened: false });
         } else if (name === 'detachMethod') {
             let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
             newMethod = { ...new Method({ ...clone(this.props.stateless ? this.props.method : this.state.method), oid: methodOid, sources: undefined }) };
@@ -159,15 +159,15 @@ class ConnectedMethodEditor extends React.Component {
             this.props.onUpdate(newMethod);
         } else {
             // Otherwise update state locally
-            this.setState({method: newMethod});
+            this.setState({ method: newMethod });
         }
     }
 
     handleSelectDialog = (name) => (updateObj) => {
         if (name === 'openSelectMethod') {
-            this.setState({selectMethodOpened: true});
+            this.setState({ selectMethodOpened: true });
         } else if (name === 'closeSelectMethod') {
-            this.setState({selectMethodOpened: false});
+            this.setState({ selectMethodOpened: false });
         }
     }
 
@@ -179,11 +179,11 @@ class ConnectedMethodEditor extends React.Component {
             if (optional === true) {
                 selectionList.push(<MenuItem key='0' value=''><em>None</em></MenuItem>);
             }
-            list.forEach( (value, index) => {
+            list.forEach((value, index) => {
                 if (typeof value === 'object') {
-                    selectionList.push(<MenuItem key={index+1} value={Object.keys(value)[0]}>{value[Object.keys(value)[0]]}</MenuItem>);
+                    selectionList.push(<MenuItem key={index + 1} value={Object.keys(value)[0]}>{value[Object.keys(value)[0]]}</MenuItem>);
                 } else {
-                    selectionList.push(<MenuItem key={index+1} value={value}>{value}</MenuItem>);
+                    selectionList.push(<MenuItem key={index + 1} value={value}>{value}</MenuItem>);
                 }
             });
         }
@@ -211,11 +211,11 @@ class ConnectedMethodEditor extends React.Component {
             methodName = method.name || '';
             autoMethodName = method.autoMethodName;
             // If method type is not set, default it to Computation when it is one of the options
-            methodType = method.type || (methodTypeList.indexOf('Computation') >= 0 ? 'Computation' :  '');
+            methodType = method.type || (methodTypeList.indexOf('Computation') >= 0 ? 'Computation' : '');
             formalExpressionExists = (method.formalExpressions[0] !== undefined);
             // Check for special characters
             // eslint-disable-next-line no-control-regex
-            let issues = checkForSpecialChars(methodText, new RegExp(/[^\u000A\u000D\u0020-\u007f]/,'g'));
+            let issues = checkForSpecialChars(methodText, new RegExp(/[^\u000A\u000D\u0020-\u007f]/, 'g'));
             if (issues.length > 0) {
                 issue = true;
                 helperText = issues.join('\n');
@@ -224,7 +224,7 @@ class ConnectedMethodEditor extends React.Component {
             methodName = '';
             autoMethodName = false;
             methodText = '';
-            methodType = methodTypeList.indexOf('Computation') >= 0 ? 'Computation' :  '';
+            methodType = methodTypeList.indexOf('Computation') >= 0 ? 'Computation' : '';
             formalExpressionExists = false;
         }
 
@@ -233,7 +233,7 @@ class ConnectedMethodEditor extends React.Component {
         }
 
         let usedBy;
-        let sourceLabels = {count: 0};
+        let sourceLabels = { count: 0 };
         if (method !== undefined) {
             sourceLabels = getMethodSourceLabels(method.sources, this.props.mdv);
             if (sourceLabels.count > 1) {
@@ -281,7 +281,7 @@ class ConnectedMethodEditor extends React.Component {
                             <Tooltip title={formalExpressionExists === false ? 'Add Formal Expression' : 'Remove Formal Expression'} placement='bottom' enterDelay={1000}>
                                 <span>
                                     <IconButton
-                                        onClick={formalExpressionExists === false ? this.handleChange('addFormalExpression',0) : this.handleChange('deleteFormalExpression',0)}
+                                        onClick={formalExpressionExists === false ? this.handleChange('addFormalExpression', 0) : this.handleChange('deleteFormalExpression', 0)}
                                         className={classes.iconButton}
                                         disabled={method === undefined}
                                         color={formalExpressionExists === false ? 'primary' : 'secondary'}
@@ -305,7 +305,7 @@ class ConnectedMethodEditor extends React.Component {
                                 </span>
                             </Tooltip>
                         </Grid>
-                        {(sourceLabels.count > 1)  &&
+                        {(sourceLabels.count > 1) &&
                                 <Grid item>
                                     <Tooltip title='Detach Method' placement='bottom' enterDelay={1000}>
                                         <IconButton
@@ -320,7 +320,7 @@ class ConnectedMethodEditor extends React.Component {
                         }
                     </Grid>
                 </Grid>
-                {(sourceLabels.count > 1)  &&
+                {(sourceLabels.count > 1) &&
                         <Grid item xs={12}>
                             <div className={classes.multipleSourcesLine}>
                                 This method is used by multiple sources. {usedBy}
@@ -387,7 +387,7 @@ class ConnectedMethodEditor extends React.Component {
                                         key={method.oid}
                                         defaultValue={methodText}
                                         helperText={issue && helperText}
-                                        FormHelperTextProps={{className: classes.helperText}}
+                                        FormHelperTextProps={{ className: classes.helperText }}
                                         onBlur={!this.props.textInstantProcessing ? this.handleChange('textUpdate') : undefined}
                                         onChange={this.props.textInstantProcessing ? this.handleChange('textUpdate') : undefined}
                                         margin="normal"
@@ -424,16 +424,16 @@ class ConnectedMethodEditor extends React.Component {
 ConnectedMethodEditor.propTypes = {
     method: PropTypes.oneOfType([
         PropTypes.object,
-        PropTypes.oneOf([""]),
+        PropTypes.oneOf(['']),
     ]),
-    mdv                   : PropTypes.object.isRequired,
-    leafs                 : PropTypes.object.isRequired,
-    lang                  : PropTypes.string.isRequired,
-    methods               : PropTypes.object.isRequired,
-    fullName              : PropTypes.string,
-    onUpdate              : PropTypes.func,
-    stateless             : PropTypes.bool,
-    textInstantProcessing : PropTypes.bool,
+    mdv: PropTypes.object.isRequired,
+    leafs: PropTypes.object.isRequired,
+    lang: PropTypes.string.isRequired,
+    methods: PropTypes.object.isRequired,
+    fullName: PropTypes.string,
+    onUpdate: PropTypes.func,
+    stateless: PropTypes.bool,
+    textInstantProcessing: PropTypes.bool,
 };
 
 const MethodEditor = connect(mapStateToProps)(ConnectedMethodEditor);

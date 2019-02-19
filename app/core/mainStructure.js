@@ -35,9 +35,9 @@ class Define {
             this.stats = stats;
         } else {
             this.stats = {
-                datasets : 0,
-                variables : 0,
-                codeLists : 0,
+                datasets: 0,
+                variables: 0,
+                codeLists: 0,
             };
         }
         if (lastChanged !== undefined) {

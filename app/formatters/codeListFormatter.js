@@ -30,9 +30,9 @@ import { selectGroup } from 'actions/index.js';
 
 const styles = theme => ({
     root: {
-        width     : '100%',
-        marginTop : theme.spacing.unit * 3,
-        overflowX : 'auto',
+        width: '100%',
+        marginTop: theme.spacing.unit * 3,
+        overflowX: 'auto',
     },
     codeListTable: {
         marginTop: theme.spacing.unit,
@@ -60,29 +60,27 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        codeLists           : state.present.odm.study.metaDataVersion.codeLists,
-        defineVersion       : state.present.odm.study.metaDataVersion.defineVersion,
-        codedValuesTabIndex : state.present.ui.tabs.tabNames.indexOf('Coded Values'),
+        codeLists: state.present.odm.study.metaDataVersion.codeLists,
+        defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
+        codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
     };
 };
 
-
 class ConnectedCodeListFormatter extends React.Component {
-
     editCodeListValues = () => {
         let updateObj = {
-            tabIndex       : this.props.codedValuesTabIndex,
-            groupOid       : this.props.codeListOid,
-            scrollPosition : {},
+            tabIndex: this.props.codedValuesTabIndex,
+            groupOid: this.props.codeListOid,
+            scrollPosition: {},
         };
         this.props.selectGroup(updateObj);
         this.props.onClose();
     }
 
-    getCodeListTable(codeList, defineVersion, classes) {
-        let {codeListTable, codeListTitle, isDecoded, isRanked, isCcoded} = getCodeListData(codeList, defineVersion);
+    getCodeListTable (codeList, defineVersion, classes) {
+        let { codeListTable, codeListTitle, isDecoded, isRanked, isCcoded } = getCodeListData(codeList, defineVersion);
 
-        return(
+        return (
             <Grid container spacing={0} className={classes.codeListTable}>
                 <Grid item xs={12}>
                     <Grid container spacing={0} alignItems='center' className={classes.title}>
@@ -109,7 +107,7 @@ class ConnectedCodeListFormatter extends React.Component {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {codeListTable.map( code => {
+                            {codeListTable.map(code => {
                                 return (
                                     <TableRow key={code.oid}>
                                         <TableCell className={classes.data}>{code.value}</TableCell>
@@ -138,12 +136,12 @@ class ConnectedCodeListFormatter extends React.Component {
 }
 
 ConnectedCodeListFormatter.propTypes = {
-    codeListOid         : PropTypes.string.isRequired,
-    codeLists           : PropTypes.object.isRequired,
-    defineVersion       : PropTypes.string.isRequired,
-    codedValuesTabIndex : PropTypes.number.isRequired,
-    selectGroup         : PropTypes.func.isRequired,
-    onClose             : PropTypes.func.isRequired,
+    codeListOid: PropTypes.string.isRequired,
+    codeLists: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    codedValuesTabIndex: PropTypes.number.isRequired,
+    selectGroup: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
 };
 
 const CodeListFormatter = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodeListFormatter);

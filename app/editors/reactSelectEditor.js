@@ -30,7 +30,7 @@ class Option extends React.Component {
         this.props.onSelect(this.props.option, event);
     };
 
-    render() {
+    render () {
         const { children, isFocused, isSelected, onFocus } = this.props;
 
         return (
@@ -49,7 +49,7 @@ class Option extends React.Component {
     }
 }
 
-function SelectWrapped(props) {
+function SelectWrapped (props) {
     const { classes, ...other } = props;
 
     const handleEsc = (event) => {
@@ -150,20 +150,20 @@ const styles = theme => ({
     // Also, we had to reset the default style injected by the library.
     '@global': {
         '.Select-control': {
-            display    : 'flex',
-            alignItems : 'center',
-            position   : 'relative',
-            border     : 0,
-            height     : 'auto',
-            background : 'transparent',
-            '&:hover'  : {
+            display: 'flex',
+            alignItems: 'center',
+            position: 'relative',
+            border: 0,
+            height: 'auto',
+            background: 'transparent',
+            '&:hover': {
                 boxShadow: 'none',
             },
         },
         '.Select-multi-value-wrapper': {
-            flexGrow : 1,
-            display  : 'flex',
-            flexWrap : 'wrap',
+            flexGrow: 1,
+            display: 'flex',
+            flexWrap: 'wrap',
         },
         '.Select--multi .Select-input': {
             margin: 0,
@@ -175,72 +175,72 @@ const styles = theme => ({
             padding: theme.spacing.unit * 2,
         },
         '.Select-input': {
-            display : 'inline-flex !important',
-            padding : 0,
-            height  : 'auto',
+            display: 'inline-flex !important',
+            padding: 0,
+            height: 'auto',
         },
         '.Select-input input': {
-            background : 'transparent',
-            border     : 0,
-            padding    : 0,
-            cursor     : 'default',
-            display    : 'inline-block',
-            fontFamily : 'inherit',
-            fontSize   : 'inherit',
-            margin     : 0,
-            outline    : 0,
+            background: 'transparent',
+            border: 0,
+            padding: 0,
+            cursor: 'default',
+            display: 'inline-block',
+            fontFamily: 'inherit',
+            fontSize: 'inherit',
+            margin: 0,
+            outline: 0,
         },
         '.Select-placeholder, .Select--single .Select-value': {
-            position   : 'absolute',
-            top        : 0,
-            left       : 0,
-            right      : 0,
-            bottom     : 0,
-            display    : 'flex',
-            alignItems : 'center',
-            fontFamily : theme.typography.fontFamily,
-            fontSize   : theme.typography.pxToRem(16),
-            padding    : 0,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center',
+            fontFamily: theme.typography.fontFamily,
+            fontSize: theme.typography.pxToRem(16),
+            padding: 0,
         },
         '.Select-placeholder': {
-            opacity : 0.42,
-            color   : theme.palette.common.black,
+            opacity: 0.42,
+            color: theme.palette.common.black,
         },
         '.Select-menu-outer': {
-            backgroundColor : theme.palette.background.paper,
-            boxShadow       : theme.shadows[2],
-            position        : 'relative',
-            left            : 0,
-            top             : `${theme.spacing.unit}px`,
-            width           : '100%',
-            zIndex          : 2,
-            maxHeight       : ITEM_HEIGHT * 4.5,
+            backgroundColor: theme.palette.background.paper,
+            boxShadow: theme.shadows[2],
+            position: 'relative',
+            left: 0,
+            top: `${theme.spacing.unit}px`,
+            width: '100%',
+            zIndex: 2,
+            maxHeight: ITEM_HEIGHT * 4.5,
         },
         '.Select.is-focused:not(.is-open) > .Select-control': {
             boxShadow: 'none',
         },
         '.Select-menu': {
-            maxHeight : ITEM_HEIGHT * 4.5,
-            overflowY : 'auto',
+            maxHeight: ITEM_HEIGHT * 4.5,
+            overflowY: 'auto',
         },
         '.Select-menu div': {
             boxSizing: 'content-box',
         },
         '.Select-arrow-zone, .Select-clear-zone': {
-            color  : theme.palette.action.active,
-            cursor : 'pointer',
-            height : 21,
-            width  : 21,
-            zIndex : 1,
+            color: theme.palette.action.active,
+            cursor: 'pointer',
+            height: 21,
+            width: 21,
+            zIndex: 1,
         },
         // Only for screen readers. We can't use display none.
         '.Select-aria-only': {
-            position : 'absolute',
-            overflow : 'hidden',
-            clip     : 'rect(0 0 0 0)',
-            height   : 1,
-            width    : 1,
-            margin   : -1,
+            position: 'absolute',
+            overflow: 'hidden',
+            clip: 'rect(0 0 0 0)',
+            height: 1,
+            width: 1,
+            margin: -1,
         },
     },
 });
@@ -260,7 +260,7 @@ class ReactSelectEditor extends React.Component {
         this.props.handleChange(this.props.value);
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
         const single = this.props.value;
         const multi = this.props.value;
@@ -275,16 +275,16 @@ class ReactSelectEditor extends React.Component {
                         inputComponent={SelectWrapped}
                         inputProps={{
                             classes,
-                            value       : multi,
-                            multi       : true,
-                            onChange    : this.handleChangeMulti,
-                            instanceId  : 'react-select-chip',
-                            id          : 'react-select-chip',
-                            name        : 'react-select-chip',
-                            simpleValue : true,
-                            options     : this.props.options,
-                            cancel      : this.cancel,
-                            extensible  : this.props.extensible,
+                            value: multi,
+                            multi: true,
+                            onChange: this.handleChangeMulti,
+                            instanceId: 'react-select-chip',
+                            id: 'react-select-chip',
+                            name: 'react-select-chip',
+                            simpleValue: true,
+                            options: this.props.options,
+                            cancel: this.cancel,
+                            extensible: this.props.extensible,
                         }}
                     />
                 ) : (
@@ -295,15 +295,15 @@ class ReactSelectEditor extends React.Component {
                         inputComponent={SelectWrapped}
                         inputProps={{
                             classes,
-                            value       : single,
-                            onChange    : this.handleChangeSingle,
-                            instanceId  : 'react-select-single',
-                            id          : 'react-select-single',
-                            name        : 'react-select-single',
-                            simpleValue : true,
-                            options     : this.props.options,
-                            cancel      : this.cancel,
-                            extensible  : this.props.extensible,
+                            value: single,
+                            onChange: this.handleChangeSingle,
+                            instanceId: 'react-select-single',
+                            id: 'react-select-single',
+                            name: 'react-select-single',
+                            simpleValue: true,
+                            options: this.props.options,
+                            cancel: this.cancel,
+                            extensible: this.props.extensible,
                         }}
                     />
                 )
@@ -314,14 +314,14 @@ class ReactSelectEditor extends React.Component {
 }
 
 ReactSelectEditor.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    options      : PropTypes.array.isRequired,
-    handleChange : PropTypes.func.isRequired,
-    extensible   : PropTypes.bool,
-    value        : PropTypes.string,
-    optional     : PropTypes.bool,
-    label        : PropTypes.string,
-    multiSelect  : PropTypes.bool,
+    classes: PropTypes.object.isRequired,
+    options: PropTypes.array.isRequired,
+    handleChange: PropTypes.func.isRequired,
+    extensible: PropTypes.bool,
+    value: PropTypes.string,
+    optional: PropTypes.bool,
+    label: PropTypes.string,
+    multiSelect: PropTypes.bool,
 };
 
 export default withStyles(styles)(ReactSelectEditor);

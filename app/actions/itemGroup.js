@@ -23,14 +23,14 @@ import {
     UPD_ITEMGROUPCOMMENT,
     REP_ITEMGROUPCOMMENT,
     UPD_KEYORDER,
-} from "constants/action-types";
+} from 'constants/action-types';
 
 // Item Group actions
 export const updateItemGroup = (oid, updateObj) => (
     {
-        type      : UPD_ITEMGROUP,
-        oid       : oid,
-        updateObj : updateObj,
+        type: UPD_ITEMGROUP,
+        oid: oid,
+        updateObj: updateObj,
     }
 );
 
@@ -51,8 +51,8 @@ export const updateKeyOrder = (itemGroupOid, keyOrder) => (
 
 export const addItemGroup = (itemGroup) => (
     {
-        type      : ADD_ITEMGROUP,
-        itemGroup : itemGroup,
+        type: ADD_ITEMGROUP,
+        itemGroup: itemGroup,
     }
 );
 
@@ -66,25 +66,25 @@ export const deleteItemGroups = (deleteObj) => (
 // Comment actions
 export const updateItemGroupComment = (source, comment) => (
     {
-        type    : UPD_ITEMGROUPCOMMENT,
-        source  : source,
-        comment : comment,
+        type: UPD_ITEMGROUPCOMMENT,
+        source: source,
+        comment: comment,
     }
 );
 
 export const addItemGroupComment = (source, comment) => (
     {
-        type    : ADD_ITEMGROUPCOMMENT,
-        source  : source,
-        comment : comment,
+        type: ADD_ITEMGROUPCOMMENT,
+        source: source,
+        comment: comment,
     }
 );
 
 export const deleteItemGroupComment = (source, comment) => (
     {
-        type    : DEL_ITEMGROUPCOMMENT,
-        source  : source,
-        comment : comment,
+        type: DEL_ITEMGROUPCOMMENT,
+        source: source,
+        comment: comment,
     }
 );
 

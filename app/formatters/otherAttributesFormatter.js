@@ -24,14 +24,13 @@ import FormattingControlIcons from 'formatters/formattingControlIcons.js';
 
 const styles = theme => ({
     otherAttributes: {
-        padding   : 16,
-        marginTop : theme.spacing.unit * 3,
-        width     : '100%',
+        padding: 16,
+        marginTop: theme.spacing.unit * 3,
+        width: '100%',
     },
 });
 
 class OtherAttributesFormatter extends React.Component {
-
     render () {
         const { classes, otherAttrs } = this.props;
         const { name, pathToFile } = otherAttrs;
@@ -57,10 +56,10 @@ class OtherAttributesFormatter extends React.Component {
 }
 
 OtherAttributesFormatter.propTypes = {
-    otherAttrs : PropTypes.object.isRequired,
-    classes    : PropTypes.object.isRequired,
-    onEdit     : PropTypes.func.isRequired,
-    onComment  : PropTypes.func,
+    otherAttrs: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    onEdit: PropTypes.func.isRequired,
+    onComment: PropTypes.func,
 };
 
 export default withStyles(styles)(OtherAttributesFormatter);

@@ -29,7 +29,7 @@ import {
     UPD_ANALYSISRESULT,
     ADD_ANALYSISRESULTS,
     ADD_RESULTDISPLAYS,
-} from "constants/action-types";
+} from 'constants/action-types';
 import { Comment, TranslatedText } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
@@ -41,9 +41,9 @@ const addComment = (state, action) => {
 
     // Check if the item to which comment is attached is already referenced
     // in the list of comment sources
-    if (action.comment.sources.hasOwnProperty(action.source.type)
-        && action.comment.sources[action.source.type].includes(action.source.oid)) {
-        return {...state, [action.comment.oid]: action.comment};
+    if (action.comment.sources.hasOwnProperty(action.source.type) &&
+        action.comment.sources[action.source.type].includes(action.source.oid)) {
+        return { ...state, [action.comment.oid]: action.comment };
     } else {
         // Add source OID to the list of comment sources
         let newSourcesForType;
@@ -53,28 +53,28 @@ const addComment = (state, action) => {
             newSourcesForType = [ action.source.oid ];
         }
         let newComment = { ...new Comment({ ...action.comment, sources: { ...action.comment.sources, [action.source.type]: newSourcesForType } }) };
-        return {...state, [action.comment.oid]: newComment};
+        return { ...state, [action.comment.oid]: newComment };
     }
 };
 
 const updateComment = (state, action) => {
-    return {...state, [action.comment.oid]: action.comment};
+    return { ...state, [action.comment.oid]: action.comment };
 };
 
 const deleteComment = (state, action) => {
     // Get number of sources for the comment;
-    let sourceNum = [].concat.apply([],Object.keys(action.comment.sources).map(type => (action.comment.sources[type]))).length;
+    let sourceNum = [].concat.apply([], Object.keys(action.comment.sources).map(type => (action.comment.sources[type]))).length;
     if (sourceNum <= 1 && action.comment.sources[action.source.type][0] === action.source.oid) {
         // If the item to which comment is attached is the only one, fully remove the comment
         let newState = Object.assign({}, state);
         delete newState[action.comment.oid];
         return newState;
-    } else if (action.comment.sources[action.source.type].includes(action.source.oid)){
+    } else if (action.comment.sources[action.source.type].includes(action.source.oid)) {
         // Remove  referece to the source OID from the list of comment sources
         let newSourcesForType = action.comment.sources[action.source.type].slice();
-        newSourcesForType.splice(newSourcesForType.indexOf(action.source.oid),1);
+        newSourcesForType.splice(newSourcesForType.indexOf(action.source.oid), 1);
         let newComment = { ...new Comment({ ...action.comment, sources: { ...action.comment.sources, [action.source.type]: newSourcesForType } }) };
-        return {...state, [action.comment.oid]: newComment};
+        return { ...state, [action.comment.oid]: newComment };
     } else {
         return state;
     }
@@ -95,23 +95,23 @@ const handleCommentUpdate = (state, action, type) => {
             // Add a comment
             let subAction = {};
             subAction.comment = action.updateObj.comment;
-            subAction.source ={ type, oid: action.source.oid };
+            subAction.source = { type, oid: action.source.oid };
             return addComment(state, subAction);
         } else if (newCommentOid === undefined) {
             // Delete a comment
             let subAction = {};
             subAction.comment = action.prevObj.comment;
-            subAction.source ={ type, oid: action.source.oid };
+            subAction.source = { type, oid: action.source.oid };
             return deleteComment(state, subAction);
         } else if (newCommentOid !== previousCommentOid) {
             // Comment was replaced;
             let subAction = {};
             subAction.comment = action.prevObj.comment;
-            subAction.source ={ type, oid: action.source.oid };
+            subAction.source = { type, oid: action.source.oid };
             let newState = deleteComment(state, subAction);
             subAction = {};
             subAction.comment = action.updateObj.comment;
-            subAction.source ={ type, oid: action.source.oid };
+            subAction.source = { type, oid: action.source.oid };
             return addComment(newState, subAction);
         } else {
             // Comment was just updated
@@ -119,7 +119,6 @@ const handleCommentUpdate = (state, action, type) => {
             subAction.comment = action.updateObj.comment;
             subAction.oid = action.source.oid;
             return updateComment(state, subAction);
-
         }
     } else {
         return state;
@@ -142,7 +141,7 @@ const handleNameLabelWhereClauseUpdate = (state, action) => {
     } else {
         subAction.prevObj.comment = undefined;
     }
-    subAction.source ={ type: 'whereClauses', oid: action.updateObj.whereClause.oid };
+    subAction.source = { type: 'whereClauses', oid: action.updateObj.whereClause.oid };
     return handleCommentUpdate(state, subAction, 'whereClauses');
 };
 
@@ -163,11 +162,11 @@ const deleteCommentRefereces = (state, action, type) => {
     // action.deleteObj.commentOids contains:
     // {commentOid1: [itemOid1, itemOid2], commentOid2: [itemOid3, itemOid1]}
     let newState = { ...state };
-    Object.keys(action.deleteObj.commentOids).forEach( commentOid => {
+    Object.keys(action.deleteObj.commentOids).forEach(commentOid => {
         action.deleteObj.commentOids[commentOid].forEach(itemOid => {
             let subAction = {};
             subAction.comment = newState[commentOid];
-            subAction.source ={ type, oid: itemOid };
+            subAction.source = { type, oid: itemOid };
             newState = deleteComment(newState, subAction);
         });
     });
@@ -183,9 +182,9 @@ const deleteItemGroupCommentReferences = (state, action) => {
     let newState = deleteCommentRefereces(state, action, 'itemGroups');
     // Delete comments which were attached to the variables;
     let itemGroupData = action.deleteObj.itemGroupData;
-    Object.keys(itemGroupData).forEach( itemGroupOid => {
-        let subAction = {deleteObj: {}};
-        Object.keys(itemGroupData[itemGroupOid].commentOids).forEach( type => {
+    Object.keys(itemGroupData).forEach(itemGroupOid => {
+        let subAction = { deleteObj: {} };
+        Object.keys(itemGroupData[itemGroupOid].commentOids).forEach(type => {
             subAction.deleteObj.commentOids = itemGroupData[itemGroupOid].commentOids[type];
             newState = deleteCommentRefereces(newState, subAction, type);
         });
@@ -197,13 +196,13 @@ const handleItemsBulkUpdate = (state, action) => {
     let field = action.updateObj.fields[0];
     if (field.attr === 'comment') {
         // Get all itemDefs for update.
-        let itemDefOids = action.updateObj.selectedItems.map( item => (item.itemDefOid) );
+        let itemDefOids = action.updateObj.selectedItems.map(item => (item.itemDefOid));
         let newState = { ...state };
         const { regex, matchCase, wholeWord, source, target, value } = field.updateValue;
         if (field.updateType === 'set') {
             // Delete references to the itemDefs
             let deleteOids = {};
-            Object.keys(state).forEach( commentOid => {
+            Object.keys(state).forEach(commentOid => {
                 let comment = state[commentOid];
                 if (value !== undefined && value.oid === commentOid) {
                     // Do not update the comment which is assigned
@@ -228,15 +227,15 @@ const handleItemsBulkUpdate = (state, action) => {
                 if (Object.keys(newState).includes(value.oid)) {
                     let comment = newState[value.oid];
                     let newSources = value.sources.itemDefs.slice();
-                    itemDefOids.forEach( (itemDefOid) => {
+                    itemDefOids.forEach((itemDefOid) => {
                         if (!newSources.includes(itemDefOid)) {
                             newSources.push(itemDefOid);
                         }
                     });
-                    newState = { ...newState, [comment.oid] : { ...new Comment({ ...comment, sources: { ...comment.sources, itemDefs: newSources } }) } };
+                    newState = { ...newState, [comment.oid]: { ...new Comment({ ...comment, sources: { ...comment.sources, itemDefs: newSources } }) } };
                 } else {
                     // Add new comment
-                    newState = { ...newState, [value.oid] : { ...new Comment({ ...value, sources: { ...value.sources, itemDefs: itemDefOids } }) } };
+                    newState = { ...newState, [value.oid]: { ...new Comment({ ...value, sources: { ...value.sources, itemDefs: itemDefOids } }) } };
                 }
             }
             return newState;
@@ -255,7 +254,7 @@ const handleItemsBulkUpdate = (state, action) => {
             }
             // Replace is update of the comment text
             let updatedComments = {};
-            Object.keys(state).forEach( commentOid => {
+            Object.keys(state).forEach(commentOid => {
                 let comment = state[commentOid];
                 // Check if comment has selected sources
                 let updateNeeded = false;
@@ -271,8 +270,8 @@ const handleItemsBulkUpdate = (state, action) => {
                 }
                 let newDescriptions = comment.descriptions.slice();
                 let updated = false;
-                comment.descriptions.forEach( (description, index) => {
-                    let currentValue =  description.value || '';
+                comment.descriptions.forEach((description, index) => {
+                    let currentValue = description.value || '';
                     if (regex === false && regExp !== undefined && regExp.test(currentValue)) {
                         let newDescription = { ...new TranslatedText({ ...description, value: currentValue.replace(regExp, escapedTarget) }) };
                         newDescriptions.splice(index, 1, newDescription);
@@ -300,12 +299,10 @@ const handleAddComments = (state, action) => {
     let commentSourceUpdated = {};
     // For Item Defs
     if (action.updateObj.itemDefs !== undefined) {
-        Object.keys(action.updateObj.itemDefs).forEach( itemDefOid => {
+        Object.keys(action.updateObj.itemDefs).forEach(itemDefOid => {
             let itemDef = action.updateObj.itemDefs[itemDefOid];
-            if (itemDef.commentOid !== undefined
-                &&
-                !action.updateObj.comments.hasOwnProperty(itemDef.commentOid)
-                &&
+            if (itemDef.commentOid !== undefined &&
+                !action.updateObj.comments.hasOwnProperty(itemDef.commentOid) &&
                 state.hasOwnProperty(itemDef.commentOid)
             ) {
                 if (commentSourceUpdated.hasOwnProperty(itemDef.commentOid)) {
@@ -325,12 +322,10 @@ const handleAddComments = (state, action) => {
     }
     // For Where Clauses
     if (action.updateObj.whereClauses !== undefined) {
-        Object.keys(action.updateObj.whereClauses).forEach( whereClauseOid => {
+        Object.keys(action.updateObj.whereClauses).forEach(whereClauseOid => {
             let whereClause = action.updateObj.whereClauses[whereClauseOid];
-            if (whereClause.commentOid !== undefined
-                &&
-                !action.updateObj.comments.hasOwnProperty(whereClause.commentOid)
-                &&
+            if (whereClause.commentOid !== undefined &&
+                !action.updateObj.comments.hasOwnProperty(whereClause.commentOid) &&
                 state.hasOwnProperty(whereClause.commentOid)
             ) {
                 if (commentSourceUpdated.hasOwnProperty(whereClause.commentOid)) {
@@ -350,12 +345,10 @@ const handleAddComments = (state, action) => {
     }
     // For Analysis Results
     if (action.updateObj.analysisResults !== undefined) {
-        Object.keys(action.updateObj.analysisResults).forEach( analysisResultOid => {
+        Object.keys(action.updateObj.analysisResults).forEach(analysisResultOid => {
             let analysisResult = action.updateObj.analysisResults[analysisResultOid];
-            if (analysisResult.analysisDatasetCommentOid !== undefined
-                &&
-                !action.updateObj.comments.hasOwnProperty(analysisResult.analysisDatasetCommentOid)
-                &&
+            if (analysisResult.analysisDatasetCommentOid !== undefined &&
+                !action.updateObj.comments.hasOwnProperty(analysisResult.analysisDatasetCommentOid) &&
                 state.hasOwnProperty(analysisResult.analysisDatasetCommentOid)
             ) {
                 if (commentSourceUpdated.hasOwnProperty(analysisResult.analysisDatasetCommentOid)) {
@@ -375,10 +368,10 @@ const handleAddComments = (state, action) => {
     }
     // Add sources
     let updatedComments = {};
-    Object.keys(commentSourceUpdated).forEach( commentOid => {
+    Object.keys(commentSourceUpdated).forEach(commentOid => {
         let comment = state[commentOid];
         let newSources = clone(comment.sources);
-        Object.keys(commentSourceUpdated[commentOid]).forEach( type => {
+        Object.keys(commentSourceUpdated[commentOid]).forEach(type => {
             if (newSources.hasOwnProperty(type)) {
                 newSources[type] = newSources[type].concat(commentSourceUpdated[commentOid][type]);
             } else {
@@ -398,7 +391,7 @@ const handleAddComments = (state, action) => {
 const handleDeleteVariables = (state, action) => {
     // Check if there are any comments to delete;
     let commentsExist;
-    Object.keys(action.deleteObj.commentOids).some( type => {
+    Object.keys(action.deleteObj.commentOids).some(type => {
         if (Object.keys(action.deleteObj.commentOids[type]).length > 0) {
             commentsExist = true;
             return true;
@@ -406,9 +399,9 @@ const handleDeleteVariables = (state, action) => {
     });
     if (commentsExist) {
         // Delete comments which were attached to the variables;
-        let newState = { ...state } ;
-        Object.keys(action.deleteObj.commentOids).forEach( type => {
-            let subAction = {deleteObj: {}};
+        let newState = { ...state };
+        Object.keys(action.deleteObj.commentOids).forEach(type => {
+            let subAction = { deleteObj: {} };
             subAction.deleteObj.commentOids = action.deleteObj.commentOids[type];
             newState = deleteCommentRefereces(newState, subAction, type);
         });
@@ -421,7 +414,7 @@ const handleDeleteVariables = (state, action) => {
 const handleAddItemGroups = (state, action) => {
     const { itemGroups, itemGroupComments } = action.updateObj;
     let newState = { ...state };
-    Object.values(itemGroups).forEach( itemGroupData => {
+    Object.values(itemGroups).forEach(itemGroupData => {
         newState = handleAddComments(newState, { updateObj: itemGroupData });
     });
     // Add itemGroup comments;
@@ -432,11 +425,9 @@ const handleAddItemGroups = (state, action) => {
     // Find all added ItemGroups with comment links, which do not link to any of the new comments
     let commentSourceUpdated = {};
     // For ItemGroups
-    Object.values(itemGroups).forEach( itemGroupData => {
-        if (itemGroupData.commentOid !== undefined
-            &&
-            !itemGroupComments.hasOwnProperty(itemGroupData.commentOid)
-            &&
+    Object.values(itemGroups).forEach(itemGroupData => {
+        if (itemGroupData.commentOid !== undefined &&
+            !itemGroupComments.hasOwnProperty(itemGroupData.commentOid) &&
             newState.hasOwnProperty(itemGroupData.commentOid)
         ) {
             if (commentSourceUpdated.hasOwnProperty(itemGroupData.commentOid)) {
@@ -455,10 +446,10 @@ const handleAddItemGroups = (state, action) => {
     });
     // Add sources
     let updatedComments = {};
-    Object.keys(commentSourceUpdated).forEach( commentOid => {
+    Object.keys(commentSourceUpdated).forEach(commentOid => {
         let comment = newState[commentOid];
         let newSources = clone(comment.sources);
-        Object.keys(commentSourceUpdated[commentOid]).forEach( type => {
+        Object.keys(commentSourceUpdated[commentOid]).forEach(type => {
             if (newSources.hasOwnProperty(type)) {
                 newSources[type] = newSources[type].concat(commentSourceUpdated[commentOid][type]);
             } else {
@@ -473,7 +464,7 @@ const handleAddItemGroups = (state, action) => {
 
 const handleDeleteArmItem = (state, action) => {
     if (Object.keys(action.deleteObj.commentOids).length > 0) {
-        let subAction = {deleteObj: {}};
+        let subAction = { deleteObj: {} };
         subAction.deleteObj.commentOids = action.deleteObj.commentOids;
         return deleteCommentRefereces(state, subAction, 'analysisResults');
     } else {
@@ -489,7 +480,7 @@ const handleUpdatedArmItem = (state, action) => {
                 // Comment was removed
                 let subAction = {};
                 subAction.comment = state[commentData.oldCommentOid];
-                subAction.source ={ type: 'analysisResults', oid: action.updateObj.oid };
+                subAction.source = { type: 'analysisResults', oid: action.updateObj.oid };
                 return deleteComment(state, subAction);
             } else {
                 return state;
@@ -508,7 +499,7 @@ const handleUpdatedArmItem = (state, action) => {
             return replaceComment(state, subAction);
         } else if (commentData.comment !== undefined && commentData.oldCommentOid === commentData.comment.oid) {
             // Comment was updated
-            return {...state, [commentData.comment.oid]: commentData.comment};
+            return { ...state, [commentData.comment.oid]: commentData.comment };
         } else {
             return state;
         }

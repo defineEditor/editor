@@ -30,32 +30,31 @@ import {
 
 const styles = theme => ({
     dialog: {
-        paddingLeft   : theme.spacing.unit * 2,
-        paddingRight  : theme.spacing.unit * 2,
-        paddingBottom : theme.spacing.unit * 1,
-        position      : 'absolute',
-        borderRadius  : '10px',
-        top           : '40%',
-        transform     : 'translate(0%, calc(-50%+0.5px))',
-        overflowX     : 'auto',
-        maxHeight     : '85%',
-        overflowY     : 'auto',
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        position: 'absolute',
+        borderRadius: '10px',
+        top: '40%',
+        transform: 'translate(0%, calc(-50%+0.5px))',
+        overflowX: 'auto',
+        maxHeight: '85%',
+        overflowY: 'auto',
     },
     checkbox: {
-        position : 'relative',
-        float    : 'right',
+        position: 'relative',
+        float: 'right',
     },
 });
 
 const mapDispatchToProps = dispatch => {
     return {
         closeModal: () => dispatch(closeModal()),
-        reset: () => { dispatch(ActionCreators.undo()); dispatch(ActionCreators.redo());},
+        reset: () => { dispatch(ActionCreators.undo()); dispatch(ActionCreators.redo()); },
     };
 };
 
 class ConnectedModalBugReport extends React.Component {
-
     constructor (props) {
         super(props);
         this.state = {
@@ -81,10 +80,10 @@ class ConnectedModalBugReport extends React.Component {
         const { classes } = this.props;
 
         const mailSubject = encodeURIComponent('Bug Report');
-        const mailBody = encodeURIComponent('Hello,\n\nPlease write your message above.')
-            + '%0D%0AError message:%0D%0A' + encodeURIComponent(this.props.error)
-            + '%0D%0AComponent stack:' + encodeURIComponent(this.props.info.componentStack)
-            + '%0D%0AApplication Version: ' + encodeURIComponent(remote.app.getVersion())
+        const mailBody = encodeURIComponent('Hello,\n\nPlease write your message above.') +
+            '%0D%0AError message:%0D%0A' + encodeURIComponent(this.props.error) +
+            '%0D%0AComponent stack:' + encodeURIComponent(this.props.info.componentStack) +
+            '%0D%0AApplication Version: ' + encodeURIComponent(remote.app.getVersion())
         ;
         const emails = [
             'black.hole@defineeditor.com',
@@ -101,7 +100,7 @@ class ConnectedModalBugReport extends React.Component {
             'associate.director.support.specialist@defineeditor.com',
             'chief.executive.janitor@defineeditor.com',
         ];
-        const mailLink = 'mailto:'+ emails[Math.floor(Math.random() * emails.length)] + '?subject=' + mailSubject + '&body=' + mailBody;
+        const mailLink = 'mailto:' + emails[Math.floor(Math.random() * emails.length)] + '?subject=' + mailSubject + '&body=' + mailBody;
 
         return (
             <Dialog
@@ -110,7 +109,7 @@ class ConnectedModalBugReport extends React.Component {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
                 open
-                PaperProps={{className: classes.dialog}}
+                PaperProps={{ className: classes.dialog }}
             >
                 <DialogTitle id="alert-dialog-title">
                     Bug Report

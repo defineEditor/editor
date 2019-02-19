@@ -37,7 +37,7 @@ class DescriptionFormatter extends React.Component {
     render () {
         let result = [];
         if (this.props.value.origins.length > 0) {
-            this.props.value.origins.forEach( (origin) => {
+            this.props.value.origins.forEach((origin) => {
                 result.push(
                     <Grid item key={origin} xs={12}>
                         <OriginFormatter origin={origin} leafs={this.props.leafs}/>
@@ -89,9 +89,9 @@ class DescriptionFormatter extends React.Component {
 }
 
 DescriptionFormatter.propTypes = {
-    classes : PropTypes.object.isRequired,
-    value : PropTypes.object,
-    model : PropTypes.string.isRequired,
+    classes: PropTypes.object.isRequired,
+    value: PropTypes.object,
+    model: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(DescriptionFormatter);

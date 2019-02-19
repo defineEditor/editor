@@ -14,255 +14,254 @@
 
 const datasets = {
     oid: {
-        isKey    : true,
-        text     : '',
-        width    : '48px',
-        editable : false,
-        hidden   : false,
-        tdStyle  : { padding: '0px' },
+        isKey: true,
+        text: '',
+        width: '48px',
+        editable: false,
+        hidden: false,
+        tdStyle: { padding: '0px' },
     },
     name: {
-        text    : 'Name',
-        width   : '110px',
-        tdStyle : {whiteSpace: 'pre-wrap'},
-        thStyle : {whiteSpace: 'normal'}
+        text: 'Name',
+        width: '110px',
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' }
     },
     description: {
-        text    : 'Description',
-        width   : '15%',
-        tdStyle : { whiteSpace: 'pre-wrap' },
-        thStyle : { whiteSpace: 'normal' }
+        text: 'Description',
+        width: '15%',
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' }
     },
     datasetClass: {
-        text    : 'Class',
-        width   : '7%',
-        tdStyle : { whiteSpace: 'normal' },
-        thStyle : { whiteSpace: 'normal' },
+        text: 'Class',
+        width: '7%',
+        tdStyle: { whiteSpace: 'normal' },
+        thStyle: { whiteSpace: 'normal' },
     },
     domainAttrs: {
-        text    : 'Domain',
-        width   : '115px',
-        tdStyle : { whiteSpace: 'pre-wrap', overflowWrap: 'break-word' },
-        thStyle : { whiteSpace: 'normal' },
+        text: 'Domain',
+        width: '115px',
+        tdStyle: { whiteSpace: 'pre-wrap', overflowWrap: 'break-word' },
+        thStyle: { whiteSpace: 'normal' },
     },
     flags: {
-        text    : 'Flags',
-        width   : '115px',
-        tdStyle : { whiteSpace: 'normal' },
-        thStyle : { whiteSpace: 'normal' },
+        text: 'Flags',
+        width: '115px',
+        tdStyle: { whiteSpace: 'normal' },
+        thStyle: { whiteSpace: 'normal' },
     },
     structure: {
-        text    : 'Structure',
-        width   : '10%',
-        tdStyle : { whiteSpace: 'pre-wrap' },
-        thStyle : { whiteSpace: 'normal' },
+        text: 'Structure',
+        width: '10%',
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' },
     },
     keys: {
-        text    : 'Keys',
-        width   : '7%',
-        tdStyle : { whiteSpace: 'normal', overflowWrap: 'break-word' },
-        thStyle : { whiteSpace: 'normal' },
+        text: 'Keys',
+        width: '7%',
+        tdStyle: { whiteSpace: 'normal', overflowWrap: 'break-word' },
+        thStyle: { whiteSpace: 'normal' },
     },
     comment: {
-        text    : 'Comment',
-        width   : '30%',
-        tdStyle : { whiteSpace: 'pre-wrap' },
-        thStyle : { whiteSpace: 'normal' },
+        text: 'Comment',
+        width: '30%',
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' },
     },
     leaf: {
-        dataField : 'leaf',
-        text      : 'Location',
-        width     : '7%',
-        tdStyle   : { whiteSpace: 'pre-wrap' },
-        thStyle   : { whiteSpace: 'normal' }
+        dataField: 'leaf',
+        text: 'Location',
+        width: '7%',
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' }
     }
 };
 
 const variables = {
     oid: {
-        isKey     : true,
-        text      : '',
-        width     : '48px',
-        editable  : false,
-        hidden    : false,
-        tdStyle   : { padding: '0px' },
+        isKey: true,
+        text: '',
+        width: '48px',
+        editable: false,
+        hidden: false,
+        tdStyle: { padding: '0px' },
     },
     keyOrder: {
-        text    : 'Position, Key',
-        width   : '110px',
-        hidden  : true,
-        tdStyle : { whiteSpace: 'pre-wrap' },
-        thStyle : { whiteSpace: 'normal' }
+        text: 'Position, Key',
+        width: '110px',
+        hidden: true,
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' }
     },
     nameLabelWhereClause: {
-        text    : 'Name, Label, Where Clause',
-        width   : '300px',
-        hidden  : false,
-        tdStyle : { whiteSpace: 'pre-wrap' },
-        thStyle : { whiteSpace: 'normal' }
+        text: 'Name, Label, Where Clause',
+        width: '300px',
+        hidden: false,
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' }
     },
     dataType: {
-        text    : 'Type',
-        width   : '100px',
-        hidden  : false,
-        tdStyle : { whiteSpace: 'normal' },
-        thStyle : { whiteSpace: 'normal' }
+        text: 'Type',
+        width: '100px',
+        hidden: false,
+        tdStyle: { whiteSpace: 'normal' },
+        thStyle: { whiteSpace: 'normal' }
     },
     lengthAttrs: {
-        text    : 'Length',
-        width   : '115px',
-        hidden  : false,
-        tdStyle : { whiteSpace: 'pre-wrap' },
-        thStyle : { whiteSpace: 'normal' }
+        text: 'Length',
+        width: '115px',
+        hidden: false,
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' }
     },
     roleAttrs: {
-        text    : 'Role',
-        width   : '150px',
-        hidden  : true,
-        tdStyle : { whiteSpace: 'pre-wrap' },
-        thStyle : { whiteSpace: 'normal' }
+        text: 'Role',
+        width: '150px',
+        hidden: true,
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' }
     },
     mandatory: {
-        text    : 'Mandatory',
-        width   : '110px',
-        hidden  : false,
-        tdStyle : { whiteSpace: 'normal' },
-        thStyle : { whiteSpace: 'normal' }
+        text: 'Mandatory',
+        width: '110px',
+        hidden: false,
+        tdStyle: { whiteSpace: 'normal' },
+        thStyle: { whiteSpace: 'normal' }
     },
     codeListFormatAttrs: {
-        text    : 'Codelist, Display Format',
-        width   : '130px',
-        hidden  : false,
-        tdStyle : { whiteSpace: 'pre-wrap', overFlowWrap: 'break-word', wordBreak: 'break-word' },
-        thStyle : { whiteSpace: 'normal' }
+        text: 'Codelist, Display Format',
+        width: '130px',
+        hidden: false,
+        tdStyle: { whiteSpace: 'pre-wrap', overFlowWrap: 'break-word', wordBreak: 'break-word' },
+        thStyle: { whiteSpace: 'normal' }
     },
     description: {
-        text    : 'Description',
-        width   : '99%',
-        hidden  : false,
-        tdStyle : { whiteSpace: 'pre-wrap' },
-        thStyle : { whiteSpace: 'normal' },
+        text: 'Description',
+        width: '99%',
+        hidden: false,
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' },
     },
 };
 
 const codeLists = {
     oid: {
-        isKey    : true,
-        text     : '',
-        width    : '48px',
-        editable : false,
-        hidden   : false,
-        tdStyle  : { padding: '0px' },
+        isKey: true,
+        text: '',
+        width: '48px',
+        editable: false,
+        hidden: false,
+        tdStyle: { padding: '0px' },
     },
     name: {
-        text    : 'Name',
-        width   : '20%',
-        hidden  : false,
-        tdStyle : {whiteSpace: 'pre-wrap'},
-        thStyle : {whiteSpace: 'normal'}
+        text: 'Name',
+        width: '20%',
+        hidden: false,
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' }
     },
     codeListType: {
-        text    : 'Type',
-        hidden  : false,
-        width   : '130px',
-        tdStyle : { whiteSpace: 'normal' },
-        thStyle : { whiteSpace: 'normal' },
+        text: 'Type',
+        hidden: false,
+        width: '130px',
+        tdStyle: { whiteSpace: 'normal' },
+        thStyle: { whiteSpace: 'normal' },
     },
     dataType: {
-        text    : 'Data Type',
-        hidden  : false,
-        width   : '140px',
-        tdStyle : { whiteSpace: 'normal' },
-        thStyle : { whiteSpace: 'normal' },
+        text: 'Data Type',
+        hidden: false,
+        width: '140px',
+        tdStyle: { whiteSpace: 'normal' },
+        thStyle: { whiteSpace: 'normal' },
     },
     formatName: {
-        text    : 'Format Name',
-        hidden  : false,
-        width   : '140px',
-        tdStyle : { whiteSpace: 'pre-wrap' },
-        thStyle : { whiteSpace: 'normal' },
+        text: 'Format Name',
+        hidden: false,
+        width: '140px',
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' },
     },
     linkedCodeList: {
-        text    : 'Linked Codelist',
-        width   : '10%',
-        tdStyle : { whiteSpace: 'pre-wrap' },
-        thStyle : { whiteSpace: 'normal' },
+        text: 'Linked Codelist',
+        width: '10%',
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' },
     },
     standardData: {
-        text    : 'Standard',
-        hidden  : false,
-        width   : '15%',
-        tdStyle : { whiteSpace: 'normal' },
-        thStyle : { whiteSpace: 'normal' }
+        text: 'Standard',
+        hidden: false,
+        width: '15%',
+        tdStyle: { whiteSpace: 'normal' },
+        thStyle: { whiteSpace: 'normal' }
     },
     usedBy: {
-        text     : 'Used By',
-        hidden   : true,
-        editable : false,
-        width    : '15%',
-        tdStyle  : { whiteSpace: 'pre-wrap', overflowWrap: 'break-word' },
-        thStyle  : { whiteSpace: 'normal' }
+        text: 'Used By',
+        hidden: true,
+        editable: false,
+        width: '15%',
+        tdStyle: { whiteSpace: 'pre-wrap', overflowWrap: 'break-word' },
+        thStyle: { whiteSpace: 'normal' }
     },
 };
 
 const codedValues = {
     oid: {
-        isKey    : true,
-        text     : '',
-        width    : '48px',
-        editable : false,
-        hidden   : false,
-        tdStyle  : { padding: '0px' },
+        isKey: true,
+        text: '',
+        width: '48px',
+        editable: false,
+        hidden: false,
+        tdStyle: { padding: '0px' },
     },
     value: {
-        text    : 'Coded Value',
-        tdStyle : { whiteSpace: 'pre-wrap', width: '30px', overflow: 'inherit !important' },
-        thStyle : { whiteSpace: 'normal', width: '30px' },
+        text: 'Coded Value',
+        tdStyle: { whiteSpace: 'pre-wrap', width: '30px', overflow: 'inherit !important' },
+        thStyle: { whiteSpace: 'normal', width: '30px' },
     },
     decode: {
-        text    : 'Decode',
-        tdStyle : { whiteSpace: 'pre-wrap' },
-        thStyle : { whiteSpace: 'normal' }
+        text: 'Decode',
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' }
     },
     rank: {
-        text    : 'Rank',
-        tdStyle : { whiteSpace: 'pre-wrap' },
-        thStyle : { whiteSpace: 'normal' },
-        hidden  : true,
+        text: 'Rank',
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' },
+        hidden: true,
     },
     ccode: {
-        text     : 'C-code',
-        tdStyle  : { whiteSpace: 'pre-wrap' },
-        thStyle  : { whiteSpace: 'normal' },
-        editable : false,
+        text: 'C-code',
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' },
+        editable: false,
     },
 };
 
 const armSummary = {
     oid: {
-        isKey    : true,
-        text     : '',
-        width    : '48px',
-        editable : false,
-        hidden   : false,
-        tdStyle  : { padding: '0px' },
+        isKey: true,
+        text: '',
+        width: '48px',
+        editable: false,
+        hidden: false,
+        tdStyle: { padding: '0px' },
     },
     name: {
-        text    : 'Name',
-        width   : '30%',
-        hidden  : false,
-        tdStyle : {whiteSpace: 'pre-wrap'},
-        thStyle : {whiteSpace: 'normal'}
+        text: 'Name',
+        width: '30%',
+        hidden: false,
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' }
     },
     description: {
-        text    : 'Description',
-        hidden  : false,
-        width   : '70%',
-        tdStyle : { whiteSpace: 'pre-wrap' },
-        thStyle : { whiteSpace: 'normal' },
+        text: 'Description',
+        hidden: false,
+        width: '70%',
+        tdStyle: { whiteSpace: 'pre-wrap' },
+        thStyle: { whiteSpace: 'normal' },
     },
 };
-
 
 const columns = {
     datasets,

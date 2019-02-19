@@ -31,19 +31,19 @@ import { selectColumns } from 'actions/index.js';
 
 const styles = theme => ({
     dialog: {
-        paddingLeft   : theme.spacing.unit * 2,
-        paddingRight  : theme.spacing.unit * 2,
-        paddingBottom : theme.spacing.unit * 1,
-        position      : 'absolute',
-        borderRadius  : '10px',
-        border        : '2px solid',
-        borderColor   : 'primary',
-        top           : '10%',
-        transform     : 'translate(0%, calc(-10%+0.5px))',
-        overflowX     : 'auto',
-        maxHeight     : '85%',
-        overflowY     : 'auto',
-        width         : '400px',
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        position: 'absolute',
+        borderRadius: '10px',
+        border: '2px solid',
+        borderColor: 'primary',
+        top: '10%',
+        transform: 'translate(0%, calc(-10%+0.5px))',
+        overflowX: 'auto',
+        maxHeight: '85%',
+        overflowY: 'auto',
+        width: '400px',
     },
 });
 
@@ -56,8 +56,8 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
     let tabs = state.present.ui.tabs;
     return {
-        stdColumns : state.present.stdConstants.columns[tabs.tabObjectNames[tabs.currentTab]],
-        columns    : tabs.settings[tabs.currentTab].columns,
+        stdColumns: state.present.stdConstants.columns[tabs.tabObjectNames[tabs.currentTab]],
+        columns: tabs.settings[tabs.currentTab].columns,
     };
 };
 
@@ -75,7 +75,7 @@ class ConnectedSelectColumns extends React.Component {
     getColumnSwitches = () => {
         let columns = this.state.columns;
         let result = Object.keys(columns)
-            .filter( columnName => (columnName !== 'oid'))
+            .filter(columnName => (columnName !== 'oid'))
             .map(columnName => {
                 let column = columns[columnName];
                 return (
@@ -107,7 +107,7 @@ class ConnectedSelectColumns extends React.Component {
     save = () => {
         // Keep only columns for which settings were changed
         let updateObj = {};
-        Object.keys(this.props.columns).forEach( columnName => {
+        Object.keys(this.props.columns).forEach(columnName => {
             if (this.props.columns[columnName].hidden !== this.state.columns[columnName].hidden) {
                 updateObj[columnName] = this.state.columns[columnName];
             }
@@ -120,7 +120,7 @@ class ConnectedSelectColumns extends React.Component {
         this.props.onClose();
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.cancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -135,7 +135,7 @@ class ConnectedSelectColumns extends React.Component {
                 disableBackdropClick
                 disableEscapeKeyDown
                 open
-                PaperProps={{className: classes.dialog}}
+                PaperProps={{ className: classes.dialog }}
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >
@@ -163,10 +163,10 @@ class ConnectedSelectColumns extends React.Component {
 }
 
 ConnectedSelectColumns.propTypes = {
-    classes    : PropTypes.object.isRequired,
-    columns    : PropTypes.object.isRequired,
-    stdColumns : PropTypes.object.isRequired,
-    onClose    : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    columns: PropTypes.object.isRequired,
+    stdColumns: PropTypes.object.isRequired,
+    onClose: PropTypes.func.isRequired,
 };
 
 const SelectColumns = connect(mapStateToProps, mapDispatchToProps)(ConnectedSelectColumns);

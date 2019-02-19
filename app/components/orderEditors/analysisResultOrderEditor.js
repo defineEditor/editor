@@ -28,9 +28,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        resultDisplays  : state.present.odm.study.metaDataVersion.analysisResultDisplays.resultDisplays,
-        analysisResults : state.present.odm.study.metaDataVersion.analysisResultDisplays.analysisResults,
-        reviewMode      : state.present.ui.main.reviewMode,
+        resultDisplays: state.present.odm.study.metaDataVersion.analysisResultDisplays.resultDisplays,
+        analysisResults: state.present.odm.study.metaDataVersion.analysisResultDisplays.analysisResults,
+        reviewMode: state.present.ui.main.reviewMode,
     };
 };
 
@@ -39,13 +39,13 @@ class AnalysisResultOrderEditorConnected extends React.Component {
         this.props.updateAnalysisResultOrder({ resultDisplayOid: this.props.resultDisplayOid, newOrder: items.map(item => (item.oid)) });
     }
 
-    render() {
+    render () {
         let items = [];
 
-        let analysisResultOrder  = this.props.resultDisplays[this.props.resultDisplayOid].analysisResultOrder;
+        let analysisResultOrder = this.props.resultDisplays[this.props.resultDisplayOid].analysisResultOrder;
 
-        analysisResultOrder.forEach( analysisResultOid => {
-            items.push({oid: analysisResultOid, name: getDescription(this.props.analysisResults[analysisResultOid])});
+        analysisResultOrder.forEach(analysisResultOid => {
+            items.push({ oid: analysisResultOid, name: getDescription(this.props.analysisResults[analysisResultOid]) });
         });
 
         return (
@@ -55,12 +55,11 @@ class AnalysisResultOrderEditorConnected extends React.Component {
 }
 
 AnalysisResultOrderEditorConnected.propTypes = {
-    resultDisplays   : PropTypes.object.isRequired,
-    analysisResults  : PropTypes.object.isRequired,
-    resultDisplayOid : PropTypes.string.isRequired,
-    reviewMode       : PropTypes.bool,
+    resultDisplays: PropTypes.object.isRequired,
+    analysisResults: PropTypes.object.isRequired,
+    resultDisplayOid: PropTypes.string.isRequired,
+    reviewMode: PropTypes.bool,
 };
 
 const AnalysisResultOrderEditor = connect(mapStateToProps, mapDispatchToProps)(AnalysisResultOrderEditorConnected);
 export default AnalysisResultOrderEditor;
-

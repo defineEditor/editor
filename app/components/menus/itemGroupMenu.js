@@ -26,22 +26,21 @@ import {
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        deleteItemGroups : (deleteObj) => dispatch(deleteItemGroups(deleteObj)),
-        selectGroup      : (updateObj) => dispatch(selectGroup(updateObj)),
+        deleteItemGroups: (deleteObj) => dispatch(deleteItemGroups(deleteObj)),
+        selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        itemGroups       : state.present.odm.study.metaDataVersion.itemGroups,
-        variableTabIndex : state.present.ui.tabs.tabNames.indexOf('Variables'),
-        mdv              : state.present.odm.study.metaDataVersion,
-        reviewMode       : state.present.ui.main.reviewMode,
+        itemGroups: state.present.odm.study.metaDataVersion.itemGroups,
+        variableTabIndex: state.present.ui.tabs.tabNames.indexOf('Variables'),
+        mdv: state.present.odm.study.metaDataVersion,
+        reviewMode: state.present.ui.main.reviewMode,
     };
 };
 
 class ConnectedItemGroupMenu extends React.Component {
-
     deleteItemGroup = () => {
         let itemGroupOids = [this.props.itemGroupMenuParams.itemGroupOid];
         const deleteObj = getItemGroupsRelatedOids(this.props.mdv, itemGroupOids);
@@ -51,16 +50,15 @@ class ConnectedItemGroupMenu extends React.Component {
 
     editItemGroupVariables = () => {
         let updateObj = {
-            tabIndex       : this.props.variableTabIndex,
-            groupOid       : this.props.itemGroupMenuParams.itemGroupOid,
-            scrollPosition : {},
+            tabIndex: this.props.variableTabIndex,
+            groupOid: this.props.itemGroupMenuParams.itemGroupOid,
+            scrollPosition: {},
         };
         this.props.selectGroup(updateObj);
         this.props.onClose();
     }
 
-    render() {
-
+    render () {
         return (
             <React.Fragment>
                 <Menu
@@ -87,10 +85,10 @@ class ConnectedItemGroupMenu extends React.Component {
 }
 
 ConnectedItemGroupMenu.propTypes = {
-    itemGroupMenuParams : PropTypes.object.isRequired,
-    itemGroups          : PropTypes.object.isRequired,
-    reviewMode          : PropTypes.bool,
-    variableTabIndex    : PropTypes.number,
+    itemGroupMenuParams: PropTypes.object.isRequired,
+    itemGroups: PropTypes.object.isRequired,
+    reviewMode: PropTypes.bool,
+    variableTabIndex: PropTypes.number,
 };
 
 const ItemGroupMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedItemGroupMenu);

@@ -25,13 +25,13 @@ import {
 
 const styles = theme => ({
     textField: {
-        width  : '40px',
-        height : '20px',
+        width: '40px',
+        height: '20px',
     },
     gridItem: {
-        flexBasis : 'unset',
-        textAlign : 'center',
-        height    : '20px',
+        flexBasis: 'unset',
+        textAlign: 'center',
+        height: '20px',
     },
     checkbox: {
         margin: 'none',
@@ -53,12 +53,12 @@ class ConnectedMandatoryEditor extends React.Component {
         super(props);
         this.rootRef = React.createRef();
         this.state = {
-            mandatoryFlag: this.props.mandatory === 'Yes' ? true : false,
+            mandatoryFlag: this.props.mandatory === 'Yes',
         };
     }
 
     handleChange = name => event => {
-        this.setState({[name]: event.target.checked}, this.save);
+        this.setState({ [name]: event.target.checked }, this.save);
     };
 
     save = () => {
@@ -72,18 +72,18 @@ class ConnectedMandatoryEditor extends React.Component {
         this.props.onFinished();
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.cancel();
         } else if (event.keyCode === 13) {
             this.save();
         } else if (event.keyCode === 32) {
             event.preventDefault();
-            this.setState({mandatoryFlag: !this.state.mandatoryFlag});
+            this.setState({ mandatoryFlag: !this.state.mandatoryFlag });
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.rootRef.current.focus();
     }
 
@@ -126,10 +126,10 @@ class ConnectedMandatoryEditor extends React.Component {
 }
 
 ConnectedMandatoryEditor.propTypes = {
-    classes    : PropTypes.object.isRequired,
-    source     : PropTypes.object.isRequired,
-    mandatory  : PropTypes.string.isRequired,
-    onFinished : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    source: PropTypes.object.isRequired,
+    mandatory: PropTypes.string.isRequired,
+    onFinished: PropTypes.func.isRequired,
 };
 
 const MandatoryEditor = connect(undefined, mapDispatchToProps)(ConnectedMandatoryEditor);

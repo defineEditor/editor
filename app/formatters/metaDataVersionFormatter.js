@@ -25,14 +25,13 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     metaDataVersion: {
-        padding   : 16,
-        marginTop : theme.spacing.unit * 3,
-        width     : '100%',
+        padding: 16,
+        marginTop: theme.spacing.unit * 3,
+        width: '100%',
     },
 });
 
 class MetaDataVersionFormatter extends React.Component {
-
     render () {
         const { classes, mdvAttrs, defineVersion } = this.props;
         const { name, description, comment } = mdvAttrs;
@@ -61,11 +60,11 @@ class MetaDataVersionFormatter extends React.Component {
 }
 
 MetaDataVersionFormatter.propTypes = {
-    mdvAttrs      : PropTypes.object.isRequired,
-    defineVersion : PropTypes.string.isRequired,
-    classes       : PropTypes.object.isRequired,
-    onEdit        : PropTypes.func.isRequired,
-    onComment     : PropTypes.func,
+    mdvAttrs: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    classes: PropTypes.object.isRequired,
+    onEdit: PropTypes.func.isRequired,
+    onComment: PropTypes.func,
 };
 
 export default withStyles(styles)(MetaDataVersionFormatter);

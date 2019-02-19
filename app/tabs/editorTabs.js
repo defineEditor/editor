@@ -36,14 +36,14 @@ import {
 
 const styles = theme => ({
     root: {
-        flexGrow        : 1,
-        marginTop       : theme.spacing.unit * 3,
-        backgroundColor : theme.palette.background.paper,
+        flexGrow: 1,
+        marginTop: theme.spacing.unit * 3,
+        backgroundColor: theme.palette.background.paper,
     },
     menuToggle: {
-        marginTop : '-23px',
-        position  : 'fixed',
-        zIndex    : '9000',
+        marginTop: '-23px',
+        position: 'fixed',
+        zIndex: '9000',
     },
     tabs: {
         marginLeft: theme.spacing.unit * 4,
@@ -53,16 +53,16 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        toggleMainMenu : () => dispatch(toggleMainMenu()),
-        changeTab      : (updateObj) => dispatch(changeTab(updateObj)),
-        openModal      : updateObj => dispatch(openModal(updateObj)),
+        toggleMainMenu: () => dispatch(toggleMainMenu()),
+        changeTab: (updateObj) => dispatch(changeTab(updateObj)),
+        openModal: updateObj => dispatch(openModal(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
     let hasArm;
-    if (state.present.odm.study.metaDataVersion.analysisResultDisplays !== undefined
-        && Object.keys(state.present.odm.study.metaDataVersion.analysisResultDisplays).length > 0
+    if (state.present.odm.study.metaDataVersion.analysisResultDisplays !== undefined &&
+        Object.keys(state.present.odm.study.metaDataVersion.analysisResultDisplays).length > 0
     ) {
         hasArm = true;
     } else {
@@ -74,7 +74,7 @@ const mapStateToProps = state => {
     };
 };
 
-function TabContainer(props) {
+function TabContainer (props) {
     return (
         <Typography component="div" style={{ padding: 8 * 3 }}>
             {props.children}
@@ -87,33 +87,32 @@ TabContainer.propTypes = {
 };
 
 class ConnectedEditorTabs extends React.Component {
-
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
-    componentDidCatch(error, info) {
+    componentDidCatch (error, info) {
         this.props.openModal({
             type: 'BUG_REPORT',
-            props: {error, info}
+            props: { error, info }
         });
     }
 
     handleChange = (event, value) => {
         if (value !== this.props.currentTab) {
             let updateObj = {
-                selectedTab           : value,
-                currentScrollPosition : window.scrollY,
+                selectedTab: value,
+                currentScrollPosition: window.scrollY,
             };
             this.props.changeTab(updateObj);
         }
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.ctrlKey && (event.keyCode === 49)) {
             this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Variables'));
         } else if (event.ctrlKey && (event.keyCode === 50)) {
@@ -136,7 +135,7 @@ class ConnectedEditorTabs extends React.Component {
             } else if (event.keyCode === 189) {
                 shift = -1;
             }
-            if ( (currentTab + shift) < tabCount && (currentTab + shift) >= 0) {
+            if ((currentTab + shift) < tabCount && (currentTab + shift) >= 0) {
                 this.handleChange(undefined, currentTab + shift);
             } else {
                 if (shift < 0) {
@@ -148,8 +147,7 @@ class ConnectedEditorTabs extends React.Component {
         }
     }
 
-    render() {
-
+    render () {
         const { classes } = this.props;
         const { currentTab } = this.props.tabs;
         let tabNames = this.props.tabs.tabNames.slice();
@@ -184,7 +182,7 @@ class ConnectedEditorTabs extends React.Component {
                             className={classes.tabs}
                             scrollButtons="auto"
                         >
-                            { tabNames.map( tab => {
+                            { tabNames.map(tab => {
                                 return <Tab key={tab} label={tab} />;
                             })
                             }
@@ -208,11 +206,11 @@ class ConnectedEditorTabs extends React.Component {
 }
 
 ConnectedEditorTabs.propTypes = {
-    classes        : PropTypes.object.isRequired,
-    tabs           : PropTypes.object.isRequired,
-    hasArm         : PropTypes.bool.isRequired,
-    toggleMainMenu : PropTypes.func.isRequired,
-    changeTab      : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    tabs: PropTypes.object.isRequired,
+    hasArm: PropTypes.bool.isRequired,
+    toggleMainMenu: PropTypes.func.isRequired,
+    changeTab: PropTypes.func.isRequired,
 };
 
 const EditorTabs = connect(mapStateToProps, mapDispatchToProps)(ConnectedEditorTabs);

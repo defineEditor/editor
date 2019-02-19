@@ -34,7 +34,7 @@ class LeafFormatter extends React.Component {
 }
 
 LeafFormatter.propTypes = {
-    leaf : PropTypes.object.isRequired,
+    leaf: PropTypes.object.isRequired,
 };
 
 export default LeafFormatter;

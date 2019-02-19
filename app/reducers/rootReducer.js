@@ -22,6 +22,6 @@ import studies from 'reducers/studies/studies.js';
 import defines from 'reducers/defines/defines.js';
 import controlledTerminology from 'reducers/controlledTerminology/controlledTerminology.js';
 
-const rootReducer = combineReducers({odm, stdCodeLists, stdConstants, ui, settings, studies, defines, controlledTerminology});
+const rootReducer = combineReducers({ odm, stdCodeLists, stdConstants, ui, settings, studies, defines, controlledTerminology });
 
 export default rootReducer;

@@ -50,7 +50,7 @@ const styles = theme => ({
 });
 
 class GroupTabDrawer extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.state = {
@@ -58,11 +58,11 @@ class GroupTabDrawer extends React.Component {
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         let groupInitialFilter = this.props.groupOrder
             .filter(groupOid => {
                 if (this.props.groupClass === 'Coded Values') {
-                    return ['decoded','enumerated'].includes(this.props.groups[groupOid].codeListType);
+                    return ['decoded', 'enumerated'].includes(this.props.groups[groupOid].codeListType);
                 } else {
                     return true;
                 }
@@ -77,9 +77,8 @@ class GroupTabDrawer extends React.Component {
         });
     }
 
-
     getGroupList = (currentGroupOid, filteredGroupOids) => {
-        let lastItemToolTip = this.state.groupSearchFilter.length === 1 ? "<Enter> to open" : null;
+        let lastItemToolTip = this.state.groupSearchFilter.length === 1 ? '<Enter> to open' : null;
         let result = this.state.groupSearchFilter.map(groupOid => {
             if (groupOid === currentGroupOid) {
                 return (
@@ -144,10 +143,10 @@ class GroupTabDrawer extends React.Component {
         event.target.select();
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
 
-        return(
+        return (
             <Drawer
                 className={classes.drawer}
                 open={this.props.isOpened}

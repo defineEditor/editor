@@ -31,9 +31,9 @@ import getOid from 'utils/getOid.js';
 
 const styles = theme => ({
     controlledTerminology: {
-        padding   : 16,
-        marginTop : theme.spacing.unit * 1,
-        outline   : 'none',
+        padding: 16,
+        marginTop: theme.spacing.unit * 1,
+        outline: 'none',
     },
     inputField: {
         minWidth: '450px',
@@ -47,14 +47,12 @@ const styles = theme => ({
 });
 
 class ControlledTerminologyEditor extends React.Component {
-
     constructor (props) {
-
         super(props);
 
         // Clone standards
         let standardsCopy = {};
-        Object.keys(this.props.standards).forEach( standardOid => {
+        Object.keys(this.props.standards).forEach(standardOid => {
             standardsCopy[standardOid] = { ...new Standard(this.props.standards[standardOid]) };
         });
         this.state = { standards: standardsCopy, standardOrder: this.props.standardOrder.slice() };
@@ -95,8 +93,8 @@ class ControlledTerminologyEditor extends React.Component {
 
     getControlledTerminologies = () => {
         let standards = this.state.standards;
-        let ctList = this.props.controlledTerminology.allIds.map( ctOid => {
-            return {[ctOid]: this.props.controlledTerminology.byId[ctOid].name + ' ' +  this.props.controlledTerminology.byId[ctOid].version};
+        let ctList = this.props.controlledTerminology.allIds.map(ctOid => {
+            return { [ctOid]: this.props.controlledTerminology.byId[ctOid].name + ' ' + this.props.controlledTerminology.byId[ctOid].version };
         });
         let studyCtList = Object.keys(standards)
             .filter(standardOid => {
@@ -108,7 +106,7 @@ class ControlledTerminologyEditor extends React.Component {
                         <Tooltip title="Remove Controlled Terminology" placement="bottom-end">
                             <IconButton
                                 color='secondary'
-                                onClick={this.handleChange('deleteCt',standardOid)}
+                                onClick={this.handleChange('deleteCt', standardOid)}
                                 className={this.props.classes.button}
                             >
                                 <RemoveIcon />
@@ -119,7 +117,7 @@ class ControlledTerminologyEditor extends React.Component {
                             value={standardOid}
                             select
                             autoFocus
-                            onChange={this.handleChange('updateCt',standardOid)}
+                            onChange={this.handleChange('updateCt', standardOid)}
                             className={this.props.classes.inputField}
                         >
                             { Object.keys(ctList).length > 0 && getSelectionList(ctList)}
@@ -134,7 +132,7 @@ class ControlledTerminologyEditor extends React.Component {
         this.props.onSave(this.state);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.props.onCancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -170,14 +168,14 @@ class ControlledTerminologyEditor extends React.Component {
 }
 
 ControlledTerminologyEditor.propTypes = {
-    standards             : PropTypes.object.isRequired,
-    standardOrder         : PropTypes.array.isRequired,
-    controlledTerminology : PropTypes.object.isRequired,
-    classes               : PropTypes.object.isRequired,
-    onSave                : PropTypes.func.isRequired,
-    onCancel              : PropTypes.func.isRequired,
-    onHelp                : PropTypes.func,
-    onComment             : PropTypes.func,
+    standards: PropTypes.object.isRequired,
+    standardOrder: PropTypes.array.isRequired,
+    controlledTerminology: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    onSave: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    onHelp: PropTypes.func,
+    onComment: PropTypes.func,
 };
 
 export default withStyles(styles)(ControlledTerminologyEditor);

@@ -26,7 +26,7 @@ export const addDocument = (object, document) => {
 
 export const deleteDocument = (object, leafIdToDelete) => {
     if (object.hasOwnProperty('documents')) {
-        object.documents = object.documents.filter( doc => doc.leafId !== leafIdToDelete );
+        object.documents = object.documents.filter(doc => doc.leafId !== leafIdToDelete);
     }
 };
 
@@ -89,7 +89,7 @@ export const setDescription = (object, value, language = 'en') => {
                     object.descriptions[index] = { ...new TranslatedText({
                         lang: language,
                         value: value
-                    })};
+                    }) };
                     updatedFlag = true;
                 }
             });
@@ -149,10 +149,9 @@ const getRangeCheckAsText = (object, mdv, options = {}) => {
 
 export const getWhereClauseAsText = (object, mdv, options = {}) => {
     return object.rangeChecks
-        .filter( rangeCheck => (options.itemOid !== undefined ? (rangeCheck.itemOid === options.itemOid) : true))
+        .filter(rangeCheck => (options.itemOid !== undefined ? (rangeCheck.itemOid === options.itemOid) : true))
         .map(rangeCheck => getRangeCheckAsText(rangeCheck, mdv, options))
         .join(' AND ');
-
 };
 
 export const getMaxLength = (object) => {

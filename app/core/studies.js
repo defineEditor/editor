@@ -94,7 +94,7 @@ class ConnectedStudies extends React.Component {
       });
   };
 
-  render() {
+  render () {
       const { classes, width } = this.props;
       let studyNum = Object.keys(this.props.studies.byId).length;
       let subHeaderText;

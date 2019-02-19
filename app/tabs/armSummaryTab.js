@@ -16,7 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
-import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
+import { BootstrapTable, ButtonGroup } from 'react-bootstrap-table';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
 import renderColumns from 'utils/renderColumns.js';
@@ -52,21 +52,21 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateResultDisplay : (updateObj) => dispatch(updateResultDisplay(updateObj)),
-        deleteResultDisplays : (deleteObj) => dispatch(deleteResultDisplays(deleteObj)),
+        updateResultDisplay: (updateObj) => dispatch(updateResultDisplay(updateObj)),
+        deleteResultDisplays: (deleteObj) => dispatch(deleteResultDisplays(deleteObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        analysisResultDisplays : state.present.odm.study.metaDataVersion.analysisResultDisplays,
-        leafs                  : state.present.odm.study.metaDataVersion.leafs,
-        stdConstants           : state.present.stdConstants,
-        defineVersion          : state.present.odm.study.metaDataVersion.defineVersion,
-        tabs                   : state.present.ui.tabs,
-        tabSettings            : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
-        showRowSelect          : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
-        reviewMode             : state.present.ui.main.reviewMode,
+        analysisResultDisplays: state.present.odm.study.metaDataVersion.analysisResultDisplays,
+        leafs: state.present.odm.study.metaDataVersion.leafs,
+        stdConstants: state.present.stdConstants,
+        defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
+        tabs: state.present.ui.tabs,
+        tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
+        showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
+        reviewMode: state.present.ui.main.reviewMode,
     };
 };
 
@@ -85,7 +85,7 @@ function descriptionFormatter (cell, row) {
 }
 
 class ConnectedArmSummaryTable extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         let columns = clone(props.stdConstants.columns.armSummary);
@@ -100,36 +100,36 @@ class ConnectedArmSummaryTable extends React.Component {
                 dataFormat: this.menuFormatter,
             },
             name: {
-                customEditor: {getElement: simpleInputEditor, customEditorParameters: { options:
+                customEditor: { getElement: simpleInputEditor,
+                    customEditorParameters: { options:
                     {
-                        checkForSpecialChars : { type: 'Note' },
+                        checkForSpecialChars: { type: 'Note' },
                     }
-                }},
+                    } },
             },
             description: {
-                dataFormat   : descriptionFormatter,
-                customEditor : {getElement: descriptionEditor},
+                dataFormat: descriptionFormatter,
+                customEditor: { getElement: descriptionEditor },
             },
         };
 
         // Unite Columns with Editors and Formatters;
-        Object.keys(columns).forEach( id => {
+        Object.keys(columns).forEach(id => {
             columns[id] = { ...columns[id], ...editorFormatters[id] };
         });
 
         this.state = {
             columns,
-            anchorEl             : null,
-            selectedRows         : [],
-            armSummaryMenuParams : {},
-            showSelectColumn     : false,
-            showAddResultDisplay : false,
-            insertPosition       : null,
+            anchorEl: null,
+            selectedRows: [],
+            armSummaryMenuParams: {},
+            showSelectColumn: false,
+            showAddResultDisplay: false,
+            insertPosition: null,
         };
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
-
+    static getDerivedStateFromProps (nextProps, prevState) {
         let columns = getColumnHiddenStatus(prevState.columns, nextProps.tabSettings.columns, nextProps.showRowSelect);
 
         if (!deepEqual(columns, prevState.columns)) {
@@ -138,7 +138,7 @@ class ConnectedArmSummaryTable extends React.Component {
         return null;
     }
 
-    componentDidMount() {
+    componentDidMount () {
         setScrollPosition(this.props.tabs);
     }
 
@@ -172,7 +172,7 @@ class ConnectedArmSummaryTable extends React.Component {
         } else {
             // Update on if the value changed
             if (!deepEqual(row[cellName], cellValue)) {
-                let updateObj = {oid: row.oid, updates: { [cellName]: cellValue }};
+                let updateObj = { oid: row.oid, updates: { [cellName]: cellValue } };
                 this.props.updateResultDisplay(updateObj);
             }
             return true;
@@ -180,7 +180,7 @@ class ConnectedArmSummaryTable extends React.Component {
     }
 
     cleanSelection = () => {
-        if (this.state.selectedRows.length > 0)  {
+        if (this.state.selectedRows.length > 0) {
             this.setState({ selectedRows: [] });
         }
     }
@@ -224,15 +224,15 @@ class ConnectedArmSummaryTable extends React.Component {
     createCustomToolBar = props => {
         return (
             <Grid container spacing={16} justify='space-between'>
-                <Grid item style={{paddingLeft: '8px'}}>
+                <Grid item style={{ paddingLeft: '8px' }}>
                     { props.components.btnGroup }
                 </Grid>
-                <Grid item style={{paddingRight: '25px'}}>
+                <Grid item style={{ paddingRight: '25px' }}>
                     <Grid container spacing={16} justify='flex-end'>
                         <Grid item>
                             <Button variant="contained" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
                                 Columns
-                                <RemoveRedEyeIcon style={{marginLeft: '7px'}}/>
+                                <RemoveRedEyeIcon style={{ marginLeft: '7px' }}/>
                             </Button>
                         </Grid>
                     </Grid>
@@ -267,10 +267,10 @@ class ConnectedArmSummaryTable extends React.Component {
         } else {
             // If the item is going to be removed;
             if (selectedRows.includes(row.oid)) {
-                selectedRows.splice(selectedRows.indexOf(row.oid),1);
+                selectedRows.splice(selectedRows.indexOf(row.oid), 1);
             }
         }
-        this.setState({selectedRows});
+        this.setState({ selectedRows });
         return true;
     }
 
@@ -279,11 +279,11 @@ class ConnectedArmSummaryTable extends React.Component {
         if (isSelected === true) {
             // If all rows are going to be selected;
             selectedRows = rows
-                .map( row => (row.oid));
+                .map(row => (row.oid));
         } else {
             selectedRows = [];
         }
-        this.setState({selectedRows});
+        this.setState({ selectedRows });
         return true;
     }
 
@@ -295,39 +295,38 @@ class ConnectedArmSummaryTable extends React.Component {
         resultDisplayOrder.forEach((resultDisplayOid, index) => {
             const resultDisplay = resultDisplays[resultDisplayOid];
             let row = {
-                oid          : resultDisplay.oid,
-                name         : resultDisplay.name,
-                description  : { descriptions: resultDisplay.descriptions, documents: resultDisplay.documents },
-                leafs        : this.props.leafs,
+                oid: resultDisplay.oid,
+                name: resultDisplay.name,
+                description: { descriptions: resultDisplay.descriptions, documents: resultDisplay.documents },
+                leafs: this.props.leafs,
             };
             tableData[index] = row;
         });
 
         // Editor settings
         const cellEditProp = {
-            mode           : 'dbclick',
-            blurToSave     : true,
-            beforeSaveCell : this.onBeforeSaveCell
+            mode: 'dbclick',
+            blurToSave: true,
+            beforeSaveCell: this.onBeforeSaveCell
         };
 
         let selectRowProp;
         if (this.props.showRowSelect) {
             selectRowProp = {
-                mode          : 'checkbox',
-                clickToSelect : true,
-                onSelect      : this.onRowSelected,
-                onSelectAll   : this.onAllRowSelected,
-                columnWidth   : '48px',
+                mode: 'checkbox',
+                clickToSelect: true,
+                onSelect: this.onRowSelected,
+                onSelectAll: this.onAllRowSelected,
+                columnWidth: '48px',
             };
         } else {
             selectRowProp = undefined;
         }
 
         const options = {
-            toolBar  : this.createCustomToolBar,
-            btnGroup : this.createCustomButtonGroup
+            toolBar: this.createCustomToolBar,
+            btnGroup: this.createCustomButtonGroup
         };
-
 
         return (
             <React.Fragment>
@@ -340,8 +339,8 @@ class ConnectedArmSummaryTable extends React.Component {
                     remote={ true }
                     version='4'
                     cellEdit={this.props.reviewMode || this.props.showRowSelect ? undefined : cellEditProp}
-                    keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}
-                    headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
+                    keyBoardNav={this.props.showRowSelect ? false : { enterToEdit: true }}
+                    headerStyle={{ backgroundColor: indigo[500], color: grey[200], fontSize: '16px' }}
                     selectRow={selectRowProp}
                 >
                     {renderColumns(this.state.columns)}
@@ -371,12 +370,12 @@ class ConnectedArmSummaryTable extends React.Component {
 }
 
 ConnectedArmSummaryTable.propTypes = {
-    analysisResultDisplays : PropTypes.object.isRequired,
-    leafs                  : PropTypes.object.isRequired,
-    stdConstants           : PropTypes.object.isRequired,
-    classes                : PropTypes.object.isRequired,
-    defineVersion          : PropTypes.string.isRequired,
-    reviewMode             : PropTypes.bool,
+    analysisResultDisplays: PropTypes.object.isRequired,
+    leafs: PropTypes.object.isRequired,
+    stdConstants: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    reviewMode: PropTypes.bool,
 };
 
 const ArmSummaryTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedArmSummaryTable);

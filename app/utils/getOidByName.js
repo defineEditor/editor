@@ -16,7 +16,7 @@
 function getOidByName (mdv, source, name, itemGroupOid) {
     let result;
     if (source !== 'ItemRefs') {
-        Object.keys(mdv[source]).some( oid => {
+        Object.keys(mdv[source]).some(oid => {
             if (mdv[source][oid].name.toLowerCase() === name.toLowerCase()) {
                 // If itemGroupOid is provided, check the the item belongs to it
                 if (itemGroupOid) {
@@ -33,7 +33,7 @@ function getOidByName (mdv, source, name, itemGroupOid) {
         });
     } else {
         let itemGroup = mdv.itemGroups[itemGroupOid];
-        Object.keys(itemGroup.itemRefs).some( itemRefOid => {
+        Object.keys(itemGroup.itemRefs).some(itemRefOid => {
             if (mdv.itemDefs[itemGroup.itemRefs[itemRefOid].itemOid].name.toLowerCase() === name.toLowerCase()) {
                 result = itemGroup.itemRefs[itemRefOid].itemOid;
                 return true;

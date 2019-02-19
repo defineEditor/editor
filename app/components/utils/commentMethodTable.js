@@ -41,24 +41,24 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     dialog: {
-        paddingLeft   : theme.spacing.unit * 2,
-        paddingRight  : theme.spacing.unit * 2,
-        paddingBottom : theme.spacing.unit * 1,
-        position      : 'absolute',
-        borderRadius  : '10px',
-        border        : '2px solid',
-        borderColor   : 'primary',
-        top           : '10%',
-        transform     : 'translate(0%, calc(-10%+0.5px))',
-        overflowX     : 'auto',
-        maxHeight     : '85%',
-        overflowY     : 'auto',
-        width         : '90%',
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        position: 'absolute',
+        borderRadius: '10px',
+        border: '2px solid',
+        borderColor: 'primary',
+        top: '10%',
+        transform: 'translate(0%, calc(-10%+0.5px))',
+        overflowX: 'auto',
+        maxHeight: '85%',
+        overflowY: 'auto',
+        width: '90%',
     },
     iconButton: {
-        marginLeft   : '0px',
-        marginRight  : '0px',
-        marginBottom : '8px',
+        marginLeft: '0px',
+        marginRight: '0px',
+        marginBottom: '8px',
     },
     icon: {
         textAlign: 'right',
@@ -84,13 +84,13 @@ const styles = theme => ({
 
 const mapStateToProps = state => {
     return {
-        leafs : state.present.odm.study.metaDataVersion.leafs,
-        mdv   : state.present.odm.study.metaDataVersion,
+        leafs: state.present.odm.study.metaDataVersion.leafs,
+        mdv: state.present.odm.study.metaDataVersion,
     };
 };
 
 class ConnectedCommentMethodTable extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         let items;
@@ -102,7 +102,7 @@ class ConnectedCommentMethodTable extends React.Component {
 
         this.state = {
             searchString: '',
-            rowsPerPage : 25,
+            rowsPerPage: 25,
             type: this.props.type,
             page: 0,
             items,
@@ -145,7 +145,7 @@ class ConnectedCommentMethodTable extends React.Component {
         const type = this.state.type;
 
         let result = filteredItemOids.reverse()
-            .filter( itemOid => (filteredItemOids.includes(itemOid)) )
+            .filter(itemOid => (filteredItemOids.includes(itemOid)))
             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             .map(itemOid => {
                 let usedBy;
@@ -199,7 +199,7 @@ class ConnectedCommentMethodTable extends React.Component {
         return result;
     };
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             event.stopPropagation();
             this.props.onClose();
@@ -221,7 +221,7 @@ class ConnectedCommentMethodTable extends React.Component {
             } else {
                 caseSensitive = false;
             }
-            Object.keys(items).forEach( itemOid => {
+            Object.keys(items).forEach(itemOid => {
                 let text = getDescription(items[itemOid]);
                 if (type === 'Method') {
                     if (items[itemOid].name !== undefined) {
@@ -231,7 +231,7 @@ class ConnectedCommentMethodTable extends React.Component {
                         text = text + ' ' + items[itemOid].type;
                     }
                     if (items[itemOid].formalExpressions.length > 0) {
-                        items[itemOid].formalExpressions.forEach( exp => {
+                        items[itemOid].formalExpressions.forEach(exp => {
                             if (exp.context !== undefined) {
                                 text = text + ' ' + exp.context;
                             }
@@ -257,7 +257,7 @@ class ConnectedCommentMethodTable extends React.Component {
                 disableBackdropClick
                 disableEscapeKeyDown
                 open
-                PaperProps={{className: classes.dialog}}
+                PaperProps={{ className: classes.dialog }}
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >
@@ -274,7 +274,7 @@ class ConnectedCommentMethodTable extends React.Component {
                                     className={classes.typeField}
                                     select
                                 >
-                                    {getSelectionList(['Comment','Method'])}
+                                    {getSelectionList(['Comment', 'Method'])}
                                 </TextField>
                             )}
                         </Grid>
@@ -327,7 +327,7 @@ class ConnectedCommentMethodTable extends React.Component {
                         }}
                         onChangePage={this.handleChangePage}
                         onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                        rowsPerPageOptions={[25,50,100]}
+                        rowsPerPageOptions={[25, 50, 100]}
                     />
                 </DialogContent>
             </Dialog>
@@ -336,13 +336,13 @@ class ConnectedCommentMethodTable extends React.Component {
 }
 
 ConnectedCommentMethodTable.propTypes = {
-    type     : PropTypes.string.isRequired,
-    leafs    : PropTypes.object.isRequired,
-    mdv      : PropTypes.object.isRequired,
-    onClose  : PropTypes.func.isRequired,
-    onSelect : PropTypes.func,
-    onCopy   : PropTypes.func,
-    listOnly : PropTypes.bool,
+    type: PropTypes.string.isRequired,
+    leafs: PropTypes.object.isRequired,
+    mdv: PropTypes.object.isRequired,
+    onClose: PropTypes.func.isRequired,
+    onSelect: PropTypes.func,
+    onCopy: PropTypes.func,
+    listOnly: PropTypes.bool,
 };
 
 const CommentMethodTable = connect(mapStateToProps)(ConnectedCommentMethodTable);

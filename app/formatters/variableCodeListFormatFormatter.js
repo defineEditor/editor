@@ -26,8 +26,8 @@ const styles = theme => ({
 });
 
 class VariableCodeListFormatFormatter extends React.Component {
-    render() {
-        //const {classes} = this.props;
+    render () {
+        // const {classes} = this.props;
         const codeListOid = this.props.value.codeListOid;
         const displayFormat = this.props.value.displayFormat;
         const codeListLabel = this.props.value.codeListLabel;
@@ -50,9 +50,8 @@ class VariableCodeListFormatFormatter extends React.Component {
 }
 
 VariableCodeListFormatFormatter.propTypes = {
-    classes : PropTypes.object.isRequired,
-    value   : PropTypes.object,
+    classes: PropTypes.object.isRequired,
+    value: PropTypes.object,
 };
 
 export default withStyles(styles)(VariableCodeListFormatFormatter);
-

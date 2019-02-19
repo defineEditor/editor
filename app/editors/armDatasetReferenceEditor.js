@@ -47,9 +47,9 @@ class ArmDatasetReferenceEditor extends React.Component {
     handleChange = (name, oid) => updateObj => {
         if (name === 'addDataset') {
             let datasets = {};
-            Object.values(this.props.itemGroups).forEach( itemGroup => { datasets[itemGroup.oid] = itemGroup.name; } );
+            Object.values(this.props.itemGroups).forEach(itemGroup => { datasets[itemGroup.oid] = itemGroup.name; });
             let datasetsNotUsed = Object.keys(datasets);
-            Object.keys(datasets).forEach( oid => {
+            Object.keys(datasets).forEach(oid => {
                 if (Object.keys(this.props.analysisDatasets).includes(oid)) {
                     delete datasetsNotUsed.splice(datasetsNotUsed.indexOf(oid), 1);
                 }
@@ -76,7 +76,7 @@ class ArmDatasetReferenceEditor extends React.Component {
                 whereClauses: newWhereClauses,
             });
         } else if (name === 'datasetOrder') {
-            this.props.onChange({ analysisDatasetOrder: updateObj.map( item => (item.oid)) });
+            this.props.onChange({ analysisDatasetOrder: updateObj.map(item => (item.oid)) });
         } else if (name === 'updateDataset') {
             if (updateObj.hasOwnProperty('analysisDataset')) {
                 let newAnalysisDatasets = { ...this.props.analysisDatasets, [updateObj.analysisDataset.itemGroupOid]: updateObj.analysisDataset };
@@ -114,15 +114,13 @@ class ArmDatasetReferenceEditor extends React.Component {
         }
     };
 
-
     render () {
-
         const { classes } = this.props;
 
         let datasets = {};
-        Object.values(this.props.itemGroups).forEach( itemGroup => { datasets[itemGroup.oid] = itemGroup.name; } );
+        Object.values(this.props.itemGroups).forEach(itemGroup => { datasets[itemGroup.oid] = itemGroup.name; });
         let datasetsNotUsed = Object.keys(datasets);
-        Object.keys(datasets).forEach( oid => {
+        Object.keys(datasets).forEach(oid => {
             if (Object.keys(this.props.analysisDatasets).includes(oid)) {
                 delete datasetsNotUsed.splice(datasetsNotUsed.indexOf(oid), 1);
             }
@@ -148,7 +146,7 @@ class ArmDatasetReferenceEditor extends React.Component {
                         <Tooltip title='Order Datasets' placement='bottom' enterDelay={1000}>
                             <IconButton
                                 color='primary'
-                                onClick={() => { this.setState({ showDatasetOrderEditor: true });}}
+                                onClick={() => { this.setState({ showDatasetOrderEditor: true }); }}
                                 className={classes.iconButton}
                             >
                                 <LowPriority/>
@@ -157,13 +155,13 @@ class ArmDatasetReferenceEditor extends React.Component {
                     </Typography>
                 </Grid>
                 <Grid item xs={12} >
-                    { this.props.analysisDatasetOrder.map( (oid, index) => (
+                    { this.props.analysisDatasetOrder.map((oid, index) => (
                         <Grid container justify='flex-start' alignItems='flex-start' spacing={8} key={index} wrap='nowrap'>
                             <Grid item>
                                 <Tooltip title="Remove Dataset" placement="bottom-end" enterDelay={1000}>
                                     <IconButton
                                         color='secondary'
-                                        onClick={this.handleChange('deleteDataset',oid)}
+                                        onClick={this.handleChange('deleteDataset', oid)}
                                         className={classes.button}
                                     >
                                         <RemoveIcon />
@@ -178,7 +176,7 @@ class ArmDatasetReferenceEditor extends React.Component {
                                     whereClause={this.props.whereClauses[oid]}
                                     itemGroups={this.props.itemGroups}
                                     itemDefs={this.props.itemDefs}
-                                    onChange={this.handleChange('updateDataset',oid)}
+                                    onChange={this.handleChange('updateDataset', oid)}
                                 />
                             </Grid>
                         </Grid>
@@ -189,7 +187,7 @@ class ArmDatasetReferenceEditor extends React.Component {
                 <Grid item xs={12} >
                     { this.state.showDatasetOrderEditor && (
                         <GeneralOrderEditor
-                            items={Object.keys(this.props.analysisDatasets).map( oid => ({oid, name: datasets[oid]}))}
+                            items={Object.keys(this.props.analysisDatasets).map(oid => ({ oid, name: datasets[oid] }))}
                             onSave={this.handleChange('datasetOrder')}
                             noButton={true}
                             title='Dataset Order'
@@ -204,12 +202,12 @@ class ArmDatasetReferenceEditor extends React.Component {
 }
 
 ArmDatasetReferenceEditor.propTypes = {
-    analysisDatasetOrder : PropTypes.array.isRequired,
-    analysisDatasets     : PropTypes.object.isRequired,
-    itemGroups           : PropTypes.object.isRequired,
-    itemDefs             : PropTypes.object.isRequired,
-    whereClauses         : PropTypes.object.isRequired,
-    onChange             : PropTypes.func.isRequired,
+    analysisDatasetOrder: PropTypes.array.isRequired,
+    analysisDatasets: PropTypes.object.isRequired,
+    itemGroups: PropTypes.object.isRequired,
+    itemDefs: PropTypes.object.isRequired,
+    whereClauses: PropTypes.object.isRequired,
+    onChange: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(ArmDatasetReferenceEditor);

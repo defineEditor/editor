@@ -44,21 +44,21 @@ class DocumentFormatter extends React.Component {
                 );
 
                 let pdfPageRefs = [];
-                doc.pdfPageRefs.forEach (pdfPageRef => {
+                doc.pdfPageRefs.forEach(pdfPageRef => {
                     if (pdfPageRef.pageRefs !== undefined) {
                         if (pdfPageRef.type === 'NamedDestination') {
                             let destinationList = [];
-                            pdfPageRef.pageRefs.split(' ').forEach( destination => {
+                            pdfPageRef.pageRefs.split(' ').forEach(destination => {
                                 destinationList.push(<a href={leafs[doc.leafId].href + '#' + destination} key={destination} onClick={openPdf}>{destination}</a>);
                             });
-                            pdfPageRefs.push(destinationList.reduce( (prev, cur) => ( [prev, ' ', cur] ) ));
+                            pdfPageRefs.push(destinationList.reduce((prev, cur) => ([prev, ' ', cur])));
                         } else if (pdfPageRef.type === 'PhysicalRef') {
                             // It is expected that pages are separated by a space (as per Define-XML spec)
                             let pageList = [];
-                            pdfPageRef.pageRefs.split(' ').forEach( pageNumber => {
+                            pdfPageRef.pageRefs.split(' ').forEach(pageNumber => {
                                 pageList.push(<a href={leafs[doc.leafId].href + '#page=' + pageNumber} key={pageNumber} onClick={openPdf}>{pageNumber}</a>);
                             });
-                            pdfPageRefs.push(pageList.reduce( (prev, cur) => ( [prev, ' ', cur] ) ));
+                            pdfPageRefs.push(pageList.reduce((prev, cur) => ([prev, ' ', cur])));
                         }
                     } else if (pdfPageRef.firstPage !== undefined) {
                         pdfPageRefs.push(<a href={leafs[doc.leafId].href + '#page=' + pdfPageRef.firstPage} key='first' onClick={openPdf}>{pdfPageRef.firstPage}</a>);
@@ -67,9 +67,9 @@ class DocumentFormatter extends React.Component {
                     }
                 });
                 if (pdfPageRefs.length > 0) {
-                    documents.push(<span key={'startPR'+doc.leafId}> (</span>);
+                    documents.push(<span key={'startPR' + doc.leafId}> (</span>);
                     documents.push(pdfPageRefs);
-                    documents.push(<span key={'endPR'+doc.leafId}>)</span>);
+                    documents.push(<span key={'endPR' + doc.leafId}>)</span>);
                 }
                 documents.push(<br key={'br' + doc.leafId}/>);
             }
@@ -84,8 +84,8 @@ class DocumentFormatter extends React.Component {
 }
 
 DocumentFormatter.propTypes = {
-    documents : PropTypes.array.isRequired,
-    leafs     : PropTypes.object
+    documents: PropTypes.array.isRequired,
+    leafs: PropTypes.object
 };
 
 export default withStyles(styles)(DocumentFormatter);

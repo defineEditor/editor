@@ -15,7 +15,7 @@
 import { Document } from 'core/defineStructure.js';
 import {
     UPD_LEAFS,
-} from "constants/action-types";
+} from 'constants/action-types';
 
 // This reducer does not bring additional value as there is a non-standard type attribute added for leafs, which controls whether
 // a document is SupplementalDoc or AnnotatedCRF. So this object duplicates this information.
@@ -29,26 +29,26 @@ const updateAnnotatedCrf = (state, action) => {
     // action.updateObj.addedLeafs - list of added leafs
     // action.updateObj.updatedLeafs - list of changed leafs
     let updateObj = action.updateObj;
-    updateObj.removedLeafIds.forEach( leafId => {
+    updateObj.removedLeafIds.forEach(leafId => {
         if (newState.hasOwnProperty(leafId)) {
             delete newState[leafId];
         }
     });
     Object.keys(updateObj.addedLeafs)
-        .filter( leafId => (updateObj.addedLeafs[leafId].type === 'annotatedCrf') )
-        .forEach( leafId => {
+        .filter(leafId => (updateObj.addedLeafs[leafId].type === 'annotatedCrf'))
+        .forEach(leafId => {
             newState[leafId] = new Document({ leafId: leafId });
         });
     // If the type was changed to annotatedCrf
     Object.keys(updateObj.updatedLeafs)
-        .filter( leafId => (updateObj.updatedLeafs[leafId].type === 'annotatedCrf' && !newState.hasOwnProperty(leafId)) )
-        .forEach( leafId => {
+        .filter(leafId => (updateObj.updatedLeafs[leafId].type === 'annotatedCrf' && !newState.hasOwnProperty(leafId)))
+        .forEach(leafId => {
             newState[leafId] = new Document({ leafId: leafId });
         });
     // If the type was changed from annotatedCrf to something else
     Object.keys(updateObj.updatedLeafs)
-        .filter( leafId => (updateObj.updatedLeafs[leafId].type !== 'annotatedCrf' && newState.hasOwnProperty(leafId)) )
-        .forEach( leafId => {
+        .filter(leafId => (updateObj.updatedLeafs[leafId].type !== 'annotatedCrf' && newState.hasOwnProperty(leafId)))
+        .forEach(leafId => {
             delete newState[leafId];
         });
     return newState;

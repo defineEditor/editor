@@ -83,12 +83,12 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-function getSteps() {
+function getSteps () {
     return ['Select Source', 'Define-XML Settings', 'Finish'];
 }
 
 class ConnectedAddDefineForm extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.state = {
@@ -107,12 +107,12 @@ class ConnectedAddDefineForm extends React.Component {
         const countVariables = (varNum, itemDefOid) => {
             let item = defineData.study.metaDataVersion.itemDefs[itemDefOid];
             let varCount = varNum;
-            Object.keys(item.sources).forEach( sourceType => {
+            Object.keys(item.sources).forEach(sourceType => {
                 varCount += item.sources[sourceType].length;
             });
             return varCount;
         };
-        stats.variables = Object.keys(defineData.study.metaDataVersion.itemDefs).reduce(countVariables,0);
+        stats.variables = Object.keys(defineData.study.metaDataVersion.itemDefs).reduce(countVariables, 0);
         let define = {
             ...new Define({
                 id: defineId,
@@ -145,7 +145,7 @@ class ConnectedAddDefineForm extends React.Component {
                     activeStep: 3,
                     defineCreationMethod: 'import',
                     defineData: data.defineData,
-                    pathToDefineXml : data.pathToDefineXml,
+                    pathToDefineXml: data.pathToDefineXml,
                 });
             }
         } else if (activeStep === 2) {
@@ -193,13 +193,13 @@ class ConnectedAddDefineForm extends React.Component {
         this.props.toggleAddDefineForm({});
     };
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.handleCancel();
         }
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
         const steps = getSteps();
         const { activeStep } = this.state;

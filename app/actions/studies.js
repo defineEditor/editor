@@ -16,7 +16,7 @@ import {
     STUDY_ADD,
     STUDY_DEL,
     STUDY_UPD,
-} from "constants/action-types";
+} from 'constants/action-types';
 
 export const addStudy = (updateObj) => (
     {

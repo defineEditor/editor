@@ -27,14 +27,14 @@ const styles = theme => ({
         minWidth: '100px',
     },
     value: {
-        whiteSpace   : 'normal',
-        overflowWrap : 'break-word',
+        whiteSpace: 'normal',
+        overflowWrap: 'break-word',
     },
     root: {
         outline: 'none',
     },
     helperText: {
-        whiteSpace : 'pre-wrap',
+        whiteSpace: 'pre-wrap',
     },
 });
 
@@ -67,7 +67,7 @@ class VariableCodeListFormatEditor extends React.Component {
         this.props.onUpdate(this.props.defaultValue);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.cancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -75,13 +75,13 @@ class VariableCodeListFormatEditor extends React.Component {
         }
     }
 
-    render() {
-        const {classes} = this.props;
+    render () {
+        const { classes } = this.props;
         const displayFormat = this.state.displayFormat || '';
         const codeListOid = this.state.codeListOid || '';
         // Get list of codeLists
         let sortedCodeListIds = sortCodeLists(this.props.codeLists);
-        let codeLists = sortedCodeListIds.map( codeListOid => {
+        let codeLists = sortedCodeListIds.map(codeListOid => {
             let result = {};
             if (this.props.defaultValue.dataType === undefined || this.props.defaultValue.dataType === this.props.codeLists[codeListOid].dataType) {
                 result[codeListOid] = this.props.codeLists[codeListOid].name;
@@ -89,14 +89,14 @@ class VariableCodeListFormatEditor extends React.Component {
             return result;
         });
         // Remove blank codelists
-        codeLists = codeLists.filter( codeList => {
+        codeLists = codeLists.filter(codeList => {
             return Object.keys(codeList).length !== 0;
         });
 
         let issue = false;
         let helperText = '';
         if (displayFormat !== undefined) {
-            let issues = checkForSpecialChars(displayFormat, new RegExp(/[^$.a-zA-Z_0-9]/,'g'), 'Invalid character' );
+            let issues = checkForSpecialChars(displayFormat, new RegExp(/[^$.a-zA-Z_0-9]/, 'g'), 'Invalid character');
             // Check label length is withing 40 chars
             if (displayFormat.length > 32) {
                 let issueText = `Value length is ${displayFormat.length}, which exceeds 32 characters.`;
@@ -125,9 +125,9 @@ class VariableCodeListFormatEditor extends React.Component {
                             value={codeListOid}
                             onChange={this.handleChange('codeListOid')}
                             className={classes.textField}
-                            InputProps={{classes: {input: classes.value}}}
+                            InputProps={{ classes: { input: classes.value } }}
                         >
-                            {getSelectionList(codeLists,true)}
+                            {getSelectionList(codeLists, true)}
                         </TextField>
                     </Grid>
                     <Grid item xs={12}>
@@ -136,7 +136,7 @@ class VariableCodeListFormatEditor extends React.Component {
                             fullWidth
                             error={issue}
                             helperText={issue && helperText}
-                            FormHelperTextProps={{className: classes.helperText}}
+                            FormHelperTextProps={{ className: classes.helperText }}
                             value={displayFormat}
                             onChange={this.handleChange('displayFormat')}
                             className={classes.textField}
@@ -152,11 +152,10 @@ class VariableCodeListFormatEditor extends React.Component {
 }
 
 VariableCodeListFormatEditor.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    defaultValue : PropTypes.object.isRequired,
-    codeLists    : PropTypes.object.isRequired,
-    onUpdate     : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    defaultValue: PropTypes.object.isRequired,
+    codeLists: PropTypes.object.isRequired,
+    onUpdate: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(VariableCodeListFormatEditor);
-

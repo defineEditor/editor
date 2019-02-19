@@ -57,14 +57,13 @@ const styles = theme => ({
     },
 });
 
-
 class TableWithPagination extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.state = {
             searchString: '',
-            rowsPerPage : 25,
+            rowsPerPage: 25,
             page: 0,
         };
     }
@@ -81,19 +80,19 @@ class TableWithPagination extends React.Component {
         this.setState({ searchString: event.target.value });
     };
 
-    getVariableTable() {
+    getVariableTable () {
         const { page, rowsPerPage, searchString } = this.state;
 
         let data = this.props.data.slice();
 
         if (searchString !== '') {
-            data = data.filter( row => {
+            data = data.filter(row => {
                 if (/[A-Z]/.test(searchString)) {
-                    return Object.keys(row).some( key => {
+                    return Object.keys(row).some(key => {
                         return row[key].includes(searchString);
                     });
                 } else {
-                    return Object.keys(row).some( key => {
+                    return Object.keys(row).some(key => {
                         return row[key].toLowerCase().includes(searchString);
                     });
                 }
@@ -128,7 +127,7 @@ class TableWithPagination extends React.Component {
                     <Table className={this.props.classes.table}>
                         <TableHead>
                             <TableRow>
-                                { Object.keys(this.props.labels).map( column => {
+                                { Object.keys(this.props.labels).map(column => {
                                     return (
                                         <TableCell key={column}>{this.props.labels[column]}</TableCell>
                                     );
@@ -144,7 +143,7 @@ class TableWithPagination extends React.Component {
                                         <TableRow
                                             key={index}
                                         >
-                                            {Object.keys(row).filter( column => ( Object.keys(this.props.labels).includes(column) )).map( column => {
+                                            {Object.keys(row).filter(column => (Object.keys(this.props.labels).includes(column))).map(column => {
                                                 return (<TableCell key={column}>{row[column]}</TableCell>);
                                             })
                                             }
@@ -169,14 +168,14 @@ class TableWithPagination extends React.Component {
                         }}
                         onChangePage={this.handleChangePage}
                         onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                        rowsPerPageOptions={[25,50,100]}
+                        rowsPerPageOptions={[25, 50, 100]}
                     />
                 </Grid>
             </Grid>
         );
     }
 
-    render() {
+    render () {
         return (
             <div className={this.props.classes.root}>
                 {this.getVariableTable()}

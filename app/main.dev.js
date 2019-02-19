@@ -38,7 +38,7 @@ if (
     process.env.NODE_ENV === 'development' ||
     process.env.DEBUG_PROD === 'true'
 ) {
-    require('electron-debug')({devToolsMode: 'previous'});
+    require('electron-debug')({ devToolsMode: 'previous' });
     const p = path.join(__dirname, '..', 'app', 'node_modules');
     require('module').globalPaths.push(p);
 }
@@ -55,13 +55,13 @@ const installExtensions = async () => {
     ).catch(console.log);
 };
 
-function createWindow() {
+function createWindow () {
     mainWindow = new BrowserWindow({
         width: 768,
         height: 1024,
         center: true,
         show: false,
-        icon: __dirname + '/static/images/misc/mainIcon64x64.png',
+        icon: path.join(__dirname, '/static/images/misc/mainIcon64x64.png'),
         webPreferences: { nodeIntegration: true },
     });
 
@@ -83,7 +83,7 @@ function createWindow() {
         mainWindow.setMenu(null);
     }
 
-    mainWindow.on('close', function(e) {
+    mainWindow.on('close', function (e) {
         if (mainWindow !== null) {
             e.preventDefault();
             mainWindow.webContents.send('quit');

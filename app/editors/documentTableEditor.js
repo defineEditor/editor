@@ -36,8 +36,8 @@ import getOid from 'utils/getOid.js';
 
 const styles = theme => ({
     mainPart: {
-        padding   : 16,
-        marginTop : theme.spacing.unit,
+        padding: 16,
+        marginTop: theme.spacing.unit,
     },
     button: {
         marginBottom: theme.spacing.unit,
@@ -61,21 +61,20 @@ const styles = theme => ({
 
 const CustomTableCell = withStyles(theme => ({
     head: {
-        backgroundColor : theme.palette.primary.main,
-        color           : '#EEEEEE',
-        fontSize        : 16,
-        fontWeight      : 'bold',
+        backgroundColor: theme.palette.primary.main,
+        color: '#EEEEEE',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 }))(TableCell);
 
 class DocumentTableEditor extends React.Component {
-
     constructor (props) {
         super(props);
 
         // Clone leafs
         let leafs = {};
-        this.props.leafOrder.forEach( leafId => {
+        this.props.leafOrder.forEach(leafId => {
             leafs[leafId] = clone(this.props.leafs[leafId]);
         });
         let leafOrder = this.props.leafOrder.slice();
@@ -88,7 +87,7 @@ class DocumentTableEditor extends React.Component {
         this.rootRef = React.createRef();
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.rootRef.current.focus();
     }
 
@@ -101,8 +100,8 @@ class DocumentTableEditor extends React.Component {
             newLeafOrder.push(newOid);
             newLeafs[newOid] = { ...new Leaf({ id: newOid, title: '', href: '', type: 'other', isPdf }) };
             this.setState({ leafs: newLeafs, leafOrder: newLeafOrder });
-        } else if (name === 'type' || name === 'title' || name === 'href' ) {
-            let newLeafs = { ...this.state.leafs } ;
+        } else if (name === 'type' || name === 'title' || name === 'href') {
+            let newLeafs = { ...this.state.leafs };
             // Replace old leaf
             let isPdf;
             if (name === 'href') {
@@ -128,7 +127,7 @@ class DocumentTableEditor extends React.Component {
 
     getDocuments = () => {
         let leafs = this.state.leafs;
-        const typeLabelList = Object.keys(this.props.documentTypes.typeLabel).map( type => ( {[type]: this.props.documentTypes.typeLabel[type]} ));
+        const typeLabelList = Object.keys(this.props.documentTypes.typeLabel).map(type => ({ [type]: this.props.documentTypes.typeLabel[type] }));
 
         const createRow = (leafId) => {
             return (
@@ -137,7 +136,7 @@ class DocumentTableEditor extends React.Component {
                         <Tooltip title="Remove Document" placement="bottom-end">
                             <IconButton
                                 color='secondary'
-                                onClick={this.handleChange('deleteDoc',leafId)}
+                                onClick={this.handleChange('deleteDoc', leafId)}
                             >
                                 <RemoveIcon />
                             </IconButton>
@@ -148,7 +147,7 @@ class DocumentTableEditor extends React.Component {
                             label='Type'
                             value={leafs[leafId].type}
                             select
-                            onChange={this.handleChange('type',leafId)}
+                            onChange={this.handleChange('type', leafId)}
                             className={this.props.classes.inputField}
                         >
                             {getSelectionList(typeLabelList)}
@@ -159,7 +158,7 @@ class DocumentTableEditor extends React.Component {
                             label='Title'
                             value={leafs[leafId].title}
                             fullWidth
-                            onChange={this.handleChange('title',leafId)}
+                            onChange={this.handleChange('title', leafId)}
                             className={this.props.classes.inputField}
                         />
                     </CustomTableCell>
@@ -168,7 +167,7 @@ class DocumentTableEditor extends React.Component {
                             label='Location'
                             value={leafs[leafId].href}
                             fullWidth
-                            onChange={this.handleChange('href',leafId)}
+                            onChange={this.handleChange('href', leafId)}
                             className={this.props.classes.inputField}
                         />
                     </CustomTableCell>
@@ -192,7 +191,7 @@ class DocumentTableEditor extends React.Component {
         this.setState({ leafOrder: items.map(item => (item.oid)) });
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.props.onCancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -202,7 +201,7 @@ class DocumentTableEditor extends React.Component {
 
     render () {
         const { classes } = this.props;
-        let leafItems = this.state.leafOrder.map( leafId => {
+        let leafItems = this.state.leafOrder.map(leafId => {
             return { oid: leafId, name: this.state.leafs[leafId].title };
         });
         return (
@@ -251,15 +250,15 @@ class DocumentTableEditor extends React.Component {
 }
 
 DocumentTableEditor.propTypes = {
-    leafs         : PropTypes.object.isRequired,
-    leafOrder     : PropTypes.array.isRequired,
-    documentTypes : PropTypes.object.isRequired,
-    classes       : PropTypes.object.isRequired,
-    onSave        : PropTypes.func.isRequired,
-    onCancel      : PropTypes.func.isRequired,
-    pathToFile    : PropTypes.string,
-    onHelp        : PropTypes.func,
-    onComment     : PropTypes.func,
+    leafs: PropTypes.object.isRequired,
+    leafOrder: PropTypes.array.isRequired,
+    documentTypes: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    onSave: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    pathToFile: PropTypes.string,
+    onHelp: PropTypes.func,
+    onComment: PropTypes.func,
 };
 
 export default withStyles(styles)(DocumentTableEditor);

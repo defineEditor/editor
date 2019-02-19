@@ -17,9 +17,9 @@ function getCodedValuesAsArray (codeList) {
     if (codeList === undefined) {
         return [];
     } else if (codeList.codeListType === 'decoded') {
-        return Object.keys(codeList.codeListItems).map( oid => (codeList.codeListItems[oid].codedValue) );
+        return Object.keys(codeList.codeListItems).map(oid => (codeList.codeListItems[oid].codedValue));
     } else if (codeList.codeListType === 'enumerated') {
-        return Object.keys(codeList.enumeratedItems).map( oid => (codeList.enumeratedItems[oid].codedValue) );
+        return Object.keys(codeList.enumeratedItems).map(oid => (codeList.enumeratedItems[oid].codedValue));
     } else {
         return [];
     }
