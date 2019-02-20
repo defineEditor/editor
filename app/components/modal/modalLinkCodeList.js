@@ -34,6 +34,7 @@ import {
 const mapStateToProps = state => {
     return {
         codeLists: state.present.odm.study.metaDataVersion.codeLists,
+        stdCodeLists: state.present.stdCodeLists,
     };
 };
 
@@ -56,7 +57,7 @@ const styles = theme => ({
         transform: 'translate(0%, calc(-50%+0.5px))',
         overflowX: 'auto',
         maxHeight: '85%',
-        width: '70%',
+        width: '50%',
         overflowY: 'auto',
     },
 });
@@ -84,22 +85,20 @@ class ConnectedModalLinkCodeList extends React.Component {
     }
 
     onDialogOk = () => {
-        /*
         // check if the Never Show Again was selected
         if (!this.state.warningShowAgain) {
             // if so, update the corresponding setting
             this.props.updateSettings({
                 popUp: {
-                    onCodeListDelete: false,
+                    onCodeListLink: false,
                 },
             });
         }
-        */
         this.props.closeModal();
-        this.props.updateCodeList(this.props.codeListOid, { linkedCodeListOid: this.props.linkedCodeListOid });
-        /*
-        this.props.deleteCodeLists(this.props.deleteObj);
-        */
+        this.props.updateCodeList(this.props.codeListOid, {
+            linkedCodeListOid: this.props.linkedCodeListOid,
+            standardCodeList: this.props.standardCodeListOid ? this.props.stdCodeLists[this.props.standardOid].codeLists[this.props.standardCodeListOid] : undefined,
+        });
     }
 
     onDialogCancel = () => {
@@ -120,10 +119,11 @@ class ConnectedModalLinkCodeList extends React.Component {
                 PaperProps={{ className: classes.dialog }}
                 onKeyDown={this.onKeyDown}
             >
-                <DialogTitle id="alert-dialog-title">Default Text</DialogTitle>
+                <DialogTitle id="alert-dialog-title">Linking Codelists</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        Default Text
+                        The enumeration codelist contains coded values, which are not present in decodes of the decoded codelist.
+                        If you link the codelists, these coded values will be lost.
                     </DialogContentText>
                     <FormControlLabel
                         control={
@@ -145,7 +145,7 @@ class ConnectedModalLinkCodeList extends React.Component {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={this.onDialogOk} color="primary">
-                        Link Codelist
+                        Link Codelists
                     </Button>
                     <Button onClick={this.onDialogCancel} color="primary">
                         Cancel

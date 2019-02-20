@@ -13,7 +13,7 @@
 ***********************************************************************************/
 
 // this function modifies a codelist item as per options given
-function modifyCodeListItem(options = {}, string){
+function modifyCodeListItem (options = {}, string) {
     let result = string;
     result = options.ignoreCase ? result.toUpperCase() : result;
     result = options.ignoreExcessiveWhiteSpaces ? result.replace(/\s+/gi, '').trim() : result;
@@ -21,7 +21,7 @@ function modifyCodeListItem(options = {}, string){
 }
 
 // the main function to compare two codelist sets considering given options
-function compareCodeListItems(array1, array2, options = {}) {
+function compareCodeListItems (array1, array2, options = {}) {
     if (array1.length === 0 || array2.length === 0) {
         // if one of arrays is empty, then return false. This is done to avoid 'false positive' when comparing two empty arrays
         return false;
