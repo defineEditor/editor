@@ -31,19 +31,19 @@ import AddFromOtherStudy from 'components/tableActions/addFromOtherStudy.js';
 
 const styles = theme => ({
     dialog: {
-        paddingLeft: theme.spacing.unit * 1,
-        paddingRight: theme.spacing.unit * 1,
-        paddingTop: theme.spacing.unit * 1,
-        paddingBottom: theme.spacing.unit * 1,
         position: 'absolute',
-        borderRadius: '10px',
-        borderColor: 'primary',
-        top: '10%',
-        transform: 'translate(0%, calc(-10%+0.5px))',
-        overflowX: 'auto',
-        maxHeight: '80%',
+        top: '5%',
+        maxHeight: '90%',
         width: '90%',
+        overflowX: 'auto',
         overflowY: 'auto',
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        margin: '0 auto',
+        borderRadius: '10px',
+        border: '2px solid',
+        borderColor: 'primary',
     },
     appBar: {
         transform: 'translate(0%, calc(-20%+0.5px))',
@@ -99,6 +99,8 @@ class AddResultDisplayConnected extends React.Component {
                     disableBackdropClick
                     disableEscapeKeyDown
                     open
+                    fullWidth
+                    maxWidth={false}
                     PaperProps={{ className: classes.dialog }}
                     onKeyDown={this.onKeyDown}
                     tabIndex='0'
@@ -123,7 +125,7 @@ class AddResultDisplayConnected extends React.Component {
                             <Tabs
                                 value={currentTab}
                                 onChange={this.handleTabChange}
-                                fullWidth
+                                variant='fullWidth'
                                 centered
                                 indicatorColor='primary'
                                 textColor='primary'

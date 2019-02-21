@@ -41,19 +41,19 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     dialog: {
+        position: 'absolute',
+        top: '5%',
+        maxHeight: '90%',
+        width: '90%',
+        overflowX: 'auto',
+        overflowY: 'auto',
         paddingLeft: theme.spacing.unit * 2,
         paddingRight: theme.spacing.unit * 2,
         paddingBottom: theme.spacing.unit * 1,
-        position: 'absolute',
+        margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'primary',
-        top: '10%',
-        transform: 'translate(0%, calc(-10%+0.5px))',
-        overflowX: 'auto',
-        maxHeight: '85%',
-        overflowY: 'auto',
-        width: '90%',
     },
     iconButton: {
         marginLeft: '0px',
@@ -257,6 +257,8 @@ class ConnectedCommentMethodTable extends React.Component {
                 disableBackdropClick
                 disableEscapeKeyDown
                 open
+                fullWidth
+                maxWidth={false}
                 PaperProps={{ className: classes.dialog }}
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'

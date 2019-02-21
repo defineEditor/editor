@@ -30,16 +30,19 @@ import {
 
 const styles = theme => ({
     dialog: {
+        position: 'absolute',
+        top: '40%',
+        maxHeight: '60%',
+        width: '70%',
+        overflowX: 'auto',
+        overflowY: 'auto',
         paddingLeft: theme.spacing.unit * 2,
         paddingRight: theme.spacing.unit * 2,
         paddingBottom: theme.spacing.unit * 1,
-        position: 'absolute',
+        margin: '0 auto',
         borderRadius: '10px',
-        top: '40%',
-        transform: 'translate(0%, calc(-50%+0.5px))',
-        overflowX: 'auto',
-        maxHeight: '85%',
-        overflowY: 'auto',
+        border: '2px solid',
+        borderColor: 'primary',
     },
     checkbox: {
         position: 'relative',
@@ -109,6 +112,8 @@ class ConnectedModalBugReport extends React.Component {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
                 open
+                fullWidth
+                maxWidth={false}
                 PaperProps={{ className: classes.dialog }}
             >
                 <DialogTitle id="alert-dialog-title">

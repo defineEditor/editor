@@ -175,10 +175,9 @@ class ConnectedEditorTabs extends React.Component {
                         <Tabs
                             value={currentTab}
                             onChange={this.handleChange}
-                            fullWidth
+                            variant='scrollable'
                             indicatorColor='primary'
                             textColor='primary'
-                            scrollable
                             className={classes.tabs}
                             scrollButtons="auto"
                         >

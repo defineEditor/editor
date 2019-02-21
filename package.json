@@ -70,7 +70,7 @@
       ]
     },
     "nsis": {
-        "artifactName": "${productName} Setup ${version} ${arch}.${ext}"
+      "artifactName": "${productName} Setup ${version} ${arch}.${ext}"
     },
     "win": {
       "target": [

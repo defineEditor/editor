@@ -38,19 +38,19 @@ import {
 
 const styles = theme => ({
     dialog: {
+        position: 'absolute',
+        top: '10%',
+        maxHeight: '80%',
+        width: '60%',
+        overflowX: 'auto',
+        overflowY: 'auto',
         paddingLeft: theme.spacing.unit * 2,
         paddingRight: theme.spacing.unit * 2,
         paddingBottom: theme.spacing.unit * 1,
-        position: 'absolute',
+        margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'primary',
-        top: '20%',
-        transform: 'translate(0%, calc(-20%+0.5px))',
-        overflowX: 'auto',
-        maxHeight: '80%',
-        width: '60%',
-        overflowY: 'auto'
     },
     textField: {
         whiteSpace: 'normal',
@@ -494,6 +494,8 @@ class ConnectedVariableTabFilter extends React.Component {
                 disableBackdropClick
                 disableEscapeKeyDown
                 open
+                fullWidth
+                maxWidth={false}
                 PaperProps={{ className: classes.dialog }}
             >
                 <DialogTitle>Filter</DialogTitle>

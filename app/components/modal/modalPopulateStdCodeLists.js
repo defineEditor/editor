@@ -38,17 +38,19 @@ import { CODELIST_POPULATESTD } from 'constants/help.js';
 
 const styles = theme => ({
     dialog: {
+        position: 'absolute',
+        top: '10%',
+        maxHeight: '80%',
+        width: '50%',
+        overflowX: 'auto',
+        overflowY: 'auto',
         paddingLeft: theme.spacing.unit * 2,
         paddingRight: theme.spacing.unit * 2,
         paddingBottom: theme.spacing.unit * 1,
-        position: 'absolute',
+        margin: '0 auto',
         borderRadius: '10px',
-        top: '10%',
-        width: '50%',
-        transform: 'translate(0%, calc(-10%+0.5px))',
-        overflowX: 'auto',
-        maxHeight: '85%',
-        overflowY: 'auto',
+        border: '2px solid',
+        borderColor: 'primary',
     },
     ignorePattern: {
         width: '40%',
@@ -275,6 +277,8 @@ class ConnectedModalAttachStdCodelists extends React.Component {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
                 open
+                fullWidth
+                maxWidth={false}
                 PaperProps={{ className: classes.dialog }}
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'

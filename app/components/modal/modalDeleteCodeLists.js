@@ -68,17 +68,19 @@ const CustomTableCell = withStyles(theme => ({
 
 const styles = theme => ({
     dialog: {
+        position: 'absolute',
+        top: '10%',
+        maxHeight: '90%',
+        width: '70%',
+        overflowX: 'auto',
+        overflowY: 'auto',
         paddingLeft: theme.spacing.unit * 2,
         paddingRight: theme.spacing.unit * 2,
         paddingBottom: theme.spacing.unit * 1,
-        position: 'absolute',
+        margin: '0 auto',
         borderRadius: '10px',
-        top: '10%',
-        transform: 'translate(0%, calc(-50%+0.5px))',
-        overflowX: 'auto',
-        maxHeight: '85%',
-        width: '70%',
-        overflowY: 'auto',
+        border: '2px solid',
+        borderColor: 'primary',
     },
     paper: {
         width: '100%',
@@ -139,6 +141,8 @@ class ConnectedModalDeleteCodeLists extends React.Component {
                 open
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
+                fullWidth
+                maxWidth={false}
                 PaperProps={{ className: classes.dialog }}
                 onKeyDown={this.onKeyDown}
             >
@@ -152,14 +156,14 @@ class ConnectedModalDeleteCodeLists extends React.Component {
                             <TableHead>
                                 <TableRow>
                                     <CustomTableCell>Codelist</CustomTableCell>
-                                    <CustomTableCell align="right">Referenced by</CustomTableCell>
+                                    <CustomTableCell align="left">Referenced by</CustomTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {this.props.deleteObj.codeListOids.map(item => (
                                     <TableRow key={item}>
                                         <TableCell component="th" scope="row">{this.props.codeLists[item].name}</TableCell>
-                                        <TableCell align="right">
+                                        <TableCell align="left">
                                             {getSourceLabels(this.props.codeLists[item].sources, this.props.mdv, false, 2).labelParts.join(',')}
                                         </TableCell>
                                     </TableRow>
