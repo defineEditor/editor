@@ -25,6 +25,12 @@ import Typography from '@material-ui/core/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 import {
     updateCodeList,
     closeModal,
@@ -46,6 +52,18 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
+const CustomTableCell = withStyles(theme => ({
+    head: {
+        backgroundColor: theme.palette.primary.main,
+        color: '#EEEEEE',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    body: {
+        fontSize: 14,
+    },
+}))(TableCell);
+
 const styles = theme => ({
     dialog: {
         paddingLeft: theme.spacing.unit * 2,
@@ -57,8 +75,12 @@ const styles = theme => ({
         transform: 'translate(0%, calc(-50%+0.5px))',
         overflowX: 'auto',
         maxHeight: '85%',
-        width: '50%',
+        width: '70%',
         overflowY: 'auto',
+    },
+    paper: {
+        width: '100%',
+        marginTop: theme.spacing.unit * 1,
     },
 });
 
@@ -111,6 +133,14 @@ class ConnectedModalLinkCodeList extends React.Component {
 
     render () {
         const { classes } = this.props;
+        let enumeratedCodeListElements = this.props.codeLists[this.props.enumeratedCodeListOid].itemOrder.map(item =>
+            this.props.codeLists[this.props.enumeratedCodeListOid].enumeratedItems[item].codedValue
+        );
+        let decodedCodeListElements = this.props.codeLists[this.props.decodedCodeListOid].itemOrder.map(item =>
+            (this.props.codeLists[this.props.decodedCodeListOid].codeListItems[item].decodes[0] || { value: '' }).value
+        );
+        let elementsPop = enumeratedCodeListElements.filter(item => decodedCodeListElements.indexOf(item) === -1);
+        let elementsPush = decodedCodeListElements.filter(item => enumeratedCodeListElements.indexOf(item) === -1);
         return (
             <Dialog
                 open
@@ -121,10 +151,56 @@ class ConnectedModalLinkCodeList extends React.Component {
             >
                 <DialogTitle id="alert-dialog-title">Linking Codelists</DialogTitle>
                 <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        The enumeration codelist contains coded values, which are not present in decodes of the decoded codelist.
-                        If you link the codelists, these coded values will be lost.
-                    </DialogContentText>
+                    {elementsPop.length > 0 &&
+                        <div>
+                            <DialogContentText id="alert-dialog-description">
+                                The enumeration codelist <i>{this.props.codeLists[this.props.enumeratedCodeListOid].name}</i> contains coded values,
+                                which are not present in decodes of the decoded codelist <i>{this.props.codeLists[this.props.decodedCodeListOid].name}</i>.
+                                If you link the codelists, these coded values will be lost.
+                            </DialogContentText>
+                            <Paper className={classes.paper}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <CustomTableCell>Elements to be removed from enumeration codelist</CustomTableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {elementsPop.map(item => (
+                                            <TableRow key={item}>
+                                                <TableCell component="th" scope="row">{item}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </Paper>
+                        </div>
+                    }
+                    {elementsPush.length > 0 &&
+                        <div>
+                            <DialogContentText id="alert-dialog-description">
+                                The decoded codelist <i>{this.props.codeLists[this.props.decodedCodeListOid].name}</i> contains decodes,
+                                which are not present in coded values of the enumeration codelist <i>{this.props.codeLists[this.props.enumeratedCodeListOid].name}</i>.
+                                If you link the codelists, these decodes will be added to the list of coded values of the enumeration codelist.
+                            </DialogContentText>
+                            <Paper className={classes.paper}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <CustomTableCell>Elements to be added to enumeration codelist</CustomTableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {elementsPush.map(item => (
+                                            <TableRow key={item}>
+                                                <TableCell component="th" scope="row">{item}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </Paper>
+                        </div>
+                    }
                     <FormControlLabel
                         control={
                             <Checkbox

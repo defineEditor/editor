@@ -71,13 +71,16 @@ class ConnectedLinkedCodeListEditor extends React.Component {
         } else {
             let standardCodeListOid;
             let standardOid;
+            let enumeratedCodeListOid;
             let enumeratedCodeListElements;
+            let decodedCodeListOid;
             let decodedCodeListElements;
             // collect the elements of the codelists to link and the standardOid/standardCodeListOid, if present
             [this.props.row.oid, selectedCodeListOid].forEach((codeListOid) => {
                 let codeList = this.props.codeLists[codeListOid];
                 switch (codeList.codeListType) {
                     case 'enumerated':
+                        enumeratedCodeListOid = codeList.oid;
                         enumeratedCodeListElements = codeList.itemOrder.map(item => codeList.enumeratedItems[item].codedValue);
                         if (codeList.standardOid !== undefined &&
                             this.props.stdCodeLists.hasOwnProperty(codeList.standardOid) &&
@@ -88,18 +91,19 @@ class ConnectedLinkedCodeListEditor extends React.Component {
                         }
                         break;
                     case 'decoded':
+                        decodedCodeListOid = codeList.oid;
                         decodedCodeListElements = codeList.itemOrder.map(item => (codeList.codeListItems[item].decodes[0] || { value: '' }).value);
                         break;
                 }
             });
             // if enumerated codelist contains an element, which is not present in decoded codelist (meaning it will be lost after linking)
+            // or vice versa (meaning new elements from decoded codelist will be added)
             // and the corresponding setting is turned on, then issue a warning; otherwise, just link the codelists;
-            // some method will return false on empty enumeratedCodeListElements array and the warning will not be issued
-            // this is expected behaviour, because the elements are only appended to enumerated codelist in such case
-            if (this.props.showLinkCodeListWarning && enumeratedCodeListElements.some(item => decodedCodeListElements.indexOf(item) === -1)) {
+            if (this.props.showLinkCodeListWarning &&
+                (enumeratedCodeListElements.some(item => decodedCodeListElements.indexOf(item) === -1) || decodedCodeListElements.some(item => enumeratedCodeListElements.indexOf(item) === -1))) {
                 this.props.openModal({
                     type: 'LINK_CODELIST',
-                    props: { codeListOid: this.props.row.oid, linkedCodeListOid: selectedCodeListOid, standardCodeListOid, standardOid }
+                    props: { codeListOid: this.props.row.oid, linkedCodeListOid: selectedCodeListOid, standardCodeListOid, standardOid, enumeratedCodeListOid, decodedCodeListOid }
                 });
             } else {
                 this.props.updateCodeList(this.props.row.oid, {
