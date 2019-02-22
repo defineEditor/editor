@@ -384,7 +384,7 @@ class ConnectedSettings extends React.Component {
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Link an enumeration codelist and a decoded codelist, which will lead to loss of some coded values of enumeration codelist'
+                                        label='Link an enumeration codelist and a decoded codelist, which will modify, delete existing or add new coded values in enumeration codelist'
                                     />
                                 </FormGroup>
                             </Grid>
