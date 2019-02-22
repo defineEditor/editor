@@ -43,3 +43,25 @@ A pair of linked codelists, is a pair of Enumerated and Decoded codelists, where
 In case two codelists are linked together, values of the Enumerated codelist are updated with decode values of the Decoded codelist. The options control how the codelists are linked, but not how the values are updated.
 `
 };
+
+export const VARIABLE_FILTER = {
+    title: 'Filter',
+    content: `
+### About
+Filter functionality allows to select which records are shown or updated.
+### Field
+Object to which the filter is applied. Most fields correspond to attributes shown in the table.
+* **Is VLM** - Flag which indicates whether the variable is Value Level Metadata
+* **Has VLM** - Flag which indicates whether the variable has Value Level Metadata
+* **Has Document** - Flag which shows whether there is a document attached to Comment/Method/Origin
+* **Parent Variable** - Allows to filter VLM records which are attached to a specific variable
+* **Where Clause** - String corresponding to a where clause (ADLB.PARAMCD EQ "ALT")
+### Comparator
+Defines how the field is compared with the specified value.
+* **STARTS** - Field starts with a value.
+* **ENDS** - Field ends with a value.
+* **CONTAINS** - Field contains a value.
+* **REGEX** - Field matches a regular expression.
+* **REGEXI** - Field matches a regular expression with a /i flag (case-insensitive).
+`
+};
