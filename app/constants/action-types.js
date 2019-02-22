@@ -97,6 +97,7 @@ export const STG_UPDATESETTINGS = 'STG_UPDATESETTINGS';
 export const STUDY_ADD = 'STUDY_ADD';
 export const STUDY_DEL = 'STUDY_DEL';
 export const STUDY_UPD = 'STUDY_UPD';
+export const STUDY_UPDORDER = 'STUDY_UPDORDER';
 export const DEFINE_ADD = 'DEFINE_ADD';
 export const DEFINE_UPD = 'DEFINE_UPD';
 export const DEFINE_DEL = 'DEFINE_DEL';

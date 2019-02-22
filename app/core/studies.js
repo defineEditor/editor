@@ -21,8 +21,10 @@ import GridListTile from '@material-ui/core/GridListTile';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import Button from '@material-ui/core/Button';
 import withWidth from '@material-ui/core/withWidth';
+import Grow from '@material-ui/core/Grow';
 import NavigationBar from 'core/navigationBar.js';
 import StudyTile from 'core/studyTile.js';
+import StudyOrderEditor from 'components/orderEditors/studyOrderEditor.js';
 import { Study } from 'core/mainStructure.js';
 import AddDefineForm from 'core/addDefineForm.js';
 import getOid from 'utils/getOid.js';
@@ -37,6 +39,9 @@ const styles = theme => ({
         backgroundColor: theme.palette.grey[50],
         minHeight: 'calc(100vh -  ' + (theme.spacing.unit * 7).toString() + 'px)',
         marginTop: theme.spacing.unit * 7
+    },
+    orderButton: {
+        marginLeft: theme.spacing.unit * 2,
     },
     gridList: {
         width: '100%'
@@ -79,17 +84,19 @@ class ConnectedStudies extends React.Component {
 
   getStudies = asses => {
       let studies = this.props.studies.byId;
-      return Object.keys(studies).map(studyId => {
+      return this.props.studies.allIds.map((studyId, index) => {
           let study = studies[studyId];
           return (
-              <GridListTile key={study.id} className={this.props.classes.gridTile}>
-                  <StudyTile
-                      study={study}
-                      defines={this.props.defines}
-                      currentDefineId={this.props.currentDefineId}
-                      isCurrentDefineSaved={this.props.isCurrentDefineSaved}
-                  />
-              </GridListTile>
+              <Grow in={true} timeout={ Math.min(100 * index, 1000) } key={index} style={{ transformOrigin: '0 0 0' }}>
+                  <GridListTile key={study.id} className={this.props.classes.gridTile}>
+                      <StudyTile
+                          study={study}
+                          defines={this.props.defines}
+                          currentDefineId={this.props.currentDefineId}
+                          isCurrentDefineSaved={this.props.isCurrentDefineSaved}
+                      />
+                  </GridListTile>
+              </Grow>
           );
       });
   };
@@ -114,6 +121,7 @@ class ConnectedStudies extends React.Component {
                   <Button size="small" variant="contained" onClick={this.addStudy}>
             New Study
                   </Button>
+                  <StudyOrderEditor iconClass={classes.orderButton}/>
               </NavigationBar>
               <div className={classes.root}>
                   <GridList

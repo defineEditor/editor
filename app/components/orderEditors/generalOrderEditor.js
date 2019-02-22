@@ -28,6 +28,7 @@ import LowPriority from '@material-ui/icons/LowPriority';
 import Fab from '@material-ui/core/Fab';
 import Grid from '@material-ui/core/Grid';
 import SaveCancel from 'editors/saveCancel.js';
+import classNames from 'classnames';
 
 const styles = theme => ({
     dialog: {
@@ -61,6 +62,9 @@ const styles = theme => ({
     },
     sortableHelper: {
         zIndex: 3000,
+    },
+    noSelect: {
+        userSelect: 'none',
     },
 });
 
@@ -168,7 +172,7 @@ class GeneralOrderEditor extends React.Component {
                             color='default'
                             size='small'
                             onClick={this.handleOpen}
-                            className={classes.editButton}
+                            className={classNames(classes.editButton, this.props.iconClass)}
                             disabled={this.props.disabled}
                         >
                             <LowPriority/>
@@ -185,7 +189,7 @@ class GeneralOrderEditor extends React.Component {
                 >
                     <DialogTitle>{this.props.title}</DialogTitle>
                     <DialogContent>
-                        <Grid container spacing={8} alignItems='flex-end'>
+                        <Grid container spacing={8} alignItems='flex-end' className={classes.noSelect}>
                             <Grid item xs={12}>
                                 <SortableList
                                     items={this.state.items}
@@ -212,6 +216,7 @@ GeneralOrderEditor.propTypes = {
     items: PropTypes.array.isRequired,
     onSave: PropTypes.func.isRequired,
     title: PropTypes.string.isRequired,
+    iconClass: PropTypes.object,
     width: PropTypes.string,
     noButton: PropTypes.bool,
     onCancel: PropTypes.func,
