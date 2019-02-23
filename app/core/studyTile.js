@@ -27,12 +27,13 @@ import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import ClearIcon from '@material-ui/icons/Clear';
-import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import SaveIcon from '@material-ui/icons/Save';
 import AddIcon from '@material-ui/icons/Add';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
+import StudyMenu from 'components/menus/studyMenu.js';
 import {
     updateStudy,
     deleteDefine,
@@ -57,6 +58,12 @@ const styles = theme => ({
     },
     menu: {
         width: 200
+    },
+    card: {
+        borderRadius: '10px',
+        boxShadow: 'none',
+        border: '2px solid',
+        borderColor: theme.palette.grey['200'],
     },
     summary: {
         whiteSpace: 'nowrap',
@@ -85,7 +92,8 @@ class ConnectedStudyTile extends React.Component {
         this.state = {
             study: { ...this.props.study },
             editMode: false,
-            anchorEl: null
+            anchorEl: null,
+            anchorStudyEl: null,
         };
     }
 
@@ -118,11 +126,11 @@ class ConnectedStudyTile extends React.Component {
         this.props.toggleAddDefineForm({ studyId: this.props.study.id });
     };
 
-    handleMenuClick = event => {
+    handleDefineMenuClick = event => {
         this.setState({ anchorEl: event.currentTarget });
     };
 
-    handleMenuClose = () => {
+    handleDefineMenuClose = () => {
         this.setState({ anchorEl: null });
     };
 
@@ -134,17 +142,17 @@ class ConnectedStudyTile extends React.Component {
                 defineId: defineId,
             }
         });
-        this.handleMenuClose();
+        this.handleDefineMenuClose();
     };
 
     selectDefine = defineId => {
         if (this.props.currentDefineId === defineId) {
             // If the current define is selected, simply change the page
-            this.handleMenuClose();
+            this.handleDefineMenuClose();
             this.props.changePage({ page: 'editor' });
         } else if (this.props.currentDefineId === '' || this.props.isCurrentDefineSaved) {
             // If no Define-XMLs are edited at the moment, specify the Define
-            this.handleMenuClose();
+            this.handleDefineMenuClose();
             this.props.changePage({
                 page: 'editor',
                 defineId,
@@ -159,9 +167,17 @@ class ConnectedStudyTile extends React.Component {
                     studyId: this.props.study.id,
                 }
             });
-            this.handleMenuClose();
+            this.handleDefineMenuClose();
         }
     };
+
+    handleStudyMenuOpen = (event) => {
+        this.setState({ anchorStudyEl: event.currentTarget });
+    }
+
+    handleStudyMenuClose = () => {
+        this.setState({ anchorStudyEl: null });
+    }
 
     getDefines = classes => {
         return this.state.study.defineIds.map(defineId => (
@@ -300,11 +316,10 @@ class ConnectedStudyTile extends React.Component {
                                 </Grid>
                                 <Grid item>
                                     <IconButton
-                                        color="default"
-                                        onClick={this.deleteStudy}
-                                        className={classes.icon}
+                                        onClick={this.handleStudyMenuOpen}
+                                        color='default'
                                     >
-                                        <DeleteIcon />
+                                        <MoreVertIcon/>
                                     </IconButton>
                                 </Grid>
                             </Grid>
@@ -333,7 +348,7 @@ class ConnectedStudyTile extends React.Component {
                             aria-owns={anchorEl ? 'define-menu' : null}
                             aria-haspopup="true"
                             disabled={definesNum === 0}
-                            onClick={this.handleMenuClick}
+                            onClick={this.handleDefineMenuClick}
                         >
                             {definesNum} Define-XML
                         </Button>
@@ -343,7 +358,7 @@ class ConnectedStudyTile extends React.Component {
                     id='define-menu'
                     anchorEl={anchorEl}
                     open={Boolean(anchorEl)}
-                    onClose={this.handleMenuClose}
+                    onClose={this.handleDefineMenuClose}
                     anchorOrigin={{
                         vertical: 'bottom',
                         horizontal: 'left'
@@ -352,6 +367,13 @@ class ConnectedStudyTile extends React.Component {
                 >
                     {this.getDefines(classes)}
                 </Menu>
+                { this.state.anchorStudyEl !== null &&
+                        <StudyMenu
+                            onClose={this.handleStudyMenuClose}
+                            study={this.props.study}
+                            anchorEl={this.state.anchorStudyEl}
+                        />
+                }
             </div>
         );
     }

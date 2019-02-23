@@ -17,6 +17,7 @@ import {
     STUDY_DEL,
     STUDY_UPD,
     STUDY_UPDORDER,
+    STUDY_IMPORT,
     DEFINE_ADD,
     DEFINE_DEL
 } from 'constants/action-types';
@@ -108,6 +109,13 @@ const updateStudyOrder = (state, action) => {
     return { ...state, allIds: action.updateObj.studyOrder };
 };
 
+const importStudy = (state, action) => {
+    return {
+        ...state,
+        byId: { ...state.byId, [action.updateObj.study.id]: action.updateObj.study },
+    };
+};
+
 const studies = (state = initialState, action) => {
     switch (action.type) {
         case STUDY_ADD:
@@ -118,6 +126,8 @@ const studies = (state = initialState, action) => {
             return updateStudy(state, action);
         case STUDY_UPDORDER:
             return updateStudyOrder(state, action);
+        case STUDY_IMPORT:
+            return importStudy(state, action);
         case DEFINE_ADD:
             return addDefine(state, action);
         case DEFINE_DEL:

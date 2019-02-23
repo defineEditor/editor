@@ -216,7 +216,7 @@ GeneralOrderEditor.propTypes = {
     items: PropTypes.array.isRequired,
     onSave: PropTypes.func.isRequired,
     title: PropTypes.string.isRequired,
-    iconClass: PropTypes.object,
+    iconClass: PropTypes.string,
     width: PropTypes.string,
     noButton: PropTypes.bool,
     onCancel: PropTypes.func,

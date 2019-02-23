@@ -16,6 +16,7 @@ import {
     DEFINE_ADD,
     DEFINE_DEL,
     DEFINE_UPD,
+    STUDY_IMPORT,
     APP_SAVE,
     STUDY_DEL
 } from 'constants/action-types';
@@ -108,6 +109,14 @@ const appSave = (state, action) => {
     }
 };
 
+const handleImportStudy = (state, action) => {
+    return {
+        ...state,
+        byId: { ...state.byId, ...action.updateObj.defines },
+        allIds: state.allIds.concat(Object.keys(action.updateObj.defines)),
+    };
+};
+
 const studies = (state = initialState, action) => {
     switch (action.type) {
         case DEFINE_ADD:
@@ -118,6 +127,8 @@ const studies = (state = initialState, action) => {
             return deleteDefine(state, action);
         case STUDY_DEL:
             return deleteStudy(state, action);
+        case STUDY_IMPORT:
+            return handleImportStudy(state, action);
         case APP_SAVE:
             return appSave(state, action);
         default:

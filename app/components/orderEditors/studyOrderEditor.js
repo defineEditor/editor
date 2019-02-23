@@ -51,7 +51,7 @@ class StudyOrderEditorConnected extends React.Component {
 
 StudyOrderEditorConnected.propTypes = {
     studies: PropTypes.object.isRequired,
-    iconClass: PropTypes.object,
+    iconClass: PropTypes.string,
     reviewMode: PropTypes.bool,
 };
 
