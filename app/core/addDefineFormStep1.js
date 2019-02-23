@@ -121,6 +121,7 @@ class AddDefineFormStep1 extends React.Component {
                             onChange={this.handleChange}
                         >
                             <FormControlLabel value="new" control={<Radio color='primary'/>} label="Create a new Define-XML document"/>
+                            <FormControlLabel value="copy" control={<Radio color='primary'/>} label="Copy Define-XML from another study"/>
                             <FormControlLabel value="import" control={<Radio color='primary'/>} label="Import an existing Define-XML document"/>
                         </RadioGroup>
                         { this.state.defineCreationMethod === 'import' && (

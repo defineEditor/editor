@@ -67,6 +67,7 @@ const mapStateToProps = state => {
     return {
         study,
         defineForm: state.present.ui.studies.defineForm,
+        studies: state.present.studies,
         defines: state.present.defines,
         standardNames: state.present.stdConstants.standardNames,
         settings: state.present.settings.define,
@@ -84,7 +85,7 @@ const mapDispatchToProps = dispatch => {
 };
 
 function getSteps () {
-    return ['Select Source', 'Define-XML Settings', 'Finish'];
+    return ['Select Source', 'Configure Define-XML', 'Finish'];
 }
 
 class ConnectedAddDefineForm extends React.Component {
@@ -128,11 +129,11 @@ class ConnectedAddDefineForm extends React.Component {
     handleNext = data => {
         const { activeStep } = this.state;
         if (activeStep === 1) {
-            if (data.defineCreationMethod === 'new') {
-                if (this.state.defineCreationMethod !== 'new') {
+            if (['new', 'copy'].includes(data.defineCreationMethod)) {
+                if (this.state.defineCreationMethod !== data.defineCreationMethod) {
                     this.setState({
                         activeStep: 2,
-                        defineCreationMethod: 'new',
+                        defineCreationMethod: data.defineCreationMethod,
                         defineData: null
                     });
                 } else {
@@ -149,7 +150,7 @@ class ConnectedAddDefineForm extends React.Component {
                 });
             }
         } else if (activeStep === 2) {
-            if (this.state.defineCreationMethod === 'new') {
+            if (['new', 'copy'].includes(this.state.defineCreationMethod)) {
                 this.setState({
                     activeStep: 3,
                     defineData: data.defineData
@@ -241,9 +242,12 @@ class ConnectedAddDefineForm extends React.Component {
                             onCancel={this.handleCancel}
                             settings={this.props.settings}
                             study={this.props.study}
+                            defines={this.props.defines}
+                            studies={this.props.studies}
                             defineData={this.state.defineData}
                             standardNames={this.props.standardNames}
                             controlledTerminology={this.props.controlledTerminology}
+                            defineCreationMethod={this.state.defineCreationMethod}
                         />
                     )}
                     {activeStep === 3 && (
@@ -265,6 +269,7 @@ ConnectedAddDefineForm.propTypes = {
     classes: PropTypes.object.isRequired,
     standardNames: PropTypes.object.isRequired,
     study: PropTypes.object.isRequired,
+    studies: PropTypes.object.isRequired,
     defines: PropTypes.object.isRequired,
     settings: PropTypes.object.isRequired,
     controlledTerminology: PropTypes.object.isRequired,
