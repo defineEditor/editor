@@ -66,21 +66,24 @@ const CustomTableCell = withStyles(theme => ({
 
 const styles = theme => ({
     dialog: {
+        position: 'absolute',
+        top: '10%',
+        maxHeight: '80%',
+        width: '50%',
+        overflowX: 'auto',
+        overflowY: 'auto',
         paddingLeft: theme.spacing.unit * 2,
         paddingRight: theme.spacing.unit * 2,
         paddingBottom: theme.spacing.unit * 1,
-        position: 'absolute',
+        margin: '0 auto',
         borderRadius: '10px',
-        top: '10%',
-        transform: 'translate(0%, calc(-50%+0.5px))',
-        overflowX: 'auto',
-        maxHeight: '85%',
-        width: '70%',
-        overflowY: 'auto',
+        border: '2px solid',
+        borderColor: 'primary',
     },
     paper: {
         width: '100%',
         marginTop: theme.spacing.unit * 1,
+        marginBottom: theme.spacing.unit * 2,
     },
 });
 
@@ -148,6 +151,8 @@ class ConnectedModalLinkCodeList extends React.Component {
                 aria-describedby="alert-dialog-description"
                 PaperProps={{ className: classes.dialog }}
                 onKeyDown={this.onKeyDown}
+                fullWidth
+                maxWidth={false}
             >
                 <DialogTitle id="alert-dialog-title">Linking Codelists</DialogTitle>
                 <DialogContent>
