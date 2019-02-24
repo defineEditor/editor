@@ -137,7 +137,7 @@ class AddDefineFormStep2 extends React.Component {
 
     loadDefineData = (event, data, id) => {
         if (id === 'import' && data.hasOwnProperty('odm')) {
-            this.props.onNext({ defineData: data.odm });
+            this.props.onNext({ defineData: data.odm, name: this.props.defines.byId[this.state.defineId].name });
         }
     }
 

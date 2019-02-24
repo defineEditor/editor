@@ -41,7 +41,7 @@ class AddDefineFormStep3 extends React.Component {
         super(props);
 
         this.state = {
-            name: this.props.defineData.study.metaDataVersion.model || '',
+            name: this.props.name || this.props.defineData.study.metaDataVersion.model || '',
         };
     }
 
@@ -69,13 +69,18 @@ class AddDefineFormStep3 extends React.Component {
               </Grid>
               <Grid item xs={12}>
                   {this.props.defineCreationMethod === 'new' && (
-                      <Typography variant="headline">
+                      <Typography variant="h5">
                           Creating a new Define-XML document
                       </Typography>
                   )}
                   {this.props.defineCreationMethod === 'import' && (
-                      <Typography variant="headline">
+                      <Typography variant="h5">
                           Creating Define-XML from an existing file
+                      </Typography>
+                  )}
+                  {this.props.defineCreationMethod === 'copy' && (
+                      <Typography variant="h5">
+                          Copying an existing Define-XML
                       </Typography>
                   )}
                   <List dense>
@@ -101,7 +106,7 @@ class AddDefineFormStep3 extends React.Component {
                               }
                           />
                       </ListItem>
-                      {this.props.defineCreationMethod === 'import' && (
+                      {['import', 'copy'].includes(this.props.defineCreationMethod) && (
                           <React.Fragment>
                               <ListItem>
                                   <ListItemText
@@ -165,6 +170,7 @@ class AddDefineFormStep3 extends React.Component {
 AddDefineFormStep3.propTypes = {
     classes: PropTypes.object.isRequired,
     defineData: PropTypes.object.isRequired,
+    name: PropTypes.string,
     defineCreationMethod: PropTypes.string.isRequired,
     onNext: PropTypes.func.isRequired,
     onBack: PropTypes.func.isRequired,

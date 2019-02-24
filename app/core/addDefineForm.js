@@ -97,6 +97,7 @@ class ConnectedAddDefineForm extends React.Component {
             defineCreationMethod: 'new',
             defineData: null,
             pathToDefineXml: '',
+            name: null,
         };
     }
 
@@ -150,17 +151,24 @@ class ConnectedAddDefineForm extends React.Component {
                 });
             }
         } else if (activeStep === 2) {
-            if (['new', 'copy'].includes(this.state.defineCreationMethod)) {
+            if (this.state.defineCreationMethod === 'new') {
                 this.setState({
                     activeStep: 3,
                     defineData: data.defineData
+                });
+            } else if (this.state.defineCreationMethod === 'copy') {
+                this.setState({
+                    activeStep: 3,
+                    defineData: data.defineData,
+                    name: data.name,
                 });
             }
         } else if (activeStep === 3) {
             this.setState({
                 activeStep: 1,
                 defineCreationMethod: 'new',
-                defineData: null
+                defineData: null,
+                name: null,
             });
             let defineId = getOid('Define', undefined, this.props.defines.allIds);
             let defineData = this.state.defineData;
@@ -178,9 +186,11 @@ class ConnectedAddDefineForm extends React.Component {
                 activeStep: 1
             });
         } else if (activeStep === 3) {
-            if (this.state.defineCreationMethod === 'new') {
+            if (['new', 'copy'].includes(this.state.defineCreationMethod)) {
                 this.setState({
-                    activeStep: 2
+                    activeStep: 2,
+                    name: null,
+                    defineData: null,
                 });
             } else if (this.state.defineCreationMethod === 'import') {
                 this.setState({
@@ -257,6 +267,7 @@ class ConnectedAddDefineForm extends React.Component {
                             onCancel={this.handleCancel}
                             defineData={this.state.defineData}
                             defineCreationMethod={this.state.defineCreationMethod}
+                            name={this.state.name}
                         />
                     )}
                 </DialogContent>
