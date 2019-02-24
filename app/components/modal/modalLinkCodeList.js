@@ -159,15 +159,15 @@ class ConnectedModalLinkCodeList extends React.Component {
                     {elementsPop.length > 0 &&
                         <div>
                             <DialogContentText id="alert-dialog-description">
-                                The enumeration codelist <i>{this.props.codeLists[this.props.enumeratedCodeListOid].name}</i> contains coded values,
-                                which are not present in decodes of the decoded codelist <i>{this.props.codeLists[this.props.decodedCodeListOid].name}</i>.
+                                Enumeration codelist <i>{this.props.codeLists[this.props.enumeratedCodeListOid].name}</i> contains coded values,
+                                which are not present in decodes of decoded codelist <i>{this.props.codeLists[this.props.decodedCodeListOid].name}</i>.
                                 If you link the codelists, these coded values will be lost.
                             </DialogContentText>
                             <Paper className={classes.paper}>
                                 <Table>
                                     <TableHead>
                                         <TableRow>
-                                            <CustomTableCell>Elements to be removed from enumeration codelist</CustomTableCell>
+                                            <CustomTableCell>Elements to be removed from the enumeration codelist</CustomTableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -184,15 +184,15 @@ class ConnectedModalLinkCodeList extends React.Component {
                     {elementsPush.length > 0 &&
                         <div>
                             <DialogContentText id="alert-dialog-description">
-                                The decoded codelist <i>{this.props.codeLists[this.props.decodedCodeListOid].name}</i> contains decodes,
-                                which are not present in coded values of the enumeration codelist <i>{this.props.codeLists[this.props.enumeratedCodeListOid].name}</i>.
+                                Decoded codelist <i>{this.props.codeLists[this.props.decodedCodeListOid].name}</i> contains decodes,
+                                which are not present in coded values of enumeration codelist <i>{this.props.codeLists[this.props.enumeratedCodeListOid].name}</i>.
                                 If you link the codelists, these decodes will be added to the list of coded values of the enumeration codelist.
                             </DialogContentText>
                             <Paper className={classes.paper}>
                                 <Table>
                                     <TableHead>
                                         <TableRow>
-                                            <CustomTableCell>Elements to be added to enumeration codelist</CustomTableCell>
+                                            <CustomTableCell>Elements to be added to the enumeration codelist</CustomTableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
