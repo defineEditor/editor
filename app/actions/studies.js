@@ -16,6 +16,8 @@ import {
     STUDY_ADD,
     STUDY_DEL,
     STUDY_UPD,
+    STUDY_UPDORDER,
+    STUDY_IMPORT,
 } from 'constants/action-types';
 
 export const addStudy = (updateObj) => (
@@ -35,6 +37,20 @@ export const deleteStudy = (deleteObj) => (
 export const updateStudy = (updateObj) => (
     {
         type: STUDY_UPD,
+        updateObj,
+    }
+);
+
+export const updateStudyOrder = (updateObj) => (
+    {
+        type: STUDY_UPDORDER,
+        updateObj,
+    }
+);
+
+export const studyImport = (updateObj) => (
+    {
+        type: STUDY_IMPORT,
         updateObj,
     }
 );

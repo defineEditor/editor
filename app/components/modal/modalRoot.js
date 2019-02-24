@@ -26,6 +26,7 @@ import ModalLinkCodeList from 'components/modal/modalLinkCodeList.js';
 import ModalLinkCodeLists from 'components/modal/modalLinkCodeLists.js';
 import ModalBugReport from 'components/modal/modalBugReport.js';
 import ModalSaveSettings from 'components/modal/modalSaveSettings.js';
+import ModalGeneral from 'components/modal/modalGeneral.js';
 
 const mapStateToProps = state => {
     return {
@@ -45,6 +46,7 @@ const MODAL_COMPONENTS = {
     'LINK_CODELISTS': ModalLinkCodeLists,
     'BUG_REPORT': ModalBugReport,
     'QUIT': ModalQuitApplication,
+    'GENERAL': ModalGeneral,
 };
 
 class ConnectedModalRoot extends React.Component {

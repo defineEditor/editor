@@ -19,6 +19,8 @@ import saveDefine from './main/saveDefine.js';
 import openDefineXml from './main/openDefineXml.js';
 import selectFolder from './main/selectFolder.js';
 import writeDefineObject from './main/writeDefineObject.js';
+import exportStudy from './main/exportStudy.js';
+import importStudy from './main/importStudy.js';
 import loadDefineObject from './main/loadDefineObject.js';
 import loadControlledTerminology from './main/loadControlledTerminology.js';
 import deleteDefineObject from './main/deleteDefineObject.js';
@@ -137,6 +139,14 @@ ipcMain.on('openDocument', (event, defineLocation, pdfLink) => {
 // Open file using external application
 ipcMain.on('openFileInExternalApp', (event, defineLocation, fileLink) => {
     openFileInExternalApp(mainWindow, defineLocation, fileLink);
+});
+// Export Study
+ipcMain.on('exportStudy', (event, exportObject) => {
+    exportStudy(mainWindow, exportObject);
+});
+// Import Study
+ipcMain.on('importStudy', (event, idObject) => {
+    importStudy(mainWindow, idObject);
 });
 
 ipcMain.on('quitConfirmed', (event) => {
