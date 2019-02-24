@@ -23,6 +23,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { FaFileExport, FaFileImport } from 'react-icons/fa';
 import Divider from '@material-ui/core/Divider';
+import { Study, Define } from 'core/mainStructure.js';
 import {
     openModal,
     studyImport,
@@ -58,7 +59,9 @@ class ConnectedStudyMenu extends React.Component {
         let exportObject = { study: this.props.study, defines: {} };
         // Get the list of all defines
         this.props.study.defineIds.forEach(defineId => {
-            exportObject.defines[defineId] = this.props.defines[defineId];
+            exportObject.defines[defineId] = { ...this.props.defines[defineId] };
+            // Remove Path to File as it is user-specific
+            exportObject.defines[defineId].pathToFile = undefined;
         });
         ipcRenderer.send('exportStudy', exportObject);
         this.props.onClose();
@@ -71,10 +74,26 @@ class ConnectedStudyMenu extends React.Component {
         this.props.onClose();
     }
 
-    importData = (event, data) => {
-        // Update study, unite existing and imported OIDs
-        let newStudy = { ...this.props.study, ...data.study, defineIds: this.props.study.defineIds.concat(data.study.defineIds) };
-        this.props.studyImport({ study: newStudy, defines: data.defines });
+    importData = (event, data, error) => {
+        if (error !== undefined) {
+            this.props.openModal({
+                type: 'GENERAL',
+                props: {
+                    title: 'Study Import',
+                    message: 'Study import failed. ' + error,
+                }
+            });
+        } else {
+            // Update study, unite existing and imported OIDs
+            let newStudy = { ...new Study(
+                { ...this.props.study, ...data.study, defineIds: this.props.study.defineIds.concat(data.study.defineIds) }
+            ) };
+            let newDefines = {};
+            Object.keys(data.defines).forEach(defineId => {
+                newDefines[defineId] = { ...new Define({ ...data.defines[defineId] }) };
+            });
+            this.props.studyImport({ study: newStudy, defines: newDefines });
+        }
     }
 
     render () {
@@ -91,7 +110,7 @@ class ConnectedStudyMenu extends React.Component {
                         },
                     }}
                 >
-                    <MenuItem key='Export' onClick={this.export}>
+                    <MenuItem key='Export' onClick={this.export} disabled={this.props.study.defineIds && this.props.study.defineIds.length === 0}>
                         <ListItemIcon style={{ marginLeft: '4px' }}>
                             <FaFileExport />
                         </ListItemIcon>

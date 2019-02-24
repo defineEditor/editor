@@ -62,19 +62,13 @@ class AddDefineFormStep1 extends React.Component {
         ipcRenderer.removeListener('defineReadError', this.updateError);
     }
 
-    updateError = (error, errorText) => {
-        if (error) {
-            // Do nothing
-        }
+    updateError = (event, errorText) => {
         if (errorText !== undefined && typeof errorText === 'string') {
             this.setState({ parsingErrors: [errorText] });
         }
     }
 
-    loadDefine = (error, data, pathToDefineXml) => {
-        if (error) {
-            // Do nothing
-        }
+    loadDefine = (event, data, pathToDefineXml) => {
         try {
             let defineData = parseDefine(data);
             let checkResult = checkDefineXml(defineData);
