@@ -66,7 +66,7 @@ class ConnectedDescriptionView extends React.Component {
         return (
             <Grid container>
                 <Grid item xs={12}>
-                    <Typography variant="subheading">
+                    <Typography variant="subtitle1">
                         {this.props.title}
                         <Tooltip title='Add Link to Document' placement='bottom' enterDelay={1000}>
                             <span>

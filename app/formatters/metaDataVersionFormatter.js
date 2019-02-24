@@ -37,7 +37,7 @@ class MetaDataVersionFormatter extends React.Component {
         const { name, description, comment } = mdvAttrs;
         return (
             <Paper className={classes.metaDataVersion} elevation={4}>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     Metadata Version
                     <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>

@@ -63,7 +63,7 @@ class OtherAttributesEditor extends React.Component {
         const { classes } = this.props;
         return (
             <Paper className={classes.root} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     Other Attributes
                     <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
                 </Typography>

@@ -109,7 +109,7 @@ class TableWithPagination extends React.Component {
                         alignItems="center"
                     >
                         <Grid item>
-                            <Typography variant="headline" gutterBottom>
+                            <Typography variant="h5" gutterBottom>
                                 {this.props.title}
                             </Typography>
                         </Grid>

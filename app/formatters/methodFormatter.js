@@ -46,7 +46,7 @@ class MethodFormatter extends React.Component {
                 }
                 { (method.formalExpressions.length !== 0) &&
                         <React.Fragment>
-                            <Typography variant="caption" gutterBottom>
+                            <Typography variant="caption" gutterBottom color='textSecondary'>
                                 Formal Expression
                             </Typography>
                             <FormalExpressionFormatter formalExpressions={method.formalExpressions}/>

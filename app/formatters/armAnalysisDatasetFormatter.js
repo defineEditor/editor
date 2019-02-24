@@ -49,7 +49,7 @@ class ArmAnalysisDatasetFormatter extends React.Component {
         return (
             <Grid container spacing={8}>
                 <Grid item xs={12}>
-                    <Typography variant="headline" className={classes.title}>
+                    <Typography variant="h5" className={classes.title}>
                         <span onClick={() => { this.props.selectGroup(itemGroupOid); }}>{datasetName}</span>
                     </Typography>
                 </Grid>
@@ -58,7 +58,7 @@ class ArmAnalysisDatasetFormatter extends React.Component {
                         <Typography variant="caption" className={classes.caption}>
                             Selection Criteria
                         </Typography>
-                        <Typography variant="body2" className={classes.textValues}>
+                        <Typography variant="body1" className={classes.textValues}>
                             { whereClauseText }
                         </Typography>
                     </Grid>

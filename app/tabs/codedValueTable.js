@@ -523,7 +523,7 @@ class ConnectedCodedValueTable extends React.Component {
                 </h3>
                 { nonEditable && (
                     <React.Fragment>
-                        <Typography variant='subheading' color='primary'>
+                        <Typography variant='subtitle1' color='primary'>
                             This codelist is linked to {this.props.codeLists[codeList.linkedCodeListOid].name}.
                             Update the linked codelist to change values of this codelist.
                         </Typography>

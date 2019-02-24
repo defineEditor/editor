@@ -117,7 +117,7 @@ class ConnectedAnalysisResultTile extends React.Component {
                         {!this.state.editMode && (
                             <Grid container justify="space-between" wrap='nowrap'>
                                 <Grid item>
-                                    <Typography variant="headline" component="h3" className={classes.title}>
+                                    <Typography variant="h5" className={classes.title}>
                                         { title }
                                     </Typography>
                                 </Grid>

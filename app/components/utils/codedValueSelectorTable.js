@@ -179,7 +179,7 @@ class CodedValueSelectorTable extends React.Component {
                                 </Button>
                             </Grid>
                         ) : (
-                            <Typography variant="title">{codeList.name}</Typography>
+                            <Typography variant="h6">{codeList.name}</Typography>
                         )}
                         <Grid item>
                             <Grid container spacing={0}>

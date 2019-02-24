@@ -150,7 +150,7 @@ class ConnectedControlledTerminology extends React.Component {
                 </NavigationBar>
                 <div className={classes.root}>
                     { ctNum === 0 ? (
-                        <Typography variant="display1" gutterBottom className={classes.noCTMessage}>
+                        <Typography variant="h4" gutterBottom className={classes.noCTMessage} color='textSecondary'>
                             There is no Controlled Terminology available. Download the NCI/CDISC CT in XML format, specify the folder in settings and press the &nbsp;
                             <Button size="small" variant="contained" onClick={this.scanControlledTerminologyFolder}>
                                 Scan CT Folder
@@ -158,7 +158,7 @@ class ConnectedControlledTerminology extends React.Component {
                         </Typography>
                     ) : (
                         <React.Fragment>
-                            <Typography variant="headline" component="h3" className={classes.header}>
+                            <Typography variant="h5" className={classes.header}>
                                 Controlled Terminology
                             </Typography>
                             <Table>

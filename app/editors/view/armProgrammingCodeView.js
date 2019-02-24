@@ -89,7 +89,7 @@ class ConnectedArmProgrammingCodeView extends React.Component {
         return (
             <Grid container>
                 <Grid item xs={12}>
-                    <Typography variant="subheading">
+                    <Typography variant="subtitle1">
                         Programming Code
                         <Tooltip title={programmingCode === undefined ? 'Add ProgrammingCode' : 'Remove ProgrammingCode'} placement='bottom' enterDelay={1000}>
                             <span>

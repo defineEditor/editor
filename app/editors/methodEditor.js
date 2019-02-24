@@ -246,7 +246,7 @@ class ConnectedMethodEditor extends React.Component {
                 <Grid item xs={12}>
                     <Grid container spacing={0} justify='flex-start' alignItems='center' className={classes.titleLine}>
                         <Grid item className={classes.editorHeading}>
-                            <Typography variant="subheading" >
+                            <Typography variant="subtitle1" >
                                 Method
                             </Typography>
                         </Grid>

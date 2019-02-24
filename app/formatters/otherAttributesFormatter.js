@@ -36,7 +36,7 @@ class OtherAttributesFormatter extends React.Component {
         const { name, pathToFile } = otherAttrs;
         return (
             <Paper className={classes.otherAttributes} elevation={4}>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     Other Attributes
                     <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>

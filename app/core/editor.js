@@ -93,7 +93,7 @@ class ConnectedEditor extends React.Component {
         return (
             <React.Fragment>
                 {!this.props.currentDefineId && (
-                    <Typography variant="display1" gutterBottom className={classes.noDefineMessage}>
+                    <Typography variant="h4" gutterBottom className={classes.noDefineMessage} color='textSecondary'>
                         No Define-XML documents are selected for editing. Select a Define-XML document to edit on the &nbsp;
                         <Button onClick={this.changePageToStudies} variant='contained'>
                             Studies
@@ -103,7 +103,7 @@ class ConnectedEditor extends React.Component {
                 {this.props.currentDefineId && !this.props.odmLoaded && (
                     <div className={classes.loading}>
                         Loading Define-XML.
-                        <Typography variant="caption" gutterBottom>
+                        <Typography variant="caption" gutterBottom color='textSecondary'>
                             Taking too long? Use Ctrl+M to open the menu.
                         </Typography>
                         <br />

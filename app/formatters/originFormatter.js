@@ -32,10 +32,10 @@ class OriginFormatter extends React.Component {
 
         return (
             <div key='originDescription'>
-                <Typography variant="caption" gutterBottom className={this.props.classes.originName}>
+                <Typography variant="caption" className={this.props.classes.originName}>
                     {origin.type}
                 </Typography>
-                <div key='originText'>{originText}</div>
+                { originText !== '' && <div key='originText'>{originText}</div> }
                 { (origin.documents.length !== 0) &&
                         <DocumentFormatter documents={origin.documents} leafs={this.props.leafs}/>
                 }

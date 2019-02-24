@@ -75,7 +75,7 @@ class StandardFormatter extends React.Component {
 
         return (
             <Paper className={classes.mainPart} elevation={4}>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     Standard
                     <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>

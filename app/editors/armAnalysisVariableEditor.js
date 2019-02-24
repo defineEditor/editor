@@ -96,7 +96,7 @@ class ArmAnalysisVariableEditor extends React.Component {
         return (
             <Grid container justify='space-around'>
                 <Grid item xs={12}>
-                    <Typography variant="body2" className={classes.caption}>
+                    <Typography variant="body1" className={classes.caption}>
                         Analysis Variables
                         <Tooltip title='Add Reference Dataset' placement='bottom' enterDelay={1000}>
                             <span>

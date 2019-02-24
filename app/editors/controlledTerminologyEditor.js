@@ -144,7 +144,7 @@ class ControlledTerminologyEditor extends React.Component {
         const { classes } = this.props;
         return (
             <Paper className={classes.controlledTerminology} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     Controlled Terminology
                     <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
                 </Typography>

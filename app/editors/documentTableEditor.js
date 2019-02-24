@@ -207,7 +207,7 @@ class DocumentTableEditor extends React.Component {
         return (
             <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef}>
                 <Paper className={classes.mainPart} elevation={4}>
-                    <Typography variant="headline" component="h3">
+                    <Typography variant="h5">
                         Documents
                         <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} onSort={this.showDocumentOrderEditor}/>
                     </Typography>

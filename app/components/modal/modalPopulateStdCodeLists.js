@@ -404,7 +404,7 @@ class ConnectedModalAttachStdCodelists extends React.Component {
                         </Grid>
                     </Grid>
                     { this.state.matchByValue && (!this.state.valueMatchCase || this.state.valueIgnoreWhitespaces) &&
-                            <Typography variant="body2" gutterBottom align="left" color='primary'>
+                            <Typography variant="body1" gutterBottom align="left" color='primary'>
                                 In case codelist values are different from the standard codelist values,
                                 but matched
                                 { !this.state.valueMatchCase && ' as case-insensetive' }

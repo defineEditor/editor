@@ -192,7 +192,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                     <Grid container spacing={16} alignItems='flex-end'>
                         <Grid item xs={12}>
                             { dataLoaded && this.state.nonParsedData.length > 0 && (
-                                <Typography variant="body2" gutterBottom className={classes.notImported} color='primary'>
+                                <Typography variant="body1" gutterBottom className={classes.notImported} color='primary'>
                                     <Button
                                         variant='contained'
                                         mini

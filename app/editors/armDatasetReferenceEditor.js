@@ -129,7 +129,7 @@ class ArmDatasetReferenceEditor extends React.Component {
         return (
             <Grid container>
                 <Grid item xs={12}>
-                    <Typography variant="subheading">
+                    <Typography variant="subtitle1">
                         Datasets
                         <Tooltip title='Add Reference Dataset' placement='bottom' enterDelay={1000}>
                             <span>

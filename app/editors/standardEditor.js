@@ -157,7 +157,7 @@ class StandardEditor extends React.Component {
         });
         return (
             <Paper className={classes.Standard} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     Standard
                     <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} />
                 </Typography>

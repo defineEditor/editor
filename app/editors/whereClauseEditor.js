@@ -105,7 +105,7 @@ class ConnectedWhereClauseEditor extends React.Component {
         return (
             <Grid container justify='space-around'>
                 <Grid item xs={12}>
-                    <Typography variant="body2">
+                    <Typography variant="body1">
                         {this.props.label}
                         <Tooltip title={ `Edit ${this.props.label}` } placement='bottom' enterDelay={1000}>
                             <span>

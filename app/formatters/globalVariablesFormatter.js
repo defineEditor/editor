@@ -36,7 +36,7 @@ class GlobalVariablesFormatter extends React.Component {
         const { protocolName, studyName, studyDescription } = globalVariables;
         return (
             <Paper className={classes.globalVariables} elevation={4}>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     Global Variables and Study OID
                     <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>

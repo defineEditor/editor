@@ -71,7 +71,7 @@ class MetaDataVersionEditor extends React.Component {
         const { classes, defineVersion } = this.props;
         return (
             <Paper className={classes.metaDataVersion} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     Metadata Version
                     <EditingControlIcons onSave={this.save} onCancel={this.cancel}/>
                 </Typography>

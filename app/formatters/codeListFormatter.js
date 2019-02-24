@@ -85,7 +85,7 @@ class ConnectedCodeListFormatter extends React.Component {
                 <Grid item xs={12}>
                     <Grid container spacing={0} alignItems='center' className={classes.title}>
                         <Grid item>
-                            <Typography variant="title">
+                            <Typography variant="h6">
                                 {codeListTitle}
                             </Typography>
                         </Grid>

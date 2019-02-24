@@ -386,7 +386,7 @@ class ConnectedVariableTabFilter extends React.Component {
                     {index !== 0 &&
                             [
                                 <Grid item xs={12} key='connector' className={classes.connector}>
-                                    <Typography variant="subheading" >
+                                    <Typography variant="subtitle1" >
                                         {this.state.connectors[index - 1]}
                                     </Typography>
                                 </Grid>,

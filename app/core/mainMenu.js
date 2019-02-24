@@ -132,7 +132,7 @@ class ConnectedMainMenu extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary='Studies'/>
                             </ListItem>
-                            <ListItem button key='editor' onClick={() => this.props.changePage({ page: 'editor' })}>
+                            <ListItem button key='editor' onClick={() => this.props.changePage({ page: 'editor' })} disabled={this.props.currentDefineId === ''}>
                                 <ListItemIcon>
                                     <Edit/>
                                 </ListItemIcon>

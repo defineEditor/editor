@@ -64,7 +64,7 @@ class OdmAttributesEditor extends React.Component {
         let asOfDateTimeValidation = !(/^$|(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/.test(this.state.asOfDateTime));
         return (
             <Paper className={classes.root} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     ODM Attributes &amp; Stylesheet location
                     <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
                 </Typography>

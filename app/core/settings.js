@@ -191,7 +191,7 @@ class ConnectedSettings extends React.Component {
                     className={classes.settings}
                 >
                     <Grid item xs={12}>
-                        <Typography variant="display1" gutterBottom align="left">
+                        <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
                             General Settings
                         </Typography>
                         <Grid container>
@@ -241,7 +241,7 @@ class ConnectedSettings extends React.Component {
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
-                        <Typography variant="display1" gutterBottom align="left">
+                        <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
                             Editor Settings
                         </Typography>
                         <Grid container>
@@ -332,7 +332,7 @@ class ConnectedSettings extends React.Component {
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
-                        <Typography variant="display1" gutterBottom align="left">
+                        <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
                             Notifications
                         </Typography>
                         <Grid container>
@@ -380,7 +380,7 @@ class ConnectedSettings extends React.Component {
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
-                        <Typography variant="display1" gutterBottom align="left">
+                        <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
                             Define-XML Settings
                         </Typography>
                         <Grid container>

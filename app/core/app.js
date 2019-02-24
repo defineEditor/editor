@@ -43,7 +43,7 @@ const theme = createMuiTheme({
             dark: '#ba000d',
             contrastText: '#000'
         }
-    }
+    },
 });
 
 // Redux functions

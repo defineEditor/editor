@@ -36,7 +36,7 @@ class OdmAttributesFormatter extends React.Component {
         const { fileOid, asOfDateTime, originator, stylesheetLocation } = odmAttrs;
         return (
             <Paper className={classes.odmAttributes} elevation={4}>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     ODM Attributes &amp; Stylesheet location
                     <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>
