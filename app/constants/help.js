@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
 * and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
+* Copyright (C) 2018, 2019 Dmitry Kolosov                                          *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -30,16 +30,16 @@ Each codelist can be connected to a codelist from a standard Controlled Terminol
 };
 
 export const CODELIST_LINK = {
-    title: 'Link Decoded and Enumerated Codelists',
+    title: 'Link Decoded and Enumeration Codelists',
     content: `
 ### About
-A pair of linked codelists, is a pair of Enumerated and Decoded codelists, where values of the Enumerated codelist are equal to decoded values of the Decoded codelist. This function allow to search for such pairs of Decoded and Enumerated codelists and link them automatically.
+A pair of linked codelists, is a pair of Enumeration and Decoded codelists, where values of the Enumeration codelist are equal to decoded values of the Decoded codelist. This function allow to search for such pairs of Decoded and Enumeration codelists and link them automatically.
 ### Match Options
-* **Match by values**. Codelists are compared with each other item by item. You can use the following compare options which are applied on both Decoded and Enumerated codelists:
+* **Match by values**. Codelists are compared with each other item by item. You can use the following compare options which are applied on both Decoded and Enumeration codelists:
   * **Match codelist item order**. When enabled the codelists are linked if they have matching items in the same order.
   * **Match case**. When disabled '**Pulse Rate**' matches '**Pulse rate**'.
   * **Ignore whitespaces** (including trailing and leading spaces). When enabled '**Pulse Rate**' matches '** PulseRate   **'.
 
-In case two codelists are linked together, values of the Enumerated codelist are updated with decode values of the Decoded codelist. The options control how the codelists are linked, but not how the values are updated.
+In case two codelists are linked together, values of the Enumeration codelist are updated with decode values of the Decoded codelist. The options control how the codelists are linked, but not how the values are updated.
 `
 };
