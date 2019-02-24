@@ -33,7 +33,7 @@ export const CODELIST_LINK = {
     title: 'Link Decoded and Enumeration Codelists',
     content: `
 ### About
-A pair of linked codelists, is a pair of Enumeration and Decoded codelists, where values of the Enumeration codelist are equal to decoded values of the Decoded codelist. This function allow to search for such pairs of Decoded and Enumeration codelists and link them automatically.
+A pair of linked codelists, is a pair of Enumeration and Decoded codelists, where values of the Enumeration codelist are equal to decoded values of the Decoded codelist. This function allows to search for such pairs of Decoded and Enumeration codelists and link them automatically.
 ### Match Options
 * **Match by values**. Codelists are compared with each other item by item. You can use the following compare options which are applied on both Decoded and Enumeration codelists:
   * **Match codelist item order**. When enabled the codelists are linked if they have matching items in the same order.
