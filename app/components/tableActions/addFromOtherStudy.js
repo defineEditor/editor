@@ -75,7 +75,7 @@ class addFromOtherStudyConnected extends React.Component {
         ipcRenderer.removeListener('loadDefineObjectForImport', this.loadOdm);
     }
 
-    loadOdm= (event, data, id) => {
+    loadOdm = (event, data, id) => {
         if (id === 'import' && data.hasOwnProperty('odm')) {
             this.setState({ sourceOdm: data.odm });
         }
