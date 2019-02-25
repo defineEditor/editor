@@ -30,7 +30,7 @@ class Define {
     } = {}) {
         this.id = id;
         this.name = name;
-        this.pathToFile = pathToFile;
+        this.pathToFile = pathToFile || '';
         if (stats !== undefined) {
             this.stats = stats;
         } else {

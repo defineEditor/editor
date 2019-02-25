@@ -47,6 +47,7 @@ import {
     updateCodedValue,
     addCodedValue,
     deleteCodedValues,
+    selectGroup,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -64,6 +65,11 @@ const styles = theme => ({
         marginLeft: theme.spacing.unit,
         transform: 'translate(0%, -6%)',
     },
+    link: {
+        fontSize: '16px',
+        color: '#007BFF',
+        cursor: 'pointer',
+    },
 });
 
 // Redux functions
@@ -72,6 +78,7 @@ const mapDispatchToProps = dispatch => {
         updateCodedValue: (source, updateObj) => dispatch(updateCodedValue(source, updateObj)),
         addBlankCodedValue: (codeListOid) => dispatch(addCodedValue(codeListOid, { codedValue: '', orderNumber: undefined })),
         deleteCodedValues: (codeListOid, deletedOids) => dispatch(deleteCodedValues(codeListOid, deletedOids)),
+        selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
     };
 };
 
@@ -86,6 +93,7 @@ const mapStateToProps = state => {
         lang: state.present.odm.study.metaDataVersion.lang,
         tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
         showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
+        codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
         reviewMode: state.present.ui.main.reviewMode,
     };
 };
@@ -431,7 +439,17 @@ class ConnectedCodedValueTable extends React.Component {
         return true;
     }
 
+    openLinkedCodelist = (codeListOid) => {
+        let updateObj = {
+            tabIndex: this.props.codedValuesTabIndex,
+            groupOid: codeListOid,
+            scrollPosition: {},
+        };
+        this.props.selectGroup(updateObj);
+    }
+
     render () {
+        const { classes } = this.props;
         // Extract data required for the variable table
         const codeList = this.props.codeLists[this.props.codeListOid];
         const itemGroups = this.props.itemGroups;
@@ -445,7 +463,7 @@ class ConnectedCodedValueTable extends React.Component {
                     <Chip
                         label={itemGroups[itemGroupOid].name + '.' + itemDef.name}
                         key={itemGroups[itemGroupOid].oid + '.' + itemDef.oid}
-                        className={this.props.classes.chip}
+                        className={classes.chip}
                     />
                 );
             });
@@ -515,7 +533,7 @@ class ConnectedCodedValueTable extends React.Component {
                         size='small'
                         color='default'
                         onClick={this.props.openDrawer}
-                        className={this.props.classes.drawerButton}
+                        className={classes.drawerButton}
                     >
                         <OpenDrawer/>
                     </Fab>
@@ -524,7 +542,10 @@ class ConnectedCodedValueTable extends React.Component {
                 { nonEditable && (
                     <React.Fragment>
                         <Typography variant='subheading' color='primary'>
-                            This codelist is linked to {this.props.codeLists[codeList.linkedCodeListOid].name}.
+                            This codelist is linked to&nbsp;
+                            <span onClick={() => { this.openLinkedCodelist(codeList.linkedCodeListOid); }} className={classes.link}>
+                                {this.props.codeLists[codeList.linkedCodeListOid].name}
+                            </span>.
                             Update the linked codelist to change values of this codelist.
                         </Typography>
                         <br/>

@@ -38,9 +38,9 @@ function saveState (type) {
         if (stateToSave.ui.main.currentDefineId !== '' && Object.keys(stateToSave.odm).length > 0) {
             if (type !== 'backup') {
                 let defineId = stateToSave.odm.defineId;
-                let pathToFile = stateToSave.defines.byId[defineId].pathToFile;
+                let pathToFile = stateToSave.defines.byId[defineId].pathToFile || '';
                 let odm = stateToSave.odm;
-                if (alwaysSaveDefineXml === true && pathToFile !== undefined && pathToFile !== '') {
+                if (alwaysSaveDefineXml === true && pathToFile !== '') {
                     ipcRenderer.once('writeDefineObjectFinished', (event) => {
                         saveDefineXml(odm, pathToFile);
                     });

@@ -17,7 +17,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import { BootstrapTable, ButtonGroup } from 'react-bootstrap-table';
-import path from 'path';
 import clone from 'clone';
 import deepEqual from 'fast-deep-equal';
 import Grid from '@material-ui/core/Grid';
@@ -73,7 +72,6 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     let model = state.present.odm.study.metaDataVersion.model;
-    let pathToDefine = path.dirname(state.present.defines.byId[state.present.odm.defineId].pathToFile);
     return {
         itemGroups: state.present.odm.study.metaDataVersion.itemGroups,
         itemGroupOrder: state.present.odm.study.metaDataVersion.order.itemGroupOrder,
@@ -88,7 +86,6 @@ const mapStateToProps = state => {
         tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
         showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
         reviewMode: state.present.ui.main.reviewMode,
-        pathToDefine,
     };
 };
 

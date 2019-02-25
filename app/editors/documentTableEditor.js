@@ -256,7 +256,7 @@ DocumentTableEditor.propTypes = {
     classes: PropTypes.object.isRequired,
     onSave: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
-    pathToFile: PropTypes.string,
+    pathToDefine: PropTypes.string,
     onHelp: PropTypes.func,
     onComment: PropTypes.func,
 };
