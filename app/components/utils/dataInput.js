@@ -31,7 +31,6 @@ import {
     updateMainUi,
 } from 'actions/index.js';
 
-
 const styles = theme => ({
     dialog: {
         paddingLeft: theme.spacing.unit * 2,
@@ -74,8 +73,8 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        mdv           : state.present.odm.study.metaDataVersion,
-        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
+        mdv: state.present.odm.study.metaDataVersion,
+        defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
     };
 };
 
@@ -100,10 +99,10 @@ class ConnectedVariableTabUpdate extends React.Component {
     }
 
     parseData = async (data, mdv) => {
-        let jsonData = await csv({delimiter: 'auto'}).fromString(data);
+        let jsonData = await csv({ delimiter: 'auto' }).fromString(data);
         let parsedData = {};
         let nonParsedData = [];
-        jsonData.forEach( row => {
+        jsonData.forEach(row => {
             let itemOid;
             let itemGroupOid;
             if (row.dataset) {
@@ -118,7 +117,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                 if (parsedData.hasOwnProperty(itemGroupOid)) {
                     parsedData[itemGroupOid][itemOid] = { ...row };
                 } else {
-                    parsedData[itemGroupOid] = { [itemOid] : { ...row } };
+                    parsedData[itemGroupOid] = { [itemOid]: { ...row } };
                 }
             } else {
                 nonParsedData.push(row);
@@ -142,13 +141,13 @@ class ConnectedVariableTabUpdate extends React.Component {
 
     getDataTable = () => {
         let data = [];
-        let labels = {dataset: 'Dataset', variable: 'Variable', length: 'Length'};
+        let labels = { dataset: 'Dataset', variable: 'Variable', length: 'Length' };
         if (this.state.showNonParsed) {
             data = this.state.nonParsedData;
         } else {
             let parsedData = this.state.parsedData;
             Object.keys(parsedData).forEach(itemGroupOid => {
-                Object.keys(parsedData[itemGroupOid]).forEach( itemDefOid => {
+                Object.keys(parsedData[itemGroupOid]).forEach(itemDefOid => {
                     let item = parsedData[itemGroupOid][itemDefOid];
                     data.push({
                         dataset: item.dataset,
@@ -177,8 +176,8 @@ class ConnectedVariableTabUpdate extends React.Component {
         this.props.updateMainUi({ showDataInput: false });
     }
 
-    render() {
-        const {classes} = this.props;
+    render () {
+        const { classes } = this.props;
         const dataLoaded = (Object.keys(this.state.parsedData).length + this.state.nonParsedData.length > 0);
 
         return (
@@ -193,11 +192,11 @@ class ConnectedVariableTabUpdate extends React.Component {
                     <Grid container spacing={16} alignItems='flex-end'>
                         <Grid item xs={12}>
                             { dataLoaded && this.state.nonParsedData.length > 0 && (
-                                <Typography variant="body2" gutterBottom className={classes.notImported} color='primary'>
+                                <Typography variant="body1" gutterBottom className={classes.notImported} color='primary'>
                                     <Button
                                         variant='contained'
                                         mini
-                                        onClick={() => {this.setState({showNonParsed: !this.state.showNonParsed});}}
+                                        onClick={() => { this.setState({ showNonParsed: !this.state.showNonParsed }); }}
                                         className={classes.button}
                                     >
                                         { this.state.showNonParsed ? 'Hide' : 'Show' }
@@ -216,7 +215,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                                     fullWidth
                                     value={this.state.rawData}
                                     rows={20}
-                                    placeholder={"dataset,variable,length\nADSL,AVAL,20\nADSL,AVAL.AST,8"}
+                                    placeholder={'dataset,variable,length\nADSL,AVAL,20\nADSL,AVAL.AST,8'}
                                     onChange={this.handleChange('input')}
                                     InputProps={{
                                         disableUnderline: true,
@@ -284,10 +283,10 @@ class ConnectedVariableTabUpdate extends React.Component {
 }
 
 ConnectedVariableTabUpdate.propTypes = {
-    classes       : PropTypes.object.isRequired,
-    mdv           : PropTypes.object.isRequired,
-    defineVersion : PropTypes.string.isRequired,
-    updateMainUi  : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    mdv: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    updateMainUi: PropTypes.func.isRequired,
 };
 
 const VariableTabUpdate = connect(mapStateToProps, mapDispatchToProps)(ConnectedVariableTabUpdate);

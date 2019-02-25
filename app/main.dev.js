@@ -19,6 +19,8 @@ import saveDefine from './main/saveDefine.js';
 import openDefineXml from './main/openDefineXml.js';
 import selectFolder from './main/selectFolder.js';
 import writeDefineObject from './main/writeDefineObject.js';
+import exportStudy from './main/exportStudy.js';
+import importStudy from './main/importStudy.js';
 import loadDefineObject from './main/loadDefineObject.js';
 import loadControlledTerminology from './main/loadControlledTerminology.js';
 import deleteDefineObject from './main/deleteDefineObject.js';
@@ -38,7 +40,7 @@ if (
     process.env.NODE_ENV === 'development' ||
     process.env.DEBUG_PROD === 'true'
 ) {
-    require('electron-debug')({devToolsMode: 'previous'});
+    require('electron-debug')({ devToolsMode: 'previous' });
     const p = path.join(__dirname, '..', 'app', 'node_modules');
     require('module').globalPaths.push(p);
 }
@@ -55,13 +57,13 @@ const installExtensions = async () => {
     ).catch(console.log);
 };
 
-function createWindow() {
+function createWindow () {
     mainWindow = new BrowserWindow({
         width: 768,
         height: 1024,
         center: true,
         show: false,
-        icon: __dirname + '/static/images/misc/mainIcon64x64.png',
+        icon: path.join(__dirname, '/static/images/misc/mainIcon64x64.png'),
         webPreferences: { nodeIntegration: true },
     });
 
@@ -83,7 +85,7 @@ function createWindow() {
         mainWindow.setMenu(null);
     }
 
-    mainWindow.on('close', function(e) {
+    mainWindow.on('close', function (e) {
         if (mainWindow !== null) {
             e.preventDefault();
             mainWindow.webContents.send('quit');
@@ -137,6 +139,14 @@ ipcMain.on('openDocument', (event, defineLocation, pdfLink) => {
 // Open file using external application
 ipcMain.on('openFileInExternalApp', (event, defineLocation, fileLink) => {
     openFileInExternalApp(mainWindow, defineLocation, fileLink);
+});
+// Export Study
+ipcMain.on('exportStudy', (event, exportObject) => {
+    exportStudy(mainWindow, exportObject);
+});
+// Import Study
+ipcMain.on('importStudy', (event, idObject) => {
+    importStudy(mainWindow, idObject);
 });
 
 ipcMain.on('quitConfirmed', (event) => {

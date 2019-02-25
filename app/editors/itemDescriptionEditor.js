@@ -42,7 +42,7 @@ const styles = theme => ({
 const mapStateToProps = state => {
     return {
         // TODO : remove mapStateToProps and add mapDispatchToProps
-        lang          : state.present.odm.study.metaDataVersion.lang,
+        lang: state.present.odm.study.metaDataVersion.lang,
     };
 };
 
@@ -51,15 +51,15 @@ class ConnectedItemDescriptionEditor extends React.Component {
         super(props);
         this.rootRef = React.createRef();
         this.state = {
-            origins  : this.props.defaultValue.origins,
-            comment  : this.props.defaultValue.comment,
-            method   : this.props.defaultValue.method,
-            prognote : this.props.defaultValue.prognote,
+            origins: this.props.defaultValue.origins,
+            comment: this.props.defaultValue.comment,
+            method: this.props.defaultValue.method,
+            prognote: this.props.defaultValue.prognote,
         };
     }
 
     handleChange = (name, originId) => (updateObj) => {
-        this.setState({[name]: updateObj});
+        this.setState({ [name]: updateObj });
     }
 
     save = () => {
@@ -70,7 +70,7 @@ class ConnectedItemDescriptionEditor extends React.Component {
         this.props.onUpdate(this.props.defaultValue);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.cancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -82,7 +82,7 @@ class ConnectedItemDescriptionEditor extends React.Component {
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.rootRef.current.focus();
     }
 
@@ -104,7 +104,7 @@ class ConnectedItemDescriptionEditor extends React.Component {
                     <Grid item xs={12} className={classes.gridItem}>
                         <Divider/>
                     </Grid>
-                    {(['Derived','Assigned'].includes(originType) || this.state.method !== undefined) &&
+                    {(['Derived', 'Assigned'].includes(originType) || this.state.method !== undefined) &&
                             <React.Fragment>
                                 <Grid item xs={12} className={classes.gridItem}>
                                     <MethodEditor method={this.state.method} onUpdate={this.handleChange('method')} stateless={true} fullName={this.props.row.fullName}/>
@@ -130,8 +130,8 @@ class ConnectedItemDescriptionEditor extends React.Component {
 }
 
 ConnectedItemDescriptionEditor.propTypes = {
-    defaultValue : PropTypes.object,
-    lang         : PropTypes.string,
+    defaultValue: PropTypes.object,
+    lang: PropTypes.string,
 };
 
 const ItemDescriptionEditor = connect(mapStateToProps)(ConnectedItemDescriptionEditor);

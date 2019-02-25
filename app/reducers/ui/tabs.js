@@ -21,7 +21,7 @@ import {
     UI_UPDATEFILTER,
     UI_LOADTABS,
     UI_CHANGETABLEPAGEDETAILS,
-} from "constants/action-types";
+} from 'constants/action-types';
 import { ui } from 'constants/initialValues.js';
 
 const initialState = ui.tabs;
@@ -35,8 +35,8 @@ const changeTab = (state, action) => {
         newSettings.splice(currentTab, 1, newSetting);
         return {
             ...state,
-            currentTab : action.updateObj.selectedTab,
-            settings   : newSettings,
+            currentTab: action.updateObj.selectedTab,
+            settings: newSettings,
         };
     } else {
         return {
@@ -88,16 +88,16 @@ const selectGroup = (state, action) => {
     // Row select is disabled when group is changed. Otherwise old selection will be shown for the new group.
     let newSetting = {
         ...state.settings[tabIndex],
-        groupOid       : action.updateObj.groupOid,
-        scrollPosition : newScrollPositions,
-        rowSelect      : { overall: false },
+        groupOid: action.updateObj.groupOid,
+        scrollPosition: newScrollPositions,
+        rowSelect: { overall: false },
     };
     newSettings.splice(tabIndex, 1, newSetting);
 
     return {
         ...state,
-        currentTab : tabIndex,
-        settings   : newSettings,
+        currentTab: tabIndex,
+        settings: newSettings,
     };
 };
 
@@ -135,14 +135,14 @@ const loadTabs = (state, action) => {
         let isDifferent = false;
         // Check if there are any different tab names
         // New tab names
-        initialState.tabNames.some( tabName => {
+        initialState.tabNames.some(tabName => {
             if (!action.updateObj.tabNames.includes(tabName)) {
                 isDifferent = true;
                 return true;
             }
         });
         // Removed tab names
-        action.updateObj.tabNames.some( tabName => {
+        action.updateObj.tabNames.some(tabName => {
             if (!initialState.tabNames.includes(tabName)) {
                 isDifferent = true;
                 return true;
@@ -151,10 +151,10 @@ const loadTabs = (state, action) => {
         // Check if there are any differences in settings
         if (!isDifferent) {
             let actualSettings = action.updateObj.settings;
-            initialState.settings.some( (setting, index) => {
+            initialState.settings.some((setting, index) => {
                 let actualSetting = actualSettings[index];
                 // Check if any of the high-level setting properties changed
-                isDifferent = Object.keys(setting).some( settingProp => (!actualSetting.hasOwnProperty(settingProp) && setting[settingProp] !== undefined));
+                isDifferent = Object.keys(setting).some(settingProp => (!actualSetting.hasOwnProperty(settingProp) && setting[settingProp] !== undefined));
                 if (isDifferent) {
                     return true;
                 }
@@ -162,7 +162,7 @@ const loadTabs = (state, action) => {
                     let actualColumnsNames = Object.keys(actualSetting.columns);
                     let initialColumnsNames = Object.keys(setting.columns);
                     // New columns
-                    initialColumnsNames.some( columnName => {
+                    initialColumnsNames.some(columnName => {
                         if (!actualColumnsNames.includes(columnName)) {
                             isDifferent = true;
                             return true;

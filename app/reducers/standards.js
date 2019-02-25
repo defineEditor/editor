@@ -17,7 +17,7 @@ import getOid from 'utils/getOid.js';
 import {
     UPD_STDCT,
     UPD_STD,
-} from "constants/action-types";
+} from 'constants/action-types';
 
 const initialOid = getOid('Standard');
 const initialState = { [initialOid]: new Standard({ oid: initialOid }) };
@@ -27,13 +27,13 @@ const updateStandards = (state, action) => {
     // action.updateObj.removedStandardOids - list of removed standard OIDs
     // action.updateObj.addedStandards - list of added standards
     // action.updateObj.updatedStandards - list of changed standards
-    action.updateObj.removedStandardOids.forEach( stdOid => {
+    action.updateObj.removedStandardOids.forEach(stdOid => {
         delete newState[stdOid];
     });
-    Object.keys(action.updateObj.addedStandards).forEach( stdOid => {
+    Object.keys(action.updateObj.addedStandards).forEach(stdOid => {
         newState[stdOid] = action.updateObj.addedStandards[stdOid];
     });
-    Object.keys(action.updateObj.updatedStandards).forEach( stdOid => {
+    Object.keys(action.updateObj.updatedStandards).forEach(stdOid => {
         newState[stdOid] = action.updateObj.updatedStandards[stdOid];
     });
     return newState;

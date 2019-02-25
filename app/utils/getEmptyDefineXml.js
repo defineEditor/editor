@@ -24,7 +24,7 @@ import getOid from 'utils/getOid.js';
 import getCtPublishingSet from 'utils/getCtPublishingSet.js';
 import getModelFromStandard from 'utils/getModelFromStandard.js';
 
-function getEmptyDefineXml({ standard, defineVersion, study, settings, controlledTerminology } = {}) {
+function getEmptyDefineXml ({ standard, defineVersion, study, settings, controlledTerminology } = {}) {
     let defaultOdmAttrs = {
         xlink: 'http://www.w3.org/1999/xlink',
         def: 'http://www.cdisc.org/ns/def/v2.0',
@@ -57,11 +57,11 @@ function getEmptyDefineXml({ standard, defineVersion, study, settings, controlle
     }
 
     let standardOid = getOid('Standard');
-    let standards =  {
+    let standards = {
         [standardOid]: { ...new Standard({ name: standard, type: 'IG', isDefault: 'Yes' }) }
     };
 
-    controlledTerminology.allIds.forEach( ctId => {
+    controlledTerminology.allIds.forEach(ctId => {
         let ct = controlledTerminology.byId[ctId];
         if (ct.isDefault) {
             let publishingSet;
@@ -79,7 +79,7 @@ function getEmptyDefineXml({ standard, defineVersion, study, settings, controlle
                     version: ct.version,
                     status: ct.isCdiscNci ? 'Final' : undefined,
 
-                })}
+                }) }
             };
         }
     });

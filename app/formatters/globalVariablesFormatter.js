@@ -24,20 +24,19 @@ import FormattingControlIcons from 'formatters/formattingControlIcons.js';
 
 const styles = theme => ({
     globalVariables: {
-        padding   : 16,
-        marginTop : theme.spacing.unit * 3,
-        width     : '100%',
+        padding: 16,
+        marginTop: theme.spacing.unit * 3,
+        width: '100%',
     },
 });
 
 class GlobalVariablesFormatter extends React.Component {
-
     render () {
         const { classes, globalVariables, studyOid } = this.props;
         const { protocolName, studyName, studyDescription } = globalVariables;
         return (
             <Paper className={classes.globalVariables} elevation={4}>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     Global Variables and Study OID
                     <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>
@@ -65,10 +64,10 @@ class GlobalVariablesFormatter extends React.Component {
 }
 
 GlobalVariablesFormatter.propTypes = {
-    globalVariables : PropTypes.object.isRequired,
-    classes         : PropTypes.object.isRequired,
-    onEdit          : PropTypes.func.isRequired,
-    onComment       : PropTypes.func,
+    globalVariables: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    onEdit: PropTypes.func.isRequired,
+    onComment: PropTypes.func,
 };
 
 export default withStyles(styles)(GlobalVariablesFormatter);

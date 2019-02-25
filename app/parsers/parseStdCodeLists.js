@@ -85,13 +85,13 @@ function parseTranslatedText (item) {
     let args = {};
     if (typeof item['translatedText'][0] === 'string') {
         args = {
-            lang  : undefined,
-            value : item['translatedText'][0]
+            lang: undefined,
+            value: item['translatedText'][0]
         };
     } else {
         args = {
-            lang  : item['translatedText'][0]['$']['lang'],
-            value : item['translatedText'][0]['_']
+            lang: item['translatedText'][0]['$']['lang'],
+            value: item['translatedText'][0]['_']
         };
     }
 
@@ -109,8 +109,8 @@ function parseCodeLists (codeListsRaw, mdv, quickParse) {
             // QuickParse is used when a folder with CTs is parsed, no need to parse individual codes;
             // Create an Alias
             args.alias = new stdCL.Alias({
-                context : 'nci:ExtCodeID',
-                name    : codeListRaw['$'].extCodeId,
+                context: 'nci:ExtCodeID',
+                name: codeListRaw['$'].extCodeId,
             });
             // Submission value
             if (codeListRaw.hasOwnProperty('cDISCSubmissionValue')) {
@@ -127,12 +127,12 @@ function parseCodeLists (codeListsRaw, mdv, quickParse) {
                     let itemArgs = item['$'];
                     // Create an Alias
                     itemArgs.alias = new stdCL.Alias({
-                        context : 'nci:ExtCodeID',
-                        name    : item['$'].extCodeId,
+                        context: 'nci:ExtCodeID',
+                        name: item['$'].extCodeId,
                     });
                     let codeListItem = new stdCL.StdCodeListItem(itemArgs);
                     item['preferredTerm'].forEach(function (item) {
-                        codeListItem.addDecode(new stdCL.TranslatedText({value: item}));
+                        codeListItem.addDecode(new stdCL.TranslatedText({ value: item }));
                     });
                     itemOrder.push(codeList.addCodeListItem(codeListItem));
                 });
@@ -159,15 +159,15 @@ function parseMetaDataVersion (metadataRaw, quickParse) {
     // Connect NCI codes with CodeList IDs
     let nciCodeOids = {};
     if (!quickParse) {
-        Object.keys(mdv.codeLists).forEach( codeListOid => {
+        Object.keys(mdv.codeLists).forEach(codeListOid => {
             nciCodeOids[mdv.codeLists[codeListOid].alias.name] = codeListOid;
         });
     }
 
     let args = {
-        oid       : metadataRaw['$']['oid'],
-        name      : metadataRaw['$']['name'],
-        codeLists : mdv.codeLists,
+        oid: metadataRaw['$']['oid'],
+        name: metadataRaw['$']['name'],
+        codeLists: mdv.codeLists,
         nciCodeOids,
     };
 

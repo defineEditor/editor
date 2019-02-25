@@ -28,7 +28,7 @@ const styles = theme => ({
 
 const mapStateToProps = state => {
     return {
-        reviewMode : state.present.ui.main.reviewMode,
+        reviewMode: state.present.ui.main.reviewMode,
     };
 };
 
@@ -54,10 +54,10 @@ class ConnectedFormattingControlIcons extends React.Component {
 }
 
 ConnectedFormattingControlIcons.propTypes = {
-    reviewMode : PropTypes.bool.isRequired,
-    onEdit     : PropTypes.func.isRequired,
-    onHelp     : PropTypes.func,
-    onComment  : PropTypes.func,
+    reviewMode: PropTypes.bool.isRequired,
+    onEdit: PropTypes.func.isRequired,
+    onHelp: PropTypes.func,
+    onComment: PropTypes.func,
 };
 
 const FormattingControlIcons = connect(mapStateToProps)(ConnectedFormattingControlIcons);

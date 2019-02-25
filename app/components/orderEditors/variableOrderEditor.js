@@ -27,9 +27,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        itemGroups : state.present.odm.study.metaDataVersion.itemGroups,
-        itemDefs   : state.present.odm.study.metaDataVersion.itemDefs,
-        reviewMode : state.present.ui.main.reviewMode,
+        itemGroups: state.present.odm.study.metaDataVersion.itemGroups,
+        itemDefs: state.present.odm.study.metaDataVersion.itemDefs,
+        reviewMode: state.present.ui.main.reviewMode,
     };
 };
 
@@ -38,15 +38,14 @@ class VariableOrderEditorConnected extends React.Component {
         this.props.updateItemRefOrder(this.props.itemGroupOid, items.map(item => (item.oid)));
     }
 
-    render() {
+    render () {
         let items = [];
 
         let dataset = this.props.itemGroups[this.props.itemGroupOid];
 
-        dataset.itemRefOrder.forEach( itemRefOid => {
-            items.push({oid: itemRefOid, name: this.props.itemDefs[dataset.itemRefs[itemRefOid].itemOid].name});
+        dataset.itemRefOrder.forEach(itemRefOid => {
+            items.push({ oid: itemRefOid, name: this.props.itemDefs[dataset.itemRefs[itemRefOid].itemOid].name });
         });
-
 
         return (
             <GeneralOrderEditor title='Variable Order' items={items} onSave={this.onSave} disabled={this.props.reviewMode}/>
@@ -55,12 +54,11 @@ class VariableOrderEditorConnected extends React.Component {
 }
 
 VariableOrderEditorConnected.propTypes = {
-    itemGroupOid : PropTypes.string.isRequired,
-    itemGroups   : PropTypes.object.isRequired,
-    itemDefs     : PropTypes.object.isRequired,
-    reviewMode   : PropTypes.bool,
+    itemGroupOid: PropTypes.string.isRequired,
+    itemGroups: PropTypes.object.isRequired,
+    itemDefs: PropTypes.object.isRequired,
+    reviewMode: PropTypes.bool,
 };
 
 const VariableOrderEditor = connect(mapStateToProps, mapDispatchToProps)(VariableOrderEditorConnected);
 export default VariableOrderEditor;
-

@@ -25,7 +25,7 @@ import {
     UPD_ITEMDESCRIPTION,
     UPD_VLMITEMREFORDER,
     UPD_ITEMREFKEYORDER,
-} from "constants/action-types";
+} from 'constants/action-types';
 import { ValueList, ItemRef } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 
@@ -36,8 +36,8 @@ const addValueList = (state, action) => {
     let itemRefOrder = [itemRef.oid];
     let valueList = { ...new ValueList(
         {
-            oid     : action.valueListOid,
-            sources : {itemDefs: [action.source.oid]},
+            oid: action.valueListOid,
+            sources: { itemDefs: [action.source.oid] },
             itemRefs,
             itemRefOrder,
         }) };
@@ -46,7 +46,7 @@ const addValueList = (state, action) => {
 
 const updateItemRefOrder = (state, action) => {
     // Check if order changed;
-    let newValueList =  { ...new ValueList({ ...state[action.valueListOid], itemRefOrder: action.itemRefOrder }) };
+    let newValueList = { ...new ValueList({ ...state[action.valueListOid], itemRefOrder: action.itemRefOrder }) };
     return { ...state, [action.valueListOid]: newValueList };
 };
 
@@ -61,7 +61,7 @@ const updateItemRefKeyOrder = (state, action) => {
         if (action.updateObj.orderNumber !== action.prevObj.orderNumber) {
             newItemRefOrder = ds.itemRefOrder.slice();
             // Delete element from the ordered array
-            newItemRefOrder.splice(newItemRefOrder.indexOf(action.source.itemRefOid),1);
+            newItemRefOrder.splice(newItemRefOrder.indexOf(action.source.itemRefOid), 1);
             // Insert it in the new place
             if (action.updateObj.orderNumber !== ds.itemRefOrder.length) {
                 newItemRefOrder.splice(action.updateObj.orderNumber - 1, 0, action.source.itemRefOid);
@@ -75,7 +75,7 @@ const updateItemRefKeyOrder = (state, action) => {
             newKeyOrder = ds.keyOrder.slice();
             // Delete element from the keys array if it was a key
             if (ds.keyOrder.includes(action.source.itemRefOid)) {
-                newKeyOrder.splice(newKeyOrder.indexOf(action.source.itemRefOid),1);
+                newKeyOrder.splice(newKeyOrder.indexOf(action.source.itemRefOid), 1);
             }
             // Insert it in the new place
             if (action.updateObj.keySequence !== ds.keyOrder.length) {
@@ -83,13 +83,12 @@ const updateItemRefKeyOrder = (state, action) => {
             } else {
                 newKeyOrder.push(action.source.itemRefOid);
             }
-
         } else {
             newKeyOrder = ds.keyOrder;
         }
         let newValueList = { ...new ValueList({ ...state[action.source.itemGroupOid],
-            itemRefOrder : newItemRefOrder,
-            keyOrder     : newKeyOrder,
+            itemRefOrder: newItemRefOrder,
+            keyOrder: newKeyOrder,
         }) };
         return { ...state, [action.source.itemGroupOid]: newValueList };
     }
@@ -100,7 +99,7 @@ const updateItemRef = (state, action) => {
         return state;
     } else {
         let newItemRef = { ...new ItemRef({ ...state[action.source.itemGroupOid].itemRefs[action.source.itemRefOid], ...action.updateObj }) };
-        let newValueList =  { ...new ValueList({ ...state[action.source.itemGroupOid],
+        let newValueList = { ...new ValueList({ ...state[action.source.itemGroupOid],
             itemRefs: { ...state[action.source.itemGroupOid].itemRefs, [action.source.itemRefOid]: newItemRef }
         }) };
         return { ...state, [action.source.itemGroupOid]: newValueList };
@@ -144,7 +143,7 @@ const deleteValueList = (state, action) => {
         } else if (sourceItemDefs.includes(itemDefOid)) {
             // Remove referece to the source OID from the list of valueList sources
             let newSources = sourceItemDefs.slice();
-            newSources.splice(newSources.indexOf(itemDefOid),1);
+            newSources.splice(newSources.indexOf(itemDefOid), 1);
             let newValueList = { ...new ValueList({ ...newState[valueListOid], sources: { itemDefs: newSources } }) };
             newState = { ...newState, [newValueList.oid]: newValueList };
         }
@@ -158,8 +157,8 @@ const deleteVariables = (state, action) => {
     let newState = { ...state };
     // Delete valueLists which were completely removed
     // Theoretically 2 ItemDefs can reference the same valueList
-    Object.keys(action.deleteObj.valueListOids).forEach( itemDefOid => {
-        action.deleteObj.valueListOids[itemDefOid].forEach( valueListOid => {
+    Object.keys(action.deleteObj.valueListOids).forEach(itemDefOid => {
+        action.deleteObj.valueListOids[itemDefOid].forEach(valueListOid => {
             let subAction = { source: {} };
             subAction.source.oid = itemDefOid;
             subAction.valueListOid = valueListOid;
@@ -167,41 +166,41 @@ const deleteVariables = (state, action) => {
         });
     });
     // Delete individual itemRefs
-    Object.keys(action.deleteObj.vlmItemRefOids).forEach( valueListOid => {
+    Object.keys(action.deleteObj.vlmItemRefOids).forEach(valueListOid => {
         if (newState.hasOwnProperty(valueListOid)) {
             let valueList = state[valueListOid];
             let newItemRefs = Object.assign({}, valueList.itemRefs);
-            action.deleteObj.vlmItemRefOids[valueListOid].forEach( itemRefOid => {
+            action.deleteObj.vlmItemRefOids[valueListOid].forEach(itemRefOid => {
                 if (newItemRefs.hasOwnProperty(itemRefOid)) {
                     delete newItemRefs[itemRefOid];
                 }
             });
             // Update itemRef order array
             let newItemRefOrder = valueList.itemRefOrder.slice();
-            action.deleteObj.vlmItemRefOids[valueListOid].forEach( itemRefOid => {
+            action.deleteObj.vlmItemRefOids[valueListOid].forEach(itemRefOid => {
                 if (newItemRefOrder.includes(itemRefOid)) {
-                    newItemRefOrder.splice(newItemRefOrder.indexOf(itemRefOid),1);
+                    newItemRefOrder.splice(newItemRefOrder.indexOf(itemRefOid), 1);
                 }
             });
             // Check if there are any key variables removed;
             let newKeyOrder;
-            let keysAreRemoved = action.deleteObj.vlmItemRefOids[valueListOid].reduce( (includesKey, itemRefOid) => {
+            let keysAreRemoved = action.deleteObj.vlmItemRefOids[valueListOid].reduce((includesKey, itemRefOid) => {
                 return includesKey || valueList.keyOrder.includes(itemRefOid);
             }, false);
             if (keysAreRemoved) {
                 newKeyOrder = valueList.keyOrder.slice();
-                action.deleteObj.vlmItemRefOids[valueListOid].forEach( itemRefOid => {
+                action.deleteObj.vlmItemRefOids[valueListOid].forEach(itemRefOid => {
                     if (newKeyOrder.includes(itemRefOid)) {
-                        newKeyOrder.splice(newKeyOrder.indexOf(itemRefOid),1);
+                        newKeyOrder.splice(newKeyOrder.indexOf(itemRefOid), 1);
                     }
                 });
             } else {
                 newKeyOrder = valueList.keyOrder;
             }
-            let newValueList =  { ...new ValueList({ ...newState[valueListOid],
-                itemRefs     : newItemRefs,
-                itemRefOrder : newItemRefOrder,
-                keyOrder     : newKeyOrder,
+            let newValueList = { ...new ValueList({ ...newState[valueListOid],
+                itemRefs: newItemRefs,
+                itemRefOrder: newItemRefOrder,
+                keyOrder: newKeyOrder,
             }) };
 
             newState = { ...newState, [valueListOid]: newValueList };
@@ -215,8 +214,8 @@ const deleteItemGroups = (state, action) => {
     // {[itemGroupOid] : vlmItemRefOids: { [itemOid1, itemOid2, ...]}}
     // {[itemGroupOid] : valueListOids: { [vlOid1, vlOid2, ...]}}
     let newState = { ...state };
-    Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
-        let subAction = {deleteObj: {}, source: { itemGroupOid }};
+    Object.keys(action.deleteObj.itemGroupData).forEach(itemGroupOid => {
+        let subAction = { deleteObj: {}, source: { itemGroupOid } };
         subAction.deleteObj.vlmItemRefOids = action.deleteObj.itemGroupData[itemGroupOid].vlmItemRefOids;
         subAction.deleteObj.valueListOids = action.deleteObj.itemGroupData[itemGroupOid].valueListOids;
         newState = deleteVariables(newState, subAction);
@@ -231,11 +230,10 @@ const updateItemRefWhereClause = (state, action) => {
     let valueList = state[action.source.valueListOid];
     let itemRef = valueList.itemRefs[action.source.itemRefOid];
     if (action.updateObj.whereClause.oid !== itemRef.whereClauseOid) {
-        let newItemRef =  { ...new ItemRef({ ...itemRef, whereClauseOid: action.updateObj.whereClause.oid }) };
-        let newValueList =  { ...new ValueList({ ...valueList, itemRefs: { ...valueList.itemRefs, [action.source.itemRefOid]: newItemRef } }) };
+        let newItemRef = { ...new ItemRef({ ...itemRef, whereClauseOid: action.updateObj.whereClause.oid }) };
+        let newValueList = { ...new ValueList({ ...valueList, itemRefs: { ...valueList.itemRefs, [action.source.itemRefOid]: newItemRef } }) };
         return { ...state, [action.source.valueListOid]: newValueList };
-    }
-    else {
+    } else {
         return state;
     }
 };
@@ -267,15 +265,15 @@ const handleItemsBulkUpdate = (state, action) => {
         let itemDefItemRefMap = {};
         let uniqueValueListOids = [];
         action.updateObj.selectedItems
-            .filter( item => (item.valueListOid !== undefined) )
-            .forEach( item => {
+            .filter(item => (item.valueListOid !== undefined))
+            .forEach(item => {
                 if (!uniqueValueListOids.includes(item.valueListOid)) {
                     uniqueValueListOids.push(item.valueListOid);
                 }
             });
-        uniqueValueListOids.forEach( valueListOid => {
+        uniqueValueListOids.forEach(valueListOid => {
             itemDefItemRefMap[valueListOid] = {};
-            Object.keys(state[valueListOid].itemRefs).forEach( itemRefOid => {
+            Object.keys(state[valueListOid].itemRefs).forEach(itemRefOid => {
                 itemDefItemRefMap[valueListOid][state[valueListOid].itemRefs[itemRefOid].itemOid] = itemRefOid;
             });
         });
@@ -283,8 +281,8 @@ const handleItemsBulkUpdate = (state, action) => {
         // Get all valueLists and ItemRefs for update.
         let valueListItemRefs = {};
         action.updateObj.selectedItems
-            .filter( item => (item.valueListOid !== undefined) )
-            .forEach( item => {
+            .filter(item => (item.valueListOid !== undefined))
+            .forEach(item => {
                 if (valueListItemRefs.hasOwnProperty(item.valueListOid)) {
                     valueListItemRefs[item.valueListOid].push(itemDefItemRefMap[item.valueListOid][item.itemDefOid]);
                 } else {
@@ -295,9 +293,9 @@ const handleItemsBulkUpdate = (state, action) => {
         const { source, target, value } = field.updateValue;
 
         let updatedValueLists = {};
-        uniqueValueListOids.forEach( valueListOid => {
+        uniqueValueListOids.forEach(valueListOid => {
             let updatedItemRefs = {};
-            valueListItemRefs[valueListOid].forEach( itemRefOid => {
+            valueListItemRefs[valueListOid].forEach(itemRefOid => {
                 let itemRef = state[valueListOid].itemRefs[itemRefOid];
                 if (field.updateType === 'set') {
                     if (['mandatory', 'role'].includes(field.attr)) {
@@ -336,13 +334,13 @@ const addVariable = (state, action) => {
     let ds = state[action.source.valueListOid];
     let newItemRefOrder;
     if (action.orderNumber - 1 <= ds.itemRefOrder.length) {
-        newItemRefOrder = ds.itemRefOrder.slice(0, action.orderNumber - 1).concat([action.itemRef.oid].concat(ds.itemRefOrder.slice(action.orderNumber - 1))) ;
+        newItemRefOrder = ds.itemRefOrder.slice(0, action.orderNumber - 1).concat([action.itemRef.oid].concat(ds.itemRefOrder.slice(action.orderNumber - 1)));
     } else {
         newItemRefOrder = ds.itemRefOrder.slice().concat([action.itemRef.oid]);
     }
-    let newValueList =  { ...new ValueList({ ...state[action.source.valueListOid],
-        itemRefOrder : newItemRefOrder,
-        itemRefs     : { ...state[action.source.valueListOid].itemRefs, [action.itemRef.oid]: action.itemRef },
+    let newValueList = { ...new ValueList({ ...state[action.source.valueListOid],
+        itemRefOrder: newItemRefOrder,
+        itemRefs: { ...state[action.source.valueListOid].itemRefs, [action.itemRef.oid]: action.itemRef },
     }) };
     return { ...state, [action.source.valueListOid]: newValueList };
 };
@@ -353,8 +351,8 @@ const addVariables = (state, action) => {
         let itemRefs = action.updateObj.itemRefs[action.updateObj.itemGroupOid];
         if (Object.keys(itemRefs).length > 0) {
             let newState = { ...state };
-            Object.keys(itemRefs).forEach( (itemRefOid, index) => {
-                newState = addVariable( newState, {
+            Object.keys(itemRefs).forEach((itemRefOid, index) => {
+                newState = addVariable(newState, {
                     source: { valueListOid: action.updateObj.itemGroupOid },
                     orderNumber: action.updateObj.position + index,
                     itemRef: itemRefs[itemRefOid],
@@ -383,7 +381,7 @@ const addVariables = (state, action) => {
 const handleAddItemGroups = (state, action) => {
     let allValueLists = {};
     const { itemGroups } = action.updateObj;
-    Object.values(itemGroups).forEach( itemGroupData => {
+    Object.values(itemGroups).forEach(itemGroupData => {
         allValueLists = { ...allValueLists, ...itemGroupData.valueLists };
     });
     return { ...state, ...allValueLists };

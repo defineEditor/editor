@@ -25,7 +25,7 @@ import {
     UPD_ANALYSISRESULT,
     ADD_ANALYSISRESULTS,
     ADD_RESULTDISPLAYS,
-} from "constants/action-types";
+} from 'constants/action-types';
 import { WhereClause } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
 
@@ -49,12 +49,12 @@ const deleteWhereClause = (state, action) => {
             let newState = Object.assign({}, state);
             delete newState[action.whereClause.oid];
             return newState;
-        } else if (action.whereClause.sources[action.source.type].includes(action.source.valueListOid)){
+        } else if (action.whereClause.sources[action.source.type].includes(action.source.valueListOid)) {
             // Remove referece to the source OID from the list of whereClause sources
             let newSourcesForType = action.whereClause.sources.valueLists.slice();
-            newSourcesForType.splice(newSourcesForType.indexOf(action.source.valueListOid),1);
+            newSourcesForType.splice(newSourcesForType.indexOf(action.source.valueListOid), 1);
             let newWhereClause = new WhereClause({ ...action.whereClause, sources: { ...action.whereClause.sources, valueLists: newSourcesForType } });
-            return {...state, [action.whereClause.oid]: newWhereClause};
+            return { ...state, [action.whereClause.oid]: newWhereClause };
         } else {
             return state;
         }
@@ -64,18 +64,18 @@ const deleteWhereClause = (state, action) => {
             let newState = { ...state };
             delete newState[action.whereClause.oid];
             return newState;
-        } else if (action.whereClause.sources[action.source.type][action.source.typeOid].includes(action.source.oid)){
+        } else if (action.whereClause.sources[action.source.type][action.source.typeOid].includes(action.source.oid)) {
             // Remove referece to the source OID from the list of whereClause sources
             let newSourcesForType = { ...action.whereClause.sources[action.source.type] };
             let newSourcesForTypeGroup = newSourcesForType[action.source.typeOid].slice();
-            newSourcesForTypeGroup.splice(newSourcesForTypeGroup.indexOf(action.source.oid),1);
+            newSourcesForTypeGroup.splice(newSourcesForTypeGroup.indexOf(action.source.oid), 1);
             if (newSourcesForTypeGroup.length === 0) {
                 delete newSourcesForType[action.source.typeOid];
             } else {
                 newSourcesForType = { ...newSourcesForType, [action.source.typeOid]: newSourcesForTypeGroup };
             }
             let newWhereClause = { ...new WhereClause({ ...action.whereClause, sources: { ...action.whereClause.sources, [action.source.type]: newSourcesForType } }) };
-            return {...state, [action.whereClause.oid]: newWhereClause};
+            return { ...state, [action.whereClause.oid]: newWhereClause };
         } else {
             return state;
         }
@@ -92,10 +92,10 @@ const deleteWhereClauseRefereces = (state, action) => {
     // action.deleteObj.rangeChangeWhereClauseOids contains:
     // [itemDefOid1, itemDefOid2]
     let newState = { ...state };
-    Object.keys(action.deleteObj.whereClauseOids).forEach( valueListOid => {
+    Object.keys(action.deleteObj.whereClauseOids).forEach(valueListOid => {
         let subAction = {};
         subAction.source = { valueListOid, type: 'valueLists' };
-        action.deleteObj.whereClauseOids[valueListOid].forEach( whereClauseOid => {
+        action.deleteObj.whereClauseOids[valueListOid].forEach(whereClauseOid => {
             // It is possible that WC was shared by several ItemRefs/ValueLists and already deleted
             if (newState.hasOwnProperty(whereClauseOid)) {
                 subAction.whereClause = newState[whereClauseOid];
@@ -104,24 +104,24 @@ const deleteWhereClauseRefereces = (state, action) => {
         });
     });
     // If a variable was removed and is references in a where clause, remove reference to it from the where clause
-    Object.keys(action.deleteObj.rangeChangeWhereClauseOids).forEach( whereClauseOid => {
+    Object.keys(action.deleteObj.rangeChangeWhereClauseOids).forEach(whereClauseOid => {
         if (newState.hasOwnProperty(whereClauseOid)) {
             let whereClause = newState[whereClauseOid];
             let deletedItemOids = action.deleteObj.rangeChangeWhereClauseOids[whereClauseOid];
             let newRangeChecks = whereClause.rangeChecks.slice();
-            newRangeChecks.forEach( (rangeCheck, index) => {
+            newRangeChecks.forEach((rangeCheck, index) => {
                 if (deletedItemOids.includes(rangeCheck.itemOid)) {
                     newRangeChecks.splice(index, 1, { ...rangeCheck, itemOid: undefined, itemGroupOid: undefined });
                 }
             });
-            newState = { ...newState, [whereClauseOid] : { ...whereClause, rangeChecks: newRangeChecks } };
+            newState = { ...newState, [whereClauseOid]: { ...whereClause, rangeChecks: newRangeChecks } };
         }
     });
     return newState;
 };
 
 const updateWhereClause = (state, action) => {
-    if (!deepEqual(action.whereClause,state[action.whereClause.oid])) {
+    if (!deepEqual(action.whereClause, state[action.whereClause.oid])) {
         // Update only if there are changes
         if (action.whereClause.sources.valueLists.includes(action.source.valueListOid)) {
             return { ...state, [action.whereClause.oid]: action.whereClause };
@@ -182,9 +182,9 @@ const deleteItemGroups = (state, action) => {
 
     // Transform the delete object to { analysisResultOid1: [itemGroupOid1, ...], ...}
     let itemGroupsToDelete = {};
-    Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
+    Object.keys(action.deleteObj.itemGroupData).forEach(itemGroupOid => {
         const analysisResultOids = action.deleteObj.itemGroupData[itemGroupOid].analysisResultOids;
-        Object.keys(analysisResultOids).forEach( analysisResultOid => {
+        Object.keys(analysisResultOids).forEach(analysisResultOid => {
             if (itemGroupsToDelete.hasOwnProperty(analysisResultOid) && !itemGroupsToDelete[analysisResultOid].includes(itemGroupOid)) {
                 itemGroupsToDelete[analysisResultOid].push(itemGroupOid);
             } else {
@@ -193,17 +193,17 @@ const deleteItemGroups = (state, action) => {
         });
     });
     // Remove corresponding refences to ARM
-    Object.keys(newState).forEach( whereClauseOid => {
+    Object.keys(newState).forEach(whereClauseOid => {
         const whereClause = newState[whereClauseOid];
         let sources = whereClause.sources.analysisResults;
         const arList = Object.keys(itemGroupsToDelete);
         if (sources !== undefined) {
-            Object.keys(sources).forEach( analysisResultOid => {
+            Object.keys(sources).forEach(analysisResultOid => {
                 if (arList.includes(analysisResultOid)) {
-                    itemGroupsToDelete[analysisResultOid].forEach( itemGroupOid => {
+                    itemGroupsToDelete[analysisResultOid].forEach(itemGroupOid => {
                         let subAction = {};
                         subAction.whereClause = whereClause;
-                        subAction.source ={ type: 'analysisResults', oid: itemGroupOid, typeOid: analysisResultOid };
+                        subAction.source = { type: 'analysisResults', oid: itemGroupOid, typeOid: analysisResultOid };
                         newState = deleteWhereClause(newState, subAction);
                     });
                 }
@@ -211,8 +211,8 @@ const deleteItemGroups = (state, action) => {
         }
     });
 
-    Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
-        let subAction = {deleteObj: {}, source: { itemGroupOid }};
+    Object.keys(action.deleteObj.itemGroupData).forEach(itemGroupOid => {
+        let subAction = { deleteObj: {}, source: { itemGroupOid } };
         subAction.deleteObj.whereClauseOids = action.deleteObj.itemGroupData[itemGroupOid].whereClauseOids;
         subAction.deleteObj.valueListOids = action.deleteObj.itemGroupData[itemGroupOid].valueListOids;
         subAction.deleteObj.rangeChangeWhereClauseOids = action.deleteObj.itemGroupData[itemGroupOid].rangeChangeWhereClauseOids;
@@ -232,7 +232,7 @@ const handleAddWhereClauses = (state, action) => {
 const handleAddItemGroups = (state, action) => {
     let allWhereClauses = {};
     const { itemGroups } = action.updateObj;
-    Object.values(itemGroups).forEach( itemGroupData => {
+    Object.values(itemGroups).forEach(itemGroupData => {
         allWhereClauses = { ...allWhereClauses, ...itemGroupData.whereClauses };
     });
     return { ...state, ...allWhereClauses };
@@ -241,12 +241,12 @@ const handleAddItemGroups = (state, action) => {
 const handleDeleteArmItem = (state, action) => {
     if (Object.keys(action.deleteObj.whereClauseOids).length > 0) {
         let newState = { ...state };
-        Object.keys(action.deleteObj.whereClauseOids).forEach( whereClauseOid => {
+        Object.keys(action.deleteObj.whereClauseOids).forEach(whereClauseOid => {
             Object.keys(action.deleteObj.whereClauseOids[whereClauseOid]).forEach(analysisResultOid => {
                 action.deleteObj.whereClauseOids[whereClauseOid][analysisResultOid].forEach(itemGroupOid => {
                     let subAction = {};
                     subAction.whereClause = newState[whereClauseOid];
-                    subAction.source ={ type: 'analysisResults', oid: itemGroupOid, typeOid: analysisResultOid };
+                    subAction.source = { type: 'analysisResults', oid: itemGroupOid, typeOid: analysisResultOid };
                     newState = deleteWhereClause(newState, subAction);
                 });
             });
@@ -259,24 +259,23 @@ const handleDeleteArmItem = (state, action) => {
 
 const handleUpdatedArmItem = (state, action) => {
     let whereClauseData = action.updateObj.whereClauseData;
-    if (whereClauseData !== undefined
-        &&
-        (Object.keys(whereClauseData.added).length > 0 ||  Object.keys(whereClauseData.removed).length > 0 ||  Object.keys(whereClauseData.changed).length > 0)
+    if (whereClauseData !== undefined &&
+        (Object.keys(whereClauseData.added).length > 0 || Object.keys(whereClauseData.removed).length > 0 || Object.keys(whereClauseData.changed).length > 0)
     ) {
         let newState = { ...state };
-        Object.keys(whereClauseData.added).forEach( whereClauseOid => {
+        Object.keys(whereClauseData.added).forEach(whereClauseOid => {
             newState[whereClauseOid] = whereClauseData.added[whereClauseOid];
         });
         // TODO Implement more in-depth comparison for changed Where Clauses
-        Object.keys(whereClauseData.changed).forEach( whereClauseOid => {
+        Object.keys(whereClauseData.changed).forEach(whereClauseOid => {
             newState[whereClauseOid] = whereClauseData.changed[whereClauseOid];
         });
-        Object.keys(whereClauseData.removed).forEach( whereClauseOid => {
-            Object.keys(whereClauseData.removed[whereClauseOid]).forEach( analysisResultOid => {
+        Object.keys(whereClauseData.removed).forEach(whereClauseOid => {
+            Object.keys(whereClauseData.removed[whereClauseOid]).forEach(analysisResultOid => {
                 let itemGroupOid = whereClauseData.removed[whereClauseOid][analysisResultOid];
                 let subAction = {};
                 subAction.whereClause = newState[whereClauseOid];
-                subAction.source ={ type: 'analysisResults', oid: itemGroupOid, typeOid: analysisResultOid };
+                subAction.source = { type: 'analysisResults', oid: itemGroupOid, typeOid: analysisResultOid };
                 newState = deleteWhereClause(newState, subAction);
             });
         });

@@ -13,12 +13,12 @@
 ***********************************************************************************/
 
 import React from 'react';
-import {TableHeaderColumn} from 'react-bootstrap-table';
+import { TableHeaderColumn } from 'react-bootstrap-table';
 
 // Transform columns object to Bootstrap-react-table column headers;
 function renderColumns (columns) {
     let result = [];
-    Object.keys(columns).forEach( id => {
+    Object.keys(columns).forEach(id => {
         let colProps = { dataField: id };
         let text = null;
         Object.keys(columns[id]).forEach((key) => {

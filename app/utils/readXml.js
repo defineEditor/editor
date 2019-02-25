@@ -32,7 +32,7 @@ function readXml (pathToXml) {
                 if (err !== null) {
                     return reject(err);
                 }
-                resolve( { data, stylesheetLocation });
+                resolve({ data, stylesheetLocation });
             });
         });
     });

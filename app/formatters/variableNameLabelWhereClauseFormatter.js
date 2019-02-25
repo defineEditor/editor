@@ -35,8 +35,8 @@ const styles = theme => ({
 });
 
 class VariableNameLabelWhereClauseFormatter extends React.Component {
-    render() {
-        const {classes} = this.props;
+    render () {
+        const { classes } = this.props;
         const name = this.props.value.name || '';
         let label;
         if (this.props.value.descriptions.length >= 1) {
@@ -63,7 +63,6 @@ class VariableNameLabelWhereClauseFormatter extends React.Component {
         } else {
             nameLabel = name;
         }
-
 
         return (
             <Grid container spacing={8} justify='space-between' alignItems='flex-end' className={classes.main}>
@@ -101,15 +100,14 @@ class VariableNameLabelWhereClauseFormatter extends React.Component {
 }
 
 VariableNameLabelWhereClauseFormatter.propTypes = {
-    classes       : PropTypes.object.isRequired,
-    value         : PropTypes.object.isRequired,
-    defineVersion : PropTypes.string.isRequired,
-    itemOid       : PropTypes.string,
-    state         : PropTypes.string,
-    hasVlm        : PropTypes.bool,
-    mdv           : PropTypes.object,
-    toggleVlmRow  : PropTypes.func,
+    classes: PropTypes.object.isRequired,
+    value: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    itemOid: PropTypes.string,
+    state: PropTypes.string,
+    hasVlm: PropTypes.bool,
+    mdv: PropTypes.object,
+    toggleVlmRow: PropTypes.func,
 };
 
 export default withStyles(styles)(VariableNameLabelWhereClauseFormatter);
-

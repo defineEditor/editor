@@ -67,16 +67,16 @@ const odm = (state = initialState, action) => {
         case UPD_ODMATTRS:
             return updateOdmAttrs(state, action);
         case UPD_LOADACTUALDATA:
-            return loadActualData({...state, study: study(state.study, action)}, action);
+            return loadActualData({ ...state, study: study(state.study, action) }, action);
         case UPD_ARMSTATUS:
-            return updateArmStatus({...state, study: study(state.study, action)}, action);
+            return updateArmStatus({ ...state, study: study(state.study, action) }, action);
         case DEFINE_DEL:
             return handleDefineDelete(state, action);
         case STUDY_DEL:
             return handleStudyDelete(state, action);
         default: {
-            if (action.type !== undefined &&  /^(ADD|UPD|DEL|REP|INSERT)_.*/.test(action.type) ) {
-                return {...state, study: study(state.study, action)};
+            if (action.type !== undefined && /^(ADD|UPD|DEL|REP|INSERT)_.*/.test(action.type)) {
+                return { ...state, study: study(state.study, action) };
             } else {
                 return state;
             }

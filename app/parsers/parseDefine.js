@@ -57,10 +57,10 @@ function parseLeafs (leafsRaw, mdv) {
         }
 
         let leaf = new def.Leaf({
-            id    : leafRaw['$']['id'],
-            href  : leafRaw['$']['href'],
-            title : leafRaw['title'][0],
-            isPdf : isPdf,
+            id: leafRaw['$']['id'],
+            href: leafRaw['$']['href'],
+            title: leafRaw['title'][0],
+            isPdf: isPdf,
             type,
         });
         leafs[leaf.id] = leaf;
@@ -71,8 +71,8 @@ function parseLeafs (leafsRaw, mdv) {
 
 function parseAlias (aliasRaw) {
     return new def.Alias({
-        name    : aliasRaw[0]['$']['name'],
-        context : aliasRaw[0]['$']['context']
+        name: aliasRaw[0]['$']['name'],
+        context: aliasRaw[0]['$']['context']
     });
 }
 
@@ -83,7 +83,7 @@ function parseComments (commentsRaw, mdv) {
     }
 
     commentsRaw.forEach(function (commentRaw) {
-        let comment = new def.Comment({oid: commentRaw['$'].oid});
+        let comment = new def.Comment({ oid: commentRaw['$'].oid });
         commentRaw['description'].forEach(function (item) {
             comment.addDescription(parseTranslatedText(item));
         });
@@ -94,11 +94,11 @@ function parseComments (commentsRaw, mdv) {
         }
         // Connect comment to its sources
         comment.sources = {
-            itemDefs        : getListOfSourceIds(mdv.itemDefs, 'commentOid', comment.oid),
-            itemGroups      : getListOfSourceIds(mdv.itemGroups, 'commentOid', comment.oid),
-            whereClauses    : getListOfSourceIds(mdv.whereClauses, 'commentOid', comment.oid),
-            codeLists       : getListOfSourceIds(mdv.codeLists, 'commentOid', comment.oid),
-            analysisResults : mdv.hasOwnProperty('analysisResultDisplays') ? getListOfSourceIds(mdv.analysisResultDisplays.analysisResults, 'analysisDatasetsCommentOid', comment.oid) : [],
+            itemDefs: getListOfSourceIds(mdv.itemDefs, 'commentOid', comment.oid),
+            itemGroups: getListOfSourceIds(mdv.itemGroups, 'commentOid', comment.oid),
+            whereClauses: getListOfSourceIds(mdv.whereClauses, 'commentOid', comment.oid),
+            codeLists: getListOfSourceIds(mdv.codeLists, 'commentOid', comment.oid),
+            analysisResults: mdv.hasOwnProperty('analysisResultDisplays') ? getListOfSourceIds(mdv.analysisResultDisplays.analysisResults, 'analysisDatasetsCommentOid', comment.oid) : [],
         };
         if (mdv.commentOid === comment.oid) {
             comment.sources['metaDataVersion'] = [mdv.oid];
@@ -115,9 +115,9 @@ function parseStandards (standardsRaw, defineVersion) {
     let standards = {};
     if (defineVersion === '2.0.0') {
         let args = {
-            name      : standardsRaw['$']['standardName'],
-            version   : standardsRaw['$']['standardVersion'],
-            isDefault : 'Yes'
+            name: standardsRaw['$']['standardName'],
+            version: standardsRaw['$']['standardVersion'],
+            isDefault: 'Yes'
         };
         // Try to parse type from the standard name (if ends with IG or -IG)
         if (/-?IG$/.test(args.name)) {
@@ -139,9 +139,9 @@ function parseMethods (methodsRaw, mdv) {
     methodsRaw.forEach(function (methodRaw) {
         let method = new def.Method(
             {
-                oid  : methodRaw['$'].oid,
-                name : methodRaw['$'].name,
-                type : methodRaw['$'].type
+                oid: methodRaw['$'].oid,
+                name: methodRaw['$'].name,
+                type: methodRaw['$'].type
             }
         );
         methodRaw['description'].forEach(function (item) {
@@ -156,8 +156,8 @@ function parseMethods (methodsRaw, mdv) {
             methodRaw['formalExpression'].forEach(function (item) {
                 method.addFormalExpression(new def.FormalExpression(
                     {
-                        context : item['$'].context,
-                        value   : item['_']
+                        context: item['$'].context,
+                        value: item['_']
                     }
                 )
                 );
@@ -165,11 +165,11 @@ function parseMethods (methodsRaw, mdv) {
         }
         // Connect method to its sources
         let sources = {
-            itemGroups : {},
-            valueLists : {},
+            itemGroups: {},
+            valueLists: {},
         };
-        Object.keys(mdv.itemGroups).forEach( itemGroupOid => {
-            Object.keys(mdv.itemGroups[itemGroupOid].itemRefs).forEach( itemRefOid => {
+        Object.keys(mdv.itemGroups).forEach(itemGroupOid => {
+            Object.keys(mdv.itemGroups[itemGroupOid].itemRefs).forEach(itemRefOid => {
                 if (mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].methodOid === method.oid) {
                     if (sources.itemGroups[itemGroupOid] === undefined) {
                         sources.itemGroups[itemGroupOid] = [itemRefOid];
@@ -180,8 +180,8 @@ function parseMethods (methodsRaw, mdv) {
             });
         });
 
-        Object.keys(mdv.valueLists).forEach( valueListOid => {
-            Object.keys(mdv.valueLists[valueListOid].itemRefs).forEach( itemRefOid => {
+        Object.keys(mdv.valueLists).forEach(valueListOid => {
+            Object.keys(mdv.valueLists[valueListOid].itemRefs).forEach(itemRefOid => {
                 if (mdv.valueLists[valueListOid].itemRefs[itemRefOid].methodOid === method.oid) {
                     if (sources.valueLists[valueListOid] === undefined) {
                         sources.valueLists[valueListOid] = [itemRefOid];
@@ -257,13 +257,13 @@ function parseCodelists (codeListsRaw, mdv) {
                     if (Number(item['$']['orderNumber']) >= 1) {
                         itemOrderRaw[oid] = Number(item['$']['orderNumber']);
                     } else {
-                        itemOrderRaw[oid] = -1 / (index+1);
+                        itemOrderRaw[oid] = -1 / (index + 1);
                     }
                 });
             }
 
             // Comparing to Define-XML structure, order of codelist items is stored in an array of IDs
-            let itemOrder = Object.keys(itemOrderRaw).sort( (itemOid1, itemOid2) => {
+            let itemOrder = Object.keys(itemOrderRaw).sort((itemOid1, itemOid2) => {
                 if (itemOrderRaw[itemOid1] < itemOrderRaw[itemOid2]) {
                     return -1;
                 } else {
@@ -280,7 +280,7 @@ function parseCodelists (codeListsRaw, mdv) {
 
             // Connect codeList to its sources
             let sources = [];
-            Object.keys(mdv.itemDefs).forEach( itemDefOid => {
+            Object.keys(mdv.itemDefs).forEach(itemDefOid => {
                 if (mdv.itemDefs[itemDefOid].codeListOid === codeList.oid) {
                     sources.push(itemDefOid);
                 }
@@ -316,10 +316,10 @@ function parseWhereClauses (whereClausesRaw, mdv) {
                     }
                     whereClause.addRangeCheck(new def.RangeCheck(
                         {
-                            comparator  : item['$']['comparator'],
-                            softHard    : item['$']['softHard'],
-                            itemOid     : item['$']['itemOid'],
-                            checkValues : checkValues
+                            comparator: item['$']['comparator'],
+                            softHard: item['$']['softHard'],
+                            itemOid: item['$']['itemOid'],
+                            checkValues: checkValues
                         }
                     ));
                 });
@@ -328,14 +328,14 @@ function parseWhereClauses (whereClausesRaw, mdv) {
         // Connect whereClause to its sources
         let valueLists = [];
         Object.keys(mdv.valueLists).forEach(valueListOid => {
-            if (getListOfSourceIds(mdv.valueLists[valueListOid].itemRefs,'whereClauseOid',whereClause.oid).length > 0) {
+            if (getListOfSourceIds(mdv.valueLists[valueListOid].itemRefs, 'whereClauseOid', whereClause.oid).length > 0) {
                 valueLists.push(valueListOid);
             }
         });
         let analysisResults = {};
         if (mdv.analysisResultDisplays !== undefined) {
-            Object.values(mdv.analysisResultDisplays.analysisResults).forEach( analysisResult => {
-                Object.values(analysisResult.analysisDatasets).forEach( dataset => {
+            Object.values(mdv.analysisResultDisplays.analysisResults).forEach(analysisResult => {
+                Object.values(analysisResult.analysisDatasets).forEach(dataset => {
                     if (dataset.whereClauseOid === whereClause.oid) {
                         if (analysisResults.hasOwnProperty(analysisResult.oid)) {
                             analysisResults[analysisResult.oid].push(dataset.itemGroupOid);
@@ -356,8 +356,8 @@ function parseOrigins (originsRaw, mdv) {
     let origins = [];
     originsRaw.forEach(function (originRaw) {
         let origin = new def.Origin({
-            type   : originRaw['$']['type'],
-            source : originRaw['$']['source']
+            type: originRaw['$']['type'],
+            source: originRaw['$']['source']
         });
         if (originRaw.hasOwnProperty('description')) {
             originRaw['description'].forEach(function (item) {
@@ -405,8 +405,8 @@ function parseItemDefs (itemDefsRaw, mdv) {
 
         // Connect itemDef to its sources
         let itemGroupSources = [];
-        Object.keys(mdv.itemGroups).forEach( itemGroupOid => {
-            Object.keys(mdv.itemGroups[itemGroupOid].itemRefs).forEach( itemRefOid => {
+        Object.keys(mdv.itemGroups).forEach(itemGroupOid => {
+            Object.keys(mdv.itemGroups[itemGroupOid].itemRefs).forEach(itemRefOid => {
                 if (mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid === itemDef.oid) {
                     itemGroupSources.push(itemGroupOid);
                 }
@@ -414,8 +414,8 @@ function parseItemDefs (itemDefsRaw, mdv) {
         });
 
         let valueListSources = [];
-        Object.keys(mdv.valueLists).forEach( valueListOid => {
-            Object.keys(mdv.valueLists[valueListOid].itemRefs).forEach( itemRefOid => {
+        Object.keys(mdv.valueLists).forEach(valueListOid => {
+            Object.keys(mdv.valueLists[valueListOid].itemRefs).forEach(itemRefOid => {
                 if (mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid === itemDef.oid) {
                     valueListSources.push(valueListOid);
                 }
@@ -423,8 +423,8 @@ function parseItemDefs (itemDefsRaw, mdv) {
         });
 
         itemDef.sources = {
-            itemGroups : itemGroupSources,
-            valueLists : valueListSources,
+            itemGroups: itemGroupSources,
+            valueLists: valueListSources,
         };
 
         if (itemDefRaw['description'] !== undefined) {
@@ -463,7 +463,7 @@ function parseItemGroups (itemGroupsRaw, mdv) {
             delete args['sASDatasetName'];
         }
         if (args.hasOwnProperty('class')) {
-            args.datasetClass = new def.DatasetClass({name: args['class']});
+            args.datasetClass = new def.DatasetClass({ name: args['class'] });
             delete args['class'];
         }
         if (itemGroupRaw.hasOwnProperty('alias')) {
@@ -482,17 +482,17 @@ function parseItemGroups (itemGroupsRaw, mdv) {
             }
             let oid = getOid('ItemRef', undefined, Object.keys(itemRefs));
             itemRefs[oid] = parseItemRef(item, oid, mdv);
-            if ( item['$']['orderNumber'] ) {
+            if (item['$']['orderNumber']) {
                 itemRefs[oid].orderNumber = Number(item['$']['orderNumber']);
             } else {
                 itemRefs[oid].orderNumber = -1 / index;
             }
-            if ( item['$']['keySequence'] ) {
+            if (item['$']['keySequence']) {
                 itemRefs[oid].keySequence = Number(item['$']['keySequence']);
             }
         });
         // Comparing to Define-XML structure, order of itemRefs is stored in an array of IDs
-        let itemRefOrder = Object.keys(itemRefs).sort( (itemRefOid1, itemRefOid2) => {
+        let itemRefOrder = Object.keys(itemRefs).sort((itemRefOid1, itemRefOid2) => {
             if (itemRefs[itemRefOid1].orderNumber < itemRefs[itemRefOid2].orderNumber) {
                 return -1;
             } else {
@@ -501,8 +501,8 @@ function parseItemGroups (itemGroupsRaw, mdv) {
         });
         // Order of keys is also stored in a separate array;
         let keyOrder = Object.keys(itemRefs)
-            .filter( itemRefOid => (itemRefs[itemRefOid].keySequence !== undefined))
-            .sort( (itemRefOid1, itemRefOid2) => {
+            .filter(itemRefOid => (itemRefs[itemRefOid].keySequence !== undefined))
+            .sort((itemRefOid1, itemRefOid2) => {
                 if (itemRefs[itemRefOid1].keySequence < itemRefs[itemRefOid2].keySequence) {
                     return -1;
                 } else {
@@ -510,7 +510,7 @@ function parseItemGroups (itemGroupsRaw, mdv) {
                 }
             });
         // Delete itemRef orderNumber/keySequence as they are not used;
-        Object.keys(itemRefs).forEach( itemRefOid => {
+        Object.keys(itemRefs).forEach(itemRefOid => {
             delete itemRefs[itemRefOid].orderNumber;
             delete itemRefs[itemRefOid].keySequence;
         });
@@ -538,24 +538,23 @@ function parseValueLists (valueListsRaw, mdv) {
     }
 
     valueListsRaw.forEach(function (valueListRaw) {
-
         let args = valueListRaw['$'];
         // ItemRefs are stored as an object instead of an array
         let itemRefs = {};
         valueListRaw['itemRef'].forEach(function (item, index) {
             let oid = getOid('ItemRef', undefined, Object.keys(itemRefs));
             itemRefs[oid] = parseItemRef(item, oid, mdv);
-            if ( item['$']['orderNumber'] ) {
+            if (item['$']['orderNumber']) {
                 itemRefs[oid].orderNumber = Number(item['$']['orderNumber']);
             } else {
                 itemRefs[oid].orderNumber = -1 / index;
             }
-            if ( item['$']['keySequence'] ) {
+            if (item['$']['keySequence']) {
                 itemRefs[oid].keySequence = Number(item['$']['keySequence']);
             }
         });
         // Comparing to Define-XML structure, order of itemRefs is stored in an array of IDs
-        let itemRefOrder = Object.keys(itemRefs).sort( (itemRefOid1, itemRefOid2) => {
+        let itemRefOrder = Object.keys(itemRefs).sort((itemRefOid1, itemRefOid2) => {
             if (itemRefs[itemRefOid1].orderNumber < itemRefs[itemRefOid2].orderNumber) {
                 return -1;
             } else {
@@ -564,8 +563,8 @@ function parseValueLists (valueListsRaw, mdv) {
         });
         // Order of keys is also stored in a separate array;
         let keyOrder = Object.keys(itemRefs)
-            .filter( itemRefOid => (itemRefs[itemRefOid].keySequence !== undefined))
-            .sort( (itemRefOid1, itemRefOid2) => {
+            .filter(itemRefOid => (itemRefs[itemRefOid].keySequence !== undefined))
+            .sort((itemRefOid1, itemRefOid2) => {
                 if (itemRefs[itemRefOid1].keySequence < itemRefs[itemRefOid2].keySequence) {
                     return -1;
                 } else {
@@ -573,7 +572,7 @@ function parseValueLists (valueListsRaw, mdv) {
                 }
             });
         // Delete itemRef orderNumber/keySequence as they are not used;
-        Object.keys(itemRefs).forEach( itemRefOid => {
+        Object.keys(itemRefs).forEach(itemRefOid => {
             delete itemRefs[itemRefOid].orderNumber;
             delete itemRefs[itemRefOid].keySequence;
         });
@@ -626,7 +625,7 @@ function parseMetaDataVersion (metadataRaw) {
         if (mdv.itemDefs[parentItemDefOid].valueListOid !== undefined) {
             let valueListOid = mdv.itemDefs[parentItemDefOid].valueListOid;
             if (mdv.valueLists.hasOwnProperty(valueListOid)) {
-                Object.keys(mdv.valueLists[valueListOid].itemRefs).forEach( itemRefOid => {
+                Object.keys(mdv.valueLists[valueListOid].itemRefs).forEach(itemRefOid => {
                     let itemOid = mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid;
                     mdv.itemDefs[itemOid].parentItemDefOid = parentItemDefOid;
                 });
@@ -645,31 +644,31 @@ function parseMetaDataVersion (metadataRaw) {
 
     // Add itemGroupOrder, codeListOrder, ... - not part of Define, but is required to properly sort datasets, codeLists and etc.;
     mdv.order = {
-        itemGroupOrder : Object.keys(mdv.itemGroups),
-        codeListOrder  : Object.keys(mdv.codeLists),
-        leafOrder      : Object.keys(mdv.leafs),
-        standardOrder  : Object.keys(mdv.standards),
+        itemGroupOrder: Object.keys(mdv.itemGroups),
+        codeListOrder: Object.keys(mdv.codeLists),
+        leafOrder: Object.keys(mdv.leafs),
+        standardOrder: Object.keys(mdv.standards),
     };
 
     let args = {
-        oid                    : metadataRaw['$']['oid'],
-        name                   : metadataRaw['$']['name'],
-        description            : metadataRaw['$']['description'],
-        defineVersion          : metadataRaw['$']['defineVersion'],
-        commentOid             : metadataRaw['$']['commentOid'],
-        standards              : mdv.standards,
-        analysisResultDisplays : mdv.analysisResultDisplays,
-        annotatedCrf           : mdv.annotatedCrf,
-        supplementalDoc        : mdv.supplementalDoc,
-        valueLists             : mdv.valueLists,
-        whereClauses           : mdv.whereClauses,
-        itemGroups             : mdv.itemGroups,
-        itemDefs               : mdv.itemDefs,
-        codeLists              : mdv.codeLists,
-        methods                : mdv.methods,
-        comments               : mdv.comments,
-        leafs                  : mdv.leafs,
-        order                  : mdv.order,
+        oid: metadataRaw['$']['oid'],
+        name: metadataRaw['$']['name'],
+        description: metadataRaw['$']['description'],
+        defineVersion: metadataRaw['$']['defineVersion'],
+        commentOid: metadataRaw['$']['commentOid'],
+        standards: mdv.standards,
+        analysisResultDisplays: mdv.analysisResultDisplays,
+        annotatedCrf: mdv.annotatedCrf,
+        supplementalDoc: mdv.supplementalDoc,
+        valueLists: mdv.valueLists,
+        whereClauses: mdv.whereClauses,
+        itemGroups: mdv.itemGroups,
+        itemDefs: mdv.itemDefs,
+        codeLists: mdv.codeLists,
+        methods: mdv.methods,
+        comments: mdv.comments,
+        leafs: mdv.leafs,
+        order: mdv.order,
     };
 
     // Obtain CDISC model of the study from the default standard

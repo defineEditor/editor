@@ -19,18 +19,18 @@ import { getMaxLength } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     div: {
-        whiteSpace   : 'normal',
-        overflowWrap : 'break-word',
+        whiteSpace: 'normal',
+        overflowWrap: 'break-word',
     },
 });
 
 class VariableLengthFormatter extends React.Component {
-    render() {
-        const {classes} = this.props;
+    render () {
+        const { classes } = this.props;
         const lengthAsData = this.props.value.lengthAsData;
         const lengthAsCodeList = this.props.value.lengthAsCodeList;
         const dataType = this.props.dataType;
-        const lengthNotApplicable = (['float','text','integer'].indexOf(dataType) === -1) && !this.props.value.length;
+        const lengthNotApplicable = (['float', 'text', 'integer'].indexOf(dataType) === -1) && !this.props.value.length;
 
         let length;
         if (lengthAsData && !this.props.value.length) {
@@ -58,11 +58,10 @@ class VariableLengthFormatter extends React.Component {
 }
 
 VariableLengthFormatter.propTypes = {
-    classes       : PropTypes.object.isRequired,
-    value         : PropTypes.object.isRequired,
-    defineVersion : PropTypes.string.isRequired,
-    dataType      : PropTypes.string.isRequired,
+    classes: PropTypes.object.isRequired,
+    value: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    dataType: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(VariableLengthFormatter);
-

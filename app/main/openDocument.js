@@ -14,13 +14,13 @@
 
 import fs from 'fs';
 import path from 'path';
-import {dialog, shell} from 'electron';
+import { dialog, shell } from 'electron';
 
 async function openDocument (mainWindow, defineLocation, pdfLink) {
     // Check the file exists
     let fullPdfLink = path.join(defineLocation, pdfLink);
     // It is possible that link contains a page number of named destination, remove it before checking
-    let pathToPdf = fullPdfLink.replace(/(.pdf)(#.*)$/,'$1');
+    let pathToPdf = fullPdfLink.replace(/(.pdf)(#.*)$/, '$1');
 
     if (fs.existsSync(pathToPdf)) {
         // TODO temporary fix of https://github.com/electron/electron/issues/12337
@@ -42,7 +42,7 @@ async function openDocument (mainWindow, defineLocation, pdfLink) {
             mainWindow,
             {
                 type: 'error',
-                title   : 'File not found',
+                title: 'File not found',
                 message: 'File ' + pathToPdf + ' could not be found.',
             });
     }

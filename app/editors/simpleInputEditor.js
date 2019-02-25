@@ -23,11 +23,11 @@ const styles = theme => ({
         margin: 'none',
     },
     helperTextError: {
-        whiteSpace : 'pre-wrap',
+        whiteSpace: 'pre-wrap',
     },
     helperTextNote: {
-        whiteSpace : 'pre-wrap',
-        color      : theme.palette.primary.main,
+        whiteSpace: 'pre-wrap',
+        color: theme.palette.primary.main,
     },
 });
 
@@ -35,14 +35,14 @@ class SimpleInputEditor extends React.Component {
     constructor (props) {
         super(props);
         this.handleChange = this.handleChange.bind(this);
-        this.state = {value: props.defaultValue};
+        this.state = { value: props.defaultValue };
     }
 
     handleChange = event => {
         if (this.props.options !== undefined && this.props.options.upcase === true) {
-            this.setState({value: event.target.value.toUpperCase()});
+            this.setState({ value: event.target.value.toUpperCase() });
         } else {
-            this.setState({value: event.target.value});
+            this.setState({ value: event.target.value });
         }
     };
 
@@ -82,8 +82,7 @@ class SimpleInputEditor extends React.Component {
         }
 
         if (issues.length > 0) {
-            if (checkForSpecialCharsObj !== undefined && checkForSpecialCharsObj.type === 'Error'
-                ||
+            if ((checkForSpecialCharsObj !== undefined && checkForSpecialCharsObj.type === 'Error') ||
                 (lengthLimit !== undefined && lengthLimitReached && lengthLimit.type === 'Error')
             ) {
                 error = true;
@@ -93,7 +92,6 @@ class SimpleInputEditor extends React.Component {
             helperText = issues.join('\n');
         }
 
-
         return (
             <TextField
                 label={this.props.label}
@@ -102,8 +100,8 @@ class SimpleInputEditor extends React.Component {
                 multiline
                 error={error}
                 helperText={(issue || error) && helperText}
-                inputProps={{onKeyDown: this.props.onKeyDown}}
-                FormHelperTextProps={{className: error ? classes.helperTextError : classes.helperTextNote}}
+                inputProps={{ onKeyDown: this.props.onKeyDown }}
+                FormHelperTextProps={{ className: error ? classes.helperTextError : classes.helperTextNote }}
                 value={this.state.value}
                 onChange={this.handleChange}
                 onBlur={this.save}
@@ -114,11 +112,11 @@ class SimpleInputEditor extends React.Component {
 }
 
 SimpleInputEditor.propTypes = {
-    classes:      PropTypes.object.isRequired,
-    options:      PropTypes.object,
+    classes: PropTypes.object.isRequired,
+    options: PropTypes.object,
     defaultValue: PropTypes.string.isRequired,
-    onUpdate:     PropTypes.func.isRequired,
-    label:        PropTypes.string,
+    onUpdate: PropTypes.func.isRequired,
+    label: PropTypes.string,
 };
 
 export default withStyles(styles)(SimpleInputEditor);

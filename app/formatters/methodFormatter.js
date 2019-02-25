@@ -22,8 +22,8 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     methodName: {
-        color        : 'grey',
-        marginBottom : theme.spacing.unit,
+        color: 'grey',
+        marginBottom: theme.spacing.unit,
     },
     methodText: {
         whiteSpace: 'pre-wrap',
@@ -46,7 +46,7 @@ class MethodFormatter extends React.Component {
                 }
                 { (method.formalExpressions.length !== 0) &&
                         <React.Fragment>
-                            <Typography variant="caption" gutterBottom>
+                            <Typography variant="caption" gutterBottom color='textSecondary'>
                                 Formal Expression
                             </Typography>
                             <FormalExpressionFormatter formalExpressions={method.formalExpressions}/>
@@ -58,9 +58,9 @@ class MethodFormatter extends React.Component {
 }
 
 MethodFormatter.propTypes = {
-    method   : PropTypes.object.isRequired,
-    leafs    : PropTypes.object,
-    hideName : PropTypes.bool,
+    method: PropTypes.object.isRequired,
+    leafs: PropTypes.object,
+    hideName: PropTypes.bool,
 };
 
 export default withStyles(styles)(MethodFormatter);

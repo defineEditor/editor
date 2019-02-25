@@ -382,7 +382,7 @@ class WhereClauseEditorInteractive extends React.Component {
                 <Grid container spacing={8} key={index} alignItems='flex-end'>
                     {index !== 0 &&
                             <Grid item xs={12} className={classes.andLine}>
-                                <Typography variant="subheading" >
+                                <Typography variant="subtitle1" >
                                     AND
                                 </Typography>
                             </Grid>

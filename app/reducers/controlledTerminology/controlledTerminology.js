@@ -37,7 +37,7 @@ const updateControlledTerminology = (state, action) => {
     if (action.updateObj.ctList !== undefined) {
         let ctList = action.updateObj.ctList;
         let newState = { ...state };
-        Object.keys(ctList).forEach( ctId => {
+        Object.keys(ctList).forEach(ctId => {
             if (state.allIds.includes(ctId)) {
                 newState = { ...newState, byId: { ...newState.byId, [ctId]: ctList[ctId] } };
             } else {
@@ -54,20 +54,22 @@ const reloadControlledTerminology = (state, action) => {
     if (action.updateObj.ctList !== undefined) {
         let ctList = action.updateObj.ctList;
         let newState = { ...state };
-        Object.keys(ctList).forEach( ctId => {
+        Object.keys(ctList).forEach(ctId => {
             if (state.allIds.includes(ctId)) {
                 // Keep the default and sources setting when reloading the CT
-                newState = { ...newState, byId: { ...newState.byId, [ctId]: {
-                    ...ctList[ctId],
-                    isDefault: state.byId[ctId].isDefault,
-                    sources: state.byId[ctId].sources,
-                } } };
+                newState = { ...newState,
+                    byId: { ...newState.byId,
+                        [ctId]: {
+                            ...ctList[ctId],
+                            isDefault: state.byId[ctId].isDefault,
+                            sources: state.byId[ctId].sources,
+                        } } };
             } else {
                 newState = addControlledTerminology(newState, { updateObj: { ctList: { [ctId]: ctList[ctId] } } });
             }
         });
         // Remove CTs which do not exist anymore
-        state.allIds.forEach( ctId => {
+        state.allIds.forEach(ctId => {
             if (!Object.keys(ctList).includes(ctId)) {
                 delete newState.byId[ctId];
             }

@@ -18,13 +18,14 @@ import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import ModalRoot from 'components/modal/modalRoot.js';
 import MainMenu from 'core/mainMenu.js';
+import KeyboardShortcuts from 'components/utils/keyboardShortcuts.js';
 import Editor from 'core/editor.js';
 import ControlledTerminology from 'core/controlledTerminology.js';
 import Settings from 'core/settings.js';
 import Studies from 'core/studies.js';
 import About from 'core/about.js';
-import RedoUndo from 'utils/redoUndo.js';
-import FindInPage from 'utils/findInPage.js';
+import RedoUndo from 'components/utils/redoUndo.js';
+import FindInPage from 'components/utils/findInPage.js';
 import {
     openModal,
 } from 'actions/index.js';
@@ -43,7 +44,10 @@ const theme = createMuiTheme({
             dark: '#ba000d',
             contrastText: '#000'
         }
-    }
+    },
+    typography: {
+        useNextVariants: true,
+    },
 });
 
 // Redux functions
@@ -66,10 +70,11 @@ class ConnectedApp extends Component {
         this.state = {
             showRedoUndo: false,
             showFindInPage: false,
+            showShortcuts: false,
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('keydown', this.onKeyDown);
         if (this.props.showInitialMessage) {
             this.props.openModal({
@@ -79,16 +84,18 @@ class ConnectedApp extends Component {
         }
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.ctrlKey && (event.keyCode === 72)) {
             this.toggleRedoUndo();
-        }
-        if (event.ctrlKey && (event.keyCode === 70)) {
+        } else if (event.ctrlKey && (event.keyCode === 70)) {
             this.toggleFindInPage();
+        } else if (event.ctrlKey && (event.keyCode === 191)) {
+            event.preventDefault();
+            this.toggleShortcuts();
         }
     }
 
@@ -96,20 +103,29 @@ class ConnectedApp extends Component {
         this.setState({ showRedoUndo: !this.state.showRedoUndo });
     }
 
+    toggleShortcuts = () => {
+        this.setState({ showShortcuts: !this.state.showShortcuts });
+    }
+
     toggleFindInPage = (timeOut) => {
         if (timeOut > 0) {
             // Timeout is required when toggle is triggered from the main menu
             // Otherwise the input field gets unfocused after main menu closes
-            setTimeout(() => {this.setState({ showFindInPage: !this.state.showFindInPage });} , timeOut);
+            setTimeout(() => { this.setState({ showFindInPage: !this.state.showFindInPage }); }, timeOut);
         } else {
             this.setState({ showFindInPage: !this.state.showFindInPage });
         }
     }
 
-    render() {
+    render () {
         return (
             <MuiThemeProvider theme={theme}>
-                <MainMenu onToggleRedoUndo={this.toggleRedoUndo} onToggleFindInPage={this.toggleFindInPage}/>
+                <MainMenu
+                    onToggleRedoUndo={this.toggleRedoUndo}
+                    onToggleFindInPage={this.toggleFindInPage}
+                    onToggleShortcuts={this.toggleShortcuts}
+                />
+                <KeyboardShortcuts open={this.state.showShortcuts} onToggleShortcuts={this.toggleShortcuts}/>
                 {this.props.currentPage === 'studies' && <Studies />}
                 {this.props.currentPage === 'editor' && <Editor onToggleRedoUndo={this.toggleRedoUndo}/>}
                 {this.props.currentPage === 'controlledTerminology' && <ControlledTerminology />}

@@ -28,12 +28,12 @@ import {
     INSERT_VALLVL,
     UPD_LOADACTUALDATA,
     ADD_ITEMGROUPS,
-} from "constants/action-types";
+} from 'constants/action-types';
 import { ItemDef, TranslatedText, Origin } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
 
 const updateItemDef = (state, action) => {
-    let newItemDef = { ...new ItemDef({...state[action.oid], ...action.updateObj}) };
+    let newItemDef = { ...new ItemDef({ ...state[action.oid], ...action.updateObj }) };
     return { ...state, [action.oid]: newItemDef };
 };
 
@@ -47,8 +47,8 @@ const updateItemCodeListDisplayFormat = (state, action) => {
     }
     let newItemDef = { ...new ItemDef({
         ...state[action.oid],
-        codeListOid   : action.updateObj.codeListOid,
-        displayFormat : action.updateObj.displayFormat,
+        codeListOid: action.updateObj.codeListOid,
+        displayFormat: action.updateObj.displayFormat,
         lengthAsCodeList
     }) };
     return { ...state, [action.oid]: newItemDef };
@@ -90,7 +90,7 @@ const updateNameLabel = (state, action) => {
         // Set fieldName to name
         newItemDef = { ...new ItemDef({ ...state[action.source.itemDefOid], ...action.updateObj, fieldName: action.updateObj.name }) };
     } else {
-        newItemDef = { ...new ItemDef({...state[action.source.itemDefOid], ...action.updateObj}) };
+        newItemDef = { ...new ItemDef({ ...state[action.source.itemDefOid], ...action.updateObj }) };
     }
     return { ...state, [action.source.itemDefOid]: newItemDef };
 };
@@ -108,33 +108,33 @@ const deleteVariables = (state, action) => {
     // action.deleteObj.vlmItemDefOids: { valueListOid1: [itemDefOid1, itemDefOid2, ...], valueListOid2: [itemDefOid3, ...]
     let newState = Object.assign({}, state);
     // First go through itemDefs which are coming from the variable level;
-    action.deleteObj.itemDefOids.forEach( itemDefOid => {
+    action.deleteObj.itemDefOids.forEach(itemDefOid => {
         // If it is referened only in 1 dataset, remove it
-        let sourceNum = [].concat.apply([],Object.keys(state[itemDefOid].sources).map(type => (state[itemDefOid].sources[type]))).length;
-        if (sourceNum === 1
-            && state[itemDefOid].sources.itemGroups[0] === action.source.itemGroupOid) {
+        let sourceNum = [].concat.apply([], Object.keys(state[itemDefOid].sources).map(type => (state[itemDefOid].sources[type]))).length;
+        if (sourceNum === 1 &&
+            state[itemDefOid].sources.itemGroups[0] === action.source.itemGroupOid) {
             delete newState[itemDefOid];
         } else if (state[itemDefOid].sources.itemGroups.includes(action.source.itemGroupOid)) {
             // Delete the dataset from the sources
             let newSourcesForType = state[itemDefOid].sources.itemGroups.slice();
-            newSourcesForType.splice(newSourcesForType.indexOf(action.source.itemGroupOid),1);
+            newSourcesForType.splice(newSourcesForType.indexOf(action.source.itemGroupOid), 1);
             newState = { ...newState, [itemDefOid]: { ...new ItemDef({ ...state[itemDefOid], sources: { ...state[itemDefOid].sources, itemGroups: newSourcesForType } }) } };
         }
     });
     // Remove value levels
-    Object.keys(action.deleteObj.vlmItemDefOids).forEach( valueListOid => {
-        action.deleteObj.vlmItemDefOids[valueListOid].forEach( itemDefOid => {
+    Object.keys(action.deleteObj.vlmItemDefOids).forEach(valueListOid => {
+        action.deleteObj.vlmItemDefOids[valueListOid].forEach(itemDefOid => {
             // It is possible that valueList was shared between different ItemDefs and already removed in this action
             if (newState.hasOwnProperty(itemDefOid)) {
                 // If it is referened only in 1 dataset, remove it
-                let sourceNum = [].concat.apply([],Object.keys(state[itemDefOid].sources).map(type => (state[itemDefOid].sources[type]))).length;
-                if (sourceNum === 1
-                    && state[itemDefOid].sources.valueLists[0] === valueListOid) {
+                let sourceNum = [].concat.apply([], Object.keys(state[itemDefOid].sources).map(type => (state[itemDefOid].sources[type]))).length;
+                if (sourceNum === 1 &&
+                    state[itemDefOid].sources.valueLists[0] === valueListOid) {
                     delete newState[itemDefOid];
                 } else if (state[itemDefOid].sources.valueLists.includes(valueListOid)) {
                     // Delete the dataset from the sources
                     let newSourcesForType = state[itemDefOid].sources.valueLists.slice();
-                    newSourcesForType.splice(newSourcesForType.indexOf(valueListOid),1);
+                    newSourcesForType.splice(newSourcesForType.indexOf(valueListOid), 1);
                     newState = {
                         ...newState,
                         [itemDefOid]: { ...new ItemDef({ ...state[itemDefOid],
@@ -146,7 +146,7 @@ const deleteVariables = (state, action) => {
         });
     });
     // When only value level is removed, delete reference to it
-    Object.keys(action.deleteObj.valueListOids).forEach( itemDefOid => {
+    Object.keys(action.deleteObj.valueListOids).forEach(itemDefOid => {
         if (newState.hasOwnProperty(itemDefOid)) {
             newState = {
                 ...newState,
@@ -163,8 +163,8 @@ const deleteItemGroups = (state, action) => {
     // {[itemGroupOid] : vlmItemDefOids: { [itemOid1, itemOid2, ...]}}
     // {[itemGroupOid] : valueListOids: { [vlOid1, vlOid2, ...]}}
     let newState = { ...state };
-    Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
-        let subAction = {deleteObj: {}, source: { itemGroupOid }};
+    Object.keys(action.deleteObj.itemGroupData).forEach(itemGroupOid => {
+        let subAction = { deleteObj: {}, source: { itemGroupOid } };
         subAction.deleteObj.itemDefOids = action.deleteObj.itemGroupData[itemGroupOid].itemDefOids;
         subAction.deleteObj.vlmItemDefOids = action.deleteObj.itemGroupData[itemGroupOid].vlmItemDefOids;
         subAction.deleteObj.valueListOids = action.deleteObj.itemGroupData[itemGroupOid].valueListOids;
@@ -176,7 +176,7 @@ const deleteItemGroups = (state, action) => {
 const deleteCodeLists = (state, action) => {
     // action.deleteObj - array of itemOids for which codelists should be removed
     let newState = { ...state };
-    action.deleteObj.itemDefOids.forEach( itemDefOid => {
+    action.deleteObj.itemDefOids.forEach(itemDefOid => {
         let newItemDef = { ...new ItemDef({ ...state[itemDefOid], codeListOid: undefined }) };
         newState = { ...newState, [itemDefOid]: newItemDef };
     });
@@ -187,9 +187,9 @@ const deleteCodeLists = (state, action) => {
 const handleAddValueList = (state, action) => {
     // Create a new itemDef for the valueList
     let newItemDef = { ...new ItemDef({
-        oid              : action.itemDefOid,
-        sources          : {itemGroups: [], valueLists: [action.valueListOid]},
-        parentItemDefOid : action.source.oid,
+        oid: action.itemDefOid,
+        sources: { itemGroups: [], valueLists: [action.valueListOid] },
+        parentItemDefOid: action.source.oid,
     }) };
     // Update existing itemDef to reference VLM
     let parentItemDef = { ...new ItemDef({
@@ -202,8 +202,8 @@ const handleAddValueList = (state, action) => {
 const insertVariable = (state, action) => {
     // Create a new itemDef
     let newItemDef = { ...new ItemDef({
-        oid     : action.itemDefOid,
-        sources : {itemGroups: [action.itemGroupOid], valueLists: []},
+        oid: action.itemDefOid,
+        sources: { itemGroups: [action.itemGroupOid], valueLists: [] },
     }) };
     return { ...state, [action.itemDefOid]: newItemDef };
 };
@@ -211,9 +211,9 @@ const insertVariable = (state, action) => {
 const insertValueLevel = (state, action) => {
     // Create a new itemDef
     let newItemDef = { ...new ItemDef({
-        oid              : action.itemDefOid,
-        sources          : {itemGroups: [], valueLists: [action.valueListOid]},
-        parentItemDefOid : action.parentItemDefOid,
+        oid: action.itemDefOid,
+        sources: { itemGroups: [], valueLists: [action.valueListOid] },
+        parentItemDefOid: action.parentItemDefOid,
     }) };
     return { ...state, [action.itemDefOid]: newItemDef };
 };
@@ -230,13 +230,10 @@ const handleActualData = (state, action) => {
 
     let newState = { ...state };
     let updatedItemDefOids = Object.keys(data);
-    Object.keys(state).forEach( itemDefOid => {
-        if (updatedItemDefOids.includes(itemDefOid)
-            &&
-            (updateType === 'all' || (state[itemDefOid].lengthAsData === true && updateType === 'actualData'))
-            &&
-            ['text', 'float', 'integer'].includes(state[itemDefOid].dataType)
-            &&
+    Object.keys(state).forEach(itemDefOid => {
+        if (updatedItemDefOids.includes(itemDefOid) &&
+            (updateType === 'all' || (state[itemDefOid].lengthAsData === true && updateType === 'actualData')) &&
+            ['text', 'float', 'integer'].includes(state[itemDefOid].dataType) &&
             data[itemDefOid].length > 0
         ) {
             newState = { ...newState, [itemDefOid]: { ...new ItemDef({ ...state[itemDefOid], length: data[itemDefOid].length }) } };
@@ -249,7 +246,7 @@ const updateItemsBulk = (state, action) => {
     // Check if the Bulk update is performed for one of the ItemDef attributes
     let field = action.updateObj.fields[0];
     // Get all itemDefs for update.
-    let itemDefOids = action.updateObj.selectedItems.map( item => (item.itemDefOid) );
+    let itemDefOids = action.updateObj.selectedItems.map(item => (item.itemDefOid));
     if (['name', 'label', 'dataType', 'codeListOid', 'origins', 'length', 'displayFormat'].includes(field.attr)) {
         let newState = { ...state };
         const { regex, matchCase, wholeWord, source, target, value } = field.updateValue;
@@ -266,7 +263,7 @@ const updateItemsBulk = (state, action) => {
             escapedTarget = target.replace(/[$]/g, '$$');
             regExp = new RegExp(escapedSource, matchCase ? 'g' : 'gi');
         }
-        itemDefOids.forEach( itemDefOid => {
+        itemDefOids.forEach(itemDefOid => {
             let updatedItemDefs = {};
             if (field.updateType === 'set') {
                 if (['name', 'dataType', 'codeListOid', 'length', 'displayFormat', 'origins'].includes(field.attr)) {
@@ -288,8 +285,8 @@ const updateItemsBulk = (state, action) => {
                     let newDescriptions = state[itemDefOid].descriptions.slice();
                     let updated = false;
                     state[itemDefOid].descriptions
-                        .forEach( (description, index) => {
-                            let currentValue =  description.value || '';
+                        .forEach((description, index) => {
+                            let currentValue = description.value || '';
                             if (regex === false && regExp !== undefined && regExp.test(currentValue)) {
                                 let newDescription = { ...new TranslatedText({ ...description, value: currentValue.replace(regExp, escapedTarget) }) };
                                 newDescriptions.splice(index, 1, newDescription);
@@ -307,8 +304,8 @@ const updateItemsBulk = (state, action) => {
                     // When replace is performed for origins, only types are replaced
                     let newOrigins = state[itemDefOid].origins.slice();
                     let updated = false;
-                    state[itemDefOid].origins.forEach( (origin, index) => {
-                        let value =  origin.type || '';
+                    state[itemDefOid].origins.forEach((origin, index) => {
+                        let value = origin.type || '';
                         if (regExp !== undefined && regExp.test(value)) {
                             let newOrigin = { ...new Origin({ ...origin, type: value.replace(regExp, escapedTarget) }) };
                             newOrigins.splice(index, 1, newOrigin);
@@ -322,7 +319,7 @@ const updateItemsBulk = (state, action) => {
             }
             // If name is changed, update fieldName
             if (field.attr === 'name') {
-                Object.keys(updatedItemDefs).forEach( oid => {
+                Object.keys(updatedItemDefs).forEach(oid => {
                     if (updatedItemDefs[oid].name !== updatedItemDefs[oid].fieldName) {
                         updatedItemDefs[oid] = { ...new ItemDef({ ...updatedItemDefs[oid], fieldName: updatedItemDefs[oid].name }) };
                     }
@@ -334,7 +331,7 @@ const updateItemsBulk = (state, action) => {
     } else if (field.attr === 'comment' && field.updateType === 'set') {
         let newState = { ...state };
         let updatedItemDefs = {};
-        itemDefOids.forEach( itemDefOid => {
+        itemDefOids.forEach(itemDefOid => {
             // Check if comment OID has changed
             if (field.updateValue.value !== undefined && state[itemDefOid].commentOid !== field.updateValue.value.oid) {
                 updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], commentOid: field.updateValue.value.oid }) };
@@ -354,7 +351,7 @@ const updateItemsBulk = (state, action) => {
 const handleAddItemGroups = (state, action) => {
     let allItemDefs = {};
     const { itemGroups } = action.updateObj;
-    Object.values(itemGroups).forEach( itemGroupData => {
+    Object.values(itemGroups).forEach(itemGroupData => {
         allItemDefs = { ...allItemDefs, ...itemGroupData.itemDefs };
     });
     return { ...state, ...allItemDefs };

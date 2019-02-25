@@ -45,9 +45,9 @@ class ArmProgrammingCodeFormatter extends React.Component {
 }
 
 ArmProgrammingCodeFormatter.propTypes = {
-    classes         : PropTypes.object,
-    programmingCode : PropTypes.object.isRequired,
-    leafs           : PropTypes.object.isRequired,
+    classes: PropTypes.object,
+    programmingCode: PropTypes.object.isRequired,
+    leafs: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(ArmProgrammingCodeFormatter);

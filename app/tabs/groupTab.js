@@ -58,16 +58,16 @@ const mapStateToProps = (state, props) => {
         groups,
         groupOrder,
         tabIndex,
-        groupOid      : state.present.ui.tabs.settings[tabIndex].groupOid,
-        tabs          : state.present.ui.tabs,
-        mdv           : state.present.odm.study.metaDataVersion,
-        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
-        filter        : state.present.ui.tabs.settings[tabIndex].filter,
+        groupOid: state.present.ui.tabs.settings[tabIndex].groupOid,
+        tabs: state.present.ui.tabs,
+        mdv: state.present.odm.study.metaDataVersion,
+        defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
+        filter: state.present.ui.tabs.settings[tabIndex].filter,
     };
 };
 
 class ConnectedGroupTab extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.rootRef = React.createRef();
@@ -77,12 +77,12 @@ class ConnectedGroupTab extends React.Component {
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         setScrollPosition(this.props.tabs);
         window.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
@@ -101,26 +101,26 @@ class ConnectedGroupTab extends React.Component {
 
     toggleDrawer = (drawerState) => {
         if (drawerState !== undefined) {
-            this.setState({drawerOpened: drawerState});
+            this.setState({ drawerOpened: drawerState });
         } else {
-            this.setState({drawerOpened: !this.state.drawerOpened});
+            this.setState({ drawerOpened: !this.state.drawerOpened });
         }
     }
 
     getFilteredGroupOids = () => {
-        let result=[];
+        let result = [];
         const mdv = this.props.mdv;
-        this.props.groupOrder.forEach( groupId => {
+        this.props.groupOrder.forEach(groupId => {
             const dataset = mdv.itemGroups[groupId];
             let data = getTableDataForFilter({
-                source        : dataset,
-                datasetName   : dataset.name,
-                datasetOid    : dataset.oid,
-                itemDefs      : mdv.itemDefs,
-                codeLists     : mdv.codeLists,
-                mdv           : mdv,
-                defineVersion : this.props.defineVersion,
-                vlmLevel      : 0,
+                source: dataset,
+                datasetName: dataset.name,
+                datasetOid: dataset.oid,
+                itemDefs: mdv.itemDefs,
+                codeLists: mdv.codeLists,
+                mdv: mdv,
+                defineVersion: this.props.defineVersion,
+                vlmLevel: 0,
             });
             let filteredOids = applyFilter(data, this.props.filter);
             if (filteredOids.length > 0) {
@@ -129,17 +129,17 @@ class ConnectedGroupTab extends React.Component {
                 // Search in VLM
                 let vlmData = [];
                 data
-                    .filter( item => (item.valueListOid !== undefined) )
-                    .forEach( item => {
+                    .filter(item => (item.valueListOid !== undefined))
+                    .forEach(item => {
                         let vlmDataPart = getTableDataForFilter({
-                            source        : mdv.valueLists[item.valueListOid],
-                            datasetName   : dataset.name,
-                            datasetOid    : dataset.oid,
-                            itemDefs      : mdv.itemDefs,
-                            codeLists     : mdv.codeLists,
-                            mdv           : mdv,
-                            defineVersion : this.props.defineVersion,
-                            vlmLevel      : 1,
+                            source: mdv.valueLists[item.valueListOid],
+                            datasetName: dataset.name,
+                            datasetOid: dataset.oid,
+                            itemDefs: mdv.itemDefs,
+                            codeLists: mdv.codeLists,
+                            mdv: mdv,
+                            defineVersion: this.props.defineVersion,
+                            vlmLevel: 1,
                         });
                         vlmData = vlmData.concat(vlmDataPart);
                     });
@@ -152,13 +152,13 @@ class ConnectedGroupTab extends React.Component {
         return result;
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.ctrlKey && (event.keyCode === 192 || event.keyCode === 66)) {
             this.toggleDrawer();
         }
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
 
         let groupOid;
@@ -173,9 +173,9 @@ class ConnectedGroupTab extends React.Component {
         // (last reviewed codelist was changed to External and then user went back to coded Values)
         // then do not load it
         // Theoretically the first codelist can be external, in this case user needs to manually select another one
-        if (this.props.groupClass === 'Coded Values'
-            && this.props.mdv.codeLists.hasOwnProperty(this.props.groupOid)
-            && this.props.mdv.codeLists[this.props.groupOid].codeListType === 'external'
+        if (this.props.groupClass === 'Coded Values' &&
+            this.props.mdv.codeLists.hasOwnProperty(this.props.groupOid) &&
+            this.props.mdv.codeLists[this.props.groupOid].codeListType === 'external'
         ) {
             groupOid = this.props.groupOrder[0];
         }
@@ -242,11 +242,11 @@ class ConnectedGroupTab extends React.Component {
 }
 
 ConnectedGroupTab.propTypes = {
-    classes    : PropTypes.object.isRequired,
-    groups     : PropTypes.object.isRequired,
-    groupOrder : PropTypes.array.isRequired,
-    groupOid   : PropTypes.string,
-    groupClass : PropTypes.string.isRequired,
+    classes: PropTypes.object.isRequired,
+    groups: PropTypes.object.isRequired,
+    groupOrder: PropTypes.array.isRequired,
+    groupOid: PropTypes.string,
+    groupClass: PropTypes.string.isRequired,
 };
 
 const GroupTab = connect(mapStateToProps, mapDispatchToProps)(ConnectedGroupTab);

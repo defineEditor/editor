@@ -30,8 +30,8 @@ const study = (state = initialState, action) => {
     }
     return {
         ...newState,
-        globalVariables : globalVariables(state.globalVariables, action),
-        metaDataVersion : metaDataVersion(state.metaDataVersion, action),
+        globalVariables: globalVariables(state.globalVariables, action),
+        metaDataVersion: metaDataVersion(state.metaDataVersion, action),
     };
 };
 

@@ -14,7 +14,7 @@
 
 import {
     STG_UPDATESETTINGS,
-} from "constants/action-types";
+} from 'constants/action-types';
 
 export const updateSettings = (updateObj) => (
     {

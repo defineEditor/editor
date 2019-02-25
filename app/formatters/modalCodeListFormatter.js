@@ -22,26 +22,26 @@ import CodeListFormatter from 'formatters/codeListFormatter.js';
 
 const styles = theme => ({
     paper: {
-        paddingLeft   : theme.spacing.unit * 4,
-        paddingRight  : theme.spacing.unit * 4,
-        paddingTop    : theme.spacing.unit * 1,
-        paddingBottom : theme.spacing.unit * 3,
-        position      : 'absolute',
-        borderRadius  : '10px',
-        border        : '2px solid',
-        borderColor   : 'primary',
-        top           : '50%',
-        left          : '50%',
-        transform     : 'translate(-50%, -50%)',
-        overflowX     : 'auto',
-        maxHeight     : '90%',
-        overflowY     : 'auto',
+        paddingLeft: theme.spacing.unit * 4,
+        paddingRight: theme.spacing.unit * 4,
+        paddingTop: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing.unit * 3,
+        position: 'absolute',
+        borderRadius: '10px',
+        border: '2px solid',
+        borderColor: 'primary',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        overflowX: 'auto',
+        maxHeight: '90%',
+        overflowY: 'auto',
     },
     button: {
-        color          : 'blue',
-        textDecoration : 'underline',
-        justifyContent : 'left',
-        textAlign      : 'left',
+        color: 'blue',
+        textDecoration: 'underline',
+        justifyContent: 'left',
+        textAlign: 'left',
     }
 });
 
@@ -60,7 +60,7 @@ class ModalCodeListFormatter extends React.Component {
         this.setState({ open: false });
     };
 
-    onDoubleClick = (event)  => {
+    onDoubleClick = (event) => {
         // Stop propagation as otherwise will result in cell editing
         event.stopPropagation();
     }

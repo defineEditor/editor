@@ -23,7 +23,6 @@ const styles = theme => ({
     },
 });
 
-
 class CommentFormatter extends React.Component {
     render () {
         let comment = this.props.comment;
@@ -41,8 +40,8 @@ class CommentFormatter extends React.Component {
 }
 
 CommentFormatter.propTypes = {
-    comment : PropTypes.object.isRequired,
-    leafs   : PropTypes.object
+    comment: PropTypes.object.isRequired,
+    leafs: PropTypes.object
 };
 
 export default withStyles(styles)(CommentFormatter);

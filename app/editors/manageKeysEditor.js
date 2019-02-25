@@ -27,21 +27,19 @@ const styles = theme => ({
         fontSize: '36px',
     },
     button: {
-        margin  : 'auto',
-        display : 'block',
+        margin: 'auto',
+        display: 'block',
     },
 });
 
 class manageKeysEditor extends React.Component {
-
     constructor (props) {
         super(props);
 
         this.state = {
-            addAnchorEl    : null,
-            removeAnchorEl : null,
+            addAnchorEl: null,
+            removeAnchorEl: null,
         };
-
     }
 
     handleAddClick = event => {
@@ -67,19 +65,18 @@ class manageKeysEditor extends React.Component {
         // Avoid situations when user clicked outside of the selection window
         if (typeof oid === 'string') {
             let newKeys = this.props.keyVariables.slice();
-            newKeys.splice((this.props.keyVariables.map(item => (item.oid)).indexOf(oid)),1);
+            newKeys.splice((this.props.keyVariables.map(item => (item.oid)).indexOf(oid)), 1);
             this.props.handleChange(newKeys);
         }
         this.setState({ removeAnchorEl: null });
     };
 
-
-    render() {
+    render () {
         const { classes, allVariables, keyVariables } = this.props;
         const { removeAnchorEl, addAnchorEl } = this.state;
 
         // Get non-key variables
-        let nonKeyVariables = allVariables.filter( variable => {
+        let nonKeyVariables = allVariables.filter(variable => {
             return (!keyVariables.map(keyVar => (keyVar.oid)).includes(variable.oid));
         });
 
@@ -151,9 +148,9 @@ class manageKeysEditor extends React.Component {
 }
 
 manageKeysEditor.propTypes = {
-    allVariables : PropTypes.array.isRequired,
-    keyVariables : PropTypes.array.isRequired,
-    handleChange : PropTypes.func.isRequired,
+    allVariables: PropTypes.array.isRequired,
+    keyVariables: PropTypes.array.isRequired,
+    handleChange: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(manageKeysEditor);

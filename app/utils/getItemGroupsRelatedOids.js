@@ -18,7 +18,7 @@ function getItemGroupsRelatedOids (mdv, itemGroupOids) {
     let itemGroups = mdv.itemGroups;
     // Form an object of comments to remove {commentOid: [itemOid1, itemOid2, ...]}
     let commentOids = {};
-    itemGroupOids.forEach( itemGroupOid => {
+    itemGroupOids.forEach(itemGroupOid => {
         let commentOid = itemGroups[itemGroupOid].commentOid;
         if (commentOid !== undefined) {
             if (commentOids[commentOid] === undefined) {
@@ -32,7 +32,7 @@ function getItemGroupsRelatedOids (mdv, itemGroupOids) {
     // Form an object of variables and all related objects to remove
     let itemGroupData = {};
     let commentCandidateOids = {};
-    itemGroupOids.forEach( itemGroupOid => {
+    itemGroupOids.forEach(itemGroupOid => {
         itemGroupData[itemGroupOid] = getItemRefsRelatedOids(mdv, itemGroupOid, itemGroups[itemGroupOid].itemRefOrder, {});
         // Unit all candidates for further analysis
         commentCandidateOids = { ...commentCandidateOids, ...itemGroupData[itemGroupOid].commentCandidateOids };
@@ -41,21 +41,21 @@ function getItemGroupsRelatedOids (mdv, itemGroupOids) {
 
     // Get all removed valueLists
     let valueListOids = [];
-    itemGroupOids.forEach( itemGroupOid => {
-        Object.keys(itemGroupData[itemGroupOid].valueListOids).forEach( itemDefOid => {
+    itemGroupOids.forEach(itemGroupOid => {
+        Object.keys(itemGroupData[itemGroupOid].valueListOids).forEach(itemDefOid => {
             if (!valueListOids.includes(itemGroupData[itemGroupOid].valueListOids[itemDefOid][0])) {
                 valueListOids.push(itemGroupData[itemGroupOid].valueListOids[itemDefOid][0]);
             }
         });
     });
     // Check if all sources for comments which are referenced by ItemDefs with multiple sources are deleted
-    Object.keys(commentCandidateOids).forEach( commentOid => {
+    Object.keys(commentCandidateOids).forEach(commentOid => {
         let candidate = commentCandidateOids[commentOid];
-        Object.keys(candidate).forEach( itemDefOid => {
-            let allItemGroupsAreRemoved = candidate[itemDefOid].itemGroups.every( itemGroupOid => {
+        Object.keys(candidate).forEach(itemDefOid => {
+            let allItemGroupsAreRemoved = candidate[itemDefOid].itemGroups.every(itemGroupOid => {
                 return itemGroupOids.includes(itemGroupOid);
             });
-            let allValueListsAreRemoved = candidate[itemDefOid].valueLists.every( valueListOid => {
+            let allValueListsAreRemoved = candidate[itemDefOid].valueLists.every(valueListOid => {
                 return valueListOids.includes(valueListOid);
             });
             // If everything is removed, release the candidate

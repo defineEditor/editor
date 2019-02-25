@@ -58,20 +58,20 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        selectGroup      : (updateObj) => dispatch(selectGroup(updateObj)),
+        selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        mdv              : state.present.odm.study.metaDataVersion,
-        reviewMode       : state.present.ui.main.reviewMode,
-        variableTabIndex : state.present.ui.tabs.tabNames.indexOf('Variables'),
+        mdv: state.present.odm.study.metaDataVersion,
+        reviewMode: state.present.ui.main.reviewMode,
+        variableTabIndex: state.present.ui.tabs.tabNames.indexOf('Variables'),
     };
 };
 
 class ConnectedAnalysisResultTile extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.state = {
@@ -92,21 +92,20 @@ class ConnectedAnalysisResultTile extends React.Component {
         this.setState({ anchorEl: null });
     }
 
-
     deleteAnalysisResult = defineId => {
         this.handleMenuClose();
     };
 
     selectGroup = (itemGroupOid) => {
         let updateObj = {
-            tabIndex       : this.props.variableTabIndex,
-            groupOid       : itemGroupOid,
-            scrollPosition : {},
+            tabIndex: this.props.variableTabIndex,
+            groupOid: itemGroupOid,
+            scrollPosition: {},
         };
         this.props.selectGroup(updateObj);
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
         const analysisResult = this.props.mdv.analysisResultDisplays.analysisResults[this.props.analysisResultOid];
         let title = getDescription(analysisResult);
@@ -118,7 +117,7 @@ class ConnectedAnalysisResultTile extends React.Component {
                         {!this.state.editMode && (
                             <Grid container justify="space-between" wrap='nowrap'>
                                 <Grid item>
-                                    <Typography variant="headline" component="h3" className={classes.title}>
+                                    <Typography variant="h5" className={classes.title}>
                                         { title }
                                     </Typography>
                                 </Grid>
@@ -152,7 +151,7 @@ class ConnectedAnalysisResultTile extends React.Component {
                         {this.state.editMode ? (
                             <AnalysisResultEditor
                                 analysisResultOid={this.props.analysisResultOid}
-                                onUpdateFinished={() => {this.setState({ editMode: !this.state.editMode });}}
+                                onUpdateFinished={() => { this.setState({ editMode: !this.state.editMode }); }}
                             />
                         ) : (
                             <AnalysisResultFormatter
@@ -167,8 +166,8 @@ class ConnectedAnalysisResultTile extends React.Component {
                     onClose={this.handleMenuClose}
                     analysisResultMenuParams={
                         {
-                            analysisResultOid : this.props.analysisResultOid,
-                            resultDisplayOid  : this.props.resultDisplayOid,
+                            analysisResultOid: this.props.analysisResultOid,
+                            resultDisplayOid: this.props.resultDisplayOid,
                         }
                     }
                     anchorEl={this.state.anchorEl}
@@ -179,13 +178,13 @@ class ConnectedAnalysisResultTile extends React.Component {
 }
 
 ConnectedAnalysisResultTile.propTypes = {
-    classes           : PropTypes.object.isRequired,
-    mdv               : PropTypes.object.isRequired,
-    reviewMode        : PropTypes.bool,
-    analysisResultOid : PropTypes.string.isRequired,
-    resultDisplayOid  : PropTypes.string.isRequired,
-    selectGroup       : PropTypes.func.isRequired,
-    variableTabIndex  : PropTypes.number,
+    classes: PropTypes.object.isRequired,
+    mdv: PropTypes.object.isRequired,
+    reviewMode: PropTypes.bool,
+    analysisResultOid: PropTypes.string.isRequired,
+    resultDisplayOid: PropTypes.string.isRequired,
+    selectGroup: PropTypes.func.isRequired,
+    variableTabIndex: PropTypes.number,
 };
 
 const AnalysisResultTile = connect(mapStateToProps, mapDispatchToProps)(ConnectedAnalysisResultTile);

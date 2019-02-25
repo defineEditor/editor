@@ -26,23 +26,24 @@ import ReactMarkdown from 'react-markdown';
 
 const styles = theme => ({
     dialog: {
-        paddingLeft   : theme.spacing.unit * 2,
-        paddingRight  : theme.spacing.unit * 2,
-        paddingBottom : theme.spacing.unit * 1,
-        position      : 'absolute',
-        borderRadius  : '10px',
-        top           : '20%',
-        width         : '55%',
-        transform     : 'translate(0%, calc(-20%+0.5px))',
-        overflowX     : 'auto',
-        maxHeight     : '85%',
-        overflowY     : 'auto',
+        position: 'absolute',
+        top: '10%',
+        maxHeight: '80%',
+        width: '55%',
+        overflowX: 'auto',
+        overflowY: 'auto',
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        margin: '0 auto',
+        borderRadius: '10px',
+        border: '2px solid',
+        borderColor: 'primary',
     },
 });
 
 class InternalHelp extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             open: false,
@@ -69,8 +70,10 @@ class InternalHelp extends React.Component {
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description"
                     open={this.state.open}
+                    fullWidth
+                    maxWidth={false}
                     onClose={this.close}
-                    PaperProps={{className: classes.dialog}}
+                    PaperProps={{ className: classes.dialog }}
                 >
                     <DialogTitle id="alert-dialog-title">
                         {this.props.data.title}
@@ -90,8 +93,8 @@ class InternalHelp extends React.Component {
 }
 
 InternalHelp.propTypes = {
-    classes : PropTypes.object.isRequired,
-    data    : PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    data: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(InternalHelp);

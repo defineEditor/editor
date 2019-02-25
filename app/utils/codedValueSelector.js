@@ -56,7 +56,6 @@ const mapStateToProps = state => {
 };
 
 class ConnectedCodedValueSelector extends React.Component {
-
     handleAddCodedValues = (selected) => {
         // Get items which are copied from the standard
         let sourceItems;
@@ -76,7 +75,7 @@ class ConnectedCodedValueSelector extends React.Component {
         this.props.onClose();
     };
 
-    render() {
+    render () {
         const { defineVersion, classes, sourceCodeList, codeList } = this.props;
         return (
             <Modal open={true} onClose={this.props.onClose}>

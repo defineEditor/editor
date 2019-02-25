@@ -23,8 +23,8 @@ import SaveCancel from 'editors/saveCancel.js';
 
 const styles = theme => ({
     textField: {
-        margin : 'none',
-        width  : '40px',
+        margin: 'none',
+        width: '40px',
     },
     container: {
         minWidth: '110px',
@@ -41,11 +41,11 @@ class KeyOrderEditor extends React.Component {
         const key = props.defaultValue.keySequence !== undefined;
         const maxKeySeq = itemGroup.keyOrder.length + (key ? 0 : 1);
         this.state = {
-            key         : key,
-            keySequence : props.defaultValue.keySequence,
-            orderNumber : props.defaultValue.orderNumber,
-            maxKeySeq   : maxKeySeq,
-            maxOrderNum : maxOrderNum,
+            key: key,
+            keySequence: props.defaultValue.keySequence,
+            orderNumber: props.defaultValue.orderNumber,
+            maxKeySeq: maxKeySeq,
+            maxOrderNum: maxOrderNum,
         };
     }
 
@@ -53,22 +53,22 @@ class KeyOrderEditor extends React.Component {
         // Update only if the values are within the allowed range;
         if (name === 'keySequence') {
             if (event.target.value >= 1 && event.target.value <= this.state.maxKeySeq) {
-                this.setState({[name]: event.target.value});
+                this.setState({ [name]: event.target.value });
             }
         } else if (name === 'orderNumber') {
             if (event.target.value >= 1 && event.target.value <= this.state.maxOrderNum) {
-                this.setState({[name]: event.target.value});
+                this.setState({ [name]: event.target.value });
             }
         } else if (name === 'key') {
             if (event.target.checked === true) {
                 this.setState({
-                    [name]      : event.target.checked,
-                    keySequence : this.state.maxKeySeq,
+                    [name]: event.target.checked,
+                    keySequence: this.state.maxKeySeq,
                 });
             } else {
                 this.setState({
-                    [name]      : event.target.checked,
-                    keySequence : undefined,
+                    [name]: event.target.checked,
+                    keySequence: undefined,
                 });
             }
         }
@@ -76,8 +76,8 @@ class KeyOrderEditor extends React.Component {
 
     save = () => {
         let result = {
-            keySequence : this.state.keySequence,
-            orderNumber : this.state.orderNumber,
+            keySequence: this.state.keySequence,
+            orderNumber: this.state.orderNumber,
         };
         this.props.onUpdate(result);
     }
@@ -86,7 +86,7 @@ class KeyOrderEditor extends React.Component {
         this.props.onUpdate(this.props.defaultValue);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (this.props.stateless !== true) {
             if (event.key === 'Escape' || event.keyCode === 27) {
                 this.cancel();
@@ -112,7 +112,7 @@ class KeyOrderEditor extends React.Component {
                         label='Position'
                         type='number'
                         autoFocus
-                        InputLabelProps={{shrink: true}}
+                        InputLabelProps={{ shrink: true }}
                         value={this.state.orderNumber}
                         onChange={this.handleChange('orderNumber')}
                         className={classes.textField}
@@ -138,7 +138,7 @@ class KeyOrderEditor extends React.Component {
                                 label='Key Sequence'
                                 type='number'
                                 value={this.state.keySequence}
-                                InputLabelProps={{shrink: true}}
+                                InputLabelProps={{ shrink: true }}
                                 onChange={this.handleChange('keySequence')}
                                 className={classes.textField}
                             />
@@ -153,9 +153,9 @@ class KeyOrderEditor extends React.Component {
 }
 
 KeyOrderEditor.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    defaultValue : PropTypes.object.isRequired,
-    onUpdate     : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    defaultValue: PropTypes.object.isRequired,
+    onUpdate: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(KeyOrderEditor);

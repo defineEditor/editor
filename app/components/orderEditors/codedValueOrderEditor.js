@@ -48,13 +48,12 @@ class CodedValueOrderEditorConnected extends React.Component {
         this.props.updateCodedValueOrder(this.props.codeListOid, items.map(item => (item.oid)));
     }
 
-    render() {
+    render () {
         let items = [];
 
-        this.props.itemOrder.forEach( itemOid => {
-            items.push({oid: itemOid, name: this.props.items[itemOid].codedValue});
+        this.props.itemOrder.forEach(itemOid => {
+            items.push({ oid: itemOid, name: this.props.items[itemOid].codedValue });
         });
-
 
         return (
             <GeneralOrderEditor title='Coded Value Order' items={items} onSave={this.onSave} width='600px' disabled={this.props.reviewMode}/>
@@ -63,9 +62,9 @@ class CodedValueOrderEditorConnected extends React.Component {
 }
 
 CodedValueOrderEditorConnected.propTypes = {
-    itemOrder  : PropTypes.array.isRequired,
-    items      : PropTypes.object.isRequired,
-    reviewMode : PropTypes.bool,
+    itemOrder: PropTypes.array.isRequired,
+    items: PropTypes.object.isRequired,
+    reviewMode: PropTypes.bool,
 };
 
 const CodedValueOrderEditor = connect(mapStateToProps, mapDispatchToProps)(CodedValueOrderEditorConnected);

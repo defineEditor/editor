@@ -33,16 +33,16 @@ import {
 
 const styles = theme => ({
     dialog: {
-        paddingLeft   : theme.spacing.unit * 2,
-        paddingRight  : theme.spacing.unit * 2,
-        paddingBottom : theme.spacing.unit * 1,
-        position      : 'absolute',
-        borderRadius  : '10px',
-        top           : '40%',
-        transform     : 'translate(0%, calc(-50%+0.5px))',
-        overflowX     : 'auto',
-        maxHeight     : '85%',
-        overflowY     : 'auto',
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        position: 'absolute',
+        borderRadius: '10px',
+        top: '40%',
+        transform: 'translate(0%, calc(-50%+0.5px))',
+        overflowX: 'auto',
+        maxHeight: '85%',
+        overflowY: 'auto',
     },
 });
 
@@ -54,7 +54,6 @@ const mapDispatchToProps = dispatch => {
 };
 
 class ConnectedModalInitialMessage extends React.Component {
-
     constructor (props) {
         super(props);
         this.state = {
@@ -90,7 +89,7 @@ class ConnectedModalInitialMessage extends React.Component {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
                 open
-                PaperProps={{className: classes.dialog}}
+                PaperProps={{ className: classes.dialog }}
             >
                 <DialogTitle id="alert-dialog-title">
                     Visual Define-XML Editor
@@ -109,7 +108,7 @@ class ConnectedModalInitialMessage extends React.Component {
                         control={
                             <Checkbox
                                 checked={this.state.doNotShowAgain}
-                                onChange={() => { this.setState({doNotShowAgain: !this.state.doNotShowAgain});}}
+                                onChange={() => { this.setState({ doNotShowAgain: !this.state.doNotShowAgain }); }}
                                 color='primary'
                                 value='doNotShowAgain'
                             />

@@ -34,9 +34,9 @@ import getModelFromStandard from 'utils/getModelFromStandard.js';
 
 const styles = theme => ({
     Standard: {
-        padding   : 16,
-        marginTop : theme.spacing.unit * 1,
-        outline   : 'none',
+        padding: 16,
+        marginTop: theme.spacing.unit * 1,
+        outline: 'none',
     },
     inputField: {
         minWidth: '200',
@@ -53,14 +53,12 @@ const styles = theme => ({
 });
 
 class StandardEditor extends React.Component {
-
     constructor (props) {
-
         super(props);
 
         // Clone standards
         let standardsCopy = {};
-        Object.keys(this.props.standards).forEach( standardOid => {
+        Object.keys(this.props.standards).forEach(standardOid => {
             standardsCopy[standardOid] = new Standard(this.props.standards[standardOid]);
         });
         this.state = { standards: standardsCopy, hasArm: this.props.hasArm };
@@ -95,7 +93,7 @@ class StandardEditor extends React.Component {
                                 <Tooltip title="Remove Standard" placement="bottom-end">
                                     <IconButton
                                         color='secondary'
-                                        onClick={this.handleChange('deleteCt',standardOid)}
+                                        onClick={this.handleChange('deleteCt', standardOid)}
                                         className={this.props.classes.button}
                                     >
                                         <RemoveIcon />
@@ -107,7 +105,7 @@ class StandardEditor extends React.Component {
                             <TextField
                                 value={standards[standardOid].name}
                                 select
-                                onChange={this.handleChange('name',standardOid)}
+                                onChange={this.handleChange('name', standardOid)}
                                 className={this.props.classes.inputField}
                             >
                                 {getSelectionList(nameList)}
@@ -116,7 +114,7 @@ class StandardEditor extends React.Component {
                         <TableCell>
                             <TextField
                                 value={standards[standardOid].version}
-                                onChange={this.handleChange('version',standardOid)}
+                                onChange={this.handleChange('version', standardOid)}
                                 className={this.props.classes.inputField}
                             />
                         </TableCell>
@@ -140,7 +138,7 @@ class StandardEditor extends React.Component {
         this.props.onSave(this.state);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.props.onCancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -159,7 +157,7 @@ class StandardEditor extends React.Component {
         });
         return (
             <Paper className={classes.Standard} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     Standard
                     <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} />
                 </Typography>
@@ -186,14 +184,14 @@ class StandardEditor extends React.Component {
 }
 
 StandardEditor.propTypes = {
-    standards    : PropTypes.object.isRequired,
-    stdConstants : PropTypes.object.isRequired,
-    classes      : PropTypes.object.isRequired,
-    hasArm       : PropTypes.bool.isRequired,
-    onSave       : PropTypes.func.isRequired,
-    onCancel     : PropTypes.func.isRequired,
-    onHelp       : PropTypes.func,
-    onComment    : PropTypes.func,
+    standards: PropTypes.object.isRequired,
+    stdConstants: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    hasArm: PropTypes.bool.isRequired,
+    onSave: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    onHelp: PropTypes.func,
+    onComment: PropTypes.func,
 };
 
 export default withStyles(styles)(StandardEditor);

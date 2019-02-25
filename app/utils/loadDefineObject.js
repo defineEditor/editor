@@ -30,8 +30,8 @@ function loadDefineObject (event, data) {
         let currentStdCodeListIds = Object.keys(currentState.stdCodeLists);
         let controlledTerminology = currentState.controlledTerminology;
         let standards = data.odm.study.metaDataVersion.standards;
-        let ctIds = Object.keys(standards).filter( stdId => (standards[stdId].type === 'CT'));
-        ctIds.forEach( ctId => {
+        let ctIds = Object.keys(standards).filter(stdId => (standards[stdId].type === 'CT'));
+        ctIds.forEach(ctId => {
             if (!currentStdCodeListIds.includes(ctId) && controlledTerminology.allIds.includes(ctId)) {
                 ctToLoad[ctId] = controlledTerminology.byId[ctId];
             }
@@ -39,7 +39,7 @@ function loadDefineObject (event, data) {
         // Emit event to the main process to read the CTs
         ipcRenderer.send('loadControlledTerminology', ctToLoad);
         // Remove CT from stdCodeLists which are not required by this ODM
-        let ctIdsToRemove = currentStdCodeListIds.filter( ctId => (!ctIds.includes(ctId)) );
+        let ctIdsToRemove = currentStdCodeListIds.filter(ctId => (!ctIds.includes(ctId)));
         if (ctIdsToRemove.length > 0) {
             store.dispatch(deleteStdCodeLists({ ctIds: ctIdsToRemove }));
         }

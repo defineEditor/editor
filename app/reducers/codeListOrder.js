@@ -18,7 +18,7 @@ import {
     UPD_CODELISTORDER,
     ADD_VARS,
     ADD_ITEMGROUPS,
-} from "constants/action-types";
+} from 'constants/action-types';
 
 const addCodeList = (state, action) => {
     if (action.orderNumber === undefined) {
@@ -39,8 +39,8 @@ const updateCodeListOrder = (state, action) => {
 const deleteCodeLists = (state, action) => {
     // action.deleteObj.codeListOids - oids to remove;
     let newCodeListOrder = state.slice();
-    action.deleteObj.codeListOids.forEach( codeListOid => {
-        newCodeListOrder.splice(newCodeListOrder.indexOf(codeListOid),1);
+    action.deleteObj.codeListOids.forEach(codeListOid => {
+        newCodeListOrder.splice(newCodeListOrder.indexOf(codeListOid), 1);
     });
 
     return newCodeListOrder;
@@ -57,8 +57,8 @@ const handleAddVariables = (state, action) => {
 const handleAddItemGroups = (state, action) => {
     let allCodeListOids = [];
     const { itemGroups } = action.updateObj;
-    Object.values(itemGroups).forEach( itemGroupData => {
-        Object.keys(itemGroupData.codeLists).forEach( codeListOid => {
+    Object.values(itemGroups).forEach(itemGroupData => {
+        Object.keys(itemGroupData.codeLists).forEach(codeListOid => {
             if (!allCodeListOids.includes(codeListOid)) {
                 allCodeListOids.push(codeListOid);
             }

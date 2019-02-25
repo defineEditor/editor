@@ -9,6 +9,9 @@
 @import '~typeface-roboto/index.css';
 @import '~typeface-roboto-mono/index.css';
 
+.specialHighlight {
+    color: #AAAAAA !important;
+}
 
 .vlmRow:nth-of-type(odd){
     background-color: #E3F2FD !important;

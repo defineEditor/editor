@@ -30,16 +30,16 @@ import {
 
 const styles = theme => ({
     dialog: {
-        paddingLeft   : theme.spacing.unit * 2,
-        paddingRight  : theme.spacing.unit * 2,
-        paddingBottom : theme.spacing.unit * 1,
-        position      : 'absolute',
-        borderRadius  : '10px',
-        top           : '40%',
-        transform     : 'translate(0%, calc(-50%+0.5px))',
-        overflowX     : 'auto',
-        maxHeight     : '85%',
-        overflowY     : 'auto',
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        position: 'absolute',
+        borderRadius: '10px',
+        top: '40%',
+        transform: 'translate(0%, calc(-50%+0.5px))',
+        overflowX: 'auto',
+        maxHeight: '85%',
+        overflowY: 'auto',
     },
 });
 
@@ -51,13 +51,12 @@ const mapDispatchToProps = dispatch => {
 };
 
 class ConnectedModalDeleteStudy extends React.Component {
-
     onDelete = () => {
         this.props.deleteStudy({
             studyId: this.props.studyId,
             defineIds: this.props.defineIds,
         });
-        this.props.defineIds.forEach( defineId => {
+        this.props.defineIds.forEach(defineId => {
             ipcRenderer.send('deleteDefineObject', defineId);
         });
         this.props.closeModal();
@@ -67,7 +66,7 @@ class ConnectedModalDeleteStudy extends React.Component {
         this.props.closeModal();
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.onCancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -85,7 +84,7 @@ class ConnectedModalDeleteStudy extends React.Component {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
                 open
-                PaperProps={{className: classes.dialog}}
+                PaperProps={{ className: classes.dialog }}
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >

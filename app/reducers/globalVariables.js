@@ -14,12 +14,12 @@
 
 import {
     UPD_GLOBALVARSSTOID
-} from "constants/action-types";
+} from 'constants/action-types';
 
 const initialState = {
-    studyName        : '',
-    protocolName     : '',
-    studyDescription : '',
+    studyName: '',
+    protocolName: '',
+    studyDescription: '',
 };
 
 const updateGlobalVariables = (state, action) => {

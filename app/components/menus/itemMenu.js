@@ -34,24 +34,24 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        addValueList          : (source, valueListOid, itemDefOid, whereClauseOid) => dispatch(addValueList(source, valueListOid, itemDefOid, whereClauseOid)),
-        deleteVariables       : (source, deleteObj) => dispatch(deleteVariables(source, deleteObj)),
-        updateVlmItemRefOrder : (valueListOid, itemRefOrder) => dispatch(updateVlmItemRefOrder(valueListOid, itemRefOrder)),
-        insertVariable        : (itemGroupOid, itemDefOid, orderNumber) => dispatch(insertVariable(itemGroupOid, itemDefOid, orderNumber)),
-        insertValueLevel      : (valueListOid, itemDefOid, parentItemDefOid, whereClauseOid, orderNumber) => dispatch(insertValueLevel(valueListOid, itemDefOid, parentItemDefOid, whereClauseOid, orderNumber)),
-        updateCopyBuffer : (updateObj) => dispatch(updateCopyBuffer(updateObj)),
+        addValueList: (source, valueListOid, itemDefOid, whereClauseOid) => dispatch(addValueList(source, valueListOid, itemDefOid, whereClauseOid)),
+        deleteVariables: (source, deleteObj) => dispatch(deleteVariables(source, deleteObj)),
+        updateVlmItemRefOrder: (valueListOid, itemRefOrder) => dispatch(updateVlmItemRefOrder(valueListOid, itemRefOrder)),
+        insertVariable: (itemGroupOid, itemDefOid, orderNumber) => dispatch(insertVariable(itemGroupOid, itemDefOid, orderNumber)),
+        insertValueLevel: (valueListOid, itemDefOid, parentItemDefOid, whereClauseOid, orderNumber) => dispatch(insertValueLevel(valueListOid, itemDefOid, parentItemDefOid, whereClauseOid, orderNumber)),
+        updateCopyBuffer: (updateObj) => dispatch(updateCopyBuffer(updateObj)),
         addVariables: (updateObj) => dispatch(addVariables(updateObj))
     };
 };
 
 const mapStateToProps = state => {
     return {
-        valueLists   : state.present.odm.study.metaDataVersion.valueLists,
-        itemDefs     : state.present.odm.study.metaDataVersion.itemDefs,
-        whereClauses : state.present.odm.study.metaDataVersion.whereClauses,
-        mdv          : state.present.odm.study.metaDataVersion,
-        reviewMode   : state.present.ui.main.reviewMode,
-        buffer       : state.present.ui.main.copyBuffer['variables'],
+        valueLists: state.present.odm.study.metaDataVersion.valueLists,
+        itemDefs: state.present.odm.study.metaDataVersion.itemDefs,
+        whereClauses: state.present.odm.study.metaDataVersion.whereClauses,
+        mdv: state.present.odm.study.metaDataVersion,
+        reviewMode: state.present.ui.main.reviewMode,
+        buffer: state.present.ui.main.copyBuffer['variables'],
     };
 };
 
@@ -64,11 +64,11 @@ class ConnectedItemMenu extends React.Component {
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
@@ -85,7 +85,7 @@ class ConnectedItemMenu extends React.Component {
             selectedVlmRows = { [this.props.itemMenuParams.itemGroupVLOid]: [this.props.itemMenuParams.itemRefOid] };
         }
         let deleteObj = getItemRefsRelatedOids(this.props.mdv, this.props.itemMenuParams.itemGroupVLOid, selectedRows, selectedVlmRows);
-        this.props.deleteVariables({itemGroupOid: this.props.itemMenuParams.itemGroupVLOid}, deleteObj);
+        this.props.deleteVariables({ itemGroupOid: this.props.itemMenuParams.itemGroupVLOid }, deleteObj);
         this.props.onClose();
     }
 
@@ -184,7 +184,7 @@ class ConnectedItemMenu extends React.Component {
             itemRefList: [ buffer.itemRefOid ],
             parentItemDefOid,
             itemGroupOid: groupOid,
-            sameDefine : true,
+            sameDefine: true,
             sourceItemGroupOid: buffer.groupOid,
             copyVlm: true,
             detachMethods: true,
@@ -209,7 +209,7 @@ class ConnectedItemMenu extends React.Component {
         this.props.onClose();
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         // Run only when menu is opened
         if (Boolean(this.props.anchorEl) === true) {
             // Do not use shortcuts when VLM order is opened
@@ -220,15 +220,14 @@ class ConnectedItemMenu extends React.Component {
                 this.insertRecord(1)();
             } else if (event.keyCode === 67) {
                 this.copy();
-            } else if (event.keyCode === 80
-                &&
-                !(this.props.reviewMode || (this.props.buffer === undefined || this.props.buffer.vlmLevel !== this.props.itemMenuParams.vlmLevel)) ) {
+            } else if (event.keyCode === 80 &&
+                !(this.props.reviewMode || (this.props.buffer === undefined || this.props.buffer.vlmLevel !== this.props.itemMenuParams.vlmLevel))) {
                 this.paste(1)();
             }
         }
     }
 
-    render() {
+    render () {
         const { hasVlm, vlmLevel } = this.props.itemMenuParams;
 
         let items = [];
@@ -236,7 +235,7 @@ class ConnectedItemMenu extends React.Component {
             let valueListOid = this.props.itemDefs[this.props.itemMenuParams.oid].valueListOid;
             let valueList = this.props.mdv.valueLists[valueListOid];
 
-            valueList.itemRefOrder.forEach( itemRefOid => {
+            valueList.itemRefOrder.forEach(itemRefOid => {
                 items.push({
                     oid: itemRefOid,
                     name: getWhereClauseAsText(this.props.mdv.whereClauses[valueList.itemRefs[itemRefOid].whereClauseOid], this.props.mdv)
@@ -268,11 +267,11 @@ class ConnectedItemMenu extends React.Component {
                             <MenuItem key='InsertAboveDialog' onClick={this.insertRecordDialog(0)} disabled={this.props.reviewMode}>
                                 Insert Variable Above
                             </MenuItem>
-                        ),(
+                        ), (
                             <MenuItem key='InsertBelowDialog' onClick={this.insertRecordDialog(1)} disabled={this.props.reviewMode}>
                                 Insert Variable Below
                             </MenuItem>
-                        ),(
+                        ), (
                             <Divider key='InsertDialogDivider'/>
                         )]
                     )}
@@ -288,7 +287,7 @@ class ConnectedItemMenu extends React.Component {
                             >
                                 Paste {vlmLevel > 1 && 'VLM'} Variable Above
                             </MenuItem>
-                        ),(
+                        ), (
                             <MenuItem
                                 key='PasteBelow'
                                 onClick={this.paste(1)}
@@ -309,7 +308,7 @@ class ConnectedItemMenu extends React.Component {
                             <MenuItem key='OrderVlm' onClick={this.openVlmOrder} disabled={this.props.reviewMode}>
                                 Order VLM
                             </MenuItem>
-                        ),(
+                        ), (
                             <MenuItem key='DeleteVlm' onClick={this.deleteVlm} disabled={this.props.reviewMode}>
                                 Delete VLM
                             </MenuItem>
@@ -336,13 +335,13 @@ class ConnectedItemMenu extends React.Component {
 }
 
 ConnectedItemMenu.propTypes = {
-    itemMenuParams : PropTypes.object.isRequired,
-    mdv            : PropTypes.object.isRequired,
-    anchorEl       : PropTypes.object,
-    onAddVariable  : PropTypes.func.isRequired,
-    onClose        : PropTypes.func.isRequired,
-    reviewMode     : PropTypes.bool,
-    buffer         : PropTypes.object,
+    itemMenuParams: PropTypes.object.isRequired,
+    mdv: PropTypes.object.isRequired,
+    anchorEl: PropTypes.object,
+    onAddVariable: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
+    reviewMode: PropTypes.bool,
+    buffer: PropTypes.object,
 };
 
 const ItemMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedItemMenu);

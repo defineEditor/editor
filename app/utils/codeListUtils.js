@@ -22,7 +22,7 @@ export const getItemsWithAliasExtendedValue = (sourceItems, standardCodeList, co
     // options.updateDecodes - use decodes from the standard codelist
     let newItems = {};
     let standardCodedValues = getCodedValuesAsArray(standardCodeList);
-    Object.keys(sourceItems).forEach( itemOid => {
+    Object.keys(sourceItems).forEach(itemOid => {
         if (standardCodedValues.includes(sourceItems[itemOid].codedValue)) {
             // Add alias from the standard codelist if it is different or the values/decodes should be updated
             let standardItemOid = Object.keys(standardCodeList.codeListItems)[standardCodedValues.indexOf(sourceItems[itemOid].codedValue)];
@@ -34,7 +34,7 @@ export const getItemsWithAliasExtendedValue = (sourceItems, standardCodeList, co
                 }
             }
 
-            if (!deepEqual(sourceItems[itemOid].alias, standardCodeList.codeListItems[standardItemOid].alias) || differentDecodes){
+            if (!deepEqual(sourceItems[itemOid].alias, standardCodeList.codeListItems[standardItemOid].alias) || differentDecodes) {
                 if (codeListType === 'enumerated') {
                     newItems[itemOid] = { ...new EnumeratedItem({
                         ...sourceItems[itemOid],
@@ -58,14 +58,14 @@ export const getItemsWithAliasExtendedValue = (sourceItems, standardCodeList, co
                 if (codeListType === 'enumerated') {
                     newItems[itemOid] = { ...new EnumeratedItem({
                         ...sourceItems[itemOid],
-                        alias         : undefined,
-                        extendedValue : 'Y',
+                        alias: undefined,
+                        extendedValue: 'Y',
                     }) };
                 } else if (codeListType === 'decoded') {
                     newItems[itemOid] = { ...new CodeListItem({
                         ...sourceItems[itemOid],
-                        alias         : undefined,
-                        extendedValue : 'Y',
+                        alias: undefined,
+                        extendedValue: 'Y',
                     }) };
                 }
             }

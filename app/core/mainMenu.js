@@ -31,6 +31,7 @@ import Save from '@material-ui/icons/Save';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import History from '@material-ui/icons/History';
 import Info from '@material-ui/icons/Info';
+import Keyboard from '@material-ui/icons/Keyboard';
 import Print from '@material-ui/icons/Print';
 import Search from '@material-ui/icons/Search';
 import Review from '@material-ui/icons/RemoveRedEye';
@@ -132,7 +133,7 @@ class ConnectedMainMenu extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary='Studies'/>
                             </ListItem>
-                            <ListItem button key='editor' onClick={() => this.props.changePage({ page: 'editor' })}>
+                            <ListItem button key='editor' onClick={() => this.props.changePage({ page: 'editor' })} disabled={this.props.currentDefineId === ''}>
                                 <ListItemIcon>
                                     <Edit/>
                                 </ListItemIcon>
@@ -155,6 +156,12 @@ class ConnectedMainMenu extends React.Component {
                                     <Info/>
                                 </ListItemIcon>
                                 <ListItemText primary='About'/>
+                            </ListItem>
+                            <ListItem button key='shortcuts' onClick={() => { this.props.toggleMainMenu(); this.props.onToggleShortcuts(); }}>
+                                <ListItemIcon>
+                                    <Keyboard/>
+                                </ListItemIcon>
+                                <ListItemText primary='Keyboard Shortcuts'/>
                             </ListItem>
                             <Divider/>
                             <ListItem button key='search' onClick={() => { this.props.toggleMainMenu(); this.props.onToggleFindInPage(300); }}>
@@ -253,6 +260,7 @@ ConnectedMainMenu.propTypes = {
     toggleMainMenu: PropTypes.func.isRequired,
     onToggleRedoUndo: PropTypes.func.isRequired,
     onToggleFindInPage: PropTypes.func.isRequired,
+    onToggleShortcuts: PropTypes.func.isRequired,
     changePage: PropTypes.func.isRequired,
     toggleReviewMode: PropTypes.func.isRequired,
     updateMainUi: PropTypes.func.isRequired,

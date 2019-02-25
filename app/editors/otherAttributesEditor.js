@@ -14,29 +14,32 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import path from 'path';
 import { withStyles } from '@material-ui/core/styles';
+import { ipcRenderer } from 'electron';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
+import FolderOpen from '@material-ui/icons/FolderOpen';
 import EditingControlIcons from 'editors/editingControlIcons.js';
 
 const styles = theme => ({
     root: {
-        padding   : 16,
-        marginTop : theme.spacing.unit * 3,
-        width     : '100%',
-        outline   : 'none',
+        padding: 16,
+        marginTop: theme.spacing.unit * 3,
+        width: '100%',
+        outline: 'none',
     },
     inputField: {
     },
 });
 
 class OtherAttributesEditor extends React.Component {
-
     constructor (props) {
-
         super(props);
 
         const { otherAttrs } = this.props;
@@ -44,6 +47,29 @@ class OtherAttributesEditor extends React.Component {
             ...otherAttrs,
         };
     }
+
+    componentDidMount () {
+        ipcRenderer.on('selectedFolder', this.setPathToFile);
+    }
+
+    componentWillUnmount () {
+        ipcRenderer.removeListener('selectedFolder', this.setPathToFile);
+    }
+
+    setPathToFile = (event, pathToFolder, title) => {
+        if (pathToFolder !== undefined) {
+            let fileName = 'define.xml';
+            // Extract filename if it existed
+            if (this.state.pathToFile) {
+                fileName = path.basename(this.state.pathToFile);
+            }
+            this.setState({ pathToFile: path.join(pathToFolder, fileName) });
+        }
+    };
+
+    selectPathToFile = () => {
+        ipcRenderer.send('selectFolder', 'Select Path To Define-XML file', this.props.otherAttrs.pathToFile);
+    };
 
     handleChange = (name) => (event) => {
         this.setState({ [name]: event.target.value });
@@ -53,7 +79,7 @@ class OtherAttributesEditor extends React.Component {
         this.props.onSave(this.state);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.props.onCancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -65,7 +91,7 @@ class OtherAttributesEditor extends React.Component {
         const { classes } = this.props;
         return (
             <Paper className={classes.root} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     Other Attributes
                     <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
                 </Typography>
@@ -90,6 +116,18 @@ class OtherAttributesEditor extends React.Component {
                             fullWidth
                             onChange={this.handleChange('pathToFile')}
                             className={classes.inputField}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <IconButton
+                                            color="default"
+                                            onClick={this.selectPathToFile}
+                                        >
+                                            <FolderOpen />
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }}
                         />
                     </ListItem>
                 </List>
@@ -99,12 +137,12 @@ class OtherAttributesEditor extends React.Component {
 }
 
 OtherAttributesEditor.propTypes = {
-    otherAttrs : PropTypes.object.isRequired,
-    classes    : PropTypes.object.isRequired,
-    onSave     : PropTypes.func.isRequired,
-    onCancel   : PropTypes.func.isRequired,
-    onHelp     : PropTypes.func,
-    onComment  : PropTypes.func,
+    otherAttrs: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    onSave: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    onHelp: PropTypes.func,
+    onComment: PropTypes.func,
 };
 
 export default withStyles(styles)(OtherAttributesEditor);

@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-function getOid(type, suffix, existingOids = []) {
+function getOid (type, suffix, existingOids = []) {
     let oid = '';
     let prefix = {
         MetaDataVersion: 'MDV.',
@@ -39,7 +39,7 @@ function getOid(type, suffix, existingOids = []) {
         var d = new Date().getTime();
         oid =
       prefix[type] +
-      'xxxxxxxx-yxxx-4xxx'.replace(/[xy]/g, function(c) {
+      'xxxxxxxx-yxxx-4xxx'.replace(/[xy]/g, function (c) {
           var r = ((d + Math.random() * 16) % 16) | 0;
           d = Math.floor(d / 16);
           return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);

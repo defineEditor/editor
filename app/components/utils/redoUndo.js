@@ -42,8 +42,8 @@ const styles = theme => ({
         height: '56px',
         backgroundImage: 'radial-gradient(#FFFFFF,#DDDDDD)',
         borderRadius: '25px',
-        marginLeft : '10px',
-        marginRight : '10px',
+        marginLeft: '10px',
+        marginRight: '10px',
     },
     grid: {
         height: '56px',
@@ -76,22 +76,22 @@ class RedoUndoConnected extends React.Component {
         this.jumpThrottled = throttle(500, this.props.jump);
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
+    static getDerivedStateFromProps (nextProps, prevState) {
         if (nextProps.historyLength !== prevState.currentLength) {
-            //nextProps.onToggleRedoUndo();
+            // nextProps.onToggleRedoUndo();
         }
         return null;
     }
 
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.ctrlKey && (event.keyCode === 90)) {
             this.props.undo();
         } else if (event.ctrlKey && (event.keyCode === 89)) {
@@ -106,7 +106,7 @@ class RedoUndoConnected extends React.Component {
         this.jumpThrottled(jumpDistance);
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
 
         return (
@@ -161,16 +161,15 @@ class RedoUndoConnected extends React.Component {
 }
 
 RedoUndoConnected.propTypes = {
-    classes          : PropTypes.object.isRequired,
-    pastLength       : PropTypes.number.isRequired,
-    futureLength     : PropTypes.number.isRequired,
-    historyLength    : PropTypes.number.isRequired,
-    undo             : PropTypes.func.isRequired,
-    redo             : PropTypes.func.isRequired,
-    jump             : PropTypes.func.isRequired,
-    onToggleRedoUndo : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    pastLength: PropTypes.number.isRequired,
+    futureLength: PropTypes.number.isRequired,
+    historyLength: PropTypes.number.isRequired,
+    undo: PropTypes.func.isRequired,
+    redo: PropTypes.func.isRequired,
+    jump: PropTypes.func.isRequired,
+    onToggleRedoUndo: PropTypes.func.isRequired,
 };
 
 const RedoUndo = connect(mapStateToProps, mapDispatchToProps)(RedoUndoConnected);
 export default withStyles(styles)(RedoUndo);
-

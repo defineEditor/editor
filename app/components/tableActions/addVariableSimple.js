@@ -42,9 +42,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
-        itemDefs      : state.present.odm.study.metaDataVersion.itemDefs,
-        itemGroups    : state.present.odm.study.metaDataVersion.itemGroups,
+        defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
+        itemDefs: state.present.odm.study.metaDataVersion.itemDefs,
+        itemGroups: state.present.odm.study.metaDataVersion.itemGroups,
     };
 };
 
@@ -53,19 +53,18 @@ class AddVariableSimpleConnected extends React.Component {
         super(props);
         const maxOrderNum = this.props.itemGroups[this.props.itemGroupOid].itemRefOrder.length + 1;
         this.state = {
-            name         : '',
-            orderNumber  : this.props.position || maxOrderNum,
-            maxOrderNum  : maxOrderNum,
+            name: '',
+            orderNumber: this.props.position || maxOrderNum,
+            maxOrderNum: maxOrderNum,
         };
-
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
+    static getDerivedStateFromProps (nextProps, prevState) {
         let maxOrderNum = nextProps.itemGroups[nextProps.itemGroupOid].itemRefOrder.length + 1;
-        if ( maxOrderNum !== prevState.maxOrderNum) {
+        if (maxOrderNum !== prevState.maxOrderNum) {
             return ({
-                orderNumber : nextProps.position || maxOrderNum,
-                maxOrderNum : maxOrderNum,
+                orderNumber: nextProps.position || maxOrderNum,
+                maxOrderNum: maxOrderNum,
             });
         } else {
             return null;
@@ -74,8 +73,8 @@ class AddVariableSimpleConnected extends React.Component {
 
     resetState = () => {
         this.setState({
-            name         : '',
-            orderNumber  : this.props.itemGroups[this.props.itemGroupOid].itemRefOrder.length + 1,
+            name: '',
+            orderNumber: this.props.itemGroups[this.props.itemGroupOid].itemRefOrder.length + 1,
         });
     }
 
@@ -84,12 +83,12 @@ class AddVariableSimpleConnected extends React.Component {
             this.setState({ [name]: event.target.value.toUpperCase() });
         } else if (name === 'orderNumber') {
             if (event.target.value >= 1 && event.target.value <= this.state.maxOrderNum) {
-                this.setState({[name]: event.target.value});
+                this.setState({ [name]: event.target.value });
             }
         }
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.ctrlKey && (event.keyCode === 83)) {
             this.handleSaveAndClose();
         }
@@ -102,20 +101,20 @@ class AddVariableSimpleConnected extends React.Component {
         let itemDefOid = getOid('ItemDef', undefined, itemDefOids);
         let itemRefOid = getOid('ItemRef', undefined, itemRefOids);
         let itemDef = { ...new ItemDef({
-            oid  : itemDefOid,
-            name : this.state.name,
+            oid: itemDefOid,
+            name: this.state.name,
         }) };
-        let itemRef = { ... new ItemRef({
-            oid     : itemRefOid,
-            itemOid : itemDefOid,
-            mandatory : 'No',
+        let itemRef = { ...new ItemRef({
+            oid: itemRefOid,
+            itemOid: itemDefOid,
+            mandatory: 'No',
         }) };
-        this.props.addVariable({itemGroupOid: this.props.itemGroupOid}, itemRef, itemDef, this.state.orderNumber);
+        this.props.addVariable({ itemGroupOid: this.props.itemGroupOid }, itemRef, itemDef, this.state.orderNumber);
         this.resetState();
         this.props.onClose();
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
 
         return (
@@ -133,7 +132,7 @@ class AddVariableSimpleConnected extends React.Component {
                     <TextField
                         label='Position'
                         type='number'
-                        InputLabelProps={{shrink: true}}
+                        InputLabelProps={{ shrink: true }}
                         value={this.state.orderNumber}
                         onChange={this.handleChange('orderNumber')}
                         className={classes.inputField}
@@ -156,15 +155,14 @@ class AddVariableSimpleConnected extends React.Component {
 }
 
 AddVariableSimpleConnected.propTypes = {
-    classes       : PropTypes.object.isRequired,
-    itemGroupOid  : PropTypes.string.isRequired,
-    itemDefs      : PropTypes.object.isRequired,
-    itemGroups    : PropTypes.object.isRequired,
-    defineVersion : PropTypes.string.isRequired,
-    position      : PropTypes.number,
-    onClose       : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    itemGroupOid: PropTypes.string.isRequired,
+    itemDefs: PropTypes.object.isRequired,
+    itemGroups: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    position: PropTypes.number,
+    onClose: PropTypes.func.isRequired,
 };
 
 const AddVariableSimple = connect(mapStateToProps, mapDispatchToProps)(AddVariableSimpleConnected);
 export default withStyles(styles)(AddVariableSimple);
-

@@ -16,7 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 class RoleFormatter extends React.Component {
-    render() {
+    render () {
         return (
             <div>{this.props.roleAttrs.role}</div>
         );
@@ -28,4 +28,3 @@ RoleFormatter.propTypes = {
 };
 
 export default RoleFormatter;
-

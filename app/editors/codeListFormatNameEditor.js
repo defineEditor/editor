@@ -20,7 +20,7 @@ import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 
 const styles = theme => ({
     helperText: {
-        whiteSpace : 'pre-wrap',
+        whiteSpace: 'pre-wrap',
     },
 });
 
@@ -49,7 +49,7 @@ class codeListFormatNameEditor extends React.Component {
         this.props.onUpdate(this.props.defaultValue);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.cancel();
         } else if (event.keyCode === 13) {
@@ -57,13 +57,13 @@ class codeListFormatNameEditor extends React.Component {
         }
     }
 
-    render() {
-        const {classes} = this.props;
+    render () {
+        const { classes } = this.props;
 
         let issue = false;
         let helperText = '';
         if (this.state.formatName !== undefined) {
-            let issues = checkForSpecialChars(this.state.formatName, new RegExp(/[^$a-zA-Z_0-9]/,'g'), 'Invalid character' );
+            let issues = checkForSpecialChars(this.state.formatName, new RegExp(/[^$a-zA-Z_0-9]/, 'g'), 'Invalid character');
             // Check label length is withing 40 chars
             if (this.state.formatName.length > 32) {
                 let issueText = `Value length is ${this.state.formatName.length}, which exceeds 32 characters.`;
@@ -82,7 +82,7 @@ class codeListFormatNameEditor extends React.Component {
                 autoFocus
                 error={issue}
                 helperText={issue && helperText}
-                FormHelperTextProps={{className: classes.helperText}}
+                FormHelperTextProps={{ className: classes.helperText }}
                 value={this.state.formatName}
                 onChange={this.handleChange('formatName')}
                 onBlur={this.save}
@@ -93,9 +93,9 @@ class codeListFormatNameEditor extends React.Component {
 }
 
 codeListFormatNameEditor.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    defaultValue : PropTypes.string,
-    onUpdate     : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    defaultValue: PropTypes.string,
+    onUpdate: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(codeListFormatNameEditor);

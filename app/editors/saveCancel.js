@@ -78,12 +78,12 @@ class SaveCancel extends React.Component {
 }
 
 SaveCancel.propTypes = {
-    mini    : PropTypes.bool,
-    icon    : PropTypes.bool,
-    save    : PropTypes.func.isRequired,
-    cancel  : PropTypes.func.isRequired,
+    mini: PropTypes.bool,
+    icon: PropTypes.bool,
+    save: PropTypes.func.isRequired,
+    cancel: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
-    justify : PropTypes.string,
+    justify: PropTypes.string,
 };
 
 export default withStyles(styles)(SaveCancel);

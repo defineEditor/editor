@@ -28,8 +28,8 @@ import getModelFromStandard from 'utils/getModelFromStandard.js';
 
 const styles = theme => ({
     mainPart: {
-        padding   : 16,
-        marginTop : theme.spacing.unit * 1,
+        padding: 16,
+        marginTop: theme.spacing.unit * 1,
     },
     checkBox: {
         marginLeft: theme.spacing.unit * 4,
@@ -37,7 +37,6 @@ const styles = theme => ({
 });
 
 class StandardFormatter extends React.Component {
-
     getStandards = (isAdam) => {
         let standards = this.props.standards;
         let ctList = Object.keys(standards)
@@ -76,7 +75,7 @@ class StandardFormatter extends React.Component {
 
         return (
             <Paper className={classes.mainPart} elevation={4}>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     Standard
                     <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>
@@ -100,11 +99,11 @@ class StandardFormatter extends React.Component {
 }
 
 StandardFormatter.propTypes = {
-    standards : PropTypes.object.isRequired,
-    classes   : PropTypes.object.isRequired,
-    onEdit    : PropTypes.func.isRequired,
-    hasArm    : PropTypes.bool.isRequired,
-    onComment : PropTypes.func,
+    standards: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    onEdit: PropTypes.func.isRequired,
+    hasArm: PropTypes.bool.isRequired,
+    onComment: PropTypes.func,
 };
 
 export default withStyles(styles)(StandardFormatter);

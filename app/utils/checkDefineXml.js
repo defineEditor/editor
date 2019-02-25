@@ -17,7 +17,6 @@ import getModelFromStandard from 'utils/getModelFromStandard.js';
 import { getWhereClauseAsText, getDescription } from 'utils/defineStructureUtils.js';
 
 function checkDefineXml (odm) {
-
     let mdv = odm.study.metaDataVersion;
 
     let issues = [];
@@ -26,10 +25,10 @@ function checkDefineXml (odm) {
     let defineVersions = Object.keys(stdConstants.standardNames);
     let supportedModels = [];
     // Map full standard names to model names and remove duplicates
-    defineVersions.forEach( version => {
+    defineVersions.forEach(version => {
         supportedModels = stdConstants.standardNames[version]
-            .map( standardName => (getModelFromStandard(standardName)) )
-            .filter( (modelName, index, self) => (self.indexOf(modelName) === index) )
+            .map(standardName => (getModelFromStandard(standardName)))
+            .filter((modelName, index, self) => (self.indexOf(modelName) === index))
         ;
     });
     if (!defineVersions.includes(mdv.defineVersion)) {
@@ -40,11 +39,11 @@ function checkDefineXml (odm) {
 
     // Check OIDs are properly referenced
     // ItemGroups and itemRefs
-    Object.keys(mdv.itemGroups).forEach( itemGroupOid => {
+    Object.keys(mdv.itemGroups).forEach(itemGroupOid => {
         let itemGroup = mdv.itemGroups[itemGroupOid];
         let itemRefs = itemGroup.itemRefs;
         let datasetName = itemGroup.name;
-        Object.keys(itemRefs).forEach( itemRef => {
+        Object.keys(itemRefs).forEach(itemRef => {
             let variableName;
             let itemDefOid = itemRefs[itemRef].itemOid;
             if (!mdv.itemDefs.hasOwnProperty(itemDefOid)) {
@@ -66,10 +65,10 @@ function checkDefineXml (odm) {
         }
     });
     // Value lists
-    Object.keys(mdv.valueLists).forEach( valueListOid => {
+    Object.keys(mdv.valueLists).forEach(valueListOid => {
         let valueList = mdv.valueLists[valueListOid];
         let itemRefs = valueList.itemRefs;
-        Object.keys(itemRefs).forEach( itemRef => {
+        Object.keys(itemRefs).forEach(itemRef => {
             let itemDefOid = itemRefs[itemRef].itemOid;
             if (!mdv.itemDefs.hasOwnProperty(itemDefOid)) {
                 issues.push('Item with OID ' + itemDefOid + ' does not exist, but is referenced in a value level.');
@@ -86,40 +85,40 @@ function checkDefineXml (odm) {
         });
     });
     // ItemDefs
-    Object.keys(mdv.itemDefs).forEach( itemDefOid => {
+    Object.keys(mdv.itemDefs).forEach(itemDefOid => {
         let itemDef = mdv.itemDefs[itemDefOid];
-        if ( itemDef.commentOid !== undefined && !mdv.comments.hasOwnProperty(itemDef.commentOid)) {
+        if (itemDef.commentOid !== undefined && !mdv.comments.hasOwnProperty(itemDef.commentOid)) {
             issues.push('Comment with OID ' + itemDef.commentOid + ` does not exist, but is referenced in ${itemDef.name}.`);
         }
-        if ( itemDef.codeListOid !== undefined && !mdv.codeLists.hasOwnProperty(itemDef.codeListOid)) {
+        if (itemDef.codeListOid !== undefined && !mdv.codeLists.hasOwnProperty(itemDef.codeListOid)) {
             issues.push('Codelist with OID ' + itemDef.codeListOid + ` does not exist, but is referenced in ${itemDef.name}.`);
         }
-        if ( itemDef.valueListOid !== undefined && !mdv.valueLists.hasOwnProperty(itemDef.valueListOid)) {
+        if (itemDef.valueListOid !== undefined && !mdv.valueLists.hasOwnProperty(itemDef.valueListOid)) {
             issues.push('Value list with OID ' + itemDef.valueListOid + ` does not exist, but is referenced in ${itemDef.name}.`);
         }
     });
     // Where Clauses
-    Object.keys(mdv.whereClauses).forEach( whereClauseOid => {
+    Object.keys(mdv.whereClauses).forEach(whereClauseOid => {
         let whereClause = mdv.whereClauses[whereClauseOid];
-        if ( whereClause.commentOid !== undefined && !mdv.comments.hasOwnProperty(whereClause.commentOid)) {
-            issues.push('Comment with OID ' + whereClause.commentOid
-                + ` does not exist, but is referenced in WhereClause ${getWhereClauseAsText(whereClause, mdv)}.`);
+        if (whereClause.commentOid !== undefined && !mdv.comments.hasOwnProperty(whereClause.commentOid)) {
+            issues.push('Comment with OID ' + whereClause.commentOid +
+                ` does not exist, but is referenced in WhereClause ${getWhereClauseAsText(whereClause, mdv)}.`);
         }
-        whereClause.rangeChecks.forEach( rangeCheck => {
-            if (rangeCheck.itemGroupOid === undefined && rangeCheck.itemOid !==undefined) {
+        whereClause.rangeChecks.forEach(rangeCheck => {
+            if (rangeCheck.itemGroupOid === undefined && rangeCheck.itemOid !== undefined) {
                 // If itemOid has only 1 source dataset, use it
                 if (!mdv.itemDefs.hasOwnProperty(rangeCheck.itemOid)) {
-                    issues.push('Item with OID ' + rangeCheck.itemOid
-                        + ` does not exist, but is referenced in WhereClause ${whereClause.oid}.`);
+                    issues.push('Item with OID ' + rangeCheck.itemOid +
+                        ` does not exist, but is referenced in WhereClause ${whereClause.oid}.`);
                 }
             }
         });
     });
     // Analysis Results
     if (mdv.analysisResultDisplays !== undefined && mdv.analysisResultDisplays.analysisResults !== undefined) {
-        Object.keys(mdv.analysisResultDisplays.analysisResults).forEach( analysisResultOid => {
+        Object.keys(mdv.analysisResultDisplays.analysisResults).forEach(analysisResultOid => {
             let analysisResult = mdv.analysisResultDisplays.analysisResults[analysisResultOid];
-            if ( analysisResult.analysisDatasetsCommentOid !== undefined && !mdv.comments.hasOwnProperty(analysisResult.analysisDatasetsCommentOid)) {
+            if (analysisResult.analysisDatasetsCommentOid !== undefined && !mdv.comments.hasOwnProperty(analysisResult.analysisDatasetsCommentOid)) {
                 issues.push('Comment with OID ' + analysisResult.analysisDatasetsCommentOid + ` does not exist, but is referenced in ${getDescription(analysisResult)}.`);
             }
         });

@@ -58,10 +58,9 @@ class ArmDatasetEditor extends React.Component {
         }
     };
 
-
     render () {
         const { classes, datasets, analysisDataset, datasetsNotUsed } = this.props;
-        let disabledDatasets = Object.keys(datasets).filter(oid => (!datasetsNotUsed.includes(oid) && oid !== analysisDataset.itemGroupOid)).map( oid => (oid));
+        let disabledDatasets = Object.keys(datasets).filter(oid => (!datasetsNotUsed.includes(oid) && oid !== analysisDataset.itemGroupOid)).map(oid => (oid));
 
         return (
             <Grid container spacing={8}>
@@ -99,13 +98,13 @@ class ArmDatasetEditor extends React.Component {
 }
 
 ArmDatasetEditor.propTypes = {
-    analysisDataset : PropTypes.object.isRequired,
-    whereClause     : PropTypes.object,
-    itemGroups      : PropTypes.object.isRequired,
-    itemDefs        : PropTypes.object.isRequired,
-    datasets        : PropTypes.object.isRequired,
-    datasetsNotUsed : PropTypes.array.isRequired,
-    onChange        : PropTypes.func.isRequired,
+    analysisDataset: PropTypes.object.isRequired,
+    whereClause: PropTypes.object,
+    itemGroups: PropTypes.object.isRequired,
+    itemDefs: PropTypes.object.isRequired,
+    datasets: PropTypes.object.isRequired,
+    datasetsNotUsed: PropTypes.array.isRequired,
+    onChange: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(ArmDatasetEditor);

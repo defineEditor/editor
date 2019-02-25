@@ -21,7 +21,7 @@ import { ipcRenderer } from 'electron';
 const openFile = (event) => {
     event.preventDefault();
     let state = store.getState();
-    let pathToDefine = state.present.defines.byId[state.present.odm.defineId].pathToFile;
+    let pathToDefine = state.present.defines.byId[state.present.odm.defineId].pathToFile || '';
     ipcRenderer.send('openFileInExternalApp', path.dirname(pathToDefine), event.target.attributes[0].value);
 };
 
@@ -34,7 +34,7 @@ class LeafFormatter extends React.Component {
 }
 
 LeafFormatter.propTypes = {
-    leaf : PropTypes.object.isRequired,
+    leaf: PropTypes.object.isRequired,
 };
 
 export default LeafFormatter;

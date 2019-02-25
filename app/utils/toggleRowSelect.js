@@ -41,7 +41,6 @@ const mapStateToProps = state => {
 };
 
 class ToggleRowSelectConnected extends React.Component {
-
     handleChange = () => {
         if (this.props.tabs.settings[this.props.tabs.currentTab].rowSelect[this.props.oid]) {
             // If the selection is switched off, clean selection buffer
@@ -49,14 +48,14 @@ class ToggleRowSelectConnected extends React.Component {
         }
 
         let source = {
-            tabIndex : this.props.tabs.currentTab,
-            oid      : this.props.oid,
+            tabIndex: this.props.tabs.currentTab,
+            oid: this.props.oid,
         };
         this.props.toggleRowSelect(source);
     }
 
-    render() {
-        const {classes} = this.props;
+    render () {
+        const { classes } = this.props;
         let rowSelect = false;
         if (this.props.tabs.settings[this.props.tabs.currentTab].rowSelect[this.props.oid] !== undefined) {
             rowSelect = this.props.tabs.settings[this.props.tabs.currentTab].rowSelect[this.props.oid];
@@ -81,12 +80,11 @@ class ToggleRowSelectConnected extends React.Component {
 }
 
 ToggleRowSelectConnected.propTypes = {
-    tabs           : PropTypes.object.isRequired,
-    oid            : PropTypes.string.isRequired,
-    cleanSelection : PropTypes.func.isRequired,
-    disabled       : PropTypes.bool,
+    tabs: PropTypes.object.isRequired,
+    oid: PropTypes.string.isRequired,
+    cleanSelection: PropTypes.func.isRequired,
+    disabled: PropTypes.bool,
 };
 
 const ToggleRowSelect = connect(mapStateToProps, mapDispatchToProps)(ToggleRowSelectConnected);
 export default withStyles(styles)(ToggleRowSelect);
-
