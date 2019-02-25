@@ -83,6 +83,8 @@ class ConnectedStudyMenu extends React.Component {
                     message: 'Study import failed. ' + error,
                 }
             });
+        } else if (data === undefined) {
+            // User cancelled import
         } else {
             // Update study, unite existing and imported OIDs
             let newStudy = { ...new Study(
