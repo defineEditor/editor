@@ -107,6 +107,7 @@ const general = {
 const popUp = {
     onCodeListTypeUpdate: true,
     onCodeListDelete: true,
+    onCodeListLink: true,
     onStartUp: true,
 };
 

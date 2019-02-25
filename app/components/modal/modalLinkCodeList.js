@@ -25,6 +25,12 @@ import Typography from '@material-ui/core/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 import {
     updateCodeList,
     closeModal,
@@ -34,6 +40,7 @@ import {
 const mapStateToProps = state => {
     return {
         codeLists: state.present.odm.study.metaDataVersion.codeLists,
+        stdCodeLists: state.present.stdCodeLists,
     };
 };
 
@@ -45,19 +52,38 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
+const CustomTableCell = withStyles(theme => ({
+    head: {
+        backgroundColor: theme.palette.primary.main,
+        color: '#EEEEEE',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    body: {
+        fontSize: 14,
+    },
+}))(TableCell);
+
 const styles = theme => ({
     dialog: {
+        position: 'absolute',
+        top: '10%',
+        maxHeight: '80%',
+        width: '50%',
+        overflowX: 'auto',
+        overflowY: 'auto',
         paddingLeft: theme.spacing.unit * 2,
         paddingRight: theme.spacing.unit * 2,
         paddingBottom: theme.spacing.unit * 1,
-        position: 'absolute',
+        margin: '0 auto',
         borderRadius: '10px',
-        top: '10%',
-        transform: 'translate(0%, calc(-50%+0.5px))',
-        overflowX: 'auto',
-        maxHeight: '85%',
-        width: '70%',
-        overflowY: 'auto',
+        border: '2px solid',
+        borderColor: 'primary',
+    },
+    paper: {
+        width: '100%',
+        marginTop: theme.spacing.unit * 1,
+        marginBottom: theme.spacing.unit * 2,
     },
 });
 
@@ -84,22 +110,20 @@ class ConnectedModalLinkCodeList extends React.Component {
     }
 
     onDialogOk = () => {
-        /*
         // check if the Never Show Again was selected
         if (!this.state.warningShowAgain) {
             // if so, update the corresponding setting
             this.props.updateSettings({
                 popUp: {
-                    onCodeListDelete: false,
+                    onCodeListLink: false,
                 },
             });
         }
-        */
         this.props.closeModal();
-        this.props.updateCodeList(this.props.codeListOid, { linkedCodeListOid: this.props.linkedCodeListOid });
-        /*
-        this.props.deleteCodeLists(this.props.deleteObj);
-        */
+        this.props.updateCodeList(this.props.codeListOid, {
+            linkedCodeListOid: this.props.linkedCodeListOid,
+            standardCodeList: this.props.standardCodeListOid ? this.props.stdCodeLists[this.props.standardOid].codeLists[this.props.standardCodeListOid] : undefined,
+        });
     }
 
     onDialogCancel = () => {
@@ -112,6 +136,14 @@ class ConnectedModalLinkCodeList extends React.Component {
 
     render () {
         const { classes } = this.props;
+        let enumeratedCodeListElements = this.props.codeLists[this.props.enumeratedCodeListOid].itemOrder.map(item =>
+            this.props.codeLists[this.props.enumeratedCodeListOid].enumeratedItems[item].codedValue
+        );
+        let decodedCodeListElements = this.props.codeLists[this.props.decodedCodeListOid].itemOrder.map(item =>
+            (this.props.codeLists[this.props.decodedCodeListOid].codeListItems[item].decodes[0] || { value: '' }).value
+        );
+        let elementsPop = enumeratedCodeListElements.filter(item => decodedCodeListElements.indexOf(item) === -1);
+        let elementsPush = decodedCodeListElements.filter(item => enumeratedCodeListElements.indexOf(item) === -1);
         return (
             <Dialog
                 open
@@ -119,12 +151,61 @@ class ConnectedModalLinkCodeList extends React.Component {
                 aria-describedby="alert-dialog-description"
                 PaperProps={{ className: classes.dialog }}
                 onKeyDown={this.onKeyDown}
+                fullWidth
+                maxWidth={false}
             >
-                <DialogTitle id="alert-dialog-title">Default Text</DialogTitle>
+                <DialogTitle id="alert-dialog-title">Linking Codelists</DialogTitle>
                 <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        Default Text
-                    </DialogContentText>
+                    {elementsPop.length > 0 &&
+                        <div>
+                            <DialogContentText id="alert-dialog-description">
+                                Enumeration codelist <i>{this.props.codeLists[this.props.enumeratedCodeListOid].name}</i> contains coded values,
+                                which are not present in decodes of decoded codelist <i>{this.props.codeLists[this.props.decodedCodeListOid].name}</i>.
+                                If you link the codelists, these coded values will be lost.
+                            </DialogContentText>
+                            <Paper className={classes.paper}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <CustomTableCell>Elements to be removed from the enumeration codelist</CustomTableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {elementsPop.map(item => (
+                                            <TableRow key={item}>
+                                                <TableCell component="th" scope="row">{item}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </Paper>
+                        </div>
+                    }
+                    {elementsPush.length > 0 &&
+                        <div>
+                            <DialogContentText id="alert-dialog-description">
+                                Decoded codelist <i>{this.props.codeLists[this.props.decodedCodeListOid].name}</i> contains decodes,
+                                which are not present in coded values of enumeration codelist <i>{this.props.codeLists[this.props.enumeratedCodeListOid].name}</i>.
+                                If you link the codelists, these decodes will be added to the list of coded values of the enumeration codelist.
+                            </DialogContentText>
+                            <Paper className={classes.paper}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <CustomTableCell>Elements to be added to the enumeration codelist</CustomTableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {elementsPush.map(item => (
+                                            <TableRow key={item}>
+                                                <TableCell component="th" scope="row">{item}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </Paper>
+                        </div>
+                    }
                     <FormControlLabel
                         control={
                             <Checkbox
@@ -145,7 +226,7 @@ class ConnectedModalLinkCodeList extends React.Component {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={this.onDialogOk} color="primary">
-                        Link Codelist
+                        Link Codelists
                     </Button>
                     <Button onClick={this.onDialogCancel} color="primary">
                         Cancel

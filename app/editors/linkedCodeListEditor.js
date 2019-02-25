@@ -25,6 +25,8 @@ import {
 const mapStateToProps = state => {
     return {
         codeLists: state.present.odm.study.metaDataVersion.codeLists,
+        stdCodeLists: state.present.stdCodeLists,
+        showLinkCodeListWarning: state.present.settings.popUp.onCodeListLink,
     };
 };
 
@@ -56,49 +58,59 @@ class ConnectedLinkedCodeListEditor extends React.Component {
     }
 
     handleChange = (selectedCodeListOid) => {
+        // tell bootstrap table to exit editing cell
         this.props.onUpdate(this.props.defaultValue);
-        // when Esc is pressed, do nothing and exit editor
         if (selectedCodeListOid === undefined) {
+            // when Esc is pressed, do nothing and exit editor
+            // rule disabled to show what happens if undefined is returned
+            // eslint-disable-next-line no-useless-return
             return;
-        }
-        // Linking a codelist may change of the enumeration codelist, so provide standardCodelist for the enumerated codelist
-        let standardCodeListOid;
-        let standardOid;
-        if (selectedCodeListOid !== '') {
-            let codeList = this.props.codeLists[this.props.row.oid];
-            let linkedCodeList = this.props.codeLists[selectedCodeListOid];
-            if (codeList.codeListType === 'enumerated' &&
-                codeList.standardOid !== undefined &&
-                this.props.stdCodeLists.hasOwnProperty(codeList.standardOid) &&
-                this.props.stdCodeLists[codeList.standardOid].nciCodeOids.hasOwnProperty(codeList.alias.name)
-            ) {
-                standardCodeListOid = this.props.stdCodeLists[codeList.standardOid].nciCodeOids[codeList.alias.name];
-                standardOid = codeList.standardOid;
-                // updateObj.standardCodeList = this.props.stdCodeLists[codeList.standardOid].codeLists[standardCodeListOid];
-            } else if (linkedCodeList.codeListType === 'enumerated' &&
-                linkedCodeList.standardOid !== undefined &&
-                this.props.stdCodeLists.hasOwnProperty(linkedCodeList.standardOid) &&
-                this.props.stdCodeLists[linkedCodeList.standardOid].nciCodeOids.hasOwnProperty(linkedCodeList.alias.name)
-            ) {
-                standardCodeListOid = this.props.stdCodeLists[linkedCodeList.standardOid].nciCodeOids[linkedCodeList.alias.name];
-                standardOid = linkedCodeList.standardOid;
-                // updateObj.standardCodeList = this.props.stdCodeLists[linkedCodeList.standardOid].codeLists[standardCodeListOid];
-            }
-        }
-        // updateObj['linkedCodeListOid'] = selectedCodeListOid;
-        // this.props.updateCodeList(row.oid, updateObj);
-        if (selectedCodeListOid === '') {
+        } else if (selectedCodeListOid === '') {
+            // if empty row is selected, unlink the codelist if linked
             this.props.updateCodeList(this.props.row.oid, { linkedCodeListOid: undefined });
         } else {
-            // TODO: add clause to check if modal is needed
-            this.props.updateCodeList(this.props.row.oid, {
-                linkedCodeListOid: selectedCodeListOid,
-                standardCodeList: standardCodeListOid ? this.props.stdCodeLists[standardOid].codeLists[standardCodeListOid] : undefined,
+            let standardCodeListOid;
+            let standardOid;
+            let enumeratedCodeListOid;
+            let enumeratedCodeListElements;
+            let decodedCodeListOid;
+            let decodedCodeListElements;
+            // collect the elements of the codelists to link and the standardOid/standardCodeListOid, if present
+            [this.props.row.oid, selectedCodeListOid].forEach((codeListOid) => {
+                let codeList = this.props.codeLists[codeListOid];
+                switch (codeList.codeListType) {
+                    case 'enumerated':
+                        enumeratedCodeListOid = codeList.oid;
+                        enumeratedCodeListElements = codeList.itemOrder.map(item => codeList.enumeratedItems[item].codedValue);
+                        if (codeList.standardOid !== undefined &&
+                            this.props.stdCodeLists.hasOwnProperty(codeList.standardOid) &&
+                            this.props.stdCodeLists[codeList.standardOid].nciCodeOids.hasOwnProperty(codeList.alias.name)
+                        ) {
+                            standardCodeListOid = this.props.stdCodeLists[codeList.standardOid].nciCodeOids[codeList.alias.name];
+                            standardOid = codeList.standardOid;
+                        }
+                        break;
+                    case 'decoded':
+                        decodedCodeListOid = codeList.oid;
+                        decodedCodeListElements = codeList.itemOrder.map(item => (codeList.codeListItems[item].decodes[0] || { value: '' }).value);
+                        break;
+                }
             });
-            this.props.openModal({
-                type: 'LINK_CODELIST',
-                props: { codeListOid: this.props.row.oid, linkedCodeListOid: selectedCodeListOid, standardCodeListOid, standardOid }
-            });
+            // if enumerated codelist contains an element, which is not present in decoded codelist (meaning it will be lost after linking)
+            // or vice versa (meaning new elements from decoded codelist will be added)
+            // and the corresponding setting is turned on, then issue a warning; otherwise, just link the codelists;
+            if (this.props.showLinkCodeListWarning &&
+                (enumeratedCodeListElements.some(item => decodedCodeListElements.indexOf(item) === -1) || decodedCodeListElements.some(item => enumeratedCodeListElements.indexOf(item) === -1))) {
+                this.props.openModal({
+                    type: 'LINK_CODELIST',
+                    props: { codeListOid: this.props.row.oid, linkedCodeListOid: selectedCodeListOid, standardCodeListOid, standardOid, enumeratedCodeListOid, decodedCodeListOid }
+                });
+            } else {
+                this.props.updateCodeList(this.props.row.oid, {
+                    linkedCodeListOid: selectedCodeListOid,
+                    standardCodeList: standardCodeListOid ? this.props.stdCodeLists[standardOid].codeLists[standardCodeListOid] : undefined,
+                });
+            }
         }
     }
 

@@ -375,6 +375,17 @@ class ConnectedSettings extends React.Component {
                                         }
                                         label='Delete a codelist, which is used by a variable'
                                     />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.popUp.onCodeListLink}
+                                                onChange={this.handleChange('popUp', 'onCodeListLink')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Linking codelists, that results in change of the enumeration codelist'
+                                    />
                                 </FormGroup>
                             </Grid>
                         </Grid>
