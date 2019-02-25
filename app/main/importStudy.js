@@ -86,7 +86,7 @@ const importStudyData = (mainWindow, idObject) => async (file) => {
             let newDefineIds = [];
             studyData.study.defineIds.forEach(defineId => {
                 if (idObject.defineIds.includes(defineId)) {
-                    let newDefineId = getOid('Define', undefined, idObject.defineIds);
+                    let newDefineId = getOid('Define', undefined, idObject.defineIds.concat(newDefineIds));
                     newDefineIds.push(newDefineId);
                     // Rename many places where the ID is referenced
                     studyData.defines[defineId].id = newDefineId;
@@ -113,6 +113,10 @@ const importStudyData = (mainWindow, idObject) => async (file) => {
             } else {
                 mainWindow.webContents.send('importedStudyData', {}, 'Could not read study or define data.');
             }
+        } else {
+            // User cancelled import
+            // Send a response as there is an event listener waiting for result
+            mainWindow.webContents.send('importedStudyData');
         }
     } catch (error) {
         mainWindow.webContents.send('importedStudyData', {}, error.message);
