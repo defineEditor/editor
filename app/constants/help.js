@@ -43,3 +43,41 @@ A pair of linked codelists, is a pair of Enumeration and Decoded codelists, wher
 In case two codelists are linked together, values of the Enumeration codelist are updated with decode values of the Decoded codelist. The options control how the codelists are linked, but not how the values are updated.
 `
 };
+
+export const VARIABLE_FILTER = {
+    title: 'Filter',
+    content: `
+#### About
+Filter functionality allows to select which records are shown or updated.
+#### Field
+Object to which the filter is applied. Most fields correspond to attributes shown in the table.
+* **Is VLM** - Flag which indicates whether the variable is Value Level Metadata
+* **Has VLM** - Flag which indicates whether the variable has Value Level Metadata
+* **Has Document** - Flag which shows whether there is a document attached to Comment/Method/Origin
+* **Parent Variable** - Allows to filter VLM records which are attached to a specific variable
+* **Where Clause** - String corresponding to a where clause (ADLB.PARAMCD EQ "ALT")
+#### Comparator
+Defines how the field is compared with the specified value.
+* **STARTS** - Field starts with a value.
+* **ENDS** - Field ends with a value.
+* **CONTAINS** - Field contains a value.
+* **REGEX** - Field matches a regular expression.
+* **REGEXI** - Field matches a regular expression with a /i flag (case-insensitive).
+`
+};
+
+export const VARIABLE_UPDATE = {
+    title: 'Update',
+    content: `
+#### About
+Filter functionality allows to update multiple variables or VLMs within one or several datasets.
+#### Filter
+The filter is used to select items to which the update is applied. Update button is disabled until there is at least one item selected.
+#### Field
+Object which is updated. Fields correspond to attributes shown in the table.
+#### Update modes
+* **Set** - Overwrite existing or create a new field value.
+* **Replace** - Search for a specific text in the field and replace it. It is possible to use regular expressions.
+Regular expressions should not be enclosed in delimiters (e.g., /^\\w+$/) and written without them: ^\\w+$
+`
+};

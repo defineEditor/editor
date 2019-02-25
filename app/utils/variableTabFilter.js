@@ -32,6 +32,8 @@ import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import getSelectionList from 'utils/getSelectionList.js';
 import getTableDataForFilter from 'utils/getTableDataForFilter.js';
 import clone from 'clone';
+import InternalHelp from 'components/utils/internalHelp.js';
+import { VARIABLE_FILTER } from 'constants/help.js';
 import {
     updateFilter
 } from 'actions/index.js';
@@ -125,6 +127,7 @@ const filterFields = {
     'displayFormat': { label: 'Display Format', type: 'string' },
     'role': { label: 'Role', type: 'flag' },
     'isVlm': { label: 'Is VLM', type: 'flag' },
+    'whereClause': { label: 'Where Clause', type: 'string' },
     'parentItemDef': { label: 'Parent Variable', type: 'string' },
     'hasVlm': { label: 'Has VLM', type: 'flag' },
     'dataset': { label: 'Dataset', type: 'flag' },
@@ -192,6 +195,7 @@ class ConnectedVariableTabFilter extends React.Component {
                 conditions: result,
             });
         } else if (name === 'comparator') {
+            let newValues;
             if (result[index].comparator === updateObj.target.value) {
                 return;
             }
@@ -202,10 +206,28 @@ class ConnectedVariableTabFilter extends React.Component {
                 result[index].selectedValues.length > 1
             ) {
                 result[index].selectedValues = [];
+            } else if (['NOTIN', 'IN'].indexOf(this.state.conditions[index].comparator) < 0 &&
+                ['NOTIN', 'IN'].indexOf(result[index].comparator) >= 0 &&
+                result[index].selectedValues.length === 1
+            ) {
+                // When changed from EQ/NE/REGEX/... to IN/NOTIN
+                // It is possible that custom value was used and then user switched to NOTIN/IN selection
+                // In this case add custom value to the values, so that they are shown in the drop-down selection
+                const values = this.state.values;
+                if (values.hasOwnProperty(result[index].field) && !values[result[index].field].includes(result[index].selectedValues[0])) {
+                    newValues = { ...values, [result[index].field]: values[result[index].field].concat(result[index].selectedValues) };
+                }
             }
-            this.setState({
-                conditions: result,
-            });
+            if (newValues === undefined) {
+                this.setState({
+                    conditions: result,
+                });
+            } else {
+                this.setState({
+                    conditions: result,
+                    values: newValues,
+                });
+            }
         } else if (name === 'selectedValues') {
             if (typeof updateObj.target.value === 'object') {
                 // Fix an issue when a blank values appreas when keyboard is used
@@ -498,7 +520,10 @@ class ConnectedVariableTabFilter extends React.Component {
                 maxWidth={false}
                 PaperProps={{ className: classes.dialog }}
             >
-                <DialogTitle>Filter</DialogTitle>
+                <DialogTitle>
+                    Filter
+                    <InternalHelp data={VARIABLE_FILTER} />
+                </DialogTitle>
                 <DialogContent>
                     <Grid container spacing={16} alignItems='flex-end'>
                         {this.getRangeChecks()}

@@ -13,7 +13,7 @@
 ***********************************************************************************/
 
 // Extract data required for the table;
-function getTableData ({ source, datasetName, datasetOid, itemDefs, codeLists, mdv, defineVersion, vlmLevel, filteredOids } = {}) {
+function getTableData ({ source, datasetName, datasetOid, itemDefs, codeLists, mdv, defineVersion, vlmLevel, filteredOids, specialHighlightOids = [] } = {}) {
     let result = [];
     Object.keys(source.itemRefs).forEach((itemRefOid, index) => {
         const originVar = source.itemRefs[itemRefOid];
@@ -39,6 +39,7 @@ function getTableData ({ source, datasetName, datasetOid, itemDefs, codeLists, m
             mdv: mdv,
             defineVersion: defineVersion,
             vlmLevel: vlmLevel,
+            specialHighlight: specialHighlightOids.includes(originItemDef.oid),
         };
         currentVar.lengthAttrs = {
             length: originItemDef.length,

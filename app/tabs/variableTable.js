@@ -362,7 +362,35 @@ class ConnectedVariableTable extends React.Component {
     getData = () => {
         const mdv = this.props.mdv;
         const dataset = mdv.itemGroups[this.props.itemGroupOid];
+
+        // In case of a filter, select all filtered VLM oids
+        let vlmFilteredOidsByItem = {};
+        if (this.props.filter.isEnabled && this.props.filter.applyToVlm) {
+            Object.keys(dataset.itemRefs)
+                .filter(itemRefOid => (mdv.itemDefs[dataset.itemRefs[itemRefOid].itemOid].valueListOid !== undefined))
+                .forEach(itemRefOid => {
+                    let itemOid = dataset.itemRefs[itemRefOid].itemOid;
+                    let data = getTableDataForFilter({
+                        source: mdv.valueLists[mdv.itemDefs[itemOid].valueListOid],
+                        datasetName: dataset.name,
+                        datasetOid: dataset.oid,
+                        itemDefs: mdv.itemDefs,
+                        codeLists: mdv.codeLists,
+                        mdv: mdv,
+                        defineVersion: this.props.defineVersion,
+                        vlmLevel: 1,
+                    });
+                    let vlmFilteredOids = applyFilter(data, this.props.filter);
+                    // Variable level item with at least one VLM passing the filter
+                    if (vlmFilteredOids.length > 0) {
+                        vlmFilteredOidsByItem[itemOid] = vlmFilteredOids;
+                    }
+                });
+        }
+        // Get Variable level Metadata
+        // Select filtered values
         let filteredOids;
+        let specialHighlightOids = [];
         if (this.props.filter.isEnabled) {
             let data = getTableDataForFilter({
                 source: dataset,
@@ -375,8 +403,16 @@ class ConnectedVariableTable extends React.Component {
                 vlmLevel: 0,
             });
             filteredOids = applyFilter(data, this.props.filter);
+            // In case VLMs are selected by a filter, show parent variables
+            // Track those which were not selected by a filter, so that they can be highlighted
+            Object.keys(vlmFilteredOidsByItem).forEach(itemOid => {
+                if (!filteredOids.includes(itemOid)) {
+                    filteredOids.push(itemOid);
+                    specialHighlightOids.push(itemOid);
+                }
+            });
         }
-        // Get variable level metadata
+        // Get the data
         let variables = getTableData({
             source: dataset,
             datasetName: dataset.name,
@@ -387,18 +423,22 @@ class ConnectedVariableTable extends React.Component {
             defineVersion: this.props.defineVersion,
             vlmLevel: 0,
             filteredOids,
+            specialHighlightOids,
         });
-
         // Get VLM metadata for items which are expanded
         let vlmState = this.props.tabSettings.vlmState[this.props.itemGroupOid];
         if (vlmState !== undefined) {
             Object.keys(dataset.itemRefs)
-                .filter(itemRefOid => (mdv.itemDefs[dataset.itemRefs[itemRefOid].itemOid].valueListOid !== undefined && vlmState[dataset.itemRefs[itemRefOid].itemOid] === 'expand'))
+                .filter(itemRefOid => (
+                    mdv.itemDefs[dataset.itemRefs[itemRefOid].itemOid].valueListOid !== undefined &&
+                    vlmState[dataset.itemRefs[itemRefOid].itemOid] === 'expand'
+                ))
                 .forEach(itemRefOid => {
                     let itemOid = dataset.itemRefs[itemRefOid].itemOid;
-                    let vlmFilteredOids;
-                    if (this.props.filter.isEnabled && this.props.filter.applyToVlm) {
-                        let data = getTableDataForFilter({
+                    // Get the VLM data, run only for those items which are expanded
+                    if (vlmState[dataset.itemRefs[itemRefOid].itemOid] === 'expand') {
+                        // During filtering it is possible that some of the elements will be undefined or empty, remove them
+                        let vlmData = getTableData({
                             source: mdv.valueLists[mdv.itemDefs[itemOid].valueListOid],
                             datasetName: dataset.name,
                             datasetOid: dataset.oid,
@@ -407,26 +447,13 @@ class ConnectedVariableTable extends React.Component {
                             mdv: mdv,
                             defineVersion: this.props.defineVersion,
                             vlmLevel: 1,
-                        });
-                        vlmFilteredOids = applyFilter(data, this.props.filter);
+                            filteredOids: vlmFilteredOidsByItem[itemOid],
+                        }).filter(el => (el !== undefined));
+                        // For all VLM which are expanded, add VLM data to VLM variables
+                        // If  there is no parent variable (in case of filter), add VLM for that parent at the end
+                        let startIndex = variables.map(item => item.oid).indexOf(itemOid) + 1;
+                        variables.splice.apply(variables, [startIndex === 0 ? variables.length : startIndex, 0].concat(vlmData));
                     }
-                    // Get the VLM data
-                    // During filtering it is possible that some of the elements will be undefined or empty, remove them
-                    let vlmData = getTableData({
-                        source: mdv.valueLists[mdv.itemDefs[itemOid].valueListOid],
-                        datasetName: dataset.name,
-                        datasetOid: dataset.oid,
-                        itemDefs: mdv.itemDefs,
-                        codeLists: mdv.codeLists,
-                        mdv: mdv,
-                        defineVersion: this.props.defineVersion,
-                        vlmLevel: 1,
-                        filteredOids: vlmFilteredOids,
-                    }).filter(el => (el !== undefined));
-                    // For all VLM which are expanded, add VLM data to Variables
-                    // If  there is no parent variable (in case of filter), add VLM for that parent at the end
-                    let startIndex = variables.map(item => item.oid).indexOf(itemOid) + 1;
-                    variables.splice.apply(variables, [startIndex === 0 ? variables.length : startIndex, 0].concat(vlmData));
                 });
         }
         // During filtering it is possible that some of the elements will be undefined or empty
@@ -707,8 +734,15 @@ class ConnectedVariableTable extends React.Component {
         }
     }
 
-    highLightVlmRows = (row, rowIndex) => {
-        return (row.vlmLevel > 0 ? 'vlmRow' : 'variableRow');
+    highLightRows = (row, rowIndex) => {
+        let highlightClass = 'variableRow';
+        if (row.vlmLevel > 0) {
+            highlightClass = 'vlmRow';
+        }
+        if (row.specialHighlight === true) {
+            highlightClass = 'specialHighlight';
+        }
+        return highlightClass;
     }
 
     // Row Selection functions
@@ -890,7 +924,7 @@ class ConnectedVariableTable extends React.Component {
                     cellEdit={this.props.reviewMode || this.props.showRowSelect ? undefined : cellEditProp}
                     headerStyle={{ backgroundColor: indigo[500], color: grey[200], fontSize: '16px' }}
                     selectRow={selectRowProp}
-                    trClassName={this.highLightVlmRows}
+                    trClassName={this.highLightRows}
                 >
                     {renderColumns(this.state.columns)}
                 </BootstrapTable>
