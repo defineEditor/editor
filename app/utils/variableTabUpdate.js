@@ -34,6 +34,8 @@ import VariableTabUpdateField from 'utils/variableTabUpdateField.js';
 import getTableDataForFilter from 'utils/getTableDataForFilter.js';
 import applyFilter from 'utils/applyFilter.js';
 import sortCodeLists from 'utils/sortCodeLists.js';
+import InternalHelp from 'components/utils/internalHelp.js';
+import { VARIABLE_UPDATE } from 'constants/help.js';
 import {
     updateItemsBulk
 } from 'actions/index.js';
@@ -473,7 +475,10 @@ class ConnectedVariableTabUpdate extends React.Component {
                 fullWidth
                 PaperProps={{ className: classes.dialog }}
             >
-                <DialogTitle>Variable Update</DialogTitle>
+                <DialogTitle>
+                    Variable Update
+                    <InternalHelp data={VARIABLE_UPDATE} />
+                </DialogTitle>
                 <DialogContent>
                     <Grid container spacing={16} alignItems='flex-end'>
                         <Grid item xs={12}>
