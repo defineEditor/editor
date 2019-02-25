@@ -125,7 +125,7 @@ class ConnectedStudies extends React.Component {
               </NavigationBar>
               <div className={classes.root}>
                   <GridList
-                      cellHeight={204}
+                      cellHeight={207}
                       className={classes.gridList}
                       cols={cols}
                       spacing={8}

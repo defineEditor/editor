@@ -100,6 +100,7 @@ const appSave = (state, action) => {
             ...state.byId,
             [action.updateObj.defineId]: {
                 ...state.byId[action.updateObj.defineId],
+                stats: action.updateObj.stats,
                 lastChanged: new Date().toISOString(),
             }
         };
