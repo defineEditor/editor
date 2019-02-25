@@ -28,6 +28,7 @@ import AddDefineFormStep1 from 'core/addDefineFormStep1.js';
 import AddDefineFormStep2 from 'core/addDefineFormStep2.js';
 import AddDefineFormStep3 from 'core/addDefineFormStep3.js';
 import { Define } from 'core/mainStructure.js';
+import getDefineStats from 'utils/getDefineStats.js';
 import {
     addOdm,
     addDefine,
@@ -103,18 +104,7 @@ class ConnectedAddDefineForm extends React.Component {
 
     saveDefineAsObject = (defineId, defineData, pathToDefineXml) => {
         // Calculate define Stats
-        let stats = {};
-        stats.datasets = Object.keys(defineData.study.metaDataVersion.itemGroups).length;
-        stats.codeLists = Object.keys(defineData.study.metaDataVersion.codeLists).length;
-        const countVariables = (varNum, itemDefOid) => {
-            let item = defineData.study.metaDataVersion.itemDefs[itemDefOid];
-            let varCount = varNum;
-            Object.keys(item.sources).forEach(sourceType => {
-                varCount += item.sources[sourceType].length;
-            });
-            return varCount;
-        };
-        stats.variables = Object.keys(defineData.study.metaDataVersion.itemDefs).reduce(countVariables, 0);
+        let stats = getDefineStats(defineData);
         let define = {
             ...new Define({
                 id: defineId,

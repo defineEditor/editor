@@ -48,6 +48,9 @@ const styles = theme => ({
     tabs: {
         marginLeft: theme.spacing.unit * 4,
     },
+    tab: {
+        flexGrow: 1,
+    },
 });
 
 // Redux functions
@@ -180,13 +183,14 @@ class ConnectedEditorTabs extends React.Component {
                             value={currentTab}
                             onChange={this.handleChange}
                             variant='scrollable'
+                            centered={true}
                             indicatorColor='primary'
                             textColor='primary'
                             className={classes.tabs}
                             scrollButtons="auto"
                         >
                             { tabNames.map(tab => {
-                                return <Tab key={tab} label={tab} />;
+                                return <Tab key={tab} label={tab} className={classes.tab}/>;
                             })
                             }
                         </Tabs>
