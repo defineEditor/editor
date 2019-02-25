@@ -354,6 +354,9 @@ class ConnectedVariableTable extends React.Component {
                 this.handleChangePage(event, page + 1);
             }
         }
+        if (event.ctrlKey && (event.keyCode === 78)) {
+            this.setState({ showAddVariable: true, insertPosition: null });
+        }
     }
 
     getData = () => {

@@ -259,6 +259,17 @@ class ConnectedDatasetTable extends React.Component {
 
     componentDidMount () {
         setScrollPosition(this.props.tabs);
+        window.addEventListener('keydown', this.onKeyDown);
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('keydown', this.onKeyDown);
+    }
+
+    onKeyDown = (event) => {
+        if (event.ctrlKey && (event.keyCode === 78)) {
+            this.setState({ showAddDataset: true, insertPosition: null });
+        }
     }
 
     menuFormatter = (cell, row) => {

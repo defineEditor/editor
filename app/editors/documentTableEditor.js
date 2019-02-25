@@ -57,6 +57,9 @@ const styles = theme => ({
     inputField: {
         minWidth: '210px',
     },
+    root: {
+        outline: 'none',
+    },
 });
 
 const CustomTableCell = withStyles(theme => ({
@@ -196,6 +199,8 @@ class DocumentTableEditor extends React.Component {
             this.props.onCancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
             this.save();
+        } else if (event.ctrlKey && (event.keyCode === 78)) {
+            this.handleChange('addDoc')();
         }
     }
 
@@ -205,7 +210,7 @@ class DocumentTableEditor extends React.Component {
             return { oid: leafId, name: this.state.leafs[leafId].title };
         });
         return (
-            <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef}>
+            <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef} className={classes.root}>
                 <Paper className={classes.mainPart} elevation={4}>
                     <Typography variant="headline" component="h3">
                         Documents

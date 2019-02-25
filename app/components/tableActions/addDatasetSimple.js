@@ -123,7 +123,7 @@ class AddDatasetEditorConnected extends React.Component {
                         variant="contained"
                         className={classes.addButton}
                     >
-                        Add variable
+                        Add dataset
                     </Button>
                 </Grid>
             </Grid>

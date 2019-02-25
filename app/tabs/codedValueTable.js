@@ -230,7 +230,7 @@ class ConnectedCodedValueTable extends React.Component {
 
     componentDidUpdate () {
         if (this.state.setScrollY) {
-            // Restore previous tab scroll position for a specific dataset
+            // Restore previous tab scroll position for a specific codelist
             let tabSettings = this.props.tabSettings;
             if (tabSettings.scrollPosition[this.props.codeListOid] !== undefined) {
                 window.scrollTo(0, tabSettings.scrollPosition[this.props.codeListOid]);
@@ -238,6 +238,20 @@ class ConnectedCodedValueTable extends React.Component {
                 window.scrollTo(0, 0);
             }
             this.setState({ setScrollY: false });
+        }
+    }
+
+    componentDidMount () {
+        window.addEventListener('keydown', this.onKeyDown);
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('keydown', this.onKeyDown);
+    }
+
+    onKeyDown = (event) => {
+        if (event.ctrlKey && (event.keyCode === 78)) {
+            this.props.addBlankCodedValue(this.props.codeListOid);
         }
     }
 
