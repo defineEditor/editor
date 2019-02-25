@@ -32,7 +32,7 @@ const styles = theme => ({
         marginTop: theme.spacing.unit,
     },
     menu: {
-        marginRight : theme.spacing.unit * 2,
+        marginRight: theme.spacing.unit * 2,
     },
 });
 
@@ -50,7 +50,7 @@ class ConnectedNavigationBar extends React.Component {
             </Grid>
         ));
     }
-    render() {
+    render () {
         const { classes } = this.props;
         return (
             <AppBar position="fixed" color='default'>
@@ -78,8 +78,8 @@ class ConnectedNavigationBar extends React.Component {
 }
 
 ConnectedNavigationBar.propTypes = {
-    classes        : PropTypes.object.isRequired,
-    toggleMainMenu : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    toggleMainMenu: PropTypes.func.isRequired,
 };
 
 const NavigationBar = connect(undefined, mapDispatchToProps)(ConnectedNavigationBar);

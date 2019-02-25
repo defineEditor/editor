@@ -31,7 +31,7 @@ function sendDefineObject (event, data) {
     // If Define-XML 2.0 is generated, then all datasets which have hasNoData attribute, must be removed
     let itemGroupOidsToRemove = [];
     if (mdv.defineVersion === '2.0.0') {
-        Object.keys(mdv.itemGroups).forEach( itemGroupOid => {
+        Object.keys(mdv.itemGroups).forEach(itemGroupOid => {
             if (mdv.itemGroups[itemGroupOid].hasNoData === 'Yes') {
                 itemGroupOidsToRemove.push(itemGroupOid);
             }
@@ -54,7 +54,7 @@ function sendDefineObject (event, data) {
     if (state.settings.editor.hasOwnProperty('removeUnusedCodeListsInDefineXml') && state.settings.editor.removeUnusedCodeListsInDefineXml === true) {
         let newCodeLists = { ...mdv.codeLists };
         let newCodeListOrder = [ ...mdv.order.codeListOrder ];
-        Object.keys(mdv.codeLists).forEach( codeListOid => {
+        Object.keys(mdv.codeLists).forEach(codeListOid => {
             let codeList = mdv.codeLists[codeListOid];
             let unusedCodeList = true;
             Object.keys(codeList.sources).some(type => {
@@ -71,14 +71,14 @@ function sendDefineObject (event, data) {
         if (newCodeListOrder.length !== mdv.order.codeListOrder.length) {
             mdv = {
                 ...mdv,
-                codeLists : newCodeLists,
-                order     : { ...mdv.order, codeListOrder: newCodeListOrder }
+                codeLists: newCodeLists,
+                order: { ...mdv.order, codeListOrder: newCodeListOrder }
             };
             odm.study.metaDataVersion = mdv;
         }
     }
     // Update variable length if corresponding options were selected;
-    Object.keys(mdv.itemDefs).forEach( itemDefOid => {
+    Object.keys(mdv.itemDefs).forEach(itemDefOid => {
         let itemDef = mdv.itemDefs[itemDefOid];
 
         if (itemDef.lengthAsCodeList && itemDef.codeListOid) {
@@ -88,15 +88,13 @@ function sendDefineObject (event, data) {
     });
 
     // If define does not have pathToFile, use the save file as location of the Define-XML
-    if (odm.defineId
-        &&
-        state.defines.byId.hasOwnProperty(odm.defineId)
-        &&
+    if (odm.defineId &&
+        state.defines.byId.hasOwnProperty(odm.defineId) &&
         !state.defines.byId[odm.defineId].pathToFile
     ) {
         ipcRenderer.once('fileSavedAs', (event, savePath) => {
             if (savePath !== '_cancelled_') {
-                store.dispatch(updateDefine({ defineId: odm.defineId , properties: { pathToFile: savePath } }));
+                store.dispatch(updateDefine({ defineId: odm.defineId, properties: { pathToFile: savePath } }));
             }
         });
     }
@@ -111,7 +109,6 @@ function sendDefineObject (event, data) {
     }
 
     ipcRenderer.send('saveAs', { odm });
-
 }
 
 export default sendDefineObject;

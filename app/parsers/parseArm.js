@@ -35,11 +35,11 @@ function parseDocument (doc) {
     if (doc.hasOwnProperty('pDFPageRef')) {
         doc['pDFPageRef'].forEach(function (pdfPageRef) {
             document.addPdfPageRef(new PdfPageRef({
-                type      : doc['pDFPageRef'][0]['$']['type'],
-                pageRefs  : doc['pDFPageRef'][0]['$']['pageRefs'],
-                firstPage : doc['pDFPageRef'][0]['$']['firstPage'],
-                lastPage  : doc['pDFPageRef'][0]['$']['lastPage'],
-                title     : doc['pDFPageRef'][0]['$']['title']
+                type: doc['pDFPageRef'][0]['$']['type'],
+                pageRefs: doc['pDFPageRef'][0]['$']['pageRefs'],
+                firstPage: doc['pDFPageRef'][0]['$']['firstPage'],
+                lastPage: doc['pDFPageRef'][0]['$']['lastPage'],
+                title: doc['pDFPageRef'][0]['$']['title']
             }));
         });
     }
@@ -61,20 +61,20 @@ function parseTranslatedText (item) {
     let args = {};
     if (typeof item['translatedText'][0] === 'string') {
         args = {
-            lang  : undefined,
-            value : item['translatedText'][0]
+            lang: undefined,
+            value: item['translatedText'][0]
         };
     } else {
         args = {
-            lang  : item['translatedText'][0]['$']['lang'],
-            value : item['translatedText'][0]['_'] || '',
+            lang: item['translatedText'][0]['$']['lang'],
+            value: item['translatedText'][0]['_'] || '',
         };
     }
 
     return new TranslatedText(args);
 }
 
-function parseAnalysisDatasets(datasRaw) {
+function parseAnalysisDatasets (datasRaw) {
     let analysisDatasets = {};
     datasRaw.forEach(dataRaw => {
         let args = dataRaw['$'];
@@ -84,7 +84,7 @@ function parseAnalysisDatasets(datasRaw) {
         }
 
         if (dataRaw.hasOwnProperty('analysisVariable')) {
-            args.analysisVariableOids = dataRaw['analysisVariable'].map( anVar => (anVar['$'].itemOid));
+            args.analysisVariableOids = dataRaw['analysisVariable'].map(anVar => (anVar['$'].itemOid));
         }
 
         let analysisDataset = new AnalysisDataset(args);
@@ -94,8 +94,7 @@ function parseAnalysisDatasets(datasRaw) {
     return analysisDatasets;
 }
 
-function parseDocumentation(dataRaw) {
-
+function parseDocumentation (dataRaw) {
     let documentation = new Documentation({});
 
     if (dataRaw.hasOwnProperty('documentRef')) {
@@ -113,7 +112,7 @@ function parseDocumentation(dataRaw) {
     return documentation;
 }
 
-function parseProgrammingCode(dataRaw) {
+function parseProgrammingCode (dataRaw) {
     let args = dataRaw['$'];
 
     if (dataRaw.hasOwnProperty('code')) {
@@ -131,7 +130,7 @@ function parseProgrammingCode(dataRaw) {
     return programmingCode;
 }
 
-function parseAnalysisResults(datasRaw) {
+function parseAnalysisResults (datasRaw) {
     let analysisResults = {};
     datasRaw.forEach(dataRaw => {
         let args = dataRaw['$'];
@@ -201,8 +200,8 @@ function parseArm (dataRaw) {
     args.resultDisplayOrder = Object.keys(args.resultDisplays);
     // Normalize ARM structure. Move AnalysisResults to root level
     let analysisResults = {};
-    Object.values(args.resultDisplays).forEach( resultDisplay => {
-        Object.values(resultDisplay.analysisResults).forEach( analysisResult => {
+    Object.values(args.resultDisplays).forEach(resultDisplay => {
+        Object.values(resultDisplay.analysisResults).forEach(analysisResult => {
             // Check OID for uniqueness
             if (Object.keys(analysisResults).includes(analysisResult.oid)) {
                 let newOid = getOid('AnalysisResult', undefined, Object.keys(analysisResults));
@@ -212,7 +211,6 @@ function parseArm (dataRaw) {
             } else {
                 analysisResults[analysisResult.oid] = analysisResult;
             }
-
         });
         delete resultDisplay.analysisResults;
     });

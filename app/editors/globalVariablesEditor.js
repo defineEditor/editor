@@ -24,19 +24,17 @@ import EditingControlIcons from 'editors/editingControlIcons.js';
 
 const styles = theme => ({
     globalVariables: {
-        padding   : 16,
-        marginTop : theme.spacing.unit * 3,
-        width     : '100%',
-        outline   : 'none',
+        padding: 16,
+        marginTop: theme.spacing.unit * 3,
+        width: '100%',
+        outline: 'none',
     },
     inputField: {
     },
 });
 
 class GlobalVariablesEditor extends React.Component {
-
     constructor (props) {
-
         super(props);
 
         const { globalVariables, studyOid } = this.props;
@@ -54,7 +52,7 @@ class GlobalVariablesEditor extends React.Component {
         this.props.onSave(this.state);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.props.onCancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -66,7 +64,7 @@ class GlobalVariablesEditor extends React.Component {
         const { classes } = this.props;
         return (
             <Paper className={classes.globalVariables} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     Global Variables and Study OID
                     <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
                 </Typography>
@@ -116,12 +114,12 @@ class GlobalVariablesEditor extends React.Component {
 }
 
 GlobalVariablesEditor.propTypes = {
-    globalVariables : PropTypes.object.isRequired,
-    classes         : PropTypes.object.isRequired,
-    onSave          : PropTypes.func.isRequired,
-    onCancel        : PropTypes.func.isRequired,
-    onHelp          : PropTypes.func,
-    onComment       : PropTypes.func,
+    globalVariables: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    onSave: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    onHelp: PropTypes.func,
+    onComment: PropTypes.func,
 };
 
 export default withStyles(styles)(GlobalVariablesEditor);

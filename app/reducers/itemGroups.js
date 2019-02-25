@@ -30,7 +30,7 @@ import {
     DEL_VARS,
     UPD_KEYORDER,
     INSERT_VAR,
-} from "constants/action-types";
+} from 'constants/action-types';
 import { ItemGroup, TranslatedText, DatasetClass, Leaf, ItemRef } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 
@@ -41,7 +41,7 @@ const addItemGroup = (state, action) => {
 const deleteItemGroups = (state, action) => {
     // action.deleteObj.itemGroupOids - oids to remove;
     let newState = { ...state };
-    action.deleteObj.itemGroupOids.forEach( itemGroupOid => {
+    action.deleteObj.itemGroupOids.forEach(itemGroupOid => {
         delete newState[itemGroupOid];
     });
 
@@ -68,7 +68,7 @@ const updateItemGroup = (state, action) => {
             delete updateObj.description;
         } else {
             // Otherwise update the description and set language to standard;
-            let newDescription = { ...new TranslatedText({value: updateObj.description, lang: 'en'}) };
+            let newDescription = { ...new TranslatedText({ value: updateObj.description, lang: 'en' }) };
             updateObj.descriptions = [newDescription];
         }
     }
@@ -100,7 +100,7 @@ const updateItemGroup = (state, action) => {
         }
     } else if (newLeafOid !== undefined && state[action.oid].leaf !== undefined) {
         // If the dataset name changed and the leaf exists, update the leaf id;
-        updateObj.leaf = { ...new Leaf({...state[action.oid].leaf, id: newLeafOid}) };
+        updateObj.leaf = { ...new Leaf({ ...state[action.oid].leaf, id: newLeafOid }) };
         updateObj.archiveLocationId = newLeafOid;
     }
 
@@ -119,12 +119,10 @@ const replaceItemGroupComment = (state, action) => {
     return { ...state, [action.source.oid]: newItemGroup };
 };
 
-
 const deleteItemGroupComment = (state, action) => {
     let newItemGroup = { ...new ItemGroup({ ...state[action.source.oid], commentOid: undefined }) };
     return { ...state, [action.source.oid]: newItemGroup };
 };
-
 
 const updateItemRef = (state, action) => {
     // Skip update if this is VLM itemRef
@@ -132,7 +130,7 @@ const updateItemRef = (state, action) => {
         return state;
     } else {
         let newItemRef = { ...new ItemRef({ ...state[action.source.itemGroupOid].itemRefs[action.source.itemRefOid], ...action.updateObj }) };
-        let newItemGroup =  { ...new ItemGroup({ ...state[action.source.itemGroupOid],
+        let newItemGroup = { ...new ItemGroup({ ...state[action.source.itemGroupOid],
             itemRefs: { ...state[action.source.itemGroupOid].itemRefs, [action.source.itemRefOid]: newItemRef }
         }) };
         return { ...state, [action.source.itemGroupOid]: newItemGroup };
@@ -141,7 +139,7 @@ const updateItemRef = (state, action) => {
 
 const updateItemRefOrder = (state, action) => {
     // Check if order changed;
-    let newItemGroup =  { ...new ItemGroup({ ...state[action.itemGroupOid], itemRefOrder: action.itemRefOrder }) };
+    let newItemGroup = { ...new ItemGroup({ ...state[action.itemGroupOid], itemRefOrder: action.itemRefOrder }) };
     return { ...state, [action.itemGroupOid]: newItemGroup };
 };
 
@@ -157,7 +155,7 @@ const updateItemRefKeyOrder = (state, action) => {
         if (action.updateObj.orderNumber !== action.prevObj.orderNumber) {
             newItemRefOrder = ds.itemRefOrder.slice();
             // Delete element from the ordered array
-            newItemRefOrder.splice(newItemRefOrder.indexOf(action.source.itemRefOid),1);
+            newItemRefOrder.splice(newItemRefOrder.indexOf(action.source.itemRefOid), 1);
             // Insert it in the new place
             if (action.updateObj.orderNumber !== ds.itemRefOrder.length) {
                 newItemRefOrder.splice(action.updateObj.orderNumber - 1, 0, action.source.itemRefOid);
@@ -171,7 +169,7 @@ const updateItemRefKeyOrder = (state, action) => {
             newKeyOrder = ds.keyOrder.slice();
             // Delete element from the keys array if it was a key
             if (ds.keyOrder.includes(action.source.itemRefOid)) {
-                newKeyOrder.splice(newKeyOrder.indexOf(action.source.itemRefOid),1);
+                newKeyOrder.splice(newKeyOrder.indexOf(action.source.itemRefOid), 1);
             }
             if (action.updateObj.keySequence !== undefined) {
                 // Insert it in the new place
@@ -181,13 +179,12 @@ const updateItemRefKeyOrder = (state, action) => {
                     newKeyOrder.push(action.source.itemRefOid);
                 }
             }
-
         } else {
             newKeyOrder = ds.keyOrder;
         }
-        let newItemGroup =  { ...new ItemGroup({ ...state[action.source.itemGroupOid],
-            itemRefOrder : newItemRefOrder,
-            keyOrder     : newKeyOrder,
+        let newItemGroup = { ...new ItemGroup({ ...state[action.source.itemGroupOid],
+            itemRefOrder: newItemRefOrder,
+            keyOrder: newKeyOrder,
         }) };
         return { ...state, [action.source.itemGroupOid]: newItemGroup };
     }
@@ -223,13 +220,13 @@ const addVariable = (state, action) => {
     let ds = state[action.source.itemGroupOid];
     let newItemRefOrder;
     if (action.orderNumber - 1 <= ds.itemRefOrder.length) {
-        newItemRefOrder = ds.itemRefOrder.slice(0, action.orderNumber - 1).concat([action.itemRef.oid].concat(ds.itemRefOrder.slice(action.orderNumber - 1))) ;
+        newItemRefOrder = ds.itemRefOrder.slice(0, action.orderNumber - 1).concat([action.itemRef.oid].concat(ds.itemRefOrder.slice(action.orderNumber - 1)));
     } else {
         newItemRefOrder = ds.itemRefOrder.concat([action.itemRef.oid]);
     }
-    let newItemGroup =  { ...new ItemGroup({ ...state[action.source.itemGroupOid],
-        itemRefOrder : newItemRefOrder,
-        itemRefs     : { ...state[action.source.itemGroupOid].itemRefs, [action.itemRef.oid]: action.itemRef },
+    let newItemGroup = { ...new ItemGroup({ ...state[action.source.itemGroupOid],
+        itemRefOrder: newItemRefOrder,
+        itemRefs: { ...state[action.source.itemGroupOid].itemRefs, [action.itemRef.oid]: action.itemRef },
     }) };
     return { ...state, [action.source.itemGroupOid]: newItemGroup };
 };
@@ -242,8 +239,8 @@ const addVariables = (state, action) => {
         let itemRefs = action.updateObj.itemRefs[action.updateObj.itemGroupOid];
         if (Object.keys(itemRefs).length > 0) {
             let newState = { ...state };
-            Object.keys(itemRefs).forEach( (itemRefOid, index) => {
-                newState = addVariable( newState, {
+            Object.keys(itemRefs).forEach((itemRefOid, index) => {
+                newState = addVariable(newState, {
                     source: { itemGroupOid: action.updateObj.itemGroupOid },
                     orderNumber: action.updateObj.position + index,
                     itemRef: itemRefs[itemRefOid],
@@ -262,37 +259,37 @@ const deleteVariables = (state, action) => {
         // Check if order changed;
         let ds = state[action.source.itemGroupOid];
         let newItemRefs = Object.assign({}, ds.itemRefs);
-        action.deleteObj.itemRefOids.forEach( itemRefOid => {
+        action.deleteObj.itemRefOids.forEach(itemRefOid => {
             if (newItemRefs.hasOwnProperty(itemRefOid)) {
                 delete newItemRefs[itemRefOid];
             }
         });
         // Update itemRef order array
         let newItemRefOrder = ds.itemRefOrder.slice();
-        action.deleteObj.itemRefOids.forEach( itemRefOid => {
+        action.deleteObj.itemRefOids.forEach(itemRefOid => {
             if (newItemRefOrder.includes(itemRefOid)) {
-                newItemRefOrder.splice(newItemRefOrder.indexOf(itemRefOid),1);
+                newItemRefOrder.splice(newItemRefOrder.indexOf(itemRefOid), 1);
             }
         });
         // Check if there are any key variables removed;
         let newKeyOrder;
-        let keysAreRemoved = action.deleteObj.itemRefOids.reduce( (includesKey, itemRefOid) => {
+        let keysAreRemoved = action.deleteObj.itemRefOids.reduce((includesKey, itemRefOid) => {
             return includesKey || ds.keyOrder.includes(itemRefOid);
         }, false);
         if (keysAreRemoved) {
             newKeyOrder = ds.keyOrder.slice();
-            action.deleteObj.itemRefOids.forEach( itemRefOid => {
+            action.deleteObj.itemRefOids.forEach(itemRefOid => {
                 if (newKeyOrder.includes(itemRefOid)) {
-                    newKeyOrder.splice(newKeyOrder.indexOf(itemRefOid),1);
+                    newKeyOrder.splice(newKeyOrder.indexOf(itemRefOid), 1);
                 }
             });
         } else {
             newKeyOrder = ds.keyOrder;
         }
-        let newItemGroup =  { ...new ItemGroup({ ...state[action.source.itemGroupOid],
-            itemRefs     : newItemRefs,
-            itemRefOrder : newItemRefOrder,
-            keyOrder     : newKeyOrder,
+        let newItemGroup = { ...new ItemGroup({ ...state[action.source.itemGroupOid],
+            itemRefs: newItemRefs,
+            itemRefOrder: newItemRefOrder,
+            keyOrder: newKeyOrder,
         }) };
         return { ...state, [action.source.itemGroupOid]: newItemGroup };
     } else {
@@ -303,7 +300,7 @@ const deleteVariables = (state, action) => {
 const updateKeyOrder = (state, action) => {
     // action.itemGroupOid
     // action.keyOrder
-    let newItemGroup =  { ...new ItemGroup({ ...state[action.itemGroupOid], keyOrder: action.keyOrder }) };
+    let newItemGroup = { ...new ItemGroup({ ...state[action.itemGroupOid], keyOrder: action.keyOrder }) };
     return { ...state, [action.itemGroupOid]: newItemGroup };
 };
 
@@ -334,15 +331,15 @@ const handleItemsBulkUpdate = (state, action) => {
         let itemDefItemRefMap = {};
         let uniqueItemGroupOids = [];
         action.updateObj.selectedItems
-            .filter( item => (item.itemGroupOid !== undefined && item.valueListOid === undefined) )
-            .forEach( item => {
+            .filter(item => (item.itemGroupOid !== undefined && item.valueListOid === undefined))
+            .forEach(item => {
                 if (!uniqueItemGroupOids.includes(item.itemGroupOid)) {
                     uniqueItemGroupOids.push(item.itemGroupOid);
                 }
             });
-        uniqueItemGroupOids.forEach( itemGroupOid => {
+        uniqueItemGroupOids.forEach(itemGroupOid => {
             itemDefItemRefMap[itemGroupOid] = {};
-            Object.keys(state[itemGroupOid].itemRefs).forEach( itemRefOid => {
+            Object.keys(state[itemGroupOid].itemRefs).forEach(itemRefOid => {
                 itemDefItemRefMap[itemGroupOid][state[itemGroupOid].itemRefs[itemRefOid].itemOid] = itemRefOid;
             });
         });
@@ -350,8 +347,8 @@ const handleItemsBulkUpdate = (state, action) => {
         // Get all itemGroups and ItemRefs for update.
         let itemGroupItemRefs = {};
         action.updateObj.selectedItems
-            .filter( item => (item.itemGroupOid !== undefined && item.valueListOid === undefined) )
-            .forEach( item => {
+            .filter(item => (item.itemGroupOid !== undefined && item.valueListOid === undefined))
+            .forEach(item => {
                 if (itemGroupItemRefs.hasOwnProperty(item.itemGroupOid)) {
                     itemGroupItemRefs[item.itemGroupOid].push(itemDefItemRefMap[item.itemGroupOid][item.itemDefOid]);
                 } else {
@@ -362,9 +359,9 @@ const handleItemsBulkUpdate = (state, action) => {
         const { source, target, value } = field.updateValue;
 
         let updatedItemGroups = {};
-        uniqueItemGroupOids.forEach( itemGroupOid => {
+        uniqueItemGroupOids.forEach(itemGroupOid => {
             let updatedItemRefs = {};
-            itemGroupItemRefs[itemGroupOid].forEach( itemRefOid => {
+            itemGroupItemRefs[itemGroupOid].forEach(itemRefOid => {
                 let itemRef = state[itemGroupOid].itemRefs[itemRefOid];
                 if (field.updateType === 'set') {
                     if (['mandatory', 'role'].includes(field.attr)) {
@@ -402,7 +399,7 @@ const addItemGroups = (state, action) => {
     // action.updateObj.itemGroups - object with itemGroups data
     let newState = { ...state };
     const { itemGroups } = action.updateObj;
-    Object.keys(itemGroups).forEach( itemGroupOid => {
+    Object.keys(itemGroups).forEach(itemGroupOid => {
         newState[itemGroupOid] = itemGroups[itemGroupOid].itemGroup;
     });
     return newState;

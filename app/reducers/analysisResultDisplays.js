@@ -26,7 +26,7 @@ import {
     UPD_ANALYSISRESULT,
     DEL_VARS,
     DEL_ITEMGROUPS,
-} from "constants/action-types";
+} from 'constants/action-types';
 import { AnalysisResultDisplays, ResultDisplay, AnalysisResult } from 'core/armStructure.js';
 import getOid from 'utils/getOid.js';
 
@@ -58,7 +58,7 @@ const addResultDisplay = (state, action) => {
     let newResultDisplayOrder;
     const { orderNumber } = action.updateObj;
     if (orderNumber - 1 <= state.resultDisplayOrder.length) {
-        newResultDisplayOrder = state.resultDisplayOrder.slice(0, orderNumber - 1).concat([newResultDisplayOid].concat(state.resultDisplayOrder.slice(orderNumber - 1))) ;
+        newResultDisplayOrder = state.resultDisplayOrder.slice(0, orderNumber - 1).concat([newResultDisplayOid].concat(state.resultDisplayOrder.slice(orderNumber - 1)));
     } else {
         newResultDisplayOrder = state.resultDisplayOrder.concat([newResultDisplayOid]);
     }
@@ -67,23 +67,23 @@ const addResultDisplay = (state, action) => {
         {
             resultDisplays: {
                 ...state.resultDisplays,
-                [newResultDisplayOid]: { ...new ResultDisplay( {
+                [newResultDisplayOid]: { ...new ResultDisplay({
                     oid: newResultDisplayOid,
                     name: action.updateObj.name,
                     analysisResultOrder: [newAnalysisResultOid],
-                } ) }
+                }) }
             },
             resultDisplayOrder: newResultDisplayOrder,
             analysisResults: {
                 ...state.analysisResults,
-                [newAnalysisResultOid]: { ...new AnalysisResult( {
+                [newAnalysisResultOid]: { ...new AnalysisResult({
                     oid: newAnalysisResultOid,
                     analysisReason: 'SPECIFIED IN SAP',
                     analysisPurpose: 'PRIMARY OUTCOME MEASURE',
-                } ) }
+                }) }
             }
         }
-    )};
+    ) };
 };
 
 const deleteResultDisplays = (state, action) => {
@@ -93,7 +93,7 @@ const deleteResultDisplays = (state, action) => {
     let resultDisplayOrder = state.resultDisplayOrder.slice();
     deleteObj.resultDisplayOids.forEach(resultDisplayOid => {
         delete resultDisplays[resultDisplayOid];
-        resultDisplayOrder.splice(resultDisplayOrder.indexOf(resultDisplayOid),1);
+        resultDisplayOrder.splice(resultDisplayOrder.indexOf(resultDisplayOid), 1);
     });
     // Analysis Results
     let analysisResults = { ...state.analysisResults };
@@ -125,7 +125,7 @@ const addAnalysisResult = (state, action) => {
 
     let newAnalysisResults = {
         ...state.analysisResults,
-        [newAnalysisResultOid]: { ...new AnalysisResult( { oid: newAnalysisResultOid, analysisReason: 'SPECIFIED IN SAP' , analysisPurpose: 'PRIMARY OUTCOME MEASURE' } ) }
+        [newAnalysisResultOid]: { ...new AnalysisResult({ oid: newAnalysisResultOid, analysisReason: 'SPECIFIED IN SAP', analysisPurpose: 'PRIMARY OUTCOME MEASURE' }) }
     };
 
     let newResultDisplay = { ...state.resultDisplays[action.updateObj.resultDisplayOid] };
@@ -150,7 +150,6 @@ const updateAnalysisResult = (state, action) => {
 };
 
 const deleteAnalysisResults = (state, action) => {
-
     let newAnalysisResults = { ...state.analysisResults };
 
     let newResultDisplay = { ...state.resultDisplays[action.deleteObj.resultDisplayOid] };
@@ -158,7 +157,7 @@ const deleteAnalysisResults = (state, action) => {
 
     action.deleteObj.analysisResultOids.forEach(analysisResultOid => {
         delete newAnalysisResults[analysisResultOid];
-        newAnalysisResultOrder.splice(newAnalysisResultOrder.indexOf(analysisResultOid),1);
+        newAnalysisResultOrder.splice(newAnalysisResultOrder.indexOf(analysisResultOid), 1);
     });
 
     newResultDisplay.analysisResultOrder = newAnalysisResultOrder;
@@ -178,7 +177,7 @@ const addAnalysisResults = (state, action) => {
     let newResultDisplay = { ...state.resultDisplays[resultDisplayOid] };
     let newAnalysisResultOrder = newResultDisplay.analysisResultOrder.slice();
     if (position - 1 <= newAnalysisResultOrder.length) {
-        newAnalysisResultOrder = newAnalysisResultOrder.slice(0, position - 1).concat(Object.keys(analysisResults).concat(newAnalysisResultOrder.slice(position - 1))) ;
+        newAnalysisResultOrder = newAnalysisResultOrder.slice(0, position - 1).concat(Object.keys(analysisResults).concat(newAnalysisResultOrder.slice(position - 1)));
     } else {
         newAnalysisResultOrder = newAnalysisResultOrder.concat(Object.keys(analysisResults));
     }
@@ -198,15 +197,15 @@ const addResultDisplays = (state, action) => {
 
     let newResultDisplayOrder = state.resultDisplayOrder.slice();
     if (position - 1 <= newResultDisplayOrder.length) {
-        newResultDisplayOrder = newResultDisplayOrder.slice(0, position - 1).concat(Object.keys(resultDisplays).concat(newResultDisplayOrder.slice(position - 1))) ;
+        newResultDisplayOrder = newResultDisplayOrder.slice(0, position - 1).concat(Object.keys(resultDisplays).concat(newResultDisplayOrder.slice(position - 1)));
     } else {
         newResultDisplayOrder = newResultDisplayOrder.concat(Object.keys(resultDisplays));
     }
     return {
         ...state,
-        resultDisplays     : newResultDisplays,
-        analysisResults    : newAnalysisResults,
-        resultDisplayOrder : newResultDisplayOrder,
+        resultDisplays: newResultDisplays,
+        analysisResults: newAnalysisResults,
+        resultDisplayOrder: newResultDisplayOrder,
     };
 };
 
@@ -217,14 +216,14 @@ const handleDeleteVariables = (state, action) => {
     if (Object.keys(action.deleteObj.analysisResultOids).length > 0) {
         // Delete corresponding variables references in analysis datasets
         let newAnalysisResults = { ...state.analysisResults };
-        Object.keys(analysisResultOids).forEach( analysisResultOid => {
+        Object.keys(analysisResultOids).forEach(analysisResultOid => {
             const analysisResult = newAnalysisResults[analysisResultOid];
             let newAnalysisDatasets = { ...analysisResult.analysisDatasets };
-            Object.values(analysisResult.analysisDatasets).forEach( analysisDataset => {
+            Object.values(analysisResult.analysisDatasets).forEach(analysisDataset => {
                 if (Object.keys(analysisResultOids[analysisResultOid]).includes(analysisDataset.itemGroupOid)) {
                     let newAnalysisVariableOids = analysisDataset.analysisVariableOids.slice();
-                    analysisResultOids[analysisResultOid][analysisDataset.itemGroupOid].forEach( itemDefOid => {
-                        newAnalysisVariableOids.splice(newAnalysisVariableOids.indexOf(itemDefOid),1);
+                    analysisResultOids[analysisResultOid][analysisDataset.itemGroupOid].forEach(itemDefOid => {
+                        newAnalysisVariableOids.splice(newAnalysisVariableOids.indexOf(itemDefOid), 1);
                     });
                     newAnalysisDatasets = {
                         ...newAnalysisDatasets,
@@ -245,9 +244,9 @@ const handleDeleteItemGroups = (state, action) => {
     // { [itemGroupOid1: { analysisResultsOid1: { itemGroupOid1: [itemOid1, itemOid2, ...] } ] }
     // Transform the delete object to { analysisResultOid1: [itemGroupOid1, ...], ...}
     let itemGroupsToDelete = {};
-    Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
+    Object.keys(action.deleteObj.itemGroupData).forEach(itemGroupOid => {
         const analysisResultOids = action.deleteObj.itemGroupData[itemGroupOid].analysisResultOids;
-        Object.keys(analysisResultOids).forEach( analysisResultOid => {
+        Object.keys(analysisResultOids).forEach(analysisResultOid => {
             if (itemGroupsToDelete.hasOwnProperty(analysisResultOid) && !itemGroupsToDelete[analysisResultOid].includes(itemGroupOid)) {
                 itemGroupsToDelete[analysisResultOid].push(itemGroupOid);
             } else {
@@ -259,11 +258,11 @@ const handleDeleteItemGroups = (state, action) => {
     // Delete corresponding analysisDatasets from analysisResult references
     if (Object.keys(itemGroupsToDelete).length > 0) {
         let newAnalysisResults = { ...state.analysisResults };
-        Object.keys(itemGroupsToDelete).forEach( analysisResultOid => {
+        Object.keys(itemGroupsToDelete).forEach(analysisResultOid => {
             const analysisResult = newAnalysisResults[analysisResultOid];
             let newAnalysisDatasets = { ...analysisResult.analysisDatasets };
             let newAnalysisDatasetOrder = analysisResult.analysisDatasetOrder.slice();
-            Object.values(itemGroupsToDelete[analysisResultOid]).forEach( itemGroupOid => {
+            Object.values(itemGroupsToDelete[analysisResultOid]).forEach(itemGroupOid => {
                 delete newAnalysisDatasets[itemGroupOid];
                 newAnalysisDatasetOrder.splice(newAnalysisDatasetOrder.indexOf(itemGroupOid), 1);
             });
@@ -271,8 +270,8 @@ const handleDeleteItemGroups = (state, action) => {
                 ...newAnalysisResults,
                 [analysisResultOid]: {
                     ...analysisResult,
-                    analysisDatasets     : newAnalysisDatasets,
-                    analysisDatasetOrder : newAnalysisDatasetOrder,
+                    analysisDatasets: newAnalysisDatasets,
+                    analysisDatasetOrder: newAnalysisDatasetOrder,
                 }
             };
         });

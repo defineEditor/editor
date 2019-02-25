@@ -37,8 +37,8 @@ function saveAs (mainWindow, data) {
     dialog.showSaveDialog(
         mainWindow,
         {
-            title   : 'Export Define-XML',
-            filters : [{name: 'XML files', extensions: ['xml']}],
+            title: 'Export Define-XML',
+            filters: [{ name: 'XML files', extensions: ['xml'] }],
         },
         convertToDefineXml(mainWindow, data));
 }

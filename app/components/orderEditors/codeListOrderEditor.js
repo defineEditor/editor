@@ -27,9 +27,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        codeListOrder : state.present.odm.study.metaDataVersion.order.codeListOrder,
-        codeLists     : state.present.odm.study.metaDataVersion.codeLists,
-        reviewMode    : state.present.ui.main.reviewMode,
+        codeListOrder: state.present.odm.study.metaDataVersion.order.codeListOrder,
+        codeLists: state.present.odm.study.metaDataVersion.codeLists,
+        reviewMode: state.present.ui.main.reviewMode,
     };
 };
 
@@ -38,13 +38,12 @@ class CodeListOrderEditorConnected extends React.Component {
         this.props.updateCodeListOrder(items.map(item => (item.oid)));
     }
 
-    render() {
+    render () {
         let items = [];
 
-        this.props.codeListOrder.forEach( codeListOid => {
-            items.push({oid: codeListOid, name: this.props.codeLists[codeListOid].name});
+        this.props.codeListOrder.forEach(codeListOid => {
+            items.push({ oid: codeListOid, name: this.props.codeLists[codeListOid].name });
         });
-
 
         return (
             <GeneralOrderEditor title='Codelist Order' items={items} onSave={this.onSave} width='600px' disabled={this.props.reviewMode}/>
@@ -53,11 +52,10 @@ class CodeListOrderEditorConnected extends React.Component {
 }
 
 CodeListOrderEditorConnected.propTypes = {
-    codeListOrder : PropTypes.array.isRequired,
-    codeLists     : PropTypes.object.isRequired,
-    reviewMode    : PropTypes.bool,
+    codeListOrder: PropTypes.array.isRequired,
+    codeLists: PropTypes.object.isRequired,
+    reviewMode: PropTypes.bool,
 };
 
 const CodeListOrderEditor = connect(mapStateToProps, mapDispatchToProps)(CodeListOrderEditorConnected);
 export default CodeListOrderEditor;
-

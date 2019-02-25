@@ -15,7 +15,7 @@
 import {
     UPD_LEAFS,
     UPD_LEAFORDER,
-} from "constants/action-types";
+} from 'constants/action-types';
 
 // Documents
 export const updateLeafs = (updateObj) => (

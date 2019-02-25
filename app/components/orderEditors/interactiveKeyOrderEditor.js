@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import { updateKeyOrder } from 'actions/index.js';
-import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import deepEqual from 'fast-deep-equal';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -38,39 +38,39 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        itemGroups : state.present.odm.study.metaDataVersion.itemGroups,
-        itemDefs   : state.present.odm.study.metaDataVersion.itemDefs,
+        itemGroups: state.present.odm.study.metaDataVersion.itemGroups,
+        itemDefs: state.present.odm.study.metaDataVersion.itemDefs,
     };
 };
 
 const styles = theme => ({
     dialog: {
-        paddingLeft   : theme.spacing.unit * 2,
-        paddingRight  : theme.spacing.unit * 2,
-        paddingBottom : theme.spacing.unit * 1,
-        position      : 'absolute',
-        borderRadius  : '10px',
-        border        : '2px solid',
-        borderColor   : 'primary',
-        top           : '20%',
-        transform     : 'translate(0%, calc(-20%+0.5px))',
-        overflowX     : 'auto',
-        maxHeight     : '90%',
-        overflowY     : 'auto',
-        width         : '300px',
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        position: 'absolute',
+        borderRadius: '10px',
+        border: '2px solid',
+        borderColor: 'primary',
+        top: '20%',
+        transform: 'translate(0%, calc(-20%+0.5px))',
+        overflowX: 'auto',
+        maxHeight: '90%',
+        overflowY: 'auto',
+        width: '300px',
     },
     editButton: {
         transform: 'translate(0%, -6%)',
     },
     list: {
-        backgroundColor : '#F9F9F9',
-        padding         : '0px',
+        backgroundColor: '#F9F9F9',
+        padding: '0px',
     },
     listItem: {
-        borderWidth     : '1px',
-        backgroundColor : '#FFFFFF',
-        borderStyle     : 'solid',
-        borderColor     : 'rgba(0, 0, 0, 0.12)',
+        borderWidth: '1px',
+        backgroundColor: '#FFFFFF',
+        borderStyle: 'solid',
+        borderColor: 'rgba(0, 0, 0, 0.12)',
     },
     sortableHelper: {
         zIndex: 3000,
@@ -108,21 +108,19 @@ class InteractiveKeyOrderEditorConnected extends React.Component {
 
         let dataset = this.props.itemGroups[this.props.row.oid];
 
-        dataset.keyOrder.forEach( itemRefOid => {
-            keyVariables.push({oid: itemRefOid, name: this.props.itemDefs[dataset.itemRefs[itemRefOid].itemOid].name});
+        dataset.keyOrder.forEach(itemRefOid => {
+            keyVariables.push({ oid: itemRefOid, name: this.props.itemDefs[dataset.itemRefs[itemRefOid].itemOid].name });
         });
 
-        dataset.itemRefOrder.forEach( itemRefOid => {
-            allVariables.push({oid: itemRefOid, name: this.props.itemDefs[dataset.itemRefs[itemRefOid].itemOid].name});
+        dataset.itemRefOrder.forEach(itemRefOid => {
+            allVariables.push({ oid: itemRefOid, name: this.props.itemDefs[dataset.itemRefs[itemRefOid].itemOid].name });
         });
-
 
         this.state = {
             dialogOpened: true,
             keyVariables,
             allVariables,
         };
-
     }
 
     handleCancelAndClose = () => {
@@ -146,13 +144,13 @@ class InteractiveKeyOrderEditorConnected extends React.Component {
         this.props.onFinished();
     }
 
-    handleChange = ({oldIndex, newIndex}) => {
+    handleChange = ({ oldIndex, newIndex }) => {
         this.setState({
             keyVariables: arrayMove(this.state.keyVariables, oldIndex, newIndex),
         });
     };
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.handleCancelAndClose();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -160,17 +158,15 @@ class InteractiveKeyOrderEditorConnected extends React.Component {
         }
     }
 
-    render() {
-        const {classes} = this.props;
-
-
+    render () {
+        const { classes } = this.props;
 
         return (
             <Dialog
                 disableBackdropClick
                 disableEscapeKeyDown
                 open={this.state.dialogOpened}
-                PaperProps={{className: classes.dialog}}
+                PaperProps={{ className: classes.dialog }}
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >
@@ -202,9 +198,9 @@ class InteractiveKeyOrderEditorConnected extends React.Component {
 }
 
 InteractiveKeyOrderEditorConnected.propTypes = {
-    row        : PropTypes.object.isRequired,
-    itemGroups : PropTypes.object.isRequired,
-    onFinished : PropTypes.func.isRequired,
+    row: PropTypes.object.isRequired,
+    itemGroups: PropTypes.object.isRequired,
+    onFinished: PropTypes.func.isRequired,
 };
 
 const InteractiveKeyOrderEditor = connect(mapStateToProps, mapDispatchToProps)(InteractiveKeyOrderEditorConnected);

@@ -21,8 +21,8 @@ const styles = theme => ({
 });
 
 class RoleMandatoryFormatter extends React.Component {
-    render() {
-        const {classes} = this.props;
+    render () {
+        const { classes } = this.props;
         return (
             <Grid container spacing={0}>
                 <Grid item xs={12} className={classes.gridItem}>
@@ -34,10 +34,9 @@ class RoleMandatoryFormatter extends React.Component {
 }
 
 RoleMandatoryFormatter.propTypes = {
-    classes : PropTypes.object.isRequired,
-    value   : PropTypes.object.isRequired,
-    model   : PropTypes.string.isRequired,
+    classes: PropTypes.object.isRequired,
+    value: PropTypes.object.isRequired,
+    model: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(RoleMandatoryFormatter);
-

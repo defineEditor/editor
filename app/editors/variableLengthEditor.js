@@ -26,8 +26,8 @@ import { getMaxLength } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     formControl: {
-        whiteSpace   : 'normal',
-        overflowWrap : 'break-word',
+        whiteSpace: 'normal',
+        overflowWrap: 'break-word',
     },
     root: {
         outline: 'none',
@@ -39,8 +39,8 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        lengthForAllDataTypes : state.present.settings.editor.lengthForAllDataTypes,
-        actualData            : state.present.odm.actualData || {},
+        lengthForAllDataTypes: state.present.settings.editor.lengthForAllDataTypes,
+        actualData: state.present.odm.actualData || {},
     };
 };
 
@@ -48,10 +48,8 @@ class ConnectedVariableLengthEditor extends React.Component {
     constructor (props) {
         super(props);
         let lengthNotApplicable;
-        if ( props.lengthForAllDataTypes
-            ||
-            ['float','text','integer'].indexOf(props.row.dataType) >= 0
-            ||
+        if (props.lengthForAllDataTypes ||
+            ['float', 'text', 'integer'].indexOf(props.row.dataType) >= 0 ||
             props.defaultValue.length
         ) {
             lengthNotApplicable = false;
@@ -60,25 +58,23 @@ class ConnectedVariableLengthEditor extends React.Component {
         }
 
         let actualLength;
-        if (props.actualData.hasOwnProperty('parsedData')
-            &&
-            props.actualData.parsedData.hasOwnProperty(props.row.datasetOid)
-            &&
+        if (props.actualData.hasOwnProperty('parsedData') &&
+            props.actualData.parsedData.hasOwnProperty(props.row.datasetOid) &&
             props.actualData.parsedData[props.row.datasetOid].hasOwnProperty(props.row.oid)) {
             actualLength = props.actualData.parsedData[props.row.datasetOid][props.row.oid].length;
         }
         this.rootRef = React.createRef();
         this.state = {
-            length           : props.defaultValue.length,
-            fractionDigits   : props.defaultValue.fractionDigits,
-            lengthAsData     : props.defaultValue.lengthAsData ? true : false,
-            lengthAsCodeList : props.defaultValue.lengthAsCodeList ? true : false,
+            length: props.defaultValue.length,
+            fractionDigits: props.defaultValue.fractionDigits,
+            lengthAsData: !!props.defaultValue.lengthAsData,
+            lengthAsCodeList: !!props.defaultValue.lengthAsCodeList,
             actualLength,
             lengthNotApplicable,
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         // If not applicable, then manually set focus, so that shortcuts work
         if (this.state.lengthNotApplicable) {
             this.rootRef.current.focus();
@@ -118,7 +114,7 @@ class ConnectedVariableLengthEditor extends React.Component {
         this.props.onUpdate(this.props.defaultValue);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.cancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -126,8 +122,8 @@ class ConnectedVariableLengthEditor extends React.Component {
         }
     }
 
-    render() {
-        const {classes} = this.props;
+    render () {
+        const { classes } = this.props;
         const lengthAsData = this.state.lengthAsData;
         const lengthAsCodeList = this.state.lengthAsCodeList;
         const hasCodeList = this.props.row.codeList !== undefined;
@@ -215,11 +211,11 @@ class ConnectedVariableLengthEditor extends React.Component {
 }
 
 ConnectedVariableLengthEditor.propTypes = {
-    classes               : PropTypes.object.isRequired,
-    defaultValue          : PropTypes.object.isRequired,
-    onUpdate              : PropTypes.func.isRequired,
-    lengthForAllDataTypes : PropTypes.bool.isRequired,
-    actualData            : PropTypes.object,
+    classes: PropTypes.object.isRequired,
+    defaultValue: PropTypes.object.isRequired,
+    onUpdate: PropTypes.func.isRequired,
+    lengthForAllDataTypes: PropTypes.bool.isRequired,
+    actualData: PropTypes.object,
 };
 
 const VariableLengthEditor = connect(mapStateToProps)(ConnectedVariableLengthEditor);

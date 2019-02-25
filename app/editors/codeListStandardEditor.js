@@ -35,18 +35,18 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        codeLists    : state.present.odm.study.metaDataVersion.codeLists,
-        stdCodeLists : state.present.stdCodeLists,
-        standards    : state.present.odm.study.metaDataVersion.standards,
+        codeLists: state.present.odm.study.metaDataVersion.codeLists,
+        stdCodeLists: state.present.stdCodeLists,
+        standards: state.present.odm.study.metaDataVersion.standards,
     };
 };
 
 class ConnectedCodeListStandardEditor extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         let standardList = {};
-        Object.keys(props.standards).forEach( standardOid => {
+        Object.keys(props.standards).forEach(standardOid => {
             if (props.stdCodeLists.hasOwnProperty(standardOid) && props.standards[standardOid].type === 'CT') {
                 standardList[standardOid] = props.stdCodeLists[standardOid].description;
             }
@@ -74,10 +74,10 @@ class ConnectedCodeListStandardEditor extends React.Component {
     getCodeListList = (standard) => {
         let result = [];
         if (standard !== undefined) {
-            Object.keys(standard.codeLists).forEach( codeListOid => {
+            Object.keys(standard.codeLists).forEach(codeListOid => {
                 let item = {
-                    value : codeListOid,
-                    label : standard.codeLists[codeListOid].name,
+                    value: codeListOid,
+                    label: standard.codeLists[codeListOid].name,
                 };
                 result.push(item);
             });
@@ -94,40 +94,39 @@ class ConnectedCodeListStandardEditor extends React.Component {
                 if (this.props.defaultValue.alias !== undefined && standard.nciCodeOids.hasOwnProperty(this.props.defaultValue.alias.name)) {
                     standardCodeListOid = standard.nciCodeOids[this.props.defaultValue.alias.name];
                 }
-                this.setState( { standard, codeListList, standardCodeListOid });
+                this.setState({ standard, codeListList, standardCodeListOid });
             } else {
                 // Standard is removed
-                this.setState( {
+                this.setState({
                     standard: undefined,
                     codeListList: undefined,
                     standardCodeListOid: undefined
                 });
             }
         } else if (name === 'codeList') {
-            this.setState( { standardCodeListOid: updateObj });
+            this.setState({ standardCodeListOid: updateObj });
         }
     }
 
     save = () => {
-        if (this.state.standard !== undefined && this.state.standardCodeListOid !== undefined
-            && (this.state.standard.oid !== this.props.defaultValue.standardOid
-                || !deepEqual(this.props.defaultValue.alias, this.state.standard.codeLists[this.state.standardCodeListOid].alias)
+        if (this.state.standard !== undefined && this.state.standardCodeListOid !== undefined &&
+            (this.state.standard.oid !== this.props.defaultValue.standardOid ||
+                !deepEqual(this.props.defaultValue.alias, this.state.standard.codeLists[this.state.standardCodeListOid].alias)
             )
         ) {
             // Standard was updated
             this.props.onUpdate({
-                standardOid          : this.state.standard.oid,
-                alias                : this.state.standard.codeLists[this.state.standardCodeListOid].alias,
-                cdiscSubmissionValue : this.state.standard.codeLists[this.state.standardCodeListOid].cdiscSubmissionValue,
+                standardOid: this.state.standard.oid,
+                alias: this.state.standard.codeLists[this.state.standardCodeListOid].alias,
+                cdiscSubmissionValue: this.state.standard.codeLists[this.state.standardCodeListOid].cdiscSubmissionValue,
             });
         } else if (this.state.standard === undefined && this.props.defaultValue.standardOid !== undefined) {
             // Standard was removed
             this.props.onUpdate({
-                standardOid          : undefined,
-                alias                : undefined,
-                cdiscSubmissionValue : undefined,
+                standardOid: undefined,
+                alias: undefined,
+                cdiscSubmissionValue: undefined,
             });
-
         } else {
             // No changes
             this.props.onUpdate(this.props.defaultValue);
@@ -138,7 +137,7 @@ class ConnectedCodeListStandardEditor extends React.Component {
         this.props.onUpdate(this.props.defaultValue);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.cancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -166,7 +165,7 @@ class ConnectedCodeListStandardEditor extends React.Component {
                                 autoFocus
                                 value={standardOid}
                                 onChange={this.handleChange('standard')}
-                                inputProps={{className: classes.standardInput}}
+                                inputProps={{ className: classes.standardInput }}
                                 className={classes.selectStandard}
                             >
                                 {getSelectionList(this.state.standardList, true)}
@@ -199,12 +198,12 @@ class ConnectedCodeListStandardEditor extends React.Component {
 }
 
 ConnectedCodeListStandardEditor.propTypes = {
-    codeLists    : PropTypes.object.isRequired,
-    stdCodeLists : PropTypes.object.isRequired,
-    standards    : PropTypes.object.isRequired,
-    classes      : PropTypes.object.isRequired,
-    defaultValue : PropTypes.object.isRequired,
-    onUpdate     : PropTypes.func
+    codeLists: PropTypes.object.isRequired,
+    stdCodeLists: PropTypes.object.isRequired,
+    standards: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    defaultValue: PropTypes.object.isRequired,
+    onUpdate: PropTypes.func
 };
 
 const CodeListStandardEditor = connect(mapStateToProps)(ConnectedCodeListStandardEditor);

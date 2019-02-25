@@ -32,26 +32,26 @@ import AddFromOtherStudy from 'components/tableActions/addFromOtherStudy.js';
 
 const styles = theme => ({
     dialog: {
-        paddingLeft   : theme.spacing.unit * 1,
-        paddingRight  : theme.spacing.unit * 1,
-        paddingTop    : theme.spacing.unit * 1,
-        paddingBottom : theme.spacing.unit * 1,
-        position      : 'absolute',
-        borderRadius  : '10px',
-        borderColor   : 'primary',
-        top           : '10%',
-        transform     : 'translate(0%, calc(-10%+0.5px))',
-        overflowX     : 'auto',
-        maxHeight     : '80%',
-        width         : '90%',
-        overflowY     : 'auto',
+        position: 'absolute',
+        top: '5%',
+        maxHeight: '90%',
+        width: '90%',
+        overflowX: 'auto',
+        overflowY: 'auto',
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        margin: '0 auto',
+        borderRadius: '10px',
+        border: '2px solid',
+        borderColor: 'primary',
     },
     appBar: {
-        transform     : 'translate(0%, calc(-20%+0.5px))',
+        transform: 'translate(0%, calc(-20%+0.5px))',
     },
     title: {
         marginTop: theme.spacing.unit * 5,
-        paddingBottom : 0,
+        paddingBottom: 0,
     },
 });
 
@@ -64,7 +64,7 @@ const mapStateToProps = state => {
 
 const tabNames = ['New Dataset', 'This Define', 'Another Define'];
 
-function TabContainer(props) {
+function TabContainer (props) {
     return (
         <Typography component="div">
             {props.children}
@@ -76,7 +76,7 @@ class AddDatasetConnected extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            currentTab : 1,
+            currentTab: 1,
         };
     }
 
@@ -84,13 +84,13 @@ class AddDatasetConnected extends React.Component {
         this.setState({ currentTab });
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.props.onClose();
         }
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
         const { currentTab } = this.state;
 
@@ -100,7 +100,9 @@ class AddDatasetConnected extends React.Component {
                     disableBackdropClick
                     disableEscapeKeyDown
                     open
-                    PaperProps={{className: classes.dialog}}
+                    fullWidth
+                    maxWidth={false}
+                    PaperProps={{ className: classes.dialog }}
                     onKeyDown={this.onKeyDown}
                     tabIndex='0'
                 >
@@ -124,12 +126,12 @@ class AddDatasetConnected extends React.Component {
                             <Tabs
                                 value={currentTab}
                                 onChange={this.handleTabChange}
-                                fullWidth
+                                variant='fullWidth'
                                 centered
                                 indicatorColor='primary'
                                 textColor='primary'
                             >
-                                { tabNames.map( tab => {
+                                { tabNames.map(tab => {
                                     return <Tab key={tab} label={tab} />;
                                 })
                                 }
@@ -165,10 +167,10 @@ class AddDatasetConnected extends React.Component {
 }
 
 AddDatasetConnected.propTypes = {
-    classes       : PropTypes.object.isRequired,
-    model         : PropTypes.string.isRequired,
-    position      : PropTypes.number,
-    onClose       : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    model: PropTypes.string.isRequired,
+    position: PropTypes.number,
+    onClose: PropTypes.func.isRequired,
 };
 
 const AddDataset = connect(mapStateToProps)(AddDatasetConnected);

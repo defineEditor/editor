@@ -21,7 +21,7 @@ class Alias {
         this.name = name;
         this.context = context;
     }
-    clone() {
+    clone () {
         return new Alias(this);
     }
 }
@@ -33,7 +33,7 @@ class TranslatedText {
         this.lang = lang;
         this.value = value;
     }
-    clone() {
+    clone () {
         return new TranslatedText(this);
     }
 }
@@ -41,7 +41,7 @@ class TranslatedText {
 class BasicFunctions {
     addDescription (description) {
         if (description === undefined) {
-            this.descriptions.push(new TranslatedText({value: ''}));
+            this.descriptions.push(new TranslatedText({ value: '' }));
         } else {
             this.descriptions.push(description);
         }
@@ -57,22 +57,22 @@ class BasicFunctions {
         let updatedFlag = false;
         // No description yet
         if (this.descriptions.length === 0) {
-            this.descriptions.push(new TranslatedText({lang: language, value: value}));
+            this.descriptions.push(new TranslatedText({ lang: language, value: value }));
             updatedFlag = true;
         } else {
         // Search for a description with a specific language and update it
-            this.descriptions.forEach( (description, index) => {
+            this.descriptions.forEach((description, index) => {
                 if (description.lang === language) {
-                    this.descriptions[index] = new TranslatedText({lang: language, value: value});
+                    this.descriptions[index] = new TranslatedText({ lang: language, value: value });
                     updatedFlag = true;
                 }
             });
         }
         // In case there is a description without language, use it as default;
-        if (updatedFlag === false && this.descriptions.length === 1
-            && this.descriptions[0].lang === undefined && language === 'en'
+        if (updatedFlag === false && this.descriptions.length === 1 &&
+            this.descriptions[0].lang === undefined && language === 'en'
         ) {
-            this.descriptions[0] = new TranslatedText({value: value});
+            this.descriptions[0] = new TranslatedText({ value: value });
         }
     }
 }
@@ -128,8 +128,8 @@ class StdCodeListItem extends StdEnumeratedItem {
         decodes = []
     } = {}) {
         super({
-            codedValue : codedValue,
-            alias      : alias
+            codedValue: codedValue,
+            alias: alias
         });
         this.decodes = decodes;
     }
@@ -214,7 +214,7 @@ class MetaDataVersion extends BasicFunctions {
     }
     getOidByName (source, name) {
         let result;
-        Object.keys(this[source]).some( oid => {
+        Object.keys(this[source]).some(oid => {
             if (this[source][oid].name.toLowerCase() === name.toLowerCase()) {
                 result = oid;
                 return true;
@@ -226,13 +226,13 @@ class MetaDataVersion extends BasicFunctions {
 }
 
 module.exports = {
-    Odm               : Odm,
-    Study             : Study,
-    GlobalVariables   : GlobalVariables,
-    MetaDataVersion   : MetaDataVersion,
-    StdCodeList       : StdCodeList,
-    TranslatedText    : TranslatedText,
-    StdCodeListItem   : StdCodeListItem,
-    StdEnumeratedItem : StdEnumeratedItem,
-    Alias             : Alias,
+    Odm: Odm,
+    Study: Study,
+    GlobalVariables: GlobalVariables,
+    MetaDataVersion: MetaDataVersion,
+    StdCodeList: StdCodeList,
+    TranslatedText: TranslatedText,
+    StdCodeListItem: StdCodeListItem,
+    StdEnumeratedItem: StdEnumeratedItem,
+    Alias: Alias,
 };

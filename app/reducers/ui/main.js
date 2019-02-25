@@ -104,7 +104,7 @@ const toggleReviewMode = (state, action) => {
 };
 
 const updateCopyBuffer = (state, action) => {
-    return { ...state, copyBuffer: { ...state.copyBuffer, [action.updateObj.tab] : action.updateObj.buffer } };
+    return { ...state, copyBuffer: { ...state.copyBuffer, [action.updateObj.tab]: action.updateObj.buffer } };
 };
 
 const deleteCodeLists = (state, action) => {
@@ -151,10 +151,10 @@ const main = (state = initialState, action) => {
         case DEL_CODELISTS:
             return deleteCodeLists(state, action);
         default: {
-            if (action.type !== undefined
-                && state.isCurrentDefineSaved
-                && /^(ADD|UPD|DEL|REP|INSERT)_.*/.test(action.type)
-                && action.type !== 'ADD_ODM') {
+            if (action.type !== undefined &&
+                state.isCurrentDefineSaved &&
+                /^(ADD|UPD|DEL|REP|INSERT)_.*/.test(action.type) &&
+                action.type !== 'ADD_ODM') {
                 return { ...state, isCurrentDefineSaved: false };
             } else {
                 return state;

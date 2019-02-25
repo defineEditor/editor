@@ -28,6 +28,7 @@ import AddDefineFormStep1 from 'core/addDefineFormStep1.js';
 import AddDefineFormStep2 from 'core/addDefineFormStep2.js';
 import AddDefineFormStep3 from 'core/addDefineFormStep3.js';
 import { Define } from 'core/mainStructure.js';
+import getDefineStats from 'utils/getDefineStats.js';
 import {
     addOdm,
     addDefine,
@@ -67,6 +68,7 @@ const mapStateToProps = state => {
     return {
         study,
         defineForm: state.present.ui.studies.defineForm,
+        studies: state.present.studies,
         defines: state.present.defines,
         standardNames: state.present.stdConstants.standardNames,
         settings: state.present.settings.define,
@@ -83,12 +85,12 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-function getSteps() {
-    return ['Select Source', 'Define-XML Settings', 'Finish'];
+function getSteps () {
+    return ['Select Source', 'Configure Define-XML', 'Finish'];
 }
 
 class ConnectedAddDefineForm extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.state = {
@@ -96,23 +98,13 @@ class ConnectedAddDefineForm extends React.Component {
             defineCreationMethod: 'new',
             defineData: null,
             pathToDefineXml: '',
+            name: null,
         };
     }
 
     saveDefineAsObject = (defineId, defineData, pathToDefineXml) => {
         // Calculate define Stats
-        let stats = {};
-        stats.datasets = Object.keys(defineData.study.metaDataVersion.itemGroups).length;
-        stats.codeLists = Object.keys(defineData.study.metaDataVersion.codeLists).length;
-        const countVariables = (varNum, itemDefOid) => {
-            let item = defineData.study.metaDataVersion.itemDefs[itemDefOid];
-            let varCount = varNum;
-            Object.keys(item.sources).forEach( sourceType => {
-                varCount += item.sources[sourceType].length;
-            });
-            return varCount;
-        };
-        stats.variables = Object.keys(defineData.study.metaDataVersion.itemDefs).reduce(countVariables,0);
+        let stats = getDefineStats(defineData);
         let define = {
             ...new Define({
                 id: defineId,
@@ -128,11 +120,11 @@ class ConnectedAddDefineForm extends React.Component {
     handleNext = data => {
         const { activeStep } = this.state;
         if (activeStep === 1) {
-            if (data.defineCreationMethod === 'new') {
-                if (this.state.defineCreationMethod !== 'new') {
+            if (['new', 'copy'].includes(data.defineCreationMethod)) {
+                if (this.state.defineCreationMethod !== data.defineCreationMethod) {
                     this.setState({
                         activeStep: 2,
-                        defineCreationMethod: 'new',
+                        defineCreationMethod: data.defineCreationMethod,
                         defineData: null
                     });
                 } else {
@@ -145,7 +137,7 @@ class ConnectedAddDefineForm extends React.Component {
                     activeStep: 3,
                     defineCreationMethod: 'import',
                     defineData: data.defineData,
-                    pathToDefineXml : data.pathToDefineXml,
+                    pathToDefineXml: data.pathToDefineXml,
                 });
             }
         } else if (activeStep === 2) {
@@ -154,12 +146,19 @@ class ConnectedAddDefineForm extends React.Component {
                     activeStep: 3,
                     defineData: data.defineData
                 });
+            } else if (this.state.defineCreationMethod === 'copy') {
+                this.setState({
+                    activeStep: 3,
+                    defineData: data.defineData,
+                    name: data.name,
+                });
             }
         } else if (activeStep === 3) {
             this.setState({
                 activeStep: 1,
                 defineCreationMethod: 'new',
-                defineData: null
+                defineData: null,
+                name: null,
             });
             let defineId = getOid('Define', undefined, this.props.defines.allIds);
             let defineData = this.state.defineData;
@@ -177,9 +176,11 @@ class ConnectedAddDefineForm extends React.Component {
                 activeStep: 1
             });
         } else if (activeStep === 3) {
-            if (this.state.defineCreationMethod === 'new') {
+            if (['new', 'copy'].includes(this.state.defineCreationMethod)) {
                 this.setState({
-                    activeStep: 2
+                    activeStep: 2,
+                    name: null,
+                    defineData: null,
                 });
             } else if (this.state.defineCreationMethod === 'import') {
                 this.setState({
@@ -193,13 +194,13 @@ class ConnectedAddDefineForm extends React.Component {
         this.props.toggleAddDefineForm({});
     };
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.handleCancel();
         }
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
         const steps = getSteps();
         const { activeStep } = this.state;
@@ -241,9 +242,12 @@ class ConnectedAddDefineForm extends React.Component {
                             onCancel={this.handleCancel}
                             settings={this.props.settings}
                             study={this.props.study}
+                            defines={this.props.defines}
+                            studies={this.props.studies}
                             defineData={this.state.defineData}
                             standardNames={this.props.standardNames}
                             controlledTerminology={this.props.controlledTerminology}
+                            defineCreationMethod={this.state.defineCreationMethod}
                         />
                     )}
                     {activeStep === 3 && (
@@ -253,6 +257,7 @@ class ConnectedAddDefineForm extends React.Component {
                             onCancel={this.handleCancel}
                             defineData={this.state.defineData}
                             defineCreationMethod={this.state.defineCreationMethod}
+                            name={this.state.name}
                         />
                     )}
                 </DialogContent>
@@ -265,6 +270,7 @@ ConnectedAddDefineForm.propTypes = {
     classes: PropTypes.object.isRequired,
     standardNames: PropTypes.object.isRequired,
     study: PropTypes.object.isRequired,
+    studies: PropTypes.object.isRequired,
     defines: PropTypes.object.isRequired,
     settings: PropTypes.object.isRequired,
     controlledTerminology: PropTypes.object.isRequired,

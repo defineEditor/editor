@@ -13,11 +13,11 @@
 ***********************************************************************************/
 
 import fs from 'fs';
-import jszip from 'jszip';
+import Jszip from 'jszip';
 import path from 'path';
 import { app } from 'electron';
 
-function writeDefineObject(mainWindow, defineObject, backupFlag) {
+function writeDefineObject (mainWindow, defineObject, backupFlag) {
     let pathToDefines = path.join(app.getPath('userData'), 'defines');
     let outputFile;
     if (backupFlag === true) {
@@ -26,7 +26,7 @@ function writeDefineObject(mainWindow, defineObject, backupFlag) {
         outputFile = path.join(pathToDefines, defineObject.defineId + '.nogz');
     }
 
-    let zip = new jszip();
+    let zip = new Jszip();
     zip.file('odm.json', JSON.stringify(defineObject.odm));
     if (defineObject.hasOwnProperty('tabs')) {
         zip.file('tabs.json', JSON.stringify(defineObject.tabs));
@@ -44,7 +44,7 @@ function writeDefineObject(mainWindow, defineObject, backupFlag) {
     }
     zip.file('info.json', JSON.stringify(info));
 
-    function saveFile() {
+    function saveFile () {
         zip
             .generateNodeStream({
                 type: 'nodebuffer',
@@ -52,12 +52,12 @@ function writeDefineObject(mainWindow, defineObject, backupFlag) {
                 compression: 'DEFLATE'
             })
             .pipe(fs.createWriteStream(outputFile))
-            .once('finish', () => {mainWindow.webContents.send('writeDefineObjectFinished', defineObject.defineId);});
+            .once('finish', () => { mainWindow.webContents.send('writeDefineObjectFinished', defineObject.defineId); });
     }
 
-    fs.mkdir(pathToDefines, function(err) {
+    fs.mkdir(pathToDefines, function (err) {
         if (err) {
-            if (err.code == 'EEXIST') {
+            if (err.code === 'EEXIST') {
                 saveFile();
             } else {
                 throw new Error('Failed creating defines folder: ' + pathToDefines);

@@ -21,23 +21,23 @@ import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 
 const styles = theme => ({
     formControl: {
-        whiteSpace   : 'normal',
-        overflowWrap : 'break-word',
+        whiteSpace: 'normal',
+        overflowWrap: 'break-word',
     },
     textField: {
     },
     nameTextField: {
-        width        : '90px',
-        marginRight  : theme.spacing.unit,
-        marginBottom : theme.spacing.unit,
+        width: '90px',
+        marginRight: theme.spacing.unit,
+        marginBottom: theme.spacing.unit,
     },
     helperText: {
-        whiteSpace : 'pre-wrap',
+        whiteSpace: 'pre-wrap',
     },
 });
 
 class VariableNameLabelEditor extends React.Component {
-    render() {
+    render () {
         const { classes, label, vlm } = this.props;
 
         let issue = false;
@@ -63,7 +63,7 @@ class VariableNameLabelEditor extends React.Component {
                         autoFocus
                         value={this.props.name}
                         onChange={this.props.handleChange('name')}
-                        onBlur={this.props.autoLabel ? this.props.onNameBlur : void(0)}
+                        onBlur={this.props.autoLabel ? this.props.onNameBlur : void (0)}
                         className={classes.nameTextField}
                     />
                 </Grid>
@@ -74,7 +74,7 @@ class VariableNameLabelEditor extends React.Component {
                         fullWidth
                         error={issue}
                         helperText={issue && helperText}
-                        FormHelperTextProps={{className: classes.helperText}}
+                        FormHelperTextProps={{ className: classes.helperText }}
                         value={this.props.label}
                         onChange={this.props.handleChange('label')}
                         className={classes.textField}
@@ -86,15 +86,14 @@ class VariableNameLabelEditor extends React.Component {
 }
 
 VariableNameLabelEditor.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    handleChange : PropTypes.func.isRequired,
-    onNameBlur   : PropTypes.func,
-    name         : PropTypes.string.isRequired,
-    label        : PropTypes.string.isRequired,
-    autoLabel    : PropTypes.bool,
-    vlm          : PropTypes.bool,
-    blueprint    : PropTypes.object,
+    classes: PropTypes.object.isRequired,
+    handleChange: PropTypes.func.isRequired,
+    onNameBlur: PropTypes.func,
+    name: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    autoLabel: PropTypes.bool,
+    vlm: PropTypes.bool,
+    blueprint: PropTypes.object,
 };
 
 export default withStyles(styles)(VariableNameLabelEditor);
-

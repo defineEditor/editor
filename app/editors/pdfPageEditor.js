@@ -24,12 +24,12 @@ import Tooltip from '@material-ui/core/Tooltip';
 import ItemSelect from 'utils/itemSelect.js';
 import { PdfPageRef } from 'core/defineStructure.js';
 
-const pageRefTypes = [{'PhysicalRef': 'Physical Reference'},{'NamedDestination': 'Named Destination'}];
+const pageRefTypes = [{ 'PhysicalRef': 'Physical Reference' }, { 'NamedDestination': 'Named Destination' }];
 
 const styles = theme => ({
     container: {
-        display  : 'flex',
-        flexWrap : 'wrap',
+        display: 'flex',
+        flexWrap: 'wrap',
     },
     formControl: {
         margin: 'none',
@@ -50,12 +50,12 @@ const styles = theme => ({
         whiteSpace: 'nowrap',
     },
     textFieldLast: {
-        width      : '80px',
-        marginLeft : theme.spacing.unit
+        width: '80px',
+        marginLeft: theme.spacing.unit
     },
     rangeSwitch: {
-        alignItems : 'flex-end',
-        margin     : 'none',
+        alignItems: 'flex-end',
+        margin: 'none',
     },
 });
 
@@ -63,18 +63,18 @@ class PdfPageEditor extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            pageRangeFlag: ((this.props.value.firstPage !== undefined || this.props.value.lastPage !== undefined)? true : false)
+            pageRangeFlag: (!!((this.props.value.firstPage !== undefined || this.props.value.lastPage !== undefined)))
         };
     }
 
     handleChange = name => event => {
         // Create the new pdfPageRef
         let newPdfPageRef = new PdfPageRef({
-            pageRefs  : this.props.value.pageRefs,
-            firstPage : this.props.value.firstPage,
-            lastPage  : this.props.value.lastPage,
-            type      : this.props.value.type,
-            title     : this.props.value.title,
+            pageRefs: this.props.value.pageRefs,
+            firstPage: this.props.value.firstPage,
+            lastPage: this.props.value.lastPage,
+            type: this.props.value.type,
+            title: this.props.value.title,
         });
         // If pdfRefs are update -> remove first and last and vice versa
         if (name === 'pageRefs' && (newPdfPageRef.firstPage !== undefined || newPdfPageRef.lastPage !== undefined)) {
@@ -96,7 +96,7 @@ class PdfPageEditor extends React.Component {
         this.props.handleChange('updatePdfPageRef', this.props.documentId, this.props.pdfPageRefId)(newPdfPageRef);
     }
 
-    getPageInputs = (type,classes) => {
+    getPageInputs = (type, classes) => {
         let result = [];
         if (type === 'PhysicalRef') {
             result.push(
@@ -164,12 +164,11 @@ class PdfPageEditor extends React.Component {
                     />
                 </Grid>
             );
-
         }
         return result;
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
 
         return (
@@ -178,7 +177,7 @@ class PdfPageEditor extends React.Component {
                     <Tooltip title='Remove PDF Page Reference' placement='bottom-end' enterDelay={1000}>
                         <IconButton
                             color='secondary'
-                            onClick={this.props.handleChange('deletePdfPageRef',this.props.documentId,this.props.pdfPageRefId)}
+                            onClick={this.props.handleChange('deletePdfPageRef', this.props.documentId, this.props.pdfPageRefId)}
                         >
                             <ClearIcon />
                         </IconButton>
@@ -199,10 +198,9 @@ class PdfPageEditor extends React.Component {
 }
 
 PdfPageEditor.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    value        : PropTypes.object.isRequired,
-    handleChange : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    value: PropTypes.object.isRequired,
+    handleChange: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(PdfPageEditor);
-

@@ -28,7 +28,7 @@ function quitApplication (event, data) {
         store.dispatch(appQuit());
         // TODO Rewrite this solution.
         // Without it, a JS error is happening when application is closed. Looks like caused by electron-store writing its state.
-        setTimeout( () => {
+        setTimeout(() => {
             ipcRenderer.send('quitConfirmed');
             window.close();
         }, 500);

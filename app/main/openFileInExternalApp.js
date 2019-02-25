@@ -14,7 +14,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import {dialog, shell} from 'electron';
+import { dialog, shell } from 'electron';
 
 async function openFileInExternalApp (mainWindow, defineLocation, fileLink) {
     // Check the file exists
@@ -27,7 +27,7 @@ async function openFileInExternalApp (mainWindow, defineLocation, fileLink) {
             mainWindow,
             {
                 type: 'error',
-                title   : 'File not found',
+                title: 'File not found',
                 message: 'File ' + pathToFile + ' could not be found.',
             });
     }

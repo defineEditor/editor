@@ -30,25 +30,24 @@ import {
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        addResultDisplays    : (updateObj) => dispatch(addResultDisplays(updateObj)),
-        deleteResultDisplays : (deleteObj) => dispatch(deleteResultDisplays(deleteObj)),
-        selectGroup          : (updateObj) => dispatch(selectGroup(updateObj)),
-        updateCopyBuffer     : (updateObj) => dispatch(updateCopyBuffer(updateObj)),
+        addResultDisplays: (updateObj) => dispatch(addResultDisplays(updateObj)),
+        deleteResultDisplays: (deleteObj) => dispatch(deleteResultDisplays(deleteObj)),
+        selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
+        updateCopyBuffer: (updateObj) => dispatch(updateCopyBuffer(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        analysisResultDisplays : state.present.odm.study.metaDataVersion.analysisResultDisplays,
-        armDetailsTabIndex     : state.present.ui.tabs.tabNames.indexOf('Analysis Results'),
-        reviewMode             : state.present.ui.main.reviewMode,
-        buffer                 : state.present.ui.main.copyBuffer['resultDisplays'],
-        mdv                    : state.present.odm.study.metaDataVersion,
+        analysisResultDisplays: state.present.odm.study.metaDataVersion.analysisResultDisplays,
+        armDetailsTabIndex: state.present.ui.tabs.tabNames.indexOf('Analysis Results'),
+        reviewMode: state.present.ui.main.reviewMode,
+        buffer: state.present.ui.main.copyBuffer['resultDisplays'],
+        mdv: state.present.odm.study.metaDataVersion,
     };
 };
 
 class ConnectedArmSummaryMenu extends React.Component {
-
     deleteResultDisplay = () => {
         let analysisResults = this.props.analysisResultDisplays.analysisResults;
         let resultDisplays = this.props.analysisResultDisplays.resultDisplays;
@@ -75,9 +74,9 @@ class ConnectedArmSummaryMenu extends React.Component {
 
     editResultDisplayValues = () => {
         let updateObj = {
-            tabIndex       : this.props.armDetailsTabIndex,
-            groupOid       : this.props.armSummaryMenuParams.resultDisplayOid,
-            scrollPosition : {},
+            tabIndex: this.props.armDetailsTabIndex,
+            groupOid: this.props.armSummaryMenuParams.resultDisplayOid,
+            scrollPosition: {},
         };
         this.props.selectGroup(updateObj);
         this.props.onClose();
@@ -102,7 +101,7 @@ class ConnectedArmSummaryMenu extends React.Component {
             mdv,
             sourceMdv,
             resultDisplayOidList: [ buffer.resultDisplayOid ],
-            sameDefine : true,
+            sameDefine: true,
         });
 
         let position = this.props.analysisResultDisplays.resultDisplayOrder.indexOf(resultDisplayOid) + shift + 1;
@@ -117,8 +116,7 @@ class ConnectedArmSummaryMenu extends React.Component {
         this.props.onClose();
     }
 
-    render() {
-
+    render () {
         return (
             <React.Fragment>
                 <Menu
@@ -171,10 +169,10 @@ class ConnectedArmSummaryMenu extends React.Component {
 }
 
 ConnectedArmSummaryMenu.propTypes = {
-    armSummaryMenuParams   : PropTypes.object.isRequired,
-    analysisResultDisplays : PropTypes.object.isRequired,
-    reviewMode             : PropTypes.bool,
-    onAddVariable          : PropTypes.func.isRequired,
+    armSummaryMenuParams: PropTypes.object.isRequired,
+    analysisResultDisplays: PropTypes.object.isRequired,
+    reviewMode: PropTypes.bool,
+    onAddVariable: PropTypes.func.isRequired,
 };
 
 const ArmSummaryMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedArmSummaryMenu);

@@ -16,7 +16,7 @@ import {
     CT_ADD,
     CT_UPD,
     CT_RELOAD,
-} from "constants/action-types";
+} from 'constants/action-types';
 
 export const addControlledTerminology = (updateObj) => (
     {

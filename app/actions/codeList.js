@@ -28,7 +28,7 @@ import {
     DEL_CODEDVALUES,
     UPD_CODEDVALUEORDER,
     UPD_LINKCODELISTS,
-} from "constants/action-types";
+} from 'constants/action-types';
 
 // Codelist actions
 export const updateCodeList = (oid, updateObj) => (

@@ -34,8 +34,8 @@ const styles = theme => ({
         height: '56px',
         backgroundImage: 'radial-gradient(#FFFFFF,#DDDDDD)',
         borderRadius: '25px',
-        marginLeft : '10px',
-        marginRight : '10px',
+        marginLeft: '10px',
+        marginRight: '10px',
     },
     grid: {
         height: '56px',
@@ -79,23 +79,23 @@ class FindInPage extends React.Component {
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('keydown', this.onKeyDown);
         this.page.webContents.on('found-in-page', this.onFoundInPage);
         this.searchInputRef.current.focus();
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('keydown', this.onKeyDown);
         this.page.webContents.stopFindInPage('clearSelection');
         this.page.webContents.removeListener('found-in-page', this.onFoundInPage);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.keyCode === 27) {
             this.props.onToggleFindInPage();
         } else if (event.keyCode === 13) {
-            this.findInPageDebounced(this.state.search, {findNext: true});
+            this.findInPageDebounced(this.state.search, { findNext: true });
         }
     }
 
@@ -103,14 +103,14 @@ class FindInPage extends React.Component {
         this.findInPageDebounced(event.target.value);
         if (event.target.value === '') {
             // Disabled clearSelection as otherwise TextField looses focus;
-            //this.page.webContents.stopFindInPage('clearSelection');
-            this.setState({search: event.target.value, totalFound: 0, currentNum: 0});
+            // this.page.webContents.stopFindInPage('clearSelection');
+            this.setState({ search: event.target.value, totalFound: 0, currentNum: 0 });
         } else {
-            this.setState({search: event.target.value});
+            this.setState({ search: event.target.value });
         }
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
 
         return (
@@ -147,9 +147,8 @@ class FindInPage extends React.Component {
 }
 
 FindInPage.propTypes = {
-    classes            : PropTypes.object.isRequired,
-    onToggleFindInPage : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    onToggleFindInPage: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(FindInPage);
-

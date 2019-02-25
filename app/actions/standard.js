@@ -20,7 +20,7 @@ import {
     UPD_STD,
     UPD_MODEL,
     UPD_ARMSTATUS,
-} from "constants/action-types";
+} from 'constants/action-types';
 
 // Standard
 export const updateGlobalVariablesAndStudyOid = (updateObj) => (

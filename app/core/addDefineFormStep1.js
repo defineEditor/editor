@@ -62,19 +62,13 @@ class AddDefineFormStep1 extends React.Component {
         ipcRenderer.removeListener('defineReadError', this.updateError);
     }
 
-    updateError = (error, errorText) => {
-        if (error) {
-            // Do nothing
-        }
+    updateError = (event, errorText) => {
         if (errorText !== undefined && typeof errorText === 'string') {
             this.setState({ parsingErrors: [errorText] });
         }
     }
 
-    loadDefine = (error, data, pathToDefineXml) => {
-        if (error) {
-            // Do nothing
-        }
+    loadDefine = (event, data, pathToDefineXml) => {
         try {
             let defineData = parseDefine(data);
             let checkResult = checkDefineXml(defineData);
@@ -121,6 +115,7 @@ class AddDefineFormStep1 extends React.Component {
                             onChange={this.handleChange}
                         >
                             <FormControlLabel value="new" control={<Radio color='primary'/>} label="Create a new Define-XML document"/>
+                            <FormControlLabel value="copy" control={<Radio color='primary'/>} label="Copy Define-XML from another study"/>
                             <FormControlLabel value="import" control={<Radio color='primary'/>} label="Import an existing Define-XML document"/>
                         </RadioGroup>
                         { this.state.defineCreationMethod === 'import' && (

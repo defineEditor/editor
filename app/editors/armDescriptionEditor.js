@@ -70,7 +70,7 @@ class ConnectedArmDescriptionEditor extends React.Component {
         this.props.onUpdate();
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (this.props.stateless !== true) {
             if (event.key === 'Escape' || event.keyCode === 27) {
                 this.cancel();
@@ -108,9 +108,9 @@ class ConnectedArmDescriptionEditor extends React.Component {
 }
 
 ConnectedArmDescriptionEditor.propTypes = {
-    description           : PropTypes.object.isRequired,
-    row                   : PropTypes.object.isRequired,
-    onUpdate              : PropTypes.func,
+    description: PropTypes.object.isRequired,
+    row: PropTypes.object.isRequired,
+    onUpdate: PropTypes.func,
 };
 
 const ArmDescriptionEditor = connect(undefined, mapDispatchToProps)(ConnectedArmDescriptionEditor);

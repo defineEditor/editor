@@ -25,7 +25,7 @@ function selectFolder (mainWindow, title, initialFolder) {
     let defaultPath;
     try {
         fs.accessSync(initialFolder, fs.constants.R_OK);
-        if (initialFolder !== undefined && fs.statSync(initialFolder).isDirectory() ) {
+        if (initialFolder !== undefined && fs.statSync(initialFolder).isDirectory()) {
             defaultPath = initialFolder;
         }
     } catch (e) {

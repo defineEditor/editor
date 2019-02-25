@@ -31,19 +31,19 @@ import { WhereClause } from 'core/defineStructure.js';
 
 const styles = theme => ({
     dialog: {
+        position: 'absolute',
+        top: '10%',
+        maxHeight: '80%',
+        width: '90%',
+        overflowX: 'auto',
+        overflowY: 'auto',
         paddingLeft: theme.spacing.unit * 2,
         paddingRight: theme.spacing.unit * 2,
         paddingBottom: theme.spacing.unit * 1,
-        position: 'absolute',
+        margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'primary',
-        top: '20%',
-        transform: 'translate(0%, calc(-20%+0.5px))',
-        overflowX: 'auto',
-        maxHeight: '80%',
-        width: '90%',
-        overflowY: 'auto'
     },
     button: {
         margin: '0',
@@ -105,7 +105,7 @@ class ConnectedWhereClauseEditor extends React.Component {
         return (
             <Grid container justify='space-around'>
                 <Grid item xs={12}>
-                    <Typography variant="body2">
+                    <Typography variant="body1">
                         {this.props.label}
                         <Tooltip title={ `Edit ${this.props.label}` } placement='bottom' enterDelay={1000}>
                             <span>
@@ -127,6 +127,8 @@ class ConnectedWhereClauseEditor extends React.Component {
                         disableEscapeKeyDown
                         open={this.state.dialogOpened}
                         PaperProps={{ className: classes.dialog }}
+                        fullWidth
+                        maxWidth={false}
                     >
                         <DialogTitle>{this.props.label}</DialogTitle>
                         <DialogContent>

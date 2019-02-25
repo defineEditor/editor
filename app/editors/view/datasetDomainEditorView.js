@@ -21,18 +21,18 @@ import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 
 const styles = theme => ({
     textField: {
-        width        : '90px',
-        marginRight  : theme.spacing.unit,
-        marginBottom : theme.spacing.unit,
+        width: '90px',
+        marginRight: theme.spacing.unit,
+        marginBottom: theme.spacing.unit,
     },
     helperText: {
-        whiteSpace : 'pre-wrap',
+        whiteSpace: 'pre-wrap',
     },
 });
 
 class DatasetDomainEditorView extends React.Component {
-    render() {
-        const {classes} = this.props;
+    render () {
+        const { classes } = this.props;
 
         let issue = false;
         let helperText = '';
@@ -52,7 +52,7 @@ class DatasetDomainEditorView extends React.Component {
                         autoFocus
                         error={issue}
                         helperText={issue && helperText}
-                        FormHelperTextProps={{className: classes.helperText}}
+                        FormHelperTextProps={{ className: classes.helperText }}
                         value={this.props.domain}
                         onChange={this.props.onChange('domain')}
                         className={classes.textField}
@@ -72,11 +72,10 @@ class DatasetDomainEditorView extends React.Component {
 }
 
 DatasetDomainEditorView.propTypes = {
-    classes                 : PropTypes.object.isRequired,
-    domain                  : PropTypes.string.isRequired,
-    parentDomainDescription : PropTypes.string.isRequired,
-    onChange                : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    domain: PropTypes.string.isRequired,
+    parentDomainDescription: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(DatasetDomainEditorView);
-

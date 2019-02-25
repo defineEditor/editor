@@ -16,7 +16,7 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
+import { BootstrapTable, ButtonGroup } from 'react-bootstrap-table';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
 import renderColumns from 'utils/renderColumns.js';
@@ -76,44 +76,44 @@ const styles = theme => ({
         marginLeft: theme.spacing.unit * 2,
     },
     drawerButton: {
-        marginLeft : theme.spacing.unit,
-        transform  : 'translate(0%, -6%)',
+        marginLeft: theme.spacing.unit,
+        transform: 'translate(0%, -6%)',
     },
     tableTitle: {
-        marginTop    : theme.spacing.unit * 2,
-        marginBottom : theme.spacing.unit * 2,
-        color        : grey[600]
+        marginTop: theme.spacing.unit * 2,
+        marginBottom: theme.spacing.unit * 2,
+        color: grey[600]
     },
 });
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateItemDef                   : (oid, updateObj) => dispatch(updateItemDef(oid, updateObj)),
-        updateItemRef                   : (source, updateObj) => dispatch(updateItemRef(source, updateObj)),
-        updateNameLabelWhereClause      : (source, updateObj) => dispatch(updateNameLabelWhereClause(source, updateObj)),
-        updateItemRefKeyOrder           : (source, updateObj, prevObj) => dispatch(updateItemRefKeyOrder(source, updateObj, prevObj)),
-        updateItemCodeListDisplayFormat : (oid, updateObj, prevObj) => dispatch(updateItemCodeListDisplayFormat(oid, updateObj, prevObj)),
-        updateItemDescription           : (source, updateObj, prevObj) => dispatch(updateItemDescription(source, updateObj, prevObj)),
-        deleteVariables                 : (source, deleteObj) => dispatch(deleteVariables(source, deleteObj)),
-        setVlmState                     : (source, updateObj) => dispatch(setVlmState(source, updateObj)),
-        changeTablePageDetails          : (updateObj) => dispatch(changeTablePageDetails(updateObj)),
-        updateSettings                  : updateObj => dispatch(updateSettings(updateObj)),
+        updateItemDef: (oid, updateObj) => dispatch(updateItemDef(oid, updateObj)),
+        updateItemRef: (source, updateObj) => dispatch(updateItemRef(source, updateObj)),
+        updateNameLabelWhereClause: (source, updateObj) => dispatch(updateNameLabelWhereClause(source, updateObj)),
+        updateItemRefKeyOrder: (source, updateObj, prevObj) => dispatch(updateItemRefKeyOrder(source, updateObj, prevObj)),
+        updateItemCodeListDisplayFormat: (oid, updateObj, prevObj) => dispatch(updateItemCodeListDisplayFormat(oid, updateObj, prevObj)),
+        updateItemDescription: (source, updateObj, prevObj) => dispatch(updateItemDescription(source, updateObj, prevObj)),
+        deleteVariables: (source, deleteObj) => dispatch(deleteVariables(source, deleteObj)),
+        setVlmState: (source, updateObj) => dispatch(setVlmState(source, updateObj)),
+        changeTablePageDetails: (updateObj) => dispatch(changeTablePageDetails(updateObj)),
+        updateSettings: updateObj => dispatch(updateSettings(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        mdv                   : state.present.odm.study.metaDataVersion,
-        dataTypes             : state.present.stdConstants.dataTypes,
-        stdColumns            : state.present.stdConstants.columns.variables,
-        defineVersion         : state.present.odm.study.metaDataVersion.defineVersion,
-        tabSettings           : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
-        showRowSelect         : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
-        filter                : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].filter,
-        reviewMode            : state.present.ui.main.reviewMode,
-        enableTablePagination : state.present.settings.editor.enableTablePagination,
-        defaultRowsPerPage    : state.present.settings.editor.defaultRowsPerPage,
+        mdv: state.present.odm.study.metaDataVersion,
+        dataTypes: state.present.stdConstants.dataTypes,
+        stdColumns: state.present.stdConstants.columns.variables,
+        defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
+        tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
+        showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
+        filter: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].filter,
+        reviewMode: state.present.ui.main.reviewMode,
+        enableTablePagination: state.present.settings.editor.enableTablePagination,
+        defaultRowsPerPage: state.present.settings.editor.defaultRowsPerPage,
     };
 };
 
@@ -144,18 +144,18 @@ function keyOrderEditor (onUpdate, props) {
 
 function roleEditor (onUpdate, props) {
     let source = {
-        itemGroupOid : props.row.itemGroupOid,
-        itemRefOid   : props.row.itemRefOid,
-        vlm          : (props.row.vlmLevel === 1),
+        itemGroupOid: props.row.itemGroupOid,
+        itemRefOid: props.row.itemRefOid,
+        vlm: (props.row.vlmLevel === 1),
     };
     return (<RoleEditor onFinished={ onUpdate } roleAttrs={props.defaultValue} source={source}/>);
 }
 
 function mandatoryEditor (onUpdate, props) {
     let source = {
-        itemGroupOid : props.row.itemGroupOid,
-        itemRefOid   : props.row.itemRefOid,
-        vlm          : (props.row.vlmLevel === 1),
+        itemGroupOid: props.row.itemGroupOid,
+        itemRefOid: props.row.itemRefOid,
+        vlm: (props.row.vlmLevel === 1),
     };
     return (<MandatoryEditor onFinished={ onUpdate } mandatory={props.defaultValue} source={source}/>);
 }
@@ -225,7 +225,7 @@ function roleFormatter (cell, row) {
 }
 
 class ConnectedVariableTable extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         const mdv = this.props.mdv;
         let columns = clone(this.props.stdColumns);
@@ -240,59 +240,59 @@ class ConnectedVariableTable extends React.Component {
                 dataFormat: this.menuFormatter,
             },
             keyOrder: {
-                dataFormat   : keyOrderFormatter,
-                customEditor : {getElement: keyOrderEditor},
+                dataFormat: keyOrderFormatter,
+                customEditor: { getElement: keyOrderEditor },
             },
             nameLabelWhereClause: {
-                dataFormat   : variableNameLabelWhereClauseFormatter.bind(this),
-                customEditor : {getElement: variableNameLabelWhereClauseEditor},
+                dataFormat: variableNameLabelWhereClauseFormatter.bind(this),
+                customEditor: { getElement: variableNameLabelWhereClauseEditor },
             },
             dataType: {
-                customEditor: {getElement: simpleSelectEditor, customEditorParameters: {options: this.props.dataTypes, optional: true}},
+                customEditor: { getElement: simpleSelectEditor, customEditorParameters: { options: this.props.dataTypes, optional: true } },
             },
             lengthAttrs: {
-                dataFormat   : variableLengthFormatter,
-                customEditor : {getElement: variableLengthEditor},
+                dataFormat: variableLengthFormatter,
+                customEditor: { getElement: variableLengthEditor },
             },
             roleAttrs: {
-                dataFormat   : roleFormatter,
-                customEditor : {getElement: roleEditor},
+                dataFormat: roleFormatter,
+                customEditor: { getElement: roleEditor },
             },
             mandatory: {
-                customEditor: {getElement: mandatoryEditor},
+                customEditor: { getElement: mandatoryEditor },
             },
             codeListFormatAttrs: {
-                dataFormat   : variableCodeListFormatFormatter,
-                customEditor : {getElement: variableCodeListFormatEditor, customEditorParameters: {codeLists: mdv.codeLists}},
+                dataFormat: variableCodeListFormatFormatter,
+                customEditor: { getElement: variableCodeListFormatEditor, customEditorParameters: { codeLists: mdv.codeLists } },
             },
             description: {
-                dataFormat   : descriptionFormatter,
-                customEditor : {getElement: itemDescriptionEditor},
+                dataFormat: descriptionFormatter,
+                customEditor: { getElement: itemDescriptionEditor },
             },
         };
 
         // Unite Columns with Editors and Formatters;
-        Object.keys(columns).forEach( id => {
+        Object.keys(columns).forEach(id => {
             columns[id] = { ...columns[id], ...editorFormatters[id] };
         });
 
         // ItemGroupOid is kept only for the getDerivedStateFromProps method
         this.state = {
             columns,
-            itemMenuParams   : {},
-            anchorEl         : null,
-            showSelectColumn : false,
-            showFilter       : false,
-            showAddVariable  : false,
-            insertPosition   : null,
-            selectedRows     : [],
-            selectedVlmRows  : {},
-            itemGroupOid     : this.props.itemGroupOid,
-            setScrollY       : false,
+            itemMenuParams: {},
+            anchorEl: null,
+            showSelectColumn: false,
+            showFilter: false,
+            showAddVariable: false,
+            insertPosition: null,
+            selectedRows: [],
+            selectedVlmRows: {},
+            itemGroupOid: this.props.itemGroupOid,
+            setScrollY: false,
         };
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
+    static getDerivedStateFromProps (nextProps, prevState) {
         let stateUpdate = {};
         // Store previous itemGroupOid in state so it can be compared with when props change
         if (nextProps.itemGroupOid !== prevState.itemGroupOid) {
@@ -314,7 +314,7 @@ class ConnectedVariableTable extends React.Component {
         }
     }
 
-    componentDidUpdate() {
+    componentDidUpdate () {
         if (this.state.setScrollY) {
             // Restore previous tab scroll position for a specific dataset
             let tabSettings = this.props.tabSettings;
@@ -327,15 +327,15 @@ class ConnectedVariableTable extends React.Component {
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (this.props.enableTablePagination) {
             let page;
             if (this.props.tabSettings.pagination.hasOwnProperty(this.props.itemGroupOid)) {
@@ -354,89 +354,119 @@ class ConnectedVariableTable extends React.Component {
                 this.handleChangePage(event, page + 1);
             }
         }
+        if (event.ctrlKey && (event.keyCode === 78)) {
+            this.setState({ showAddVariable: true, insertPosition: null });
+        }
     }
 
     getData = () => {
         const mdv = this.props.mdv;
         const dataset = mdv.itemGroups[this.props.itemGroupOid];
+
+        // In case of a filter, select all filtered VLM oids
+        let vlmFilteredOidsByItem = {};
+        if (this.props.filter.isEnabled && this.props.filter.applyToVlm) {
+            Object.keys(dataset.itemRefs)
+                .filter(itemRefOid => (mdv.itemDefs[dataset.itemRefs[itemRefOid].itemOid].valueListOid !== undefined))
+                .forEach(itemRefOid => {
+                    let itemOid = dataset.itemRefs[itemRefOid].itemOid;
+                    let data = getTableDataForFilter({
+                        source: mdv.valueLists[mdv.itemDefs[itemOid].valueListOid],
+                        datasetName: dataset.name,
+                        datasetOid: dataset.oid,
+                        itemDefs: mdv.itemDefs,
+                        codeLists: mdv.codeLists,
+                        mdv: mdv,
+                        defineVersion: this.props.defineVersion,
+                        vlmLevel: 1,
+                    });
+                    let vlmFilteredOids = applyFilter(data, this.props.filter);
+                    // Variable level item with at least one VLM passing the filter
+                    if (vlmFilteredOids.length > 0) {
+                        vlmFilteredOidsByItem[itemOid] = vlmFilteredOids;
+                    }
+                });
+        }
+        // Get Variable level Metadata
+        // Select filtered values
         let filteredOids;
+        let specialHighlightOids = [];
         if (this.props.filter.isEnabled) {
             let data = getTableDataForFilter({
-                source        : dataset,
-                datasetName   : dataset.name,
-                datasetOid    : dataset.oid,
-                itemDefs      : mdv.itemDefs,
-                codeLists     : mdv.codeLists,
-                mdv           : mdv,
-                defineVersion : this.props.defineVersion,
-                vlmLevel      : 0,
+                source: dataset,
+                datasetName: dataset.name,
+                datasetOid: dataset.oid,
+                itemDefs: mdv.itemDefs,
+                codeLists: mdv.codeLists,
+                mdv: mdv,
+                defineVersion: this.props.defineVersion,
+                vlmLevel: 0,
             });
             filteredOids = applyFilter(data, this.props.filter);
+            // In case VLMs are selected by a filter, show parent variables
+            // Track those which were not selected by a filter, so that they can be highlighted
+            Object.keys(vlmFilteredOidsByItem).forEach(itemOid => {
+                if (!filteredOids.includes(itemOid)) {
+                    filteredOids.push(itemOid);
+                    specialHighlightOids.push(itemOid);
+                }
+            });
         }
-        // Get variable level metadata
+        // Get the data
         let variables = getTableData({
-            source        : dataset,
-            datasetName   : dataset.name,
-            datasetOid    : dataset.oid,
-            itemDefs      : mdv.itemDefs,
-            codeLists     : mdv.codeLists,
-            mdv           : mdv,
-            defineVersion : this.props.defineVersion,
-            vlmLevel      : 0,
+            source: dataset,
+            datasetName: dataset.name,
+            datasetOid: dataset.oid,
+            itemDefs: mdv.itemDefs,
+            codeLists: mdv.codeLists,
+            mdv: mdv,
+            defineVersion: this.props.defineVersion,
+            vlmLevel: 0,
             filteredOids,
+            specialHighlightOids,
         });
-
         // Get VLM metadata for items which are expanded
         let vlmState = this.props.tabSettings.vlmState[this.props.itemGroupOid];
         if (vlmState !== undefined) {
             Object.keys(dataset.itemRefs)
-                .filter( itemRefOid => (mdv.itemDefs[dataset.itemRefs[itemRefOid].itemOid].valueListOid !== undefined && vlmState[dataset.itemRefs[itemRefOid].itemOid] === 'expand') )
-                .forEach( itemRefOid => {
+                .filter(itemRefOid => (
+                    mdv.itemDefs[dataset.itemRefs[itemRefOid].itemOid].valueListOid !== undefined &&
+                    vlmState[dataset.itemRefs[itemRefOid].itemOid] === 'expand'
+                ))
+                .forEach(itemRefOid => {
                     let itemOid = dataset.itemRefs[itemRefOid].itemOid;
-                    let vlmFilteredOids;
-                    if (this.props.filter.isEnabled && this.props.filter.applyToVlm) {
-                        let data = getTableDataForFilter({
-                            source        : mdv.valueLists[mdv.itemDefs[itemOid].valueListOid],
-                            datasetName   : dataset.name,
-                            datasetOid    : dataset.oid,
-                            itemDefs      : mdv.itemDefs,
-                            codeLists     : mdv.codeLists,
-                            mdv           : mdv,
-                            defineVersion : this.props.defineVersion,
-                            vlmLevel      : 1,
-                        });
-                        vlmFilteredOids = applyFilter(data, this.props.filter);
+                    // Get the VLM data, run only for those items which are expanded
+                    if (vlmState[dataset.itemRefs[itemRefOid].itemOid] === 'expand') {
+                        // During filtering it is possible that some of the elements will be undefined or empty, remove them
+                        let vlmData = getTableData({
+                            source: mdv.valueLists[mdv.itemDefs[itemOid].valueListOid],
+                            datasetName: dataset.name,
+                            datasetOid: dataset.oid,
+                            itemDefs: mdv.itemDefs,
+                            codeLists: mdv.codeLists,
+                            mdv: mdv,
+                            defineVersion: this.props.defineVersion,
+                            vlmLevel: 1,
+                            filteredOids: vlmFilteredOidsByItem[itemOid],
+                        }).filter(el => (el !== undefined));
+                        // For all VLM which are expanded, add VLM data to VLM variables
+                        // If  there is no parent variable (in case of filter), add VLM for that parent at the end
+                        let startIndex = variables.map(item => item.oid).indexOf(itemOid) + 1;
+                        variables.splice.apply(variables, [startIndex === 0 ? variables.length : startIndex, 0].concat(vlmData));
                     }
-                    // Get the VLM data
-                    // During filtering it is possible that some of the elements will be undefined or empty, remove them
-                    let vlmData = getTableData({
-                        source        : mdv.valueLists[mdv.itemDefs[itemOid].valueListOid],
-                        datasetName   : dataset.name,
-                        datasetOid    : dataset.oid,
-                        itemDefs      : mdv.itemDefs,
-                        codeLists     : mdv.codeLists,
-                        mdv           : mdv,
-                        defineVersion : this.props.defineVersion,
-                        vlmLevel      : 1,
-                        filteredOids  : vlmFilteredOids,
-                    }).filter( el => (el != undefined));
-                    // For all VLM which are expanded, add VLM data to Variables
-                    // If  there is no parent variable (in case of filter), add VLM for that parent at the end
-                    let startIndex = variables.map(item => item.oid).indexOf(itemOid) + 1;
-                    variables.splice.apply(variables, [startIndex === 0 ? variables.length : startIndex, 0].concat(vlmData));
                 });
         }
         // During filtering it is possible that some of the elements will be undefined or empty
-        return variables.filter( el => (el != undefined));
+        return variables.filter(el => (el !== undefined));
     }
 
     menuFormatter = (cell, row) => {
         let itemMenuParams = {
-            oid            : row.oid,
-            itemRefOid     : row.itemRefOid,
-            itemGroupVLOid : row.itemGroupOid,
-            vlmLevel       : row.vlmLevel,
-            hasVlm         : (row.valueList !== undefined),
+            oid: row.oid,
+            itemRefOid: row.itemRefOid,
+            itemGroupVLOid: row.itemGroupOid,
+            vlmLevel: row.vlmLevel,
+            hasVlm: (row.valueList !== undefined),
         };
         return (
             <IconButton
@@ -463,7 +493,6 @@ class ConnectedVariableTable extends React.Component {
         }
         // Update on if the value changed
         if (!deepEqual(row[cellName], cellValue)) {
-
             let updateObj = {};
             if (cellName === 'dataType') {
                 updateObj[cellName] = cellValue;
@@ -474,19 +503,19 @@ class ConnectedVariableTable extends React.Component {
             if (cellName === 'description') {
                 this.props.updateItemDescription(
                     {
-                        oid          : row.oid,
-                        itemGroupOid : row.itemGroupOid,
-                        itemRefOid   : row.itemRefOid,
-                        vlm          : (row.vlmLevel === 1),
+                        oid: row.oid,
+                        itemGroupOid: row.itemGroupOid,
+                        itemRefOid: row.itemRefOid,
+                        vlm: (row.vlmLevel === 1),
                     },
                     updateObj,
                     row.description,
                 );
             } else if (cellName === 'mandatory') {
                 this.props.updateItemRef({
-                    itemGroupOid : row.itemGroupOid,
-                    itemRefOid   : row.itemRefOid,
-                    vlm          : (row.vlmLevel === 1),
+                    itemGroupOid: row.itemGroupOid,
+                    itemRefOid: row.itemRefOid,
+                    vlm: (row.vlmLevel === 1),
                 }, updateObj);
             } else if (cellName === 'codeListFormatAttrs') {
                 this.props.updateItemCodeListDisplayFormat(
@@ -497,9 +526,9 @@ class ConnectedVariableTable extends React.Component {
             } else if (cellName === 'keyOrder') {
                 this.props.updateItemRefKeyOrder(
                     {
-                        itemGroupOid : row.itemGroupOid,
-                        itemRefOid   : row.itemRefOid,
-                        vlm          : (row.vlmLevel === 1),
+                        itemGroupOid: row.itemGroupOid,
+                        itemRefOid: row.itemRefOid,
+                        vlm: (row.vlmLevel === 1),
                     },
                     updateObj,
                     row.keyOrder
@@ -512,8 +541,8 @@ class ConnectedVariableTable extends React.Component {
                 if (row[cellName].whereClause.commentOid !== undefined) {
                     oldWcComment = row.mdv.comments[row[cellName].whereClause.commentOid];
                 }
-                if (deepEqual(row.nameLabelWhereClause.whereClause, cellValue.whereClause)
-                    && deepEqual(oldWcComment, cellValue.wcComment)) {
+                if (deepEqual(row.nameLabelWhereClause.whereClause, cellValue.whereClause) &&
+                    deepEqual(oldWcComment, cellValue.wcComment)) {
                     this.props.updateItemDef(row.oid, updateObj);
                 } else {
                     updateObj.oldWcOid = row[cellName].whereClause.oid;
@@ -541,12 +570,12 @@ class ConnectedVariableTable extends React.Component {
         this.toggleVlmAndVariablesData(itemOid, vlmState);
         // Check if all of the states became collapsed/expanded;
         if (Object.keys(vlmState)
-            .filter( vlm => (vlm !== 'global'))
-            .filter( vlm => vlmState[vlm] === 'collaps').length === 0) {
+            .filter(vlm => (vlm !== 'global'))
+            .filter(vlm => vlmState[vlm] === 'collaps').length === 0) {
             vlmState.global = 'expand';
         } else if (Object.keys(vlmState)
-            .filter( vlm => (vlm !== 'global'))
-            .filter( vlm => vlmState[vlm] === 'expand').length === 0) {
+            .filter(vlm => (vlm !== 'global'))
+            .filter(vlm => vlmState[vlm] === 'expand').length === 0) {
             vlmState.global = 'collaps';
         }
         this.props.setVlmState({ itemGroupOid: this.props.itemGroupOid }, { vlmState });
@@ -564,7 +593,7 @@ class ConnectedVariableTable extends React.Component {
         // Update the state for all items that have VLM
         vlmState = { global: vlmState.global === 'expand' ? 'collaps' : 'expand' };
         let dataset = this.props.mdv.itemGroups[this.props.itemGroupOid];
-        dataset.itemRefOrder.forEach( itemRefOid => {
+        dataset.itemRefOrder.forEach(itemRefOid => {
             let itemOid = dataset.itemRefs[itemRefOid].itemOid;
             if (this.props.mdv.itemDefs[itemOid].valueListOid !== undefined) {
                 vlmState[itemOid] = type;
@@ -575,7 +604,7 @@ class ConnectedVariableTable extends React.Component {
 
     cleanSelection = () => {
         if (this.state.selectedRows.length > 0 || Object.keys(this.state.selectedVlmRows).length > 0) {
-            this.setState({selectedVlmRows: {}, selectedRows: []});
+            this.setState({ selectedVlmRows: {}, selectedRows: [] });
         }
     }
 
@@ -632,7 +661,7 @@ class ConnectedVariableTable extends React.Component {
         }
 
         let dataset = this.props.mdv.itemGroups[this.props.itemGroupOid];
-        let hasVlm = dataset.itemRefOrder.some( itemRefOid => {
+        let hasVlm = dataset.itemRefOrder.some(itemRefOid => {
             let itemOid = dataset.itemRefs[itemRefOid].itemOid;
             if (this.props.mdv.itemDefs[itemOid].valueListOid !== undefined) {
                 return true;
@@ -642,10 +671,10 @@ class ConnectedVariableTable extends React.Component {
 
         return (
             <Grid container spacing={16} justify='space-between'>
-                <Grid item style={{paddingLeft: '8px'}}>
+                <Grid item style={{ paddingLeft: '8px' }}>
                     { props.components.btnGroup }
                 </Grid>
-                <Grid item style={{paddingRight: '25px'}}>
+                <Grid item style={{ paddingRight: '25px' }}>
                     <Grid container spacing={16} justify='flex-end'>
                         { hasVlm &&
                                 <Grid item>
@@ -655,7 +684,7 @@ class ConnectedVariableTable extends React.Component {
                                         onClick={this.toggleVlmRows(vlmState.global === 'collaps' ? 'expand' : 'collaps')}
                                     >
                                         {vlmState.global === 'collaps' ? 'Expand' : 'Collaps'} VLM
-                                        {vlmState.global === 'collaps' ? <ExpandMoreIcon style={{marginLeft: '7px'}}/> : <ExpandLessIcon style={{marginLeft: '7px'}}/>}
+                                        {vlmState.global === 'collaps' ? <ExpandMoreIcon style={{ marginLeft: '7px' }}/> : <ExpandLessIcon style={{ marginLeft: '7px' }}/>}
                                     </Button>
                                 </Grid>
                         }
@@ -665,7 +694,7 @@ class ConnectedVariableTable extends React.Component {
                                 placement='bottom' enterDelay={1000}
                             >
                                 <Fab size='small' color='default'
-                                    onClick={ () => {this.props.updateSettings({ editor: { enableTablePagination: !this.props.enableTablePagination } });}}
+                                    onClick={ () => { this.props.updateSettings({ editor: { enableTablePagination: !this.props.enableTablePagination } }); }}
                                 >
                                     { this.props.enableTablePagination ? (
                                         <UnfoldMore/>
@@ -682,13 +711,13 @@ class ConnectedVariableTable extends React.Component {
                                 onClick={ () => { this.setState({ showFilter: true }); } }
                             >
                                 Filter
-                                <FilterListIcon style={{marginLeft: '7px'}}/>
+                                <FilterListIcon style={{ marginLeft: '7px' }}/>
                             </Button>
                         </Grid>
                         <Grid item>
                             <Button variant="contained" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
                                 Columns
-                                <RemoveRedEyeIcon style={{marginLeft: '7px'}}/>
+                                <RemoveRedEyeIcon style={{ marginLeft: '7px' }}/>
                             </Button>
                         </Grid>
                     </Grid>
@@ -700,13 +729,20 @@ class ConnectedVariableTable extends React.Component {
     deleteRows = () => {
         if (this.state.selectedRows.length > 0 || Object.keys(this.state.selectedVlmRows).length > 0) {
             let deleteObj = getItemRefsRelatedOids(this.props.mdv, this.props.itemGroupOid, this.state.selectedRows, this.state.selectedVlmRows);
-            this.props.deleteVariables({itemGroupOid: this.props.itemGroupOid}, deleteObj);
-            this.setState({selectedRows: [], selectedVlmRows: {}});
+            this.props.deleteVariables({ itemGroupOid: this.props.itemGroupOid }, deleteObj);
+            this.setState({ selectedRows: [], selectedVlmRows: {} });
         }
     }
 
-    highLightVlmRows = (row, rowIndex) => {
-        return (row.vlmLevel > 0 ? 'vlmRow' : 'variableRow');
+    highLightRows = (row, rowIndex) => {
+        let highlightClass = 'variableRow';
+        if (row.vlmLevel > 0) {
+            highlightClass = 'vlmRow';
+        }
+        if (row.specialHighlight === true) {
+            highlightClass = 'specialHighlight';
+        }
+        return highlightClass;
     }
 
     // Row Selection functions
@@ -721,10 +757,10 @@ class ConnectedVariableTable extends React.Component {
             } else {
                 // If the variable is going to be removed;
                 if (selectedRows.includes(row.itemRefOid)) {
-                    selectedRows.splice(selectedRows.indexOf(row.itemRefOid),1);
+                    selectedRows.splice(selectedRows.indexOf(row.itemRefOid), 1);
                 }
             }
-            this.setState({selectedRows});
+            this.setState({ selectedRows });
         } else {
             let selectedVlmRows = this.state.selectedVlmRows;
             const valueListOid = row.itemGroupOid;
@@ -732,16 +768,16 @@ class ConnectedVariableTable extends React.Component {
                 // If the value level is going to be selected;
                 if (!selectedVlmRows.hasOwnProperty(valueListOid)) {
                     selectedVlmRows[valueListOid] = [row.itemRefOid];
-                }    else if (!selectedVlmRows[valueListOid].includes(row.itemRefOid)) {
+                } else if (!selectedVlmRows[valueListOid].includes(row.itemRefOid)) {
                     selectedVlmRows[valueListOid].push(row.itemRefOid);
                 }
             } else {
                 // If the value level is going to be removed;
                 if (selectedVlmRows.hasOwnProperty(valueListOid) && selectedVlmRows[valueListOid].includes(row.itemRefOid)) {
-                    selectedVlmRows[valueListOid].splice(selectedVlmRows[valueListOid].indexOf(row.itemRefOid),1);
+                    selectedVlmRows[valueListOid].splice(selectedVlmRows[valueListOid].indexOf(row.itemRefOid), 1);
                 }
             }
-            this.setState({selectedVlmRows});
+            this.setState({ selectedVlmRows });
         }
         return true;
     }
@@ -753,16 +789,16 @@ class ConnectedVariableTable extends React.Component {
         if (isSelected === true) {
             // If all rows are going to be selected;
             selectedRows = rows
-                .filter( row => (row.vlmLevel === 0))
-                .map( row => (row.itemRefOid));
+                .filter(row => (row.vlmLevel === 0))
+                .map(row => (row.itemRefOid));
         } else {
             selectedRows = [];
         }
         // (De)select all value levels
         if (isSelected === true) {
             // If all rows are going to be selected;
-            rows.filter( row => (row.vlmLevel === 1))
-                .forEach( row => {
+            rows.filter(row => (row.vlmLevel === 1))
+                .forEach(row => {
                     const valueListOid = row.itemGroupOid;
                     if (selectedVlmRows.hasOwnProperty(valueListOid)) {
                         selectedVlmRows[valueListOid].push(row.itemRefOid);
@@ -773,7 +809,7 @@ class ConnectedVariableTable extends React.Component {
         } else {
             selectedVlmRows = {};
         }
-        this.setState({selectedRows, selectedVlmRows});
+        this.setState({ selectedRows, selectedVlmRows });
         return true;
     }
 
@@ -802,17 +838,17 @@ class ConnectedVariableTable extends React.Component {
         }
         const variables = this.getData();
         // Get the number of variable level items (excluding VLM)
-        const varNum = variables.filter( item => (item.vlmLevel === 0)).length;
+        const varNum = variables.filter(item => (item.vlmLevel === 0)).length;
         // If pagination is enabled, show only some variables, do not apply pagination rules to VLM
         let dataToShow;
         if (this.props.enableTablePagination) {
             let currentVarNumber = -1;
-            dataToShow = variables.filter( item => {
+            dataToShow = variables.filter(item => {
                 // currentVarNumber === -1 check is added in case a filter is applied and VLM is the first record
                 if (item.vlmLevel === 0 || currentVarNumber === -1) {
                     currentVarNumber += 1;
                 }
-                if ( page * rowsPerPage <= currentVarNumber && currentVarNumber < page * rowsPerPage + rowsPerPage) {
+                if (page * rowsPerPage <= currentVarNumber && currentVarNumber < page * rowsPerPage + rowsPerPage) {
                     return true;
                 }
             });
@@ -822,27 +858,27 @@ class ConnectedVariableTable extends React.Component {
 
         // Editor settings
         const cellEditProp = {
-            mode           : 'dbclick',
-            blurToSave     : true,
-            beforeSaveCell : this.onBeforeSaveCell
+            mode: 'dbclick',
+            blurToSave: true,
+            beforeSaveCell: this.onBeforeSaveCell
         };
 
         let selectRowProp;
         if (this.props.showRowSelect) {
             selectRowProp = {
-                mode          : 'checkbox',
-                clickToSelect : true,
-                onSelect      : this.onRowSelected,
-                onSelectAll   : this.onAllRowSelected,
-                columnWidth   : '48px',
+                mode: 'checkbox',
+                clickToSelect: true,
+                onSelect: this.onRowSelected,
+                onSelectAll: this.onAllRowSelected,
+                columnWidth: '48px',
             };
         } else {
             selectRowProp = undefined;
         }
 
         const options = {
-            toolBar  : this.createCustomToolBar,
-            btnGroup : this.createCustomButtonGroup
+            toolBar: this.createCustomToolBar,
+            btnGroup: this.createCustomButtonGroup
         };
 
         let selectedItems;
@@ -851,12 +887,12 @@ class ConnectedVariableTable extends React.Component {
             if (this.state.selectedRows.length > 0 || Object.keys(this.state.selectedVlmRows).length > 0) {
                 let dataset = mdv.itemGroups[this.props.itemGroupOid];
                 selectedItems = [];
-                this.state.selectedRows.forEach( itemRefOid => {
+                this.state.selectedRows.forEach(itemRefOid => {
                     selectedItems.push({ itemGroupOid: this.props.itemGroupOid, itemDefOid: dataset.itemRefs[itemRefOid].itemOid });
                 });
-                Object.keys(this.state.selectedVlmRows).forEach( valueListOid => {
+                Object.keys(this.state.selectedVlmRows).forEach(valueListOid => {
                     let valueList = mdv.valueLists[valueListOid];
-                    this.state.selectedVlmRows[valueListOid].forEach( itemRefOid => {
+                    this.state.selectedVlmRows[valueListOid].forEach(itemRefOid => {
                         selectedItems.push({ itemGroupOid: this.props.itemGroupOid, valueListOid, itemDefOid: valueList.itemRefs[itemRefOid].itemOid });
                     });
                 });
@@ -883,12 +919,12 @@ class ConnectedVariableTable extends React.Component {
                     striped
                     hover
                     remote={ true }
-                    keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}
+                    keyBoardNav={this.props.showRowSelect ? false : { enterToEdit: true }}
                     version='4'
                     cellEdit={this.props.reviewMode || this.props.showRowSelect ? undefined : cellEditProp}
-                    headerStyle={{backgroundColor: indigo[500], color: grey[200], fontSize: '16px'}}
+                    headerStyle={{ backgroundColor: indigo[500], color: grey[200], fontSize: '16px' }}
                     selectRow={selectRowProp}
-                    trClassName={this.highLightVlmRows}
+                    trClassName={this.highLightRows}
                 >
                     {renderColumns(this.state.columns)}
                 </BootstrapTable>
@@ -906,7 +942,7 @@ class ConnectedVariableTable extends React.Component {
                             }}
                             onChangePage={this.handleChangePage}
                             onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                            rowsPerPageOptions={[10,25,50,100]}
+                            rowsPerPageOptions={[10, 25, 50, 100]}
                         />
                 }
                 { this.state.anchorEl !== null &&
@@ -951,24 +987,24 @@ class ConnectedVariableTable extends React.Component {
 }
 
 ConnectedVariableTable.propTypes = {
-    mdv                             : PropTypes.object.isRequired,
-    itemGroupOid                    : PropTypes.string.isRequired,
-    defineVersion                   : PropTypes.string.isRequired,
-    dataTypes                       : PropTypes.array.isRequired,
-    stdColumns                      : PropTypes.object.isRequired,
-    tabSettings                     : PropTypes.object.isRequired,
-    filter                          : PropTypes.object.isRequired,
-    showRowSelect                   : PropTypes.bool,
-    updateItemDef                   : PropTypes.func.isRequired,
-    updateItemRef                   : PropTypes.func.isRequired,
-    updateNameLabelWhereClause      : PropTypes.func.isRequired,
-    updateItemRefKeyOrder           : PropTypes.func.isRequired,
-    updateItemCodeListDisplayFormat : PropTypes.func.isRequired,
-    updateItemDescription           : PropTypes.func.isRequired,
-    deleteVariables                 : PropTypes.func.isRequired,
-    setVlmState                     : PropTypes.func.isRequired,
-    changeTablePageDetails          : PropTypes.func.isRequired,
-    reviewMode                      : PropTypes.bool,
+    mdv: PropTypes.object.isRequired,
+    itemGroupOid: PropTypes.string.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    dataTypes: PropTypes.array.isRequired,
+    stdColumns: PropTypes.object.isRequired,
+    tabSettings: PropTypes.object.isRequired,
+    filter: PropTypes.object.isRequired,
+    showRowSelect: PropTypes.bool,
+    updateItemDef: PropTypes.func.isRequired,
+    updateItemRef: PropTypes.func.isRequired,
+    updateNameLabelWhereClause: PropTypes.func.isRequired,
+    updateItemRefKeyOrder: PropTypes.func.isRequired,
+    updateItemCodeListDisplayFormat: PropTypes.func.isRequired,
+    updateItemDescription: PropTypes.func.isRequired,
+    deleteVariables: PropTypes.func.isRequired,
+    setVlmState: PropTypes.func.isRequired,
+    changeTablePageDetails: PropTypes.func.isRequired,
+    reviewMode: PropTypes.bool,
 };
 
 const VariableTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedVariableTable);

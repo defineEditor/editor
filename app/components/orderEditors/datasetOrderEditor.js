@@ -27,9 +27,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        itemGroupOrder : state.present.odm.study.metaDataVersion.order.itemGroupOrder,
-        itemGroups     : state.present.odm.study.metaDataVersion.itemGroups,
-        reviewMode     : state.present.ui.main.reviewMode,
+        itemGroupOrder: state.present.odm.study.metaDataVersion.order.itemGroupOrder,
+        itemGroups: state.present.odm.study.metaDataVersion.itemGroups,
+        reviewMode: state.present.ui.main.reviewMode,
     };
 };
 
@@ -38,13 +38,12 @@ class DatasetOrderEditorConnected extends React.Component {
         this.props.updateItemGroupOrder(items.map(item => (item.oid)));
     }
 
-    render() {
+    render () {
         let items = [];
 
-        this.props.itemGroupOrder.forEach( itemGroupOid => {
-            items.push({oid: itemGroupOid, name: this.props.itemGroups[itemGroupOid].name});
+        this.props.itemGroupOrder.forEach(itemGroupOid => {
+            items.push({ oid: itemGroupOid, name: this.props.itemGroups[itemGroupOid].name });
         });
-
 
         return (
             <GeneralOrderEditor title='Dataset Order' items={items} onSave={this.onSave} disabled={this.props.reviewMode}/>
@@ -53,11 +52,10 @@ class DatasetOrderEditorConnected extends React.Component {
 }
 
 DatasetOrderEditorConnected.propTypes = {
-    itemGroupOrder : PropTypes.array.isRequired,
-    itemGroups     : PropTypes.object.isRequired,
-    reviewMode     : PropTypes.bool,
+    itemGroupOrder: PropTypes.array.isRequired,
+    itemGroups: PropTypes.object.isRequired,
+    reviewMode: PropTypes.bool,
 };
 
 const DatasetOrderEditor = connect(mapStateToProps, mapDispatchToProps)(DatasetOrderEditorConnected);
 export default DatasetOrderEditor;
-

@@ -45,7 +45,7 @@ class DocumentEditor extends React.Component {
         }
         if (name === 'deleteDocument') {
             let newDocuments = newObject.documents.slice();
-            newDocuments.splice(documentId,1);
+            newDocuments.splice(documentId, 1);
             newObject.documents = newDocuments;
         }
         if (name === 'newDocument') {
@@ -55,11 +55,10 @@ class DocumentEditor extends React.Component {
             let addedIndex = newObject.documents[documentId].pdfPageRefs.push({ ...new PdfPageRef() }) - 1;
             // Default to PhysicalRef
             newObject.documents[documentId].pdfPageRefs[addedIndex].type = 'PhysicalRef';
-
         }
         if (name === 'deletePdfPageRef') {
             let newPdfPageRefs = newObject.documents[documentId].pdfPageRefs.slice();
-            newPdfPageRefs.splice(pdfPageRefId,1);
+            newPdfPageRefs.splice(pdfPageRefId, 1);
             newObject.documents[documentId].pdfPageRefs = newPdfPageRefs;
         }
         if (name === 'updatePdfPageRef') {
@@ -72,7 +71,7 @@ class DocumentEditor extends React.Component {
 
     getPdfPage = (document, documentId, classes) => {
         let result = [];
-        result = result.concat(document.pdfPageRefs.map( (pdfPageRef, index) => {
+        result = result.concat(document.pdfPageRefs.map((pdfPageRef, index) => {
             return (
                 <PdfPageEditor
                     key={index}
@@ -87,7 +86,7 @@ class DocumentEditor extends React.Component {
     }
 
     getDocuments = (documents, documentList, classes) => {
-        return documents.map( (document, index) => {
+        return documents.map((document, index) => {
             let isPdf = false;
             if (this.props.leafs.hasOwnProperty(document.leafId)) {
                 isPdf = this.props.leafs[document.leafId].isPdf;
@@ -98,7 +97,7 @@ class DocumentEditor extends React.Component {
                         <Tooltip title="Remove Document" placement="bottom-end" enterDelay={1000}>
                             <IconButton
                                 color='secondary'
-                                onClick={this.handleChange('deleteDocument',index)}
+                                onClick={this.handleChange('deleteDocument', index)}
                                 className={classes.button}
                             >
                                 <RemoveIcon />
@@ -109,7 +108,7 @@ class DocumentEditor extends React.Component {
                         <ItemSelect
                             options={documentList}
                             value={document.leafId || Object.keys(documentList)[0]}
-                            handleChange={this.handleChange('updateDocument',index)}
+                            handleChange={this.handleChange('updateDocument', index)}
                             label='Document'
                         />
                     </Grid>
@@ -119,7 +118,7 @@ class DocumentEditor extends React.Component {
                                 <IconButton
                                     disabled={!isPdf}
                                     color='primary'
-                                    onClick={this.handleChange('newPdfPageRef',index)}
+                                    onClick={this.handleChange('newPdfPageRef', index)}
                                     className={classes.button}
                                 >
                                     <PictureAsPdf/>
@@ -141,8 +140,8 @@ class DocumentEditor extends React.Component {
         // Get the list of available documents
         const leafs = this.props.leafs;
         let documentList = [];
-        Object.keys(leafs).forEach( (leafId) => {
-            documentList.push({[leafId]: leafs[leafId].title});
+        Object.keys(leafs).forEach((leafId) => {
+            documentList.push({ [leafId]: leafs[leafId].title });
         });
 
         const { classes } = this.props;
@@ -156,8 +155,8 @@ class DocumentEditor extends React.Component {
 }
 
 DocumentEditor.propTypes = {
-    parentObj : PropTypes.object.isRequired,
-    leafs     : PropTypes.object.isRequired,
+    parentObj: PropTypes.object.isRequired,
+    leafs: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(DocumentEditor);

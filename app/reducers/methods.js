@@ -19,7 +19,7 @@ import {
     UPD_ITEMSBULK,
     ADD_VARS,
     ADD_ITEMGROUPS,
-} from "constants/action-types";
+} from 'constants/action-types';
 import { Method, TranslatedText } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
@@ -27,10 +27,10 @@ import clone from 'clone';
 const addMethod = (state, action) => {
     // Check if the item to which method is attached is already referenced
     // in the list of method sources
-    if (action.method.sources.hasOwnProperty(action.source.type)
-        && action.method.sources[action.source.type].hasOwnProperty(action.source.typeOid)
-        && action.method.sources[action.source.type][action.source.typeOid].includes(action.source.oid)) {
-        return {...state, [action.method.oid]: action.method};
+    if (action.method.sources.hasOwnProperty(action.source.type) &&
+        action.method.sources[action.source.type].hasOwnProperty(action.source.typeOid) &&
+        action.method.sources[action.source.type][action.source.typeOid].includes(action.source.oid)) {
+        return { ...state, [action.method.oid]: action.method };
     } else {
         // Add source OID to the list of method sources
         let newSourcesForType;
@@ -41,17 +41,17 @@ const addMethod = (state, action) => {
             } else {
                 newSourcesForTypeGroup = [ action.source.oid ];
             }
-            newSourcesForType = { ...action.method.sources[action.source.type], [action.source.typeOid]: newSourcesForTypeGroup } ;
+            newSourcesForType = { ...action.method.sources[action.source.type], [action.source.typeOid]: newSourcesForTypeGroup };
         } else {
             newSourcesForType = { [action.source.typeOid]: [action.source.oid] };
         }
         let newMethod = { ...new Method({ ...action.method, sources: { ...action.method.sources, [action.source.type]: newSourcesForType } }) };
-        return {...state, [action.method.oid]: newMethod};
+        return { ...state, [action.method.oid]: newMethod };
     }
 };
 
 const updateMethod = (state, action) => {
-    return {...state, [action.method.oid]: action.method};
+    return { ...state, [action.method.oid]: action.method };
 };
 
 const deleteMethod = (state, action) => {
@@ -68,18 +68,18 @@ const deleteMethod = (state, action) => {
         let newState = { ...state };
         delete newState[action.method.oid];
         return newState;
-    } else if (action.method.sources[action.source.type][action.source.typeOid].includes(action.source.oid)){
+    } else if (action.method.sources[action.source.type][action.source.typeOid].includes(action.source.oid)) {
         // Remove referece to the source OID from the list of method sources
         let newSourcesForType = { ...action.method.sources[action.source.type] };
         let newSourcesForTypeGroup = newSourcesForType[action.source.typeOid].slice();
-        newSourcesForTypeGroup.splice(newSourcesForTypeGroup.indexOf(action.source.oid),1);
+        newSourcesForTypeGroup.splice(newSourcesForTypeGroup.indexOf(action.source.oid), 1);
         if (newSourcesForTypeGroup.length === 0) {
             delete newSourcesForType[action.source.typeOid];
         } else {
             newSourcesForType = { ...newSourcesForType, [action.source.typeOid]: newSourcesForTypeGroup };
         }
         let newMethod = { ...new Method({ ...action.method, sources: { ...action.method.sources, [action.source.type]: newSourcesForType } }) };
-        return {...state, [action.method.oid]: newMethod};
+        return { ...state, [action.method.oid]: newMethod };
     } else {
         return state;
     }
@@ -89,13 +89,13 @@ const deleteMethodRefereces = (state, action) => {
     // action.deleteObj.methodOids contains:
     // { methodOids : {methodOid1: { itemGroups : { itemGroupOid1: [itemRefOid1, itemRefOid2]} , valueLists: {  valueListOid1: [itemRefOid3, itemRefOid4] }} }
     let newState = { ...state };
-    Object.keys(action.deleteObj.methodOids).forEach( methodOid => {
+    Object.keys(action.deleteObj.methodOids).forEach(methodOid => {
         Object.keys(action.deleteObj.methodOids[methodOid]).forEach(type => {
             Object.keys(action.deleteObj.methodOids[methodOid][type]).forEach(groupOid => {
                 action.deleteObj.methodOids[methodOid][type][groupOid].forEach(itemRefOid => {
                     let subAction = {};
                     subAction.method = newState[methodOid];
-                    subAction.source ={ type, oid: itemRefOid, typeOid: groupOid };
+                    subAction.source = { type, oid: itemRefOid, typeOid: groupOid };
                     newState = deleteMethod(newState, subAction);
                 });
             });
@@ -120,23 +120,23 @@ const handleItemDescriptionUpdate = (state, action) => {
             // Add a method
             let subAction = {};
             subAction.method = action.updateObj.method;
-            subAction.source ={type, oid: action.source.itemRefOid, typeOid: action.source.itemGroupOid};
+            subAction.source = { type, oid: action.source.itemRefOid, typeOid: action.source.itemGroupOid };
             return addMethod(state, subAction);
         } else if (newMethodOid === undefined) {
             // Delete a method
             let subAction = {};
             subAction.method = action.prevObj.method;
-            subAction.source ={type, oid: action.source.itemRefOid, typeOid: action.source.itemGroupOid};
+            subAction.source = { type, oid: action.source.itemRefOid, typeOid: action.source.itemGroupOid };
             return deleteMethod(state, subAction);
         } else if (newMethodOid !== previousMethodOid) {
             // Method was replaced;
             let subAction = {};
             subAction.method = action.prevObj.method;
-            subAction.source ={type, oid: action.source.itemRefOid, typeOid: action.source.itemGroupOid};
+            subAction.source = { type, oid: action.source.itemRefOid, typeOid: action.source.itemGroupOid };
             let newState = deleteMethod(state, subAction);
             subAction = {};
             subAction.method = action.updateObj.method;
-            subAction.source ={type, oid: action.source.itemRefOid, typeOid: action.source.itemGroupOid};
+            subAction.source = { type, oid: action.source.itemRefOid, typeOid: action.source.itemGroupOid };
             return addMethod(newState, subAction);
         } else {
             // Method was just updated
@@ -144,7 +144,6 @@ const handleItemDescriptionUpdate = (state, action) => {
             subAction.method = action.updateObj.method;
             subAction.oid = action.source.oid;
             return updateMethod(state, subAction);
-
         }
     } else {
         return state;
@@ -157,22 +156,22 @@ const deleteVariableMethods = (state, action) => {
     // DeleteObj.vlmMethodOids contains:
     // {methodOid: { valueListOid1: [itemRefOid1, itemRefOid2] valueListOid2: [itemRefOid3], ...}
     let newState = { ...state };
-    Object.keys(action.deleteObj.methodOids).forEach( methodOid => {
+    Object.keys(action.deleteObj.methodOids).forEach(methodOid => {
         action.deleteObj.methodOids[methodOid].forEach(itemRefOid => {
             let type = 'itemGroups';
             let subAction = {};
             subAction.method = newState[methodOid];
-            subAction.source ={ type, oid: itemRefOid, typeOid: action.source.itemGroupOid };
+            subAction.source = { type, oid: itemRefOid, typeOid: action.source.itemGroupOid };
             newState = deleteMethod(newState, subAction);
         });
     });
-    Object.keys(action.deleteObj.vlmMethodOids).forEach( methodOid => {
-        Object.keys(action.deleteObj.vlmMethodOids[methodOid]).forEach ( valueListOid => {
+    Object.keys(action.deleteObj.vlmMethodOids).forEach(methodOid => {
+        Object.keys(action.deleteObj.vlmMethodOids[methodOid]).forEach(valueListOid => {
             action.deleteObj.vlmMethodOids[methodOid][valueListOid].forEach(itemRefOid => {
                 let type = 'valueLists';
                 let subAction = {};
                 subAction.method = newState[methodOid];
-                subAction.source ={ type, oid: itemRefOid, typeOid: valueListOid };
+                subAction.source = { type, oid: itemRefOid, typeOid: valueListOid };
                 newState = deleteMethod(newState, subAction);
             });
         });
@@ -185,8 +184,8 @@ const deleteItemGroups = (state, action) => {
     // {[itemGroupOid] : methodOids: { methodOid1: {}, methodOid2 : {}, ....]}}
     // {[itemGroupOid] : vlmMethodOids: { ... }}
     let newState = { ...state };
-    Object.keys(action.deleteObj.itemGroupData).forEach( itemGroupOid => {
-        let subAction = {deleteObj: {}, source: { itemGroupOid }};
+    Object.keys(action.deleteObj.itemGroupData).forEach(itemGroupOid => {
+        let subAction = { deleteObj: {}, source: { itemGroupOid } };
         subAction.deleteObj.methodOids = action.deleteObj.itemGroupData[itemGroupOid].methodOids;
         subAction.deleteObj.vlmMethodOids = action.deleteObj.itemGroupData[itemGroupOid].vlmMethodOids;
         newState = deleteVariableMethods(newState, subAction);
@@ -202,7 +201,7 @@ const handleItemsBulkUpdate = (state, action) => {
         let itemDefItemRefMap = action.updateObj.itemDefItemRefMap;
         let itemGroupItemRefs = { valueLists: {}, itemGroups: {} };
         action.updateObj.selectedItems
-            .forEach( item => {
+            .forEach(item => {
                 if (item.valueListOid === undefined) {
                     if (itemGroupItemRefs.itemGroups.hasOwnProperty(item.itemGroupOid)) {
                         itemGroupItemRefs.itemGroups[item.itemGroupOid].push(itemDefItemRefMap[item.itemGroupOid][item.itemDefOid]);
@@ -223,17 +222,17 @@ const handleItemsBulkUpdate = (state, action) => {
         if (field.updateType === 'set') {
             // Delete references
             let deleteOids = {};
-            Object.keys(state).forEach( methodOid => {
+            Object.keys(state).forEach(methodOid => {
                 let method = state[methodOid];
                 if (value !== undefined && value.oid === methodOid) {
                     // Do not update the method which is assigned
                     return;
                 }
                 deleteOids[methodOid] = { itemGroups: {}, valueLists: {} };
-                Object.keys(itemGroupItemRefs).forEach ( type => {
+                Object.keys(itemGroupItemRefs).forEach(type => {
                     Object.keys(itemGroupItemRefs[type]).forEach(groupOid => {
                         deleteOids[methodOid][type][groupOid] = [];
-                        itemGroupItemRefs[type][groupOid].forEach( itemRefOid => {
+                        itemGroupItemRefs[type][groupOid].forEach(itemRefOid => {
                             if (method.sources[type].hasOwnProperty(groupOid) && method.sources[type][groupOid].includes(itemRefOid)) {
                                 deleteOids[methodOid][type][groupOid].push(itemRefOid);
                             }
@@ -259,10 +258,10 @@ const handleItemsBulkUpdate = (state, action) => {
                 if (Object.keys(newState).includes(value.oid)) {
                     let currentMethod = newState[value.oid];
                     let newSources = clone(value.sources);
-                    Object.keys(itemGroupItemRefs).forEach ( type => {
+                    Object.keys(itemGroupItemRefs).forEach(type => {
                         Object.keys(itemGroupItemRefs[type]).forEach(groupOid => {
                             if (newSources[type].hasOwnProperty(groupOid)) {
-                                itemGroupItemRefs[type][groupOid].forEach( itemRefOid => {
+                                itemGroupItemRefs[type][groupOid].forEach(itemRefOid => {
                                     if (!newSources[type][groupOid].includes(itemRefOid)) {
                                         newSources[type][groupOid].push(itemRefOid);
                                     }
@@ -272,10 +271,10 @@ const handleItemsBulkUpdate = (state, action) => {
                             }
                         });
                     });
-                    newState = { ...newState, [currentMethod.oid] : { ...new Method({ ...currentMethod, sources: newSources }) } };
+                    newState = { ...newState, [currentMethod.oid]: { ...new Method({ ...currentMethod, sources: newSources }) } };
                 } else {
                     // Add new method
-                    newState = { ...newState, [value.oid] : { ...new Method({ ...value, sources: itemGroupItemRefs }) } };
+                    newState = { ...newState, [value.oid]: { ...new Method({ ...value, sources: itemGroupItemRefs }) } };
                 }
             }
             return newState;
@@ -294,7 +293,7 @@ const handleItemsBulkUpdate = (state, action) => {
             }
             // Replace is update of the method text
             let updatedMethods = {};
-            Object.keys(state).forEach( methodOid => {
+            Object.keys(state).forEach(methodOid => {
                 let method = state[methodOid];
                 // Check if method has selected sources
                 let updateNeeded = Object.keys(itemGroupItemRefs).some(type => {
@@ -312,8 +311,8 @@ const handleItemsBulkUpdate = (state, action) => {
                 }
                 let newDescriptions = method.descriptions.slice();
                 let updated = false;
-                method.descriptions.forEach( (description, index) => {
-                    let currentValue =  description.value || '';
+                method.descriptions.forEach((description, index) => {
+                    let currentValue = description.value || '';
                     if (regex === false && regExp !== undefined && regExp.test(currentValue)) {
                         let newDescription = { ...new TranslatedText({ ...description, value: currentValue.replace(regExp, escapedTarget) }) };
                         newDescriptions.splice(index, 1, newDescription);
@@ -340,14 +339,12 @@ const handleAddVariables = (state, action) => {
     // Find all added ItemRefs with method links, which do not link to any of the new methods
     let methodSourceUpdated = {};
     // For itemGroups
-    Object.keys(action.updateObj.itemRefs).forEach( itemGroupOid => {
+    Object.keys(action.updateObj.itemRefs).forEach(itemGroupOid => {
         let itemRefs = action.updateObj.itemRefs[itemGroupOid];
-        Object.keys(itemRefs).forEach( itemRefOid => {
+        Object.keys(itemRefs).forEach(itemRefOid => {
             let itemRef = itemRefs[itemRefOid];
-            if (itemRef.methodOid !== undefined
-                &&
-                !action.updateObj.methods.hasOwnProperty(itemRef.methodOid)
-                &&
+            if (itemRef.methodOid !== undefined &&
+                !action.updateObj.methods.hasOwnProperty(itemRef.methodOid) &&
                 state.hasOwnProperty(itemRef.methodOid)
             ) {
                 if (methodSourceUpdated.hasOwnProperty(itemRef.methodOid)) {
@@ -359,14 +356,12 @@ const handleAddVariables = (state, action) => {
         });
     });
     // For valueLists
-    Object.keys(action.updateObj.valueLists).forEach( valueListOid => {
+    Object.keys(action.updateObj.valueLists).forEach(valueListOid => {
         let itemRefs = action.updateObj.valueLists[valueListOid].itemRefs;
-        Object.keys(itemRefs).forEach( itemRefOid => {
+        Object.keys(itemRefs).forEach(itemRefOid => {
             let itemRef = itemRefs[itemRefOid];
-            if (itemRef.methodOid !== undefined
-                &&
-                !action.updateObj.methods.hasOwnProperty(itemRef.methodOid)
-                &&
+            if (itemRef.methodOid !== undefined &&
+                !action.updateObj.methods.hasOwnProperty(itemRef.methodOid) &&
                 state.hasOwnProperty(itemRef.methodOid)
             ) {
                 if (methodSourceUpdated.hasOwnProperty(itemRef.methodOid)) {
@@ -383,11 +378,11 @@ const handleAddVariables = (state, action) => {
     });
     // Add sources
     let updatedMethods = {};
-    Object.keys(methodSourceUpdated).forEach( methodOid => {
+    Object.keys(methodSourceUpdated).forEach(methodOid => {
         let method = state[methodOid];
         let newSources = clone(method.sources);
-        Object.keys(methodSourceUpdated[methodOid]).forEach( type => {
-            Object.keys(methodSourceUpdated[methodOid][type]).forEach( groupOid => {
+        Object.keys(methodSourceUpdated[methodOid]).forEach(type => {
+            Object.keys(methodSourceUpdated[methodOid][type]).forEach(groupOid => {
                 if (newSources[type].hasOwnProperty(groupOid)) {
                     newSources[type][groupOid] = newSources[type][groupOid].concat(methodSourceUpdated[methodOid][type][groupOid]);
                 } else {
@@ -408,7 +403,7 @@ const handleAddVariables = (state, action) => {
 const handleAddItemGroups = (state, action) => {
     const { itemGroups } = action.updateObj;
     let newState = { ...state };
-    Object.values(itemGroups).forEach( itemGroupData => {
+    Object.values(itemGroups).forEach(itemGroupData => {
         newState = handleAddVariables(newState, { updateObj: itemGroupData });
     });
     return newState;

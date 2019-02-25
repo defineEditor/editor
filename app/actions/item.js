@@ -29,38 +29,38 @@ import {
     UPD_NAMELABELWHERECLAUSE,
     UPD_ITEMSBULK,
     UPD_LOADACTUALDATA,
-} from "constants/action-types";
+} from 'constants/action-types';
 
 // Item Ref/Def actions
 export const updateItemDef = (oid, updateObj) => (
     {
-        type      : UPD_ITEMDEF,
-        oid       : oid,
-        updateObj : updateObj,
+        type: UPD_ITEMDEF,
+        oid: oid,
+        updateObj: updateObj,
     }
 );
 
 export const updateItemsBulk = (updateObj) => (
     {
-        type      : UPD_ITEMSBULK,
-        updateObj : updateObj,
+        type: UPD_ITEMSBULK,
+        updateObj: updateObj,
     }
 );
 
 export const updateItemRef = (source, updateObj) => (
     {
-        type      : UPD_ITEMREF,
-        source    : source,
-        updateObj : updateObj,
+        type: UPD_ITEMREF,
+        source: source,
+        updateObj: updateObj,
     }
 );
 
 export const updateItemRefKeyOrder = (source, updateObj, prevObj) => (
     {
-        type      : UPD_ITEMREFKEYORDER,
-        source    : source,
-        updateObj : updateObj,
-        prevObj   : prevObj,
+        type: UPD_ITEMREFKEYORDER,
+        source: source,
+        updateObj: updateObj,
+        prevObj: prevObj,
     }
 );
 
@@ -82,19 +82,19 @@ export const updateVlmItemRefOrder = (valueListOid, itemRefOrder) => (
 
 export const updateItemCodeListDisplayFormat = (oid, updateObj, prevObj) => (
     {
-        type      : UPD_ITEMCLDF,
-        oid       : oid,
-        updateObj : updateObj,
-        prevObj   : prevObj,
+        type: UPD_ITEMCLDF,
+        oid: oid,
+        updateObj: updateObj,
+        prevObj: prevObj,
     }
 );
 
 export const updateItemDescription = (source, updateObj, prevObj) => (
     {
-        type      : UPD_ITEMDESCRIPTION,
-        source    : source,
-        updateObj : updateObj,
-        prevObj   : prevObj,
+        type: UPD_ITEMDESCRIPTION,
+        source: source,
+        updateObj: updateObj,
+        prevObj: prevObj,
     }
 );
 
@@ -108,11 +108,11 @@ export const updateNameLabelWhereClause = (source, updateObj) => (
 
 export const addVariable = (source, itemRef, itemDef, orderNumber) => (
     {
-        type        : ADD_VAR,
-        source      : source,
-        itemRef     : itemRef,
-        itemDef     : itemDef,
-        orderNumber : orderNumber,
+        type: ADD_VAR,
+        source: source,
+        itemRef: itemRef,
+        itemDef: itemDef,
+        orderNumber: orderNumber,
     }
 );
 

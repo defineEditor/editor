@@ -26,9 +26,8 @@ const styles = theme => ({
 });
 
 class datasetFlagsFormatter extends React.Component {
-
     render () {
-        const { value }  = this.props;
+        const { value } = this.props;
 
         const repeatingTooltipText = value.repeating === 'Yes' ? 'Repeating' : 'Not repeating';
 
@@ -59,8 +58,8 @@ class datasetFlagsFormatter extends React.Component {
 }
 
 datasetFlagsFormatter.propTypes = {
-    value         : PropTypes.object,
-    defineVersion : PropTypes.string.isRequired,
+    value: PropTypes.object,
+    defineVersion: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(datasetFlagsFormatter);

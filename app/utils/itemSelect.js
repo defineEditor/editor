@@ -22,12 +22,12 @@ import Select from '@material-ui/core/Select';
 
 const styles = theme => ({
     container: {
-        display  : 'flex',
-        flexWrap : 'wrap',
+        display: 'flex',
+        flexWrap: 'wrap',
     },
     formControl: {
-        margin   : 'normal',
-        minWidth : 100,
+        margin: 'normal',
+        minWidth: 100,
     },
     selectEmpty: {
         marginTop: theme.spacing.unit * 2,
@@ -48,11 +48,11 @@ class ItemSelect extends React.Component {
             if (this.props.optional === true) {
                 list.push(<MenuItem key='0' value=""><em>None</em></MenuItem>);
             }
-            this.props.options.forEach( (value, index) => {
+            this.props.options.forEach((value, index) => {
                 if (typeof value === 'object') {
-                    list.push(<MenuItem key={index+1} value={Object.keys(value)[0]}>{value[Object.keys(value)[0]]}</MenuItem>);
+                    list.push(<MenuItem key={index + 1} value={Object.keys(value)[0]}>{value[Object.keys(value)[0]]}</MenuItem>);
                 } else {
-                    list.push(<MenuItem key={index+1} value={value}>{value}</MenuItem>);
+                    list.push(<MenuItem key={index + 1} value={value}>{value}</MenuItem>);
                 }
             });
         }
@@ -63,8 +63,8 @@ class ItemSelect extends React.Component {
         this.props.handleChange(event);
     }
 
-    render() {
-        const {classes, label, value} = this.props;
+    render () {
+        const { classes, label, value } = this.props;
 
         return (
             <form className={classes.container} autoComplete="off">
@@ -73,7 +73,7 @@ class ItemSelect extends React.Component {
                     <Select
                         value={value}
                         onChange={this.handleChange}
-                        inputProps={{name: 'selector'}}
+                        inputProps={{ name: 'selector' }}
                     >
                         {this.getSelectionList()}
                     </Select>
@@ -84,10 +84,9 @@ class ItemSelect extends React.Component {
 }
 
 ItemSelect.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    options      : PropTypes.array.isRequired,
-    handleChange : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    options: PropTypes.array.isRequired,
+    handleChange: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(ItemSelect);
-

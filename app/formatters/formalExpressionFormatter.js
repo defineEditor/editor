@@ -26,7 +26,6 @@ const styles = theme => ({
     },
 });
 
-
 class formalExpressionFormatter extends React.Component {
     render () {
         const { classes } = this.props;
@@ -36,7 +35,7 @@ class formalExpressionFormatter extends React.Component {
                 result.push(<div className={classes.context} key={'c' + index}>{formalExpression.context}</div>);
             }
             if (formalExpression.value !== undefined) {
-                result.push(<div className={classes.value} key={'v'+index}>{formalExpression.value}</div>);
+                result.push(<div className={classes.value} key={'v' + index}>{formalExpression.value}</div>);
             }
         });
 
@@ -49,8 +48,8 @@ class formalExpressionFormatter extends React.Component {
 }
 
 formalExpressionFormatter.propTypes = {
-    formalExpressions : PropTypes.array.isRequired,
-    classes           : PropTypes.object
+    formalExpressions: PropTypes.array.isRequired,
+    classes: PropTypes.object
 };
 
 export default withStyles(styles)(formalExpressionFormatter);

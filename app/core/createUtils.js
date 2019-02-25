@@ -47,9 +47,9 @@ export function createTranslatedText (data, version) {
     let result = {};
     if (version === '2.0.0') {
         if (data.value !== undefined) {
-            result = {'TranslatedText': {'#text': data.value}};
+            result = { 'TranslatedText': { '#text': data.value } };
         } else {
-            result = {'TranslatedText': {'#text': ''}};
+            result = { 'TranslatedText': { '#text': '' } };
         }
         if (data.lang !== undefined) {
             result['TranslatedText']['@xml:lang'] = data.lang;

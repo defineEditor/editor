@@ -14,11 +14,11 @@
 
 import getArmAnalysisResultOids from 'utils/getArmAnalysisResultOids.js';
 
-function getArmResultDisplayOids(resultDisplays, analysisResults, resultDisplayOids) {
+function getArmResultDisplayOids (resultDisplays, analysisResults, resultDisplayOids) {
     // Get the list AnalysisResults;
     let analysisResultOids = [];
     resultDisplayOids.forEach(resultDisplayOid => {
-        resultDisplays[resultDisplayOid].analysisResultOrder.forEach( analysisResultOid => {
+        resultDisplays[resultDisplayOid].analysisResultOrder.forEach(analysisResultOid => {
             analysisResultOids.push(analysisResultOid);
         });
     });

@@ -29,18 +29,18 @@ class LeafEditor extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            dictionary : props.defaultValue.dictionary || '',
-            version    : props.defaultValue.version || '',
-            href       : props.defaultValue.href || '',
-            ref        : props.defaultValue.ref || '',
+            dictionary: props.defaultValue.dictionary || '',
+            version: props.defaultValue.version || '',
+            href: props.defaultValue.href || '',
+            ref: props.defaultValue.ref || '',
         };
     }
 
     handleChange = name => event => {
-        this.setState({[name]: event.target.value});
+        this.setState({ [name]: event.target.value });
     };
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.cancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -50,7 +50,7 @@ class LeafEditor extends React.Component {
 
     save = () => {
         let result = {};
-        Object.keys(this.state).forEach( key => {
+        Object.keys(this.state).forEach(key => {
             if (this.state[key] === '') {
                 result[key] = undefined;
             } else {
@@ -115,9 +115,9 @@ class LeafEditor extends React.Component {
 }
 
 LeafEditor.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    defaultValue : PropTypes.object.isRequired,
-    onUpdate     : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    defaultValue: PropTypes.object.isRequired,
+    onUpdate: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(LeafEditor);

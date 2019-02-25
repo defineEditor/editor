@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-function checkForSpecialChars(value, regex = new RegExp(/[^\u0020-\u007f]/,'g'), prefix = 'Special character') {
+function checkForSpecialChars (value, regex = new RegExp(/[^\u0020-\u007f]/, 'g'), prefix = 'Special character') {
     let issues = [];
     let issueText;
     let result;
@@ -34,7 +34,7 @@ function checkForSpecialChars(value, regex = new RegExp(/[^\u0020-\u007f]/,'g'),
             issueText = `${prefix} ${result[0]} found at position ${result.index}`;
         }
         if (result.index > 0) {
-            let prevString = value.slice(0,result.index).replace(/\s/g,' ');
+            let prevString = value.slice(0, result.index).replace(/\s/g, ' ');
             let previousWord = /^.*?\s?(\S+)\s*$/.exec(prevString);
             if (previousWord !== null && previousWord.length > 1) {
                 issueText = issueText + ` after word "${previousWord[1]}"`;

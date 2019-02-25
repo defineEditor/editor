@@ -23,7 +23,7 @@ import {
     DEL_ANALYSISRESULT,
     UPD_ANALYSISRESULT,
     UPD_ANALYSISRESULTORDER,
-} from "constants/action-types";
+} from 'constants/action-types';
 
 // ARM actions
 export const updateResultDisplay = (updateObj) => (

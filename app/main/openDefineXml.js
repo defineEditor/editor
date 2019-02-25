@@ -22,7 +22,7 @@ function sendToRender (mainWindow, pathToDefineXml) {
     };
 }
 
-function sendErrorToRender (mainWindow)  {
+function sendErrorToRender (mainWindow) {
     return function (errorObject) {
         mainWindow.webContents.send('defineReadError', errorObject.message);
     };
@@ -41,9 +41,9 @@ function openDefineXml (mainWindow) {
     dialog.showOpenDialog(
         mainWindow,
         {
-            title      : 'Open Define-XML',
-            filters    : [{name: 'XML files', extensions: ['xml']}],
-            properties : ['openFile'],
+            title: 'Open Define-XML',
+            filters: [{ name: 'XML files', extensions: ['xml'] }],
+            properties: ['openFile'],
 
         },
         readDefineXml(mainWindow));

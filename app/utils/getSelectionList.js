@@ -20,7 +20,7 @@ function getSelectionList (rawList, optional, disabledItems) {
     // If list is an object. transform it to array
     let list = [];
     if (Object.prototype.toString.call(rawList) === '[object Object]') {
-        Object.keys(rawList).forEach( property => {
+        Object.keys(rawList).forEach(property => {
             list.push({ [property]: rawList[property] });
         });
     } else if (Array.isArray(rawList)) {
@@ -33,34 +33,34 @@ function getSelectionList (rawList, optional, disabledItems) {
         return [];
     } else {
         let elementIsObject = false;
-        if  ( typeof list[0] === 'object') {
+        if (typeof list[0] === 'object') {
             elementIsObject = true;
         }
         if (optional === true) {
             selectionList.push(<MenuItem key='0' value=''></MenuItem>);
         }
         if (disabledItems === undefined) {
-            list.forEach( (value, index) => {
+            list.forEach((value, index) => {
                 if (elementIsObject) {
-                    selectionList.push(<MenuItem key={index+1} value={Object.keys(value)[0]}>{value[Object.keys(value)[0]]}</MenuItem>);
+                    selectionList.push(<MenuItem key={index + 1} value={Object.keys(value)[0]}>{value[Object.keys(value)[0]]}</MenuItem>);
                 } else {
-                    selectionList.push(<MenuItem key={index+1} value={value}>{value}</MenuItem>);
+                    selectionList.push(<MenuItem key={index + 1} value={value}>{value}</MenuItem>);
                 }
             });
         } else {
-            list.forEach( (value, index) => {
+            list.forEach((value, index) => {
                 if (elementIsObject) {
                     let id = Object.keys(value)[0];
                     if (disabledItems.includes(id)) {
-                        selectionList.push(<MenuItem key={index+1} value={id} disabled={true}>{value[id]}</MenuItem>);
+                        selectionList.push(<MenuItem key={index + 1} value={id} disabled={true}>{value[id]}</MenuItem>);
                     } else {
-                        selectionList.push(<MenuItem key={index+1} value={id}>{value[id]}</MenuItem>);
+                        selectionList.push(<MenuItem key={index + 1} value={id}>{value[id]}</MenuItem>);
                     }
                 } else {
                     if (disabledItems.includes(value)) {
-                        selectionList.push(<MenuItem key={index+1} value={value} disabled={true}>{value}</MenuItem>);
+                        selectionList.push(<MenuItem key={index + 1} value={value} disabled={true}>{value}</MenuItem>);
                     } else {
-                        selectionList.push(<MenuItem key={index+1} value={value}>{value}</MenuItem>);
+                        selectionList.push(<MenuItem key={index + 1} value={value}>{value}</MenuItem>);
                     }
                 }
             });

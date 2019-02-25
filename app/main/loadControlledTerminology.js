@@ -20,9 +20,9 @@ import parseStdCodeLists from '../parsers/parseStdCodeLists.js';
 const readFile = promisify(fs.readFile);
 const parseString = promisify(xml2js.parseString);
 
-async function loadControlledTerminology(mainWindow, ctToLoad) {
+async function loadControlledTerminology (mainWindow, ctToLoad) {
     let files = {};
-    Object.keys(ctToLoad).forEach( ctId => {
+    Object.keys(ctToLoad).forEach(ctId => {
         files[ctId] = ctToLoad[ctId].pathToFile;
     });
 

@@ -42,9 +42,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
-        codeLists     : state.present.odm.study.metaDataVersion.codeLists,
-        codeListTypes : state.present.stdConstants.codeListTypes,
+        defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
+        codeLists: state.present.odm.study.metaDataVersion.codeLists,
+        codeListTypes: state.present.stdConstants.codeListTypes,
     };
 };
 
@@ -52,16 +52,15 @@ class AddVariableEditorConnected extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            name         : '',
-            codeListType : 'decoded',
+            name: '',
+            codeListType: 'decoded',
         };
-
     }
 
     resetState = () => {
         this.setState({
-            name         : '',
-            codeListType : 'decoded',
+            name: '',
+            codeListType: 'decoded',
         });
     }
 
@@ -74,22 +73,22 @@ class AddVariableEditorConnected extends React.Component {
         let codeListOid = getOid('CodeList', undefined, codeListOids);
         // Get all possible IDs
         this.props.addCodeList({
-            oid          : codeListOid,
-            name         : this.state.name,
-            codeListType : this.state.codeListType,
+            oid: codeListOid,
+            name: this.state.name,
+            codeListType: this.state.codeListType,
         });
         this.resetState();
         this.props.onClose();
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.ctrlKey && (event.keyCode === 83)) {
             this.handleSaveAndClose();
         }
     }
 
-    render() {
-        const {classes} = this.props;
+    render () {
+        const { classes } = this.props;
 
         return (
             <Grid container spacing={8} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
@@ -130,11 +129,11 @@ class AddVariableEditorConnected extends React.Component {
 }
 
 AddVariableEditorConnected.propTypes = {
-    classes       : PropTypes.object.isRequired,
-    codeLists     : PropTypes.object.isRequired,
-    codeListTypes : PropTypes.array.isRequired,
-    defineVersion : PropTypes.string.isRequired,
-    disabled      : PropTypes.bool,
+    classes: PropTypes.object.isRequired,
+    codeLists: PropTypes.object.isRequired,
+    codeListTypes: PropTypes.array.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    disabled: PropTypes.bool,
 };
 
 const AddVariableEditor = connect(mapStateToProps, mapDispatchToProps)(AddVariableEditorConnected);

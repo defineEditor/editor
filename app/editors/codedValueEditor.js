@@ -22,7 +22,7 @@ import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
 
 const mapStateToProps = state => {
     return {
-        enableSelectForStdCodedValues : state.present.settings.editor.enableSelectForStdCodedValues,
+        enableSelectForStdCodedValues: state.present.settings.editor.enableSelectForStdCodedValues,
     };
 };
 
@@ -30,14 +30,14 @@ class ConnectedCodedValueEditor extends React.Component {
     render () {
         let stdCodeList = this.props.row.stdCodeList;
         let codeList = this.props.row.codeList;
-        if (stdCodeList!== undefined && this.props.enableSelectForStdCodedValues) {
+        if (stdCodeList !== undefined && this.props.enableSelectForStdCodedValues) {
             let stdCodeListData = getCodeListData(stdCodeList).codeListTable;
             let existingValues = getCodedValuesAsArray(codeList);
             let options = stdCodeListData
-                .filter( item => (!existingValues.includes(item.value) || item.value === this.props.defaultValue))
-                .map( item => ({
-                    value : item.value,
-                    label : item.value + ' (' + item.decode + ')',
+                .filter(item => (!existingValues.includes(item.value) || item.value === this.props.defaultValue))
+                .map(item => ({
+                    value: item.value,
+                    label: item.value + ' (' + item.decode + ')',
                 }));
             // If current value is not from the standard codelist, still include it
             if (!getCodedValuesAsArray(stdCodeList).includes(this.props.defaultValue)) {
@@ -53,8 +53,8 @@ class ConnectedCodedValueEditor extends React.Component {
             );
         } else {
             let options = {
-                checkForSpecialChars : { type: 'Error' },
-                lengthLimit          : { type: 'Error', maxLength: 200 },
+                checkForSpecialChars: { type: 'Error' },
+                lengthLimit: { type: 'Error', maxLength: 200 },
             };
             return (<SimpleInputEditor onUpdate={ this.props.onUpdate } {...this.props} options={options}/>);
         }
@@ -62,10 +62,10 @@ class ConnectedCodedValueEditor extends React.Component {
 }
 
 ConnectedCodedValueEditor.propTypes = {
-    defaultValue                  : PropTypes.string.isRequired,
-    row                           : PropTypes.object.isRequired,
-    enableSelectForStdCodedValues : PropTypes.bool,
-    onUpdate                      : PropTypes.func
+    defaultValue: PropTypes.string.isRequired,
+    row: PropTypes.object.isRequired,
+    enableSelectForStdCodedValues: PropTypes.bool,
+    onUpdate: PropTypes.func
 };
 
 const CodedValueEditor = connect(mapStateToProps)(ConnectedCodedValueEditor);

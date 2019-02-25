@@ -26,13 +26,12 @@ import FormattingControlIcons from 'formatters/formattingControlIcons.js';
 
 const styles = theme => ({
     mainPart: {
-        padding   : 16,
-        marginTop : theme.spacing.unit,
+        padding: 16,
+        marginTop: theme.spacing.unit,
     },
 });
 
 class ControlledTerminologyFormatter extends React.Component {
-
     getControlledTerminologies = () => {
         let standards = this.props.standards;
         let stdCodeLists = this.props.stdCodeLists;
@@ -64,7 +63,7 @@ class ControlledTerminologyFormatter extends React.Component {
 
         return (
             <Paper className={classes.mainPart} elevation={4}>
-                <Typography variant="headline" component="h3">
+                <Typography variant="h5">
                     Controlled Terminology
                     <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>
@@ -86,12 +85,12 @@ class ControlledTerminologyFormatter extends React.Component {
 }
 
 ControlledTerminologyFormatter.propTypes = {
-    standards     : PropTypes.object.isRequired,
-    standardOrder : PropTypes.array.isRequired,
-    stdCodeLists  : PropTypes.object.isRequired,
-    classes       : PropTypes.object.isRequired,
-    onEdit        : PropTypes.func.isRequired,
-    onComment     : PropTypes.func,
+    standards: PropTypes.object.isRequired,
+    standardOrder: PropTypes.array.isRequired,
+    stdCodeLists: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired,
+    onEdit: PropTypes.func.isRequired,
+    onComment: PropTypes.func,
 };
 
 export default withStyles(styles)(ControlledTerminologyFormatter);

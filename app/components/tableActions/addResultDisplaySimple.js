@@ -40,8 +40,8 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     return {
-        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
-        resultDisplays : state.present.odm.study.metaDataVersion.analysisResultDisplays.resultDisplays,
+        defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
+        resultDisplays: state.present.odm.study.metaDataVersion.analysisResultDisplays.resultDisplays,
     };
 };
 
@@ -50,19 +50,18 @@ class AddVariableSimpleConnected extends React.Component {
         super(props);
         const maxOrderNum = Object.keys(this.props.resultDisplays).length + 1;
         this.state = {
-            name         : '',
-            orderNumber  : this.props.position || maxOrderNum,
-            maxOrderNum  : maxOrderNum,
+            name: '',
+            orderNumber: this.props.position || maxOrderNum,
+            maxOrderNum: maxOrderNum,
         };
-
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
+    static getDerivedStateFromProps (nextProps, prevState) {
         let maxOrderNum = Object.keys(nextProps.resultDisplays).length + 1;
-        if ( maxOrderNum !== prevState.maxOrderNum) {
+        if (maxOrderNum !== prevState.maxOrderNum) {
             return ({
-                orderNumber : nextProps.position || maxOrderNum,
-                maxOrderNum : maxOrderNum,
+                orderNumber: nextProps.position || maxOrderNum,
+                maxOrderNum: maxOrderNum,
             });
         } else {
             return null;
@@ -71,8 +70,8 @@ class AddVariableSimpleConnected extends React.Component {
 
     resetState = () => {
         this.setState({
-            name         : '',
-            orderNumber  : this.props.position || this.state.maxOrderNum,
+            name: '',
+            orderNumber: this.props.position || this.state.maxOrderNum,
         });
     }
 
@@ -81,12 +80,12 @@ class AddVariableSimpleConnected extends React.Component {
             this.setState({ [name]: event.target.value });
         } else if (name === 'orderNumber') {
             if (event.target.value >= 1 && event.target.value <= this.state.maxOrderNum) {
-                this.setState({[name]: event.target.value});
+                this.setState({ [name]: event.target.value });
             }
         }
     }
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.handleClose();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -100,7 +99,7 @@ class AddVariableSimpleConnected extends React.Component {
         this.props.onClose();
     }
 
-    render() {
+    render () {
         const { classes } = this.props;
 
         return (
@@ -118,7 +117,7 @@ class AddVariableSimpleConnected extends React.Component {
                     <TextField
                         label='Position'
                         type='number'
-                        InputLabelProps={{shrink: true}}
+                        InputLabelProps={{ shrink: true }}
                         value={this.state.orderNumber}
                         onChange={this.handleChange('orderNumber')}
                         className={classes.inputField}
@@ -141,13 +140,12 @@ class AddVariableSimpleConnected extends React.Component {
 }
 
 AddVariableSimpleConnected.propTypes = {
-    classes        : PropTypes.object.isRequired,
-    resultDisplays : PropTypes.object.isRequired,
-    defineVersion  : PropTypes.string.isRequired,
-    position       : PropTypes.number,
-    onClose        : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    resultDisplays: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    position: PropTypes.number,
+    onClose: PropTypes.func.isRequired,
 };
 
 const AddVariableSimple = connect(mapStateToProps, mapDispatchToProps)(AddVariableSimpleConnected);
 export default withStyles(styles)(AddVariableSimple);
-

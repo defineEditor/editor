@@ -22,7 +22,7 @@ function getColumnHiddenStatus (prevColumns, nextColumns, showRowSelect) {
     Object.keys(nextColumns).forEach(columnName => {
         let columnSettings = nextColumns[columnName];
         // Skip this step for the oid column as its view is controlled by showRowSelect
-        if ( columns.hasOwnProperty(columnName) && columnSettings.hidden !== columns[columnName].hidden && columnName !== 'oid') {
+        if (columns.hasOwnProperty(columnName) && columnSettings.hidden !== columns[columnName].hidden && columnName !== 'oid') {
             columns = { ...columns, [columnName]: { ...columns[columnName], hidden: columnSettings.hidden } };
         }
     });

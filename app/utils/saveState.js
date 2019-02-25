@@ -15,12 +15,15 @@
 import EStore from 'electron-store';
 import { ipcRenderer } from 'electron';
 import store from 'store/index.js';
+import getDefineStats from 'utils/getDefineStats.js';
 import {
     appSave,
 } from 'actions/index.js';
 
 function saveDefineXml (odm, pathToFile) {
-    ipcRenderer.once('defineSaved', (event, defineId) => { store.dispatch(appSave({ defineId })); });
+    // Get number of datasets/codelists/variables
+    let stats = getDefineStats(odm);
+    ipcRenderer.once('defineSaved', (event, defineId) => { store.dispatch(appSave({ defineId, stats })); });
     ipcRenderer.send('saveDefine', { odm, pathToFile });
 }
 
@@ -38,14 +41,15 @@ function saveState (type) {
         if (stateToSave.ui.main.currentDefineId !== '' && Object.keys(stateToSave.odm).length > 0) {
             if (type !== 'backup') {
                 let defineId = stateToSave.odm.defineId;
-                let pathToFile = stateToSave.defines.byId[defineId].pathToFile;
+                let pathToFile = stateToSave.defines.byId[defineId].pathToFile || '';
                 let odm = stateToSave.odm;
-                if (alwaysSaveDefineXml === true && pathToFile !== undefined && pathToFile !== '') {
+                if (alwaysSaveDefineXml === true && pathToFile !== '') {
                     ipcRenderer.once('writeDefineObjectFinished', (event) => {
                         saveDefineXml(odm, pathToFile);
                     });
                 } else {
-                    ipcRenderer.once('writeDefineObjectFinished', (event, defineId) => { store.dispatch(appSave({ defineId })); });
+                    let stats = getDefineStats(odm);
+                    ipcRenderer.once('writeDefineObjectFinished', (event, defineId) => { store.dispatch(appSave({ defineId, stats })); });
                 }
             }
             ipcRenderer.send('writeDefineObject',

@@ -34,14 +34,14 @@ class LeafEditor extends React.Component {
     }
 
     handleChange = name => event => {
-        let args = {id: this.state.leaf.id, title: this.state.leaf.title, href: this.state.leaf.href};
+        let args = { id: this.state.leaf.id, title: this.state.leaf.title, href: this.state.leaf.href };
         // Overwrite args with the updated value
         args[name] = event.target.value;
         let newLeaf = { ...new Leaf(args) };
-        this.setState({leaf: newLeaf});
+        this.setState({ leaf: newLeaf });
     };
 
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.cancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -92,9 +92,9 @@ class LeafEditor extends React.Component {
 }
 
 LeafEditor.propTypes = {
-    classes      : PropTypes.object.isRequired,
-    defaultValue : PropTypes.object.isRequired,
-    onUpdate     : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    defaultValue: PropTypes.object.isRequired,
+    onUpdate: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(LeafEditor);

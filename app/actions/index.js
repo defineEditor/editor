@@ -19,7 +19,7 @@ import {
     APP_QUIT,
     APP_SAVE,
     DUMMY_ACTION,
-} from "constants/action-types";
+} from 'constants/action-types';
 
 // Core actions
 export const addOdm = odm => ({ type: ADD_ODM, odm: odm });

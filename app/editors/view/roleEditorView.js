@@ -20,15 +20,15 @@ import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 
 const styles = theme => ({
     textField: {
-        width        : '90px',
-        marginRight  : theme.spacing.unit,
-        marginBottom : theme.spacing.unit,
+        width: '90px',
+        marginRight: theme.spacing.unit,
+        marginBottom: theme.spacing.unit,
     },
 });
 
 class RoleEditorView extends React.Component {
-    render() {
-        const {classes} = this.props;
+    render () {
+        const { classes } = this.props;
 
         return (
             <Grid container spacing={0} alignItems='flex-end'>
@@ -59,13 +59,12 @@ class RoleEditorView extends React.Component {
 }
 
 RoleEditorView.propTypes = {
-    classes         : PropTypes.object.isRequired,
-    role            : PropTypes.string.isRequired,
-    roleCodeListOid : PropTypes.string.isRequired,
-    variableRoles   : PropTypes.array.isRequired,
-    codeListList    : PropTypes.object.isRequired,
-    onChange        : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    role: PropTypes.string.isRequired,
+    roleCodeListOid: PropTypes.string.isRequired,
+    variableRoles: PropTypes.array.isRequired,
+    codeListList: PropTypes.object.isRequired,
+    onChange: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(RoleEditorView);
-

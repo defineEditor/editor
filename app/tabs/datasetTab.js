@@ -16,8 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
-import {BootstrapTable, ButtonGroup} from 'react-bootstrap-table';
-import path from 'path';
+import { BootstrapTable, ButtonGroup } from 'react-bootstrap-table';
 import clone from 'clone';
 import deepEqual from 'fast-deep-equal';
 import Grid from '@material-ui/core/Grid';
@@ -54,9 +53,9 @@ import {
 
 const styles = theme => ({
     tableHeader: {
-        backgroundColor : indigo[500],
-        color           : grey[200],
-        fontSize        : '16px',
+        backgroundColor: indigo[500],
+        color: grey[200],
+        fontSize: '16px',
     },
     buttonGroup: {
         marginLeft: theme.spacing.unit * 2,
@@ -66,29 +65,27 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateItemGroup  : (oid, updateObj) => dispatch(updateItemGroup(oid, updateObj)),
-        deleteItemGroups : (deleteObj) => dispatch(deleteItemGroups(deleteObj)),
+        updateItemGroup: (oid, updateObj) => dispatch(updateItemGroup(oid, updateObj)),
+        deleteItemGroups: (deleteObj) => dispatch(deleteItemGroups(deleteObj)),
     };
 };
 
 const mapStateToProps = state => {
     let model = state.present.odm.study.metaDataVersion.model;
-    let pathToDefine = path.dirname(state.present.defines.byId[state.present.odm.defineId].pathToFile);
     return {
-        itemGroups     : state.present.odm.study.metaDataVersion.itemGroups,
-        itemGroupOrder : state.present.odm.study.metaDataVersion.order.itemGroupOrder,
-        itemDefs       : state.present.odm.study.metaDataVersion.itemDefs,
-        comments       : state.present.odm.study.metaDataVersion.comments,
-        leafs          : state.present.odm.study.metaDataVersion.leafs,
-        mdv            : state.present.odm.study.metaDataVersion,
-        defineVersion  : state.present.odm.study.metaDataVersion.defineVersion,
-        tabs           : state.present.ui.tabs,
-        classTypes     : state.present.stdConstants.classTypes[model],
-        stdConstants   : state.present.stdConstants,
-        tabSettings    : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
-        showRowSelect  : state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
-        reviewMode     : state.present.ui.main.reviewMode,
-        pathToDefine,
+        itemGroups: state.present.odm.study.metaDataVersion.itemGroups,
+        itemGroupOrder: state.present.odm.study.metaDataVersion.order.itemGroupOrder,
+        itemDefs: state.present.odm.study.metaDataVersion.itemDefs,
+        comments: state.present.odm.study.metaDataVersion.comments,
+        leafs: state.present.odm.study.metaDataVersion.leafs,
+        mdv: state.present.odm.study.metaDataVersion,
+        defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
+        tabs: state.present.ui.tabs,
+        classTypes: state.present.stdConstants.classTypes[model],
+        stdConstants: state.present.stdConstants,
+        tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
+        showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
+        reviewMode: state.present.ui.main.reviewMode,
     };
 };
 
@@ -97,7 +94,7 @@ function commentEditor (onUpdate, props) {
     return (<CommentEditor onUpdate={ onUpdate } {...props} comment={props.defaultValue} autoFocus={true}/>);
 }
 
-function interactiveKeyOrderEditor(onUpdate, props) {
+function interactiveKeyOrderEditor (onUpdate, props) {
     return (<InteractiveKeyOrderEditor onFinished={ onUpdate } {...props}/>);
 }
 
@@ -126,7 +123,7 @@ function commentFormatter (cell, row) {
     if (cell !== undefined && cell !== '') {
         return (<CommentFormatter comment={cell} leafs={row.leafs}/>);
     } else {
-        return;
+        return null;
     }
 }
 
@@ -162,15 +159,15 @@ function datasetDomainFormatter (cell, row) {
             </div>
         );
     } else {
-        return;
+        return null;
     }
 }
 
 class ConnectedDatasetTable extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
-        let classTypesArray = Object.keys(this.props.classTypes).map( classType => (classType));
+        let classTypesArray = Object.keys(this.props.classTypes).map(classType => (classType));
 
         let columns = clone(props.stdConstants.columns.datasets);
 
@@ -184,72 +181,74 @@ class ConnectedDatasetTable extends React.Component {
                 dataFormat: this.menuFormatter,
             },
             name: {
-                customEditor: {getElement: simpleInputEditor, customEditorParameters: { options:
+                customEditor: { getElement: simpleInputEditor,
+                    customEditorParameters: { options:
                     {
-                        checkForSpecialChars : { type: 'Error', regex: new RegExp(/[^A-Z_0-9]/,'g') },
-                        lengthLimit          : { type: 'Error', maxLength: 8 },
-                        upcase               : true,
+                        checkForSpecialChars: { type: 'Error', regex: new RegExp(/[^A-Z_0-9]/, 'g') },
+                        lengthLimit: { type: 'Error', maxLength: 8 },
+                        upcase: true,
                     }
-                }},
+                    } },
             },
             description: {
-                customEditor: {getElement: simpleInputEditor, customEditorParameters: { options:
+                customEditor: { getElement: simpleInputEditor,
+                    customEditorParameters: { options:
                     {
-                        checkForSpecialChars : { type: 'Error' },
-                        lengthLimit          : { type: 'Error', maxLength: 40 }
+                        checkForSpecialChars: { type: 'Error' },
+                        lengthLimit: { type: 'Error', maxLength: 40 }
                     }
-                }},
+                    } },
             },
             domainAttrs: {
-                dataFormat   : datasetDomainFormatter,
-                customEditor : {getElement: datasetDomainEditor},
+                dataFormat: datasetDomainFormatter,
+                customEditor: { getElement: datasetDomainEditor },
             },
             datasetClass: {
-                dataFormat   : datasetClassFormatter,
-                customEditor : {getElement: simpleSelectEditor, customEditorParameters: {options: classTypesArray}},
+                dataFormat: datasetClassFormatter,
+                customEditor: { getElement: simpleSelectEditor, customEditorParameters: { options: classTypesArray } },
             },
             flags: {
-                dataFormat   : datasetFlagsFormatter,
-                customEditor : {getElement: datasetFlagsEditor},
+                dataFormat: datasetFlagsFormatter,
+                customEditor: { getElement: datasetFlagsEditor },
             },
             structure: {
-                customEditor: {getElement: simpleInputEditor, customEditorParameters: { options:
+                customEditor: { getElement: simpleInputEditor,
+                    customEditorParameters: { options:
                     {
-                        checkForSpecialChars : { type: 'Note' },
+                        checkForSpecialChars: { type: 'Note' },
                     }
-                }},
+                    } },
             },
             keys: {
-                customEditor: {getElement: interactiveKeyOrderEditor},
+                customEditor: { getElement: interactiveKeyOrderEditor },
             },
             comment: {
-                dataFormat   : commentFormatter,
-                customEditor : { getElement: commentEditor }
+                dataFormat: commentFormatter,
+                customEditor: { getElement: commentEditor }
             },
             leaf: {
-                dataFormat   : leafFormatter,
-                customEditor : {getElement: leafEditor},
+                dataFormat: leafFormatter,
+                customEditor: { getElement: leafEditor },
             }
         };
 
         // Unite Columns with Editors and Formatters;
-        Object.keys(columns).forEach( id => {
+        Object.keys(columns).forEach(id => {
             columns[id] = { ...columns[id], ...editorFormatters[id] };
         });
 
         this.state = {
             columns,
-            anchorEl            : null,
-            selectedRows        : [],
-            itemGroupMenuParams : {},
-            showSelectColumn    : false,
-            showAddDataset      : false,
-            insertPosition      : null,
+            anchorEl: null,
+            selectedRows: [],
+            itemGroupMenuParams: {},
+            showSelectColumn: false,
+            showAddDataset: false,
+            insertPosition: null,
         };
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
-
+    static getDerivedStateFromProps (nextProps, prevState) {
         let columns = getColumnHiddenStatus(prevState.columns, nextProps.tabSettings.columns, nextProps.showRowSelect);
 
         if (!deepEqual(columns, prevState.columns)) {
@@ -258,8 +257,19 @@ class ConnectedDatasetTable extends React.Component {
         return null;
     }
 
-    componentDidMount() {
+    componentDidMount () {
         setScrollPosition(this.props.tabs);
+        window.addEventListener('keydown', this.onKeyDown);
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('keydown', this.onKeyDown);
+    }
+
+    onKeyDown = (event) => {
+        if (event.ctrlKey && (event.keyCode === 78)) {
+            this.setState({ showAddDataset: true, insertPosition: null });
+        }
     }
 
     menuFormatter = (cell, row) => {
@@ -291,16 +301,15 @@ class ConnectedDatasetTable extends React.Component {
             return true;
         }
         // Update on if the value changed
-        if (!deepEqual(row[cellName],cellValue)) {
+        if (!deepEqual(row[cellName], cellValue)) {
             let updateObj = {};
-            if (cellName === 'flags'){
+            if (cellName === 'flags') {
                 updateObj = cellValue;
             } else {
                 updateObj[cellName] = cellValue;
             }
 
-
-            this.props.updateItemGroup(row.oid,updateObj);
+            this.props.updateItemGroup(row.oid, updateObj);
             return true;
         } else {
             return false;
@@ -308,7 +317,7 @@ class ConnectedDatasetTable extends React.Component {
     }
 
     cleanSelection = () => {
-        if (this.state.selectedRows.length > 0)  {
+        if (this.state.selectedRows.length > 0) {
             this.setState({ selectedRows: [] });
         }
     }
@@ -352,15 +361,15 @@ class ConnectedDatasetTable extends React.Component {
     createCustomToolBar = props => {
         return (
             <Grid container spacing={16} justify='space-between'>
-                <Grid item style={{paddingLeft: '8px'}}>
+                <Grid item style={{ paddingLeft: '8px' }}>
                     { props.components.btnGroup }
                 </Grid>
-                <Grid item style={{paddingRight: '25px'}}>
+                <Grid item style={{ paddingRight: '25px' }}>
                     <Grid container spacing={16} justify='flex-end'>
                         <Grid item>
                             <Button variant="contained" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
                                 Columns
-                                <RemoveRedEyeIcon style={{marginLeft: '7px'}}/>
+                                <RemoveRedEyeIcon style={{ marginLeft: '7px' }}/>
                             </Button>
                         </Grid>
                     </Grid>
@@ -386,10 +395,10 @@ class ConnectedDatasetTable extends React.Component {
         } else {
             // If the item is going to be removed;
             if (selectedRows.includes(row.oid)) {
-                selectedRows.splice(selectedRows.indexOf(row.oid),1);
+                selectedRows.splice(selectedRows.indexOf(row.oid), 1);
             }
         }
-        this.setState({selectedRows});
+        this.setState({ selectedRows });
         return true;
     }
 
@@ -398,11 +407,11 @@ class ConnectedDatasetTable extends React.Component {
         if (isSelected === true) {
             // If all rows are going to be selected;
             selectedRows = rows
-                .map( row => (row.oid));
+                .map(row => (row.oid));
         } else {
             selectedRows = [];
         }
-        this.setState({selectedRows});
+        this.setState({ selectedRows });
         return true;
     }
 
@@ -412,14 +421,14 @@ class ConnectedDatasetTable extends React.Component {
         this.props.itemGroupOrder.forEach((itemGroupOid, index) => {
             const originDs = this.props.itemGroups[itemGroupOid];
             let currentDs = {
-                oid           : originDs.oid,
-                name          : originDs.name,
-                datasetClass  : originDs.datasetClass,
-                purpose       : originDs.purpose,
-                structure     : originDs.structure,
-                defineVersion : this.props.defineVersion,
-                leafs         : this.props.leafs,
-                classTypes    : this.props.classTypes,
+                oid: originDs.oid,
+                name: originDs.name,
+                datasetClass: originDs.datasetClass,
+                purpose: originDs.purpose,
+                structure: originDs.structure,
+                defineVersion: this.props.defineVersion,
+                leafs: this.props.leafs,
+                classTypes: this.props.classTypes,
             };
             if (originDs.datasetClass !== undefined) {
                 currentDs.datasetClass = originDs.datasetClass.name;
@@ -429,18 +438,18 @@ class ConnectedDatasetTable extends React.Component {
             currentDs.leaf = originDs.leaf === undefined ? undefined : { ...originDs.leaf };
             // Group Repeating/IsReferenceData/isStandard
             currentDs.flags = {
-                repeating       : originDs.repeating,
-                isReferenceData : originDs.isReferenceData,
-                hasNoData       : originDs.hasNoData,
+                repeating: originDs.repeating,
+                isReferenceData: originDs.isReferenceData,
+                hasNoData: originDs.hasNoData,
             };
             currentDs.domainAttrs = {
-                domain : originDs.domain,
-                alias  : originDs.alias,
+                domain: originDs.domain,
+                alias: originDs.alias,
             };
 
             // Get key variables
             // TODO: When key is located in the SUPP dataset.
-            currentDs.keys = originDs.keyOrder.map( keyOid => {
+            currentDs.keys = originDs.keyOrder.map(keyOid => {
                 return this.props.itemDefs[originDs.itemRefs[keyOid].itemOid].name;
             }).join(', ');
             datasets[index] = currentDs;
@@ -448,30 +457,30 @@ class ConnectedDatasetTable extends React.Component {
 
         // Editor settings
         const cellEditProp = {
-            mode           : 'dbclick',
-            blurToSave     : true,
-            beforeSaveCell : this.onBeforeSaveCell
+            mode: 'dbclick',
+            blurToSave: true,
+            beforeSaveCell: this.onBeforeSaveCell
         };
 
         let selectRowProp;
         if (this.props.showRowSelect) {
             selectRowProp = {
-                mode          : 'checkbox',
-                clickToSelect : true,
-                onSelect      : this.onRowSelected,
-                onSelectAll   : this.onAllRowSelected,
-                columnWidth   : '48px',
+                mode: 'checkbox',
+                clickToSelect: true,
+                onSelect: this.onRowSelected,
+                onSelectAll: this.onAllRowSelected,
+                columnWidth: '48px',
             };
         } else {
             selectRowProp = undefined;
         }
 
         const options = {
-            toolBar  : this.createCustomToolBar,
-            btnGroup : this.createCustomButtonGroup
+            toolBar: this.createCustomToolBar,
+            btnGroup: this.createCustomButtonGroup
         };
 
-        const {classes} = this.props;
+        const { classes } = this.props;
 
         return (
             <React.Fragment>
@@ -486,7 +495,7 @@ class ConnectedDatasetTable extends React.Component {
                     remote={ true }
                     version='4'
                     cellEdit={this.props.reviewMode || this.props.showRowSelect ? undefined : cellEditProp}
-                    keyBoardNav={this.props.showRowSelect ? false : {enterToEdit: true}}
+                    keyBoardNav={this.props.showRowSelect ? false : { enterToEdit: true }}
                     tableHeaderClass={classes.tableHeader}
                     selectRow={selectRowProp}
                 >
@@ -512,16 +521,16 @@ class ConnectedDatasetTable extends React.Component {
 }
 
 ConnectedDatasetTable.propTypes = {
-    itemGroups     : PropTypes.object.isRequired,
-    itemDefs       : PropTypes.object.isRequired,
-    comments       : PropTypes.object.isRequired,
-    defineVersion  : PropTypes.string.isRequired,
-    itemGroupOrder : PropTypes.array.isRequired,
-    leafs          : PropTypes.object.isRequired,
-    tabs           : PropTypes.object.isRequired,
-    classTypes     : PropTypes.object.isRequired,
-    reviewMode     : PropTypes.bool,
-    showRowSelect  : PropTypes.bool,
+    itemGroups: PropTypes.object.isRequired,
+    itemDefs: PropTypes.object.isRequired,
+    comments: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    itemGroupOrder: PropTypes.array.isRequired,
+    leafs: PropTypes.object.isRequired,
+    tabs: PropTypes.object.isRequired,
+    classTypes: PropTypes.object.isRequired,
+    reviewMode: PropTypes.bool,
+    showRowSelect: PropTypes.bool,
 };
 
 const DatasetTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedDatasetTable);

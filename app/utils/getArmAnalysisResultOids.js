@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-function getArmAnalysisResultOids(analysisResults, analysisResultOids) {
+function getArmAnalysisResultOids (analysisResults, analysisResultOids) {
     // Get the list of CommentOIDs;
     let commentOids = {};
     analysisResultOids.forEach(analysisResultOid => {
@@ -27,7 +27,7 @@ function getArmAnalysisResultOids(analysisResults, analysisResultOids) {
     let whereClauseOids = {};
     analysisResultOids.forEach(analysisResultOid => {
         let analysisResult = analysisResults[analysisResultOid];
-        Object.values(analysisResult.analysisDatasets).forEach( dataset => {
+        Object.values(analysisResult.analysisDatasets).forEach(dataset => {
             let whereClauseOid = dataset.whereClauseOid;
             if (whereClauseOid !== undefined) {
                 if (Object.keys(whereClauseOids).includes(whereClauseOid)) {
@@ -40,7 +40,6 @@ function getArmAnalysisResultOids(analysisResults, analysisResultOids) {
                     whereClauseOids[whereClauseOid] = {};
                     whereClauseOids[whereClauseOid][analysisResultOid] = [dataset.itemGroupOid];
                 }
-
             }
         });
     });

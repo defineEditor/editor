@@ -30,16 +30,19 @@ import {
 
 const styles = theme => ({
     dialog: {
-        paddingLeft   : theme.spacing.unit * 2,
-        paddingRight  : theme.spacing.unit * 2,
-        paddingBottom : theme.spacing.unit * 1,
-        position      : 'absolute',
-        borderRadius  : '10px',
-        top           : '40%',
-        transform     : 'translate(0%, calc(-50%+0.5px))',
-        overflowX     : 'auto',
-        maxHeight     : '85%',
-        overflowY     : 'auto',
+        position: 'absolute',
+        top: '40%',
+        maxHeight: '60%',
+        width: '60%',
+        overflowX: 'auto',
+        overflowY: 'auto',
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        margin: '0 auto',
+        borderRadius: '10px',
+        border: '2px solid',
+        borderColor: 'primary',
     },
 });
 
@@ -62,7 +65,6 @@ const mapDispatchToProps = dispatch => {
 };
 
 class ConnectedModalChangeDefine extends React.Component {
-
     onSave = () => {
         saveState();
         this.props.changePage({ page: 'editor', defineId: this.props.defineId, studyId: this.props.studyId });
@@ -78,8 +80,7 @@ class ConnectedModalChangeDefine extends React.Component {
         this.props.closeModal();
     }
 
-
-    onKeyDown = (event)  => {
+    onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.onCancel();
         } else if (event.ctrlKey && (event.keyCode === 83)) {
@@ -108,7 +109,9 @@ class ConnectedModalChangeDefine extends React.Component {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
                 open
-                PaperProps={{className: classes.dialog}}
+                fullWidth
+                maxWidth={false}
+                PaperProps={{ className: classes.dialog }}
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >

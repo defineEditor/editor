@@ -37,7 +37,7 @@ class DescriptionFormatter extends React.Component {
     render () {
         let result = [];
         if (this.props.value.origins.length > 0) {
-            this.props.value.origins.forEach( (origin) => {
+            this.props.value.origins.forEach((origin) => {
                 result.push(
                     <Grid item key={origin} xs={12}>
                         <OriginFormatter origin={origin} leafs={this.props.leafs}/>
@@ -48,7 +48,7 @@ class DescriptionFormatter extends React.Component {
         if (this.props.value.method !== undefined) {
             result.push(
                 <Grid item key='method' xs={12}>
-                    <Typography variant="caption" gutterBottom>
+                    <Typography variant="caption" gutterBottom color='textSecondary'>
                         Method: {this.props.value.method.name} ({this.props.value.method.type})
                     </Typography>
                     <Grid item xs={12}>
@@ -60,7 +60,7 @@ class DescriptionFormatter extends React.Component {
         if (this.props.value.comment !== undefined) {
             result.push(
                 <Grid item key='comment' xs={12}>
-                    <Typography variant="caption" gutterBottom>
+                    <Typography variant="caption" gutterBottom color='textSecondary'>
                         Comment
                     </Typography>
                     <Grid item xs={12}>
@@ -72,7 +72,7 @@ class DescriptionFormatter extends React.Component {
         if (this.props.value.note !== undefined) {
             result.push(
                 <Grid item key='note' xs={12}>
-                    <Typography variant="subheading" gutterBottom>
+                    <Typography variant="subtitle1" gutterBottom>
                         Note (not part of Define-XML):
                     </Typography>
                     {this.props.value.note.value}
@@ -81,7 +81,7 @@ class DescriptionFormatter extends React.Component {
         }
 
         return (
-            <Grid container spacing={16}>
+            <Grid container spacing={8}>
                 {result}
             </Grid>
         );
@@ -89,9 +89,9 @@ class DescriptionFormatter extends React.Component {
 }
 
 DescriptionFormatter.propTypes = {
-    classes : PropTypes.object.isRequired,
-    value : PropTypes.object,
-    model : PropTypes.string.isRequired,
+    classes: PropTypes.object.isRequired,
+    value: PropTypes.object,
+    model: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(DescriptionFormatter);

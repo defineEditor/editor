@@ -52,20 +52,20 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = (state, props) => {
     return {
-        codeListOrder : state.present.odm.study.metaDataVersion.order.codeListOrder,
-        stdCodeLists  : state.present.stdCodeLists,
-        standards     : state.present.odm.study.metaDataVersion.standards,
-        defineVersion : state.present.odm.study.metaDataVersion.defineVersion,
+        codeListOrder: state.present.odm.study.metaDataVersion.order.codeListOrder,
+        stdCodeLists: state.present.stdCodeLists,
+        standards: state.present.odm.study.metaDataVersion.standards,
+        defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
     };
 };
 
 const getCodeListList = (standard) => {
     let result = [];
     if (standard !== undefined) {
-        Object.keys(standard.codeLists).forEach( codeListOid => {
+        Object.keys(standard.codeLists).forEach(codeListOid => {
             let item = {
-                value : codeListOid,
-                label : standard.codeLists[codeListOid].name,
+                value: codeListOid,
+                label: standard.codeLists[codeListOid].name,
             };
             result.push(item);
         });
@@ -74,11 +74,11 @@ const getCodeListList = (standard) => {
 };
 
 class ConnectedAddCodeListFromCT extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         let standardList = {};
-        Object.keys(props.standards).forEach( standardOid => {
+        Object.keys(props.standards).forEach(standardOid => {
             if (props.stdCodeLists.hasOwnProperty(standardOid) && props.standards[standardOid].type === 'CT') {
                 standardList[standardOid] = props.stdCodeLists[standardOid].description;
             }
@@ -106,9 +106,9 @@ class ConnectedAddCodeListFromCT extends React.Component {
             let standardOid = updateObj.target.value;
             let standard = this.props.stdCodeLists[updateObj.target.value];
             let codeListList = getCodeListList(standard);
-            this.setState( { standardOid, codeListList, codeListOid: null });
+            this.setState({ standardOid, codeListList, codeListOid: null });
         } else if (name === 'codeList') {
-            this.setState( { codeListOid: updateObj });
+            this.setState({ codeListOid: updateObj });
         }
     }
 
@@ -128,10 +128,10 @@ class ConnectedAddCodeListFromCT extends React.Component {
         }
 
         if (items !== undefined) {
-            Object.keys(items).forEach( codeOid => {
+            Object.keys(items).forEach(codeOid => {
                 if (!selectedCodes.includes(codeOid)) {
                     delete items[codeOid];
-                    codeList.itemOrder.splice(codeList.itemOrder.indexOf(codeOid),1);
+                    codeList.itemOrder.splice(codeList.itemOrder.indexOf(codeOid), 1);
                 }
             });
         }
@@ -139,12 +139,11 @@ class ConnectedAddCodeListFromCT extends React.Component {
         // Connect to the standard;
         codeList.standardOid = this.state.standardOid;
 
-
         this.props.addCodeList(codeList);
         this.props.onClose();
     };
 
-    render() {
+    render () {
         const { defineVersion, classes } = this.props;
         let codeList;
         if (this.state.codeListOid !== null) {
@@ -171,7 +170,7 @@ class ConnectedAddCodeListFromCT extends React.Component {
                     ) : (
                         <ReactSelectEditor
                             handleChange={this.handleChange('codeList')}
-                            value={this.state.codeListOid||''}
+                            value={this.state.codeListOid || ''}
                             options={this.state.codeListList}
                             extensible={false}
                             className={classes.codeListSelection}
@@ -195,13 +194,13 @@ class ConnectedAddCodeListFromCT extends React.Component {
 }
 
 ConnectedAddCodeListFromCT.propTypes = {
-    classes       : PropTypes.object.isRequired,
-    stdCodeLists  : PropTypes.object.isRequired,
-    codeListOrder : PropTypes.array.isRequired,
-    standards     : PropTypes.object.isRequired,
-    defineVersion : PropTypes.string.isRequired,
-    addCodeList   : PropTypes.func.isRequired,
-    onClose       : PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
+    stdCodeLists: PropTypes.object.isRequired,
+    codeListOrder: PropTypes.array.isRequired,
+    standards: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
+    addCodeList: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
 };
 
 const AddCodeListFromCT = connect(mapStateToProps, mapDispatchToProps)(
