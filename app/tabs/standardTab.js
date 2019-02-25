@@ -322,8 +322,11 @@ class ConnectedStandardTable extends React.Component {
             // Check which properties changed
             for (let prop in returnValue) {
                 if (this.props.otherAttrs[prop] !== returnValue[prop]) {
-                    if (returnValue[prop].replace(/ /g, '') === '') {
+                    if (prop !== 'pathToFile' && returnValue[prop].replace(/ /g, '') === '') {
                         updateObj.properties[prop] = undefined;
+                    } else if (prop === 'pathToFile') {
+                        // Remove leading and trailing spaces
+                        updateObj.properties[prop] = returnValue[prop].replace(/(^\s+|\s+$)/g, '');
                     } else {
                         updateObj.properties[prop] = returnValue[prop];
                     }

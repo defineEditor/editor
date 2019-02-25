@@ -94,6 +94,20 @@ class ConnectedAnalysisResultTable extends React.Component {
         }
     }
 
+    componentDidMount () {
+        window.addEventListener('keydown', this.onKeyDown);
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('keydown', this.onKeyDown);
+    }
+
+    onKeyDown = (event) => {
+        if (event.ctrlKey && (event.keyCode === 78)) {
+            this.addAnalysisResult();
+        }
+    }
+
     addAnalysisResult = (event) => {
         this.props.addAnalysisResult({ resultDisplayOid: this.props.resultDisplayOid });
     }

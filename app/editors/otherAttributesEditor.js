@@ -14,12 +14,17 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import path from 'path';
 import { withStyles } from '@material-ui/core/styles';
+import { ipcRenderer } from 'electron';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
+import FolderOpen from '@material-ui/icons/FolderOpen';
 import EditingControlIcons from 'editors/editingControlIcons.js';
 
 const styles = theme => ({
@@ -42,6 +47,29 @@ class OtherAttributesEditor extends React.Component {
             ...otherAttrs,
         };
     }
+
+    componentDidMount () {
+        ipcRenderer.on('selectedFolder', this.setPathToFile);
+    }
+
+    componentWillUnmount () {
+        ipcRenderer.removeListener('selectedFolder', this.setPathToFile);
+    }
+
+    setPathToFile = (event, pathToFolder, title) => {
+        if (pathToFolder !== undefined) {
+            let fileName = 'define.xml';
+            // Extract filename if it existed
+            if (this.state.pathToFile) {
+                fileName = path.basename(this.state.pathToFile);
+            }
+            this.setState({ pathToFile: path.join(pathToFolder, fileName) });
+        }
+    };
+
+    selectPathToFile = () => {
+        ipcRenderer.send('selectFolder', 'Select Path To Define-XML file', this.props.otherAttrs.pathToFile);
+    };
 
     handleChange = (name) => (event) => {
         this.setState({ [name]: event.target.value });
@@ -88,6 +116,18 @@ class OtherAttributesEditor extends React.Component {
                             fullWidth
                             onChange={this.handleChange('pathToFile')}
                             className={classes.inputField}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <IconButton
+                                            color="default"
+                                            onClick={this.selectPathToFile}
+                                        >
+                                            <FolderOpen />
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }}
                         />
                     </ListItem>
                 </List>

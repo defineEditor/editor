@@ -18,13 +18,14 @@ import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import ModalRoot from 'components/modal/modalRoot.js';
 import MainMenu from 'core/mainMenu.js';
+import KeyboardShortcuts from 'components/utils/keyboardShortcuts.js';
 import Editor from 'core/editor.js';
 import ControlledTerminology from 'core/controlledTerminology.js';
 import Settings from 'core/settings.js';
 import Studies from 'core/studies.js';
 import About from 'core/about.js';
-import RedoUndo from 'utils/redoUndo.js';
-import FindInPage from 'utils/findInPage.js';
+import RedoUndo from 'components/utils/redoUndo.js';
+import FindInPage from 'components/utils/findInPage.js';
 import {
     openModal,
 } from 'actions/index.js';
@@ -66,6 +67,7 @@ class ConnectedApp extends Component {
         this.state = {
             showRedoUndo: false,
             showFindInPage: false,
+            showShortcuts: false,
         };
     }
 
@@ -86,14 +88,20 @@ class ConnectedApp extends Component {
     onKeyDown = (event) => {
         if (event.ctrlKey && (event.keyCode === 72)) {
             this.toggleRedoUndo();
-        }
-        if (event.ctrlKey && (event.keyCode === 70)) {
+        } else if (event.ctrlKey && (event.keyCode === 70)) {
             this.toggleFindInPage();
+        } else if (event.ctrlKey && (event.keyCode === 191)) {
+            event.preventDefault();
+            this.toggleShortcuts();
         }
     }
 
     toggleRedoUndo = () => {
         this.setState({ showRedoUndo: !this.state.showRedoUndo });
+    }
+
+    toggleShortcuts = () => {
+        this.setState({ showShortcuts: !this.state.showShortcuts });
     }
 
     toggleFindInPage = (timeOut) => {
@@ -109,7 +117,12 @@ class ConnectedApp extends Component {
     render () {
         return (
             <MuiThemeProvider theme={theme}>
-                <MainMenu onToggleRedoUndo={this.toggleRedoUndo} onToggleFindInPage={this.toggleFindInPage}/>
+                <MainMenu
+                    onToggleRedoUndo={this.toggleRedoUndo}
+                    onToggleFindInPage={this.toggleFindInPage}
+                    onToggleShortcuts={this.toggleShortcuts}
+                />
+                <KeyboardShortcuts open={this.state.showShortcuts} onToggleShortcuts={this.toggleShortcuts}/>
                 {this.props.currentPage === 'studies' && <Studies />}
                 {this.props.currentPage === 'editor' && <Editor onToggleRedoUndo={this.toggleRedoUndo}/>}
                 {this.props.currentPage === 'controlledTerminology' && <ControlledTerminology />}
