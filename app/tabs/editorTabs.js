@@ -183,7 +183,6 @@ class ConnectedEditorTabs extends React.Component {
                             value={currentTab}
                             onChange={this.handleChange}
                             variant='scrollable'
-                            centered={true}
                             indicatorColor='primary'
                             textColor='primary'
                             className={classes.tabs}
