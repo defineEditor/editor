@@ -19,12 +19,6 @@ import PropTypes from 'prop-types';
 import { BootstrapTable, ButtonGroup } from 'react-bootstrap-table';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
-import renderColumns from 'utils/renderColumns.js';
-import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
-import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
-import ItemMenu from 'components/menus/itemMenu.js';
-import VariableTabFilter from 'utils/variableTabFilter.js';
-import VariableTabUpdate from 'utils/variableTabUpdate.js';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
@@ -41,6 +35,12 @@ import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import OpenDrawer from '@material-ui/icons/ArrowUpward';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import TablePagination from '@material-ui/core/TablePagination';
+import renderColumns from 'utils/renderColumns.js';
+import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
+import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
+import ItemMenu from 'components/menus/itemMenu.js';
+import VariableTabFilter from 'utils/variableTabFilter.js';
+import VariableTabUpdate from 'utils/variableTabUpdate.js';
 import getTableData from 'utils/getTableData.js';
 import getTableDataForFilter from 'utils/getTableDataForFilter.js';
 import applyFilter from 'utils/applyFilter.js';
@@ -83,6 +83,10 @@ const styles = theme => ({
         marginTop: theme.spacing.unit * 2,
         marginBottom: theme.spacing.unit * 2,
         color: grey[600]
+    },
+    searchField: {
+        width: 120,
+        transform: 'translate(0%, -12px)',
     },
 });
 
@@ -289,6 +293,7 @@ class ConnectedVariableTable extends React.Component {
             selectedVlmRows: {},
             itemGroupOid: this.props.itemGroupOid,
             setScrollY: false,
+            searchString: '',
         };
     }
 
@@ -381,10 +386,7 @@ class ConnectedVariableTable extends React.Component {
                         vlmLevel: 1,
                     });
                     let vlmFilteredOids = applyFilter(data, this.props.filter);
-                    // Variable level item with at least one VLM passing the filter
-                    if (vlmFilteredOids.length > 0) {
-                        vlmFilteredOidsByItem[itemOid] = vlmFilteredOids;
-                    }
+                    vlmFilteredOidsByItem[itemOid] = vlmFilteredOids;
                 });
         }
         // Get Variable level Metadata
@@ -405,7 +407,7 @@ class ConnectedVariableTable extends React.Component {
             filteredOids = applyFilter(data, this.props.filter);
             // In case VLMs are selected by a filter, show parent variables
             // Track those which were not selected by a filter, so that they can be highlighted
-            Object.keys(vlmFilteredOidsByItem).forEach(itemOid => {
+            Object.keys(vlmFilteredOidsByItem).filter(itemOid => (vlmFilteredOidsByItem[itemOid].length > 0)).forEach(itemOid => {
                 if (!filteredOids.includes(itemOid)) {
                     filteredOids.push(itemOid);
                     specialHighlightOids.push(itemOid);
