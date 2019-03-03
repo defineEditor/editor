@@ -20,8 +20,14 @@ import {
 } from 'constants/action-types';
 
 const addItemGroup = (state, action) => {
-    let newState = state.slice();
-    newState.push(action.itemGroup.oid);
+    let newState;
+    let position = action.position;
+    if (position === undefined || position >= state.length) {
+        newState = state.slice();
+        newState.push(action.itemGroup.oid);
+    } else {
+        newState = state.slice(0, position).concat(action.itemGroup.oid).concat(state.slice(position));
+    }
     return newState;
 };
 

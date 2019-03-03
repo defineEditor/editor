@@ -117,17 +117,17 @@ class ConnectedEditorTabs extends React.Component {
 
     onKeyDown = (event) => {
         if (event.ctrlKey && (event.keyCode === 49)) {
-            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Variables'));
-        } else if (event.ctrlKey && (event.keyCode === 50)) {
-            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Coded Values'));
-        } else if (event.ctrlKey && (event.keyCode === 51)) {
-            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Codelists'));
-        } else if (event.ctrlKey && (event.keyCode === 52)) {
-            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Datasets'));
-        } else if (event.ctrlKey && (event.keyCode === 53)) {
-            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Documents'));
-        } else if (event.ctrlKey && (event.keyCode === 54)) {
             this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Standards'));
+        } else if (event.ctrlKey && (event.keyCode === 50)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Datasets'));
+        } else if (event.ctrlKey && (event.keyCode === 51)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Variables'));
+        } else if (event.ctrlKey && (event.keyCode === 52)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Codelists'));
+        } else if (event.ctrlKey && (event.keyCode === 53)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Coded Values'));
+        } else if (event.ctrlKey && (event.keyCode === 54)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Documents'));
         } else if (event.ctrlKey && (event.keyCode === 55) && this.props.hasArm) {
             this.handleChange(undefined, this.props.tabs.tabNames.indexOf('ARM Summary'));
         } else if (event.ctrlKey && (event.keyCode === 56) && this.props.hasArm) {

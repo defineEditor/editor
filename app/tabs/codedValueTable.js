@@ -20,11 +20,12 @@ import clone from 'clone';
 import deepEqual from 'fast-deep-equal';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 import Fab from '@material-ui/core/Fab';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
-import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
@@ -56,10 +57,10 @@ const styles = theme => ({
     },
     button: {
         margin: theme.spacing.unit,
+        transform: 'translate(0%, -6%)',
     },
-    chip: {
-        verticalAlign: 'top',
-        marginLeft: theme.spacing.unit,
+    variableName: {
+        marginLeft: theme.spacing.unit * 2,
     },
     drawerButton: {
         marginLeft: theme.spacing.unit,
@@ -93,6 +94,7 @@ const mapStateToProps = state => {
         lang: state.present.odm.study.metaDataVersion.lang,
         tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
         showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
+        tabNames: state.present.ui.tabs.tabNames,
         codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
         reviewMode: state.present.ui.main.reviewMode,
     };
@@ -195,6 +197,8 @@ class ConnectedCodedValueTable extends React.Component {
             codedValueMenuParams: {},
             codeListOid: this.props.codeListOid,
             setScrollY: false,
+            anchorEl: null,
+            moreVariablesAnchor: null,
             addStdCodesOrderNumber: undefined,
         };
     }
@@ -454,34 +458,108 @@ class ConnectedCodedValueTable extends React.Component {
     }
 
     openLinkedCodelist = (codeListOid) => {
+        const codedValuesTabIndex = this.props.tabNames.indexOf('Coded Values');
         let updateObj = {
-            tabIndex: this.props.codedValuesTabIndex,
+            tabIndex: codedValuesTabIndex,
             groupOid: codeListOid,
             scrollPosition: {},
         };
         this.props.selectGroup(updateObj);
     }
 
-    render () {
-        const { classes } = this.props;
-        // Extract data required for the variable table
+    openDataset = (itemGroupOid) => {
+        const datasetTabIndex = this.props.tabNames.indexOf('Variables');
+        let updateObj = {
+            tabIndex: datasetTabIndex,
+            groupOid: itemGroupOid,
+            scrollPosition: {},
+        };
+        this.props.selectGroup(updateObj);
+    }
+
+    getCodeListVariables = (limit = 4) => {
+        // Get list of variables which are using the codelist;
         const codeList = this.props.codeLists[this.props.codeListOid];
         const itemGroups = this.props.itemGroups;
-        // Get list of variables which are using the codelist;
-        let codeListVariables = [];
+
+        let codeListVariables = {};
+        let menuVariables = {};
 
         codeList.sources.itemDefs.forEach(itemDefOid => {
             let itemDef = this.props.itemDefs[itemDefOid];
             itemDef.sources.itemGroups.forEach(itemGroupOid => {
-                codeListVariables.push(
-                    <Chip
-                        label={itemGroups[itemGroupOid].name + '.' + itemDef.name}
-                        key={itemGroups[itemGroupOid].oid + '.' + itemDef.oid}
-                        className={classes.chip}
-                    />
-                );
+                if (Object.keys(codeListVariables).length < limit) {
+                    codeListVariables[itemGroups[itemGroupOid].name + '.' + itemDef.name] = itemGroupOid;
+                } else {
+                    menuVariables[itemGroups[itemGroupOid].name + '.' + itemDef.name] = itemGroupOid;
+                }
             });
+            if (itemDef.parentItemDefOid !== undefined && this.props.itemDefs.hasOwnProperty(itemDef.parentItemDefOid)) {
+                let parentItemDef = this.props.itemDefs[itemDef.parentItemDefOid];
+                parentItemDef.sources.itemGroups.forEach(itemGroupOid => {
+                    if (Object.keys(codeListVariables).length < limit) {
+                        codeListVariables[itemGroups[itemGroupOid].name + '.' + parentItemDef.name + '.' + itemDef.name] = itemGroupOid;
+                    } else {
+                        menuVariables[itemGroups[itemGroupOid].name + '.' + parentItemDef.name + '.' + itemDef.name] = itemGroupOid;
+                    }
+                });
+            }
         });
+
+        // Normal buttons
+        let items = Object.keys(codeListVariables).map(variableName => (
+            <Button
+                color='default'
+                key={variableName}
+                mini
+                onClick={() => { this.openDataset(codeListVariables[variableName]); }}
+                variant='contained'
+                className={this.props.classes.variableName}
+            >
+                {variableName}
+            </Button>
+        ));
+
+        // Menu buttons
+        if (Object.keys(menuVariables).length > 0) {
+            items.push(
+                <Button
+                    color='default'
+                    key='more items'
+                    mini
+                    onClick={ (event) => { this.setState({ moreVariablesAnchor: event.currentTarget }); } }
+                    variant='contained'
+                    className={this.props.classes.variableName}
+                >
+                    MORE
+                </Button>
+            );
+            items.push(
+                <Menu
+                    anchorEl={this.state.moreVariablesAnchor}
+                    open={Boolean(this.state.moreVariablesAnchor)}
+                    onClose={ (event) => { this.setState({ moreVariablesAnchor: null }); } }
+                >
+                    { Object.keys(menuVariables).map(variableName => (
+                        <MenuItem
+                            key={variableName}
+                            onClick={() => { this.openDataset(menuVariables[variableName]); }}
+                        >
+                            {variableName}
+                        </MenuItem>
+                    ))}
+                </Menu>
+            );
+        }
+
+        return items;
+    }
+
+    render () {
+        const { classes } = this.props;
+        // Extract data required for the variable table
+        const codeList = this.props.codeLists[this.props.codeListOid];
+
         // If codelist is enumerated and linked, do not allow editing
         let nonEditable = false;
         if (codeList.codeListType === 'enumerated' && codeList.linkedCodeListOid !== undefined) {
@@ -551,7 +629,7 @@ class ConnectedCodedValueTable extends React.Component {
                     >
                         <OpenDrawer/>
                     </Fab>
-                    {codeListVariables}
+                    {this.getCodeListVariables()}
                 </h3>
                 { nonEditable && (
                     <React.Fragment>
@@ -619,6 +697,7 @@ ConnectedCodedValueTable.propTypes = {
     itemDefs: PropTypes.object.isRequired,
     codeListOid: PropTypes.string.isRequired,
     defineVersion: PropTypes.string.isRequired,
+    tabNames: PropTypes.array,
     lang: PropTypes.string.isRequired,
     stdCodeLists: PropTypes.object,
     reviewMode: PropTypes.bool,
