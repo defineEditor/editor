@@ -35,7 +35,7 @@ import { ItemGroup, TranslatedText, DatasetClass, Leaf, ItemRef } from 'core/def
 import getOid from 'utils/getOid.js';
 
 const addItemGroup = (state, action) => {
-    return { ...state, [action.itemGroup.oid]: action.itemGroup };
+    return { ...state, [action.updateObj.itemGroup.oid]: action.updateObj.itemGroup };
 };
 
 const deleteItemGroups = (state, action) => {

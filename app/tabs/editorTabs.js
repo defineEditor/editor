@@ -73,6 +73,7 @@ const mapStateToProps = state => {
     }
     return {
         tabs: state.present.ui.tabs,
+        isCurrentDefineSaved: state.present.ui.main.isCurrentDefineSaved,
         hasArm,
     };
 };
@@ -172,7 +173,7 @@ class ConnectedEditorTabs extends React.Component {
             <div className={classes.root}>
                 <div className='doNotPrint'>
                     <IconButton
-                        color='default'
+                        color={this.props.isCurrentDefineSaved ? 'default' : 'primary'}
                         onClick={this.props.toggleMainMenu}
                         className={classes.menuToggle}
                     >

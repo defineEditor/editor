@@ -538,6 +538,7 @@ class ConnectedCodedValueTable extends React.Component {
                 <Menu
                     anchorEl={this.state.moreVariablesAnchor}
                     open={Boolean(this.state.moreVariablesAnchor)}
+                    key='menu items'
                     onClose={ (event) => { this.setState({ moreVariablesAnchor: null }); } }
                 >
                     { Object.keys(menuVariables).map(variableName => (
@@ -629,6 +630,7 @@ class ConnectedCodedValueTable extends React.Component {
                     >
                         <OpenDrawer/>
                     </Fab>
+                    {/* Potential optimization - move variable names generation to a component and do not update that often */}
                     {this.getCodeListVariables()}
                 </h3>
                 { nonEditable && (

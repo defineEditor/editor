@@ -36,7 +36,7 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        addItemGroup: (itemGroup) => dispatch(addItemGroup(itemGroup)),
+        addItemGroup: (updateObj) => dispatch(addItemGroup(updateObj)),
     };
 };
 
