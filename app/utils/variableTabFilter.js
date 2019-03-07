@@ -27,10 +27,9 @@ import Switch from '@material-ui/core/Switch';
 import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import getSelectionList from 'utils/getSelectionList.js';
-import getTableDataForFilter from 'utils/getTableDataForFilter.js';
+import getTableDataAsText from 'utils/getTableDataAsText.js';
 import clone from 'clone';
 import InternalHelp from 'components/utils/internalHelp.js';
 import { VARIABLE_FILTER } from 'constants/help.js';
@@ -108,9 +107,9 @@ const mapStateToProps = state => {
 };
 
 const comparators = {
-    string: ['IN', 'NOTIN', 'STARTS', 'ENDS', 'CONTAINS', 'REGEX', 'REGEXI'],
+    string: ['IN', 'NOTIN', 'EQ', 'NE', 'STARTS', 'ENDS', 'CONTAINS', 'REGEX', 'REGEXI'],
     number: ['<', '<=', '>', '>=', 'IN', 'NOTIN'],
-    flag: ['IN', 'NOTIN'],
+    flag: ['EQ', 'NE', 'IN', 'NOTIN'],
 };
 
 const filterFields = {
@@ -157,9 +156,9 @@ class ConnectedVariableTabFilter extends React.Component {
             values.dataset = Object.keys(itemGroups).map(itemGroupOid => (itemGroups[itemGroupOid].name));
         }
         // As filters are cross-dataset, it is possible that some of the values are not in the new dataset
-        // add all values which are already in the IN and NOTIN filters
+        // add all values which are already in the IN, NOTIN, EQ, NE filters
         conditions.forEach(condition => {
-            if (['IN', 'NOTIN'].includes(condition.comparator)) {
+            if (['IN', 'NOTIN', 'EQ', 'NE'].includes(condition.comparator)) {
                 condition.selectedValues.forEach(selectedValue => {
                     if (!values[condition.field].includes(selectedValue)) {
                         values[condition.field].push(selectedValue);
@@ -186,9 +185,14 @@ class ConnectedVariableTabFilter extends React.Component {
             }
             result[index].field = updateObj.target.value;
             if (filterFields[this.state.conditions[index].field].type !== filterFields[result[index].field].type ||
-                ['IN', 'NOTIN'].includes(result[index].comparator)) {
-                // If field type changed or IN/NOTIN comparators were used, reset all other values
-                result[index].comparator = 'IN';
+                ['IN', 'NOTIN', 'EQ', 'NE'].includes(result[index].comparator)) {
+                // If field type changed or IN/NOTIN/EQ/NE comparators were used, reset all other values
+                // For flags use EQ as a default comparator
+                if (filterFields[result[index].field].type === 'flag') {
+                    result[index].comparator = 'EQ';
+                } else {
+                    result[index].comparator = 'IN';
+                }
                 result[index].selectedValues = [];
             }
             this.setState({
@@ -242,7 +246,7 @@ class ConnectedVariableTabFilter extends React.Component {
                 newValues.dataset = this.state.values.dataset;
                 // Add values from existing conditions
                 this.state.conditions.forEach(condition => {
-                    if (['IN', 'NOTIN'].includes(condition.comparator)) {
+                    if (['IN', 'NOTIN', 'EQ', 'NE'].includes(condition.comparator)) {
                         condition.selectedValues.forEach(selectedValue => {
                             if (!newValues[condition.field].includes(selectedValue)) {
                                 newValues[condition.field].push(selectedValue);
@@ -270,6 +274,12 @@ class ConnectedVariableTabFilter extends React.Component {
             result[newIndex].selectedValues = [''];
             this.setState({
                 conditions: result,
+                connectors,
+            });
+        } else if (name === 'switchConnector') {
+            let connectors = this.state.connectors.slice();
+            connectors[index - 1] = connectors[index - 1] === 'AND' ? 'OR' : 'AND';
+            this.setState({
                 connectors,
             });
         } else if (name === 'deleteRangeCheck') {
@@ -320,7 +330,7 @@ class ConnectedVariableTabFilter extends React.Component {
         const mdv = this.props.mdv;
         const dataset = mdv.itemGroups[itemGroupOid];
         // Get variable level metadata
-        let variables = getTableDataForFilter({
+        let variables = getTableDataAsText({
             source: dataset,
             datasetName: dataset.name,
             datasetOid: dataset.oid,
@@ -334,7 +344,7 @@ class ConnectedVariableTabFilter extends React.Component {
         variables
             .filter(item => (item.valueListOid !== undefined))
             .forEach(item => {
-                let vlmData = getTableDataForFilter({
+                let vlmData = getTableDataAsText({
                     source: mdv.valueLists[item.valueListOid],
                     datasetName: dataset.name,
                     datasetOid: dataset.oid,
@@ -393,7 +403,7 @@ class ConnectedVariableTabFilter extends React.Component {
         let result = [];
         this.state.conditions.forEach((condition, index) => {
             const multipleValuesSelect = (['IN', 'NOTIN'].indexOf(condition.comparator) >= 0);
-            const valueSelect = ['IN', 'NOTIN'].indexOf(condition.comparator) >= 0;
+            const valueSelect = ['IN', 'NOTIN', 'EQ', 'NE'].indexOf(condition.comparator) >= 0;
             const value = multipleValuesSelect && valueSelect ? condition.selectedValues : condition.selectedValues[0];
             // In case itemGroupOid is provided, exclude dataset from the list of fields
             // Allow dataset only for the first field
@@ -408,9 +418,15 @@ class ConnectedVariableTabFilter extends React.Component {
                     {index !== 0 &&
                             [
                                 <Grid item xs={12} key='connector' className={classes.connector}>
-                                    <Typography variant="subtitle1" >
+                                    <Button
+                                        color='default'
+                                        size='small'
+                                        variant='contained'
+                                        onClick={this.handleChange('switchConnector', index)}
+                                        className={classes.button}
+                                    >
                                         {this.state.connectors[index - 1]}
-                                    </Typography>
+                                    </Button>
                                 </Grid>,
                                 <Grid item key='deleteButton'>
                                     <IconButton
@@ -484,7 +500,7 @@ class ConnectedVariableTabFilter extends React.Component {
             <Grid container spacing={8} key='buttonLine' alignItems='flex-end' className={classes.connector}>
                 <Grid item xs={12} className={classes.buttonLine}>
                     <Button
-                        color='default'
+                        color='primary'
                         size='small'
                         variant='contained'
                         onClick={this.handleChange('addRangeCheck', 0, 'AND')}
@@ -493,7 +509,7 @@ class ConnectedVariableTabFilter extends React.Component {
                        AND
                     </Button>
                     <Button
-                        color='default'
+                        color='primary'
                         size='small'
                         variant='contained'
                         disabled={this.props.itemGroupOid === undefined && this.state.conditions.length === 1}
