@@ -44,7 +44,7 @@ const styles = theme => ({
     },
 });
 
-class GlobalVariablesFormatter extends React.Component {
+class AnalysisResultFormatter extends React.Component {
     render () {
         const { classes, analysisResult, mdv } = this.props;
         const { analysisReason, analysisPurpose, parameterOid, documentation, programmingCode, analysisDatasets, analysisDatasetOrder } = analysisResult;
@@ -165,7 +165,13 @@ class GlobalVariablesFormatter extends React.Component {
                                 <ListItemText primary='Programming Code'/>
                             </Grid>
                             <Grid item xs={12}>
-                                { programmingCode !== undefined && <ArmProgrammingCodeFormatter programmingCode={programmingCode} leafs={mdv.leafs}/> }
+                                { programmingCode !== undefined && (
+                                    <ArmProgrammingCodeFormatter
+                                        programmingCode={programmingCode}
+                                        showLineNumbersInCode={this.props.showLineNumbersInCode}
+                                        leafs={mdv.leafs}
+                                    />
+                                )}
                             </Grid>
                         </Grid>
                     </ListItem>
@@ -175,11 +181,12 @@ class GlobalVariablesFormatter extends React.Component {
     }
 }
 
-GlobalVariablesFormatter.propTypes = {
+AnalysisResultFormatter.propTypes = {
     classes: PropTypes.object.isRequired,
     analysisResult: PropTypes.object.isRequired,
     mdv: PropTypes.object.isRequired,
     selectGroup: PropTypes.func.isRequired,
+    showLineNumbersInCode: PropTypes.bool,
 };
 
-export default withStyles(styles)(GlobalVariablesFormatter);
+export default withStyles(styles)(AnalysisResultFormatter);
