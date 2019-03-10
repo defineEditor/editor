@@ -63,7 +63,7 @@ const shortcuts = {
         'Ctrl + N': 'Add new item (Dataset, Variable, Codelist, etc.)',
         'Ctrl + Z': 'Undo the last change when editing History is opened',
         'Ctrl + Y': 'Redo the change when editing History is opened',
-        'Ctrl + F': 'Find in the page',
+        'Ctrl + F': 'Find in the page. Focus on the Search box in the Variables tab.',
         'Ctrl + [': 'Go the to next page when pagination is enabled in the Variable tab',
         'Ctrl + ]': 'Go the to previous page when pagination is enabled in the Variable tab',
         'Arrow keys': 'Navigation in editable tables',

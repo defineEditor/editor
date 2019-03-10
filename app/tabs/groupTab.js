@@ -21,7 +21,7 @@ import VariableTable from 'tabs/variableTable.js';
 import CodedValueTable from 'tabs/codedValueTable.js';
 import AnalysisResultTable from 'tabs/analysisResultTable.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
-import getTableDataForFilter from 'utils/getTableDataForFilter.js';
+import getTableDataAsText from 'utils/getTableDataAsText.js';
 import applyFilter from 'utils/applyFilter.js';
 import {
     selectGroup,
@@ -112,7 +112,7 @@ class ConnectedGroupTab extends React.Component {
         const mdv = this.props.mdv;
         this.props.groupOrder.forEach(groupId => {
             const dataset = mdv.itemGroups[groupId];
-            let data = getTableDataForFilter({
+            let data = getTableDataAsText({
                 source: dataset,
                 datasetName: dataset.name,
                 datasetOid: dataset.oid,
@@ -131,7 +131,7 @@ class ConnectedGroupTab extends React.Component {
                 data
                     .filter(item => (item.valueListOid !== undefined))
                     .forEach(item => {
-                        let vlmDataPart = getTableDataForFilter({
+                        let vlmDataPart = getTableDataAsText({
                             source: mdv.valueLists[item.valueListOid],
                             datasetName: dataset.name,
                             datasetOid: dataset.oid,

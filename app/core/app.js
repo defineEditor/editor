@@ -52,9 +52,17 @@ const theme = createMuiTheme({
 
 // Redux functions
 const mapStateToProps = state => {
+    // On the variables tab of the editor Ctrl-F focused on a search bar
+    let disableFindToggle = false;
+    let currentPage = state.present.ui.main.currentPage;
+    const tabs = state.present.ui.tabs;
+    if (currentPage === 'editor' && tabs.hasOwnProperty('tabNames') && tabs.tabNames.hasOwnProperty(tabs.currentTab)) {
+        disableFindToggle = tabs.tabNames[tabs.currentTab] === 'Variables';
+    }
     return {
-        currentPage: state.present.ui.main.currentPage,
+        currentPage,
         showInitialMessage: state.present.settings.popUp.onStartUp,
+        disableFindToggle,
     };
 };
 
@@ -91,7 +99,7 @@ class ConnectedApp extends Component {
     onKeyDown = (event) => {
         if (event.ctrlKey && (event.keyCode === 72)) {
             this.toggleRedoUndo();
-        } else if (event.ctrlKey && (event.keyCode === 70)) {
+        } else if (event.ctrlKey && (event.keyCode === 70) && !this.props.disableFindToggle) {
             this.toggleFindInPage();
         } else if (event.ctrlKey && (event.keyCode === 191)) {
             event.preventDefault();
@@ -141,7 +149,8 @@ class ConnectedApp extends Component {
 
 ConnectedApp.propTypes = {
     currentPage: PropTypes.string.isRequired,
-    showInitialMessage: PropTypes.bool.isRequired
+    showInitialMessage: PropTypes.bool.isRequired,
+    disableFindToggle: PropTypes.bool.isRequired,
 };
 
 const App = connect(mapStateToProps, mapDispatchToProps)(ConnectedApp);
