@@ -17,6 +17,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import { remote, ipcRenderer } from 'electron';
+import clone from 'clone';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import FolderOpen from '@material-ui/icons/FolderOpen';
@@ -25,12 +26,12 @@ import TextField from '@material-ui/core/TextField';
 import Switch from '@material-ui/core/Switch';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import clone from 'clone';
-import deepEqual from 'fast-deep-equal';
-import NavigationBar from 'core/navigationBar.js';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import NavigationBar from 'core/navigationBar.js';
 import SaveCancel from 'editors/saveCancel.js';
 import getSelectionList from 'utils/getSelectionList.js';
+import InternalHelp from 'components/utils/internalHelp.js';
+import { CT_LOCATION } from 'constants/help.js';
 import { updateSettings, openModal } from 'actions/index.js';
 
 const styles = theme => ({
@@ -86,6 +87,12 @@ class ConnectedSettings extends React.Component {
     constructor (props) {
         super(props);
         this.state = clone(this.props.settings);
+        // Check if default System is used
+        if (this.state.define && this.state.define.sourceSystem === remote.app.getName()) {
+            this.state.defaultSource = true;
+        } else {
+            this.state.defaultSource = false;
+        }
     }
 
     componentDidMount () {
@@ -115,7 +122,16 @@ class ConnectedSettings extends React.Component {
     };
 
     handleChange = (category, name) => (event, checked) => {
-        if (name === 'controlledTerminologyLocation') {
+        if (category === 'defaultSource') {
+            if (this.state.defaultSource === false && this.state.define && this.state.define.sourceSystem !== remote.app.getName()) {
+                this.setState({
+                    defaultSource: !this.state.defaultSource,
+                    define: { ...this.state.define, sourceSystem: remote.app.getName(), sourceSystemVersion: remote.app.getVersion() }
+                });
+            } else {
+                this.setState({ defaultSource: !this.state.defaultSource });
+            }
+        } else if (name === 'controlledTerminologyLocation') {
             this.setState({ [category]: { ...this.state[category], [name]: event } });
         } else if ([
             'removeUnusedCodeListsInDefineXml',
@@ -142,15 +158,18 @@ class ConnectedSettings extends React.Component {
 
     getSettingsDiff = () => {
         let result = {};
-        Object.keys(this.state).forEach(category => {
-            Object.keys(this.state[category]).forEach(setting => {
+        let newSettings = clone(this.state);
+        // Remove default source flag as not part of the settings
+        delete newSettings.defaultSource;
+        Object.keys(newSettings).forEach(category => {
+            Object.keys(newSettings[category]).forEach(setting => {
                 if (
-                    this.state[category][setting] !==
+                    newSettings[category][setting] !==
                     this.props.settings[category][setting]
                 ) {
                     result[category] = {
                         ...result[category],
-                        [setting]: this.state[category][setting]
+                        [setting]: newSettings[category][setting]
                     };
                 }
             });
@@ -179,7 +198,7 @@ class ConnectedSettings extends React.Component {
 
     render () {
         const { classes } = this.props;
-        let settingsNotChanged = deepEqual(this.state, this.props.settings);
+        let settingsNotChanged = Object.keys(this.getSettingsDiff()).length === 0;
         return (
             <div className={classes.root}>
                 <NavigationBar />
@@ -212,6 +231,7 @@ class ConnectedSettings extends React.Component {
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">
+                                                <InternalHelp data={CT_LOCATION} />
                                                 <IconButton
                                                     color="default"
                                                     onClick={this.selectControlledTerminologyLocation}
@@ -421,9 +441,18 @@ class ConnectedSettings extends React.Component {
                                 />
                             </Grid>
                             <Grid item>
+                                <Switch
+                                    checked={!this.state.defaultSource}
+                                    onChange={this.handleChange('defaultSource')}
+                                    color='primary'
+                                    className={classes.switch}
+                                />
+                            </Grid>
+                            <Grid item>
                                 <TextField
                                     label="Source System"
-                                    value={this.state.define.sourceSystem || remote.app.getName()}
+                                    disabled={this.state.defaultSource}
+                                    value={(this.state.defaultSource && remote.app.getName()) || this.state.define.sourceSystem}
                                     onChange={this.handleChange('define', 'sourceSystem')}
                                     className={classes.sourceSystem}
                                 />
@@ -431,10 +460,8 @@ class ConnectedSettings extends React.Component {
                             <Grid item>
                                 <TextField
                                     label="Source System Version"
-                                    disabled={
-                                        this.state.define.sourceSystem === ''
-                                    }
-                                    value={this.state.define.sourceSystemVersion || remote.app.getVersion()}
+                                    disabled={this.state.defaultSource}
+                                    value={(this.state.defaultSource && remote.app.getVersion()) || this.state.define.sourceSystemVersion}
                                     onChange={this.handleChange('define', 'sourceSystemVersion')}
                                     className={classes.sourceSystemVersion}
                                 />

@@ -65,7 +65,7 @@ class ConnectedSelectColumns extends React.Component {
     constructor (props) {
         super(props);
 
-        let columns = clone(this.props.columns);
+        const columns = clone(this.props.columns);
 
         this.state = {
             columns,
@@ -74,7 +74,8 @@ class ConnectedSelectColumns extends React.Component {
 
     getColumnSwitches = () => {
         let columns = this.state.columns;
-        let result = Object.keys(columns)
+        // Get order from the stdColumns
+        let result = Object.keys(this.props.stdColumns)
             .filter(columnName => (columnName !== 'oid'))
             .map(columnName => {
                 let column = columns[columnName];

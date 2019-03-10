@@ -220,6 +220,8 @@ class ConnectedItemMenu extends React.Component {
                 this.insertRecord(1)();
             } else if (event.keyCode === 67) {
                 this.copy();
+            } else if (event.keyCode === 68) {
+                this.deleteItem();
             } else if (event.keyCode === 80 &&
                 !(this.props.reviewMode || (this.props.buffer === undefined || this.props.buffer.vlmLevel !== this.props.itemMenuParams.vlmLevel))) {
                 this.paste(1)();
@@ -316,7 +318,7 @@ class ConnectedItemMenu extends React.Component {
                     )}
                     <Divider/>
                     <MenuItem key='Delete' onClick={this.deleteItem} disabled={this.props.reviewMode}>
-                        Delete
+                        <u>D</u>elete
                     </MenuItem>
                 </Menu>
                 { this.state.openVlmOrder &&

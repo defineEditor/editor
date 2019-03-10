@@ -36,7 +36,7 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        addItemGroup: (itemGroup) => dispatch(addItemGroup(itemGroup)),
+        addItemGroup: (updateObj) => dispatch(addItemGroup(updateObj)),
     };
 };
 
@@ -90,7 +90,7 @@ class AddDatasetEditorConnected extends React.Component {
             datasetName: this.state.name,
             purpose: this.state.purpose,
         }) };
-        this.props.addItemGroup(itemGroup);
+        this.props.addItemGroup({ itemGroup, position: this.props.position });
         this.resetState();
         this.props.onClose();
     }
@@ -136,6 +136,7 @@ AddDatasetEditorConnected.propTypes = {
     model: PropTypes.string.isRequired,
     itemGroupOids: PropTypes.array.isRequired,
     defineVersion: PropTypes.string.isRequired,
+    position: PropTypes.number,
     disabled: PropTypes.bool,
 };
 

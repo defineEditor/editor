@@ -17,6 +17,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import Divider from '@material-ui/core/Divider';
 import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {
     deleteItemGroups,
@@ -34,6 +35,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
     return {
         itemGroups: state.present.odm.study.metaDataVersion.itemGroups,
+        itemGroupOrder: state.present.odm.study.metaDataVersion.order.itemGroupOrder,
         variableTabIndex: state.present.ui.tabs.tabNames.indexOf('Variables'),
         mdv: state.present.odm.study.metaDataVersion,
         reviewMode: state.present.ui.main.reviewMode,
@@ -41,6 +43,34 @@ const mapStateToProps = state => {
 };
 
 class ConnectedItemGroupMenu extends React.Component {
+    componentDidMount () {
+        window.addEventListener('keydown', this.onKeyDown);
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('keydown', this.onKeyDown);
+    }
+
+    onKeyDown = (event) => {
+        // Run only when menu is opened
+        if (Boolean(this.props.anchorEl) === true) {
+            if (event.keyCode === 86) {
+                this.editItemGroupVariables();
+            } else if (event.keyCode === 68) {
+                this.deleteItemGroup();
+            }
+        }
+    }
+
+    insertRecordDialog = (shift) => () => {
+        let params = this.props.itemGroupMenuParams;
+        // This is confusing as insertRecord does not have +1 added to the orderNumber, but users probably will be confused with position 0
+        // that is why +1 is added, to show the first position as 1.
+        let orderNumber = this.props.itemGroupOrder.indexOf(params.itemGroupOid) + shift;
+        this.props.onAddDataset(orderNumber);
+        this.props.onClose();
+    }
+
     deleteItemGroup = () => {
         let itemGroupOids = [this.props.itemGroupMenuParams.itemGroupOid];
         const deleteObj = getItemGroupsRelatedOids(this.props.mdv, itemGroupOids);
@@ -73,10 +103,18 @@ class ConnectedItemGroupMenu extends React.Component {
                     }}
                 >
                     <MenuItem key='EditDatasetVariables' onClick={this.editItemGroupVariables}>
-                        View Dataset Variables
+                        <u>V</u>iew Dataset Variables
                     </MenuItem>
+                    <Divider/>
+                    <MenuItem key='InsertAboveDialog' onClick={this.insertRecordDialog(0)} disabled={this.props.reviewMode}>
+                        Insert Dataset Above
+                    </MenuItem>
+                    <MenuItem key='InsertBelowDialog' onClick={this.insertRecordDialog(1)} disabled={this.props.reviewMode}>
+                        Insert Dataset Below
+                    </MenuItem>
+                    <Divider/>
                     <MenuItem key='Delete' onClick={this.deleteItemGroup} disabled={this.props.reviewMode}>
-                        Delete
+                        <u>D</u>elete
                     </MenuItem>
                 </Menu>
             </React.Fragment>
@@ -87,6 +125,7 @@ class ConnectedItemGroupMenu extends React.Component {
 ConnectedItemGroupMenu.propTypes = {
     itemGroupMenuParams: PropTypes.object.isRequired,
     itemGroups: PropTypes.object.isRequired,
+    onAddDataset: PropTypes.func.isRequired,
     reviewMode: PropTypes.bool,
     variableTabIndex: PropTypes.number,
 };

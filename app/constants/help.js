@@ -81,3 +81,16 @@ Object which is updated. Fields correspond to attributes shown in the table.
 Regular expressions should not be enclosed in delimiters (e.g., /^\\w+$/) and written without them: ^\\w+$
 `
 };
+
+export const CT_LOCATION = {
+    title: 'Controlled Terminology Location',
+    content: `
+#### About
+To load a controlled terminology in studies it is required to specify a folder containing it and then scan this folder from the Controlled Terminology page (this page can be selected in the Main Menu).
+There is no need to put all files in the same folder, as folder is scanned including all subfolders.
+#### Format
+It is expected that Controlled Terminology files are downloaded in XML format from the NCI site (\`https://evs.nci.nih.gov/ftp1/CDISC/\`).
+#### Custom Controlled Terminology
+Any Controlled Terminology XML file can be loaded as long as it is created according to the Controlled Terminology in ODM XML specification (\`https://evs.nci.nih.gov/ftp1/CDISC/ControlledTerminologyODM.pdf\`).
+`
+};
