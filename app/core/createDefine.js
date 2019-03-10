@@ -261,7 +261,10 @@ function createMetaDataVersion (data, version) {
             xmlRoot.ele(leaf);
         }
         // Analysis Result Metadata
-        if (data.hasOwnProperty('analysisResultDisplays') && Object.keys(data.analysisResultDisplays).length !== 0) {
+        if (data.hasOwnProperty('analysisResultDisplays') &&
+            data.analysisResultDisplays.hasOwnProperty('resultDisplays') &&
+            Object.keys(data.analysisResultDisplays.resultDisplays) > 0
+        ) {
             let analysisResultDisplays = { 'arm:AnalysisResultDisplays': [createArm(data.analysisResultDisplays)] };
             xmlRoot.com('***********************************');
             xmlRoot.com('Analysis Result Display Definitions');

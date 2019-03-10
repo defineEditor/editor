@@ -141,6 +141,7 @@ class ConnectedSettings extends React.Component {
             'enableSelectForStdCodedValues',
             'enableTablePagination',
             'alwaysSaveDefineXml',
+            'showLineNumbersInCode',
         ].includes(name) || category === 'popUp') {
             this.setState({ [category]: { ...this.state[category], [name]: checked } });
         } else if (['sourceSystem'].includes(name)) {
@@ -321,6 +322,17 @@ class ConnectedSettings extends React.Component {
                                             />
                                         }
                                         label='Enable item selection for the Coded Value column'
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.editor.showLineNumbersInCode}
+                                                onChange={this.handleChange('editor', 'showLineNumbersInCode')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Show line numbers in ARM programming code'
                                     />
                                     <FormControlLabel
                                         control={

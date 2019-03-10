@@ -118,6 +118,7 @@ const editor = {
     textInstantProcessing: false,
     enableSelectForStdCodedValues: true,
     enableTablePagination: false,
+    showLineNumbersInCode: false,
     defaultRowsPerPage: 25,
 };
 
