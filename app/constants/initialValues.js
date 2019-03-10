@@ -117,8 +117,9 @@ const editor = {
     lengthForAllDataTypes: false,
     textInstantProcessing: false,
     enableSelectForStdCodedValues: true,
-    enableTablePagination: false,
     showLineNumbersInCode: false,
+    removeTrailingSpacesWhenParsing: true,
+    enableTablePagination: false,
     defaultRowsPerPage: 25,
 };
 

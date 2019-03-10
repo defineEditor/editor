@@ -263,7 +263,7 @@ function createMetaDataVersion (data, version) {
         // Analysis Result Metadata
         if (data.hasOwnProperty('analysisResultDisplays') &&
             data.analysisResultDisplays.hasOwnProperty('resultDisplays') &&
-            Object.keys(data.analysisResultDisplays.resultDisplays) > 0
+            Object.keys(data.analysisResultDisplays.resultDisplays).length > 0
         ) {
             let analysisResultDisplays = { 'arm:AnalysisResultDisplays': [createArm(data.analysisResultDisplays)] };
             xmlRoot.com('***********************************');
