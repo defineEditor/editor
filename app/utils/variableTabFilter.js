@@ -194,6 +194,7 @@ class ConnectedVariableTabFilter extends React.Component {
                     result[index].comparator = 'IN';
                 }
                 result[index].selectedValues = [];
+                result[index].regexIsValid = true;
             }
             this.setState({
                 conditions: result,
@@ -204,6 +205,15 @@ class ConnectedVariableTabFilter extends React.Component {
                 return;
             }
             result[index].comparator = updateObj.target.value;
+            // In case of regular expression, verify it is valid
+            result[index].regexIsValid = true;
+            if (result[index].comparator.startsWith('REGEX')) {
+                try {
+                    RegExp(result[index].selectedValues[0]);
+                } catch (e) {
+                    result[index].regexIsValid = false;
+                }
+            }
             // Reset check values if there are multiple values selected and changing from IN/NOT to a comparator with a single value
             if (['NOTIN', 'IN'].indexOf(this.state.conditions[index].comparator) >= 0 &&
                 ['NOTIN', 'IN'].indexOf(result[index].comparator) < 0 &&
@@ -240,6 +250,15 @@ class ConnectedVariableTabFilter extends React.Component {
             } else {
                 result[index].selectedValues = [updateObj.target.value];
             }
+            // In case of regular expression, verify it is valid
+            result[index].regexIsValid = true;
+            if (result[index].comparator.startsWith('REGEX')) {
+                try {
+                    RegExp(result[index].selectedValues[0]);
+                } catch (e) {
+                    result[index].regexIsValid = false;
+                }
+            }
             // If dataset is selected, update possible values
             if (result[index].field === 'dataset') {
                 let newValues = this.getValuesForItemGroups(updateObj.target.value);
@@ -272,6 +291,7 @@ class ConnectedVariableTabFilter extends React.Component {
             result[newIndex].field = 'name';
             result[newIndex].comparator = 'IN';
             result[newIndex].selectedValues = [''];
+            result[newIndex].regexIsValid = true;
             this.setState({
                 conditions: result,
                 connectors,
@@ -486,8 +506,9 @@ class ConnectedVariableTabFilter extends React.Component {
                                 label='Value'
                                 fullWidth
                                 multiline
+                                error={!condition.regexIsValid}
                                 defaultValue={value}
-                                onBlur={this.handleChange('selectedValues', index)}
+                                onChange={this.handleChange('selectedValues', index)}
                                 className={classes.textFieldValues}
                             />
                         </Grid>
@@ -526,6 +547,8 @@ class ConnectedVariableTabFilter extends React.Component {
 
     render () {
         const { classes } = this.props;
+        // Check if any of the conditions has an invalid regex
+        const hasInvalidRegex = this.state.conditions.some(condition => (!condition.regexIsValid));
 
         return (
             <Dialog
@@ -569,6 +592,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                                 size='small'
                                                 onClick={this.enable}
                                                 variant='contained'
+                                                disabled={hasInvalidRegex}
                                                 className={classes.button}
                                             >
                                                 Enable
@@ -593,6 +617,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                             size='small'
                                             onClick={this.save}
                                             variant='contained'
+                                            disabled={hasInvalidRegex}
                                             className={classes.button}
                                         >
                                             Save

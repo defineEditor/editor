@@ -445,10 +445,7 @@ class ConnectedVariableTable extends React.Component {
                         data = data.filter(row => (vlmFilteredOidsByItem[itemOid].includes(row.oid)));
                     }
                     let vlmFilteredOids = applyFilter(data, this.props.filter);
-                    // Variable level item with at least one VLM passing the filter
-                    if (vlmFilteredOids.length > 0) {
-                        vlmFilteredOidsByItem[itemOid] = vlmFilteredOids;
-                    }
+                    vlmFilteredOidsByItem[itemOid] = vlmFilteredOids;
                 });
         }
         // Get Variable level Metadata
