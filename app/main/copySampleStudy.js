@@ -18,16 +18,34 @@ import { app } from 'electron';
 import { promisify } from 'util';
 
 const copyFile = promisify(fs.copyFile);
+const mkdir = promisify(fs.mkdir);
 
 async function copySampleStudy(mainWindow) {
-    let destinationFile = path.join(app.getPath('userData'), 'defines', 'NG.DEF.SAMPLE.SDTM.nogz');
+    let pathToDefines = path.join(app.getPath('userData'), 'defines');
+    let destinationFile = path.join(pathToDefines, 'NG.DEF.SAMPLE.SDTM.nogz');
     let sampleFile = path.join( __dirname, '..',  'static', 'sampleStudy', 'NG.DEF.SAMPLE.SDTM.nogz');
 
     try {
-        await copyFile(sampleFile, destinationFile, fs.constants.COPYFILE_EXCL);
-        mainWindow.webContents.send('sampleStudyCopied');
+        await mkdir(pathToDefines);
+        try {
+            await copyFile(sampleFile, destinationFile, fs.constants.COPYFILE_EXCL);
+            mainWindow.webContents.send('sampleStudyCopied');
+        } catch (err) {
+            // File already exists
+            return;
+        }
     } catch (err) {
-        // File already exists
+        if (err.code == 'EEXIST') {
+            try {
+                await copyFile(sampleFile, destinationFile, fs.constants.COPYFILE_EXCL);
+                mainWindow.webContents.send('sampleStudyCopied');
+            } catch (err) {
+                // File already exists
+                return;
+            }
+        } else {
+            throw new Error('Failed creating defines folder: ' + pathToDefines);
+        }
     }
 }
 
