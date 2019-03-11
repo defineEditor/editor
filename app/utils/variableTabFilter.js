@@ -27,7 +27,9 @@ import Switch from '@material-ui/core/Switch';
 import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
+import DoneAll from '@material-ui/icons/DoneAll';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import getSelectionList from 'utils/getSelectionList.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
 import clone from 'clone';
@@ -242,15 +244,22 @@ class ConnectedVariableTabFilter extends React.Component {
                     values: newValues,
                 });
             }
-        } else if (name === 'selectedValues') {
-            if (typeof updateObj.target.value === 'object') {
-                // Fix an issue when a blank values appreas when keyboard is used
-                // TODO: Investigate issue, see https://trello.com/c/GVhBqI4W/65
-                result[index].selectedValues = updateObj.target.value.filter(value => value !== '');
+        } else if (name === 'selectedValues' || name === 'selectAllValues') {
+            if (name === 'selectAllValues' && this.state.values.hasOwnProperty(result[index].field)) {
+                result[index].selectedValues = this.state.values[result[index].field];
+            } else if (name === 'selectAllValues') {
+                // Select All does nothing when there is no codelist
+                return;
             } else {
-                result[index].selectedValues = [updateObj.target.value];
+                if (typeof updateObj.target.value === 'object') {
+                    // Fix an issue when a blank values appreas when keyboard is used
+                    // TODO: Investigate issue, see https://trello.com/c/GVhBqI4W/65
+                    result[index].selectedValues = updateObj.target.value.filter(value => value !== '');
+                } else {
+                    result[index].selectedValues = [updateObj.target.value];
+                }
             }
-            // In case of regular expression, verify it is valid
+            // In case of a regular expression, verify it is valid
             result[index].regexIsValid = true;
             if (result[index].comparator.startsWith('REGEX')) {
                 try {
@@ -261,7 +270,7 @@ class ConnectedVariableTabFilter extends React.Component {
             }
             // If dataset is selected, update possible values
             if (result[index].field === 'dataset') {
-                let newValues = this.getValuesForItemGroups(updateObj.target.value);
+                let newValues = this.getValuesForItemGroups(result[index].selectedValues);
                 newValues.dataset = this.state.values.dataset;
                 // Add values from existing conditions
                 this.state.conditions.forEach(condition => {
@@ -442,6 +451,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                         color='default'
                                         size='small'
                                         variant='contained'
+                                        disabled={index === 1 && this.props.itemGroupOid === undefined}
                                         onClick={this.handleChange('switchConnector', index)}
                                         className={classes.button}
                                     >
@@ -485,7 +495,7 @@ class ConnectedVariableTabFilter extends React.Component {
                             {getSelectionList(comparators[filterFields[condition.field].type])}
                         </TextField>
                     </Grid>
-                    { valueSelect ? (
+                    { condition.field === 'dataset' ? (
                         <Grid item className={classes.valuesGridItem}>
                             <TextField
                                 label='Values'
@@ -496,24 +506,52 @@ class ConnectedVariableTabFilter extends React.Component {
                                 SelectProps={{ multiple: multipleValuesSelect }}
                                 onChange={this.handleChange('selectedValues', index)}
                                 className={classes.textFieldValues}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <IconButton
+                                                color="default"
+                                                onClick={this.handleChange('selectAllValues', index)}
+                                            >
+                                                <DoneAll />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    )
+                                }}
                             >
                                 {getSelectionList(this.state.values[condition.field], this.state.values[condition.field].length === 0)}
                             </TextField>
                         </Grid>
                     ) : (
-                        <Grid item>
-                            <TextField
-                                label='Value'
-                                fullWidth
-                                multiline
-                                error={!condition.regexIsValid}
-                                defaultValue={value}
-                                onChange={this.handleChange('selectedValues', index)}
-                                className={classes.textFieldValues}
-                            />
-                        </Grid>
-                    )
-                    }
+                        valueSelect ? (
+                            <Grid item className={classes.valuesGridItem}>
+                                <TextField
+                                    label='Values'
+                                    select
+                                    fullWidth
+                                    multiline
+                                    value={value}
+                                    SelectProps={{ multiple: multipleValuesSelect }}
+                                    onChange={this.handleChange('selectedValues', index)}
+                                    className={classes.textFieldValues}
+                                >
+                                    {getSelectionList(this.state.values[condition.field], this.state.values[condition.field].length === 0)}
+                                </TextField>
+                            </Grid>
+                        ) : (
+                            <Grid item>
+                                <TextField
+                                    label='Value'
+                                    fullWidth
+                                    multiline
+                                    error={!condition.regexIsValid}
+                                    defaultValue={value}
+                                    onChange={this.handleChange('selectedValues', index)}
+                                    className={classes.textFieldValues}
+                                />
+                            </Grid>
+                        )
+                    )}
                 </Grid>
             );
         });

@@ -142,6 +142,7 @@ class ConnectedSettings extends React.Component {
             'enableTablePagination',
             'alwaysSaveDefineXml',
             'showLineNumbersInCode',
+            'removeTrailingSpacesWhenParsing',
         ].includes(name) || category === 'popUp') {
             this.setState({ [category]: { ...this.state[category], [name]: checked } });
         } else if (['sourceSystem'].includes(name)) {
@@ -333,6 +334,17 @@ class ConnectedSettings extends React.Component {
                                             />
                                         }
                                         label='Show line numbers in ARM programming code'
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.editor.removeTrailingSpacesWhenParsing}
+                                                onChange={this.handleChange('editor', 'removeTrailingSpacesWhenParsing')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Remove trailing spaces from element values when importing Define-XML'
                                     />
                                     <FormControlLabel
                                         control={

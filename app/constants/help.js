@@ -78,7 +78,13 @@ Object which is updated. Fields correspond to attributes shown in the table.
 #### Update modes
 * **Set** - Overwrite existing or create a new field value.
 * **Replace** - Search for a specific text in the field and replace it. It is possible to use regular expressions.
-Regular expressions should not be enclosed in delimiters (e.g., /^\\w+$/) and written without them: ^\\w+$
+Regular expressions should not be enclosed in delimiters (e.g., /^\\w+$/) and written without them: ^\\w+$.
+Matched groups can be referenced using $1, $2, ... $n.
+
+**Warning** Be careful when using regex with zero-length matches as this may lead to an unexpected result.
+Zero-length matches are those which can match 0 characters, e.g., '**.***', '**\\b**', '**a***'.
+Replacing string 'foo' with 'bar' using regex **(foo)*** will result in 'barbar'. Use regexes like '**.+**', '**\\b\\w**', '**\\sa***' instead.
+This is how regular expressions work, SAS programmers can try it by executing **prxChange('s/(foo)*/bar/', -1, 'foo')**.
 `
 };
 

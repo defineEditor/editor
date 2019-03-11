@@ -75,8 +75,8 @@ class ConnectedModalBugReport extends React.Component {
     }
 
     onReset = (event) => {
-        this.props.reset();
         this.props.closeModal();
+        this.props.reset();
     }
 
     render () {
