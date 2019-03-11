@@ -27,10 +27,11 @@ import Switch from '@material-ui/core/Switch';
 import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
+import DoneAll from '@material-ui/icons/DoneAll';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import getSelectionList from 'utils/getSelectionList.js';
-import getTableDataForFilter from 'utils/getTableDataForFilter.js';
+import getTableDataAsText from 'utils/getTableDataAsText.js';
 import clone from 'clone';
 import InternalHelp from 'components/utils/internalHelp.js';
 import { VARIABLE_FILTER } from 'constants/help.js';
@@ -108,9 +109,9 @@ const mapStateToProps = state => {
 };
 
 const comparators = {
-    string: ['IN', 'NOTIN', 'STARTS', 'ENDS', 'CONTAINS', 'REGEX', 'REGEXI'],
+    string: ['IN', 'NOTIN', 'EQ', 'NE', 'STARTS', 'ENDS', 'CONTAINS', 'REGEX', 'REGEXI'],
     number: ['<', '<=', '>', '>=', 'IN', 'NOTIN'],
-    flag: ['IN', 'NOTIN'],
+    flag: ['EQ', 'NE', 'IN', 'NOTIN'],
 };
 
 const filterFields = {
@@ -157,9 +158,9 @@ class ConnectedVariableTabFilter extends React.Component {
             values.dataset = Object.keys(itemGroups).map(itemGroupOid => (itemGroups[itemGroupOid].name));
         }
         // As filters are cross-dataset, it is possible that some of the values are not in the new dataset
-        // add all values which are already in the IN and NOTIN filters
+        // add all values which are already in the IN, NOTIN, EQ, NE filters
         conditions.forEach(condition => {
-            if (['IN', 'NOTIN'].includes(condition.comparator)) {
+            if (['IN', 'NOTIN', 'EQ', 'NE'].includes(condition.comparator)) {
                 condition.selectedValues.forEach(selectedValue => {
                     if (!values[condition.field].includes(selectedValue)) {
                         values[condition.field].push(selectedValue);
@@ -186,10 +187,16 @@ class ConnectedVariableTabFilter extends React.Component {
             }
             result[index].field = updateObj.target.value;
             if (filterFields[this.state.conditions[index].field].type !== filterFields[result[index].field].type ||
-                ['IN', 'NOTIN'].includes(result[index].comparator)) {
-                // If field type changed or IN/NOTIN comparators were used, reset all other values
-                result[index].comparator = 'IN';
+                ['IN', 'NOTIN', 'EQ', 'NE'].includes(result[index].comparator)) {
+                // If field type changed or IN/NOTIN/EQ/NE comparators were used, reset all other values
+                // For flags use EQ as a default comparator
+                if (filterFields[result[index].field].type === 'flag') {
+                    result[index].comparator = 'EQ';
+                } else {
+                    result[index].comparator = 'IN';
+                }
                 result[index].selectedValues = [];
+                result[index].regexIsValid = true;
             }
             this.setState({
                 conditions: result,
@@ -200,6 +207,15 @@ class ConnectedVariableTabFilter extends React.Component {
                 return;
             }
             result[index].comparator = updateObj.target.value;
+            // In case of regular expression, verify it is valid
+            result[index].regexIsValid = true;
+            if (result[index].comparator.startsWith('REGEX')) {
+                try {
+                    RegExp(result[index].selectedValues[0]);
+                } catch (e) {
+                    result[index].regexIsValid = false;
+                }
+            }
             // Reset check values if there are multiple values selected and changing from IN/NOT to a comparator with a single value
             if (['NOTIN', 'IN'].indexOf(this.state.conditions[index].comparator) >= 0 &&
                 ['NOTIN', 'IN'].indexOf(result[index].comparator) < 0 &&
@@ -228,21 +244,37 @@ class ConnectedVariableTabFilter extends React.Component {
                     values: newValues,
                 });
             }
-        } else if (name === 'selectedValues') {
-            if (typeof updateObj.target.value === 'object') {
-                // Fix an issue when a blank values appreas when keyboard is used
-                // TODO: Investigate issue, see https://trello.com/c/GVhBqI4W/65
-                result[index].selectedValues = updateObj.target.value.filter(value => value !== '');
+        } else if (name === 'selectedValues' || name === 'selectAllValues') {
+            if (name === 'selectAllValues' && this.state.values.hasOwnProperty(result[index].field)) {
+                result[index].selectedValues = this.state.values[result[index].field];
+            } else if (name === 'selectAllValues') {
+                // Select All does nothing when there is no codelist
+                return;
             } else {
-                result[index].selectedValues = [updateObj.target.value];
+                if (typeof updateObj.target.value === 'object') {
+                    // Fix an issue when a blank values appreas when keyboard is used
+                    // TODO: Investigate issue, see https://trello.com/c/GVhBqI4W/65
+                    result[index].selectedValues = updateObj.target.value.filter(value => value !== '');
+                } else {
+                    result[index].selectedValues = [updateObj.target.value];
+                }
+            }
+            // In case of a regular expression, verify it is valid
+            result[index].regexIsValid = true;
+            if (result[index].comparator.startsWith('REGEX')) {
+                try {
+                    RegExp(result[index].selectedValues[0]);
+                } catch (e) {
+                    result[index].regexIsValid = false;
+                }
             }
             // If dataset is selected, update possible values
             if (result[index].field === 'dataset') {
-                let newValues = this.getValuesForItemGroups(updateObj.target.value);
+                let newValues = this.getValuesForItemGroups(result[index].selectedValues);
                 newValues.dataset = this.state.values.dataset;
                 // Add values from existing conditions
                 this.state.conditions.forEach(condition => {
-                    if (['IN', 'NOTIN'].includes(condition.comparator)) {
+                    if (['IN', 'NOTIN', 'EQ', 'NE'].includes(condition.comparator)) {
                         condition.selectedValues.forEach(selectedValue => {
                             if (!newValues[condition.field].includes(selectedValue)) {
                                 newValues[condition.field].push(selectedValue);
@@ -268,8 +300,15 @@ class ConnectedVariableTabFilter extends React.Component {
             result[newIndex].field = 'name';
             result[newIndex].comparator = 'IN';
             result[newIndex].selectedValues = [''];
+            result[newIndex].regexIsValid = true;
             this.setState({
                 conditions: result,
+                connectors,
+            });
+        } else if (name === 'switchConnector') {
+            let connectors = this.state.connectors.slice();
+            connectors[index - 1] = connectors[index - 1] === 'AND' ? 'OR' : 'AND';
+            this.setState({
                 connectors,
             });
         } else if (name === 'deleteRangeCheck') {
@@ -320,7 +359,7 @@ class ConnectedVariableTabFilter extends React.Component {
         const mdv = this.props.mdv;
         const dataset = mdv.itemGroups[itemGroupOid];
         // Get variable level metadata
-        let variables = getTableDataForFilter({
+        let variables = getTableDataAsText({
             source: dataset,
             datasetName: dataset.name,
             datasetOid: dataset.oid,
@@ -334,7 +373,7 @@ class ConnectedVariableTabFilter extends React.Component {
         variables
             .filter(item => (item.valueListOid !== undefined))
             .forEach(item => {
-                let vlmData = getTableDataForFilter({
+                let vlmData = getTableDataAsText({
                     source: mdv.valueLists[item.valueListOid],
                     datasetName: dataset.name,
                     datasetOid: dataset.oid,
@@ -393,7 +432,7 @@ class ConnectedVariableTabFilter extends React.Component {
         let result = [];
         this.state.conditions.forEach((condition, index) => {
             const multipleValuesSelect = (['IN', 'NOTIN'].indexOf(condition.comparator) >= 0);
-            const valueSelect = ['IN', 'NOTIN'].indexOf(condition.comparator) >= 0;
+            const valueSelect = ['IN', 'NOTIN', 'EQ', 'NE'].indexOf(condition.comparator) >= 0;
             const value = multipleValuesSelect && valueSelect ? condition.selectedValues : condition.selectedValues[0];
             // In case itemGroupOid is provided, exclude dataset from the list of fields
             // Allow dataset only for the first field
@@ -408,9 +447,16 @@ class ConnectedVariableTabFilter extends React.Component {
                     {index !== 0 &&
                             [
                                 <Grid item xs={12} key='connector' className={classes.connector}>
-                                    <Typography variant="subtitle1" >
+                                    <Button
+                                        color='default'
+                                        size='small'
+                                        variant='contained'
+                                        disabled={index === 1 && this.props.itemGroupOid === undefined}
+                                        onClick={this.handleChange('switchConnector', index)}
+                                        className={classes.button}
+                                    >
                                         {this.state.connectors[index - 1]}
-                                    </Typography>
+                                    </Button>
                                 </Grid>,
                                 <Grid item key='deleteButton'>
                                     <IconButton
@@ -449,7 +495,7 @@ class ConnectedVariableTabFilter extends React.Component {
                             {getSelectionList(comparators[filterFields[condition.field].type])}
                         </TextField>
                     </Grid>
-                    { valueSelect ? (
+                    { condition.field === 'dataset' ? (
                         <Grid item className={classes.valuesGridItem}>
                             <TextField
                                 label='Values'
@@ -460,23 +506,52 @@ class ConnectedVariableTabFilter extends React.Component {
                                 SelectProps={{ multiple: multipleValuesSelect }}
                                 onChange={this.handleChange('selectedValues', index)}
                                 className={classes.textFieldValues}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <IconButton
+                                                color="default"
+                                                onClick={this.handleChange('selectAllValues', index)}
+                                            >
+                                                <DoneAll />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    )
+                                }}
                             >
                                 {getSelectionList(this.state.values[condition.field], this.state.values[condition.field].length === 0)}
                             </TextField>
                         </Grid>
                     ) : (
-                        <Grid item>
-                            <TextField
-                                label='Value'
-                                fullWidth
-                                multiline
-                                defaultValue={value}
-                                onBlur={this.handleChange('selectedValues', index)}
-                                className={classes.textFieldValues}
-                            />
-                        </Grid>
-                    )
-                    }
+                        valueSelect ? (
+                            <Grid item className={classes.valuesGridItem}>
+                                <TextField
+                                    label='Values'
+                                    select
+                                    fullWidth
+                                    multiline
+                                    value={value}
+                                    SelectProps={{ multiple: multipleValuesSelect }}
+                                    onChange={this.handleChange('selectedValues', index)}
+                                    className={classes.textFieldValues}
+                                >
+                                    {getSelectionList(this.state.values[condition.field], this.state.values[condition.field].length === 0)}
+                                </TextField>
+                            </Grid>
+                        ) : (
+                            <Grid item>
+                                <TextField
+                                    label='Value'
+                                    fullWidth
+                                    multiline
+                                    error={!condition.regexIsValid}
+                                    defaultValue={value}
+                                    onChange={this.handleChange('selectedValues', index)}
+                                    className={classes.textFieldValues}
+                                />
+                            </Grid>
+                        )
+                    )}
                 </Grid>
             );
         });
@@ -484,7 +559,7 @@ class ConnectedVariableTabFilter extends React.Component {
             <Grid container spacing={8} key='buttonLine' alignItems='flex-end' className={classes.connector}>
                 <Grid item xs={12} className={classes.buttonLine}>
                     <Button
-                        color='default'
+                        color='primary'
                         size='small'
                         variant='contained'
                         onClick={this.handleChange('addRangeCheck', 0, 'AND')}
@@ -493,7 +568,7 @@ class ConnectedVariableTabFilter extends React.Component {
                        AND
                     </Button>
                     <Button
-                        color='default'
+                        color='primary'
                         size='small'
                         variant='contained'
                         disabled={this.props.itemGroupOid === undefined && this.state.conditions.length === 1}
@@ -510,6 +585,8 @@ class ConnectedVariableTabFilter extends React.Component {
 
     render () {
         const { classes } = this.props;
+        // Check if any of the conditions has an invalid regex
+        const hasInvalidRegex = this.state.conditions.some(condition => (!condition.regexIsValid));
 
         return (
             <Dialog
@@ -553,6 +630,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                                 size='small'
                                                 onClick={this.enable}
                                                 variant='contained'
+                                                disabled={hasInvalidRegex}
                                                 className={classes.button}
                                             >
                                                 Enable
@@ -577,6 +655,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                             size='small'
                                             onClick={this.save}
                                             variant='contained'
+                                            disabled={hasInvalidRegex}
                                             className={classes.button}
                                         >
                                             Save

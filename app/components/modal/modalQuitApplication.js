@@ -45,6 +45,15 @@ const styles = theme => ({
     },
 });
 
+const mapStateToProps = state => {
+    return {
+        currentStudyId: state.present.ui.main.currentStudyId,
+        currentDefineId: state.present.ui.main.currentDefineId,
+        studies: state.present.studies,
+        defines: state.present.defines,
+    };
+};
+
 const mapDispatchToProps = dispatch => {
     return {
         closeModal: () => dispatch(closeModal()),
@@ -90,6 +99,17 @@ class ConnectedModalQuitApplication extends React.Component {
     render () {
         const { classes } = this.props;
 
+        // Get the names of the current Define and Study
+        let studyName;
+        if (this.props.studies.allIds.includes(this.props.currentStudyId)) {
+            studyName = this.props.studies.byId[this.props.currentStudyId].name;
+        }
+
+        let defineName;
+        if (this.props.defines.allIds.includes(this.props.currentDefineId)) {
+            defineName = this.props.defines.byId[this.props.currentDefineId].name;
+        }
+
         return (
             <Dialog
                 disableBackdropClick
@@ -106,7 +126,12 @@ class ConnectedModalQuitApplication extends React.Component {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        You have unsaved changes in your current Define-XML file. Would you like to save the changes before closing the application?
+                        You have unsaved changed in your current Define-XML document
+                        (
+                        {studyName !== undefined && 'Study: ' + studyName + ', '}
+                        {defineName !== undefined && 'Define: ' + defineName}
+                        ).
+                        Save them before closing the application?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -130,10 +155,12 @@ ConnectedModalQuitApplication.propTypes = {
     appQuit: PropTypes.func.isRequired,
     appSave: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
+    currentDefineId: PropTypes.string.isRequired,
+    currentStudyId: PropTypes.string.isRequired,
     defineId: PropTypes.string.isRequired,
     odm: PropTypes.object.isRequired,
     tabs: PropTypes.object.isRequired,
 };
 
-const ModalQuitApplication = connect(undefined, mapDispatchToProps)(ConnectedModalQuitApplication);
+const ModalQuitApplication = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalQuitApplication);
 export default withStyles(styles)(ModalQuitApplication);

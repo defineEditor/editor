@@ -19,12 +19,7 @@ import PropTypes from 'prop-types';
 import { BootstrapTable, ButtonGroup } from 'react-bootstrap-table';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
-import renderColumns from 'utils/renderColumns.js';
-import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
-import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
-import ItemMenu from 'components/menus/itemMenu.js';
-import VariableTabFilter from 'utils/variableTabFilter.js';
-import VariableTabUpdate from 'utils/variableTabUpdate.js';
+import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
@@ -41,8 +36,14 @@ import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import OpenDrawer from '@material-ui/icons/ArrowUpward';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import TablePagination from '@material-ui/core/TablePagination';
+import renderColumns from 'utils/renderColumns.js';
+import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
+import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
+import ItemMenu from 'components/menus/itemMenu.js';
+import VariableTabFilter from 'utils/variableTabFilter.js';
+import VariableTabUpdate from 'utils/variableTabUpdate.js';
 import getTableData from 'utils/getTableData.js';
-import getTableDataForFilter from 'utils/getTableDataForFilter.js';
+import getTableDataAsText from 'utils/getTableDataAsText.js';
 import applyFilter from 'utils/applyFilter.js';
 import SelectColumns from 'utils/selectColumns.js';
 import KeyOrderEditor from 'components/orderEditors/keyOrderEditor.js';
@@ -83,6 +84,16 @@ const styles = theme => ({
         marginTop: theme.spacing.unit * 2,
         marginBottom: theme.spacing.unit * 2,
         color: grey[600]
+    },
+    searchField: {
+        marginTop: '0',
+    },
+    searchInput: {
+        paddingTop: '9px',
+        paddingBottom: '9px',
+    },
+    searchLabel: {
+        transform: 'translate(10px, 10px)',
     },
 });
 
@@ -235,6 +246,8 @@ class ConnectedVariableTable extends React.Component {
             columns.oid.hidden = this.props.showRowSelect;
         }
 
+        this.searchFieldRef = React.createRef();
+
         const editorFormatters = {
             oid: {
                 dataFormat: this.menuFormatter,
@@ -289,6 +302,7 @@ class ConnectedVariableTable extends React.Component {
             selectedVlmRows: {},
             itemGroupOid: this.props.itemGroupOid,
             setScrollY: false,
+            searchString: '',
         };
     }
 
@@ -356,6 +370,16 @@ class ConnectedVariableTable extends React.Component {
         }
         if (event.ctrlKey && (event.keyCode === 78)) {
             this.setState({ showAddVariable: true, insertPosition: null });
+        } else if (event.ctrlKey && (event.keyCode === 70)) {
+            event.preventDefault();
+            this.searchFieldRef.current.focus();
+        }
+    }
+
+    onSearchKeyDown = (event) => {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            this.setState({ searchString: event.target.value });
         }
     }
 
@@ -363,14 +387,50 @@ class ConnectedVariableTable extends React.Component {
         const mdv = this.props.mdv;
         const dataset = mdv.itemGroups[this.props.itemGroupOid];
 
-        // In case of a filter, select all filtered VLM oids
         let vlmFilteredOidsByItem = {};
-        if (this.props.filter.isEnabled && this.props.filter.applyToVlm) {
+
+        // Handle Search
+        const searchString = this.state.searchString;
+        if (searchString) {
+            // If search string contains capital cases, use case-sensitive search
+            const caseSensitiveSearch = /[A-Z]/.test(searchString);
             Object.keys(dataset.itemRefs)
                 .filter(itemRefOid => (mdv.itemDefs[dataset.itemRefs[itemRefOid].itemOid].valueListOid !== undefined))
                 .forEach(itemRefOid => {
                     let itemOid = dataset.itemRefs[itemRefOid].itemOid;
-                    let data = getTableDataForFilter({
+                    let data = getTableDataAsText({
+                        source: mdv.valueLists[mdv.itemDefs[itemOid].valueListOid],
+                        datasetName: dataset.name,
+                        datasetOid: dataset.oid,
+                        itemDefs: mdv.itemDefs,
+                        codeLists: mdv.codeLists,
+                        mdv: mdv,
+                        defineVersion: this.props.defineVersion,
+                        vlmLevel: 1,
+                        columns: this.state.columns,
+                    });
+                    // Go through each text item and search for the corresponding text, exlude OID items
+                    data = data.filter(row => (Object.keys(row)
+                        .filter(item => (!item.toUpperCase().includes('OID')))
+                        .some(item => {
+                            if (caseSensitiveSearch) {
+                                return typeof row[item] === 'string' && row[item].includes(searchString);
+                            } else {
+                                return typeof row[item] === 'string' && row[item].toLowerCase().includes(searchString);
+                            }
+                        })
+                    ));
+                    vlmFilteredOidsByItem[itemOid] = data.map(row => (row.oid));
+                });
+        }
+        // In case of a filter, select all filtered VLM oids
+        if (this.props.filter.isEnabled && this.props.filter.applyToVlm) {
+            Object.keys(dataset.itemRefs)
+                .filter(itemRefOid => (mdv.itemDefs[dataset.itemRefs[itemRefOid].itemOid].valueListOid !== undefined))
+                .filter(itemRefOid => (!searchString || Object.keys(vlmFilteredOidsByItem).includes(dataset.itemRefs[itemRefOid].itemOid)))
+                .forEach(itemRefOid => {
+                    let itemOid = dataset.itemRefs[itemRefOid].itemOid;
+                    let data = getTableDataAsText({
                         source: mdv.valueLists[mdv.itemDefs[itemOid].valueListOid],
                         datasetName: dataset.name,
                         datasetOid: dataset.oid,
@@ -380,19 +440,47 @@ class ConnectedVariableTable extends React.Component {
                         defineVersion: this.props.defineVersion,
                         vlmLevel: 1,
                     });
-                    let vlmFilteredOids = applyFilter(data, this.props.filter);
-                    // Variable level item with at least one VLM passing the filter
-                    if (vlmFilteredOids.length > 0) {
-                        vlmFilteredOidsByItem[itemOid] = vlmFilteredOids;
+                    if (searchString) {
+                        // Keep only rows which were filtered by search string
+                        data = data.filter(row => (vlmFilteredOidsByItem[itemOid].includes(row.oid)));
                     }
+                    let vlmFilteredOids = applyFilter(data, this.props.filter);
+                    vlmFilteredOidsByItem[itemOid] = vlmFilteredOids;
                 });
         }
         // Get Variable level Metadata
         // Select filtered values
         let filteredOids;
         let specialHighlightOids = [];
+        if (searchString) {
+            // If search string contains capital cases, use case-sensitive search
+            const caseSensitiveSearch = /[A-Z]/.test(searchString);
+            let data = getTableDataAsText({
+                source: dataset,
+                datasetName: dataset.name,
+                datasetOid: dataset.oid,
+                itemDefs: mdv.itemDefs,
+                codeLists: mdv.codeLists,
+                mdv: mdv,
+                defineVersion: this.props.defineVersion,
+                vlmLevel: 0,
+                columns: this.state.columns,
+            });
+            // Go through each text item and search for the corresponding text, exlude OID items
+            data = data.filter(row => (Object.keys(row)
+                .filter(item => (!item.toUpperCase().includes('OID')))
+                .some(item => {
+                    if (caseSensitiveSearch) {
+                        return typeof row[item] === 'string' && row[item].includes(searchString);
+                    } else {
+                        return typeof row[item] === 'string' && row[item].toLowerCase().includes(searchString);
+                    }
+                })
+            ));
+            filteredOids = data.map(row => (row.oid));
+        }
         if (this.props.filter.isEnabled) {
-            let data = getTableDataForFilter({
+            let data = getTableDataAsText({
                 source: dataset,
                 datasetName: dataset.name,
                 datasetOid: dataset.oid,
@@ -402,11 +490,17 @@ class ConnectedVariableTable extends React.Component {
                 defineVersion: this.props.defineVersion,
                 vlmLevel: 0,
             });
+            if (searchString) {
+                // Keep only rows which were filtered by search string
+                data = data.filter(row => (filteredOids.includes(row.oid)));
+            }
             filteredOids = applyFilter(data, this.props.filter);
+        }
+        if (filteredOids !== undefined) {
             // In case VLMs are selected by a filter, show parent variables
             // Track those which were not selected by a filter, so that they can be highlighted
             Object.keys(vlmFilteredOidsByItem).forEach(itemOid => {
-                if (!filteredOids.includes(itemOid)) {
+                if (!filteredOids.includes(itemOid) && vlmFilteredOidsByItem[itemOid].length > 0) {
                     filteredOids.push(itemOid);
                     specialHighlightOids.push(itemOid);
                 }
@@ -676,6 +770,18 @@ class ConnectedVariableTable extends React.Component {
                 </Grid>
                 <Grid item style={{ paddingRight: '25px' }}>
                     <Grid container spacing={16} justify='flex-end'>
+                        <Grid item>
+                            <TextField
+                                variant='outlined'
+                                label='Search'
+                                inputRef={this.searchFieldRef}
+                                inputProps={{ className: this.props.classes.searchInput }}
+                                InputLabelProps={{ className: this.props.classes.searchLabel }}
+                                className={this.props.classes.searchField}
+                                defaultValue={this.state.searchString}
+                                onKeyDown={this.onSearchKeyDown}
+                                onBlur={(event) => { this.setState({ searchString: event.target.value }); }}/>
+                        </Grid>
                         { hasVlm &&
                                 <Grid item>
                                     <Button
@@ -878,7 +984,7 @@ class ConnectedVariableTable extends React.Component {
 
         const options = {
             toolBar: this.createCustomToolBar,
-            btnGroup: this.createCustomButtonGroup
+            btnGroup: this.createCustomButtonGroup,
         };
 
         let selectedItems;

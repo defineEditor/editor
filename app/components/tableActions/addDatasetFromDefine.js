@@ -177,7 +177,7 @@ class AddDatasetFromDefineConnected extends React.Component {
             itemGroupList: this.state.selected,
         });
         // Get position to insert
-        let positionUpd = position || (mdv.order.itemGroupOrder.length + 1);
+        let positionUpd = Number.isInteger(position) ? position : mdv.order.itemGroupOrder.length;
 
         this.props.addItemGroups({
             position: positionUpd,

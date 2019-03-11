@@ -2,8 +2,8 @@
  * @NOTE: Prepend a `~` to css file paths that are in your node_modules
  *        See https://github.com/webpack-contrib/sass-loader#imports
  */
+@import 'prism.css';
 @import '~bootstrap/dist/css/bootstrap.css';
-@import '~react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 @import '~react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 
 @import '~typeface-roboto/index.css';

@@ -115,8 +115,10 @@ const editor = {
     removeUnusedCodeListsInDefineXml: true,
     getNameLabelFromWhereClause: true,
     lengthForAllDataTypes: false,
-    textInstantProcessing: false,
+    textInstantProcessing: true,
     enableSelectForStdCodedValues: true,
+    showLineNumbersInCode: false,
+    removeTrailingSpacesWhenParsing: true,
     enableTablePagination: false,
     defaultRowsPerPage: 25,
 };

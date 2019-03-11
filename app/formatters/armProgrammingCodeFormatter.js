@@ -33,11 +33,31 @@ class ArmProgrammingCodeFormatter extends React.Component {
     render () {
         const { classes, programmingCode } = this.props;
         const { context, code, documents } = programmingCode;
+        let language;
+        if (/\bSAS\d*\b/i.test(context)) {
+            language = 'sas';
+        } else if (/\bR\d*\b/i.test(context)) {
+            language = 'r';
+        } else if (/\bPython\d*\b/i.test(context)) {
+            language = 'python';
+        }
 
         return (
             <React.Fragment>
-                { context !== undefined && (<div className={classes.context} key={'context'}>{programmingCode.context}</div>) }
-                { code !== undefined && (<div className={classes.code} key={'code'}>{programmingCode.code}</div>) }
+                { context !== undefined && (<div className={classes.context} key='context'>{context}</div>) }
+                { code !== undefined && (
+                    language ? (
+                        <pre className={this.props.showLineNumbersInCode ? 'line-numbers' : undefined}>
+                            <code className={`language-${language}`}>
+                                {code}
+                            </code>
+                        </pre>
+                    ) : (
+                        <div className={classes.code} key='code'>
+                            {code}
+                        </div>
+                    )
+                ) }
                 { (documents.length !== 0) && <DocumentFormatter documents={documents} leafs={this.props.leafs}/> }
             </React.Fragment>
         );
@@ -48,6 +68,7 @@ ArmProgrammingCodeFormatter.propTypes = {
     classes: PropTypes.object,
     programmingCode: PropTypes.object.isRequired,
     leafs: PropTypes.object.isRequired,
+    showLineNumbersInCode: PropTypes.bool,
 };
 
 export default withStyles(styles)(ArmProgrammingCodeFormatter);

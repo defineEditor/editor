@@ -17,6 +17,7 @@ import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import Badge from '@material-ui/core/Badge';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -73,6 +74,8 @@ const mapStateToProps = state => {
     }
     return {
         tabs: state.present.ui.tabs,
+        isCurrentDefineSaved: state.present.ui.main.isCurrentDefineSaved,
+        actionsDone: state.index,
         hasArm,
     };
 };
@@ -117,17 +120,17 @@ class ConnectedEditorTabs extends React.Component {
 
     onKeyDown = (event) => {
         if (event.ctrlKey && (event.keyCode === 49)) {
-            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Variables'));
-        } else if (event.ctrlKey && (event.keyCode === 50)) {
-            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Coded Values'));
-        } else if (event.ctrlKey && (event.keyCode === 51)) {
-            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Codelists'));
-        } else if (event.ctrlKey && (event.keyCode === 52)) {
-            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Datasets'));
-        } else if (event.ctrlKey && (event.keyCode === 53)) {
-            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Documents'));
-        } else if (event.ctrlKey && (event.keyCode === 54)) {
             this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Standards'));
+        } else if (event.ctrlKey && (event.keyCode === 50)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Datasets'));
+        } else if (event.ctrlKey && (event.keyCode === 51)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Variables'));
+        } else if (event.ctrlKey && (event.keyCode === 52)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Codelists'));
+        } else if (event.ctrlKey && (event.keyCode === 53)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Coded Values'));
+        } else if (event.ctrlKey && (event.keyCode === 54)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Documents'));
         } else if (event.ctrlKey && (event.keyCode === 55) && this.props.hasArm) {
             this.handleChange(undefined, this.props.tabs.tabNames.indexOf('ARM Summary'));
         } else if (event.ctrlKey && (event.keyCode === 56) && this.props.hasArm) {
@@ -172,11 +175,13 @@ class ConnectedEditorTabs extends React.Component {
             <div className={classes.root}>
                 <div className='doNotPrint'>
                     <IconButton
-                        color='default'
+                        color={this.props.isCurrentDefineSaved ? 'default' : 'primary'}
                         onClick={this.props.toggleMainMenu}
                         className={classes.menuToggle}
                     >
-                        <MenuIcon/>
+                        <Badge color={this.props.isCurrentDefineSaved ? 'default' : 'primary'} badgeContent={this.props.actionsDone}>
+                            <MenuIcon/>
+                        </Badge>
                     </IconButton>
                     <AppBar position="fixed" color='default'>
                         <Tabs
@@ -217,6 +222,7 @@ ConnectedEditorTabs.propTypes = {
     hasArm: PropTypes.bool.isRequired,
     toggleMainMenu: PropTypes.func.isRequired,
     changeTab: PropTypes.func.isRequired,
+    actionsDone: PropTypes.number.isRequired,
 };
 
 const EditorTabs = connect(mapStateToProps, mapDispatchToProps)(ConnectedEditorTabs);

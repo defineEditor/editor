@@ -52,13 +52,13 @@ const mapDispatchToProps = dispatch => {
 
 class ConnectedModalDeleteStudy extends React.Component {
     onDelete = () => {
+        this.props.closeModal();
         this.props.deleteDefine({
             defineId: this.props.defineId,
             studyId: this.props.studyId,
         });
         // Delete associated file from the storage
         ipcRenderer.send('deleteDefineObject', this.props.defineId);
-        this.props.closeModal();
     }
 
     onCancel = () => {

@@ -67,8 +67,8 @@ const mapDispatchToProps = dispatch => {
 class ConnectedModalChangeDefine extends React.Component {
     onSave = () => {
         saveState();
-        this.props.changePage({ page: 'editor', defineId: this.props.defineId, studyId: this.props.studyId });
         this.props.closeModal();
+        this.props.changePage({ page: 'editor', defineId: this.props.defineId, studyId: this.props.studyId });
     }
 
     onCancel = () => {
@@ -76,8 +76,8 @@ class ConnectedModalChangeDefine extends React.Component {
     }
 
     onDiscard = () => {
-        this.props.changePage({ page: 'editor', defineId: this.props.defineId, studyId: this.props.studyId });
         this.props.closeModal();
+        this.props.changePage({ page: 'editor', defineId: this.props.defineId, studyId: this.props.studyId });
     }
 
     onKeyDown = (event) => {

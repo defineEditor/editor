@@ -18,6 +18,7 @@ import store from 'store/index.js';
 import getDefineStats from 'utils/getDefineStats.js';
 import {
     appSave,
+    openModal,
 } from 'actions/index.js';
 
 function saveDefineXml (odm, pathToFile) {
@@ -48,6 +49,17 @@ function saveState (type) {
                         saveDefineXml(odm, pathToFile);
                     });
                 } else {
+                    if (alwaysSaveDefineXml === true && pathToFile === '') {
+                        store.dispatch(openModal({
+                            type: 'GENERAL',
+                            props: {
+                                title: 'Missing path to Define-XML',
+                                message: 'You have enabled the "Write changes to Define-XML" option, but did not specify' +
+                                ' a path for the current Define-XML. Either disable the option or specify the path. To specify the path' +
+                                ' use the "Save As" button in the main menu once or set it in Standards -> Other Attributes.',
+                            }
+                        }));
+                    }
                     let stats = getDefineStats(odm);
                     ipcRenderer.once('writeDefineObjectFinished', (event, defineId) => { store.dispatch(appSave({ defineId, stats })); });
                 }

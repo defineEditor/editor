@@ -716,12 +716,12 @@ function parseOdm (odmRaw, stylesheetLocation) {
     return new def.Odm(args);
 }
 
-function parseDefine (result) {
-    removeNamespace(result.data);
-    convertAttrsToLCC(result.data);
+function parseDefine (parsedXml) {
+    removeNamespace(parsedXml.data);
+    convertAttrsToLCC(parsedXml.data);
 
     // Parse Study
-    let odm = parseOdm(result.data.odm, result.stylesheetLocation);
+    let odm = parseOdm(parsedXml.data.odm, parsedXml.stylesheetLocation);
 
     return odm;
 }

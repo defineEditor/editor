@@ -59,6 +59,23 @@ class ConnectedCodeListMenu extends React.Component {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
+    onKeyDown = (event) => {
+        // Run only when menu is opened
+        if (Boolean(this.props.anchorEl) === true && !this.props.reviewMode) {
+            if (event.keyCode === 73) {
+                this.insertRecord(1)();
+            } else if (event.keyCode === 67) {
+                this.copy();
+            } else if (event.keyCode === 68) {
+                this.deleteCodeList();
+            } else if (event.keyCode === 80 && !(this.props.buffer === undefined)) {
+                this.paste(1)();
+            } else if (event.keyCode === 86) {
+                this.editCodeListValues();
+            }
+        }
+    }
+
     insertRecord = (shift) => () => {
         let codeListOid = getOid('CodeList', undefined, Object.keys(this.props.codeLists));
         let orderNumber = this.props.codeListOrder.indexOf(this.props.codeListMenuParams.codeListOid) + shift;
@@ -90,19 +107,6 @@ class ConnectedCodeListMenu extends React.Component {
         // insert the codelist
         this.props.addCodeList(codeList, orderNumber);
         this.props.onClose();
-    }
-
-    onKeyDown = (event) => {
-        // Run only when menu is opened
-        if (Boolean(this.props.anchorEl) === true && !this.props.reviewMode) {
-            if (event.keyCode === 73) {
-                this.insertRecord(1)();
-            } else if (event.keyCode === 67) {
-                this.copy();
-            } else if (event.keyCode === 80 && !(this.props.buffer === undefined)) {
-                this.paste(1)();
-            }
-        }
     }
 
     deleteCodeList = () => {
@@ -157,6 +161,11 @@ class ConnectedCodeListMenu extends React.Component {
                         },
                     }}
                 >
+                    { !(this.props.codeListMenuParams.codeListType === 'external') && (
+                        <MenuItem key='EditCodelistValues' onClick={this.editCodeListValues}>
+                            <u>V</u>iew Codelist Values
+                        </MenuItem>
+                    )}
                     <MenuItem key='Insert Row Above' onClick={this.insertRecord(0)} disabled={this.props.reviewMode}>
                         Insert Row Above
                     </MenuItem>
@@ -174,13 +183,8 @@ class ConnectedCodeListMenu extends React.Component {
                         <u>P</u>aste Codelist Below
                     </MenuItem>
                     <Divider/>
-                    { !(this.props.codeListMenuParams.codeListType === 'external') && (
-                        <MenuItem key='EditCodelistValues' onClick={this.editCodeListValues}>
-                            View Codelist Values
-                        </MenuItem>
-                    )}
                     <MenuItem key='Delete' onClick={this.deleteCodeList} disabled={this.props.reviewMode}>
-                        Delete
+                        <u>D</u>elete
                     </MenuItem>
                 </Menu>
             </React.Fragment>

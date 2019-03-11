@@ -27,6 +27,7 @@ import FolderOpen from '@material-ui/icons/FolderOpen';
 import Typography from '@material-ui/core/Typography';
 import parseDefine from 'parsers/parseDefine.js';
 import checkDefineXml from 'utils/checkDefineXml.js';
+import removeTrailingSpaces from 'utils/removeTrailingSpaces.js';
 
 const styles = theme => ({
     button: {
@@ -72,6 +73,9 @@ class AddDefineFormStep1 extends React.Component {
         try {
             let defineData = parseDefine(data);
             let checkResult = checkDefineXml(defineData);
+            if (this.props.removeTrailingSpaces === true) {
+                removeTrailingSpaces(defineData);
+            }
             if (checkResult.length === 0) {
                 this.setState({ defineData, pathToDefineXml, parsingErrors: [] });
             } else {
@@ -200,6 +204,7 @@ AddDefineFormStep1.propTypes = {
     classes: PropTypes.object.isRequired,
     defineCreationMethod: PropTypes.string.isRequired,
     defineData: PropTypes.object,
+    removeTrailingSpaces: PropTypes.bool,
     onNext: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
 };

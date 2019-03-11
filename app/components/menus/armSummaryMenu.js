@@ -48,6 +48,29 @@ const mapStateToProps = state => {
 };
 
 class ConnectedArmSummaryMenu extends React.Component {
+    componentDidMount () {
+        window.addEventListener('keydown', this.onKeyDown);
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('keydown', this.onKeyDown);
+    }
+
+    onKeyDown = (event) => {
+        // Run only when menu is opened
+        if (Boolean(this.props.anchorEl) === true) {
+            if (event.keyCode === 67) {
+                this.copy();
+            } else if (event.keyCode === 68) {
+                this.deleteResultDisplay();
+            } else if (event.keyCode === 80 && !(this.props.reviewMode || (this.props.buffer === undefined))) {
+                this.paste(1)();
+            } else if (event.keyCode === 86) {
+                this.editResultDisplayValues();
+            }
+        }
+    }
+
     deleteResultDisplay = () => {
         let analysisResults = this.props.analysisResultDisplays.analysisResults;
         let resultDisplays = this.props.analysisResultDisplays.resultDisplays;
@@ -131,7 +154,7 @@ class ConnectedArmSummaryMenu extends React.Component {
                     }}
                 >
                     <MenuItem key='EditResultDisplay' onClick={this.editResultDisplayValues}>
-                        View Details
+                        <u>V</u>iew Details
                     </MenuItem>
                     <Divider/>
                     <MenuItem key='InsertAboveDialog' onClick={this.insertRecordDialog(0)} disabled={this.props.reviewMode}>
@@ -142,7 +165,7 @@ class ConnectedArmSummaryMenu extends React.Component {
                     </MenuItem>
                     <Divider/>
                     <MenuItem key='Copy' onClick={this.copy} disabled={this.props.reviewMode}>
-                        Copy
+                        <u>C</u>opy
                     </MenuItem>
                     <MenuItem
                         key='PasteAbove'
@@ -156,11 +179,11 @@ class ConnectedArmSummaryMenu extends React.Component {
                         onClick={this.paste(1)}
                         disabled={this.props.reviewMode || this.props.buffer === undefined}
                     >
-                        Paste Below
+                        <u>P</u>aste Below
                     </MenuItem>
                     <Divider/>
                     <MenuItem key='Delete' onClick={this.deleteResultDisplay} disabled={this.props.reviewMode}>
-                        Delete
+                        <u>D</u>elete
                     </MenuItem>
                 </Menu>
             </React.Fragment>

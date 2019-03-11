@@ -15,6 +15,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import Prism from 'prismjs';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
@@ -92,10 +93,12 @@ class ConnectedAnalysisResultTable extends React.Component {
             }
             this.setState({ setScrollY: false });
         }
+        Prism.highlightAll();
     }
 
     componentDidMount () {
         window.addEventListener('keydown', this.onKeyDown);
+        Prism.highlightAll();
     }
 
     componentWillUnmount () {
