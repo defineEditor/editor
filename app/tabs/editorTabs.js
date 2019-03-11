@@ -17,6 +17,7 @@ import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import Badge from '@material-ui/core/Badge';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -74,6 +75,7 @@ const mapStateToProps = state => {
     return {
         tabs: state.present.ui.tabs,
         isCurrentDefineSaved: state.present.ui.main.isCurrentDefineSaved,
+        actionsDone: state.index,
         hasArm,
     };
 };
@@ -177,7 +179,9 @@ class ConnectedEditorTabs extends React.Component {
                         onClick={this.props.toggleMainMenu}
                         className={classes.menuToggle}
                     >
-                        <MenuIcon/>
+                        <Badge color={this.props.isCurrentDefineSaved ? 'default' : 'primary'} badgeContent={this.props.actionsDone}>
+                            <MenuIcon/>
+                        </Badge>
                     </IconButton>
                     <AppBar position="fixed" color='default'>
                         <Tabs
@@ -218,6 +222,7 @@ ConnectedEditorTabs.propTypes = {
     hasArm: PropTypes.bool.isRequired,
     toggleMainMenu: PropTypes.func.isRequired,
     changeTab: PropTypes.func.isRequired,
+    actionsDone: PropTypes.number.isRequired,
 };
 
 const EditorTabs = connect(mapStateToProps, mapDispatchToProps)(ConnectedEditorTabs);

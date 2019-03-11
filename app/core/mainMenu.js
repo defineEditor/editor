@@ -23,6 +23,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Switch from '@material-ui/core/Switch';
 import Drawer from '@material-ui/core/Drawer';
+import Badge from '@material-ui/core/Badge';
 import IconButton from '@material-ui/core/IconButton';
 import Divider from '@material-ui/core/Divider';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -64,6 +65,11 @@ const styles = theme => ({
     reviewModeSwitch: {
         margin: 'none',
     },
+    badge: {
+        top: '50%',
+        right: '-15px',
+        border: `2px solid ${theme.palette.grey[500]}`
+    }
 });
 
 // Redux functions
@@ -73,6 +79,7 @@ const mapStateToProps = state => {
         currentPage: state.present.ui.main.currentPage,
         currentDefineId: state.present.ui.main.currentDefineId,
         reviewMode: state.present.ui.main.reviewMode,
+        actionsDone: state.index,
     };
 };
 
@@ -176,7 +183,11 @@ class ConnectedMainMenu extends React.Component {
                                         <ListItemIcon>
                                             <History/>
                                         </ListItemIcon>
-                                        <ListItemText primary='History'/>
+                                        <ListItemText primary={(
+                                            <Badge color='default' badgeContent={this.props.actionsDone} classes={{ badge: classes.badge }}>
+                                                History
+                                            </Badge>
+                                        )}/>
                                     </ListItem>
                                 ), (
                                     <ListItem button key='save' onClick={this.save}>
@@ -264,6 +275,7 @@ ConnectedMainMenu.propTypes = {
     changePage: PropTypes.func.isRequired,
     toggleReviewMode: PropTypes.func.isRequired,
     updateMainUi: PropTypes.func.isRequired,
+    actionsDone: PropTypes.number.isRequired,
 };
 
 const MainMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedMainMenu);
