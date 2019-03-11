@@ -138,7 +138,7 @@ class ConnectedVariableTabUpdate extends React.Component {
         let filter = {
             isEnabled: false,
             applyToVlm: true,
-            conditions: [{ field: 'dataset', comparator: 'IN', selectedValues: [this.props.mdv.itemGroups[this.props.itemGroupOid].name] }],
+            conditions: [{ field: 'dataset', comparator: 'IN', selectedValues: [this.props.mdv.itemGroups[this.props.itemGroupOid].name], regexIsValid: true }],
             connectors: [],
         };
         // Get value lists for select editors
