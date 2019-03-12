@@ -67,6 +67,7 @@ const mapStateToProps = state => {
         mdv: state.present.odm.study.metaDataVersion,
         reviewMode: state.present.ui.main.reviewMode,
         variableTabIndex: state.present.ui.tabs.tabNames.indexOf('Variables'),
+        showLineNumbersInCode: state.present.settings.editor.showLineNumbersInCode,
     };
 };
 
@@ -158,6 +159,7 @@ class ConnectedAnalysisResultTile extends React.Component {
                                 mdv={this.props.mdv}
                                 analysisResult={analysisResult}
                                 selectGroup={this.selectGroup}
+                                showLineNumbersInCode={this.props.showLineNumbersInCode}
                             />
                         )}
                     </CardContent>
@@ -185,6 +187,7 @@ ConnectedAnalysisResultTile.propTypes = {
     resultDisplayOid: PropTypes.string.isRequired,
     selectGroup: PropTypes.func.isRequired,
     variableTabIndex: PropTypes.number,
+    showLineNumbersInCode: PropTypes.bool,
 };
 
 const AnalysisResultTile = connect(mapStateToProps, mapDispatchToProps)(ConnectedAnalysisResultTile);

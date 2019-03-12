@@ -78,6 +78,25 @@ Object which is updated. Fields correspond to attributes shown in the table.
 #### Update modes
 * **Set** - Overwrite existing or create a new field value.
 * **Replace** - Search for a specific text in the field and replace it. It is possible to use regular expressions.
-Regular expressions should not be enclosed in delimiters (e.g., /^\\w+$/) and written without them: ^\\w+$
+Regular expressions should not be enclosed in delimiters (e.g., /^\\w+$/) and written without them: ^\\w+$.
+Matched groups can be referenced using $1, $2, ... $n.
+
+**Warning** Be careful when using regex with zero-length matches as this may lead to an unexpected result.
+Zero-length matches are those which can match 0 characters, e.g., '**.***', '**\\b**', '**a***'.
+Replacing string 'foo' with 'bar' using regex **(foo)*** will result in 'barbar'. Use regexes like '**.+**', '**\\b\\w**', '**\\sa***' instead.
+This is how regular expressions work, SAS programmers can try it by executing **prxChange('s/(foo)*/bar/', -1, 'foo')**.
+`
+};
+
+export const CT_LOCATION = {
+    title: 'Controlled Terminology Location',
+    content: `
+#### About
+To load a controlled terminology in studies it is required to specify a folder containing it and then scan this folder from the Controlled Terminology page (this page can be selected in the Main Menu).
+There is no need to put all files in the same folder, as folder is scanned including all subfolders.
+#### Format
+It is expected that Controlled Terminology files are downloaded in XML format from the NCI site (\`https://evs.nci.nih.gov/ftp1/CDISC/\`).
+#### Custom Controlled Terminology
+Any Controlled Terminology XML file can be loaded as long as it is created according to the Controlled Terminology in ODM XML specification (\`https://evs.nci.nih.gov/ftp1/CDISC/ControlledTerminologyODM.pdf\`).
 `
 };

@@ -48,8 +48,8 @@ const mapDispatchToProps = dispatch => {
 
 class ConnectedModalQuitApplication extends React.Component {
     onSave = () => {
-        this.props.updateSettings(this.props.updatedSettings);
         this.props.closeModal();
+        this.props.updateSettings(this.props.updatedSettings);
     }
 
     onDiscard = () => {

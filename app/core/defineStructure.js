@@ -34,7 +34,7 @@ class Alias {
 }
 
 class TranslatedText {
-    constructor ({ lang = 'en', value } = {}) {
+    constructor ({ lang = 'en', value = '' } = {}) {
         this.lang = lang;
         this.value = value;
     }

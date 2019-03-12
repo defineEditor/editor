@@ -14,7 +14,7 @@
 
 import { getDescription, getWhereClauseAsText } from 'utils/defineStructureUtils.js';
 // Extract data required for the table;
-function getTableDataForFilter ({ source, datasetName, datasetOid, itemDefs, codeLists, mdv, defineVersion, vlmLevel } = {}) {
+function getTableDataAsText ({ source, datasetName, datasetOid, itemDefs, codeLists, mdv, defineVersion, vlmLevel, columns } = {}) {
     let result = [];
     Object.keys(source.itemRefs).forEach((itemRefOid, index) => {
         const originVar = source.itemRefs[itemRefOid];
@@ -31,17 +31,22 @@ function getTableDataForFilter ({ source, datasetName, datasetOid, itemDefs, cod
             displayFormat: originItemDef.displayFormat,
             mandatory: originVar.mandatory,
             keySequence: source.keyOrder.includes(itemRefOid) ? source.keyOrder.indexOf(itemRefOid) + 1 : undefined,
-            isVlm: vlmLevel === 0 ? 'No' : 'Yes',
-            parentItemDef: originItemDef.parentItemDefOid !== undefined ? mdv.itemDefs[originItemDef.parentItemDefOid].name : '',
             length: originItemDef.length,
             fractionDigits: originItemDef.fractionDigits,
-            lengthAsData: originItemDef.lengthAsData,
-            lengthAsCodeList: originItemDef.lengthAsCodeList,
-            valueListOid: originItemDef.valueListOid,
             role: originVar.role,
-            hasVlm: originItemDef.valueListOid !== undefined ? 'Yes' : 'No',
             whereClause: originVar.whereClauseOid !== undefined ? getWhereClauseAsText(mdv.whereClauses[originVar.whereClauseOid], mdv) : undefined,
         };
+        // Add some properties only in case columns are not provided (as search should not be performed for them)
+        if (columns === undefined) {
+            currentVar = { ...currentVar,
+                isVlm: vlmLevel === 0 ? 'No' : 'Yes',
+                parentItemDef: originItemDef.parentItemDefOid !== undefined ? mdv.itemDefs[originItemDef.parentItemDefOid].name : '',
+                lengthAsData: originItemDef.lengthAsData,
+                lengthAsCodeList: originItemDef.lengthAsCodeList,
+                valueListOid: originItemDef.valueListOid,
+                hasVlm: originItemDef.valueListOid !== undefined ? 'Yes' : 'No',
+            };
+        }
         currentVar.hasDocument = 'No';
         if (originItemDef.commentOid !== undefined) {
             let comment = mdv.comments[originItemDef.commentOid];
@@ -64,9 +69,50 @@ function getTableDataForFilter ({ source, datasetName, datasetOid, itemDefs, cod
             }
         }
 
+        // In case columns are provided, keep only columns which are not hidden
+        if (columns !== undefined) {
+            delete currentVar.hasDocument;
+            Object.keys(columns).forEach(columnName => {
+                if (columns[columnName].hidden === true) {
+                    switch (columnName) {
+                        case 'keyOrder' :
+                            delete currentVar.keySequence;
+                            break;
+                        case 'nameLabelWhereClause' :
+                            delete currentVar.name;
+                            delete currentVar.whereClause;
+                            delete currentVar.label;
+                            break;
+                        case 'dataType' :
+                            delete currentVar.dataType;
+                            break;
+                        case 'lengthAttrs' :
+                            delete currentVar.length;
+                            delete currentVar.fractionDigits;
+                            break;
+                        case 'roleAttrs' :
+                            delete currentVar.role;
+                            break;
+                        case 'mandatory' :
+                            delete currentVar.mandatory;
+                            break;
+                        case 'codeListFormatAttrs' :
+                            delete currentVar.codeList;
+                            delete currentVar.displayFormat;
+                            break;
+                        case 'description' :
+                            delete currentVar.method;
+                            delete currentVar.origin;
+                            delete currentVar.comment;
+                            break;
+                    }
+                }
+            });
+        }
+
         result[source.itemRefOrder.indexOf(itemRefOid)] = currentVar;
     });
     return result;
 }
 
-export default getTableDataForFilter;
+export default getTableDataAsText;

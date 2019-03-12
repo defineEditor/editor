@@ -18,6 +18,10 @@ function checkCondition (data, condition) {
         return condition.selectedValues.includes(data);
     } else if (condition.comparator === 'NOTIN') {
         return !condition.selectedValues.includes(data);
+    } else if (condition.comparator === 'EQ') {
+        return condition.selectedValues[0] === data;
+    } else if (condition.comparator === 'NE') {
+        return condition.selectedValues[0] !== data;
     } else if (condition.comparator === 'CONTAINS') {
         return (data || '').toLowerCase().includes(condition.selectedValues[0].toLowerCase());
     } else if (condition.comparator === 'STARTS') {

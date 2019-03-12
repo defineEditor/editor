@@ -1,16 +1,16 @@
 /***********************************************************************************
-* This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
-*                                                                                  *
-* Visual Define-XML Editor is free software: you can redistribute it and/or modify *
-* it under the terms of version 3 of the GNU Affero General Public License         *
-*                                                                                  *
-* Visual Define-XML Editor is distributed in the hope that it will be useful,      *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY   *
-* or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
-* version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
-***********************************************************************************/
+ * This file is part of Visual Define-XML Editor. A program which allows to review  *
+ * and edit XML files created using the CDISC Define-XML standard.                  *
+ * Copyright (C) 2018 Dmitry Kolosov                                                *
+ *                                                                                  *
+ * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
+ * it under the terms of version 3 of the GNU Affero General Public License         *
+ *                                                                                  *
+ * Visual Define-XML Editor is distributed in the hope that it will be useful,      *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY   *
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
+ * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
+ ***********************************************************************************/
 
 import {
     ADD_ITEMGROUP,
@@ -20,8 +20,15 @@ import {
 } from 'constants/action-types';
 
 const addItemGroup = (state, action) => {
-    let newState = state.slice();
-    newState.push(action.itemGroup.oid);
+    let newState;
+    let position = action.updateObj.position;
+    if (position === undefined || position >= state.length) {
+        newState = state.slice();
+        newState.push(action.updateObj.itemGroup.oid);
+    } else {
+        newState = state.slice(0, position).concat(action.updateObj.itemGroup.oid).concat(state.slice(position));
+    }
+    newState = 'bug';
     return newState;
 };
 

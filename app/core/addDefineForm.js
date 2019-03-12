@@ -65,6 +65,10 @@ const mapStateToProps = state => {
     if (state.present.studies.byId.hasOwnProperty(state.present.ui.studies.currentStudyId)) {
         study = state.present.studies.byId[state.present.ui.studies.currentStudyId];
     }
+    let removeTrailingSpaces;
+    if (state.present.settings.editor) {
+        removeTrailingSpaces = state.present.settings.editor.removeTrailingSpacesWhenParsing;
+    }
     return {
         study,
         defineForm: state.present.ui.studies.defineForm,
@@ -73,6 +77,7 @@ const mapStateToProps = state => {
         standardNames: state.present.stdConstants.standardNames,
         settings: state.present.settings.define,
         controlledTerminology: state.present.controlledTerminology,
+        removeTrailingSpaces,
     };
 };
 
@@ -233,6 +238,7 @@ class ConnectedAddDefineForm extends React.Component {
                             onCancel={this.handleCancel}
                             defineCreationMethod={this.state.defineCreationMethod}
                             defineData={this.state.defineData}
+                            removeTrailingSpaces={this.props.removeTrailingSpaces}
                         />
                     )}
                     {activeStep === 2 && (
@@ -275,7 +281,8 @@ ConnectedAddDefineForm.propTypes = {
     settings: PropTypes.object.isRequired,
     controlledTerminology: PropTypes.object.isRequired,
     defineForm: PropTypes.bool.isRequired,
-    toggleAddDefineForm: PropTypes.func.isRequired
+    toggleAddDefineForm: PropTypes.func.isRequired,
+    removeTrailingSpaces: PropTypes.bool,
 };
 
 const AddDefineForm = connect(mapStateToProps, mapDispatchToProps)(

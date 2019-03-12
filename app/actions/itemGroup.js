@@ -49,10 +49,10 @@ export const updateKeyOrder = (itemGroupOid, keyOrder) => (
     }
 );
 
-export const addItemGroup = (itemGroup) => (
+export const addItemGroup = (updateObj) => (
     {
         type: ADD_ITEMGROUP,
-        itemGroup: itemGroup,
+        updateObj,
     }
 );
 

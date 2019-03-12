@@ -31,7 +31,7 @@ import Fab from '@material-ui/core/Fab';
 import Typography from '@material-ui/core/Typography';
 import getSelectionList from 'utils/getSelectionList.js';
 import VariableTabUpdateField from 'utils/variableTabUpdateField.js';
-import getTableDataForFilter from 'utils/getTableDataForFilter.js';
+import getTableDataAsText from 'utils/getTableDataAsText.js';
 import applyFilter from 'utils/applyFilter.js';
 import sortCodeLists from 'utils/sortCodeLists.js';
 import InternalHelp from 'components/utils/internalHelp.js';
@@ -138,7 +138,7 @@ class ConnectedVariableTabUpdate extends React.Component {
         let filter = {
             isEnabled: false,
             applyToVlm: true,
-            conditions: [{ field: 'dataset', comparator: 'IN', selectedValues: [this.props.mdv.itemGroups[this.props.itemGroupOid].name] }],
+            conditions: [{ field: 'dataset', comparator: 'IN', selectedValues: [this.props.mdv.itemGroups[this.props.itemGroupOid].name], regexIsValid: true }],
             connectors: [],
         };
         // Get value lists for select editors
@@ -245,7 +245,7 @@ class ConnectedVariableTabUpdate extends React.Component {
         const mdv = this.props.mdv;
         const dataset = mdv.itemGroups[this.props.itemGroupOid];
         // Get variable level metadata
-        let variables = getTableDataForFilter({
+        let variables = getTableDataAsText({
             source: dataset,
             datasetName: dataset.name,
             datasetOid: dataset.oid,
@@ -259,7 +259,7 @@ class ConnectedVariableTabUpdate extends React.Component {
         variables
             .filter(item => (item.valueListOid !== undefined))
             .forEach(item => {
-                let vlmData = getTableDataForFilter({
+                let vlmData = getTableDataAsText({
                     source: mdv.valueLists[item.valueListOid],
                     datasetName: dataset.name,
                     datasetOid: dataset.oid,
@@ -319,7 +319,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                     }
                 });
             } else {
-                let data = getTableDataForFilter({
+                let data = getTableDataAsText({
                     source: dataset,
                     datasetName: dataset.name,
                     datasetOid: dataset.oid,
@@ -338,7 +338,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                     data
                         .filter(item => (item.valueListOid !== undefined))
                         .forEach(item => {
-                            let vlmData = getTableDataForFilter({
+                            let vlmData = getTableDataAsText({
                                 source: mdv.valueLists[item.valueListOid],
                                 datasetName: dataset.name,
                                 datasetOid: dataset.oid,
