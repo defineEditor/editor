@@ -22,6 +22,7 @@ import writeDefineObject from './main/writeDefineObject.js';
 import exportStudy from './main/exportStudy.js';
 import importStudy from './main/importStudy.js';
 import loadDefineObject from './main/loadDefineObject.js';
+import copySampleStudy from './main/copySampleStudy.js';
 import loadControlledTerminology from './main/loadControlledTerminology.js';
 import deleteDefineObject from './main/deleteDefineObject.js';
 import scanControlledTerminologyFolder from './main/scanControlledTerminologyFolder.js';
@@ -147,6 +148,10 @@ ipcMain.on('exportStudy', (event, exportObject) => {
 // Import Study
 ipcMain.on('importStudy', (event, idObject) => {
     importStudy(mainWindow, idObject);
+});
+// Copy sample study data from the app directory to the user config directory
+ipcMain.on('copySampleStudy', (event) => {
+    copySampleStudy(mainWindow);
 });
 
 ipcMain.on('quitConfirmed', (event) => {

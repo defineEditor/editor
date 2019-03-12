@@ -33,9 +33,9 @@ const store = createStore(
     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__({ actionSanitizer }),
 );
 
-// Save state every minute as a backup
+// Save state every 5 minutes as a backup
 store.subscribe(
-    throttle(60000, () => { saveState('backup'); })
+    throttle(300000, () => { saveState('backup'); })
 );
 
 export default store;

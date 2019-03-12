@@ -37,6 +37,10 @@ function saveState (type) {
     let alwaysSaveDefineXml = state.settings.general.alwaysSaveDefineXml;
     // Close main menu when saving
     let stateToSave = { ...state, ui: { ...state.ui, main: { ...state.ui.main, mainMenuOpened: false } } };
+    // If it is a backup, write only if ODM is not blank
+    if (type === 'backup' && (!stateToSave.hasOwnProperty('odm') || Object.keys(stateToSave.odm).length === 0)) {
+        return;
+    }
     // Save current Define
     if (type !== 'noWrite') {
         if (stateToSave.ui.main.currentDefineId !== '' && Object.keys(stateToSave.odm).length > 0) {

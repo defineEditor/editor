@@ -26,6 +26,7 @@ const main = (() => {
         quitNormally: null,
         reviewMode: false,
         showDataInput: false,
+        sampleStudyCopied: false,
         copyBuffer: {},
         dummyActionTimeStamp: '',
     };
@@ -84,7 +85,7 @@ const modal = {
     props: {},
 };
 
-const studies = {
+const studiesUi = {
     orderType: 'alphabetical',
     defineForm: false,
     currentStudyId: '',
@@ -94,7 +95,7 @@ const ui = {
     main,
     tabs,
     modal,
-    studies,
+    studies: studiesUi,
 };
 
 // Settings
@@ -138,9 +139,41 @@ const settings = {
     popUp,
 };
 
+const defines = {
+    byId: {
+        'NG.DEF.SAMPLE.SDTM': {
+            'id': 'NG.DEF.SAMPLE.SDTM',
+            'name': 'SDTM',
+            'pathToFile': '',
+            'stats': {
+                'datasets': '',
+                'codeLists': '',
+                'variables': ''
+            },
+            'lastChanged': '2019-02-04T15:34:51.947Z'
+        },
+    },
+    allIds: ['NG.DEF.SAMPLE.SDTM']
+};
+
+const studies = {
+    byId: {
+        'NG.SDY.SAMPLE': {
+            'id': 'NG.SDY.SAMPLE',
+            'name': 'Sample Study',
+            'defineIds': [
+                'NG.DEF.SAMPLE.SDTM'
+            ]
+        },
+    },
+    allIds: ['NG.SDY.SAMPLE']
+};
+
 const initialValues = {
     ui,
     settings,
+    defines,
+    studies,
 };
 
 export default initialValues;
