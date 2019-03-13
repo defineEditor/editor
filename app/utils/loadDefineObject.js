@@ -14,6 +14,7 @@
 
 import { ipcRenderer } from 'electron';
 import store from 'store/index.js';
+import { ActionCreators } from 'redux-undo';
 import {
     addOdm,
     loadTabs,
@@ -51,6 +52,8 @@ function loadDefineObject (event, data) {
         // Load default tabs
         store.dispatch(loadTabs());
     }
+    // Reset history when a new Define-XML file is loaded
+    store.dispatch(ActionCreators.clearHistory());
 }
 
 export default loadDefineObject;

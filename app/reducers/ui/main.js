@@ -47,6 +47,7 @@ const changePage = (state, action) => {
             currentDefineId: action.updateObj.defineId,
             currentStudyId: action.updateObj.studyId,
             isCurrentDefineSaved: true,
+            lastSaveHistoryIndex: 0,
         };
     } else {
         return {
@@ -65,6 +66,7 @@ const handleDefineDelete = (state, action) => {
             currentDefineId: '',
             currentStudyId: '',
             isCurrentDefineSaved: true,
+            lastSaveHistoryIndex: 0,
         };
     } else {
         return state;
@@ -81,6 +83,7 @@ const handleStudyDelete = (state, action) => {
             currentDefineId: '',
             currentStudyId: '',
             isCurrentDefineSaved: true,
+            lastSaveHistoryIndex: 0,
         };
     } else {
         return state;
@@ -92,7 +95,7 @@ const appQuit = (state, action) => {
 };
 
 const appSave = (state, action) => {
-    return { ...state, isCurrentDefineSaved: true };
+    return { ...state, isCurrentDefineSaved: true, lastSaveHistoryIndex: action.updateObj.lastSaveHistoryIndex };
 };
 
 const updateMain = (state, action) => {

@@ -23,6 +23,7 @@ const main = (() => {
         currentDefineId: '',
         currentStudyId: '',
         isCurrentDefineSaved: true,
+        lastSaveHistoryIndex: 0,
         quitNormally: null,
         reviewMode: false,
         showDataInput: false,
