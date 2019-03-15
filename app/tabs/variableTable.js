@@ -371,7 +371,6 @@ class ConnectedVariableTable extends React.Component {
         if (event.ctrlKey && (event.keyCode === 78)) {
             this.setState({ showAddVariable: true, insertPosition: null });
         } else if (event.ctrlKey && (event.keyCode === 70)) {
-            event.preventDefault();
             this.searchFieldRef.current.focus();
         }
     }
@@ -780,7 +779,8 @@ class ConnectedVariableTable extends React.Component {
                                 className={this.props.classes.searchField}
                                 defaultValue={this.state.searchString}
                                 onKeyDown={this.onSearchKeyDown}
-                                onBlur={(event) => { this.setState({ searchString: event.target.value }); }}/>
+                                onBlur={(event) => { this.setState({ searchString: event.target.value }); }}
+                            />
                         </Grid>
                         { hasVlm &&
                                 <Grid item>

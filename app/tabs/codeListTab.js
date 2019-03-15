@@ -24,6 +24,7 @@ import renderColumns from 'utils/renderColumns.js';
 import AddCodeList from 'components/tableActions/addCodeList.js';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Grid from '@material-ui/core/Grid';
+import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 import IconButton from '@material-ui/core/IconButton';
@@ -31,6 +32,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
+import getCodeListsDataAsText from 'utils/getCodeListsDataAsText.js';
 import CodeListOrderEditor from 'components/orderEditors/codeListOrderEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
@@ -61,6 +63,16 @@ const styles = theme => ({
     },
     fab: {
         transform: 'translate(0%, -6%)',
+    },
+    searchField: {
+        marginTop: '0',
+    },
+    searchInput: {
+        paddingTop: '9px',
+        paddingBottom: '9px',
+    },
+    searchLabel: {
+        transform: 'translate(10px, 10px)',
     },
 });
 
@@ -164,6 +176,8 @@ class ConnectedCodeListTable extends React.Component {
 
         let columns = clone(props.stdConstants.columns.codeLists);
 
+        this.searchFieldRef = React.createRef();
+
         // Variables menu is not shown when selection is triggered
         if (columns.hasOwnProperty('oid')) {
             columns.oid.hidden = this.props.showRowSelect;
@@ -213,6 +227,7 @@ class ConnectedCodeListTable extends React.Component {
             showAddCodeList: false,
             insertPosition: null,
             showSelectColumn: false,
+            searchString: '',
         };
     }
 
@@ -237,6 +252,15 @@ class ConnectedCodeListTable extends React.Component {
     onKeyDown = (event) => {
         if (event.ctrlKey && (event.keyCode === 78)) {
             this.setState({ showAddCodeList: true, insertPosition: null });
+        } else if (event.ctrlKey && (event.keyCode === 70)) {
+            this.searchFieldRef.current.focus();
+        }
+    }
+
+    onSearchKeyDown = (event) => {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            this.setState({ searchString: event.target.value });
         }
     }
 
@@ -368,6 +392,19 @@ class ConnectedCodeListTable extends React.Component {
                 <Grid item style={{ paddingRight: '25px' }}>
                     <Grid container spacing={16} justify='flex-end'>
                         <Grid item>
+                            <TextField
+                                variant='outlined'
+                                label='Search'
+                                inputRef={this.searchFieldRef}
+                                inputProps={{ className: this.props.classes.searchInput }}
+                                InputLabelProps={{ className: this.props.classes.searchLabel }}
+                                className={this.props.classes.searchField}
+                                defaultValue={this.state.searchString}
+                                onKeyDown={this.onSearchKeyDown}
+                                onBlur={(event) => { this.setState({ searchString: event.target.value }); }}
+                            />
+                        </Grid>
+                        <Grid item>
                             <Button variant="contained" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
                                 Columns
                                 <RemoveRedEyeIcon style={{ marginLeft: '7px' }}/>
@@ -452,46 +489,80 @@ class ConnectedCodeListTable extends React.Component {
         return true;
     }
 
-    render () {
-        let codeLists = [];
-        // Extract data required for the dataset table
-        const codeListsRaw = this.props.codeLists;
-        this.props.codeListOrder.forEach((codeListOid, index) => {
-            const originCL = codeListsRaw[codeListOid];
-            let currentCL = {
-                oid: originCL.oid,
-                name: originCL.name,
-                dataType: originCL.dataType,
-                codeListType: originCL.codeListType,
-                formatName: originCL.formatName,
-                orderNumber: originCL.orderNumber,
-                linkedCodeList: originCL.linkedCodeListOid !== undefined ? codeListsRaw[originCL.linkedCodeListOid].name : undefined,
+    getData = () => {
+        const { codeListOrder, codeLists, mdv, standards } = this.props;
+        let result = [];
+        // Handle Search
+        let filteredOids = [];
+        const searchString = this.state.searchString;
+        if (searchString) {
+            // If search string contains capital cases, use case-sensitive search
+            const caseSensitiveSearch = /[A-Z]/.test(searchString);
+            let data = getCodeListsDataAsText({
+                codeLists,
+                mdv,
+                standards,
                 defineVersion: this.props.defineVersion,
-                stdConstants: this.props.stdConstants,
-            };
-            let sources = getSourceLabels(originCL.sources, this.props.mdv);
-            if (sources.hasOwnProperty('itemDefs')) {
-                currentCL.usedBy = sources.itemDefs.join('\n');
-            } else {
-                currentCL.usedBy = '';
-            }
-            if (originCL.codeListType !== 'external') {
-                currentCL.standardData = {
-                    alias: originCL.alias,
-                    standardOid: originCL.standardOid,
-                    cdiscSubmissionValue: originCL.cdiscSubmissionValue,
+                columns: this.state.columns,
+            });
+            // Go through each text item and search for the corresponding text, exlude OID items
+            data = data.filter(row => (Object.keys(row)
+                .filter(item => (!item.toUpperCase().includes('OID')))
+                .some(item => {
+                    if (caseSensitiveSearch) {
+                        return typeof row[item] === 'string' && row[item].includes(searchString);
+                    } else {
+                        return typeof row[item] === 'string' && row[item].toLowerCase().includes(searchString);
+                    }
+                })
+            ));
+            filteredOids = data.map(row => (row.oid));
+        }
+
+        codeListOrder
+            .filter(codeListOid => (!searchString || filteredOids.includes(codeListOid)))
+            .forEach((codeListOid, index) => {
+                const originCL = codeLists[codeListOid];
+                let currentCL = {
+                    oid: originCL.oid,
+                    name: originCL.name,
+                    dataType: originCL.dataType,
+                    codeListType: originCL.codeListType,
+                    formatName: originCL.formatName,
+                    orderNumber: originCL.orderNumber,
+                    linkedCodeList: originCL.linkedCodeListOid !== undefined ? codeLists[originCL.linkedCodeListOid].name : undefined,
+                    defineVersion: this.props.defineVersion,
+                    stdConstants: this.props.stdConstants,
                 };
-            } else {
-                currentCL.standardData = { ...originCL.externalCodeList };
-            }
-            if (originCL.standardOid !== undefined && this.props.standards.hasOwnProperty(originCL.standardOid)) {
-                let standard = this.props.standards[originCL.standardOid];
-                currentCL.standardDescription = standard.name + ' ' + standard.publishingSet + ' ver. ' + standard.version;
-            } else {
-                currentCL.standardDescription = undefined;
-            }
-            codeLists[index] = currentCL;
-        });
+                let sources = getSourceLabels(originCL.sources, this.props.mdv);
+                if (sources.hasOwnProperty('itemDefs')) {
+                    currentCL.usedBy = sources.itemDefs.join('\n');
+                } else {
+                    currentCL.usedBy = '';
+                }
+                if (originCL.codeListType !== 'external') {
+                    currentCL.standardData = {
+                        alias: originCL.alias,
+                        standardOid: originCL.standardOid,
+                        cdiscSubmissionValue: originCL.cdiscSubmissionValue,
+                    };
+                } else {
+                    currentCL.standardData = { ...originCL.externalCodeList };
+                }
+                if (originCL.standardOid !== undefined && this.props.standards.hasOwnProperty(originCL.standardOid)) {
+                    let standard = this.props.standards[originCL.standardOid];
+                    currentCL.standardDescription = standard.name + ' ' + standard.publishingSet + ' ver. ' + standard.version;
+                } else {
+                    currentCL.standardDescription = undefined;
+                }
+                result[index] = currentCL;
+            });
+
+        return result;
+    }
+
+    render () {
+        let codeLists = this.getData();
 
         // Editor settings
         const cellEditProp = {
