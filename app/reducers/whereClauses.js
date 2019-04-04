@@ -25,6 +25,7 @@ import {
     UPD_ANALYSISRESULT,
     ADD_ANALYSISRESULTS,
     ADD_RESULTDISPLAYS,
+    UPD_ARMSTATUS,
 } from 'constants/action-types';
 import { WhereClause } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
@@ -238,6 +239,14 @@ const handleAddItemGroups = (state, action) => {
     return { ...state, ...allWhereClauses };
 };
 
+const handleUpdateArmStatus = (state, action) => {
+    if (action.hasOwnProperty('deleteObj')) {
+        return handleDeleteArmItem(state, action);
+    } else {
+        return state;
+    }
+};
+
 const handleDeleteArmItem = (state, action) => {
     if (Object.keys(action.deleteObj.whereClauseOids).length > 0) {
         let newState = { ...state };
@@ -312,6 +321,8 @@ const whereClauses = (state = {}, action) => {
             return handleDeleteArmItem(state, action);
         case UPD_ANALYSISRESULT:
             return handleUpdatedArmItem(state, action);
+        case UPD_ARMSTATUS:
+            return handleUpdateArmStatus(state, action);
         default:
             return state;
     }

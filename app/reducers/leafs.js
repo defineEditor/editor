@@ -18,6 +18,7 @@ import {
     UPD_LEAFS,
     ADD_VARS,
     ADD_ITEMGROUPS,
+    ADD_RESULTDISPLAYS,
 } from 'constants/action-types';
 
 const initialState = { ...new Leaf({ oid: getOid('Leaf') }) };
@@ -39,7 +40,7 @@ const updateLeafs = (state, action) => {
     return newState;
 };
 
-const handleAddVariables = (state, action) => {
+const handleAddItems = (state, action) => {
     if (Object.keys(action.updateObj.leafs).length > 0) {
         return { ...state, ...action.updateObj.leafs };
     } else {
@@ -61,9 +62,11 @@ const leafs = (state = initialState, action) => {
         case UPD_LEAFS:
             return updateLeafs(state, action);
         case ADD_VARS:
-            return handleAddVariables(state, action);
+            return handleAddItems(state, action);
         case ADD_ITEMGROUPS:
             return handleAddItemGroups(state, action);
+        case ADD_RESULTDISPLAYS:
+            return handleAddItems(state, action);
         default:
             return state;
     }

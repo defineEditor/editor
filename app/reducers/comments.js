@@ -22,6 +22,7 @@ import {
     UPD_ITEMSBULK,
     DEL_VARS,
     ADD_VARS,
+    UPD_LEAFS,
     DEL_ITEMGROUPS,
     ADD_ITEMGROUPS,
     DEL_RESULTDISPLAY,
@@ -29,6 +30,7 @@ import {
     UPD_ANALYSISRESULT,
     ADD_ANALYSISRESULTS,
     ADD_RESULTDISPLAYS,
+    UPD_ARMSTATUS,
 } from 'constants/action-types';
 import { Comment, TranslatedText } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
@@ -462,6 +464,14 @@ const handleAddItemGroups = (state, action) => {
     return { ...newState, ...updatedComments };
 };
 
+const handleUpdateArmStatus = (state, action) => {
+    if (action.hasOwnProperty('deleteObj')) {
+        return handleDeleteArmItem(state, action);
+    } else {
+        return state;
+    }
+};
+
 const handleDeleteArmItem = (state, action) => {
     if (Object.keys(action.deleteObj.commentOids).length > 0) {
         let subAction = { deleteObj: {} };
@@ -508,6 +518,32 @@ const handleUpdatedArmItem = (state, action) => {
     }
 };
 
+const handleUpdatedLeafs = (state, action) => {
+    // action.updateObj.removedLeafIds - list of removed leaf OIDs
+    if (Object.keys(action.updateObj.removedLeafIds).length > 0) {
+        let removedLeafIds = action.updateObj.removedLeafIds;
+        // Find all items using removed documents
+        let changedItems = {};
+        Object.keys(state).forEach(itemOid => {
+            let item = state[itemOid];
+            if (item.documents.length > 0) {
+                let newDocuments = item.documents.filter(doc => (!removedLeafIds.includes(doc.leafId)));
+                if (newDocuments.length !== item.documents.length) {
+                    // Some of the documents matched
+                    changedItems[itemOid] = { ...item, documents: newDocuments };
+                }
+            }
+        });
+        if (Object.keys(changedItems).length > 0) {
+            return { ...state, ...changedItems };
+        } else {
+            return state;
+        }
+    } else {
+        return state;
+    }
+};
+
 const comments = (state = {}, action) => {
     switch (action.type) {
         case ADD_ITEMGROUPCOMMENT:
@@ -542,6 +578,10 @@ const comments = (state = {}, action) => {
             return handleDeleteArmItem(state, action);
         case UPD_ANALYSISRESULT:
             return handleUpdatedArmItem(state, action);
+        case UPD_LEAFS:
+            return handleUpdatedLeafs(state, action);
+        case UPD_ARMSTATUS:
+            return handleUpdateArmStatus(state, action);
         default:
             return state;
     }
