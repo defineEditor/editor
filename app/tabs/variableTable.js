@@ -1069,6 +1069,7 @@ class ConnectedVariableTable extends React.Component {
                 { this.state.showUpdate &&
                         <VariableTabUpdate
                             selectedItems={selectedItems}
+                            currentData={dataToShow}
                             itemGroupOid={this.props.itemGroupOid}
                             onClose={ () => { this.setState({ showUpdate: false }); } }
                         />

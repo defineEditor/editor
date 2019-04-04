@@ -101,8 +101,8 @@ class ConnectedArmSummaryMenu extends React.Component {
             groupOid: this.props.armSummaryMenuParams.resultDisplayOid,
             scrollPosition: {},
         };
-        this.props.selectGroup(updateObj);
         this.props.onClose();
+        this.props.selectGroup(updateObj);
     }
 
     copy = () => {

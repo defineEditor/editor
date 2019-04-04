@@ -249,7 +249,7 @@ const updateItemsBulk = (state, action) => {
     let itemDefOids = action.updateObj.selectedItems.map(item => (item.itemDefOid));
     if (['name', 'label', 'dataType', 'codeListOid', 'origins', 'length', 'displayFormat'].includes(field.attr)) {
         let newState = { ...state };
-        const { regex, matchCase, wholeWord, source, target, value } = field.updateValue;
+        const { regex, matchCase, wholeWord, source, target, value, replaceWholeString } = field.updateValue;
         let regExp;
         let escapedTarget;
         // Create RegExp for the replacement
@@ -260,7 +260,13 @@ const updateItemsBulk = (state, action) => {
             if (wholeWord === true) {
                 escapedSource = '\\b' + escapedSource + '\\b';
             }
-            escapedTarget = target.replace(/[$]/g, '$$');
+            if (replaceWholeString === true) {
+                escapedSource = '^' + escapedSource + '$';
+            }
+            // In case of codeListOid replacement, target can be undefined
+            if (target !== undefined) {
+                escapedTarget = target.replace(/[$]/g, '$$');
+            }
             regExp = new RegExp(escapedSource, matchCase ? 'g' : 'gi');
         }
         itemDefOids.forEach(itemDefOid => {
@@ -274,12 +280,21 @@ const updateItemsBulk = (state, action) => {
                     updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], descriptions }) };
                 }
             } else if (field.updateType === 'replace') {
-                if (['name', 'dataType', 'codeListOid', 'length', 'displayFormat'].includes(field.attr)) {
+                if (['name', 'dataType', 'length', 'displayFormat'].includes(field.attr)) {
                     let currentValue = state[itemDefOid][field.attr] || '';
                     if (regex === false && regExp !== undefined && regExp.test(currentValue)) {
                         updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], [field.attr]: currentValue.replace(regExp, escapedTarget) }) };
                     } else if (regex === true && regExp.test(currentValue)) {
                         updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], [field.attr]: currentValue.replace(regExp, target) }) };
+                    }
+                } else if (field.attr === 'codeListOid') {
+                    let currentValue = state[itemDefOid][field.attr] || '';
+                    if (regExp !== undefined && regExp.test(currentValue)) {
+                        if (escapedTarget !== undefined) {
+                            updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], [field.attr]: currentValue.replace(regExp, escapedTarget) }) };
+                        } else {
+                            updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], [field.attr]: undefined }) };
+                        }
                     }
                 } else if (field.attr === 'label') {
                     let newDescriptions = state[itemDefOid].descriptions.slice();
