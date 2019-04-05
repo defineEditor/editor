@@ -41,7 +41,7 @@ const styles = theme => ({
     root: {
         outline: 'none',
     },
-    paramter: {
+    parameter: {
         minWidth: '200px',
     },
 });
@@ -112,6 +112,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
     }
 
     getListOfVariables = (analysisDatasets) => {
+        // ARM ParameterOID can contain only PARAMCD variables
         let result = [];
         const mdv = this.props.mdv;
         const itemGroups = mdv.itemGroups;
@@ -123,8 +124,6 @@ class ConnectedAnalysisResultEditor extends React.Component {
                 itemGroup.itemRefOrder.forEach(itemRefOid => {
                     let itemDef = mdv.itemDefs[itemGroup.itemRefs[itemRefOid].itemOid];
                     if (itemDef.name === 'PARAMCD') {
-                        result.unshift({ [itemDef.oid]: datasetName + '.' + itemDef.name });
-                    } else {
                         result.push({ [itemDef.oid]: datasetName + '.' + itemDef.name });
                     }
                 });
@@ -453,7 +452,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
                                     fullWidth
                                     select
                                     onChange={this.handleChange('main')('parameterOid')}
-                                    className={classes.paramter}
+                                    className={classes.parameter}
                                 >
                                     {getSelectionList(this.state.listOfVariables, true)}
                                 </TextField>
