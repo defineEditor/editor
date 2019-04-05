@@ -28,6 +28,7 @@ import {
     INSERT_VALLVL,
     UPD_LOADACTUALDATA,
     ADD_ITEMGROUPS,
+    UPD_LEAFS,
 } from 'constants/action-types';
 import { ItemDef, TranslatedText, Origin } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
@@ -372,6 +373,39 @@ const handleAddItemGroups = (state, action) => {
     return { ...state, ...allItemDefs };
 };
 
+const handleUpdatedLeafs = (state, action) => {
+    // action.updateObj.removedLeafIds - list of removed leaf OIDs
+    if (Object.keys(action.updateObj.removedLeafIds).length > 0) {
+        let removedLeafIds = action.updateObj.removedLeafIds;
+        // Find all items using removed documents
+        let changedItems = {};
+        Object.keys(state).forEach(itemOid => {
+            let origins = state[itemOid].origins;
+            let newOrigins = origins.slice();
+            let itemChanged = false;
+            origins.forEach((origin, index) => {
+                if (origin.documents.length > 0) {
+                    let newDocuments = origin.documents.filter(doc => (!removedLeafIds.includes(doc.leafId)));
+                    if (newDocuments.length !== origin.documents.length) {
+                        newOrigins.splice(index, 1, { ...origin, documents: newDocuments });
+                        itemChanged = true;
+                    }
+                }
+            });
+            if (itemChanged) {
+                changedItems[itemOid] = { ...state[itemOid], origins: newOrigins };
+            }
+        });
+        if (Object.keys(changedItems).length > 0) {
+            return { ...state, ...changedItems };
+        } else {
+            return state;
+        }
+    } else {
+        return state;
+    }
+};
+
 const itemDefs = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMDEF:
@@ -404,6 +438,8 @@ const itemDefs = (state = {}, action) => {
             return insertValueLevel(state, action);
         case UPD_LOADACTUALDATA:
             return handleActualData(state, action);
+        case UPD_LEAFS:
+            return handleUpdatedLeafs(state, action);
         default:
             return state;
     }

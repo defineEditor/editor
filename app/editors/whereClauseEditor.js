@@ -110,7 +110,7 @@ class ConnectedWhereClauseEditor extends React.Component {
                         <Tooltip title={ `Edit ${this.props.label}` } placement='bottom' enterDelay={1000}>
                             <span>
                                 <IconButton
-                                    onClick={ () => { this.setState({ dialogOpened: !this.state.dialogOpened }); } }
+                                    onClick={ () => { this.setState({ dialogOpened: !this.state.dialogOpened, whereClause: this.props.whereClause }); } }
                                     color='primary'
                                     className={classes.button}
                                 >

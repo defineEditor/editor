@@ -201,7 +201,7 @@ class AddResultDisplayFromDefineConnected extends React.Component {
             });
         }
 
-        let { resultDisplays, analysisResults, whereClauses, comments, missingItemRefListByResultDisplay } = copiedResultDisplaysData;
+        let { resultDisplays, analysisResults, whereClauses, comments, leafs, missingItemRefListByResultDisplay } = copiedResultDisplaysData;
 
         let positionUpd = position || (mdv.analysisResultDisplays.resultDisplayOrder.length + 1);
 
@@ -211,6 +211,7 @@ class AddResultDisplayFromDefineConnected extends React.Component {
                 resultDisplays,
                 analysisResults,
                 comments,
+                leafs,
                 whereClauses,
             });
 
