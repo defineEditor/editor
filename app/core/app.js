@@ -59,7 +59,7 @@ const mapStateToProps = state => {
     let currentPage = state.present.ui.main.currentPage;
     const tabs = state.present.ui.tabs;
     if (currentPage === 'editor' && tabs.hasOwnProperty('tabNames') && tabs.tabNames.hasOwnProperty(tabs.currentTab)) {
-        disableFindToggle = ['Variables', 'Codelists'].includes(tabs.tabNames[tabs.currentTab]);
+        disableFindToggle = ['Variables', 'Codelists', 'Coded Values'].includes(tabs.tabNames[tabs.currentTab]);
     }
     return {
         currentPage,

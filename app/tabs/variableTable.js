@@ -773,9 +773,10 @@ class ConnectedVariableTable extends React.Component {
                             <TextField
                                 variant='outlined'
                                 label='Search'
+                                placeholder='Ctrl+F'
                                 inputRef={this.searchFieldRef}
                                 inputProps={{ className: this.props.classes.searchInput }}
-                                InputLabelProps={{ className: this.props.classes.searchLabel }}
+                                InputLabelProps={{ className: this.props.classes.searchLabel, shrink: true }}
                                 className={this.props.classes.searchField}
                                 defaultValue={this.state.searchString}
                                 onKeyDown={this.onSearchKeyDown}

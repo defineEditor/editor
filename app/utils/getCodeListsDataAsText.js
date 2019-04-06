@@ -33,61 +33,49 @@ const getCodeListsDataAsText = ({ codeLists, mdv, standards, defineVersion, colu
         }
         // Standard data
         if (originCL.codeListType !== 'external') {
-            currentCL.alias = originCL.alias;
+            currentCL.cdiscSubmissionValue = originCL.cdiscSubmissionValue;
         } else {
             currentCL.standardData = Object.keys(originCL.externalCodeList)
-                .filter(key => (['dictionary', 'version'].includes(key) && originCL.externalCodeList[key] !== undefined))
+                .filter(key => (originCL.externalCodeList[key] !== undefined))
                 .map(key => originCL.externalCodeList[key])
-                .join[' ']
+                .join(' ')
             ;
         }
         if (originCL.standardOid !== undefined && standards.hasOwnProperty(originCL.standardOid)) {
             let standard = standards[originCL.standardOid];
             currentCL.standardDescription = standard.name + ' ' + standard.publishingSet + ' ver. ' + standard.version;
         }
-
         // In case columns are provided, keep only columns which are not hidden
-        /*
-    if (columns !== undefined) {
-        delete currentVar.hasDocument;
-        Object.keys(columns).forEach(columnName => {
-            if (columns[columnName].hidden === true) {
-                switch (columnName) {
-                    case 'keyOrder' :
-                        delete currentVar.keySequence;
-                        break;
-                    case 'nameLabelWhereClause' :
-                        delete currentVar.name;
-                        delete currentVar.whereClause;
-                        delete currentVar.label;
-                        break;
-                    case 'dataType' :
-                        delete currentVar.dataType;
-                        break;
-                    case 'lengthAttrs' :
-                        delete currentVar.length;
-                        delete currentVar.fractionDigits;
-                        break;
-                    case 'roleAttrs' :
-                        delete currentVar.role;
-                        break;
-                    case 'mandatory' :
-                        delete currentVar.mandatory;
-                        break;
-                    case 'codeListFormatAttrs' :
-                        delete currentVar.codeList;
-                        delete currentVar.displayFormat;
-                        break;
-                    case 'description' :
-                        delete currentVar.method;
-                        delete currentVar.origin;
-                        delete currentVar.comment;
-                        break;
+        if (columns !== undefined) {
+            Object.keys(columns).forEach(columnName => {
+                if (columns[columnName].hidden === true) {
+                    switch (columnName) {
+                        case 'name' :
+                            delete currentCL.name;
+                            break;
+                        case 'codeListType' :
+                            delete currentCL.codeListType;
+                            break;
+                        case 'dataType' :
+                            delete currentCL.dataType;
+                            break;
+                        case 'formatName' :
+                            delete currentCL.formatName;
+                            break;
+                        case 'linkedCodeList' :
+                            delete currentCL.linkedCodeList;
+                            break;
+                        case 'standardData' :
+                            delete currentCL.standardData;
+                            delete currentCL.cdiscSubmissionValue;
+                            break;
+                        case 'usedBy' :
+                            delete currentCL.usedBy;
+                            break;
+                    }
                 }
-            }
-        });
-    }
-    */
+            });
+        }
 
         result[index] = currentCL;
     });
