@@ -20,7 +20,11 @@ import { throttle } from 'throttle-debounce';
 import saveState from 'utils/saveState.js';
 
 const filterActions = (action, currentState, previousHistory) => {
-    return !action.type.startsWith('UI_') && !['STDCDL_LOAD', 'APP_SAVE'].includes(action.type);
+    return (
+        !action.type.startsWith('UI_') &&
+        !action.type.startsWith('@@') &&
+        !['STDCDL_LOAD', 'APP_SAVE', 'STG_UPDATESETTINGS', 'DUMMY_ACTION'].includes(action.type)
+    );
 };
 
 const actionSanitizer = (action) => (

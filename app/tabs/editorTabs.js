@@ -74,7 +74,6 @@ const mapStateToProps = state => {
     }
     return {
         tabs: state.present.ui.tabs,
-        isCurrentDefineSaved: state.present.ui.main.isCurrentDefineSaved,
         historyIndex: state.index,
         lastSaveHistoryIndex: state.present.ui.main.lastSaveHistoryIndex,
         hasArm,
@@ -178,11 +177,11 @@ class ConnectedEditorTabs extends React.Component {
             <div className={classes.root}>
                 <div className='doNotPrint'>
                     <IconButton
-                        color={this.props.isCurrentDefineSaved ? 'default' : 'primary'}
+                        color={numberOfChanges > 0 ? 'primary' : 'default'}
                         onClick={this.props.toggleMainMenu}
                         className={classes.menuToggle}
                     >
-                        <Badge color={this.props.isCurrentDefineSaved ? 'default' : 'primary'} badgeContent={numberOfChanges}>
+                        <Badge color='primary' badgeContent={numberOfChanges}>
                             <MenuIcon/>
                         </Badge>
                     </IconButton>

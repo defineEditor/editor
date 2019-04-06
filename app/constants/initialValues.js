@@ -30,6 +30,7 @@ const main = (() => {
         sampleStudyCopied: false,
         copyBuffer: {},
         dummyActionTimeStamp: '',
+        actionHistory: [],
     };
 })();
 
