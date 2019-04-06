@@ -23,8 +23,11 @@ import Grid from '@material-ui/core/Grid';
 import UndoIcon from '@material-ui/icons/Undo';
 import RedoIcon from '@material-ui/icons/Redo';
 import ClearIcon from '@material-ui/icons/Clear';
+import Snackbar from '@material-ui/core/Snackbar';
+import SnackbarContent from '@material-ui/core/SnackbarContent';
 import { ActionCreators } from 'redux-undo';
 import { throttle } from 'throttle-debounce';
+import { actionLabels } from 'constants/action-types';
 
 const styles = theme => ({
     button: {
@@ -48,6 +51,14 @@ const styles = theme => ({
     grid: {
         height: '56px',
     },
+    details: {
+        marginBottom: theme.spacing.unit * 8,
+        backgroundColor: '#2196f3',
+    },
+    message: {
+        display: 'flex',
+        alignItems: 'center',
+    },
 });
 
 // Redux functions
@@ -64,6 +75,7 @@ const mapStateToProps = state => {
         pastLength: state.past.length,
         futureLength: state.future.length,
         historyLength: state.past.length + state.future.length + 1,
+        actionHistory: state.present.ui.main.actionHistory,
     };
 };
 
@@ -72,8 +84,9 @@ class RedoUndoConnected extends React.Component {
         super(props);
         this.state = {
             currentLength: this.props.historyLength,
+            actionLabel: null,
         };
-        this.jumpThrottled = throttle(500, this.props.jump);
+        this.jumpThrottled = throttle(250, this.props.jump);
     }
 
     static getDerivedStateFromProps (nextProps, prevState) {
@@ -93,9 +106,9 @@ class RedoUndoConnected extends React.Component {
 
     onKeyDown = (event) => {
         if (event.ctrlKey && (event.keyCode === 90)) {
-            this.props.undo();
+            this.undo();
         } else if (event.ctrlKey && (event.keyCode === 89)) {
-            this.props.redo();
+            this.redo();
         } else if (event.keyCode === 27) {
             this.props.onToggleRedoUndo();
         }
@@ -104,6 +117,26 @@ class RedoUndoConnected extends React.Component {
     handleSliderChange = (event, value) => {
         let jumpDistance = value - this.props.pastLength - 1;
         this.jumpThrottled(jumpDistance);
+    }
+
+    undo = () => {
+        if (this.props.pastLength > 0) {
+            const lastAction = this.props.actionHistory[this.props.actionHistory.length - 1];
+            let actionLabel;
+            if (Object.keys(actionLabels).includes(lastAction)) {
+                actionLabel = actionLabels[lastAction];
+            } else {
+                actionLabel = lastAction;
+            }
+            this.setState({ actionLabel: actionLabel });
+            this.props.undo();
+        }
+    }
+
+    redo = () => {
+        if (this.props.futureLength > 0) {
+            this.props.redo();
+        }
     }
 
     render () {
@@ -129,7 +162,7 @@ class RedoUndoConnected extends React.Component {
                             disabled={this.props.pastLength === 0}
                             aria-label='Undo'
                             className={classes.button}
-                            onClick={this.props.undo}
+                            onClick={this.undo}
                         >
                             <UndoIcon/>
                         </Fab>
@@ -141,7 +174,7 @@ class RedoUndoConnected extends React.Component {
                             disabled={this.props.futureLength === 0}
                             aria-label='Redo'
                             className={classes.button}
-                            onClick={this.props.redo}
+                            onClick={this.redo}
                         >
                             <RedoIcon/>
                         </Fab>
@@ -155,6 +188,23 @@ class RedoUndoConnected extends React.Component {
                         </IconButton>
                     </Grid>
                 </Grid>
+                <Snackbar
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'center',
+                    }}
+                    open={this.state.actionLabel !== null}
+                    autoHideDuration={3000}
+                    onClose={() => { this.setState({ actionLabel: null }); }}
+                >
+                    <SnackbarContent
+                        ContentProps={{
+                            'aria-describedby': 'message-id',
+                        }}
+                        message={<span id="message-id" className={classes.message}>Undo: {this.state.actionLabel}</span>}
+                        className={classes.details}
+                    />
+                </Snackbar>
             </div>
         );
     }
@@ -165,6 +215,7 @@ RedoUndoConnected.propTypes = {
     pastLength: PropTypes.number.isRequired,
     futureLength: PropTypes.number.isRequired,
     historyLength: PropTypes.number.isRequired,
+    actionHistory: PropTypes.array.isRequired,
     undo: PropTypes.func.isRequired,
     redo: PropTypes.func.isRequired,
     jump: PropTypes.func.isRequired,

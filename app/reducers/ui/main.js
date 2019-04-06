@@ -47,6 +47,7 @@ const changePage = (state, action) => {
             currentDefineId: action.updateObj.defineId,
             currentStudyId: action.updateObj.studyId,
             isCurrentDefineSaved: true,
+            lastSaveHistoryIndex: 0,
         };
     } else {
         return {
@@ -65,6 +66,7 @@ const handleDefineDelete = (state, action) => {
             currentDefineId: '',
             currentStudyId: '',
             isCurrentDefineSaved: true,
+            lastSaveHistoryIndex: 0,
         };
     } else {
         return state;
@@ -81,6 +83,7 @@ const handleStudyDelete = (state, action) => {
             currentDefineId: '',
             currentStudyId: '',
             isCurrentDefineSaved: true,
+            lastSaveHistoryIndex: 0,
         };
     } else {
         return state;
@@ -92,7 +95,7 @@ const appQuit = (state, action) => {
 };
 
 const appSave = (state, action) => {
-    return { ...state, isCurrentDefineSaved: true };
+    return { ...state, isCurrentDefineSaved: true, lastSaveHistoryIndex: action.updateObj.lastSaveHistoryIndex };
 };
 
 const updateMain = (state, action) => {
@@ -125,39 +128,49 @@ const handleOdmChange = (state, action) => {
 };
 
 const main = (state = initialState, action) => {
+    let newState;
+    // Save action in the history
+    if (!action.type.startsWith('UI_') &&
+        !action.type.startsWith('@@') &&
+        !['STDCDL_LOAD', 'APP_SAVE', 'STG_UPDATESETTINGS', 'DUMMY_ACTION'].includes(action.type)
+    ) {
+        newState = { ...state, actionHistory: state.actionHistory.concat([action.type]) };
+    } else {
+        newState = state;
+    }
     switch (action.type) {
         case UI_TOGGLEMAINMENU:
-            return toggleMainMenu(state, action);
+            return toggleMainMenu(newState, action);
         case UI_CHANGEPAGE:
-            return changePage(state, action);
+            return changePage(newState, action);
         case DEFINE_DEL:
-            return handleDefineDelete(state, action);
+            return handleDefineDelete(newState, action);
         case STUDY_DEL:
-            return handleStudyDelete(state, action);
+            return handleStudyDelete(newState, action);
         case APP_QUIT:
-            return appQuit(state, action);
+            return appQuit(newState, action);
         case APP_SAVE:
-            return appSave(state, action);
+            return appSave(newState, action);
         case UI_UPDMAIN:
-            return updateMain(state, action);
+            return updateMain(newState, action);
         case UI_TOGGLEREVIEWMODE:
-            return toggleReviewMode(state, action);
+            return toggleReviewMode(newState, action);
         case UI_UPDCOPYBUFFER:
-            return updateCopyBuffer(state, action);
+            return updateCopyBuffer(newState, action);
         case DUMMY_ACTION:
-            return handleDummyAction(state, action);
+            return handleDummyAction(newState, action);
         case ADD_ODM:
-            return handleOdmChange(state, action);
+            return handleOdmChange(newState, action);
         case DEL_CODELISTS:
-            return deleteCodeLists(state, action);
+            return deleteCodeLists(newState, action);
         default: {
             if (action.type !== undefined &&
-                state.isCurrentDefineSaved &&
+                newState.isCurrentDefineSaved &&
                 /^(ADD|UPD|DEL|REP|INSERT)_.*/.test(action.type) &&
                 action.type !== 'ADD_ODM') {
-                return { ...state, isCurrentDefineSaved: false };
+                return { ...newState, isCurrentDefineSaved: false };
             } else {
-                return state;
+                return newState;
             }
         }
     }

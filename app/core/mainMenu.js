@@ -23,7 +23,6 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Switch from '@material-ui/core/Switch';
 import Drawer from '@material-ui/core/Drawer';
-import Badge from '@material-ui/core/Badge';
 import IconButton from '@material-ui/core/IconButton';
 import Divider from '@material-ui/core/Divider';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -65,11 +64,6 @@ const styles = theme => ({
     reviewModeSwitch: {
         margin: 'none',
     },
-    badge: {
-        top: '50%',
-        right: '-15px',
-        border: `2px solid ${theme.palette.grey[500]}`
-    }
 });
 
 // Redux functions
@@ -183,11 +177,7 @@ class ConnectedMainMenu extends React.Component {
                                         <ListItemIcon>
                                             <History/>
                                         </ListItemIcon>
-                                        <ListItemText primary={(
-                                            <Badge color='default' badgeContent={this.props.actionsDone} classes={{ badge: classes.badge }}>
-                                                History
-                                            </Badge>
-                                        )}/>
+                                        <ListItemText primary='History'/>
                                     </ListItem>
                                 ), (
                                     <ListItem button key='save' onClick={this.save}>
