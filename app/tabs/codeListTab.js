@@ -32,6 +32,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
+import TablePagination from '@material-ui/core/TablePagination';
 import getCodeListsDataAsText from 'utils/getCodeListsDataAsText.js';
 import CodeListOrderEditor from 'components/orderEditors/codeListOrderEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
@@ -55,6 +56,8 @@ import {
     openModal,
     updateExternalCodeList,
     deleteCodeLists,
+    updateMainUi,
+    changeTablePageDetails,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -84,6 +87,8 @@ const mapDispatchToProps = dispatch => {
         openModal: (updateObj) => dispatch(openModal(updateObj)),
         updateExternalCodeList: (oid, updateObj) => dispatch(updateExternalCodeList(oid, updateObj)),
         deleteCodeLists: (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
+        updateMainUi: (updateObj) => dispatch(updateMainUi(updateObj)),
+        changeTablePageDetails: (updateObj) => dispatch(changeTablePageDetails(updateObj)),
     };
 };
 
@@ -101,6 +106,8 @@ const mapStateToProps = state => {
         showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
         reviewMode: state.present.ui.main.reviewMode,
         showDeleteCodeListWarning: state.present.settings.popUp.onCodeListDelete,
+        enableTablePagination: state.present.settings.editor.enableTablePagination,
+        rowsPerPage: state.present.ui.main.rowsPerPage.codeListTab,
     };
 };
 
@@ -248,6 +255,24 @@ class ConnectedCodeListTable extends React.Component {
     }
 
     onKeyDown = (event) => {
+        if (this.props.enableTablePagination) {
+            let page;
+            if (this.props.tabSettings.pagination.hasOwnProperty(this.props.itemGroupOid)) {
+                page = this.props.tabSettings.pagination[this.props.itemGroupOid].page;
+            }
+            if (!Number.isInteger(page)) {
+                page = 0;
+            }
+            if (event.ctrlKey && (event.keyCode === 219)) {
+                if (page > 0) {
+                    this.handleChangePage(event, page - 1);
+                }
+            } else if (event.ctrlKey && (event.keyCode === 221)) {
+                // Theoretically it should be checked that the limit is reached,
+                // but TablePagination will automatically reduce the page if the limit is reached
+                this.handleChangePage(event, page + 1);
+            }
+        }
         if (event.ctrlKey && (event.keyCode === 78)) {
             this.setState({ showAddCodeList: true, insertPosition: null });
         } else if (event.ctrlKey && (event.keyCode === 70)) {
@@ -560,8 +585,36 @@ class ConnectedCodeListTable extends React.Component {
         return result;
     }
 
+    handleChangePage = (event, page) => {
+        this.props.changeTablePageDetails({ groupOid: this.props.itemGroupOid, details: { page } });
+    };
+
+    handleChangeRowsPerPage = event => {
+        this.props.updateMainUi({ rowsPerPage: { codeListTab: event.target.value } });
+    };
+
     render () {
         let codeLists = this.getData();
+
+        const itemNum = codeLists.length;
+        let page = 0;
+        const rowsPerPage = this.props.rowsPerPage;
+        let dataToShow;
+        if (this.props.enableTablePagination && rowsPerPage !== 'All') {
+            if (this.props.tabSettings.pagination.hasOwnProperty(this.props.itemGroupOid)) {
+                page = this.props.tabSettings.pagination[this.props.itemGroupOid].page;
+            }
+            if (!Number.isInteger(page)) {
+                page = 0;
+            }
+            dataToShow = codeLists.filter((item, index) => {
+                if (page * rowsPerPage <= index && index < page * rowsPerPage + rowsPerPage) {
+                    return true;
+                }
+            });
+        } else {
+            dataToShow = codeLists;
+        }
 
         // Editor settings
         const cellEditProp = {
@@ -592,7 +645,7 @@ class ConnectedCodeListTable extends React.Component {
         return (
             <React.Fragment>
                 <BootstrapTable
-                    data={codeLists}
+                    data={dataToShow}
                     options={options}
                     search
                     striped
@@ -618,6 +671,23 @@ class ConnectedCodeListTable extends React.Component {
                         onClose={ () => { this.setState({ showAddCodeList: false }); } }
                     />
                 )}
+                { this.props.enableTablePagination &&
+                        <TablePagination
+                            component="div"
+                            count={itemNum}
+                            page={page}
+                            rowsPerPage={rowsPerPage === 'All' ? dataToShow.length : rowsPerPage}
+                            backIconButtonProps={{
+                                'aria-label': 'Previous Page',
+                            }}
+                            nextIconButtonProps={{
+                                'aria-label': 'Next Page',
+                            }}
+                            onChangePage={this.handleChangePage}
+                            onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                            rowsPerPageOptions={rowsPerPage === 'All' ? [25, 50, 100, 250, 'All', dataToShow.length] : [25, 50, 100, 250, 'All']}
+                        />
+                }
             </React.Fragment>
         );
     }
@@ -631,6 +701,12 @@ ConnectedCodeListTable.propTypes = {
     classes: PropTypes.object.isRequired,
     defineVersion: PropTypes.string.isRequired,
     reviewMode: PropTypes.bool,
+    updateMainUi: PropTypes.func.isRequired,
+    changeTablePageDetails: PropTypes.func.isRequired,
+    rowsPerPage: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]),
 };
 
 const CodeListTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodeListTable);

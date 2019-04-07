@@ -99,7 +99,11 @@ const appSave = (state, action) => {
 };
 
 const updateMain = (state, action) => {
-    return { ...state, ...action.updateObj };
+    if (action.updateObj.hasOwnProperty('rowsPerPage')) {
+        return { ...state, ...action.updateObj, rowsPerPage: { ...state.rowsPerPage, ...action.updateObj.rowsPerPage } };
+    } else {
+        return { ...state, ...action.updateObj };
+    }
 };
 
 const toggleReviewMode = (state, action) => {

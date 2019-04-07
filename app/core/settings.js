@@ -29,7 +29,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import NavigationBar from 'core/navigationBar.js';
 import SaveCancel from 'editors/saveCancel.js';
-import getSelectionList from 'utils/getSelectionList.js';
 import InternalHelp from 'components/utils/internalHelp.js';
 import { CT_LOCATION } from 'constants/help.js';
 import { updateSettings, openModal } from 'actions/index.js';
@@ -62,11 +61,6 @@ const styles = theme => ({
     ctLocation: {
         width: '90%',
         margin: theme.spacing.unit
-    },
-    rowsPerPage: {
-        width: '60px',
-        marginLeft: theme.spacing.unit * 2,
-        marginRight: theme.spacing.unit,
     },
 });
 
@@ -356,20 +350,6 @@ class ConnectedSettings extends React.Component {
                                             />
                                         }
                                         label='Enable table pagination'
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <TextField
-                                                value={this.state.editor.defaultRowsPerPage}
-                                                disabled={!this.state.editor.enableTablePagination}
-                                                className={classes.rowsPerPage}
-                                                onChange={this.handleChange('editor', 'defaultRowsPerPage')}
-                                                select
-                                            >
-                                                {getSelectionList([10, 25, 50, 100])}
-                                            </TextField>
-                                        }
-                                        label=" Default Number of Rows Per Page"
                                     />
                                 </FormGroup>
                             </Grid>

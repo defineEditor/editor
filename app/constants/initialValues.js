@@ -31,6 +31,11 @@ const main = (() => {
         copyBuffer: {},
         dummyActionTimeStamp: '',
         actionHistory: [],
+        rowsPerPage: {
+            variableTab: 50,
+            codeListTab: 100,
+            codedValuesTab: 100,
+        },
     };
 })();
 
@@ -50,7 +55,7 @@ const tabs = (() => {
         if (['Datasets', 'Variables', 'Codelists', 'Coded Values', 'ARM Summary'].includes(tabNames[i])) {
             settings[i].rowSelect = {};
         }
-        if (['Variables'].includes(tabNames[i])) {
+        if (['Variables', 'Codelists', 'Coded Values'].includes(tabNames[i])) {
             settings[i].pagination = {};
         }
         // When tab has multiple tables
@@ -123,7 +128,6 @@ const editor = {
     showLineNumbersInCode: false,
     removeTrailingSpacesWhenParsing: true,
     enableTablePagination: false,
-    defaultRowsPerPage: 25,
 };
 
 const define = {

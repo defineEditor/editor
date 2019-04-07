@@ -32,6 +32,7 @@ import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import OpenDrawer from '@material-ui/icons/ArrowUpward';
 import Typography from '@material-ui/core/Typography';
+import TablePagination from '@material-ui/core/TablePagination';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import CodedValueEditor from 'editors/codedValueEditor.js';
 import CodedValueOrderEditor from 'components/orderEditors/codedValueOrderEditor.js';
@@ -51,6 +52,8 @@ import {
     addCodedValue,
     deleteCodedValues,
     selectGroup,
+    updateMainUi,
+    changeTablePageDetails,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -92,6 +95,8 @@ const mapDispatchToProps = dispatch => {
         addBlankCodedValue: (codeListOid) => dispatch(addCodedValue(codeListOid, { codedValue: '', orderNumber: undefined })),
         deleteCodedValues: (codeListOid, deletedOids) => dispatch(deleteCodedValues(codeListOid, deletedOids)),
         selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
+        updateMainUi: (updateObj) => dispatch(updateMainUi(updateObj)),
+        changeTablePageDetails: (updateObj) => dispatch(changeTablePageDetails(updateObj)),
     };
 };
 
@@ -109,6 +114,8 @@ const mapStateToProps = state => {
         tabNames: state.present.ui.tabs.tabNames,
         codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
         reviewMode: state.present.ui.main.reviewMode,
+        enableTablePagination: state.present.settings.editor.enableTablePagination,
+        rowsPerPage: state.present.ui.main.rowsPerPage.codedValuesTab,
     };
 };
 
@@ -266,6 +273,24 @@ class ConnectedCodedValueTable extends React.Component {
     }
 
     onKeyDown = (event) => {
+        if (this.props.enableTablePagination) {
+            let page;
+            if (this.props.tabSettings.pagination.hasOwnProperty(this.props.itemGroupOid)) {
+                page = this.props.tabSettings.pagination[this.props.itemGroupOid].page;
+            }
+            if (!Number.isInteger(page)) {
+                page = 0;
+            }
+            if (event.ctrlKey && (event.keyCode === 219)) {
+                if (page > 0) {
+                    this.handleChangePage(event, page - 1);
+                }
+            } else if (event.ctrlKey && (event.keyCode === 221)) {
+                // Theoretically it should be checked that the limit is reached,
+                // but TablePagination will automatically reduce the page if the limit is reached
+                this.handleChangePage(event, page + 1);
+            }
+        }
         if (event.ctrlKey && (event.keyCode === 78)) {
             this.props.addBlankCodedValue(this.props.codeListOid);
         } else if (event.ctrlKey && (event.keyCode === 70)) {
@@ -591,6 +616,14 @@ class ConnectedCodedValueTable extends React.Component {
         return items;
     }
 
+    handleChangePage = (event, page) => {
+        this.props.changeTablePageDetails({ groupOid: this.props.itemGroupOid, details: { page } });
+    };
+
+    handleChangeRowsPerPage = event => {
+        this.props.updateMainUi({ rowsPerPage: { codedValuesTab: event.target.value } });
+    };
+
     render () {
         const { classes } = this.props;
         // Extract data required for the variable table
@@ -651,6 +684,26 @@ class ConnectedCodedValueTable extends React.Component {
                     stdCodeList: stdCodeList,
                 }
             ));
+
+        const itemNum = codedValues.length;
+        let page = 0;
+        const rowsPerPage = this.props.rowsPerPage;
+        let dataToShow;
+        if (this.props.enableTablePagination && rowsPerPage !== 'All') {
+            if (this.props.tabSettings.pagination.hasOwnProperty(this.props.itemGroupOid)) {
+                page = this.props.tabSettings.pagination[this.props.itemGroupOid].page;
+            }
+            if (!Number.isInteger(page)) {
+                page = 0;
+            }
+            dataToShow = codedValues.filter((item, index) => {
+                if (page * rowsPerPage <= index && index < page * rowsPerPage + rowsPerPage) {
+                    return true;
+                }
+            });
+        } else {
+            dataToShow = codedValues;
+        }
 
         // Editor settings
         let cellEditProp = {
@@ -717,7 +770,7 @@ class ConnectedCodedValueTable extends React.Component {
                     </React.Fragment>
                 )}
                 <BootstrapTable
-                    data={codedValues}
+                    data={dataToShow}
                     options={options}
                     search
                     deleteRow
@@ -738,6 +791,23 @@ class ConnectedCodedValueTable extends React.Component {
                     anchorEl={this.state.anchorEl}
                     onShowCodedValueSelector={this.handleShowCodedValueSelector}
                 />
+                { this.props.enableTablePagination &&
+                        <TablePagination
+                            component="div"
+                            count={itemNum}
+                            page={page}
+                            rowsPerPage={rowsPerPage === 'All' ? dataToShow.length : rowsPerPage}
+                            backIconButtonProps={{
+                                'aria-label': 'Previous Page',
+                            }}
+                            nextIconButtonProps={{
+                                'aria-label': 'Next Page',
+                            }}
+                            onChangePage={this.handleChangePage}
+                            onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                            rowsPerPageOptions={rowsPerPage === 'All' ? [25, 50, 100, 250, 'All', dataToShow.length] : [25, 50, 100, 250, 'All']}
+                        />
+                }
                 { this.state.showSelectColumn && (
                     <SelectColumns
                         onClose={ () => { this.setState({ showSelectColumn: false }); } }
