@@ -470,7 +470,7 @@ class WhereClauseEditorInteractive extends React.Component {
                                 fullWidth
                                 multiline
                                 defaultValue={value}
-                                onBlur={this.handleChange('checkValuesMultipleValueType', index)}
+                                onChange={this.handleChange('checkValuesMultipleValueType', index)}
                                 className={classes.textFieldValues}
                             />
                         </Grid>
@@ -482,7 +482,7 @@ class WhereClauseEditorInteractive extends React.Component {
                                 fullWidth
                                 multiline
                                 defaultValue={value}
-                                onBlur={this.handleChange('checkValues', index)}
+                                onChange={this.handleChange('checkValues', index)}
                                 className={classes.textFieldValues}
                             />
                         </Grid>

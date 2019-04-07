@@ -55,6 +55,15 @@
       "main.prod.js.map",
       "package.json"
     ],
+    "extraResources": [
+        {
+            "from": "app/static/",
+            "to": "static",
+            "filter": [
+                "**/*"
+            ]
+        }
+    ],
     "dmg": {
       "contents": [
         {

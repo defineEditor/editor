@@ -127,7 +127,7 @@ const editor = {
     enableSelectForStdCodedValues: true,
     showLineNumbersInCode: false,
     removeTrailingSpacesWhenParsing: true,
-    enableTablePagination: false,
+    enableTablePagination: true,
 };
 
 const define = {
