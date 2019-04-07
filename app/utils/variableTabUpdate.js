@@ -139,10 +139,12 @@ class ConnectedVariableTabUpdate extends React.Component {
         if (props.selectedItems !== undefined) {
             selectedItems = props.selectedItems || [];
         } else {
-            selectedItems = props.currentData.map(row => ({
-                itemGroupOid: row.itemGroupOid,
-                itemDefOid: row.oid,
-            }));
+            selectedItems = props.currentData
+                .filter(row => (!row.vlmLevel > 0))
+                .map(row => ({
+                    itemGroupOid: row.itemGroupOid,
+                    itemDefOid: row.oid,
+                }));
         }
         let filter = {
             isEnabled: false,
