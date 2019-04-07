@@ -27,6 +27,8 @@ import Studies from 'core/studies.js';
 import About from 'core/about.js';
 import RedoUndo from 'components/utils/redoUndo.js';
 import FindInPage from 'components/utils/findInPage.js';
+import saveState from 'utils/saveState.js';
+import sendDefineObject from 'utils/sendDefineObject.js';
 import {
     openModal,
     updateMainUi,
@@ -107,13 +109,17 @@ class ConnectedApp extends Component {
     }
 
     onKeyDown = (event) => {
-        if (event.ctrlKey && (event.keyCode === 72) && this.props.currentPage === 'editor') {
+        if (event.ctrlKey && event.keyCode === 72 && this.props.currentPage === 'editor') {
             this.toggleRedoUndo();
-        } else if (event.ctrlKey && (event.keyCode === 70) && !this.props.disableFindToggle) {
+        } else if (event.ctrlKey && event.keyCode === 70 && !this.props.disableFindToggle) {
             this.toggleFindInPage();
-        } else if (event.ctrlKey && (event.keyCode === 191)) {
+        } else if (event.ctrlKey && event.keyCode === 191) {
             event.preventDefault();
             this.toggleShortcuts();
+        } else if (event.ctrlKey && event.keyCode === 123) {
+            saveState();
+        } else if (event.keyCode === 123) {
+            sendDefineObject();
         }
     }
 

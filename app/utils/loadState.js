@@ -52,6 +52,7 @@ function loadState () {
         if (state.ui.main.showCommentMethodTable === true) {
             state.ui.main.showCommentMethodTable = false;
         }
+        state.ui.main.lastSaveHistoryIndex = 0;
         state.ui.main.actionHistory = [];
         state.ui.main.isCurrentDefineSaved = true;
     }

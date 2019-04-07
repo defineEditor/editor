@@ -86,6 +86,17 @@ const shortcuts = {
         'Ctrl + =': 'Switch to the next tab',
         'Ctrl + -': 'Switch to the previous tab',
     },
+    'Saving Define-XML': {
+        'Ctrl + F12': 'Save',
+        'F12': 'Save As',
+    },
+    'Main Menu': {
+        'S': 'Open Studies',
+        'E': 'Open Editor',
+        'C': 'Open Controlled Terminology',
+        'T': 'Open Settings',
+        'Ctrl + P': 'Print',
+    },
 };
 
 class KeyboardShortcuts extends React.Component {
