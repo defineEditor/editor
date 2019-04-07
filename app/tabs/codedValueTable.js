@@ -23,6 +23,7 @@ import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Fab from '@material-ui/core/Fab';
+import TextField from '@material-ui/core/TextField';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
@@ -31,6 +32,7 @@ import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import OpenDrawer from '@material-ui/icons/ArrowUpward';
 import Typography from '@material-ui/core/Typography';
+import TablePagination from '@material-ui/core/TablePagination';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import CodedValueEditor from 'editors/codedValueEditor.js';
 import CodedValueOrderEditor from 'components/orderEditors/codedValueOrderEditor.js';
@@ -41,6 +43,7 @@ import renderColumns from 'utils/renderColumns.js';
 import CodedValueMenu from 'components/menus/codedValueMenu.js';
 import getCodeListData from 'utils/getCodeListData.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
+import getCodedValuesAsText from 'utils/getCodedValuesAsText.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import { getDecode } from 'utils/defineStructureUtils.js';
 import CodedValueSelector from 'utils/codedValueSelector.js';
@@ -49,6 +52,8 @@ import {
     addCodedValue,
     deleteCodedValues,
     selectGroup,
+    updateMainUi,
+    changeTablePageDetails,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -71,6 +76,16 @@ const styles = theme => ({
         color: '#007BFF',
         cursor: 'pointer',
     },
+    searchField: {
+        marginTop: '0',
+    },
+    searchInput: {
+        paddingTop: '9px',
+        paddingBottom: '9px',
+    },
+    searchLabel: {
+        transform: 'translate(10px, 10px)',
+    },
 });
 
 // Redux functions
@@ -80,6 +95,8 @@ const mapDispatchToProps = dispatch => {
         addBlankCodedValue: (codeListOid) => dispatch(addCodedValue(codeListOid, { codedValue: '', orderNumber: undefined })),
         deleteCodedValues: (codeListOid, deletedOids) => dispatch(deleteCodedValues(codeListOid, deletedOids)),
         selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
+        updateMainUi: (updateObj) => dispatch(updateMainUi(updateObj)),
+        changeTablePageDetails: (updateObj) => dispatch(changeTablePageDetails(updateObj)),
     };
 };
 
@@ -97,6 +114,8 @@ const mapStateToProps = state => {
         tabNames: state.present.ui.tabs.tabNames,
         codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
         reviewMode: state.present.ui.main.reviewMode,
+        enableTablePagination: state.present.settings.editor.enableTablePagination,
+        rowsPerPage: state.present.ui.main.rowsPerPage.codedValuesTab,
     };
 };
 
@@ -142,9 +161,8 @@ class ConnectedCodedValueTable extends React.Component {
         super(props);
         const codeList = this.props.codeLists[this.props.codeListOid];
 
-        // Columns
+        this.searchFieldRef = React.createRef();
         let columns = clone(this.props.stdColumns);
-
         // Variables menu is not shown when selection is triggered
         if (columns.hasOwnProperty('oid')) {
             columns.oid.hidden = this.props.showRowSelect;
@@ -200,6 +218,7 @@ class ConnectedCodedValueTable extends React.Component {
             anchorEl: null,
             moreVariablesAnchor: null,
             addStdCodesOrderNumber: undefined,
+            searchString: '',
         };
     }
 
@@ -254,8 +273,35 @@ class ConnectedCodedValueTable extends React.Component {
     }
 
     onKeyDown = (event) => {
+        if (this.props.enableTablePagination) {
+            let page;
+            if (this.props.tabSettings.pagination.hasOwnProperty(this.props.itemGroupOid)) {
+                page = this.props.tabSettings.pagination[this.props.itemGroupOid].page;
+            }
+            if (!Number.isInteger(page)) {
+                page = 0;
+            }
+            if (event.ctrlKey && (event.keyCode === 219)) {
+                if (page > 0) {
+                    this.handleChangePage(event, page - 1);
+                }
+            } else if (event.ctrlKey && (event.keyCode === 221)) {
+                // Theoretically it should be checked that the limit is reached,
+                // but TablePagination will automatically reduce the page if the limit is reached
+                this.handleChangePage(event, page + 1);
+            }
+        }
         if (event.ctrlKey && (event.keyCode === 78)) {
             this.props.addBlankCodedValue(this.props.codeListOid);
+        } else if (event.ctrlKey && (event.keyCode === 70)) {
+            this.searchFieldRef.current.focus();
+        }
+    }
+
+    onSearchKeyDown = (event) => {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            this.setState({ searchString: event.target.value });
         }
     }
 
@@ -408,6 +454,20 @@ class ConnectedCodedValueTable extends React.Component {
                 <Grid item style={{ paddingRight: '25px' }}>
                     <Grid container spacing={16} justify='flex-end'>
                         <Grid item>
+                            <TextField
+                                variant='outlined'
+                                label='Search'
+                                placeholder='Ctrl+F'
+                                inputRef={this.searchFieldRef}
+                                inputProps={{ className: this.props.classes.searchInput }}
+                                InputLabelProps={{ className: this.props.classes.searchLabel, shrink: true }}
+                                className={this.props.classes.searchField}
+                                defaultValue={this.state.searchString}
+                                onKeyDown={this.onSearchKeyDown}
+                                onBlur={(event) => { this.setState({ searchString: event.target.value }); }}
+                            />
+                        </Grid>
+                        <Grid item>
                             <Button variant="contained" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
                                 Columns
                                 <RemoveRedEyeIcon style={{ marginLeft: '7px' }}/>
@@ -556,6 +616,14 @@ class ConnectedCodedValueTable extends React.Component {
         return items;
     }
 
+    handleChangePage = (event, page) => {
+        this.props.changeTablePageDetails({ groupOid: this.props.itemGroupOid, details: { page } });
+    };
+
+    handleChangeRowsPerPage = event => {
+        this.props.updateMainUi({ rowsPerPage: { codedValuesTab: event.target.value } });
+    };
+
     render () {
         const { classes } = this.props;
         // Extract data required for the variable table
@@ -582,12 +650,60 @@ class ConnectedCodedValueTable extends React.Component {
         if (stdCodeList !== undefined) {
             codeListExtensible = stdCodeList.codeListExtensible;
         }
+        // Handle Search
+        let filteredOids = [];
+        const searchString = this.state.searchString;
+        if (searchString) {
+            // If search string contains capital cases, use case-sensitive search
+            const caseSensitiveSearch = /[A-Z]/.test(searchString);
+            let data = getCodedValuesAsText({
+                codeList,
+                defineVersion: this.props.defineVersion,
+                columns: this.state.columns,
+            });
+            // Go through each text item and search for the corresponding text, exlude OID items
+            data = data.filter(row => (Object.keys(row)
+                .filter(item => (!item.toUpperCase().includes('OID')))
+                .some(item => {
+                    if (caseSensitiveSearch) {
+                        return typeof row[item] === 'string' && row[item].includes(searchString);
+                    } else {
+                        return typeof row[item] === 'string' && row[item].toLowerCase().includes(searchString);
+                    }
+                })
+            ));
+            filteredOids = data.map(row => (row.oid));
+        }
         // Get codeList data
         let { codeListTable, codeListTitle } = getCodeListData(codeList, this.props.defineVersion);
-        codeListTable.forEach(item => {
-            item.codeList = codeList;
-            item.stdCodeList = stdCodeList;
-        });
+        let codedValues = codeListTable
+            .filter(item => (!searchString || filteredOids.includes(item.oid)))
+            .map(item => (
+                { ...item,
+                    codeList: codeList,
+                    stdCodeList: stdCodeList,
+                }
+            ));
+
+        const itemNum = codedValues.length;
+        let page = 0;
+        const rowsPerPage = this.props.rowsPerPage;
+        let dataToShow;
+        if (this.props.enableTablePagination && rowsPerPage !== 'All') {
+            if (this.props.tabSettings.pagination.hasOwnProperty(this.props.itemGroupOid)) {
+                page = this.props.tabSettings.pagination[this.props.itemGroupOid].page;
+            }
+            if (!Number.isInteger(page)) {
+                page = 0;
+            }
+            dataToShow = codedValues.filter((item, index) => {
+                if (page * rowsPerPage <= index && index < page * rowsPerPage + rowsPerPage) {
+                    return true;
+                }
+            });
+        } else {
+            dataToShow = codedValues;
+        }
 
         // Editor settings
         let cellEditProp = {
@@ -654,7 +770,7 @@ class ConnectedCodedValueTable extends React.Component {
                     </React.Fragment>
                 )}
                 <BootstrapTable
-                    data={codeListTable}
+                    data={dataToShow}
                     options={options}
                     search
                     deleteRow
@@ -675,6 +791,23 @@ class ConnectedCodedValueTable extends React.Component {
                     anchorEl={this.state.anchorEl}
                     onShowCodedValueSelector={this.handleShowCodedValueSelector}
                 />
+                { this.props.enableTablePagination &&
+                        <TablePagination
+                            component="div"
+                            count={itemNum}
+                            page={page}
+                            rowsPerPage={rowsPerPage === 'All' ? dataToShow.length : rowsPerPage}
+                            backIconButtonProps={{
+                                'aria-label': 'Previous Page',
+                            }}
+                            nextIconButtonProps={{
+                                'aria-label': 'Next Page',
+                            }}
+                            onChangePage={this.handleChangePage}
+                            onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                            rowsPerPageOptions={rowsPerPage === 'All' ? [25, 50, 100, 250, 'All', dataToShow.length] : [25, 50, 100, 250, 'All']}
+                        />
+                }
                 { this.state.showSelectColumn && (
                     <SelectColumns
                         onClose={ () => { this.setState({ showSelectColumn: false }); } }

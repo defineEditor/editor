@@ -48,8 +48,13 @@ function loadState () {
         state.ui.modal = uiInitialValues.modal;
     }
     // If the comment/method table is shown, disable it
-    if (state.hasOwnProperty('ui') && state.ui.hasOwnProperty('main') && state.ui.main.showCommentMethodTable === true) {
-        state.ui.main.showCommentMethodTable = false;
+    if (state.hasOwnProperty('ui') && state.ui.hasOwnProperty('main')) {
+        if (state.ui.main.showCommentMethodTable === true) {
+            state.ui.main.showCommentMethodTable = false;
+        }
+        state.ui.main.lastSaveHistoryIndex = 0;
+        state.ui.main.actionHistory = [];
+        state.ui.main.isCurrentDefineSaved = true;
     }
     // Update UI structure with initial values, this is required when schema changed and old UI does not have required properties
     Object.keys(uiInitialValues).forEach(uiType => {

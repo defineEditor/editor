@@ -32,6 +32,7 @@ import OtherAttributesEditor from 'editors/otherAttributesEditor.js';
 import StandardEditor from 'editors/standardEditor.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import getModelFromStandard from 'utils/getModelFromStandard.js';
+import getArmResultDisplayOids from 'utils/getArmResultDisplayOids.js';
 import {
     updateGlobalVariablesAndStudyOid,
     updateMetaDataVersion,
@@ -52,7 +53,7 @@ const mapDispatchToProps = dispatch => {
         updateControlledTerminologies: (updateObj) => dispatch(updateControlledTerminologies(updateObj)),
         updateStandards: (updateObj) => dispatch(updateStandards(updateObj)),
         updateModel: (updateObj) => dispatch(updateModel(updateObj)),
-        updateArmStatus: (updateObj) => dispatch(updateArmStatus(updateObj)),
+        updateArmStatus: (updateObj, deleteObj) => dispatch(updateArmStatus(updateObj, deleteObj)),
         updateOdmAttrs: (updateObj) => dispatch(updateOdmAttrs(updateObj)),
         deleteStdCodeLists: (updateObj) => dispatch(deleteStdCodeLists(updateObj)),
         updateDefine: (updateObj) => dispatch(updateDefine(updateObj)),
@@ -104,6 +105,7 @@ const mapStateToProps = state => {
         controlledTerminology: state.present.controlledTerminology,
         stdCodeLists: state.present.stdCodeLists,
         tabs: state.present.ui.tabs,
+        analysisResultDisplays: state.present.odm.study.metaDataVersion.analysisResultDisplays,
         mdvAttrs,
         odmAttrs,
         comments,
@@ -286,7 +288,20 @@ class ConnectedStandardTable extends React.Component {
             // Check if the ARM status has changed;
             if (name === 'standard') {
                 if (this.props.hasArm !== returnValue.hasArm) {
-                    this.props.updateArmStatus({ armStatus: returnValue.hasArm });
+                    if (returnValue.hasArm === false && this.props.analysisResultDisplays.resultDisplays !== undefined) {
+                        // If ARM is removed, need to update/remove Comments and Where Clauses used by ARM
+                        let analysisResults = this.props.analysisResultDisplays.analysisResults;
+                        let resultDisplays = this.props.analysisResultDisplays.resultDisplays;
+                        let resultDisplayOids = Object.keys(resultDisplays);
+                        const { commentOids, whereClauseOids } = getArmResultDisplayOids(resultDisplays, analysisResults, resultDisplayOids);
+                        let deleteObj = {
+                            commentOids,
+                            whereClauseOids,
+                        };
+                        this.props.updateArmStatus({ armStatus: returnValue.hasArm }, deleteObj);
+                    } else {
+                        this.props.updateArmStatus({ armStatus: returnValue.hasArm });
+                    }
                 }
             }
             // Check if the model changed;
@@ -479,6 +494,7 @@ ConnectedStandardTable.propTypes = {
     mdvAttrs: PropTypes.object.isRequired,
     defineVersion: PropTypes.string.isRequired,
     stdConstants: PropTypes.object.isRequired,
+    analysisResultDisplays: PropTypes.object,
     lang: PropTypes.string.isRequired,
 };
 

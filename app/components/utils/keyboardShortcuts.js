@@ -63,7 +63,7 @@ const shortcuts = {
         'Ctrl + N': 'Add new item (Dataset, Variable, Codelist, etc.)',
         'Ctrl + Z': 'Undo the last change when editing History is opened',
         'Ctrl + Y': 'Redo the change when editing History is opened',
-        'Ctrl + F': 'Find in the page. Focus on the Search box in the Variables tab.',
+        'Ctrl + F': 'Find in the page. Focus on the Search box.',
         'Ctrl + [': 'Go the to next page when pagination is enabled in the Variable tab',
         'Ctrl + ]': 'Go the to previous page when pagination is enabled in the Variable tab',
         'Arrow keys': 'Navigation in editable tables',
@@ -85,6 +85,17 @@ const shortcuts = {
         'Ctrl + 8': 'Switch to the Analysis Results tab',
         'Ctrl + =': 'Switch to the next tab',
         'Ctrl + -': 'Switch to the previous tab',
+    },
+    'Saving Define-XML': {
+        'Ctrl + F12': 'Save',
+        'F12': 'Save As',
+    },
+    'Main Menu': {
+        'S': 'Open Studies',
+        'E': 'Open Editor',
+        'C': 'Open Controlled Terminology',
+        'T': 'Open Settings',
+        'Ctrl + P': 'Print',
     },
 };
 

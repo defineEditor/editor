@@ -20,7 +20,11 @@ import { throttle } from 'throttle-debounce';
 import saveState from 'utils/saveState.js';
 
 const filterActions = (action, currentState, previousHistory) => {
-    return !action.type.startsWith('UI_');
+    return (
+        !action.type.startsWith('UI_') &&
+        !action.type.startsWith('@@') &&
+        !['STDCDL_LOAD', 'APP_SAVE', 'STG_UPDATESETTINGS', 'DUMMY_ACTION'].includes(action.type)
+    );
 };
 
 const actionSanitizer = (action) => (
@@ -33,9 +37,9 @@ const store = createStore(
     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__({ actionSanitizer }),
 );
 
-// Save state every minute as a backup
+// Save state every 5 minutes as a backup
 store.subscribe(
-    throttle(60000, () => { saveState('backup'); })
+    throttle(300000, () => { saveState('backup'); })
 );
 
 export default store;

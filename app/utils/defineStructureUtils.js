@@ -116,7 +116,7 @@ const surroundWithQuotes = (value, type) => {
     } else if (/'/.test(value) || /\s/.test(value)) {
         return '"' + value + '"';
     } else {
-        if (['text', 'date', 'time', 'datetime'].includes(type)) {
+        if (!['float', 'integer'].includes(type) || value === '') {
             return '"' + value + '"';
         } else {
             return value;

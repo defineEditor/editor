@@ -17,6 +17,7 @@ import {
     UPD_LEAFORDER,
     ADD_VARS,
     ADD_ITEMGROUPS,
+    ADD_RESULTDISPLAYS,
 } from 'constants/action-types';
 
 const updateLeafOrder = (state, action) => {
@@ -25,18 +26,16 @@ const updateLeafOrder = (state, action) => {
 };
 
 const updateLeafs = (state, action) => {
-    // action.updateObj.removedLeafIds - list of removed leaf IDs
-    // action.updateObj.addedLeafs - list of added leafs
-    let newLeafOrder = state.slice();
-    action.updateObj.removedLeafIds.forEach(leafId => {
-        newLeafOrder.splice(newLeafOrder.indexOf(leafId), 1);
-    });
-    newLeafOrder = newLeafOrder.concat(Object.keys(action.updateObj.addedLeafs));
-
-    return newLeafOrder;
+    let newLeafOrder = action.updateObj.leafOrder;
+    // Check if the order changed
+    if (state.length !== newLeafOrder.length || state.some((value, index) => value !== newLeafOrder[index])) {
+        return newLeafOrder;
+    } else {
+        return state;
+    }
 };
 
-const handleAddVariables = (state, action) => {
+const handleAddItems = (state, action) => {
     if (Object.keys(action.updateObj.leafs).length > 0) {
         return state.concat(Object.keys(action.updateObj.leafs));
     } else {
@@ -64,9 +63,11 @@ const leafOrder = (state = {}, action) => {
         case UPD_LEAFORDER:
             return updateLeafOrder(state, action);
         case ADD_VARS:
-            return handleAddVariables(state, action);
+            return handleAddItems(state, action);
         case ADD_ITEMGROUPS:
             return handleAddItemGroups(state, action);
+        case ADD_RESULTDISPLAYS:
+            return handleAddItems(state, action);
         default:
             return state;
     }

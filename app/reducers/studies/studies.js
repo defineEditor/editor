@@ -21,11 +21,7 @@ import {
     DEFINE_ADD,
     DEFINE_DEL
 } from 'constants/action-types';
-
-const initialState = {
-    byId: {},
-    allIds: []
-};
+import { studies as initialState } from 'constants/initialValues.js';
 
 const addStudy = (state, action) => {
     return {

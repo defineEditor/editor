@@ -143,8 +143,8 @@ class ConnectedCodeListMenu extends React.Component {
             groupOid: this.props.codeListMenuParams.codeListOid,
             scrollPosition: {},
         };
-        this.props.selectGroup(updateObj);
         this.props.onClose();
+        this.props.selectGroup(updateObj);
     }
 
     render () {

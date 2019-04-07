@@ -74,8 +74,8 @@ const mapStateToProps = state => {
     }
     return {
         tabs: state.present.ui.tabs,
-        isCurrentDefineSaved: state.present.ui.main.isCurrentDefineSaved,
-        actionsDone: state.index,
+        historyIndex: state.index,
+        lastSaveHistoryIndex: state.present.ui.main.lastSaveHistoryIndex,
         hasArm,
     };
 };
@@ -171,15 +171,17 @@ class ConnectedEditorTabs extends React.Component {
             }
         }
 
+        const numberOfChanges = this.props.historyIndex - this.props.lastSaveHistoryIndex;
+
         return (
             <div className={classes.root}>
                 <div className='doNotPrint'>
                     <IconButton
-                        color={this.props.isCurrentDefineSaved ? 'default' : 'primary'}
+                        color={numberOfChanges > 0 ? 'primary' : 'default'}
                         onClick={this.props.toggleMainMenu}
                         className={classes.menuToggle}
                     >
-                        <Badge color={this.props.isCurrentDefineSaved ? 'default' : 'primary'} badgeContent={this.props.actionsDone}>
+                        <Badge color='primary' badgeContent={numberOfChanges}>
                             <MenuIcon/>
                         </Badge>
                     </IconButton>
@@ -222,7 +224,8 @@ ConnectedEditorTabs.propTypes = {
     hasArm: PropTypes.bool.isRequired,
     toggleMainMenu: PropTypes.func.isRequired,
     changeTab: PropTypes.func.isRequired,
-    actionsDone: PropTypes.number.isRequired,
+    historyIndex: PropTypes.number.isRequired,
+    lastSaveHistoryIndex: PropTypes.number.isRequired,
 };
 
 const EditorTabs = connect(mapStateToProps, mapDispatchToProps)(ConnectedEditorTabs);

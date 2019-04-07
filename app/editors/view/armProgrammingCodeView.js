@@ -133,7 +133,7 @@ class ConnectedArmProgrammingCodeView extends React.Component {
                                 label="Code"
                                 multiline
                                 fullWidth
-                                rowsMax="10"
+                                rowsMax="40"
                                 helperText={issueCode && helperTextCode}
                                 FormHelperTextProps={{ className: classes.helperText }}
                                 value={code}

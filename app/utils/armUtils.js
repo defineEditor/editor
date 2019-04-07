@@ -14,10 +14,11 @@
 
 import getOid from 'utils/getOid.js';
 import clone from 'clone';
-import { copyComment } from 'utils/copyUtils.js';
-import { WhereClause } from 'core/defineStructure.js';
-import getOidByName from 'utils/getOidByName.js';
+import { copyComment, extractLeafIds, renameLeafIds } from 'utils/copyUtils.js';
 import { AnalysisResult, ResultDisplay, AnalysisDataset } from 'core/armStructure.js';
+import { WhereClause, Leaf } from 'core/defineStructure.js';
+import getOidByName from 'utils/getOidByName.js';
+import compareLeafs from 'utils/compareLeafs.js';
 
 const copyAnalysisResults = ({
     mdv,
@@ -380,7 +381,88 @@ const copyResultDisplays = ({
             missingItemRefListByResultDisplay[resultDisplayOid] = copiedAnalysisResults.missingItemRefList;
         }
     });
-    return { resultDisplays, analysisResults, whereClauses, comments, missingItemRefListByResultDisplay };
+    // Copy Leafs
+    let leafs = {};
+    if (sameDefine === false) {
+        let leafIds = [];
+        // Get IDs of documents used
+        // Analysis Results
+        Object.values(analysisResults).forEach(analysisResult => {
+            // Comment for datasets
+            if (analysisResult.analysisDatasetsCommentOid !== undefined) {
+                extractLeafIds(comments[analysisResult.analysisDatasetsCommentOid].documents, leafIds);
+            }
+            // Programming code
+            if (analysisResult.programmingCode !== undefined && analysisResult.programmingCode.documents !== undefined) {
+                extractLeafIds(analysisResult.programmingCode.documents, leafIds);
+            }
+            // Documentation
+            if (analysisResult.documentation !== undefined && analysisResult.documentation.documents !== undefined) {
+                extractLeafIds(analysisResult.documentation.documents, leafIds);
+            }
+        });
+        // Result Displays
+        Object.values(resultDisplays).forEach(resultDisplay => {
+            if (resultDisplay.documents !== undefined) {
+                extractLeafIds(resultDisplay.documents, leafIds);
+            }
+        });
+        // Get a list of OIDs which should be renamed
+        let leafOidsRenamed = {};
+        // Compare leafs with the existing leafs;
+        let finalLeafIds = leafIds.slice();
+        leafIds.forEach(sourceLeafId => {
+            Object.keys(mdv.leafs).some(leafId => {
+                if (compareLeafs(sourceMdv.leafs[sourceLeafId], mdv.leafs[leafId])) {
+                    finalLeafIds.splice(finalLeafIds.indexOf(sourceLeafId), 1);
+                    if (sourceLeafId !== leafId) {
+                        leafOidsRenamed[sourceLeafId] = leafId;
+                    }
+                    return true;
+                } else if (sourceLeafId === leafId) {
+                    // There is a leaf with the same ID, but with different contents
+                    leafOidsRenamed[sourceLeafId] = getOid('Leaf', undefined, Object.keys(leafs).concat(leafIds));
+                    finalLeafIds.splice(finalLeafIds.indexOf(sourceLeafId), 1, leafOidsRenamed[sourceLeafId]);
+                }
+            });
+        });
+        // If needed, rename leaf IDs in document
+        let sourceLeafs = clone(sourceMdv.leafs);
+        Object.keys(leafOidsRenamed).forEach(sourceLeafId => {
+            let leafId = leafOidsRenamed[sourceLeafId];
+            // Analysis Results
+            Object.values(analysisResults).forEach(analysisResult => {
+                // Comment for datasets
+                if (analysisResult.analysisDatasetsCommentOid !== undefined) {
+                    renameLeafIds(comments[analysisResult.analysisDatasetsCommentOid].documents, sourceLeafId, leafId);
+                }
+                // Programming code
+                if (analysisResult.programmingCode !== undefined && analysisResult.programmingCode.documents !== undefined) {
+                    renameLeafIds(analysisResult.programmingCode.documents, sourceLeafId, leafId);
+                }
+                // Documentation
+                if (analysisResult.documentation !== undefined && analysisResult.documentation.documents !== undefined) {
+                    renameLeafIds(analysisResult.documentation.documents, sourceLeafId, leafId);
+                }
+            });
+            // Result Displays
+            Object.values(resultDisplays).forEach(resultDisplay => {
+                if (resultDisplay.documents !== undefined) {
+                    renameLeafIds(resultDisplay.documents, sourceLeafId, leafId);
+                }
+            });
+            // Rename ID in source leafs
+            if (Object.keys(sourceLeafs).includes(sourceLeafId) && finalLeafIds.includes(leafId)) {
+                sourceLeafs[leafId] = { ...new Leaf({ ...sourceLeafs[sourceLeafId], id: leafId }) };
+                delete sourceLeafs[sourceLeafId];
+            }
+        });
+
+        finalLeafIds.forEach(leafId => {
+            leafs[leafId] = { ...new Leaf({ ...sourceLeafs[leafId] }) };
+        });
+    }
+    return { resultDisplays, analysisResults, whereClauses, comments, leafs, missingItemRefListByResultDisplay };
 };
 
 export default { copyAnalysisResults, copyResultDisplays };

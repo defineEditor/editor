@@ -28,6 +28,7 @@ import {
     INSERT_VALLVL,
     UPD_LOADACTUALDATA,
     ADD_ITEMGROUPS,
+    UPD_LEAFS,
 } from 'constants/action-types';
 import { ItemDef, TranslatedText, Origin } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
@@ -249,7 +250,7 @@ const updateItemsBulk = (state, action) => {
     let itemDefOids = action.updateObj.selectedItems.map(item => (item.itemDefOid));
     if (['name', 'label', 'dataType', 'codeListOid', 'origins', 'length', 'displayFormat'].includes(field.attr)) {
         let newState = { ...state };
-        const { regex, matchCase, wholeWord, source, target, value } = field.updateValue;
+        const { regex, matchCase, wholeWord, source, target, value, replaceWholeString } = field.updateValue;
         let regExp;
         let escapedTarget;
         // Create RegExp for the replacement
@@ -260,7 +261,13 @@ const updateItemsBulk = (state, action) => {
             if (wholeWord === true) {
                 escapedSource = '\\b' + escapedSource + '\\b';
             }
-            escapedTarget = target.replace(/[$]/g, '$$');
+            if (replaceWholeString === true) {
+                escapedSource = '^' + escapedSource + '$';
+            }
+            // In case of codeListOid replacement, target can be undefined
+            if (target !== undefined) {
+                escapedTarget = target.replace(/[$]/g, '$$');
+            }
             regExp = new RegExp(escapedSource, matchCase ? 'g' : 'gi');
         }
         itemDefOids.forEach(itemDefOid => {
@@ -274,12 +281,21 @@ const updateItemsBulk = (state, action) => {
                     updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], descriptions }) };
                 }
             } else if (field.updateType === 'replace') {
-                if (['name', 'dataType', 'codeListOid', 'length', 'displayFormat'].includes(field.attr)) {
+                if (['name', 'dataType', 'length', 'displayFormat'].includes(field.attr)) {
                     let currentValue = state[itemDefOid][field.attr] || '';
                     if (regex === false && regExp !== undefined && regExp.test(currentValue)) {
                         updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], [field.attr]: currentValue.replace(regExp, escapedTarget) }) };
                     } else if (regex === true && regExp.test(currentValue)) {
                         updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], [field.attr]: currentValue.replace(regExp, target) }) };
+                    }
+                } else if (field.attr === 'codeListOid') {
+                    let currentValue = state[itemDefOid][field.attr] || '';
+                    if (regExp !== undefined && regExp.test(currentValue)) {
+                        if (escapedTarget !== undefined) {
+                            updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], [field.attr]: currentValue.replace(regExp, escapedTarget) }) };
+                        } else {
+                            updatedItemDefs[itemDefOid] = { ...new ItemDef({ ...state[itemDefOid], [field.attr]: undefined }) };
+                        }
                     }
                 } else if (field.attr === 'label') {
                     let newDescriptions = state[itemDefOid].descriptions.slice();
@@ -357,6 +373,39 @@ const handleAddItemGroups = (state, action) => {
     return { ...state, ...allItemDefs };
 };
 
+const handleUpdatedLeafs = (state, action) => {
+    // action.updateObj.removedLeafIds - list of removed leaf OIDs
+    if (Object.keys(action.updateObj.removedLeafIds).length > 0) {
+        let removedLeafIds = action.updateObj.removedLeafIds;
+        // Find all items using removed documents
+        let changedItems = {};
+        Object.keys(state).forEach(itemOid => {
+            let origins = state[itemOid].origins;
+            let newOrigins = origins.slice();
+            let itemChanged = false;
+            origins.forEach((origin, index) => {
+                if (origin.documents.length > 0) {
+                    let newDocuments = origin.documents.filter(doc => (!removedLeafIds.includes(doc.leafId)));
+                    if (newDocuments.length !== origin.documents.length) {
+                        newOrigins.splice(index, 1, { ...origin, documents: newDocuments });
+                        itemChanged = true;
+                    }
+                }
+            });
+            if (itemChanged) {
+                changedItems[itemOid] = { ...state[itemOid], origins: newOrigins };
+            }
+        });
+        if (Object.keys(changedItems).length > 0) {
+            return { ...state, ...changedItems };
+        } else {
+            return state;
+        }
+    } else {
+        return state;
+    }
+};
+
 const itemDefs = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMDEF:
@@ -389,6 +438,8 @@ const itemDefs = (state = {}, action) => {
             return insertValueLevel(state, action);
         case UPD_LOADACTUALDATA:
             return handleActualData(state, action);
+        case UPD_LEAFS:
+            return handleUpdatedLeafs(state, action);
         default:
             return state;
     }

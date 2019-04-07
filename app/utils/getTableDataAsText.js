@@ -64,6 +64,12 @@ function getTableDataAsText ({ source, datasetName, datasetOid, itemDefs, codeLi
         if (originVar.methodOid !== undefined) {
             let method = mdv.methods[originVar.methodOid];
             currentVar.method = getDescription(method);
+            if (method.name) {
+                currentVar.method += ' ' + method.name;
+            }
+            if (method.type) {
+                currentVar.method += ' ' + method.type;
+            }
             if (method.documents.length > 0) {
                 currentVar.hasDocument = 'Yes';
             }

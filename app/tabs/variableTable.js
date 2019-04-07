@@ -25,11 +25,8 @@ import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 import grey from '@material-ui/core/colors/grey';
 import indigo from '@material-ui/core/colors/indigo';
-import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import UnfoldLess from '@material-ui/icons/UnfoldLess';
-import UnfoldMore from '@material-ui/icons/UnfoldMore';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
@@ -66,7 +63,7 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 import {
     updateItemDef, updateItemRef, updateItemRefKeyOrder, updateItemCodeListDisplayFormat,
     updateItemDescription, deleteVariables, updateNameLabelWhereClause, setVlmState,
-    changeTablePageDetails, updateSettings,
+    changeTablePageDetails, updateMainUi,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -109,7 +106,7 @@ const mapDispatchToProps = dispatch => {
         deleteVariables: (source, deleteObj) => dispatch(deleteVariables(source, deleteObj)),
         setVlmState: (source, updateObj) => dispatch(setVlmState(source, updateObj)),
         changeTablePageDetails: (updateObj) => dispatch(changeTablePageDetails(updateObj)),
-        updateSettings: updateObj => dispatch(updateSettings(updateObj)),
+        updateMainUi: (updateObj) => dispatch(updateMainUi(updateObj)),
     };
 };
 
@@ -124,7 +121,7 @@ const mapStateToProps = state => {
         filter: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].filter,
         reviewMode: state.present.ui.main.reviewMode,
         enableTablePagination: state.present.settings.editor.enableTablePagination,
-        defaultRowsPerPage: state.present.settings.editor.defaultRowsPerPage,
+        rowsPerPage: state.present.ui.main.rowsPerPage.variableTab,
     };
 };
 
@@ -371,7 +368,6 @@ class ConnectedVariableTable extends React.Component {
         if (event.ctrlKey && (event.keyCode === 78)) {
             this.setState({ showAddVariable: true, insertPosition: null });
         } else if (event.ctrlKey && (event.keyCode === 70)) {
-            event.preventDefault();
             this.searchFieldRef.current.focus();
         }
     }
@@ -774,13 +770,15 @@ class ConnectedVariableTable extends React.Component {
                             <TextField
                                 variant='outlined'
                                 label='Search'
+                                placeholder='Ctrl+F'
                                 inputRef={this.searchFieldRef}
                                 inputProps={{ className: this.props.classes.searchInput }}
-                                InputLabelProps={{ className: this.props.classes.searchLabel }}
+                                InputLabelProps={{ className: this.props.classes.searchLabel, shrink: true }}
                                 className={this.props.classes.searchField}
                                 defaultValue={this.state.searchString}
                                 onKeyDown={this.onSearchKeyDown}
-                                onBlur={(event) => { this.setState({ searchString: event.target.value }); }}/>
+                                onBlur={(event) => { this.setState({ searchString: event.target.value }); }}
+                            />
                         </Grid>
                         { hasVlm &&
                                 <Grid item>
@@ -794,22 +792,6 @@ class ConnectedVariableTable extends React.Component {
                                     </Button>
                                 </Grid>
                         }
-                        <Grid item>
-                            <Tooltip
-                                title={this.props.enableTablePagination ? 'Disable Pagination' : 'Enable Pagination'}
-                                placement='bottom' enterDelay={1000}
-                            >
-                                <Fab size='small' color='default'
-                                    onClick={ () => { this.props.updateSettings({ editor: { enableTablePagination: !this.props.enableTablePagination } }); }}
-                                >
-                                    { this.props.enableTablePagination ? (
-                                        <UnfoldMore/>
-                                    ) : (
-                                        <UnfoldLess/>
-                                    )}
-                                </Fab>
-                            </Tooltip>
-                        </Grid>
                         <Grid item>
                             <Button
                                 variant="contained"
@@ -924,30 +906,26 @@ class ConnectedVariableTable extends React.Component {
     };
 
     handleChangeRowsPerPage = event => {
-        this.props.changeTablePageDetails({ groupOid: this.props.itemGroupOid, details: { rowsPerPage: event.target.value } });
+        this.props.updateMainUi({ rowsPerPage: { variableTab: event.target.value } });
     };
 
     render () {
         // Extract data required for the variable table
         const mdv = this.props.mdv;
-        let page;
-        let rowsPerPage;
-        if (this.props.tabSettings.pagination.hasOwnProperty(this.props.itemGroupOid)) {
-            page = this.props.tabSettings.pagination[this.props.itemGroupOid].page;
-            rowsPerPage = this.props.tabSettings.pagination[this.props.itemGroupOid].rowsPerPage;
-        }
-        if (!Number.isInteger(page)) {
-            page = 0;
-        }
-        if (!Number.isInteger(rowsPerPage)) {
-            rowsPerPage = this.props.defaultRowsPerPage;
-        }
         const variables = this.getData();
         // Get the number of variable level items (excluding VLM)
         const varNum = variables.filter(item => (item.vlmLevel === 0)).length;
         // If pagination is enabled, show only some variables, do not apply pagination rules to VLM
+        let page = 0;
+        const rowsPerPage = this.props.rowsPerPage;
         let dataToShow;
-        if (this.props.enableTablePagination) {
+        if (this.props.enableTablePagination && rowsPerPage !== 'All') {
+            if (this.props.tabSettings.pagination.hasOwnProperty(this.props.itemGroupOid)) {
+                page = this.props.tabSettings.pagination[this.props.itemGroupOid].page;
+            }
+            if (!Number.isInteger(page)) {
+                page = 0;
+            }
             let currentVarNumber = -1;
             dataToShow = variables.filter(item => {
                 // currentVarNumber === -1 check is added in case a filter is applied and VLM is the first record
@@ -1039,7 +1017,7 @@ class ConnectedVariableTable extends React.Component {
                             component="div"
                             count={varNum}
                             page={page}
-                            rowsPerPage={rowsPerPage}
+                            rowsPerPage={rowsPerPage === 'All' ? dataToShow.length : rowsPerPage}
                             backIconButtonProps={{
                                 'aria-label': 'Previous Page',
                             }}
@@ -1048,7 +1026,7 @@ class ConnectedVariableTable extends React.Component {
                             }}
                             onChangePage={this.handleChangePage}
                             onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                            rowsPerPageOptions={[10, 25, 50, 100]}
+                            rowsPerPageOptions={rowsPerPage === 'All' ? [25, 50, 100, 250, 'All', dataToShow.length] : [25, 50, 100, 250, 'All']}
                         />
                 }
                 { this.state.anchorEl !== null &&
@@ -1069,6 +1047,7 @@ class ConnectedVariableTable extends React.Component {
                 { this.state.showUpdate &&
                         <VariableTabUpdate
                             selectedItems={selectedItems}
+                            currentData={dataToShow}
                             itemGroupOid={this.props.itemGroupOid}
                             onClose={ () => { this.setState({ showUpdate: false }); } }
                         />
@@ -1107,9 +1086,14 @@ ConnectedVariableTable.propTypes = {
     updateItemRefKeyOrder: PropTypes.func.isRequired,
     updateItemCodeListDisplayFormat: PropTypes.func.isRequired,
     updateItemDescription: PropTypes.func.isRequired,
+    updateMainUi: PropTypes.func.isRequired,
     deleteVariables: PropTypes.func.isRequired,
     setVlmState: PropTypes.func.isRequired,
     changeTablePageDetails: PropTypes.func.isRequired,
+    rowsPerPage: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]),
     reviewMode: PropTypes.bool,
 };
 

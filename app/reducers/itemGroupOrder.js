@@ -28,7 +28,6 @@ const addItemGroup = (state, action) => {
     } else {
         newState = state.slice(0, position).concat(action.updateObj.itemGroup.oid).concat(state.slice(position));
     }
-    newState = 'bug';
     return newState;
 };
 
