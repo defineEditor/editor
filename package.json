@@ -1,7 +1,7 @@
 {
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
-  "version": "1.0.0-beta.5",
+  "version": "1.0.0-beta.6",
   "license": "AGPL-3.0-only",
   "private": "true",
   "description": "Visual Define-XML Editor",
@@ -54,6 +54,15 @@
       "main.prod.js",
       "main.prod.js.map",
       "package.json"
+    ],
+    "extraResources": [
+        {
+            "from": "app/static/",
+            "to": "static",
+            "filter": [
+                "**/*"
+            ]
+        }
     ],
     "dmg": {
       "contents": [
@@ -108,7 +117,7 @@
   "contributors": [
     {
       "name": "Sergei Krivtcov",
-      "email": "",
+      "email": "1000eyed@gmail.com",
       "url": ""
     }
   ],
@@ -163,7 +172,7 @@
     "css-loader": "^0.28.11",
     "detect-port": "^1.2.3",
     "electron": "^4.0.1",
-    "electron-builder": "^20.14.7",
+    "electron-builder": "^20.39.0",
     "electron-devtools-installer": "^2.2.4",
     "electron-rebuild": "^1.7.3",
     "enzyme": "^3.3.0",

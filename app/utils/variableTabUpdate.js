@@ -16,6 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import clone from 'clone';
 import Grid from '@material-ui/core/Grid';
 import Popover from '@material-ui/core/Popover';
 import Dialog from '@material-ui/core/Dialog';
@@ -134,7 +135,17 @@ class ConnectedVariableTabUpdate extends React.Component {
     constructor (props) {
         super(props);
 
-        let selectedItems = this.props.selectedItems || [];
+        let selectedItems;
+        if (props.selectedItems !== undefined) {
+            selectedItems = props.selectedItems || [];
+        } else {
+            selectedItems = props.currentData
+                .filter(row => (!row.vlmLevel > 0))
+                .map(row => ({
+                    itemGroupOid: row.itemGroupOid,
+                    itemDefOid: row.oid,
+                }));
+        }
         let filter = {
             isEnabled: false,
             applyToVlm: true,
@@ -418,7 +429,26 @@ class ConnectedVariableTabUpdate extends React.Component {
     update = () => {
         // Lang is required when Label is set
         // If methods are updated, generated an ItemDefOid -> ItemRefOid map, as within method reducer there is no data for that
-        let methodUpdate = this.state.fields.some(field => (field.attr === 'method'));
+        let fields = clone(this.state.fields);
+        // If codelists are updated, replace values "" with undefined
+        fields = fields.map(field => {
+            if (field.attr === 'codeListOid' && field.updateValue.value === '') {
+                return { ...field, updateValue: { ...field.updateValue, value: undefined } };
+            } else if (field.attr === 'codeListOid' && field.updateValue.target === '') {
+                return { ...field, updateValue: { ...field.updateValue, target: undefined } };
+            } else {
+                return field;
+            }
+        });
+        // For those attributes which are updated via Select editor, mark that the whole string should be replaced
+        fields = fields.map(field => {
+            if (updateAttrs.hasOwnProperty(field.attr) && updateAttrs[field.attr].editor === 'Select') {
+                return { ...field, updateValue: { ...field.updateValue, replaceWholeString: true } };
+            } else {
+                return { ...field, updateValue: { ...field.updateValue, replaceWholeString: false } };
+            }
+        });
+        let methodUpdate = fields.some(field => (field.attr === 'method'));
         if (methodUpdate === true) {
             // Get itemRefs from itemOids
             let itemDefItemRefMap = {};
@@ -452,10 +482,10 @@ class ConnectedVariableTabUpdate extends React.Component {
                     itemDefItemRefMap[valueListOid][this.props.mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid] = itemRefOid;
                 });
             });
-            this.props.updateItemsBulk({ selectedItems: this.state.selectedItems, fields: this.state.fields, lang: this.props.lang, itemDefItemRefMap });
+            this.props.updateItemsBulk({ selectedItems: this.state.selectedItems, fields, lang: this.props.lang, itemDefItemRefMap });
             this.setState({ changedAfterUpdated: false });
         } else {
-            this.props.updateItemsBulk({ selectedItems: this.state.selectedItems, fields: this.state.fields, lang: this.props.lang });
+            this.props.updateItemsBulk({ selectedItems: this.state.selectedItems, fields, lang: this.props.lang });
             this.setState({ changedAfterUpdated: false });
         }
     }
@@ -570,6 +600,7 @@ class ConnectedVariableTabUpdate extends React.Component {
 
 ConnectedVariableTabUpdate.propTypes = {
     classes: PropTypes.object.isRequired,
+    currentData: PropTypes.array.isRequired,
     onClose: PropTypes.func.isRequired,
     mdv: PropTypes.object.isRequired,
     selectedItems: PropTypes.array,

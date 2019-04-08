@@ -65,9 +65,10 @@ export const updateStandards = (updateObj) => (
     }
 );
 
-export const updateArmStatus = (updateObj) => (
+export const updateArmStatus = (updateObj, deleteObj) => (
     {
         type: UPD_ARMSTATUS,
         updateObj,
+        deleteObj,
     }
 );

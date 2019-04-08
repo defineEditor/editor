@@ -21,6 +21,10 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 const styles = theme => ({
     greyText: {
         color: 'rgba(0,0,0,0.54)',
+        whiteSpace: 'pre-wrap',
+    },
+    standard: {
+        whiteSpace: 'pre-wrap',
     },
 });
 
@@ -31,7 +35,7 @@ class ArmDescriptionFormatter extends React.Component {
 
         return (
             <div>
-                <div className={this.props.greyText ? this.props.classes.greyText : undefined}>{descriptionText}</div>
+                <div className={this.props.greyText ? this.props.classes.greyText : this.props.classes.standard}>{descriptionText}</div>
                 { (description.documents.length !== 0) &&
                         <DocumentFormatter documents={description.documents} leafs={this.props.leafs}/>
                 }

@@ -26,6 +26,7 @@ import {
     UPD_ANALYSISRESULT,
     DEL_VARS,
     DEL_ITEMGROUPS,
+    UPD_LEAFS,
 } from 'constants/action-types';
 import { AnalysisResultDisplays, ResultDisplay, AnalysisResult } from 'core/armStructure.js';
 import getOid from 'utils/getOid.js';
@@ -281,6 +282,64 @@ const handleDeleteItemGroups = (state, action) => {
     }
 };
 
+const handleUpdatedLeafs = (state, action) => {
+    // action.updateObj.removedLeafIds - list of removed leaf OIDs
+    if (Object.keys(action.updateObj.removedLeafIds).length > 0) {
+        let removedLeafIds = action.updateObj.removedLeafIds;
+        // Check documents in the ResultDisplay
+        let changedResultDisplays = {};
+        Object.keys(state.resultDisplays).forEach(resultDisplayOid => {
+            let item = state.resultDisplays[resultDisplayOid];
+            if (item.documents.length > 0) {
+                let newDocuments = item.documents.filter(doc => (!removedLeafIds.includes(doc.leafId)));
+                if (newDocuments.length !== item.documents.length) {
+                    changedResultDisplays[resultDisplayOid] = { ...item, documents: newDocuments };
+                }
+            }
+        });
+        let changedAnalysisResults = {};
+        // Check documents in the AnalysisResults
+        Object.keys(state.analysisResults).forEach(analysisResultOid => {
+            let item = state.analysisResults[analysisResultOid];
+            // Documentation
+            let newDocumentation;
+            if (item.documentation !== undefined && item.documentation.documents.length > 0) {
+                let newDocuments = item.documentation.documents.filter(doc => (!removedLeafIds.includes(doc.leafId)));
+                if (newDocuments.length !== item.documentation.documents.length) {
+                    newDocumentation = { ...item.documentation, documents: newDocuments };
+                }
+            }
+            // Programming code
+            let newProgrammingCode;
+            if (item.programmingCode !== undefined && item.programmingCode.documents.length > 0) {
+                let newDocuments = item.programmingCode.documents.filter(doc => (!removedLeafIds.includes(doc.leafId)));
+                if (newDocuments.length !== item.programmingCode.documents.length) {
+                    newProgrammingCode = { ...item.programmingCode, documents: newDocuments };
+                }
+            }
+            if (newDocumentation !== undefined || newProgrammingCode !== undefined) {
+                changedAnalysisResults[analysisResultOid] = {
+                    ...item,
+                    documentation: newDocumentation || item.documentation,
+                    programmingCode: newProgrammingCode || item.programmingCode,
+                };
+            }
+        });
+
+        if (Object.keys(changedResultDisplays).length > 0 || Object.keys(changedAnalysisResults).length > 0) {
+            return {
+                ...state,
+                resultDisplays: { ...state.resultDisplays, ...changedResultDisplays },
+                analysisResults: { ...state.analysisResults, ...changedAnalysisResults },
+            };
+        } else {
+            return state;
+        }
+    } else {
+        return state;
+    }
+};
+
 const analysisResultDisplays = (state = {}, action) => {
     switch (action.type) {
         case UPD_ARMSTATUS:
@@ -309,6 +368,8 @@ const analysisResultDisplays = (state = {}, action) => {
             return handleDeleteVariables(state, action);
         case DEL_ITEMGROUPS:
             return handleDeleteItemGroups(state, action);
+        case UPD_LEAFS:
+            return handleUpdatedLeafs(state, action);
         default:
             return state;
     }

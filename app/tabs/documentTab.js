@@ -96,15 +96,16 @@ class ConnectedDocumentTable extends React.Component {
                     addedLeafs,
                     removedLeafIds,
                     updatedLeafs,
+                    leafOrder: returnValue.leafOrder,
                 });
-            }
-            // TODO: Dispatching 2 redux actions in 1 place, rewrite to only 1 action dispatch?
-            let leafOrderChanged = returnValue.leafOrder.length !== this.props.leafOrder.length;
-            if (leafOrderChanged === false) {
-                leafOrderChanged = returnValue.leafOrder.some((leafId, index) => (returnValue.leafOrder[index] !== this.props.leafOrder[index]));
-            }
-            if (leafOrderChanged) {
-                this.props.updateLeafOrder(returnValue.leafOrder);
+            } else {
+                let leafOrderChanged = returnValue.leafOrder.length !== this.props.leafOrder.length;
+                if (leafOrderChanged === false) {
+                    leafOrderChanged = returnValue.leafOrder.some((leafId, index) => (returnValue.leafOrder[index] !== this.props.leafOrder[index]));
+                }
+                if (leafOrderChanged) {
+                    this.props.updateLeafOrder(returnValue.leafOrder);
+                }
             }
             this.setState({ documentEdit: false });
         }

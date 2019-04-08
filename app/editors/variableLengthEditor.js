@@ -107,7 +107,12 @@ class ConnectedVariableLengthEditor extends React.Component {
     }
 
     save = () => {
-        this.props.onUpdate(this.state);
+        if (this.state.fractionDigits === '') {
+            // Display format should be either populated or undefined
+            this.props.onUpdate({ ...this.state, fractionDigits: undefined });
+        } else {
+            this.props.onUpdate(this.state);
+        }
     }
 
     cancel = () => {

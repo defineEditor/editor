@@ -19,6 +19,7 @@ import {
     UPD_ITEMSBULK,
     ADD_VARS,
     ADD_ITEMGROUPS,
+    UPD_LEAFS,
 } from 'constants/action-types';
 import { Method, TranslatedText } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
@@ -409,6 +410,32 @@ const handleAddItemGroups = (state, action) => {
     return newState;
 };
 
+const handleUpdatedLeafs = (state, action) => {
+    // action.updateObj.removedLeafIds - list of removed leaf OIDs
+    if (Object.keys(action.updateObj.removedLeafIds).length > 0) {
+        let removedLeafIds = action.updateObj.removedLeafIds;
+        // Find all items using removed documents
+        let changedItems = {};
+        Object.keys(state).forEach(itemOid => {
+            let item = state[itemOid];
+            if (item.documents.length > 0) {
+                let newDocuments = item.documents.filter(doc => (!removedLeafIds.includes(doc.leafId)));
+                if (newDocuments.length !== item.documents.length) {
+                    // Some of the documents matched
+                    changedItems[itemOid] = { ...item, documents: newDocuments };
+                }
+            }
+        });
+        if (Object.keys(changedItems).length > 0) {
+            return { ...state, ...changedItems };
+        } else {
+            return state;
+        }
+    } else {
+        return state;
+    }
+};
+
 const methods = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMDESCRIPTION:
@@ -423,6 +450,8 @@ const methods = (state = {}, action) => {
             return handleAddVariables(state, action);
         case ADD_ITEMGROUPS:
             return handleAddItemGroups(state, action);
+        case UPD_LEAFS:
+            return handleUpdatedLeafs(state, action);
         default:
             return state;
     }

@@ -23,7 +23,6 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Switch from '@material-ui/core/Switch';
 import Drawer from '@material-ui/core/Drawer';
-import Badge from '@material-ui/core/Badge';
 import IconButton from '@material-ui/core/IconButton';
 import Divider from '@material-ui/core/Divider';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -65,11 +64,6 @@ const styles = theme => ({
     reviewModeSwitch: {
         margin: 'none',
     },
-    badge: {
-        top: '50%',
-        right: '-15px',
-        border: `2px solid ${theme.palette.grey[500]}`
-    }
 });
 
 // Redux functions
@@ -105,6 +99,19 @@ class ConnectedMainMenu extends React.Component {
         if (event.ctrlKey && (event.keyCode === 77)) {
             this.props.toggleMainMenu();
         }
+        if (this.props.mainMenuOpened === true) {
+            if (event.keyCode === 83) {
+                this.openStudies();
+            } else if (event.keyCode === 69) {
+                this.openEditor();
+            } else if (event.keyCode === 84) {
+                this.openSettings();
+            } else if (event.keyCode === 67) {
+                this.openControlledTerminology();
+            } else if (event.keyCode === 80) {
+                this.print();
+            }
+        }
     }
 
     print = () => {
@@ -116,6 +123,29 @@ class ConnectedMainMenu extends React.Component {
         if (!(noToggle === true)) {
             this.props.toggleMainMenu();
         }
+    }
+
+    saveAs = () => {
+        sendDefineObject();
+        this.props.toggleMainMenu();
+    }
+
+    openStudies = () => {
+        this.props.changePage({ page: 'studies' });
+    }
+
+    openEditor = () => {
+        if (this.props.currentDefineId !== '') {
+            this.props.changePage({ page: 'editor' });
+        }
+    }
+
+    openControlledTerminology = () => {
+        this.props.changePage({ page: 'controlledTerminology' });
+    }
+
+    openSettings = () => {
+        this.props.changePage({ page: 'settings' });
     }
 
     render () {
@@ -134,25 +164,25 @@ class ConnectedMainMenu extends React.Component {
                     <Divider/>
                     <div className={classes.list}>
                         <List>
-                            <ListItem button key='studies' onClick={() => this.props.changePage({ page: 'studies' })}>
+                            <ListItem button key='studies' onClick={this.openStudies}>
                                 <ListItemIcon>
                                     <Assignment/>
                                 </ListItemIcon>
                                 <ListItemText primary='Studies'/>
                             </ListItem>
-                            <ListItem button key='editor' onClick={() => this.props.changePage({ page: 'editor' })} disabled={this.props.currentDefineId === ''}>
+                            <ListItem button key='editor' onClick={this.openEditor} disabled={this.props.currentDefineId === ''}>
                                 <ListItemIcon>
                                     <Edit/>
                                 </ListItemIcon>
                                 <ListItemText primary='Editor'/>
                             </ListItem>
-                            <ListItem button key='controlledTerminology' onClick={() => this.props.changePage({ page: 'controlledTerminology' })}>
+                            <ListItem button key='controlledTerminology' onClick={this.openControlledTerminology}>
                                 <ListItemIcon>
                                     <Public/>
                                 </ListItemIcon>
                                 <ListItemText primary='Controlled Teminology'/>
                             </ListItem>
-                            <ListItem button key='settings' onClick={() => this.props.changePage({ page: 'settings' })}>
+                            <ListItem button key='settings' onClick={this.openSettings}>
                                 <ListItemIcon>
                                     <Settings/>
                                 </ListItemIcon>
@@ -183,11 +213,7 @@ class ConnectedMainMenu extends React.Component {
                                         <ListItemIcon>
                                             <History/>
                                         </ListItemIcon>
-                                        <ListItemText primary={(
-                                            <Badge color='default' badgeContent={this.props.actionsDone} classes={{ badge: classes.badge }}>
-                                                History
-                                            </Badge>
-                                        )}/>
+                                        <ListItemText primary='History'/>
                                     </ListItem>
                                 ), (
                                     <ListItem button key='save' onClick={this.save}>
@@ -197,7 +223,7 @@ class ConnectedMainMenu extends React.Component {
                                         <ListItemText primary='Save'/>
                                     </ListItem>
                                 ), (
-                                    <ListItem button key='saveAs' onClick={() => { sendDefineObject(); this.props.toggleMainMenu(); }}>
+                                    <ListItem button key='saveAs' onClick={this.saveAs}>
                                         <ListItemIcon>
                                             <SaveAlt/>
                                         </ListItemIcon>

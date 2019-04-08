@@ -253,6 +253,15 @@ class WhereClauseManualEditor extends React.Component {
         this.props.onCancel();
     }
 
+    onKeyDown = (event) => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.cancel();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.save();
+        }
+        event.stopPropagation();
+    }
+
     render () {
         const { classes } = this.props;
         let wcIsInvalid = !validateWhereClauseLine(
@@ -267,7 +276,7 @@ class WhereClauseManualEditor extends React.Component {
         }
 
         return (
-            <Grid container spacing={16} alignItems='flex-end'>
+            <Grid container spacing={16} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
                 { this.props.onChangeEditingMode !== undefined && (
                     <Grid item xs={12}>
                         <FormControlLabel

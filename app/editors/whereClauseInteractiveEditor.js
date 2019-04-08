@@ -348,6 +348,15 @@ class WhereClauseEditorInteractive extends React.Component {
         this.props.onCancel();
     }
 
+    onKeyDown = (event) => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.cancel();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.save();
+        }
+        event.stopPropagation();
+    }
+
     getRangeChecks = () => {
         const { classes } = this.props;
 
@@ -461,7 +470,7 @@ class WhereClauseEditorInteractive extends React.Component {
                                 fullWidth
                                 multiline
                                 defaultValue={value}
-                                onBlur={this.handleChange('checkValuesMultipleValueType', index)}
+                                onChange={this.handleChange('checkValuesMultipleValueType', index)}
                                 className={classes.textFieldValues}
                             />
                         </Grid>
@@ -473,7 +482,7 @@ class WhereClauseEditorInteractive extends React.Component {
                                 fullWidth
                                 multiline
                                 defaultValue={value}
-                                onBlur={this.handleChange('checkValues', index)}
+                                onChange={this.handleChange('checkValues', index)}
                                 className={classes.textFieldValues}
                             />
                         </Grid>
@@ -488,7 +497,7 @@ class WhereClauseEditorInteractive extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={16} alignItems='flex-end'>
+            <Grid container spacing={16} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
                 { this.props.onChangeEditingMode !== undefined && (
                     <Grid item xs={12}>
                         <FormControlLabel

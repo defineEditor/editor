@@ -21,10 +21,10 @@ import {
     openModal,
 } from 'actions/index.js';
 
-function saveDefineXml (odm, pathToFile) {
+function saveDefineXml (odm, pathToFile, lastSaveHistoryIndex) {
     // Get number of datasets/codelists/variables
     let stats = getDefineStats(odm);
-    ipcRenderer.once('defineSaved', (event, defineId) => { store.dispatch(appSave({ defineId, stats })); });
+    ipcRenderer.once('defineSaved', (event, defineId) => { store.dispatch(appSave({ defineId, stats, lastSaveHistoryIndex })); });
     ipcRenderer.send('saveDefine', { odm, pathToFile });
 }
 
@@ -33,10 +33,15 @@ function saveState (type) {
         name: 'state',
     });
 
-    let state = store.getState().present;
+    let fullState = store.getState();
+    let state = fullState.present;
     let alwaysSaveDefineXml = state.settings.general.alwaysSaveDefineXml;
     // Close main menu when saving
     let stateToSave = { ...state, ui: { ...state.ui, main: { ...state.ui.main, mainMenuOpened: false } } };
+    // If it is a backup, write only if ODM is not blank
+    if (type === 'backup' && (!stateToSave.hasOwnProperty('odm') || Object.keys(stateToSave.odm).length === 0)) {
+        return;
+    }
     // Save current Define
     if (type !== 'noWrite') {
         if (stateToSave.ui.main.currentDefineId !== '' && Object.keys(stateToSave.odm).length > 0) {
@@ -46,7 +51,7 @@ function saveState (type) {
                 let odm = stateToSave.odm;
                 if (alwaysSaveDefineXml === true && pathToFile !== '') {
                     ipcRenderer.once('writeDefineObjectFinished', (event) => {
-                        saveDefineXml(odm, pathToFile);
+                        saveDefineXml(odm, pathToFile, fullState.index);
                     });
                 } else {
                     if (alwaysSaveDefineXml === true && pathToFile === '') {
@@ -61,7 +66,9 @@ function saveState (type) {
                         }));
                     }
                     let stats = getDefineStats(odm);
-                    ipcRenderer.once('writeDefineObjectFinished', (event, defineId) => { store.dispatch(appSave({ defineId, stats })); });
+                    ipcRenderer.once('writeDefineObjectFinished', (event, defineId) => {
+                        store.dispatch(appSave({ defineId, stats, lastSaveHistoryIndex: fullState.index }));
+                    });
                 }
             }
             ipcRenderer.send('writeDefineObject',

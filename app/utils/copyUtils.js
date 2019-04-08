@@ -31,6 +31,26 @@ const defaultExistingOids = {
     valueLists: [],
 };
 
+const extractLeafIds = (documents, leafIds) => {
+    if (documents.length > 0) {
+        documents.forEach(doc => {
+            if (!leafIds.includes(doc.leafId)) {
+                leafIds.push(doc.leafId);
+            }
+        });
+    }
+};
+
+const renameLeafIds = (documents, sourceLeafId, leafId) => {
+    if (documents.length > 0) {
+        documents.forEach(doc => {
+            if (doc.leafId === sourceLeafId) {
+                doc.leafId = leafId;
+            }
+        });
+    }
+};
+
 const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, parentItemDefOid, copyVlm, existingOids } = {}) => {
     let itemDefs = {};
     let itemRefs = { [currentGroup.oid]: {} };
@@ -368,50 +388,63 @@ const copyVariables = ({
         let leafIds = [];
         // Check which documents are referenced in methods or comments
         Object.keys(methods).forEach(methodOid => {
-            let documents = methods[methodOid].documents;
-            if (documents.length > 0) {
-                documents.forEach(doc => {
-                    if (!leafIds.includes(doc.leafId)) {
-                        leafIds.push(doc.leafId);
-                    }
-                });
-            }
+            extractLeafIds(methods[methodOid].documents, leafIds);
         });
         Object.keys(comments).forEach(commentOid => {
-            let documents = comments[commentOid].documents;
-            if (documents.length > 0) {
-                documents.forEach(doc => {
-                    if (!leafIds.includes(doc.leafId)) {
-                        leafIds.push(doc.leafId);
-                    }
-                });
-            }
+            extractLeafIds(comments[commentOid].documents, leafIds);
         });
         Object.keys(itemDefs).forEach(itemDefOid => {
             itemDefs[itemDefOid].origins.forEach(origin => {
-                let documents = origin.documents;
-                if (documents.length > 0) {
-                    documents.forEach(doc => {
-                        if (!leafIds.includes(doc.leafId)) {
-                            leafIds.push(doc.leafId);
-                        }
-                    });
-                }
+                extractLeafIds(origin.documents, leafIds);
             });
         });
+        // Get a list of OIDs which should be renamed
+        let leafOidsRenamed = {};
         // Compare leafs with the existing leafs;
         let finalLeafIds = leafIds.slice();
         leafIds.forEach(sourceLeafId => {
             Object.keys(mdv.leafs).some(leafId => {
                 if (compareLeafs(sourceMdv.leafs[sourceLeafId], mdv.leafs[leafId])) {
                     finalLeafIds.splice(finalLeafIds.indexOf(sourceLeafId), 1);
+                    if (sourceLeafId !== leafId) {
+                        leafOidsRenamed[sourceLeafId] = leafId;
+                    }
                     return true;
+                } else if (sourceLeafId === leafId) {
+                    // There is a leaf with the same ID, but with different contents
+                    leafOidsRenamed[sourceLeafId] = getOid('Leaf', undefined, Object.keys(leafs).concat(leafIds));
+                    finalLeafIds.splice(finalLeafIds.indexOf(sourceLeafId), 1, leafOidsRenamed[sourceLeafId]);
                 }
             });
         });
 
+        // If needed, rename leaf IDs in document
+        let sourceLeafs = clone(sourceMdv.leafs);
+        Object.keys(leafOidsRenamed).forEach(sourceLeafId => {
+            let leafId = leafOidsRenamed[sourceLeafId];
+            // Methods
+            Object.keys(methods).forEach(methodOid => {
+                renameLeafIds(methods[methodOid].documents, sourceLeafId, leafId);
+            });
+            // Comments
+            Object.keys(comments).forEach(commentOid => {
+                renameLeafIds(comments[commentOid].documents, sourceLeafId, leafId);
+            });
+            // ItemDefs
+            Object.keys(itemDefs).forEach(itemDefOid => {
+                itemDefs[itemDefOid].origins.forEach(origin => {
+                    renameLeafIds(origin.documents, sourceLeafId, leafId);
+                });
+            });
+            // Rename ID in source leafs
+            if (Object.keys(sourceLeafs).includes(sourceLeafId) && finalLeafIds.includes(leafId)) {
+                sourceLeafs[leafId] = { ...new Leaf({ ...sourceLeafs[sourceLeafId], id: leafId }) };
+                delete sourceLeafs[sourceLeafId];
+            }
+        });
+
         finalLeafIds.forEach(leafId => {
-            leafs[leafId] = { ...new Leaf({ ...sourceMdv.leafs[leafId] }) };
+            leafs[leafId] = { ...new Leaf({ ...sourceLeafs[leafId] }) };
         });
     }
 
@@ -552,4 +585,4 @@ const copyItemGroups = ({
     return { itemGroups, itemGroupComments, existingOids: newExistingOids, copiedItems: newCopiedItems };
 };
 
-export default { copyVariables, copyComment, copyItemGroups };
+export default { copyVariables, copyComment, copyItemGroups, extractLeafIds, renameLeafIds };

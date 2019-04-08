@@ -101,8 +101,8 @@ class ConnectedArmSummaryMenu extends React.Component {
             groupOid: this.props.armSummaryMenuParams.resultDisplayOid,
             scrollPosition: {},
         };
-        this.props.selectGroup(updateObj);
         this.props.onClose();
+        this.props.selectGroup(updateObj);
     }
 
     copy = () => {
@@ -120,7 +120,7 @@ class ConnectedArmSummaryMenu extends React.Component {
         let buffer = this.props.buffer;
         let mdv = this.props.mdv;
         let sourceMdv = mdv;
-        let { resultDisplays, analysisResults, whereClauses, comments } = copyResultDisplays({
+        let { resultDisplays, analysisResults, whereClauses, comments, leafs } = copyResultDisplays({
             mdv,
             sourceMdv,
             resultDisplayOidList: [ buffer.resultDisplayOid ],
@@ -134,6 +134,7 @@ class ConnectedArmSummaryMenu extends React.Component {
             resultDisplays,
             analysisResults,
             comments,
+            leafs,
             whereClauses,
         });
         this.props.onClose();

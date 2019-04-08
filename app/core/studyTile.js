@@ -57,7 +57,11 @@ const styles = theme => ({
         transform: 'translate(0, -5%)'
     },
     menu: {
-        width: 200
+        minWidth: 200,
+        width: 'fit-content',
+    },
+    defineTitle: {
+        marginRight: theme.spacing.unit,
     },
     card: {
         borderRadius: '10px',
@@ -186,7 +190,7 @@ class ConnectedStudyTile extends React.Component {
                 className={classes.menu}
                 key={defineId}
             >
-                <ListItemText primary={this.props.defines.byId[defineId].name} />
+                <ListItemText primary={this.props.defines.byId[defineId].name} className={classes.defineTitle}/>
                 <ListItemSecondaryAction>
                     <IconButton
                         color="secondary"

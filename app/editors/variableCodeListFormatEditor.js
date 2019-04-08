@@ -60,7 +60,12 @@ class VariableCodeListFormatEditor extends React.Component {
     }
 
     save = () => {
-        this.props.onUpdate(this.state);
+        if (this.state.displayFormat === '') {
+            // Display format should be either populated or undefined
+            this.props.onUpdate({ ...this.state, displayFormat: undefined });
+        } else {
+            this.props.onUpdate(this.state);
+        }
     }
 
     cancel = () => {

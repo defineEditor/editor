@@ -22,6 +22,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ArmDescriptionFormatter from 'formatters/armDescriptionFormatter.js';
 import ArmProgrammingCodeFormatter from 'formatters/armProgrammingCodeFormatter.js';
 import ArmAnalysisDatasetFormatter from 'formatters/armAnalysisDatasetFormatter.js';
+import DocumentFormatter from 'formatters/documentFormatter.js';
 import { getWhereClauseAsText, getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
@@ -95,8 +96,12 @@ class AnalysisResultFormatter extends React.Component {
         });
         // Dataset comment
         let commentText;
+        let commentDocuments;
         if (analysisResult.analysisDatasetsCommentOid !== undefined && mdv.comments.hasOwnProperty(analysisResult.analysisDatasetsCommentOid)) {
             commentText = getDescription(mdv.comments[analysisResult.analysisDatasetsCommentOid]);
+            if (mdv.comments[analysisResult.analysisDatasetsCommentOid].documents.length !== 0) {
+                commentDocuments = mdv.comments[analysisResult.analysisDatasetsCommentOid].documents;
+            }
         }
 
         return (
@@ -133,6 +138,9 @@ class AnalysisResultFormatter extends React.Component {
                         <Grid container spacing={8}>
                             <Grid item xs={12}>
                                 <ListItemText primary='Datasets' secondary={commentText || ''}/>
+                                { (commentDocuments !== undefined) &&
+                                        <DocumentFormatter documents={commentDocuments} leafs={mdv.leafs}/>
+                                }
                             </Grid>
                             <Grid item xs={12}>
                                 <Grid container spacing={8}>

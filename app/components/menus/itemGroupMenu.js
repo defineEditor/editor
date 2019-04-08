@@ -84,8 +84,8 @@ class ConnectedItemGroupMenu extends React.Component {
             groupOid: this.props.itemGroupMenuParams.itemGroupOid,
             scrollPosition: {},
         };
-        this.props.selectGroup(updateObj);
         this.props.onClose();
+        this.props.selectGroup(updateObj);
     }
 
     render () {

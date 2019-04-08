@@ -23,11 +23,19 @@ const main = (() => {
         currentDefineId: '',
         currentStudyId: '',
         isCurrentDefineSaved: true,
+        lastSaveHistoryIndex: 0,
         quitNormally: null,
         reviewMode: false,
         showDataInput: false,
+        sampleStudyCopied: false,
         copyBuffer: {},
         dummyActionTimeStamp: '',
+        actionHistory: [],
+        rowsPerPage: {
+            variableTab: 50,
+            codeListTab: 100,
+            codedValuesTab: 100,
+        },
     };
 })();
 
@@ -47,7 +55,7 @@ const tabs = (() => {
         if (['Datasets', 'Variables', 'Codelists', 'Coded Values', 'ARM Summary'].includes(tabNames[i])) {
             settings[i].rowSelect = {};
         }
-        if (['Variables'].includes(tabNames[i])) {
+        if (['Variables', 'Codelists', 'Coded Values'].includes(tabNames[i])) {
             settings[i].pagination = {};
         }
         // When tab has multiple tables
@@ -84,7 +92,7 @@ const modal = {
     props: {},
 };
 
-const studies = {
+const studiesUi = {
     orderType: 'alphabetical',
     defineForm: false,
     currentStudyId: '',
@@ -94,7 +102,7 @@ const ui = {
     main,
     tabs,
     modal,
-    studies,
+    studies: studiesUi,
 };
 
 // Settings
@@ -119,8 +127,7 @@ const editor = {
     enableSelectForStdCodedValues: true,
     showLineNumbersInCode: false,
     removeTrailingSpacesWhenParsing: true,
-    enableTablePagination: false,
-    defaultRowsPerPage: 25,
+    enableTablePagination: true,
 };
 
 const define = {
@@ -138,9 +145,41 @@ const settings = {
     popUp,
 };
 
+const defines = {
+    byId: {
+        'NG.DEF.SAMPLE.SDTM': {
+            'id': 'NG.DEF.SAMPLE.SDTM',
+            'name': 'SDTM',
+            'pathToFile': '',
+            'stats': {
+                'datasets': '',
+                'codeLists': '',
+                'variables': ''
+            },
+            'lastChanged': '2019-02-04T15:34:51.947Z'
+        },
+    },
+    allIds: ['NG.DEF.SAMPLE.SDTM']
+};
+
+const studies = {
+    byId: {
+        'NG.SDY.SAMPLE': {
+            'id': 'NG.SDY.SAMPLE',
+            'name': 'Sample Study',
+            'defineIds': [
+                'NG.DEF.SAMPLE.SDTM'
+            ]
+        },
+    },
+    allIds: ['NG.SDY.SAMPLE']
+};
+
 const initialValues = {
     ui,
     settings,
+    defines,
+    studies,
 };
 
 export default initialValues;
