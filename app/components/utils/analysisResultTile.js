@@ -46,9 +46,6 @@ const styles = theme => ({
     icon: {
         transform: 'translate(0, -5%)'
     },
-    menu: {
-        width: 200
-    },
     root: {
         outline: 'none',
         marginBottom: theme.spacing.unit,

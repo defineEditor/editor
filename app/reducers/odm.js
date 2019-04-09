@@ -21,6 +21,7 @@ import {
     UPD_ARMSTATUS,
 } from 'constants/action-types';
 import study from 'reducers/study.js';
+import reviewComments from 'reducers/reviewComments.js';
 
 const initialState = {};
 
@@ -76,7 +77,10 @@ const odm = (state = initialState, action) => {
             return handleStudyDelete(state, action);
         default: {
             if (action.type !== undefined && /^(ADD|UPD|DEL|REP|INSERT)_.*/.test(action.type)) {
-                return { ...state, study: study(state.study, action) };
+                return { ...state,
+                    study: study(state.study, action),
+                    reviewComments: reviewComments(state.reviewComments, action),
+                };
             } else {
                 return state;
             }
