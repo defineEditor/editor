@@ -27,6 +27,7 @@ import ModalLinkCodeLists from 'components/modal/modalLinkCodeLists.js';
 import ModalBugReport from 'components/modal/modalBugReport.js';
 import ModalSaveSettings from 'components/modal/modalSaveSettings.js';
 import ModalGeneral from 'components/modal/modalGeneral.js';
+import ModalReviewComment from 'components/modal/modalReviewComment.js';
 
 const mapStateToProps = state => {
     return {
@@ -45,6 +46,7 @@ const MODAL_COMPONENTS = {
     'LINK_CODELIST': ModalLinkCodeList,
     'LINK_CODELISTS': ModalLinkCodeLists,
     'BUG_REPORT': ModalBugReport,
+    'REVIEW_COMMENT': ModalReviewComment,
     'QUIT': ModalQuitApplication,
     'GENERAL': ModalGeneral,
 };
