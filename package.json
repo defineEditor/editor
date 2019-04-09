@@ -56,13 +56,13 @@
       "package.json"
     ],
     "extraResources": [
-        {
-            "from": "app/static/",
-            "to": "static",
-            "filter": [
-                "**/*"
-            ]
-        }
+      {
+        "from": "app/static/",
+        "to": "static",
+        "filter": [
+          "**/*"
+        ]
+      }
     ],
     "dmg": {
       "contents": [
