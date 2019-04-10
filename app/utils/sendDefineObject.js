@@ -16,14 +16,16 @@ import { ipcRenderer, remote } from 'electron';
 import store from 'store/index.js';
 import { getMaxLength } from 'utils/defineStructureUtils.js';
 import { ActionCreators } from 'redux-undo';
+import path from 'path';
 import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {
     deleteItemGroups,
     updateDefine,
     dummyAction,
+    updateMainUi,
 } from 'actions/index.js';
 
-function sendDefineObject (event, data) {
+function sendDefineObject (event, data, pathToLastFile) {
     let state = { ...store.getState().present };
     let odm = state.odm;
     let mdv = odm.study.metaDataVersion;
@@ -95,6 +97,7 @@ function sendDefineObject (event, data) {
         ipcRenderer.once('fileSavedAs', (event, savePath) => {
             if (savePath !== '_cancelled_') {
                 store.dispatch(updateDefine({ defineId: odm.defineId, properties: { pathToFile: savePath } }));
+                store.dispatch(updateMainUi({ pathToLastFile: path.dirname(savePath) }));
             }
         });
     }
@@ -108,7 +111,7 @@ function sendDefineObject (event, data) {
         odm.sourceSystemVersion = state.settings.define.sourceSystemVersion;
     }
 
-    ipcRenderer.send('saveAs', { odm });
+    ipcRenderer.send('saveAs', { odm }, pathToLastFile);
 }
 
 export default sendDefineObject;

@@ -29,6 +29,7 @@ const main = (() => {
         sampleStudyCopied: false,
         copyBuffer: {},
         dummyActionTimeStamp: '',
+        pathToLastFile: undefined,
     };
 })();
 

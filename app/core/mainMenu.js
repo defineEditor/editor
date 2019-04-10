@@ -80,6 +80,7 @@ const mapStateToProps = state => {
         currentDefineId: state.present.ui.main.currentDefineId,
         reviewMode: state.present.ui.main.reviewMode,
         actionsDone: state.index,
+        pathToLastFile: state.present.ui.main.pathToLastFile,
     };
 };
 
@@ -197,7 +198,7 @@ class ConnectedMainMenu extends React.Component {
                                         <ListItemText primary='Save'/>
                                     </ListItem>
                                 ), (
-                                    <ListItem button key='saveAs' onClick={() => { sendDefineObject(); this.props.toggleMainMenu(); }}>
+                                    <ListItem button key='saveAs' onClick={() => { sendDefineObject(undefined, undefined, this.props.pathToLastFile); this.props.toggleMainMenu(); }}>
                                         <ListItemIcon>
                                             <SaveAlt/>
                                         </ListItemIcon>
