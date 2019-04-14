@@ -76,6 +76,9 @@ export const ADD_ANALYSISRESULT = 'ADD_ANALYSISRESULT';
 export const ADD_ANALYSISRESULTS = 'ADD_ANALYSISRESULTS';
 export const UPD_ANALYSISRESULT = 'UPD_ANALYSISRESULT';
 export const UPD_ANALYSISRESULTORDER = 'UPD_ANALYSISRESULTORDER';
+export const ADD_REVIEWCOMMENT = 'ADD_REVIEWCOMMENT';
+export const UPD_REVIEWCOMMENT = 'UPD_REVIEWCOMMENT';
+export const DEL_REVIEWCOMMENT = 'DEL_REVIEWCOMMENT';
 export const UI_CHANGETAB = 'UI_CHANGETAB';
 export const UI_CHANGEPAGE = 'UI_CHANGEPAGE';
 export const UI_CHANGETABLEPAGEDETAILS = 'UI_CHANGETABLEPAGEDETAILS';
@@ -173,4 +176,7 @@ export const actionLabels = {
     'ADD_ANALYSISRESULTS': 'Add analysis results',
     'UPD_ANALYSISRESULT': 'Update analysis result',
     'UPD_ANALYSISRESULTORDER': 'Update analysis result order',
+    'ADD_REVIEWCOMMENT': 'Add comment',
+    'DEL_REVIEWCOMMENT': 'Delete comment',
+    'UPD_REVIEWCOMMENT': 'Update comment',
 };

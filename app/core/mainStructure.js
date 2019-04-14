@@ -72,10 +72,12 @@ class ControlledTerminology {
 
 class ReviewComment {
     constructor ({
-        text, author, createdAt, modifiedAt, comments = [],
+        text, author, createdAt, modifiedAt, resolved = false, comments = [], sources = {},
     } = {}) {
         this.text = text;
         this.author = author;
+        this.sources = sources;
+        this.resolved = resolved;
         if (createdAt === undefined) {
             this.createdAt = new Date().toJSON();
         } else {

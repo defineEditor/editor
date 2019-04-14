@@ -13,19 +13,37 @@
 ***********************************************************************************/
 
 import {
-    ADD_RCOMMENT,
+    ADD_REVIEWCOMMENT,
+    UPD_REVIEWCOMMENT,
+    DEL_REVIEWCOMMENT,
 } from 'constants/action-types';
 import { ReviewComment } from 'core/mainStructure.js';
 const initialState = {};
 
 const addReviewComment = (state, action) => {
-    return { ...state, [action.updateObj.id]: { ...new ReviewComment({ ...action.updateObj.attrs }) } };
+    return { ...state, [action.updateObj.oid]: { ...new ReviewComment({ ...action.updateObj.attrs }) } };
 };
+
+const updateReviewComment = (state, action) => {
+    return { ...state, [action.updateObj.oid]: { ...new ReviewComment({ ...state[action.updateObj.oid], ...action.updateObj.attrs }) } };
+};
+
+const deleteReviewComment = (state, action) => {
+    let newState = { ...state };
+    delete newState[action.updateObj.oid];
+    return newState;
+};
+
+// TODO: Handle removal of origins
 
 const reviewComments = (state = initialState, action) => {
     switch (action.type) {
-        case ADD_RCOMMENT:
+        case ADD_REVIEWCOMMENT:
             return addReviewComment(state, action);
+        case UPD_REVIEWCOMMENT:
+            return updateReviewComment(state, action);
+        case DEL_REVIEWCOMMENT:
+            return deleteReviewComment(state, action);
         default:
             return state;
     }
