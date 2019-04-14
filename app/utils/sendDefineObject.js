@@ -25,8 +25,9 @@ import {
     updateMainUi,
 } from 'actions/index.js';
 
-function sendDefineObject (event, data, pathToLastFile) {
+function sendDefineObject (event, data) {
     let state = { ...store.getState().present };
+    let pathToLastFile = store.getState().present.ui.main.pathToLastFile;
     let odm = state.odm;
     let mdv = odm.study.metaDataVersion;
     // Update the data;
