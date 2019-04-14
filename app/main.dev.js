@@ -98,16 +98,16 @@ function createWindow () {
  * Add event listeners...
  */
 // Add listener for Define-XML generation as a new file
-ipcMain.on('saveAs', (event, data) => {
-    saveAs(mainWindow, data);
+ipcMain.on('saveAs', (event, data, pathToLastFile) => {
+    saveAs(mainWindow, data, pathToLastFile);
 });
 // Add listener for Define-XML save
 ipcMain.on('saveDefine', (event, data) => {
     saveDefine(mainWindow, data);
 });
 // Add listener for Define-XML open
-ipcMain.on('openDefineXml', () => {
-    openDefineXml(mainWindow);
+ipcMain.on('openDefineXml', (event, pathToLastFile) => {
+    openDefineXml(mainWindow, pathToLastFile);
 });
 // Add listener for folder selector
 ipcMain.on('selectFolder', (event, title, initialFolder) => {

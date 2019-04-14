@@ -37,14 +37,14 @@ const readDefineXml = (mainWindow) => (pathToDefineXml) => {
     }
 };
 
-function openDefineXml (mainWindow) {
+function openDefineXml (mainWindow, pathToLastFile) {
     dialog.showOpenDialog(
         mainWindow,
         {
             title: 'Open Define-XML',
             filters: [{ name: 'XML files', extensions: ['xml'] }],
             properties: ['openFile'],
-
+            defaultPath: pathToLastFile,
         },
         readDefineXml(mainWindow));
 }

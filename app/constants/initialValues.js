@@ -36,6 +36,7 @@ const main = (() => {
             codeListTab: 100,
             codedValuesTab: 100,
         },
+        pathToLastFile: undefined,
     };
 })();
 
