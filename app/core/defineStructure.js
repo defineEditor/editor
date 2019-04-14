@@ -689,6 +689,7 @@ class Odm {
         defineId,
         isSaved,
         actualData,
+        reviewComments = {},
     } = {}) {
         this.schemaLocation = schemaLocation;
         this.odmVersion = odmVersion;
@@ -714,6 +715,7 @@ class Odm {
         this.stylesheetLocation = stylesheetLocation;
         this.defineId = defineId;
         this.actualData = actualData;
+        this.reviewComments = reviewComments;
     }
 }
 
@@ -825,7 +827,8 @@ class ItemDef extends BasicFunctions {
         parentItemDefOid,
         origins = [],
         descriptions = [],
-        sources
+        sources,
+        reviewCommentOids = [],
     } = {}) {
         super();
         this.oid = oid || getOid('ItemDef');
@@ -843,6 +846,8 @@ class ItemDef extends BasicFunctions {
         // Non-define XML properties
         // Parent Item for VLM records
         this.parentItemDefOid = parentItemDefOid;
+        // Review Comments
+        this.reviewCommentOids = reviewCommentOids;
         // Programming Note
         if (note === undefined) {
             this.note = note;

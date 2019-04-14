@@ -29,6 +29,8 @@ import {
     UPD_LOADACTUALDATA,
     ADD_ITEMGROUPS,
     UPD_LEAFS,
+    ADD_REVIEWCOMMENT,
+    DEL_REVIEWCOMMENT,
 } from 'constants/action-types';
 import { ItemDef, TranslatedText, Origin } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
@@ -406,6 +408,26 @@ const handleUpdatedLeafs = (state, action) => {
     }
 };
 
+const addReviewComment = (state, action) => {
+    if (action.updateObj.sources.hasOwnProperty('itemDefs')) {
+        let itemOid = action.updateObj.sources.itemDefs;
+        return { ...state, [itemOid]: { ...state[itemOid], reviewCommentOids: state[itemOid].reviewCommentOids.concat([action.updateObj.oid]) } };
+    } else {
+        return state;
+    }
+};
+
+const deleteReviewComment = (state, action) => {
+    if (action.updateObj.sources.hasOwnProperty('itemDefs')) {
+        let itemOid = action.updateObj.sources.itemDefs;
+        let newReviewCommentOids = state[itemOid].reviewCommentOids.slice();
+        newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.updateObj.oid), 1);
+        return { ...state, [itemOid]: { ...state[itemOid], reviewCommentOids: newReviewCommentOids } };
+    } else {
+        return state;
+    }
+};
+
 const itemDefs = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMDEF:
@@ -440,6 +462,10 @@ const itemDefs = (state = {}, action) => {
             return handleActualData(state, action);
         case UPD_LEAFS:
             return handleUpdatedLeafs(state, action);
+        case ADD_REVIEWCOMMENT:
+            return addReviewComment(state, action);
+        case DEL_REVIEWCOMMENT:
+            return deleteReviewComment(state, action);
         default:
             return state;
     }

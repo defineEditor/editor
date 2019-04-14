@@ -20,7 +20,11 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import Grid from '@material-ui/core/Grid';
+import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import getOid from 'utils/getOid.js';
+import ReviewComment from 'components/utils/reviewComment.js';
 import {
     closeModal,
     addReviewComment,
@@ -35,17 +39,25 @@ const styles = theme => ({
         paddingBottom: theme.spacing.unit * 1,
         position: 'absolute',
         borderRadius: '10px',
-        top: '40%',
-        transform: 'translate(0%, calc(-50%+0.5px))',
-        overflowX: 'auto',
+        top: '10%',
+        transform: 'translate(0%, calc(-10%+0.5px))',
         maxHeight: '85%',
+        minWidth: '45%',
+        maxWidth: '95%',
+        overflowX: 'auto',
         overflowY: 'auto',
+    },
+    content: {
+        marginTop: theme.spacing.unit * 2,
+        marginBottom: theme.spacing.unit * 1,
     },
 });
 
 const mapStateToProps = state => {
     return {
         reviewComments: state.present.odm.reviewComments,
+        mdv: state.present.odm.study.metaDataVersion,
+        author: state.present.settings.general.userName,
     };
 };
 
@@ -59,7 +71,17 @@ const mapDispatchToProps = dispatch => {
 };
 
 class ConnectedModalReviewComments extends React.Component {
-    onAdd = () => {
+    constructor (props) {
+        super(props);
+
+        this.state = {
+            commentText: '',
+        };
+    }
+
+    addComment = () => {
+        const oid = getOid('ReviewComment', undefined, Object.keys(this.props.reviewComments));
+        this.props.addReviewComment({ oid, sources: this.props.sources, attrs: { text: this.state.commentText, author: this.props.author } });
     }
 
     onUpdate = () => {
@@ -72,12 +94,38 @@ class ConnectedModalReviewComments extends React.Component {
         this.props.closeModal();
     }
 
+    handleTextChange = (event) => {
+        this.setState({ commentText: event.target.value });
+    }
+
     onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
-            this.onCancel();
-        } else if (event.ctrlKey && (event.keyCode === 83)) {
-            this.onSave();
+            this.onClose();
         }
+    }
+
+    getCommentOids = (sources) => {
+        let reviewCommentOids = [];
+        Object.keys(sources).forEach(type => {
+            if (['itemDefs'].includes(type)) {
+                reviewCommentOids = this.props.mdv[type][sources[type]].reviewCommentOids;
+            }
+        });
+        return reviewCommentOids;
+    }
+
+    getComments = (sources) => {
+        return this.getCommentOids(sources).map(oid => (
+            <ReviewComment
+                oid={oid}
+                key={oid}
+                sources={sources}
+                author={this.props.author}
+                reviewComments={this.props.reviewComments}
+                onUpdate={this.props.updateReviewComment}
+                onDelete={this.props.deleteReviewComment}
+            />
+        ));
     }
 
     render () {
@@ -94,13 +142,40 @@ class ConnectedModalReviewComments extends React.Component {
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >
-                <DialogTitle id="alert-dialog-title">
-                    Quit Visual Define-XML Editor
+                <DialogTitle id='alert-dialog-title'>
+                    Review Comments
                 </DialogTitle>
                 <DialogContent>
+                    <Grid container spacing={16} justify='flex-start' className={classes.content}>
+                        <Grid item xs={12}>
+                            {this.getComments(this.props.sources)}
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                multiline
+                                label='New Comment'
+                                fullWidth
+                                autoFocus
+                                rowsMax='10'
+                                value={this.state.commentText}
+                                onChange={this.handleTextChange}
+                                variant='outlined'
+                            />
+                        </Grid>
+                        <Grid item xa={12}>
+                            <Button
+                                color='default'
+                                size='small'
+                                variant='contained'
+                                onClick={this.addComment}
+                            >
+                                Add
+                            </Button>
+                        </Grid>
+                    </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={this.onClose} color="primary">
+                    <Button onClick={this.onClose} color='primary'>
                         Close
                     </Button>
                 </DialogActions>
@@ -112,7 +187,13 @@ class ConnectedModalReviewComments extends React.Component {
 ConnectedModalReviewComments.propTypes = {
     classes: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
+    addReviewComment: PropTypes.func.isRequired,
+    deleteReviewComment: PropTypes.func.isRequired,
+    updateReviewComment: PropTypes.func.isRequired,
+    author: PropTypes.string.isRequired,
     reviewComments: PropTypes.object.isRequired,
+    mdv: PropTypes.object.isRequired,
+    sources: PropTypes.object.isRequired,
 };
 
 const ModalReviewComments = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalReviewComments);
