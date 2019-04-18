@@ -33,12 +33,13 @@ const convertToDefineXml = (mainWindow, data) => (savePath) => {
     }
 };
 
-function saveAs (mainWindow, data) {
+function saveAs (mainWindow, data, pathToLastFile) {
     dialog.showSaveDialog(
         mainWindow,
         {
             title: 'Export Define-XML',
             filters: [{ name: 'XML files', extensions: ['xml'] }],
+            defaultPath: pathToLastFile,
         },
         convertToDefineXml(mainWindow, data));
 }
