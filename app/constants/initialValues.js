@@ -110,6 +110,7 @@ const general = {
     userName: 'Winnie-the-Pooh',
     controlledTerminologyLocation: '',
     alwaysSaveDefineXml: true,
+    addStylesheet: true,
 };
 
 const popUp = {

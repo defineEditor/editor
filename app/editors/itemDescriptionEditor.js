@@ -133,6 +133,7 @@ ConnectedItemDescriptionEditor.propTypes = {
     defaultValue: PropTypes.object,
     lang: PropTypes.string,
 };
+ConnectedItemDescriptionEditor.displayName = 'itemDescriptionEditor';
 
 const ItemDescriptionEditor = connect(mapStateToProps)(ConnectedItemDescriptionEditor);
 export default withStyles(styles)(ItemDescriptionEditor);

@@ -175,6 +175,7 @@ ConnectedAnalysisResultTable.propTypes = {
     resultDisplayOid: PropTypes.string.isRequired,
     reviewMode: PropTypes.bool,
 };
+ConnectedAnalysisResultTable.displayName = 'AnalysisResultTable';
 
 const AnalysisResultTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedAnalysisResultTable);
 export default withStyles(styles)(AnalysisResultTable);

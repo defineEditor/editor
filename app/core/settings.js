@@ -239,8 +239,26 @@ class ConnectedSettings extends React.Component {
                                     }}
                                 />
                             </Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
+                            Define-XML Saving Settings
+                        </Typography>
+                        <Grid container>
                             <Grid item xs={12}>
                                 <FormGroup>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.general.addStylesheet}
+                                                onChange={this.handleChange('general', 'addStylesheet')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Add a stylesheet when it does not exist on the computer'
+                                    />
                                     <FormControlLabel
                                         control={
                                             <Switch
@@ -250,19 +268,8 @@ class ConnectedSettings extends React.Component {
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Write changes to Define-XML when saving the current Define-XML document'
+                                        label='Write changes to Define-XML file when saving the current Define-XML document'
                                     />
-                                </FormGroup>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
-                            Editor Settings
-                        </Typography>
-                        <Grid container>
-                            <Grid item xs={12}>
-                                <FormGroup>
                                     <FormControlLabel
                                         control={
                                             <Switch
@@ -274,6 +281,15 @@ class ConnectedSettings extends React.Component {
                                         }
                                         label='Remove unused codelists when saving as Define-XML'
                                     />
+                                </FormGroup>
+                            </Grid>
+                        </Grid>
+                        <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
+                            Editor Settings
+                        </Typography>
+                        <Grid container>
+                            <Grid item xs={12}>
+                                <FormGroup>
                                     <FormControlLabel
                                         control={
                                             <Switch
@@ -305,7 +321,7 @@ class ConnectedSettings extends React.Component {
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Instantly process text in Comments and Methods.'
+                                        label='Instantly process text in Comments and Methods'
                                     />
                                     <FormControlLabel
                                         control={

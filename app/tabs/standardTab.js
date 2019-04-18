@@ -497,6 +497,7 @@ ConnectedStandardTable.propTypes = {
     analysisResultDisplays: PropTypes.object,
     lang: PropTypes.string.isRequired,
 };
+ConnectedStandardTable.displayName = 'StandardTable';
 
 const StandardTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedStandardTable);
 export default StandardTable;

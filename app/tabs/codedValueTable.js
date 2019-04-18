@@ -837,6 +837,7 @@ ConnectedCodedValueTable.propTypes = {
     stdCodeLists: PropTypes.object,
     reviewMode: PropTypes.bool,
 };
+ConnectedCodedValueTable.displayName = 'CodedValueTable';
 
 const CodedValueTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodedValueTable);
 export default withStyles(styles)(CodedValueTable);
