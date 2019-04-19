@@ -49,11 +49,11 @@ class OtherAttributesEditor extends React.Component {
     }
 
     componentDidMount () {
-        ipcRenderer.on('selectedFolder', this.setPathToFile);
+        ipcRenderer.on('selectedFile', this.setPathToFile);
     }
 
     componentWillUnmount () {
-        ipcRenderer.removeListener('selectedFolder', this.setPathToFile);
+        ipcRenderer.removeListener('selectedFile', this.setPathToFile);
     }
 
     setPathToFile = (event, pathToFolder, title) => {
@@ -68,7 +68,8 @@ class OtherAttributesEditor extends React.Component {
     };
 
     selectPathToFile = () => {
-        ipcRenderer.send('selectFolder', 'Select Path To Define-XML file', this.props.otherAttrs.pathToFile);
+        let initialFolder = path.dirname(this.props.otherAttrs.pathToFile);
+        ipcRenderer.send('selectFile', 'Select Path To Define-XML file', { initialFolder, type: 'openDirectory' });
     };
 
     handleChange = (name) => (event) => {

@@ -12,14 +12,19 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-const fs = require('fs');
-const createDefine = require('../core/createDefine.js');
+import fs from 'fs';
+import createDefine from '../core/createDefine.js';
+import copyStylesheet from '../main/copyStylesheet.js';
 
 // Save Define-XML
-function saveDefine (mainWindow, data) {
+function saveDefine (mainWindow, data, options) {
     if (data.pathToFile !== undefined) {
         let defineXml = createDefine(data.odm, data.odm.study.metaDataVersion.defineVersion);
         fs.writeFile(data.pathToFile, defineXml, function (err) {
+            let stylesheetLocation = data.odm && data.odm.stylesheetLocation;
+            if (options.addStylesheet === true && stylesheetLocation) {
+                copyStylesheet(stylesheetLocation, data.pathToFile);
+            }
             if (err) {
                 throw err;
             } else {

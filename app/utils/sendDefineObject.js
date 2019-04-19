@@ -27,7 +27,8 @@ import {
 
 function sendDefineObject (event, data) {
     let state = { ...store.getState().present };
-    let pathToLastFile = store.getState().present.ui.main.pathToLastFile;
+    let pathToLastFile = state.ui.main && state.ui.main.pathToLastFile;
+    let addStylesheet = state.settings.general && state.settings.general.addStylesheet;
     let odm = state.odm;
     let mdv = odm.study.metaDataVersion;
     // Update the data;
@@ -112,7 +113,7 @@ function sendDefineObject (event, data) {
         odm.sourceSystemVersion = state.settings.define.sourceSystemVersion;
     }
 
-    ipcRenderer.send('saveAs', { odm }, pathToLastFile);
+    ipcRenderer.send('saveAs', { odm }, { pathToLastFile, addStylesheet });
 }
 
 export default sendDefineObject;

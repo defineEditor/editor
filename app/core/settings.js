@@ -90,11 +90,11 @@ class ConnectedSettings extends React.Component {
     }
 
     componentDidMount () {
-        ipcRenderer.on('selectedFolder', this.setCTLocation);
+        ipcRenderer.on('selectedFile', this.setCTLocation);
     }
 
     componentWillUnmount () {
-        ipcRenderer.removeListener('selectedFolder', this.setCTLocation);
+        ipcRenderer.removeListener('selectedFile', this.setCTLocation);
         // If settings are not saved, open a confirmation window
         let diff = this.getSettingsDiff();
         if (Object.keys(diff).length > 0) {
@@ -112,7 +112,9 @@ class ConnectedSettings extends React.Component {
     };
 
     selectControlledTerminologyLocation = () => {
-        ipcRenderer.send('selectFolder', 'Select Controlled Terminology Folder', this.props.settings.general.controlledTerminologyLocation);
+        ipcRenderer.send('selectFile', 'Select Controlled Terminology Folder',
+            { initialFolder: this.props.settings.general.controlledTerminologyLocation, type: 'openDirectory' }
+        );
     };
 
     handleChange = (category, name) => (event, checked) => {

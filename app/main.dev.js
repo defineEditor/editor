@@ -17,7 +17,7 @@ import path from 'path';
 import saveAs from './main/saveAs.js';
 import saveDefine from './main/saveDefine.js';
 import openDefineXml from './main/openDefineXml.js';
-import selectFolder from './main/selectFolder.js';
+import selectFile from './main/selectFile.js';
 import writeDefineObject from './main/writeDefineObject.js';
 import exportStudy from './main/exportStudy.js';
 import importStudy from './main/importStudy.js';
@@ -98,20 +98,20 @@ function createWindow () {
  * Add event listeners...
  */
 // Add listener for Define-XML generation as a new file
-ipcMain.on('saveAs', (event, data, pathToLastFile) => {
-    saveAs(mainWindow, data, pathToLastFile);
+ipcMain.on('saveAs', (event, data, options) => {
+    saveAs(mainWindow, data, options);
 });
 // Add listener for Define-XML save
-ipcMain.on('saveDefine', (event, data) => {
-    saveDefine(mainWindow, data);
+ipcMain.on('saveDefine', (event, data, options) => {
+    saveDefine(mainWindow, data, options);
 });
 // Add listener for Define-XML open
 ipcMain.on('openDefineXml', (event, pathToLastFile) => {
     openDefineXml(mainWindow, pathToLastFile);
 });
 // Add listener for folder selector
-ipcMain.on('selectFolder', (event, title, initialFolder) => {
-    selectFolder(mainWindow, title, initialFolder);
+ipcMain.on('selectFile', (event, title, options) => {
+    selectFile(mainWindow, title, options);
 });
 // Saving internal representation of Define-XML to disk
 ipcMain.on('writeDefineObject', (event, defineObject, type) => {
