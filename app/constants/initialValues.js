@@ -36,6 +36,7 @@ const main = (() => {
             codeListTab: 100,
             codedValuesTab: 100,
         },
+        pathToLastFile: undefined,
     };
 })();
 
@@ -110,6 +111,7 @@ const general = {
     userName: 'Winnie-the-Pooh',
     controlledTerminologyLocation: '',
     alwaysSaveDefineXml: true,
+    addStylesheet: true,
 };
 
 const popUp = {

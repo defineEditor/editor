@@ -23,7 +23,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
-import { ActionCreators } from 'redux-undo';
+import { actionLabels } from 'constants/action-types';
 import {
     closeModal,
 } from 'actions/index.js';
@@ -50,10 +50,15 @@ const styles = theme => ({
     },
 });
 
+const mapStateToProps = state => {
+    return {
+        actionHistory: state.present.ui.main.actionHistory,
+    };
+};
+
 const mapDispatchToProps = dispatch => {
     return {
         closeModal: () => dispatch(closeModal()),
-        reset: () => { dispatch(ActionCreators.undo()); dispatch(ActionCreators.redo()); },
     };
 };
 
@@ -74,11 +79,6 @@ class ConnectedModalBugReport extends React.Component {
         shell.openExternal(event.target.href);
     }
 
-    onReset = (event) => {
-        this.props.closeModal();
-        this.props.reset();
-    }
-
     render () {
         const { classes } = this.props;
 
@@ -86,6 +86,7 @@ class ConnectedModalBugReport extends React.Component {
         const mailBody = encodeURIComponent('Hello,\n\nPlease write your message above.') +
             '%0D%0AError message:%0D%0A' + encodeURIComponent(this.props.error) +
             '%0D%0AComponent stack:' + encodeURIComponent(this.props.info.componentStack) +
+            '%0D%0AAction History: ' + encodeURIComponent(this.props.actionHistory.join(' -> ')) +
             '%0D%0AApplication Version: ' + encodeURIComponent(remote.app.getVersion())
         ;
         const emails = [
@@ -94,16 +95,22 @@ class ConnectedModalBugReport extends React.Component {
             'no.more.bugs@defineedifor.com',
             'too.many.bugs@defineeditor.com',
             'santa.claus@defineeditor.com',
-            'stop.bugs@defineeditor.com',
-            'are.you.even.testing.this.program@defineeditor.com',
+            'nights.watch@defineeditor.com',
             'it.really.does.not.matter.what.is.here@defineeditor.com',
-            'this.program.is.awful@defineeditor.com',
             'senior.vice.president.of.support.emails@defineeditor.com',
             'senior.principal.support.specialist.3@defineeditor.com',
             'associate.director.support.specialist@defineeditor.com',
             'chief.executive.janitor@defineeditor.com',
         ];
         const mailLink = 'mailto:' + emails[Math.floor(Math.random() * emails.length)] + '?subject=' + mailSubject + '&body=' + mailBody;
+
+        const lastAction = this.props.actionHistory[this.props.actionHistory.length - 1];
+        let actionLabel;
+        if (Object.keys(actionLabels).includes(lastAction)) {
+            actionLabel = actionLabels[lastAction];
+        } else {
+            actionLabel = lastAction;
+        }
 
         return (
             <Dialog
@@ -121,11 +128,15 @@ class ConnectedModalBugReport extends React.Component {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        You&apos;ve just found a &quot;feature&quot; of the application.
-                        If you have imported a Define-XML file created outside, please validate it.
+                        The application has just crashed and the state was reset to the last saved action ({actionLabel}).<br/>
+                        It will be appreciated if you report this bug by sending an&nbsp;
+                        <a onClick={this.openLink} href={mailLink}>
+                            email.
+                        </a>
+                        &nbsp; Please include a short description of your actions which led to this issue.<br/>
+                        If you have imported a Define-XML file created outside, please validate it as most bugs are caused by incorrect Define-XML files.
                         There may be some structure errors in it, which are causing the application to fail.
-                        First try to return to the last saved state.
-                        If it did not help, then undo the last change using the Session History functionality (CTRL + H)
+                        If you still see a white screen, then undo the last change using the Session History functionality (CTRL + H)
                         or go to the Studies page using the main menu (CTRL + M) and try to close and open the Define-XML document.
                         <br/>
                         Check&nbsp;
@@ -134,17 +145,9 @@ class ConnectedModalBugReport extends React.Component {
                         </a>
                         &nbsp;for the latest available version, this bug can be already fixed.
                         <br/>
-                        It will be appreciated if you report this bug by sending an&nbsp;
-                        <a onClick={this.openLink} href={mailLink}>
-                            email.
-                        </a>
-                        &nbsp; Please include a short description of your actions which led to this issue.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={this.onReset} color="primary">
-                        Load Saved State
-                    </Button>
                     <Button onClick={this.onClose} color="primary">
                         Close
                     </Button>
@@ -157,8 +160,8 @@ class ConnectedModalBugReport extends React.Component {
 ConnectedModalBugReport.propTypes = {
     classes: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
-    reset: PropTypes.func.isRequired,
+    actionHistory: PropTypes.array.isRequired,
 };
 
-const ModalBugReport = connect(undefined, mapDispatchToProps)(ConnectedModalBugReport);
+const ModalBugReport = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalBugReport);
 export default withStyles(styles)(ModalBugReport);

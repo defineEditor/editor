@@ -388,6 +388,7 @@ ConnectedArmSummaryTable.propTypes = {
     defineVersion: PropTypes.string.isRequired,
     reviewMode: PropTypes.bool,
 };
+ConnectedArmSummaryTable.displayName = 'ArmSummaryTable';
 
 const ArmSummaryTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedArmSummaryTable);
 export default withStyles(styles)(ArmSummaryTable);

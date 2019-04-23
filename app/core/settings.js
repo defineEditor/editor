@@ -64,6 +64,9 @@ const styles = theme => ({
     },
 });
 
+const appVersion = remote.app.getVersion();
+const appName = remote.app.getName();
+
 const mapDispatchToProps = dispatch => {
     return {
         updateSettings: updateObj => dispatch(updateSettings(updateObj)),
@@ -90,11 +93,11 @@ class ConnectedSettings extends React.Component {
     }
 
     componentDidMount () {
-        ipcRenderer.on('selectedFolder', this.setCTLocation);
+        ipcRenderer.on('selectedFile', this.setCTLocation);
     }
 
     componentWillUnmount () {
-        ipcRenderer.removeListener('selectedFolder', this.setCTLocation);
+        ipcRenderer.removeListener('selectedFile', this.setCTLocation);
         // If settings are not saved, open a confirmation window
         let diff = this.getSettingsDiff();
         if (Object.keys(diff).length > 0) {
@@ -112,7 +115,9 @@ class ConnectedSettings extends React.Component {
     };
 
     selectControlledTerminologyLocation = () => {
-        ipcRenderer.send('selectFolder', 'Select Controlled Terminology Folder', this.props.settings.general.controlledTerminologyLocation);
+        ipcRenderer.send('selectFile', 'Select Controlled Terminology Folder',
+            { initialFolder: this.props.settings.general.controlledTerminologyLocation, type: 'openDirectory' }
+        );
     };
 
     handleChange = (category, name) => (event, checked) => {
@@ -123,7 +128,14 @@ class ConnectedSettings extends React.Component {
                     define: { ...this.state.define, sourceSystem: remote.app.getName(), sourceSystemVersion: remote.app.getVersion() }
                 });
             } else {
-                this.setState({ defaultSource: !this.state.defaultSource });
+                if (this.state.define && this.state.define.sourceSystem === remote.app.getName()) {
+                    this.setState({
+                        defaultSource: !this.state.defaultSource,
+                        define: { ...this.state.define, sourceSystemVersion: remote.app.getVersion() }
+                    });
+                } else {
+                    this.setState({ defaultSource: !this.state.defaultSource });
+                }
             }
         } else if (name === 'controlledTerminologyLocation') {
             this.setState({ [category]: { ...this.state[category], [name]: event } });
@@ -139,10 +151,9 @@ class ConnectedSettings extends React.Component {
             'removeTrailingSpacesWhenParsing',
         ].includes(name) || category === 'popUp') {
             this.setState({ [category]: { ...this.state[category], [name]: checked } });
-        } else if (['sourceSystem'].includes(name)) {
-            if (event.target.value === '') {
-                this.setState({ [category]: { ...this.state[category], [name]: '', sourceSystemVersion: '' } });
-            } else {
+        } else if (['sourceSystemVersion'].includes(name)) {
+            // Version can be changed only when sourceSystem is modified
+            if (this.state.define && this.state.define.sourceSystem !== remote.app.getName()) {
                 this.setState({ [category]: { ...this.state[category], [name]: event.target.value } });
             }
         } else {
@@ -239,8 +250,26 @@ class ConnectedSettings extends React.Component {
                                     }}
                                 />
                             </Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
+                            Define-XML Saving Settings
+                        </Typography>
+                        <Grid container>
                             <Grid item xs={12}>
                                 <FormGroup>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.general.addStylesheet}
+                                                onChange={this.handleChange('general', 'addStylesheet')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Create a stylesheet file when it does not exist'
+                                    />
                                     <FormControlLabel
                                         control={
                                             <Switch
@@ -250,19 +279,8 @@ class ConnectedSettings extends React.Component {
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Write changes to Define-XML when saving the current Define-XML document'
+                                        label='Write changes to Define-XML file when saving the current Define-XML document'
                                     />
-                                </FormGroup>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
-                            Editor Settings
-                        </Typography>
-                        <Grid container>
-                            <Grid item xs={12}>
-                                <FormGroup>
                                     <FormControlLabel
                                         control={
                                             <Switch
@@ -274,6 +292,15 @@ class ConnectedSettings extends React.Component {
                                         }
                                         label='Remove unused codelists when saving as Define-XML'
                                     />
+                                </FormGroup>
+                            </Grid>
+                        </Grid>
+                        <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
+                            Editor Settings
+                        </Typography>
+                        <Grid container>
+                            <Grid item xs={12}>
+                                <FormGroup>
                                     <FormControlLabel
                                         control={
                                             <Switch
@@ -305,7 +332,7 @@ class ConnectedSettings extends React.Component {
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Instantly process text in Comments and Methods.'
+                                        label='Instantly process text in Comments and Methods'
                                     />
                                     <FormControlLabel
                                         control={
@@ -464,8 +491,8 @@ class ConnectedSettings extends React.Component {
                             <Grid item>
                                 <TextField
                                     label="Source System Version"
-                                    disabled={this.state.defaultSource}
-                                    value={(this.state.defaultSource && remote.app.getVersion()) || this.state.define.sourceSystemVersion}
+                                    disabled={this.state.defaultSource || this.state.sourceSystem === appName}
+                                    value={(this.state.defaultSource && appVersion) || this.state.define.sourceSystemVersion}
                                     onChange={this.handleChange('define', 'sourceSystemVersion')}
                                     className={classes.sourceSystemVersion}
                                 />

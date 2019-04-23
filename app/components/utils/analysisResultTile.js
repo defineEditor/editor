@@ -16,6 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import Prism from 'prismjs';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
@@ -106,6 +107,15 @@ class ConnectedAnalysisResultTile extends React.Component {
         this.props.selectGroup(updateObj);
     }
 
+    changeEditingMode = (noChanges) => {
+        if (noChanges === true) {
+            // If nothing was changed, need to force highlighting. As it is done one when parent component is updated.
+            this.setState({ editMode: !this.state.editMode }, Prism.highlightAll);
+        } else {
+            this.setState({ editMode: !this.state.editMode });
+        }
+    }
+
     render () {
         const { classes } = this.props;
         const analysisResult = this.props.mdv.analysisResultDisplays.analysisResults[this.props.analysisResultOid];
@@ -152,7 +162,7 @@ class ConnectedAnalysisResultTile extends React.Component {
                         {this.state.editMode ? (
                             <AnalysisResultEditor
                                 analysisResultOid={this.props.analysisResultOid}
-                                onUpdateFinished={() => { this.setState({ editMode: !this.state.editMode }); }}
+                                onUpdateFinished={this.changeEditingMode}
                             />
                         ) : (
                             <AnalysisResultFormatter

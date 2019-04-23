@@ -514,10 +514,10 @@ class Method extends Comment {
         if (autoMethodName !== undefined) {
             this.autoMethodName = autoMethodName;
         } else {
-            if (name === undefined) {
-                this.autoMethodName = true;
-            } else {
+            if (name) {
                 this.autoMethodName = false;
+            } else {
+                this.autoMethodName = true;
             }
         }
     }

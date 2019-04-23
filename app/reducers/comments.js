@@ -473,7 +473,7 @@ const handleUpdateArmStatus = (state, action) => {
 };
 
 const handleDeleteArmItem = (state, action) => {
-    if (Object.keys(action.deleteObj.commentOids).length > 0) {
+    if (action.deleteObj && action.deleteObj.commentOids && Object.keys(action.deleteObj.commentOids).length > 0) {
         let subAction = { deleteObj: {} };
         subAction.deleteObj.commentOids = action.deleteObj.commentOids;
         return deleteCommentRefereces(state, subAction, 'analysisResults');

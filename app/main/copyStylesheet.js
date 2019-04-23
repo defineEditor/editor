@@ -13,25 +13,36 @@
 ***********************************************************************************/
 
 import fs from 'fs';
-import createDefine from '../core/createDefine.js';
-import copyStylesheet from '../main/copyStylesheet.js';
+import path from 'path';
+import { promisify } from 'util';
 
-// Save Define-XML
-function saveDefine (mainWindow, data, options) {
-    if (data.pathToFile !== undefined) {
-        let defineXml = createDefine(data.odm, data.odm.study.metaDataVersion.defineVersion);
-        fs.writeFile(data.pathToFile, defineXml, function (err) {
-            let stylesheetLocation = data.odm && data.odm.stylesheetLocation;
-            if (options.addStylesheet === true && stylesheetLocation) {
-                copyStylesheet(stylesheetLocation, data.pathToFile);
-            }
-            if (err) {
-                throw err;
+const copyFile = promisify(fs.copyFile);
+const mkdir = promisify(fs.mkdir);
+
+async function copyStylesheet (stylesheetLocation, savePath) {
+    let pathToStylesheet = path.join(path.dirname(savePath), stylesheetLocation);
+    let stylesheetDir = path.dirname(pathToStylesheet);
+    let pathToSource = path.join(__dirname, '..', 'static', 'stylesheets', 'define2-0.xsl');
+
+    // If stylesheet exist, do not overwrite it
+    if (!fs.existsSync(pathToStylesheet)) {
+        if (fs.existsSync(pathToSource)) {
+            // Create folder for the stylesheet if needed
+            if (!fs.existsSync(stylesheetDir)) {
+                try {
+                    await mkdir(stylesheetDir, { recursive: true }).then(copyFile(pathToSource, pathToStylesheet, fs.constants.COPYFILE_EXCL));
+                } catch (err) {
+                    console.log(err);
+                }
             } else {
-                mainWindow.webContents.send('defineSaved', data.defineId);
+                try {
+                    copyFile(pathToSource, pathToStylesheet, fs.constants.COPYFILE_EXCL);
+                } catch (err) {
+                    console.log(err);
+                }
             }
-        });
+        }
     }
 }
 
-module.exports = saveDefine;
+module.exports = copyStylesheet;

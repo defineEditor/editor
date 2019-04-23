@@ -21,14 +21,20 @@ import {
     openModal,
 } from 'actions/index.js';
 
-function saveDefineXml (odm, pathToFile, lastSaveHistoryIndex) {
+function saveDefineXml (odm, pathToFile, lastSaveHistoryIndex, onSaveFinished) {
     // Get number of datasets/codelists/variables
     let stats = getDefineStats(odm);
-    ipcRenderer.once('defineSaved', (event, defineId) => { store.dispatch(appSave({ defineId, stats, lastSaveHistoryIndex })); });
+    ipcRenderer.once('defineSaved', (event, defineId) => {
+        store.dispatch(appSave({ defineId, stats, lastSaveHistoryIndex }));
+
+        if (typeof onSaveFinished === 'function') {
+            onSaveFinished();
+        }
+    });
     ipcRenderer.send('saveDefine', { odm, pathToFile });
 }
 
-function saveState (type) {
+function saveState (type, onSaveFinished) {
     const eStore = new EStore({
         name: 'state',
     });
@@ -51,7 +57,7 @@ function saveState (type) {
                 let odm = stateToSave.odm;
                 if (alwaysSaveDefineXml === true && pathToFile !== '') {
                     ipcRenderer.once('writeDefineObjectFinished', (event) => {
-                        saveDefineXml(odm, pathToFile, fullState.index);
+                        saveDefineXml(odm, pathToFile, fullState.index, onSaveFinished);
                     });
                 } else {
                     if (alwaysSaveDefineXml === true && pathToFile === '') {
@@ -68,6 +74,9 @@ function saveState (type) {
                     let stats = getDefineStats(odm);
                     ipcRenderer.once('writeDefineObjectFinished', (event, defineId) => {
                         store.dispatch(appSave({ defineId, stats, lastSaveHistoryIndex: fullState.index }));
+                        if (typeof onSaveFinished === 'function') {
+                            onSaveFinished();
+                        }
                     });
                 }
             }

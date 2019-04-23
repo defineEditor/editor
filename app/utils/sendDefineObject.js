@@ -16,15 +16,19 @@ import { ipcRenderer, remote } from 'electron';
 import store from 'store/index.js';
 import { getMaxLength } from 'utils/defineStructureUtils.js';
 import { ActionCreators } from 'redux-undo';
+import path from 'path';
 import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {
     deleteItemGroups,
     updateDefine,
     dummyAction,
+    updateMainUi,
 } from 'actions/index.js';
 
 function sendDefineObject (event, data) {
     let state = { ...store.getState().present };
+    let pathToLastFile = state.ui.main && state.ui.main.pathToLastFile;
+    let addStylesheet = state.settings.general && state.settings.general.addStylesheet;
     let odm = state.odm;
     let mdv = odm.study.metaDataVersion;
     // Update the data;
@@ -87,14 +91,22 @@ function sendDefineObject (event, data) {
         }
     });
 
-    // If define does not have pathToFile, use the save file as location of the Define-XML
     if (odm.defineId &&
         state.defines.byId.hasOwnProperty(odm.defineId) &&
         !state.defines.byId[odm.defineId].pathToFile
     ) {
+        // If define does not have pathToFile, use the save file as location of the Define-XML
         ipcRenderer.once('fileSavedAs', (event, savePath) => {
             if (savePath !== '_cancelled_') {
                 store.dispatch(updateDefine({ defineId: odm.defineId, properties: { pathToFile: savePath } }));
+                store.dispatch(updateMainUi({ pathToLastFile: path.dirname(savePath) }));
+            }
+        });
+    } else {
+        // Otherwise update only the last path
+        ipcRenderer.once('fileSavedAs', (event, savePath) => {
+            if (savePath !== '_cancelled_') {
+                store.dispatch(updateMainUi({ pathToLastFile: path.dirname(savePath) }));
             }
         });
     }
@@ -108,7 +120,7 @@ function sendDefineObject (event, data) {
         odm.sourceSystemVersion = state.settings.define.sourceSystemVersion;
     }
 
-    ipcRenderer.send('saveAs', { odm });
+    ipcRenderer.send('saveAs', { odm }, { pathToLastFile, addStylesheet });
 }
 
 export default sendDefineObject;

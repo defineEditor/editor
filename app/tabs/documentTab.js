@@ -152,6 +152,7 @@ ConnectedDocumentTable.propTypes = {
     defineVersion: PropTypes.string.isRequired,
     pathToDefine: PropTypes.string,
 };
+ConnectedDocumentTable.displayName = 'DocumentTable';
 
 const DocumentTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedDocumentTable);
 export default DocumentTable;

@@ -43,7 +43,8 @@ class ItemSelect extends React.Component {
     getSelectionList () {
         let list = [];
         if (this.props.options.length < 1) {
-            throw Error('Blank value list provided for the ItemSelect element');
+            console.error('Blank value list provided for the ItemSelect element');
+            return null;
         } else {
             if (this.props.optional === true) {
                 list.push(<MenuItem key='0' value=""><em>None</em></MenuItem>);

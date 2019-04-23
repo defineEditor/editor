@@ -248,7 +248,7 @@ const handleUpdateArmStatus = (state, action) => {
 };
 
 const handleDeleteArmItem = (state, action) => {
-    if (Object.keys(action.deleteObj.whereClauseOids).length > 0) {
+    if (action.deleteObj && action.deleteObj.whereClauseOids && Object.keys(action.deleteObj.whereClauseOids).length > 0) {
         let newState = { ...state };
         Object.keys(action.deleteObj.whereClauseOids).forEach(whereClauseOid => {
             Object.keys(action.deleteObj.whereClauseOids[whereClauseOid]).forEach(analysisResultOid => {

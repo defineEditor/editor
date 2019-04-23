@@ -69,6 +69,8 @@ class ControlledTerminologyEditor extends React.Component {
             let newOid = event.target.value;
             if (oid !== newOid) {
                 let newStandards = { ...this.state.standards };
+                let newStandardOrder = this.state.standardOrder.slice();
+                newStandardOrder.splice(this.state.standardOrder.indexOf(oid), 1, newOid);
                 // Replace old OID with a new one
                 delete newStandards[oid];
                 if (this.props.controlledTerminology.allIds.includes(newOid)) {
@@ -80,13 +82,14 @@ class ControlledTerminologyEditor extends React.Component {
                         publishingSet: newCt.publishingSet,
                         version: newCt.version,
                     }) };
-                    this.setState({ standards: newStandards });
+                    this.setState({ standards: newStandards, standardOrder: newStandardOrder });
                 }
             }
         } else if (name === 'deleteCt') {
             let newStandards = { ...this.state.standards };
             delete newStandards[oid];
-            let newStandardOrder = this.state.standardOrder.slice().splice(this.state.standardOrder.indexOf(oid), 1);
+            let newStandardOrder = this.state.standardOrder.slice();
+            newStandardOrder.splice(this.state.standardOrder.indexOf(oid), 1);
             this.setState({ standards: newStandards, standardOrder: newStandardOrder });
         }
     }
@@ -96,7 +99,7 @@ class ControlledTerminologyEditor extends React.Component {
         let ctList = this.props.controlledTerminology.allIds.map(ctOid => {
             return { [ctOid]: this.props.controlledTerminology.byId[ctOid].name + ' ' + this.props.controlledTerminology.byId[ctOid].version };
         });
-        let studyCtList = Object.keys(standards)
+        let studyCtList = this.state.standardOrder
             .filter(standardOid => {
                 return (standards[standardOid].name === 'CDISC/NCI' && standards[standardOid].type === 'CT');
             })
@@ -120,7 +123,7 @@ class ControlledTerminologyEditor extends React.Component {
                             onChange={this.handleChange('updateCt', standardOid)}
                             className={this.props.classes.inputField}
                         >
-                            { Object.keys(ctList).length > 0 && getSelectionList(ctList)}
+                            { Object.keys(ctList).length > 0 && getSelectionList(ctList, false, this.state.standardOrder)}
                         </TextField>
                     </ListItem>
                 );
@@ -142,11 +145,16 @@ class ControlledTerminologyEditor extends React.Component {
 
     render () {
         const { classes } = this.props;
+
+        let saveDisabled = this.state.standardOrder.some(oid =>
+            (this.state.standards[oid].name === 'CDISC/NCI' && !(this.state.standards[oid].version || this.state.standards[oid].publishingSet))
+        );
+
         return (
             <Paper className={classes.controlledTerminology} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Typography variant="h5">
                     Controlled Terminology
-                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
+                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} saveDisabled={saveDisabled}/>
                 </Typography>
                 <List>
                     <ListItem dense>
