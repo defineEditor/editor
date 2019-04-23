@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { createTranslatedText, createDocumentRef } from './createUtils.js';
+import { createTranslatedText, createDocumentRef, removeBlankAttributes } from './createUtils.js';
 import clone from 'clone';
 
 function createArm (rawData, version) {
@@ -47,6 +47,7 @@ function createResultDisplay (data, version) {
             'OID': data.oid,
             'Name': data.name,
         };
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];
@@ -88,6 +89,7 @@ function createAnalysisResult (data, version) {
             'AnalysisReason': data.analysisReason,
             'AnalysisPurpose': data.analysisPurpose,
         };
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];
@@ -130,6 +132,7 @@ function createAnalysisDataset (data, version) {
         let attributes = {
             'ItemGroupOID': data.itemGroupOid,
         };
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];
@@ -181,6 +184,7 @@ function createProgrammingCode (data, version) {
         let attributes = {
             'Context': data.context,
         };
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];

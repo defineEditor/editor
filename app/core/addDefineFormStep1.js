@@ -25,6 +25,7 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import FolderOpen from '@material-ui/icons/FolderOpen';
 import Typography from '@material-ui/core/Typography';
+import path from 'path';
 import parseDefine from 'parsers/parseDefine.js';
 import checkDefineXml from 'utils/checkDefineXml.js';
 import removeTrailingSpaces from 'utils/removeTrailingSpaces.js';
@@ -70,6 +71,7 @@ class AddDefineFormStep1 extends React.Component {
     }
 
     loadDefine = (event, data, pathToDefineXml) => {
+        this.props.updateMainUi({ pathToLastFile: path.dirname(pathToDefineXml) });
         try {
             let defineData = parseDefine(data);
             let checkResult = checkDefineXml(defineData);
@@ -101,7 +103,7 @@ class AddDefineFormStep1 extends React.Component {
     openDefineXml = () => {
         // Reset errors
         this.setState({ parsingErrors: [], defineData: null });
-        ipcRenderer.send('openDefineXml', 'Open Define-XML');
+        ipcRenderer.send('openDefineXml', this.props.pathToLastFile);
     }
 
     render () {
@@ -207,6 +209,8 @@ AddDefineFormStep1.propTypes = {
     removeTrailingSpaces: PropTypes.bool,
     onNext: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
+    pathToLastFile: PropTypes.string,
+    updateMainUi: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(AddDefineFormStep1);

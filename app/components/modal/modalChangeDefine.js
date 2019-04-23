@@ -66,9 +66,9 @@ const mapDispatchToProps = dispatch => {
 
 class ConnectedModalChangeDefine extends React.Component {
     onSave = () => {
-        saveState();
+        // Change must be called after the current Define-XML is saved
+        saveState(undefined, () => { this.props.changePage({ page: 'editor', defineId: this.props.defineId, studyId: this.props.studyId }); });
         this.props.closeModal();
-        this.props.changePage({ page: 'editor', defineId: this.props.defineId, studyId: this.props.studyId });
     }
 
     onCancel = () => {

@@ -1096,6 +1096,7 @@ ConnectedVariableTable.propTypes = {
     ]),
     reviewMode: PropTypes.bool,
 };
+ConnectedVariableTable.displayName = 'VariableTable';
 
 const VariableTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedVariableTable);
 export default withStyles(styles)(VariableTable);

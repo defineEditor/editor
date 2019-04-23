@@ -1,7 +1,7 @@
 {
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
-  "version": "1.0.0-beta.6",
+  "version": "1.0.0-beta.7",
   "license": "AGPL-3.0-only",
   "private": "true",
   "description": "Visual Define-XML Editor",
@@ -56,13 +56,13 @@
       "package.json"
     ],
     "extraResources": [
-        {
-            "from": "app/static/",
-            "to": "static",
-            "filter": [
-                "**/*"
-            ]
-        }
+      {
+        "from": "app/static/",
+        "to": "static",
+        "filter": [
+          "**/*"
+        ]
+      }
     ],
     "dmg": {
       "contents": [

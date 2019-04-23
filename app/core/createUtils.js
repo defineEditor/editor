@@ -12,6 +12,14 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
+export function removeBlankAttributes (attrs, exceptions = []) {
+    Object.keys(attrs).forEach(key => {
+        if (!attrs[key] && !exceptions.includes(key)) {
+            delete attrs[key];
+        }
+    });
+}
+
 export function createDocumentRef (data, version) {
     let result = {};
     if (version === '2.0.0') {
@@ -29,7 +37,7 @@ export function createDocumentRef (data, version) {
             data.pdfPageRefs.forEach(function (pdfPageRef) {
                 let pdfPageRefObj = {};
                 for (let pdfPageAttr in pdfPageRef) {
-                    if (pdfPageRef[pdfPageAttr] !== undefined) {
+                    if (pdfPageRef[pdfPageAttr]) {
                         // Capitalize first letter of an attribute
                         let uccPdfPageAttr = pdfPageAttr.charAt(0).toUpperCase() + pdfPageAttr.substr(1);
                         pdfPageRefObj['@' + uccPdfPageAttr] = pdfPageRef[pdfPageAttr];

@@ -708,6 +708,7 @@ ConnectedCodeListTable.propTypes = {
         PropTypes.number
     ]),
 };
+ConnectedCodeListTable.displayName = 'codeListTable';
 
 const CodeListTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodeListTable);
 export default withStyles(styles)(CodeListTable);

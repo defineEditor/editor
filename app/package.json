@@ -2,7 +2,7 @@
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
   "private": "true",
-  "version": "1.0.0-beta.6",
+  "version": "1.0.0-beta.7",
   "description": "Editor for CDISC Define-XML standard",
   "main": "./main.prod.js",
   "author": {

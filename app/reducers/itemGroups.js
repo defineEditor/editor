@@ -86,9 +86,9 @@ const updateItemGroup = (state, action) => {
     if (updateObj.hasOwnProperty('leaf')) {
         // Delete leaf if the value is blank;
         if (updateObj.leaf.href === '' && updateObj.leaf.title === '') {
+            delete updateObj.leaf;
             updateObj.leaf = undefined;
             updateObj.archiveLocationId = undefined;
-            delete updateObj.leaf;
         } else {
             if (newLeafOid !== undefined) {
                 updateObj.leaf.id = newLeafOid;

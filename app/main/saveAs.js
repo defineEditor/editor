@@ -12,16 +12,20 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-const electron = require('electron');
-const dialog = electron.dialog;
-const fs = require('fs');
-const createDefine = require('../core/createDefine.js');
+import electron from 'electron';
+import fs from 'fs';
+import createDefine from '../core/createDefine.js';
+import copyStylesheet from '../main/copyStylesheet.js';
 
 // Create Define-XML
-const convertToDefineXml = (mainWindow, data) => (savePath) => {
+const convertToDefineXml = (mainWindow, data, options) => (savePath) => {
     if (savePath !== undefined) {
         let defineXml = createDefine(data.odm, data.odm.study.metaDataVersion.defineVersion);
         fs.writeFile(savePath, defineXml, function (err) {
+            let stylesheetLocation = data.odm && data.odm.stylesheetLocation;
+            if (options.addStylesheet === true && stylesheetLocation) {
+                copyStylesheet(stylesheetLocation, savePath);
+            }
             if (err) {
                 throw err;
             } else {
@@ -33,14 +37,15 @@ const convertToDefineXml = (mainWindow, data) => (savePath) => {
     }
 };
 
-function saveAs (mainWindow, data) {
-    dialog.showSaveDialog(
+function saveAs (mainWindow, data, options) {
+    electron.dialog.showSaveDialog(
         mainWindow,
         {
             title: 'Export Define-XML',
             filters: [{ name: 'XML files', extensions: ['xml'] }],
+            defaultPath: options.pathToLastFile,
         },
-        convertToDefineXml(mainWindow, data));
+        convertToDefineXml(mainWindow, data, options));
 }
 
 module.exports = saveAs;

@@ -33,7 +33,8 @@ import {
     addOdm,
     addDefine,
     changePage,
-    toggleAddDefineForm
+    toggleAddDefineForm,
+    updateMainUi,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -78,6 +79,7 @@ const mapStateToProps = state => {
         settings: state.present.settings.define,
         controlledTerminology: state.present.controlledTerminology,
         removeTrailingSpaces,
+        pathToLastFile: state.present.ui.main.pathToLastFile,
     };
 };
 
@@ -86,7 +88,8 @@ const mapDispatchToProps = dispatch => {
         toggleAddDefineForm: updateObj => dispatch(toggleAddDefineForm(updateObj)),
         addDefine: updateObj => dispatch(addDefine(updateObj)),
         changePage: updateObj => dispatch(changePage(updateObj)),
-        addOdm: odm => dispatch(addOdm(odm))
+        addOdm: odm => dispatch(addOdm(odm)),
+        updateMainUi: updateObj => dispatch(updateMainUi(updateObj)),
     };
 };
 
@@ -234,6 +237,8 @@ class ConnectedAddDefineForm extends React.Component {
                     </Stepper>
                     {activeStep === 1 && (
                         <AddDefineFormStep1
+                            updateMainUi={this.props.updateMainUi}
+                            pathToLastFile={this.props.pathToLastFile}
                             onNext={this.handleNext}
                             onCancel={this.handleCancel}
                             defineCreationMethod={this.state.defineCreationMethod}
@@ -283,6 +288,8 @@ ConnectedAddDefineForm.propTypes = {
     defineForm: PropTypes.bool.isRequired,
     toggleAddDefineForm: PropTypes.func.isRequired,
     removeTrailingSpaces: PropTypes.bool,
+    pathToLastFile: PropTypes.string,
+    updateMainUi: PropTypes.func.isRequired,
 };
 
 const AddDefineForm = connect(mapStateToProps, mapDispatchToProps)(

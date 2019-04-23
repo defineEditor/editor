@@ -350,7 +350,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
 
     onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
-            this.props.onUpdateFinished();
+            this.props.onUpdateFinished(true);
         } else if (event.ctrlKey && (event.keyCode === 83)) {
             this.rootRef.current.focus();
             this.setState({}, this.save);
@@ -490,7 +490,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
                         />
                     </Grid>
                     <Grid item xs={12} >
-                        <SaveCancel save={this.save} cancel={this.props.onUpdateFinished}/>
+                        <SaveCancel save={this.save} cancel={() => { this.props.onUpdateFinished(true); }}/>
                     </Grid>
                 </Grid>
             </div>

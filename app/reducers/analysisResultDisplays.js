@@ -284,7 +284,7 @@ const handleDeleteItemGroups = (state, action) => {
 
 const handleUpdatedLeafs = (state, action) => {
     // action.updateObj.removedLeafIds - list of removed leaf OIDs
-    if (Object.keys(action.updateObj.removedLeafIds).length > 0) {
+    if (Object.keys(action.updateObj.removedLeafIds).length > 0 && state.hasOwnProperty('resultDisplays')) {
         let removedLeafIds = action.updateObj.removedLeafIds;
         // Check documents in the ResultDisplay
         let changedResultDisplays = {};

@@ -15,20 +15,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import clone from 'clone';
+import { dirname, relative, join } from 'path';
 import { withStyles } from '@material-ui/core/styles';
+import { ipcRenderer } from 'electron';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import EditingControlIcons from 'editors/editingControlIcons.js';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
-import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Tooltip from '@material-ui/core/Tooltip';
+import FolderOpen from '@material-ui/icons/FolderOpen';
+import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import { Leaf } from 'core/defineStructure.js';
 import GeneralOrderEditor from 'components/orderEditors/generalOrderEditor.js';
 import getSelectionList from 'utils/getSelectionList.js';
@@ -92,7 +96,18 @@ class DocumentTableEditor extends React.Component {
 
     componentDidMount () {
         this.rootRef.current.focus();
+        ipcRenderer.on('selectedFile', this.setPathToFile);
     }
+
+    componentWillUnmount () {
+        ipcRenderer.removeListener('selectedFile', this.setPathToFile);
+    }
+
+    setPathToFile = (event, pathToFile, title, id) => {
+        if (pathToFile !== undefined) {
+            this.handleChange('href', id)({ target: { value: relative(dirname(this.props.pathToDefine), pathToFile) } });
+        }
+    };
 
     handleChange = (name, oid) => (event) => {
         if (name === 'addDoc') {
@@ -127,6 +142,16 @@ class DocumentTableEditor extends React.Component {
             this.setState({ leafs: newLeafs, leafOrder: newLeafOrder });
         }
     }
+
+    selectPathToFile = (id) => () => {
+        let initialFolder;
+        if (this.state.leafs[id].href && this.props.pathToDefine) {
+            initialFolder = join(dirname(this.props.pathToDefine), this.state.leafs[id].href);
+        }
+        ipcRenderer.send('selectFile', 'Select Path to Document',
+            { initialFolder, type: 'openFile', id }
+        );
+    };
 
     getDocuments = () => {
         let leafs = this.state.leafs;
@@ -172,6 +197,18 @@ class DocumentTableEditor extends React.Component {
                             fullWidth
                             onChange={this.handleChange('href', leafId)}
                             className={this.props.classes.inputField}
+                            InputProps={this.props.pathToDefine && {
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <IconButton
+                                            color="default"
+                                            onClick={this.selectPathToFile(leafId)}
+                                        >
+                                            <FolderOpen />
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }}
                         />
                     </CustomTableCell>
                 </TableRow>

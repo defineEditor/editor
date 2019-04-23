@@ -537,6 +537,7 @@ ConnectedDatasetTable.propTypes = {
     reviewMode: PropTypes.bool,
     showRowSelect: PropTypes.bool,
 };
+ConnectedDatasetTable.displayName = 'datasetTable';
 
 const DatasetTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedDatasetTable);
 export default withStyles(styles)(DatasetTable);
