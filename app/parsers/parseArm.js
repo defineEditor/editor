@@ -50,8 +50,10 @@ function parseDocument (doc) {
 function parseDocumentCollection (documentsRaw) {
     let documents = {};
     documentsRaw.forEach(function (documentRaw) {
-        let document = parseDocument(documentRaw['documentRef'][0]);
-        documents[document.leafId] = document;
+        documentRaw['documentRef'].forEach(documentStillRaw => {
+            let document = parseDocument(documentStillRaw);
+            documents[document.leafId] = document;
+        });
     });
 
     return documents;

@@ -91,14 +91,21 @@ function sendDefineObject (event, data) {
         }
     });
 
-    // If define does not have pathToFile, use the save file as location of the Define-XML
     if (odm.defineId &&
         state.defines.byId.hasOwnProperty(odm.defineId) &&
         !state.defines.byId[odm.defineId].pathToFile
     ) {
+        // If define does not have pathToFile, use the save file as location of the Define-XML
         ipcRenderer.once('fileSavedAs', (event, savePath) => {
             if (savePath !== '_cancelled_') {
                 store.dispatch(updateDefine({ defineId: odm.defineId, properties: { pathToFile: savePath } }));
+                store.dispatch(updateMainUi({ pathToLastFile: path.dirname(savePath) }));
+            }
+        });
+    } else {
+        // Otherwise update only the last path
+        ipcRenderer.once('fileSavedAs', (event, savePath) => {
+            if (savePath !== '_cancelled_') {
                 store.dispatch(updateMainUi({ pathToLastFile: path.dirname(savePath) }));
             }
         });

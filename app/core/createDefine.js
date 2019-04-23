@@ -15,7 +15,7 @@
 import xmlBuilder from 'xmlbuilder';
 import createArm from './createArm.js';
 import os from 'os';
-import { createTranslatedText, createDocumentRef } from './createUtils.js';
+import { createTranslatedText, createDocumentRef, removeBlankAttributes } from './createUtils.js';
 
 function splitAttributes (match) {
     let tab = match.substr(0, match.indexOf('<'));
@@ -99,6 +99,7 @@ function createOdm (data, version) {
         ) {
             attributes['xmlns:arm'] = data.arm;
         }
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 xmlRoot.att(attr, attributes[attr]);
@@ -152,6 +153,7 @@ function createMetaDataVersion (data, version) {
             'def:StandardName': standardName,
             'def:StandardVersion': standardVersion,
         };
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 xmlRoot.att(attr, attributes[attr]);
@@ -315,6 +317,7 @@ function createItemRef (data, version) {
             'Role': data.role,
             'RoleCodeListOID': data.roleCodeListOid,
         };
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];
@@ -383,6 +386,7 @@ function createItemGroupDef (data, version) {
             'def:ArchiveLocationID': data.archiveLocationId,
             'def:CommentOID': data.commentOid,
         };
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];
@@ -426,6 +430,7 @@ function createAlias (data, version) {
             'Context': data.context,
             'Name': data.name
         };
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];
@@ -443,6 +448,7 @@ function createLeaf (data, version) {
             'ID': data.id,
             'xlink:href': data.href
         };
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];
@@ -472,6 +478,7 @@ function createItemDef (data, version) {
         if (data.commentOid !== undefined) {
             Object.assign(attributes, { 'def:CommentOID': data.commentOid });
         }
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];
@@ -508,6 +515,7 @@ function createOrigin (data, version) {
         let attributes = {
             'Type': data.type
         };
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];
@@ -541,6 +549,7 @@ function createCodeList (data, version) {
             'DataType': data.dataType,
             'SASFormatName': data.formatName
         };
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];
@@ -582,6 +591,7 @@ function createEnumeratedItem (data, position, version) {
             'OrderNumber': position + 1,
             'def:ExtendedValue': data.extendedValue
         };
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];
@@ -605,6 +615,7 @@ function createCodeListItem (data, position, version) {
             'OrderNumber': position + 1,
             'def:ExtendedValue': data.extendedValue
         };
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];
@@ -636,6 +647,7 @@ function createExternalCodeList (data, version) {
             'ref': data.ref,
             'href': data.href
         };
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];
@@ -654,6 +666,7 @@ function createMethodDef (data, version) {
             'Name': data.name,
             'Type': data.type
         };
+        removeBlankAttributes(attributes);
         for (let attr in attributes) {
             if (attributes[attr] !== undefined) {
                 result['@' + attr] = attributes[attr];

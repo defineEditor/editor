@@ -34,7 +34,7 @@ class editingControlIcons extends React.Component {
 
         return (
             <React.Fragment>
-                <IconButton color='primary' onClick={this.props.onSave} className={classes.icon}>
+                <IconButton color='primary' onClick={this.props.onSave} className={classes.icon} disabled={this.props.saveDisabled}>
                     <SaveIcon/>
                 </IconButton>
                 { this.props.onComment !== undefined && (
@@ -66,6 +66,7 @@ editingControlIcons.propTypes = {
     onHelp: PropTypes.func,
     onComment: PropTypes.func,
     onSort: PropTypes.func,
+    saveDisabled: PropTypes.bool,
 };
 
 export default withStyles(styles)(editingControlIcons);
