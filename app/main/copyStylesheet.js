@@ -14,7 +14,6 @@
 
 import fs from 'fs';
 import path from 'path';
-import { app } from 'electron';
 import { promisify } from 'util';
 
 const copyFile = promisify(fs.copyFile);
@@ -23,7 +22,7 @@ const mkdir = promisify(fs.mkdir);
 async function copyStylesheet (stylesheetLocation, savePath) {
     let pathToStylesheet = path.join(path.dirname(savePath), stylesheetLocation);
     let stylesheetDir = path.dirname(pathToStylesheet);
-    let pathToSource = path.join(app.getPath('userData'), 'stylesheets', 'define2-0.xsl');
+    let pathToSource = path.join(__dirname, '..', 'static', 'stylesheets', 'define2-0.xsl');
 
     // If stylesheet exist, do not overwrite it
     if (!fs.existsSync(pathToStylesheet)) {

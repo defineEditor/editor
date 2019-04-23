@@ -64,6 +64,9 @@ const styles = theme => ({
     },
 });
 
+const appVersion = remote.app.getVersion();
+const appName = remote.app.getName();
+
 const mapDispatchToProps = dispatch => {
     return {
         updateSettings: updateObj => dispatch(updateSettings(updateObj)),
@@ -125,7 +128,14 @@ class ConnectedSettings extends React.Component {
                     define: { ...this.state.define, sourceSystem: remote.app.getName(), sourceSystemVersion: remote.app.getVersion() }
                 });
             } else {
-                this.setState({ defaultSource: !this.state.defaultSource });
+                if (this.state.define && this.state.define.sourceSystem === remote.app.getName()) {
+                    this.setState({
+                        defaultSource: !this.state.defaultSource,
+                        define: { ...this.state.define, sourceSystemVersion: remote.app.getVersion() }
+                    });
+                } else {
+                    this.setState({ defaultSource: !this.state.defaultSource });
+                }
             }
         } else if (name === 'controlledTerminologyLocation') {
             this.setState({ [category]: { ...this.state[category], [name]: event } });
@@ -141,10 +151,9 @@ class ConnectedSettings extends React.Component {
             'removeTrailingSpacesWhenParsing',
         ].includes(name) || category === 'popUp') {
             this.setState({ [category]: { ...this.state[category], [name]: checked } });
-        } else if (['sourceSystem'].includes(name)) {
-            if (event.target.value === '') {
-                this.setState({ [category]: { ...this.state[category], [name]: '', sourceSystemVersion: '' } });
-            } else {
+        } else if (['sourceSystemVersion'].includes(name)) {
+            // Version can be changed only when sourceSystem is modified
+            if (this.state.define && this.state.define.sourceSystem !== remote.app.getName()) {
                 this.setState({ [category]: { ...this.state[category], [name]: event.target.value } });
             }
         } else {
@@ -259,7 +268,7 @@ class ConnectedSettings extends React.Component {
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Add a stylesheet when it does not exist on the computer'
+                                        label='Create a stylesheet file when it does not exist'
                                     />
                                     <FormControlLabel
                                         control={
@@ -482,8 +491,8 @@ class ConnectedSettings extends React.Component {
                             <Grid item>
                                 <TextField
                                     label="Source System Version"
-                                    disabled={this.state.defaultSource}
-                                    value={(this.state.defaultSource && remote.app.getVersion()) || this.state.define.sourceSystemVersion}
+                                    disabled={this.state.defaultSource || this.state.sourceSystem === appName}
+                                    value={(this.state.defaultSource && appVersion) || this.state.define.sourceSystemVersion}
                                     onChange={this.handleChange('define', 'sourceSystemVersion')}
                                     className={classes.sourceSystemVersion}
                                 />
