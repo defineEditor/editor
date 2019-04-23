@@ -14,6 +14,7 @@
 
 import xmlBuilder from 'xmlbuilder';
 import createArm from './createArm.js';
+import { app } from 'electron';
 import os from 'os';
 import { createTranslatedText, createDocumentRef, removeBlankAttributes } from './createUtils.js';
 
@@ -75,6 +76,11 @@ function createDefine (data, version) {
 
 function createOdm (data, version) {
     let xmlRoot = xmlBuilder.create('ODM', { stringify: { elEscape: escapeFunc } });
+    // In case system name is the same as the app name, use the current version
+    let sourceSystemVersion = data.sourceSystemVersion;
+    if (data.sourceSystem === app.getName()) {
+        sourceSystemVersion = app.getVersion();
+    }
     if (version === '2.0.0') {
         let attributes = {
             'xmlns': data.xmlns,
@@ -90,7 +96,7 @@ function createOdm (data, version) {
             'AsOfDateTime': data.asOfDateTime,
             'Originator': data.originator,
             'SourceSystem': data.sourceSystem,
-            'SourceSystemVersion': data.sourceSystemVersion
+            'SourceSystemVersion': sourceSystemVersion
         };
         // If ARM is present, add its namespace
         if (data.hasOwnProperty('study') &&
