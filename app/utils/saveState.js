@@ -21,7 +21,7 @@ import {
     openModal,
 } from 'actions/index.js';
 
-function saveDefineXml (odm, pathToFile, lastSaveHistoryIndex, onSaveFinished) {
+function saveDefineXml (odm, options, lastSaveHistoryIndex, onSaveFinished) {
     // Get number of datasets/codelists/variables
     let stats = getDefineStats(odm);
     ipcRenderer.once('defineSaved', (event, defineId) => {
@@ -31,7 +31,7 @@ function saveDefineXml (odm, pathToFile, lastSaveHistoryIndex, onSaveFinished) {
             onSaveFinished();
         }
     });
-    ipcRenderer.send('saveDefine', { odm, pathToFile });
+    ipcRenderer.send('saveDefine', { odm }, options);
 }
 
 function saveState (type, onSaveFinished) {
@@ -41,7 +41,8 @@ function saveState (type, onSaveFinished) {
 
     let fullState = store.getState();
     let state = fullState.present;
-    let alwaysSaveDefineXml = state.settings.general.alwaysSaveDefineXml;
+    let alwaysSaveDefineXml = state.settings.general && state.settings.general.alwaysSaveDefineXml;
+    let addStylesheet = state.settings.general && state.settings.general.addStylesheet;
     // Close main menu when saving
     let stateToSave = { ...state, ui: { ...state.ui, main: { ...state.ui.main, mainMenuOpened: false } } };
     // If it is a backup, write only if ODM is not blank
@@ -57,7 +58,7 @@ function saveState (type, onSaveFinished) {
                 let odm = stateToSave.odm;
                 if (alwaysSaveDefineXml === true && pathToFile !== '') {
                     ipcRenderer.once('writeDefineObjectFinished', (event) => {
-                        saveDefineXml(odm, pathToFile, fullState.index, onSaveFinished);
+                        saveDefineXml(odm, { pathToFile, addStylesheet }, fullState.index, onSaveFinished);
                     });
                 } else {
                     if (alwaysSaveDefineXml === true && pathToFile === '') {
