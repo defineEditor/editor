@@ -18,12 +18,12 @@ import copyStylesheet from '../main/copyStylesheet.js';
 
 // Save Define-XML
 function saveDefine (mainWindow, data, options) {
-    if (data.pathToFile !== undefined) {
+    if (options.pathToFile !== undefined) {
         let defineXml = createDefine(data.odm, data.odm.study.metaDataVersion.defineVersion);
-        fs.writeFile(data.pathToFile, defineXml, function (err) {
+        fs.writeFile(options.pathToFile, defineXml, function (err) {
             let stylesheetLocation = data.odm && data.odm.stylesheetLocation;
             if (options.addStylesheet === true && stylesheetLocation) {
-                copyStylesheet(stylesheetLocation, data.pathToFile);
+                copyStylesheet(stylesheetLocation, options.pathToFile);
             }
             if (err) {
                 throw err;
