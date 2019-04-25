@@ -39,12 +39,14 @@ export const getItemsWithAliasExtendedValue = (sourceItems, standardCodeList, co
                     newItems[itemOid] = { ...new EnumeratedItem({
                         ...sourceItems[itemOid],
                         alias: { ...new Alias({ ...standardCodeList.codeListItems[standardItemOid].alias }) },
+                        extendedValue: undefined,
                     }) };
                 } else if (codeListType === 'decoded') {
                     newItems[itemOid] = { ...new CodeListItem({
                         ...sourceItems[itemOid],
                         alias: { ...new Alias({ ...standardCodeList.codeListItems[standardItemOid].alias }) },
-                        decodes: differentDecodes ? standardCodeList.codeListItems[standardItemOid].decodes.slice() : sourceItems.decodes,
+                        decodes: differentDecodes ? standardCodeList.codeListItems[standardItemOid].decodes.slice() : sourceItems[itemOid].decodes,
+                        extendedValue: undefined,
                     }) };
                 }
             } else {

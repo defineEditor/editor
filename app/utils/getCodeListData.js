@@ -22,12 +22,12 @@ function getCodeListData (codeList, defineVersion) {
         codeListTable = codeList.itemOrder.map((itemOid, index) => {
             let item = codeList.codeListItems[itemOid];
             let ccode;
-            if (item.alias === undefined) {
+            if (item.extendedValue === 'Yes') {
+                ccode = 'Extended';
+            } else if (item.alias === undefined) {
                 ccode = undefined;
             } else if (item.alias.name !== undefined) {
                 ccode = item.alias.name;
-            } else if (item.extendedValue === 'Y') {
-                ccode = 'Extended';
             }
             return ({
                 oid: itemOid,
@@ -41,12 +41,12 @@ function getCodeListData (codeList, defineVersion) {
         codeListTable = codeList.itemOrder.map((itemOid, index) => {
             let item = codeList.enumeratedItems[itemOid];
             let ccode;
-            if (item.alias === undefined) {
+            if (item.extendedValue === 'Yes') {
+                ccode = 'Extended';
+            } else if (item.alias === undefined) {
                 ccode = undefined;
             } else if (item.alias.name !== undefined) {
                 ccode = item.alias.name;
-            } else if (item.extendedValue === 'Y') {
-                ccode = 'Extended';
             }
             return ({
                 oid: itemOid,
