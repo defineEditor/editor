@@ -21,7 +21,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import getOid from 'utils/getOid.js';
 import ReviewComment from 'components/utils/reviewComment.js';
@@ -42,7 +41,7 @@ const styles = theme => ({
         top: '10%',
         transform: 'translate(0%, calc(-10%+0.5px))',
         maxHeight: '85%',
-        minWidth: '45%',
+        minWidth: '65%',
         maxWidth: '95%',
         overflowX: 'auto',
         overflowY: 'auto',
@@ -81,13 +80,10 @@ class ConnectedModalReviewComments extends React.Component {
 
     addComment = () => {
         const oid = getOid('ReviewComment', undefined, Object.keys(this.props.reviewComments));
-        this.props.addReviewComment({ oid, sources: this.props.sources, attrs: { text: this.state.commentText, author: this.props.author } });
-    }
-
-    onUpdate = () => {
-    }
-
-    onDelete = () => {
+        const text = this.state.commentText;
+        this.setState({ commentText: '' },
+            () => this.props.addReviewComment({ oid, sources: this.props.sources, attrs: { text: text, author: this.props.author } })
+        );
     }
 
     onClose = () => {
@@ -151,26 +147,13 @@ class ConnectedModalReviewComments extends React.Component {
                             {this.getComments(this.props.sources)}
                         </Grid>
                         <Grid item xs={12}>
-                            <TextField
-                                multiline
-                                label='New Comment'
-                                fullWidth
-                                autoFocus
-                                rowsMax='10'
-                                value={this.state.commentText}
-                                onChange={this.handleTextChange}
-                                variant='outlined'
+                            <ReviewComment
+                                initialComment
+                                sources={this.props.sources}
+                                author={this.props.author}
+                                reviewComments={this.props.reviewComments}
+                                onAdd={this.props.addReviewComment}
                             />
-                        </Grid>
-                        <Grid item xa={12}>
-                            <Button
-                                color='default'
-                                size='small'
-                                variant='contained'
-                                onClick={this.addComment}
-                            >
-                                Add
-                            </Button>
                         </Grid>
                     </Grid>
                 </DialogContent>

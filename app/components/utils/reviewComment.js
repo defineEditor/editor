@@ -14,13 +14,15 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
+import { Editor, EditorState, ContentState, convertFromHTML } from 'draft-js';
+import { stateToHTML } from 'draft-js-export-html';
 import { withStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
-import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import getOid from 'utils/getOid.js';
 
 const styles = theme => ({
     text: {
@@ -42,18 +44,30 @@ class reviewComment extends React.Component {
     constructor (props) {
         super(props);
 
-        const { author, text, comments } = props.reviewComments[props.oid];
+        let author;
+        let comments;
+        let editorState;
+
+        if (props.initialComment) {
+            author = this.props.author;
+            comments = [];
+            editorState = EditorState.moveFocusToEnd(EditorState.createEmpty());
+        } else {
+            author = props.reviewComments[props.oid].author;
+            comments = props.reviewComments[props.oid].comments;
+            let text = props.reviewComments[props.oid].text;
+            const blocksFromHTML = convertFromHTML(text);
+            const content = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
+            editorState = EditorState.createWithContent(content);
+        }
 
         this.state = {
-            editMode: false,
+            editMode: props.initialComment === true,
+            confirmDelete: false,
             author,
-            text,
+            editorState,
             comments,
         };
-    }
-
-    handleTextChange = (event) => {
-        this.setState({ text: event.target.value });
     }
 
     cancelEdit = (event) => {
@@ -61,14 +75,29 @@ class reviewComment extends React.Component {
         this.setState({ text, editMode: false });
     }
 
+    handleAddComment = () => {
+        const oid = getOid('ReviewComment', undefined, Object.keys(this.props.reviewComments));
+        let text = stateToHTML(this.state.editorState.getCurrentContent());
+        this.setState({ editorState: EditorState.createEmpty() },
+            () => this.props.onAdd({
+                oid,
+                sources: this.props.sources,
+                attrs: { text, author: this.props.author }
+            })
+        );
+    }
+
     handleEditSave = () => {
-        this.setState({ editMode: !this.state.editMode });
         if (this.state.editMode) {
+            this.setState({ editMode: !this.state.editMode });
             this.props.onUpdate({
                 oid: this.props.oid,
                 sources: this.props.sources,
-                attrs: { text: this.state.text, author: this.props.author, modifiedAt: new Date().toJSON() }
+                attrs: { text: stateToHTML(this.state.editorState.getCurrentContent()), author: this.props.author, modifiedAt: new Date().toJSON() }
             });
+        } else {
+            let editorState = EditorState.moveFocusToEnd(this.state.editorState);
+            this.setState({ editMode: !this.state.editMode, editorState });
         }
     }
 
@@ -79,9 +108,23 @@ class reviewComment extends React.Component {
         });
     }
 
+    toggleConfirmDelete = () => {
+        this.setState({ confirmDelete: !this.state.confirmDelete });
+    }
+
+    onChange = (editorState) => {
+        this.setState({ editorState });
+    }
+
     render () {
-        const { classes, oid } = this.props;
-        const { createdAt, modifiedAt } = this.props.reviewComments[oid];
+        const { classes, oid, initialComment } = this.props;
+
+        let createdAt = '';
+        let modifiedAt = '';
+        if (!initialComment) {
+            createdAt = this.props.reviewComments[oid].createdAt;
+            modifiedAt = this.props.reviewComments[oid].modifiedAt;
+        }
 
         return (
             <div className={classes.root}>
@@ -99,37 +142,49 @@ class reviewComment extends React.Component {
                                 {'   ' + modifiedAt.replace(/(.*?)T(\d{2}:\d{2}).*/, '$1 $2') + ' (edited)'}
                             </Typography>
                         )}
-                        { this.state.editMode === false ? (
-                            <Typography component='p' className={classes.text}>
-                                {this.state.text}
-                            </Typography>
-                        ) : (
-                            <TextField
-                                multiline
-                                fullWidth
-                                autoFocus
-                                rowsMax='10'
-                                value={this.state.text}
-                                onChange={this.handleTextChange}
-                            />
-                        )}
+                        <Editor editorState={this.state.editorState} onChange={this.onChange} readOnly={!this.state.editMode}/>
                     </CardContent>
-                    <CardActions>
-                        <Button size='small' color='primary' disabled={this.state.editMode}>
-                            Reply
-                        </Button>
-                        <Button size='small' color='primary' onClick={this.handleEditSave}>
-                            {this.state.editMode ? 'Save' : 'Edit'}
-                        </Button>
-                        { this.state.editMode && (
-                            <Button size='small' color='primary' onClick={this.cancelEdit}>
-                                Cancel
+                    { initialComment ? (
+                        <CardActions>
+                            <Button
+                                size='small'
+                                color='primary'
+                                onClick={this.handleAddComment}
+                                disabled={!this.state.editorState.getCurrentContent().hasText()}
+                            >
+                                Add
                             </Button>
-                        )}
-                        <Button size='small' color='primary' onClick={this.handleDelete}>
-                            Delete
-                        </Button>
-                    </CardActions>
+                        </CardActions>
+                    ) : (
+                        <CardActions>
+                            <Button size='small' color='primary' disabled={this.state.editMode}>
+                                Reply
+                            </Button>
+                            <Button size='small' color='primary' onClick={this.handleEditSave}>
+                                {this.state.editMode ? 'Save' : 'Edit'}
+                            </Button>
+                            { this.state.editMode && (
+                                <Button size='small' color='primary' onClick={this.cancelEdit}>
+                                    Cancel
+                                </Button>
+                            )}
+                            { this.state.confirmDelete ? (
+                                [(
+                                    <Button key='yes' size='small' color='secondary' onClick={this.handleDelete}>
+                                        Yes
+                                    </Button>
+                                ), (
+                                    <Button key='no' size='small' color='secondary' onClick={this.toggleConfirmDelete}>
+                                        No
+                                    </Button>
+                                )]
+                            ) : (
+                                <Button size='small' color='primary' onClick={this.toggleConfirmDelete}>
+                                    Delete
+                                </Button>
+                            )}
+                        </CardActions>
+                    )}
                 </Card>
             </div>
         );
@@ -139,11 +194,13 @@ class reviewComment extends React.Component {
 reviewComment.propTypes = {
     classes: PropTypes.object.isRequired,
     reviewComments: PropTypes.object.isRequired,
+    initialComment: PropTypes.bool,
     sources: PropTypes.object.isRequired,
-    oid: PropTypes.string.isRequired,
+    oid: PropTypes.string,
     author: PropTypes.string.isRequired,
-    onDelete: PropTypes.func.isRequired,
-    onUpdate: PropTypes.func.isRequired,
+    onDelete: PropTypes.func,
+    onUpdate: PropTypes.func,
+    onAdd: PropTypes.func,
 };
 
 export default withStyles(styles)(reviewComment);
