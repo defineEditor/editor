@@ -72,7 +72,7 @@ class ControlledTerminology {
 
 class ReviewComment {
     constructor ({
-        text, author, createdAt, modifiedAt, resolved = false, comments = [], sources = {},
+        text, author, createdAt, modifiedAt, resolved = false, reviewCommentOids = [], sources = {},
     } = {}) {
         this.text = text;
         this.author = author;
@@ -88,8 +88,7 @@ class ReviewComment {
         } else {
             this.modifiedAt = modifiedAt;
         }
-
-        this.comments = comments;
+        this.reviewCommentOids = reviewCommentOids;
     }
 }
 

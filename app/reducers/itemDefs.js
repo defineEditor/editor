@@ -418,11 +418,14 @@ const addReviewComment = (state, action) => {
 };
 
 const deleteReviewComment = (state, action) => {
-    if (action.updateObj.sources.hasOwnProperty('itemDefs')) {
-        let itemOid = action.updateObj.sources.itemDefs;
-        let newReviewCommentOids = state[itemOid].reviewCommentOids.slice();
-        newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.updateObj.oid), 1);
-        return { ...state, [itemOid]: { ...state[itemOid], reviewCommentOids: newReviewCommentOids } };
+    if (action.deleteObj.sources.hasOwnProperty('itemDefs')) {
+        let newState = { ...state };
+        action.deleteObj.sources.itemDefs.forEach(oid => {
+            let newReviewCommentOids = newState[oid].reviewCommentOids.slice();
+            newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
+            newState = { ...newState, [oid]: { ...newState[oid], reviewCommentOids: newReviewCommentOids } };
+        });
+        return newState;
     } else {
         return state;
     }

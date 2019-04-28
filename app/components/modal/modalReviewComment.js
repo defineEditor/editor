@@ -22,11 +22,11 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import getOid from 'utils/getOid.js';
 import ReviewComment from 'components/utils/reviewComment.js';
 import {
     closeModal,
     addReviewComment,
+    addReplyComment,
     deleteReviewComment,
     updateReviewComment,
 } from 'actions/index.js';
@@ -64,6 +64,7 @@ const mapDispatchToProps = dispatch => {
     return {
         closeModal: () => dispatch(closeModal()),
         addReviewComment: (updateObj) => dispatch(addReviewComment(updateObj)),
+        addReplyComment: (updateObj) => dispatch(addReplyComment(updateObj)),
         deleteReviewComment: (updateObj) => dispatch(deleteReviewComment(updateObj)),
         updateReviewComment: (updateObj) => dispatch(updateReviewComment(updateObj)),
     };
@@ -76,14 +77,6 @@ class ConnectedModalReviewComments extends React.Component {
         this.state = {
             commentText: '',
         };
-    }
-
-    addComment = () => {
-        const oid = getOid('ReviewComment', undefined, Object.keys(this.props.reviewComments));
-        const text = this.state.commentText;
-        this.setState({ commentText: '' },
-            () => this.props.addReviewComment({ oid, sources: this.props.sources, attrs: { text: text, author: this.props.author } })
-        );
     }
 
     onClose = () => {
@@ -120,6 +113,7 @@ class ConnectedModalReviewComments extends React.Component {
                 reviewComments={this.props.reviewComments}
                 onUpdate={this.props.updateReviewComment}
                 onDelete={this.props.deleteReviewComment}
+                onReply={this.props.addReplyComment}
             />
         ));
     }
@@ -173,6 +167,7 @@ ConnectedModalReviewComments.propTypes = {
     addReviewComment: PropTypes.func.isRequired,
     deleteReviewComment: PropTypes.func.isRequired,
     updateReviewComment: PropTypes.func.isRequired,
+    addReplyComment: PropTypes.func.isRequired,
     author: PropTypes.string.isRequired,
     reviewComments: PropTypes.object.isRequired,
     mdv: PropTypes.object.isRequired,

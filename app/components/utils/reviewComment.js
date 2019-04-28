@@ -25,14 +25,21 @@ import Typography from '@material-ui/core/Typography';
 import getOid from 'utils/getOid.js';
 
 const styles = theme => ({
-    text: {
-        whiteSpace: 'pre-wrap',
-        wordBreak: 'normal',
+    editorEdit: {
+        backgroundColor: '#FBFBFB',
+        marginTop: theme.spacing.unit * 2,
+        borderRadius: '20px',
+    },
+    editorView: {
+        marginTop: theme.spacing.unit * 2,
     },
     time: {
         fontSize: '10pt',
         whiteSpace: 'pre-wrap',
         marginBottom: theme.spacing.unit * 2,
+    },
+    reply: {
+        marginLeft: theme.spacing.unit * 6,
     },
     root: {
         marginTop: theme.spacing.unit,
@@ -40,39 +47,53 @@ const styles = theme => ({
     }
 });
 
-class reviewComment extends React.Component {
+class ReviewCommentRaw extends React.Component {
     constructor (props) {
         super(props);
 
-        let author;
-        let comments;
         let editorState;
+        let editMode;
 
         if (props.initialComment) {
-            author = this.props.author;
-            comments = [];
             editorState = EditorState.moveFocusToEnd(EditorState.createEmpty());
+            editMode = true;
         } else {
-            author = props.reviewComments[props.oid].author;
-            comments = props.reviewComments[props.oid].comments;
-            let text = props.reviewComments[props.oid].text;
+            let comment = props.reviewComments[props.oid];
+            let text = comment.text;
             const blocksFromHTML = convertFromHTML(text);
-            const content = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
-            editorState = EditorState.createWithContent(content);
+            if (blocksFromHTML.contentBlocks === null) {
+                editorState = EditorState.createEmpty();
+            } else {
+                const content = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
+                editorState = EditorState.createWithContent(content);
+            }
+            // Focus on the initially created reply comment
+            if (comment.modifiedAt === 'Initial Reply') {
+                editorState = EditorState.moveFocusToEnd(editorState);
+                editMode = true;
+            } else {
+                editMode = false;
+            }
         }
 
         this.state = {
-            editMode: props.initialComment === true,
+            editMode,
             confirmDelete: false,
-            author,
             editorState,
-            comments,
         };
     }
 
     cancelEdit = (event) => {
         const { text } = this.props.reviewComments[this.props.oid];
-        this.setState({ text, editMode: false });
+        let editorState;
+        const blocksFromHTML = convertFromHTML(text);
+        if (blocksFromHTML.contentBlocks === null) {
+            editorState = EditorState.createEmpty();
+        } else {
+            const content = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
+            editorState = EditorState.createWithContent(content);
+        }
+        this.setState({ editorState, editMode: false });
     }
 
     handleAddComment = () => {
@@ -82,18 +103,43 @@ class reviewComment extends React.Component {
             () => this.props.onAdd({
                 oid,
                 sources: this.props.sources,
-                attrs: { text, author: this.props.author }
+                attrs: { text, author: this.props.author, sources: this.props.sources }
             })
         );
+    }
+
+    handleReply = () => {
+        const oid = getOid('ReviewComment', undefined, Object.keys(this.props.reviewComments));
+        this.props.onReply({
+            oid,
+            sourceOid: this.props.oid,
+            attrs: {
+                text: '',
+                modifiedAt: 'Initial Reply',
+                author: this.props.author,
+                sources: { reviewComments: [this.props.oid] } }
+        });
     }
 
     handleEditSave = () => {
         if (this.state.editMode) {
             this.setState({ editMode: !this.state.editMode });
+            let { modifiedAt, createdAt } = this.props.reviewComments[this.props.oid];
+            if (modifiedAt === 'Initial Reply') {
+                createdAt = new Date().toJSON();
+                modifiedAt = createdAt;
+            } else {
+                modifiedAt = new Date().toJSON();
+            }
             this.props.onUpdate({
                 oid: this.props.oid,
                 sources: this.props.sources,
-                attrs: { text: stateToHTML(this.state.editorState.getCurrentContent()), author: this.props.author, modifiedAt: new Date().toJSON() }
+                attrs: {
+                    text: stateToHTML(this.state.editorState.getCurrentContent()),
+                    author: this.props.author,
+                    modifiedAt,
+                    createdAt,
+                }
             });
         } else {
             let editorState = EditorState.moveFocusToEnd(this.state.editorState);
@@ -116,14 +162,37 @@ class reviewComment extends React.Component {
         this.setState({ editorState });
     }
 
+    getChildComments = (commentOids) => {
+        return commentOids.map(oid => (
+            <ReviewComment
+                oid={oid}
+                key={oid}
+                sources={{ reviewComments: [this.props.oid] }}
+                author={this.props.author}
+                reviewComments={this.props.reviewComments}
+                onReply={this.props.onReply}
+                onUpdate={this.props.onUpdate}
+                onDelete={this.props.onDelete}
+            />
+        ));
+    }
+
     render () {
         const { classes, oid, initialComment } = this.props;
 
+        let author = this.props.author;
+        let reviewCommentOids = [];
         let createdAt = '';
         let modifiedAt = '';
         if (!initialComment) {
+            author = this.props.reviewComments[oid].author;
+            reviewCommentOids = this.props.reviewComments[oid].reviewCommentOids;
             createdAt = this.props.reviewComments[oid].createdAt;
             modifiedAt = this.props.reviewComments[oid].modifiedAt;
+            if (modifiedAt === 'Initial Reply') {
+                modifiedAt = '';
+                createdAt = '';
+            }
         }
 
         return (
@@ -131,7 +200,7 @@ class reviewComment extends React.Component {
                 <Card className={classes.card}>
                     <CardContent>
                         <Typography variant='subtitle2' color='primary' inline>
-                            {this.state.author}
+                            {author}
                         </Typography>
                         { createdAt === modifiedAt ? (
                             <Typography variant='subtitle2' color='textSecondary' className={classes.time} inline>
@@ -142,7 +211,14 @@ class reviewComment extends React.Component {
                                 {'   ' + modifiedAt.replace(/(.*?)T(\d{2}:\d{2}).*/, '$1 $2') + ' (edited)'}
                             </Typography>
                         )}
-                        <Editor editorState={this.state.editorState} onChange={this.onChange} readOnly={!this.state.editMode}/>
+                        <div className={this.state.editMode ? classes.editorEdit : classes.editorView }>
+                            <Editor editorState={this.state.editorState} onChange={this.onChange} readOnly={!this.state.editMode}/>
+                        </div>
+                        { this.state.confirmDelete && this.props.author !== author && (
+                            <Typography variant='caption' color='secondary'>
+                                You are removing a comment created by a different user.
+                            </Typography>
+                        )}
                     </CardContent>
                     { initialComment ? (
                         <CardActions>
@@ -157,7 +233,7 @@ class reviewComment extends React.Component {
                         </CardActions>
                     ) : (
                         <CardActions>
-                            <Button size='small' color='primary' disabled={this.state.editMode}>
+                            <Button size='small' color='primary' onClick={this.handleReply} disabled={this.state.editMode}>
                                 Reply
                             </Button>
                             <Button size='small' color='primary' onClick={this.handleEditSave}>
@@ -186,12 +262,17 @@ class reviewComment extends React.Component {
                         </CardActions>
                     )}
                 </Card>
+                { reviewCommentOids.length > 0 && (
+                    <div className={classes.reply}>
+                        {this.getChildComments(reviewCommentOids)}
+                    </div>
+                )}
             </div>
         );
     }
 }
 
-reviewComment.propTypes = {
+ReviewCommentRaw.propTypes = {
     classes: PropTypes.object.isRequired,
     reviewComments: PropTypes.object.isRequired,
     initialComment: PropTypes.bool,
@@ -200,7 +281,9 @@ reviewComment.propTypes = {
     author: PropTypes.string.isRequired,
     onDelete: PropTypes.func,
     onUpdate: PropTypes.func,
+    onReply: PropTypes.func,
     onAdd: PropTypes.func,
 };
 
-export default withStyles(styles)(reviewComment);
+const ReviewComment = withStyles(styles)(ReviewCommentRaw);
+export default ReviewComment;

@@ -220,7 +220,7 @@ class ConnectedItemMenu extends React.Component {
     openComments = () => {
         this.props.openModal({
             type: 'REVIEW_COMMENT',
-            props: { sources: { itemDefs: this.props.itemMenuParams.oid } }
+            props: { sources: { itemDefs: [this.props.itemMenuParams.oid] } }
         });
         this.props.onClose();
     }

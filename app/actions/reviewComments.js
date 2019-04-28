@@ -14,6 +14,7 @@
 
 import {
     ADD_REVIEWCOMMENT,
+    ADD_REPLYCOMMENT,
     DEL_REVIEWCOMMENT,
     UPD_REVIEWCOMMENT,
 } from 'constants/action-types';
@@ -28,7 +29,12 @@ export const updateReviewComment = updateObj => ({
     updateObj
 });
 
-export const deleteReviewComment = updateObj => ({
+export const deleteReviewComment = deleteObj => ({
     type: DEL_REVIEWCOMMENT,
+    deleteObj
+});
+
+export const addReplyComment = updateObj => ({
+    type: ADD_REPLYCOMMENT,
     updateObj
 });

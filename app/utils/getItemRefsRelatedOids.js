@@ -232,6 +232,22 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
         });
     }
 
+    // Review comments
+    let reviewCommentOids = { itemDefs: {} };
+    itemDefOids.forEach(itemOid => {
+        if (mdv.itemDefs[itemOid].reviewCommentOids !== undefined && mdv.itemDefs[itemOid].reviewCommentOids.length > 0) {
+            let rcOids = mdv.itemDefs[itemOid].reviewCommentOids;
+            rcOids.forEach(rcOid => {
+                if (reviewCommentOids.itemDefs[rcOid] === undefined) {
+                    reviewCommentOids.itemDefs[rcOid] = [];
+                }
+                if (!reviewCommentOids.itemDefs[rcOid].includes(itemOid)) {
+                    reviewCommentOids.itemDefs[rcOid].push(itemOid);
+                }
+            });
+        }
+    });
+
     return (
         {
             itemRefOids,
@@ -247,6 +263,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
             whereClauseOids,
             analysisResultOids,
             rangeChangeWhereClauseOids,
+            reviewCommentOids,
         }
     );
 }
