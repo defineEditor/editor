@@ -350,6 +350,7 @@ class ConnectedItemMenu extends React.Component {
                 { this.state.openVlmFromCodeList && (
                     <AddVlmFromCodeList
                         onCancel={this.addVlmFromCodeListClose}
+                        currentItemOid={this.props.itemMenuParams.oid}
                     />
                 )}
             </div>

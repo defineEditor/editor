@@ -18,6 +18,7 @@ import {
     UPD_NAMELABELWHERECLAUSE,
     UPD_ITEMREF,
     ADD_VALUELIST,
+    ADD_VALUELIST_FROM_CODELIST,
     ADD_VARS,
     ADD_ITEMGROUPS,
     INSERT_VALLVL,
@@ -42,6 +43,33 @@ const addValueList = (state, action) => {
             itemRefOrder,
         }) };
     return { ...state, [action.valueListOid]: valueList };
+};
+
+const handleAddValueListFromCodeList = (state, action) => {
+    let firstVl = addValueList(state, {
+        type: ADD_VALUELIST,
+        source: {
+            oid: action.updateObj.sourceOid,
+        },
+        valueListOid: action.updateObj.valueListOid,
+        itemDefOid: action.updateObj.itemDefOids[0],
+        whereClauseOid: action.updateObj.whereClauseOids[0],
+    });
+
+    let subsequentVls = action.updateObj.itemDefOids.slice(1).reduce((object, value, key) => {
+        return insertValueLevel(object, {
+            type: INSERT_VALLVL,
+            source: {
+                oid: action.updateObj.sourceOid,
+            },
+            valueListOid: action.updateObj.valueListOid,
+            parentItemDefOid: action.updateObj.sourceOid,
+            itemDefOid: action.updateObj.itemDefOids.slice(1)[key],
+            whereClauseOid: action.updateObj.whereClauseOids.slice(1)[key],
+        });
+    }, firstVl);
+
+    return subsequentVls;
 };
 
 const updateItemRefOrder = (state, action) => {
@@ -391,6 +419,8 @@ const valueLists = (state = {}, action) => {
     switch (action.type) {
         case ADD_VALUELIST:
             return addValueList(state, action);
+        case ADD_VALUELIST_FROM_CODELIST:
+            return handleAddValueListFromCodeList(state, action);
         case UPD_ITEMDESCRIPTION:
             return updateItemDescription(state, action);
         case UPD_NAMELABELWHERECLAUSE:

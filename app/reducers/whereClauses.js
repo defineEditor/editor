@@ -17,6 +17,7 @@ import {
     DEL_ITEMGROUPS,
     UPD_NAMELABELWHERECLAUSE,
     ADD_VALUELIST,
+    ADD_VALUELIST_FROM_CODELIST,
     INSERT_VALLVL,
     ADD_VARS,
     ADD_ITEMGROUPS,
@@ -172,6 +173,21 @@ const createNewWhereClause = (state, action) => {
     return { ...state, [action.whereClauseOid]: newWhereClause };
 };
 
+const handleAddValueListFromCodeList = (state, action) => {
+    return action.updateObj.itemDefOids.reduce((object, value, key) => {
+        return createNewWhereClause(object, {
+            type: INSERT_VALLVL,
+            source: {
+                oid: action.updateObj.sourceOid,
+            },
+            valueListOid: action.updateObj.valueListOid,
+            parentItemDefOid: action.updateObj.sourceOid,
+            itemDefOid: action.updateObj.itemDefOids[key],
+            whereClauseOid: action.updateObj.whereClauseOids[key],
+        });
+    }, { ...state });
+};
+
 const deleteItemGroups = (state, action) => {
     // action.deleteObj.itemGroupData contains:
     // {[itemGroupOid] : whereClauseOids: { vlOid1: [wcOid1, ...], vlmOid2 : [...], ....]}}
@@ -305,6 +321,8 @@ const whereClauses = (state = {}, action) => {
             return updateNameLabelWhereClause(state, action);
         case ADD_VALUELIST:
             return createNewWhereClause(state, action);
+        case ADD_VALUELIST_FROM_CODELIST:
+            return handleAddValueListFromCodeList(state, action);
         case ADD_VARS:
             return handleAddWhereClauses(state, action);
         case ADD_ANALYSISRESULTS:

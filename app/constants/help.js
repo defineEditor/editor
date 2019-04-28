@@ -100,3 +100,11 @@ It is expected that Controlled Terminology files are downloaded in XML format fr
 Any Controlled Terminology XML file can be loaded as long as it is created according to the Controlled Terminology in ODM XML specification (\`https://evs.nci.nih.gov/ftp1/CDISC/ControlledTerminologyODM.pdf\`).
 `
 };
+
+export const CODELIST_TO_VLM = {
+    title: 'Create Value Level Metadata from Values of a Codelist',
+    content: `
+#### About
+Write somethings useful here...
+`
+};
