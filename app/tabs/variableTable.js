@@ -22,6 +22,7 @@ import clone from 'clone';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import Badge from '@material-ui/core/Badge';
 import Fab from '@material-ui/core/Fab';
 import grey from '@material-ui/core/colors/grey';
 import indigo from '@material-ui/core/colors/indigo';
@@ -122,6 +123,7 @@ const mapStateToProps = state => {
         reviewMode: state.present.ui.main.reviewMode,
         enableTablePagination: state.present.settings.editor.enableTablePagination,
         rowsPerPage: state.present.ui.main.rowsPerPage.variableTab,
+        reviewComments: state.present.odm.reviewComments,
     };
 };
 
@@ -512,6 +514,7 @@ class ConnectedVariableTable extends React.Component {
             mdv: mdv,
             defineVersion: this.props.defineVersion,
             vlmLevel: 0,
+            reviewComments: this.props.reviewComments,
             filteredOids,
             specialHighlightOids,
         });
@@ -558,14 +561,27 @@ class ConnectedVariableTable extends React.Component {
             vlmLevel: row.vlmLevel,
             hasVlm: (row.valueList !== undefined),
         };
-        return (
-            <IconButton
-                onClick={this.handleMenuOpen(itemMenuParams)}
-                color='default'
-            >
-                <MoreVertIcon/>
-            </IconButton>
-        );
+        if (row.reviewCommentStats && row.reviewCommentStats.total > 0) {
+            return (
+                <IconButton
+                    onClick={this.handleMenuOpen(itemMenuParams)}
+                    color='default'
+                >
+                    <Badge color='primary' badgeContent={row.reviewCommentStats.total}>
+                        <MoreVertIcon/>
+                    </Badge>
+                </IconButton>
+            );
+        } else {
+            return (
+                <IconButton
+                    onClick={this.handleMenuOpen(itemMenuParams)}
+                    color='default'
+                >
+                    <MoreVertIcon/>
+                </IconButton>
+            );
+        }
     }
 
     handleMenuOpen = (itemMenuParams) => (event) => {
@@ -1077,6 +1093,7 @@ ConnectedVariableTable.propTypes = {
     defineVersion: PropTypes.string.isRequired,
     dataTypes: PropTypes.array.isRequired,
     stdColumns: PropTypes.object.isRequired,
+    reviewComments: PropTypes.object.isRequired,
     tabSettings: PropTypes.object.isRequired,
     filter: PropTypes.object.isRequired,
     showRowSelect: PropTypes.bool,

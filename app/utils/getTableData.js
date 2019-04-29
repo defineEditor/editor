@@ -11,9 +11,29 @@
 * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
+const getReviewCommentCount = (reviewCommentOids, reviewComments) => {
+    let result = reviewCommentOids.length;
+    reviewCommentOids.forEach(oid => {
+        if (reviewComments.hasOwnProperty(oid) && reviewComments[oid].reviewCommentOids.length > 0) {
+            result += getReviewCommentCount(reviewComments[oid].reviewCommentOids, reviewComments);
+        }
+    });
+    return result;
+};
 
 // Extract data required for the table;
-function getTableData ({ source, datasetName, datasetOid, itemDefs, codeLists, mdv, defineVersion, vlmLevel, filteredOids, specialHighlightOids = [] } = {}) {
+const getTableData = ({
+    source,
+    datasetName,
+    datasetOid,
+    itemDefs,
+    codeLists,
+    mdv,
+    defineVersion,
+    vlmLevel,
+    filteredOids,
+    reviewComments = {},
+    specialHighlightOids = [] } = {}) => {
     let result = [];
     Object.keys(source.itemRefs).forEach((itemRefOid, index) => {
         const originVar = source.itemRefs[itemRefOid];
@@ -85,9 +105,14 @@ function getTableData ({ source, datasetName, datasetOid, itemDefs, codeLists, m
             role: originVar.role,
             roleCodeListOid: originVar.roleCodeListOid,
         };
+        // Review comments
+        if (originItemDef.reviewCommentOids.length > 0) {
+            let total = getReviewCommentCount(originItemDef.reviewCommentOids, reviewComments);
+            currentVar.reviewCommentStats = { total };
+        }
         result[currentVar.keyOrder.orderNumber - 1] = currentVar;
     });
     return result;
-}
+};
 
 export default getTableData;

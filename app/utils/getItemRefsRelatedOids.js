@@ -92,6 +92,8 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
     let vlmMethodOids = {};
     // Form an object of codeLists to remove {codeListOid: [itemOid1, itemOid2, ...]}
     let codeListOids = {};
+    // Review comments
+    let reviewCommentOids = { itemDefs: {} };
     // Variable-level
     itemRefOids.forEach(itemRefOid => {
         let itemOid = mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid;
@@ -134,6 +136,18 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
             if (!codeListOids[codeListOid].includes(itemOid)) {
                 codeListOids[codeListOid].push(itemOid);
             }
+        }
+        // Review comments
+        if (mdv.itemDefs[itemOid].reviewCommentOids !== undefined && mdv.itemDefs[itemOid].reviewCommentOids.length > 0) {
+            let rcOids = mdv.itemDefs[itemOid].reviewCommentOids;
+            rcOids.forEach(rcOid => {
+                if (reviewCommentOids.itemDefs[rcOid] === undefined) {
+                    reviewCommentOids.itemDefs[rcOid] = [];
+                }
+                if (!reviewCommentOids.itemDefs[rcOid].includes(itemOid)) {
+                    reviewCommentOids.itemDefs[rcOid].push(itemOid);
+                }
+            });
         }
     });
 
@@ -189,6 +203,18 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
                     codeListOids[codeListOid].push(itemOid);
                 }
             }
+            // Review comments
+            if (mdv.itemDefs[itemOid].reviewCommentOids !== undefined && mdv.itemDefs[itemOid].reviewCommentOids.length > 0) {
+                let rcOids = mdv.itemDefs[itemOid].reviewCommentOids;
+                rcOids.forEach(rcOid => {
+                    if (reviewCommentOids.itemDefs[rcOid] === undefined) {
+                        reviewCommentOids.itemDefs[rcOid] = [];
+                    }
+                    if (!reviewCommentOids.itemDefs[rcOid].includes(itemOid)) {
+                        reviewCommentOids.itemDefs[rcOid].push(itemOid);
+                    }
+                });
+            }
         });
     });
 
@@ -231,22 +257,6 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
             });
         });
     }
-
-    // Review comments
-    let reviewCommentOids = { itemDefs: {} };
-    itemDefOids.forEach(itemOid => {
-        if (mdv.itemDefs[itemOid].reviewCommentOids !== undefined && mdv.itemDefs[itemOid].reviewCommentOids.length > 0) {
-            let rcOids = mdv.itemDefs[itemOid].reviewCommentOids;
-            rcOids.forEach(rcOid => {
-                if (reviewCommentOids.itemDefs[rcOid] === undefined) {
-                    reviewCommentOids.itemDefs[rcOid] = [];
-                }
-                if (!reviewCommentOids.itemDefs[rcOid].includes(itemOid)) {
-                    reviewCommentOids.itemDefs[rcOid].push(itemOid);
-                }
-            });
-        }
-    });
 
     return (
         {

@@ -214,9 +214,9 @@ class ReviewCommentRaw extends React.Component {
                         <div className={this.state.editMode ? classes.editorEdit : classes.editorView }>
                             <Editor editorState={this.state.editorState} onChange={this.onChange} readOnly={!this.state.editMode}/>
                         </div>
-                        { this.state.confirmDelete && this.props.author !== author && (
+                        { (this.state.confirmDelete || this.state.editMode) && this.props.author !== author && (
                             <Typography variant='caption' color='secondary'>
-                                You are removing a comment created by a different user.
+                                This comment was created by a different user.
                             </Typography>
                         )}
                     </CardContent>
