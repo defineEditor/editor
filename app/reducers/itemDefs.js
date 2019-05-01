@@ -202,6 +202,7 @@ const handleAddValueList = (state, action) => {
 };
 
 const handleAddValueListFromCodeList = (state, action) => {
+    // create the first itemDef
     let firstVl = handleAddValueList(state, {
         type: ADD_VALUELIST,
         source: {
@@ -212,6 +213,7 @@ const handleAddValueListFromCodeList = (state, action) => {
         whereClauseOid: action.updateObj.whereClauseOids[0],
     });
 
+    // add subsequent itemDefs
     let subsequentVls = action.updateObj.itemDefOids.slice(1).reduce((object, value, key) => {
         return insertValueLevel(object, {
             type: INSERT_VALLVL,
@@ -225,7 +227,22 @@ const handleAddValueListFromCodeList = (state, action) => {
         });
     }, firstVl);
 
-    return subsequentVls;
+    // add names and labels to all itemDefs
+    let namedAndLabelledVls = action.updateObj.itemDefOids.reduce((object, value, key) => {
+        return updateItemDef(object, {
+            type: UPD_ITEMDEF,
+            oid: value,
+            updateObj: {
+                name: action.updateObj.names[key],
+                descriptions: [{
+                    lang: 'en',
+                    value: action.updateObj.labels[key],
+                }],
+            },
+        });
+    }, subsequentVls);
+
+    return namedAndLabelledVls;
 };
 
 const insertVariable = (state, action) => {

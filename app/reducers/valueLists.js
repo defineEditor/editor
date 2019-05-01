@@ -46,6 +46,7 @@ const addValueList = (state, action) => {
 };
 
 const handleAddValueListFromCodeList = (state, action) => {
+    // create value list for a variable and add first item
     let firstVl = addValueList(state, {
         type: ADD_VALUELIST,
         source: {
@@ -56,6 +57,7 @@ const handleAddValueListFromCodeList = (state, action) => {
         whereClauseOid: action.updateObj.whereClauseOids[0],
     });
 
+    // add subsequent items to the value list
     let subsequentVls = action.updateObj.itemDefOids.slice(1).reduce((object, value, key) => {
         return insertValueLevel(object, {
             type: INSERT_VALLVL,

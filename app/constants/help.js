@@ -105,6 +105,8 @@ export const CODELIST_TO_VLM = {
     title: 'Create Value Level Metadata from Values of a Codelist',
     content: `
 #### About
-Write somethings useful here...
+A Value Level Metadata can also be added to a variable using items of a given Decoded Codelist. To do so, select a codelist in the dropdown menu (only Decoded Codelists are listed)
+and pick items of the codelist to form VLM entries. Based on the selection, the corresponding number of VLM records will be added with **Names** taken from the *Coded Value* codelist column
+and **Labels** taken from the *Decode* column.
 `
 };

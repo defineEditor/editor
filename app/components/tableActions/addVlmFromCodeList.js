@@ -93,18 +93,25 @@ function ConnectedAddVlmFromCodeList (props) {
 
     useEffect(() => {
         if (selectedCodes.length !== 0) {
+            // sort selected codes as per REVERSE order in the codelist. The reducer reverses the item order, so this results in proper VLM order as per codelist
+            selectedCodes.sort((first, second) => {
+                return codeLists[codeListOid].itemOrder.indexOf(second) - codeLists[codeListOid].itemOrder.indexOf(first);
+            });
+
             let valueLists = store.getState().present.odm.study.metaDataVersion.valueLists;
             let itemDefs = store.getState().present.odm.study.metaDataVersion.itemDefs;
             let whereClauses = store.getState().present.odm.study.metaDataVersion.whereClauses;
 
             // create an object with all VLM attributes
-            let updateObj = selectedCodes.reduce((object, key) => {
-                object['itemDefOids'].push(getOid('ItemDef', undefined, Object.keys(itemDefs).concat(object['itemDefOids'])));
-                object['whereClauseOids'].push(getOid('WhereClause', undefined, Object.keys(whereClauses).concat(object['whereClauseOids'])));
+            let updateObj = selectedCodes.reduce((object, value, key) => {
+                object.names.push(codeLists[codeListOid].codeListItems[value].codedValue);
+                object.labels.push(codeLists[codeListOid].codeListItems[value].decodes[0].value);
+                object.itemDefOids.push(getOid('ItemDef', undefined, Object.keys(itemDefs).concat(object['itemDefOids'])));
+                object.whereClauseOids.push(getOid('WhereClause', undefined, Object.keys(whereClauses).concat(object['whereClauseOids'])));
                 return object;
-            }, { sourceOid: undefined, valueListOid: undefined, itemDefOids: [], whereClauseOids: [] });
-            updateObj['valueListOid'] = getOid('ValueList', undefined, Object.keys(valueLists));
-            updateObj['sourceOid'] = props.currentItemOid;
+            }, { sourceOid: undefined, valueListOid: undefined, itemDefOids: [], whereClauseOids: [], names: [], labels: [] });
+            updateObj.valueListOid = getOid('ValueList', undefined, Object.keys(valueLists));
+            updateObj.sourceOid = props.currentItemOid;
 
             store.dispatch(addValueListFromCodelist(updateObj));
             props.onCancel();
