@@ -30,7 +30,7 @@ function loadDefineObject (event, data) {
             data.odm.reviewComments = {};
         }
         // Some of the versions require structure update. 4.0.1 - development version
-        if (data.info !== undefined && (data.info.appVersion < '1.0.0-beta.7' || data.info.appVersion === '4.1.4')) {
+        if (data.info !== undefined && (data.info.appVersion < '1.0.0-beta.7' || ['4.0.1', '4.1.4', '4.1.5'].includes(data.info.appVersion))) {
             store.dispatch(addOdm(recreateDefine(data.odm)));
         } else {
             store.dispatch(addOdm(data.odm));

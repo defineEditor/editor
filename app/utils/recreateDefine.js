@@ -42,6 +42,16 @@ import {
     Note,
     */
 } from 'core/defineStructure.js';
+import {
+    AnalysisResultDisplays,
+    ResultDisplay,
+    AnalysisResult,
+    /*
+    AnalysisDataset,
+    Documentation,
+    ProgrammingCode,
+    */
+} from 'core/armStructure.js';
 
 const recreateDefine = (odm) => {
     return { ...new Odm({ ...odm, globalVariables: recreateGlobalVariables(odm.globalVariables), study: recreateStudy(odm.study) }) };
@@ -56,7 +66,7 @@ const recreateStudy = (data) => {
 };
 
 const recreateMetadataVersion = (data) => {
-    return { ...new MetaDataVersion({
+    let result = { ...new MetaDataVersion({
         ...data,
         itemGroups: recreateItemGroups(data.itemGroups),
         valueLists: recreateValueLists(data.valueLists),
@@ -66,6 +76,10 @@ const recreateMetadataVersion = (data) => {
         whereClauses: recreateWhereClauses(data.whereClauses),
         itemDefs: recreateItemDefs(data.itemDefs),
     }) };
+    if (data.analysisResultDisplays !== undefined && Object.keys(data.analysisResultDisplays).length > 0) {
+        result.analysisResultDisplays = recreateAnalysisResultDisplays(data.analysisResultDisplays);
+    }
+    return result;
 };
 
 const recreateItemDefs = (data) => {
@@ -120,6 +134,30 @@ const recreateWhereClauses = (data) => {
     let result = {};
     Object.keys(data).forEach(oid => {
         result[oid] = { ...new WhereClause({ ...data[oid] }) };
+    });
+    return result;
+};
+
+const recreateAnalysisResultDisplays = (data) => {
+    return { ...new AnalysisResultDisplays({
+        ...data,
+        resultDisplays: recreateResultDisplays(data.resultDisplays),
+        analysisResults: recreateAnalysisResults(data.analysisResults),
+    }) };
+};
+
+const recreateResultDisplays = (data) => {
+    let result = {};
+    Object.keys(data).forEach(oid => {
+        result[oid] = { ...new ResultDisplay({ ...data[oid] }) };
+    });
+    return result;
+};
+
+const recreateAnalysisResults = (data) => {
+    let result = {};
+    Object.keys(data).forEach(oid => {
+        result[oid] = { ...new AnalysisResult({ ...data[oid] }) };
     });
     return result;
 };

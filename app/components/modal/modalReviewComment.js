@@ -96,8 +96,10 @@ class ConnectedModalReviewComments extends React.Component {
     getCommentOids = (sources) => {
         let reviewCommentOids = [];
         Object.keys(sources).forEach(type => {
-            if (['itemDefs'].includes(type)) {
-                reviewCommentOids = this.props.mdv[type][sources[type]].reviewCommentOids;
+            if (['itemDefs', 'itemGroups'].includes(type)) {
+                reviewCommentOids = this.props.mdv[type][sources[type][0]].reviewCommentOids;
+            } else if (['analysisResults'].includes(type)) {
+                reviewCommentOids = this.props.mdv.analysisResultDisplays[type][sources[type][0]].reviewCommentOids;
             }
         });
         return reviewCommentOids;

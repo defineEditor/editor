@@ -740,7 +740,8 @@ class ItemGroup extends BasicFunctions {
         descriptions = [],
         itemRefs = {},
         itemRefOrder = [],
-        keyOrder = []
+        keyOrder = [],
+        reviewCommentOids = [],
     } = {}) {
         super();
         this.oid = oid || getOid('ItemGroup');
@@ -767,6 +768,8 @@ class ItemGroup extends BasicFunctions {
         } else {
             this.leaf = new Leaf();
         }
+        // Non-define XML properties
+        this.reviewCommentOids = reviewCommentOids;
     }
     addItemRef (oid, itemRef) {
         this.itemRefs[oid] = itemRef;

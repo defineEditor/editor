@@ -15,12 +15,28 @@
 function getArmAnalysisResultOids (analysisResults, analysisResultOids) {
     // Get the list of CommentOIDs;
     let commentOids = {};
+    // Review comments
+    let reviewCommentOids = { analysisResults: {} };
     analysisResultOids.forEach(analysisResultOid => {
-        let commentOid = analysisResults[analysisResultOid].analysisDatasetsCommentOid;
+        let analysisResult = analysisResults[analysisResultOid];
+        // Comments
+        let commentOid = analysisResult.analysisDatasetsCommentOid;
         if (commentOid !== undefined && !commentOids.hasOwnProperty(commentOid)) {
             commentOids[commentOid] = [analysisResultOid];
         } else if (commentOid !== undefined && commentOids.hasOwnProperty(commentOid)) {
             commentOids[commentOid].push(analysisResultOid);
+        }
+        // Review comments
+        if (analysisResult.reviewCommentOids !== undefined && analysisResult.reviewCommentOids.length > 0) {
+            let rcOids = analysisResult.reviewCommentOids;
+            rcOids.forEach(rcOid => {
+                if (reviewCommentOids.analysisResults[rcOid] === undefined) {
+                    reviewCommentOids.analysisResults[rcOid] = [];
+                }
+                if (!reviewCommentOids.analysisResults[rcOid].includes(analysisResultOid)) {
+                    reviewCommentOids.analysisResults[rcOid].push(analysisResultOid);
+                }
+            });
         }
     });
     // Get the list of WhereClauses which should be removed;
@@ -47,6 +63,7 @@ function getArmAnalysisResultOids (analysisResults, analysisResultOids) {
     return {
         commentOids,
         whereClauseOids,
+        reviewCommentOids,
     };
 }
 

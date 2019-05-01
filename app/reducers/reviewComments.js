@@ -19,6 +19,8 @@ import {
     DEL_REVIEWCOMMENT,
     DEL_VARS,
     DEL_ITEMGROUPS,
+    DEL_RESULTDISPLAY,
+    DEL_ANALYSISRESULT,
 } from 'constants/action-types';
 import { ReviewComment } from 'core/mainStructure.js';
 const initialState = {};
@@ -71,7 +73,7 @@ const addReplyComment = (state, action) => {
     };
 };
 
-const handleDeleteVariables = (state, action) => {
+const handleDeleteItem = (state, action) => {
     // Check if there are any comments to delete;
     let commentsExist;
     Object.keys(action.deleteObj.reviewCommentOids).some(type => {
@@ -98,48 +100,9 @@ const handleDeleteVariables = (state, action) => {
     }
 };
 
-const deleteItemGroupCommentReferences = (state, action) => {
-    // action.deleteObj.reviewCommentOids contains:
-    // {reviewCommentOid1: [itemOid1, itemOid2], reviewCommentOid2: [itemOid3, itemOid1]}
-    // action.deleteObj.itemGroupData contains:
-    // {[itemGroupOid] : reviewCommentOids: { reviewCommentOid1: [itemOid1, itemOid2], reviewCommentOid2: [itemOid3, itemOid1]}}}
-
-    // Check if there are any comments to delete;
-    let commentsExist;
-    if (Object.keys(action.deleteObj.reviewCommentOids).length > 0) {
-        commentsExist = true;
-    } else {
-        Object.keys(action.deleteObj.itemGroupData).some(itemGroupOid => {
-            if (Object.keys(action.deleteObj.itemGroupData[itemGroupOid].reviewCommentOids).length > 0) {
-                commentsExist = true;
-                return true;
-            }
-        });
-    }
-    if (commentsExist) {
-        let newState = { ...state };
-        // Delete review comments which were attached to datasets;
-        if (Object.keys(action.deleteObj.reviewCommentOids).length > 0) {
-            Object.keys(action.deleteObj.reviewCommentOids).forEacn(commentOid => {
-                let deleteObj = {
-                    oid: commentOid,
-                    sources: { itemGroups: action.deleteObj.reviewCommentOids[commentOid] },
-                };
-                newState = deleteReviewComment(newState, { deleteObj });
-            });
-        }
-        // Delete comments which were attached to variables;
-        let itemGroupData = action.deleteObj.itemGroupData;
-        Object.keys(itemGroupData).forEach(itemGroupOid => {
-            let deleteObj = {
-                reviewCommentOids: action.deleteObj.itemGroupData[itemGroupOid].reviewCommentOids,
-            };
-            newState = handleDeleteVariables(newState, { deleteObj });
-        });
-        return newState;
-    } else {
-        return state;
-    }
+const handleDeleteResultDisplay = (state, action) => {
+    // TODO
+    return state;
 };
 
 // TODO: Handle removal of origins
@@ -155,9 +118,13 @@ const reviewComments = (state = initialState, action) => {
         case ADD_REPLYCOMMENT:
             return addReplyComment(state, action);
         case DEL_VARS:
-            return handleDeleteVariables(state, action);
+            return handleDeleteItem(state, action);
         case DEL_ITEMGROUPS:
-            return deleteItemGroupCommentReferences(state, action);
+            return handleDeleteResultDisplay(state, action);
+        case DEL_ANALYSISRESULT:
+            return handleDeleteItem(state, action);
+        case DEL_RESULTDISPLAY:
+            return handleDeleteResultDisplay(state, action);
         default:
             return state;
     }
