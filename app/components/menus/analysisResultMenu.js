@@ -50,12 +50,13 @@ class ConnectedAnalysisResultMenu extends React.Component {
     delete = () => {
         let analysisResults = this.props.analysisResultDisplays.analysisResults;
         let analysisResultOids = [this.props.analysisResultMenuParams.analysisResultOid];
-        const { commentOids, whereClauseOids } = getArmAnalysisResultOids(analysisResults, analysisResultOids);
+        const { commentOids, whereClauseOids, reviewCommentOids } = getArmAnalysisResultOids(analysisResults, analysisResultOids);
         let deleteObj = {
             resultDisplayOid: this.props.analysisResultMenuParams.resultDisplayOid,
             analysisResultOids,
             commentOids,
             whereClauseOids,
+            reviewCommentOids,
         };
         this.props.deleteAnalysisResults(deleteObj);
         this.props.onClose();

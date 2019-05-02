@@ -73,7 +73,7 @@ const addReplyComment = (state, action) => {
     };
 };
 
-const handleDeleteItem = (state, action) => {
+const handleDeleteItems = (state, action) => {
     // Check if there are any comments to delete;
     let commentsExist;
     Object.keys(action.deleteObj.reviewCommentOids).some(type => {
@@ -83,7 +83,7 @@ const handleDeleteItem = (state, action) => {
         }
     });
     if (commentsExist) {
-        // Delete comments which were attached to the variables;
+        // Delete comments which were attached to items;
         let newState = { ...state };
         Object.keys(action.deleteObj.reviewCommentOids).forEach(type => {
             Object.keys(action.deleteObj.reviewCommentOids[type]).forEach(commentOid => {
@@ -100,12 +100,77 @@ const handleDeleteItem = (state, action) => {
     }
 };
 
-const handleDeleteResultDisplay = (state, action) => {
-    // TODO
-    return state;
+const handleDeleteItemGroups = (state, action) => {
+    // action.deleteObj.reviewCommentOids contains:
+    // {reviewCommentOid1: [itemOid1, itemOid2], reviewCommentOid2: [itemOid3, itemOid1]}
+    // action.deleteObj.itemGroupData contains:
+    // {[itemGroupOid] : reviewCommentOids: { reviewCommentOid1: [itemOid1, itemOid2], reviewCommentOid2: [itemOid3, itemOid1]}}}
+
+    // Check if there are any comments to delete;
+    let commentsExist;
+    if (Object.keys(action.deleteObj.reviewCommentOids).length > 0) {
+        commentsExist = true;
+    } else {
+        Object.keys(action.deleteObj.itemGroupData).some(itemGroupOid => {
+            if (Object.keys(action.deleteObj.itemGroupData[itemGroupOid].reviewCommentOids).length > 0) {
+                commentsExist = true;
+                return true;
+            }
+        });
+    }
+    if (commentsExist) {
+        let newState = { ...state };
+        // Delete review comments which were attached to datasets;
+        if (Object.keys(action.deleteObj.reviewCommentOids).length > 0) {
+            Object.keys(action.deleteObj.reviewCommentOids).forEach(commentOid => {
+                let deleteObj = {
+                    oid: commentOid,
+                    sources: { itemGroups: action.deleteObj.reviewCommentOids[commentOid] },
+                };
+                newState = deleteReviewComment(newState, { deleteObj });
+            });
+        }
+        // Delete comments which were attached to variables;
+        let itemGroupData = action.deleteObj.itemGroupData;
+        Object.keys(itemGroupData).forEach(itemGroupOid => {
+            let deleteObj = {
+                reviewCommentOids: action.deleteObj.itemGroupData[itemGroupOid].reviewCommentOids,
+            };
+            newState = handleDeleteItems(newState, { deleteObj });
+        });
+        return newState;
+    } else {
+        return state;
+    }
 };
 
-// TODO: Handle removal of origins
+const handleDeleteResultDisplays = (state, action) => {
+    // Check if there are any comments to delete;
+    let commentsExist;
+    if (Object.keys(action.deleteObj.reviewCommentOids.resultDisplays).length > 0 ||
+        Object.keys(action.deleteObj.reviewCommentOids.analysisResults).length > 0
+    ) {
+        commentsExist = true;
+    }
+    if (commentsExist) {
+        let newState = { ...state };
+        Object.keys(action.deleteObj.reviewCommentOids).forEach(type => {
+            // DeleteObj for AnalysisResults and ResultDisplays has identical structure
+            if (Object.keys(action.deleteObj.reviewCommentOids[type]).length > 0) {
+                Object.keys(action.deleteObj.reviewCommentOids[type]).forEach(commentOid => {
+                    let deleteObj = {
+                        oid: commentOid,
+                        sources: { [type]: action.deleteObj.reviewCommentOids[type][commentOid] },
+                    };
+                    newState = deleteReviewComment(newState, { deleteObj });
+                });
+            }
+        });
+        return newState;
+    } else {
+        return state;
+    }
+};
 
 const reviewComments = (state = initialState, action) => {
     switch (action.type) {
@@ -118,13 +183,13 @@ const reviewComments = (state = initialState, action) => {
         case ADD_REPLYCOMMENT:
             return addReplyComment(state, action);
         case DEL_VARS:
-            return handleDeleteItem(state, action);
+            return handleDeleteItems(state, action);
         case DEL_ITEMGROUPS:
-            return handleDeleteResultDisplay(state, action);
+            return handleDeleteItemGroups(state, action);
         case DEL_ANALYSISRESULT:
-            return handleDeleteItem(state, action);
+            return handleDeleteItems(state, action);
         case DEL_RESULTDISPLAY:
-            return handleDeleteResultDisplay(state, action);
+            return handleDeleteResultDisplays(state, action);
         default:
             return state;
     }

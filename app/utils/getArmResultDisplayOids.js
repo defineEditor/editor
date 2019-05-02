@@ -22,12 +22,31 @@ function getArmResultDisplayOids (resultDisplays, analysisResults, resultDisplay
             analysisResultOids.push(analysisResultOid);
         });
     });
-    const { commentOids, whereClauseOids } = getArmAnalysisResultOids(analysisResults, analysisResultOids);
+    let { commentOids, whereClauseOids, reviewCommentOids } = getArmAnalysisResultOids(analysisResults, analysisResultOids);
+    // Review comments for result displays
+    reviewCommentOids.resultDisplays = {};
+    resultDisplayOids.forEach(resultDisplayOid => {
+        let resultDisplay = resultDisplays[resultDisplayOid];
+        // Review comments
+        if (resultDisplay.reviewCommentOids !== undefined && resultDisplay.reviewCommentOids.length > 0) {
+            let rcOids = resultDisplay.reviewCommentOids;
+            rcOids.forEach(rcOid => {
+                if (reviewCommentOids.resultDisplays[rcOid] === undefined) {
+                    reviewCommentOids.resultDisplays[rcOid] = [];
+                }
+                if (!reviewCommentOids.resultDisplays[rcOid].includes(resultDisplayOid)) {
+                    reviewCommentOids.resultDisplays[rcOid].push(resultDisplayOid);
+                }
+            });
+        }
+    });
 
     return {
         commentOids,
         whereClauseOids,
         analysisResultOids,
+        resultDisplays,
+        reviewCommentOids,
     };
 }
 

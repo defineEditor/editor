@@ -23,12 +23,14 @@ import CardContent from '@material-ui/core/CardContent';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
+import Badge from '@material-ui/core/Badge';
 import AnalysisResultMenu from 'components/menus/analysisResultMenu.js';
 import AnalysisResultEditor from 'editors/analysisResultEditor.js';
 import AnalysisResultFormatter from 'formatters/analysisResultFormatter.js';
 import EditIcon from '@material-ui/icons/Edit';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { getDescription } from 'utils/defineStructureUtils.js';
+import { getReviewCommentCount } from 'utils/reviewCommentUtils.js';
 import {
     selectGroup
 } from 'actions/index.js';
@@ -66,6 +68,7 @@ const mapStateToProps = state => {
         reviewMode: state.present.ui.main.reviewMode,
         variableTabIndex: state.present.ui.tabs.tabNames.indexOf('Variables'),
         showLineNumbersInCode: state.present.settings.editor.showLineNumbersInCode,
+        reviewComments: state.present.odm.reviewComments,
     };
 };
 
@@ -118,6 +121,13 @@ class ConnectedAnalysisResultTile extends React.Component {
         const analysisResult = this.props.mdv.analysisResultDisplays.analysisResults[this.props.analysisResultOid];
         let title = getDescription(analysisResult);
 
+        // Review comments
+        let reviewCommentStats;
+        if (analysisResult.reviewCommentOids.length > 0) {
+            let total = getReviewCommentCount(analysisResult.reviewCommentOids, this.props.reviewComments);
+            reviewCommentStats = { total };
+        }
+
         return (
             <div className={classes.root}>
                 <Card className={classes.card} raised={true}>
@@ -142,13 +152,25 @@ class ConnectedAnalysisResultTile extends React.Component {
                                             </IconButton>
                                         </Grid>
                                         <Grid item>
-                                            <IconButton
-                                                onClick={this.handleMenuOpen}
-                                                color='default'
-                                                className={classes.icon}
-                                            >
-                                                <MoreVertIcon/>
-                                            </IconButton>
+                                            { reviewCommentStats && reviewCommentStats.total > 0 ? (
+                                                <IconButton
+                                                    onClick={this.handleMenuOpen}
+                                                    color='default'
+                                                    className={classes.icon}
+                                                >
+                                                    <Badge color='primary' badgeContent={reviewCommentStats.total}>
+                                                        <MoreVertIcon/>
+                                                    </Badge>
+                                                </IconButton>
+                                            ) : (
+                                                <IconButton
+                                                    onClick={this.handleMenuOpen}
+                                                    color='default'
+                                                    className={classes.icon}
+                                                >
+                                                    <MoreVertIcon/>
+                                                </IconButton>
+                                            )}
                                         </Grid>
                                     </Grid>
                                 </Grid>
@@ -195,6 +217,7 @@ ConnectedAnalysisResultTile.propTypes = {
     selectGroup: PropTypes.func.isRequired,
     variableTabIndex: PropTypes.number,
     showLineNumbersInCode: PropTypes.bool,
+    reviewComments: PropTypes.object.isRequired,
 };
 
 const AnalysisResultTile = connect(mapStateToProps, mapDispatchToProps)(ConnectedAnalysisResultTile);

@@ -75,12 +75,13 @@ class ConnectedArmSummaryMenu extends React.Component {
         let analysisResults = this.props.analysisResultDisplays.analysisResults;
         let resultDisplays = this.props.analysisResultDisplays.resultDisplays;
         let resultDisplayOids = [this.props.armSummaryMenuParams.resultDisplayOid];
-        const { commentOids, whereClauseOids, analysisResultOids } = getArmResultDisplayOids(resultDisplays, analysisResults, resultDisplayOids);
+        const { commentOids, whereClauseOids, analysisResultOids, reviewCommentOids } = getArmResultDisplayOids(resultDisplays, analysisResults, resultDisplayOids);
         let deleteObj = {
             resultDisplayOids,
             analysisResultOids,
             commentOids,
             whereClauseOids,
+            reviewCommentOids,
         };
         this.props.deleteResultDisplays(deleteObj);
         this.props.onClose();
