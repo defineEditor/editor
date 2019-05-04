@@ -23,6 +23,7 @@ import renderColumns from 'utils/renderColumns.js';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import Badge from '@material-ui/core/Badge';
 import IconButton from '@material-ui/core/IconButton';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
@@ -38,6 +39,7 @@ import AddResultDisplay from 'components/tableActions/addResultDisplay.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import getArmResultDisplayOids from 'utils/getArmResultDisplayOids.js';
+import { getReviewCommentCount } from 'utils/reviewCommentUtils.js';
 import {
     updateResultDisplay,
     deleteResultDisplays,
@@ -67,6 +69,7 @@ const mapStateToProps = state => {
         tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
         showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
         reviewMode: state.present.ui.main.reviewMode,
+        reviewComments: state.present.odm.reviewComments,
     };
 };
 
@@ -157,15 +160,29 @@ class ConnectedArmSummaryTable extends React.Component {
         let armSummaryMenuParams = {
             resultDisplayOid: row.oid,
         };
-        return (
-            <IconButton
-                onClick={this.handleMenuOpen(armSummaryMenuParams)}
-                className={this.props.classes.menuButton}
-                color='default'
-            >
-                <MoreVertIcon/>
-            </IconButton>
-        );
+        if (row.reviewCommentStats && row.reviewCommentStats.total > 0) {
+            return (
+                <IconButton
+                    onClick={this.handleMenuOpen(armSummaryMenuParams)}
+                    className={this.props.classes.menuButton}
+                    color='default'
+                >
+                    <Badge color='primary' badgeContent={row.reviewCommentStats.total}>
+                        <MoreVertIcon/>
+                    </Badge>
+                </IconButton>
+            );
+        } else {
+            return (
+                <IconButton
+                    onClick={this.handleMenuOpen(armSummaryMenuParams)}
+                    className={this.props.classes.menuButton}
+                    color='default'
+                >
+                    <MoreVertIcon/>
+                </IconButton>
+            );
+        }
     }
 
     handleMenuOpen = (armSummaryMenuParams) => (event) => {
@@ -311,6 +328,11 @@ class ConnectedArmSummaryTable extends React.Component {
                 description: { descriptions: resultDisplay.descriptions, documents: resultDisplay.documents },
                 leafs: this.props.leafs,
             };
+            // Review comments
+            if (resultDisplay.reviewCommentOids.length > 0) {
+                let total = getReviewCommentCount(resultDisplay.reviewCommentOids, this.props.reviewComments);
+                row.reviewCommentStats = { total };
+            }
             tableData[index] = row;
         });
 
@@ -386,6 +408,7 @@ ConnectedArmSummaryTable.propTypes = {
     stdConstants: PropTypes.object.isRequired,
     classes: PropTypes.object.isRequired,
     defineVersion: PropTypes.string.isRequired,
+    reviewComments: PropTypes.object.isRequired,
     reviewMode: PropTypes.bool,
 };
 ConnectedArmSummaryTable.displayName = 'ArmSummaryTable';

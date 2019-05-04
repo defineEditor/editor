@@ -343,16 +343,18 @@ const handleUpdatedLeafs = (state, action) => {
 };
 
 const addReviewComment = (state, action) => {
-    if (action.updateObj.sources.hasOwnProperty('analysisResults')) {
-        let analysisResultOid = action.updateObj.sources.analysisResults;
-        let newAnalysisResults = {
-            ...state.analysisResults,
-            [analysisResultOid]: {
-                ...state.analysisResults[analysisResultOid],
-                reviewCommentOids: state.analysisResults[analysisResultOid].reviewCommentOids.concat([action.updateObj.oid])
+    if (action.updateObj.sources.hasOwnProperty('analysisResults') || action.updateObj.sources.hasOwnProperty('resultDisplays')) {
+        // It is expected that only one source is possible when adding a review comment, that is why the 1st element is taken
+        let type = Object.keys(action.updateObj.sources)[0];
+        let oid = action.updateObj.sources[type];
+        let newType = {
+            ...state[type],
+            [oid]: {
+                ...state[type][oid],
+                reviewCommentOids: state[type][oid].reviewCommentOids.concat([action.updateObj.oid])
             }
         };
-        return { ...state, analysisResults: newAnalysisResults };
+        return { ...state, [type]: newType };
     } else {
         return state;
     }

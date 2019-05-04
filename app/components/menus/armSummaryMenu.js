@@ -25,6 +25,7 @@ import {
     deleteResultDisplays,
     selectGroup,
     updateCopyBuffer,
+    openModal,
 } from 'actions/index.js';
 
 // Redux functions
@@ -34,6 +35,7 @@ const mapDispatchToProps = dispatch => {
         deleteResultDisplays: (deleteObj) => dispatch(deleteResultDisplays(deleteObj)),
         selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
         updateCopyBuffer: (updateObj) => dispatch(updateCopyBuffer(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
@@ -65,6 +67,9 @@ class ConnectedArmSummaryMenu extends React.Component {
                 this.deleteResultDisplay();
             } else if (event.keyCode === 80 && !(this.props.reviewMode || (this.props.buffer === undefined))) {
                 this.paste(1)();
+            } else if (event.keyCode === 77) {
+                event.preventDefault();
+                this.openComments();
             } else if (event.keyCode === 86) {
                 this.editResultDisplayValues();
             }
@@ -141,6 +146,14 @@ class ConnectedArmSummaryMenu extends React.Component {
         this.props.onClose();
     }
 
+    openComments = () => {
+        this.props.openModal({
+            type: 'REVIEW_COMMENT',
+            props: { sources: { resultDisplays: [this.props.armSummaryMenuParams.resultDisplayOid] } }
+        });
+        this.props.onClose();
+    }
+
     render () {
         return (
             <React.Fragment>
@@ -184,6 +197,10 @@ class ConnectedArmSummaryMenu extends React.Component {
                         <u>P</u>aste Below
                     </MenuItem>
                     <Divider/>
+                    <MenuItem key='Comments' onClick={this.openComments}>
+                        Co<u>m</u>ments
+                    </MenuItem>
+                    <Divider/>
                     <MenuItem key='Delete' onClick={this.deleteResultDisplay} disabled={this.props.reviewMode}>
                         <u>D</u>elete
                     </MenuItem>
@@ -198,6 +215,8 @@ ConnectedArmSummaryMenu.propTypes = {
     analysisResultDisplays: PropTypes.object.isRequired,
     reviewMode: PropTypes.bool,
     onAddVariable: PropTypes.func.isRequired,
+    buffer: PropTypes.object,
+    openModal: PropTypes.func.isRequired,
 };
 
 const ArmSummaryMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedArmSummaryMenu);
