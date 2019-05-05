@@ -288,6 +288,7 @@ class CodeList extends BasicFunctions {
         codeListItems,
         itemOrder = [],
         descriptions = [],
+        reviewCommentOids = [],
         sources
     } = {}) {
         super();
@@ -330,6 +331,7 @@ class CodeList extends BasicFunctions {
                 itemDefs: []
             };
         }
+        this.reviewCommentOids = reviewCommentOids;
     }
     addEnumeratedItem (item) {
         let oid;
@@ -884,7 +886,7 @@ class ItemRef {
         roleCodeListOid,
         itemOid,
         hasNoData,
-        isNotStandatd,
+        isNonStandard,
         whereClauseOid
     } = {}) {
         this.mandatory = mandatory;
@@ -893,7 +895,7 @@ class ItemRef {
         this.roleCodeListOid = roleCodeListOid;
         this.itemOid = itemOid;
         this.whereClauseOid = whereClauseOid;
-        this.isNotStandard = isNotStandatd;
+        this.isNonStandard = isNonStandard; // 2.1
         this.hasNoData = hasNoData; // 2.1
         // Non-define XML properties
         this.oid = oid || getOid('ItemRef');

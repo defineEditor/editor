@@ -16,22 +16,27 @@ import electron from 'electron';
 import fs from 'fs';
 import createDefine from '../core/createDefine.js';
 import copyStylesheet from '../main/copyStylesheet.js';
+import writeDefineObject from '../main/writeDefineObject.js';
 
 // Create Define-XML
 const convertToDefineXml = (mainWindow, data, options) => (savePath) => {
     if (savePath !== undefined) {
-        let defineXml = createDefine(data.odm, data.odm.study.metaDataVersion.defineVersion);
-        fs.writeFile(savePath, defineXml, function (err) {
-            let stylesheetLocation = data.odm && data.odm.stylesheetLocation;
-            if (options.addStylesheet === true && stylesheetLocation) {
-                copyStylesheet(stylesheetLocation, savePath);
-            }
-            if (err) {
-                throw err;
-            } else {
-                mainWindow.webContents.send('fileSavedAs', savePath);
-            }
-        });
+        if (savePath.endsWith('nogz')) {
+            writeDefineObject(mainWindow, data, false, savePath);
+        } else {
+            let defineXml = createDefine(data.odm, data.odm.study.metaDataVersion.defineVersion);
+            fs.writeFile(savePath, defineXml, function (err) {
+                let stylesheetLocation = data.odm && data.odm.stylesheetLocation;
+                if (options.addStylesheet === true && stylesheetLocation) {
+                    copyStylesheet(stylesheetLocation, savePath);
+                }
+                if (err) {
+                    throw err;
+                } else {
+                    mainWindow.webContents.send('fileSavedAs', savePath);
+                }
+            });
+        }
     } else {
         mainWindow.webContents.send('fileSavedAs', '_cancelled_');
     }
@@ -42,7 +47,7 @@ function saveAs (mainWindow, data, options) {
         mainWindow,
         {
             title: 'Export Define-XML',
-            filters: [{ name: 'XML files', extensions: ['xml'] }],
+            filters: [{ name: 'XML files', extensions: ['xml'] }, { name: 'NOGZ files', extensions: ['nogz'] }],
             defaultPath: options.pathToLastFile,
         },
         convertToDefineXml(mainWindow, data, options));

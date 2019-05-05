@@ -23,12 +23,11 @@ import CardContent from '@material-ui/core/CardContent';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
-import Badge from '@material-ui/core/Badge';
 import AnalysisResultMenu from 'components/menus/analysisResultMenu.js';
 import AnalysisResultEditor from 'editors/analysisResultEditor.js';
 import AnalysisResultFormatter from 'formatters/analysisResultFormatter.js';
 import EditIcon from '@material-ui/icons/Edit';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import menuButton from 'components/menus/menuButton.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 import { getReviewCommentCount } from 'utils/reviewCommentUtils.js';
 import {
@@ -86,7 +85,7 @@ class ConnectedAnalysisResultTile extends React.Component {
         this.setState({ editMode: !this.state.editMode });
     };
 
-    handleMenuOpen = (event) => {
+    handleMenuOpen = () => (event) => {
         this.setState({ anchorEl: event.currentTarget });
     }
 
@@ -152,25 +151,11 @@ class ConnectedAnalysisResultTile extends React.Component {
                                             </IconButton>
                                         </Grid>
                                         <Grid item>
-                                            { reviewCommentStats && reviewCommentStats.total > 0 ? (
-                                                <IconButton
-                                                    onClick={this.handleMenuOpen}
-                                                    color='default'
-                                                    className={classes.icon}
-                                                >
-                                                    <Badge color='primary' badgeContent={reviewCommentStats.total}>
-                                                        <MoreVertIcon/>
-                                                    </Badge>
-                                                </IconButton>
-                                            ) : (
-                                                <IconButton
-                                                    onClick={this.handleMenuOpen}
-                                                    color='default'
-                                                    className={classes.icon}
-                                                >
-                                                    <MoreVertIcon/>
-                                                </IconButton>
-                                            )}
+                                            { menuButton({
+                                                reviewCommentStats,
+                                                params: {},
+                                                handleMenuOpen: this.handleMenuOpen
+                                            }) }
                                         </Grid>
                                     </Grid>
                                 </Grid>

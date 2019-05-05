@@ -346,7 +346,7 @@ const addReviewComment = (state, action) => {
     if (action.updateObj.sources.hasOwnProperty('analysisResults') || action.updateObj.sources.hasOwnProperty('resultDisplays')) {
         // It is expected that only one source is possible when adding a review comment, that is why the 1st element is taken
         let type = Object.keys(action.updateObj.sources)[0];
-        let oid = action.updateObj.sources[type];
+        let oid = action.updateObj.sources[type][0];
         let newType = {
             ...state[type],
             [oid]: {

@@ -21,11 +21,8 @@ import clone from 'clone';
 import deepEqual from 'fast-deep-equal';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import Badge from '@material-ui/core/Badge';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import IconButton from '@material-ui/core/IconButton';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import CommentEditor from 'editors/commentEditor.js';
 import InteractiveKeyOrderEditor from 'components/orderEditors/interactiveKeyOrderEditor.js';
@@ -45,6 +42,7 @@ import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import SelectColumns from 'utils/selectColumns.js';
 import ItemGroupMenu from 'components/menus/itemGroupMenu.js';
+import menuButton from 'components/menus/menuButton.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 import { getReviewCommentCount } from 'utils/reviewCommentUtils.js';
 import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
@@ -276,32 +274,11 @@ class ConnectedDatasetTable extends React.Component {
     }
 
     menuFormatter = (cell, row) => {
-        let itemGroupMenuParams = {
-            itemGroupOid: row.oid,
-        };
-        if (row.reviewCommentStats && row.reviewCommentStats.total > 0) {
-            return (
-                <IconButton
-                    onClick={this.handleMenuOpen(itemGroupMenuParams)}
-                    className={this.props.classes.menuButton}
-                    color='default'
-                >
-                    <Badge color='primary' badgeContent={row.reviewCommentStats.total}>
-                        <MoreVertIcon/>
-                    </Badge>
-                </IconButton>
-            );
-        } else {
-            return (
-                <IconButton
-                    onClick={this.handleMenuOpen(itemGroupMenuParams)}
-                    className={this.props.classes.menuButton}
-                    color='default'
-                >
-                    <MoreVertIcon/>
-                </IconButton>
-            );
-        }
+        return menuButton({
+            reviewCommentStats: row.reviewCommentStats,
+            params: { itemGroupOid: row.oid },
+            handleMenuOpen: this.handleMenuOpen
+        });
     }
 
     handleMenuOpen = (itemGroupMenuParams) => (event) => {

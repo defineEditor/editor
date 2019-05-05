@@ -22,12 +22,9 @@ import clone from 'clone';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import Badge from '@material-ui/core/Badge';
 import Fab from '@material-ui/core/Fab';
 import grey from '@material-ui/core/colors/grey';
 import indigo from '@material-ui/core/colors/indigo';
-import IconButton from '@material-ui/core/IconButton';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
@@ -60,6 +57,7 @@ import VariableCodeListFormatEditor from 'editors/variableCodeListFormatEditor.j
 import VariableCodeListFormatFormatter from 'formatters/variableCodeListFormatFormatter.js';
 import VariableNameLabelWhereClauseEditor from 'editors/variableNameLabelWhereClauseEditor.js';
 import VariableNameLabelWhereClauseFormatter from 'formatters/variableNameLabelWhereClauseFormatter.js';
+import menuButton from 'components/menus/menuButton.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 import {
     updateItemDef, updateItemRef, updateItemRefKeyOrder, updateItemCodeListDisplayFormat,
@@ -561,27 +559,11 @@ class ConnectedVariableTable extends React.Component {
             vlmLevel: row.vlmLevel,
             hasVlm: (row.valueList !== undefined),
         };
-        if (row.reviewCommentStats && row.reviewCommentStats.total > 0) {
-            return (
-                <IconButton
-                    onClick={this.handleMenuOpen(itemMenuParams)}
-                    color='default'
-                >
-                    <Badge color='primary' badgeContent={row.reviewCommentStats.total}>
-                        <MoreVertIcon/>
-                    </Badge>
-                </IconButton>
-            );
-        } else {
-            return (
-                <IconButton
-                    onClick={this.handleMenuOpen(itemMenuParams)}
-                    color='default'
-                >
-                    <MoreVertIcon/>
-                </IconButton>
-            );
-        }
+        return menuButton({
+            reviewCommentStats: row.reviewCommentStats,
+            params: itemMenuParams,
+            handleMenuOpen: this.handleMenuOpen
+        });
     }
 
     handleMenuOpen = (itemMenuParams) => (event) => {

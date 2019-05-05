@@ -409,7 +409,7 @@ const addItemGroups = (state, action) => {
 
 const addReviewComment = (state, action) => {
     if (action.updateObj.sources.hasOwnProperty('itemGroups')) {
-        let itemGroupOid = action.updateObj.sources.itemGroups;
+        let itemGroupOid = action.updateObj.sources.itemGroups[0];
         return { ...state, [itemGroupOid]: { ...state[itemGroupOid], reviewCommentOids: state[itemGroupOid].reviewCommentOids.concat([action.updateObj.oid]) } };
     } else {
         return state;

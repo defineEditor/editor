@@ -21,6 +21,7 @@ import {
     DEL_ITEMGROUPS,
     DEL_RESULTDISPLAY,
     DEL_ANALYSISRESULT,
+    DEL_CODELISTS,
 } from 'constants/action-types';
 import { ReviewComment } from 'core/mainStructure.js';
 const initialState = {};
@@ -190,6 +191,8 @@ const reviewComments = (state = initialState, action) => {
             return handleDeleteItems(state, action);
         case DEL_RESULTDISPLAY:
             return handleDeleteResultDisplays(state, action);
+        case DEL_CODELISTS:
+            return handleDeleteItems(state, action);
         default:
             return state;
     }

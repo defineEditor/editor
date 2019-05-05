@@ -73,7 +73,14 @@ class AddDefineFormStep1 extends React.Component {
     loadDefine = (event, data, pathToDefineXml) => {
         this.props.updateMainUi({ pathToLastFile: path.dirname(pathToDefineXml) });
         try {
-            let defineData = parseDefine(data);
+            let defineData;
+            if (pathToDefineXml.endsWith('nogz')) {
+                // NOGZ file
+                defineData = data;
+            } else {
+                // XML file
+                defineData = parseDefine(data);
+            }
             let checkResult = checkDefineXml(defineData);
             if (this.props.removeTrailingSpaces === true) {
                 removeTrailingSpaces(defineData);
@@ -122,7 +129,7 @@ class AddDefineFormStep1 extends React.Component {
                         >
                             <FormControlLabel value="new" control={<Radio color='primary'/>} label="Create a new Define-XML document"/>
                             <FormControlLabel value="copy" control={<Radio color='primary'/>} label="Copy Define-XML from another study"/>
-                            <FormControlLabel value="import" control={<Radio color='primary'/>} label="Import an existing Define-XML document"/>
+                            <FormControlLabel value="import" control={<Radio color='primary'/>} label="Import an existing Define-XML file"/>
                         </RadioGroup>
                         { this.state.defineCreationMethod === 'import' && (
                             <React.Fragment>

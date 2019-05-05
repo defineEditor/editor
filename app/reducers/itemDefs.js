@@ -410,7 +410,7 @@ const handleUpdatedLeafs = (state, action) => {
 
 const addReviewComment = (state, action) => {
     if (action.updateObj.sources.hasOwnProperty('itemDefs')) {
-        let itemOid = action.updateObj.sources.itemDefs;
+        let itemOid = action.updateObj.sources.itemDefs[0];
         return { ...state, [itemOid]: { ...state[itemOid], reviewCommentOids: state[itemOid].reviewCommentOids.concat([action.updateObj.oid]) } };
     } else {
         return state;

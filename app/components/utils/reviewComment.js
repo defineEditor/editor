@@ -26,8 +26,9 @@ import getOid from 'utils/getOid.js';
 
 const styles = theme => ({
     editorEdit: {
-        backgroundColor: '#FBFBFB',
+        backgroundColor: '#F2F3F5',
         marginTop: theme.spacing.unit * 2,
+        padding: theme.spacing.unit,
         borderRadius: '20px',
     },
     editorView: {
@@ -185,10 +186,14 @@ class ReviewCommentRaw extends React.Component {
         let createdAt = '';
         let modifiedAt = '';
         if (!initialComment) {
-            author = this.props.reviewComments[oid].author;
-            reviewCommentOids = this.props.reviewComments[oid].reviewCommentOids;
-            createdAt = this.props.reviewComments[oid].createdAt;
-            modifiedAt = this.props.reviewComments[oid].modifiedAt;
+            let reviewComment = this.props.reviewComments[oid];
+            if (reviewComment === undefined) {
+                return null;
+            }
+            author = reviewComment.author;
+            reviewCommentOids = reviewComment.reviewCommentOids;
+            createdAt = reviewComment.createdAt;
+            modifiedAt = reviewComment.modifiedAt;
             if (modifiedAt === 'Initial Reply') {
                 modifiedAt = '';
                 createdAt = '';

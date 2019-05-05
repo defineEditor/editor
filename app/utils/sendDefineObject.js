@@ -97,7 +97,8 @@ function sendDefineObject (event, data) {
     ) {
         // If define does not have pathToFile, use the save file as location of the Define-XML
         ipcRenderer.once('fileSavedAs', (event, savePath) => {
-            if (savePath !== '_cancelled_') {
+            // When file was saved as nogz or the save was cancelled do not update the pathToFile
+            if (savePath !== '_cancelled_' && !savePath.endsWith('nogz')) {
                 store.dispatch(updateDefine({ defineId: odm.defineId, properties: { pathToFile: savePath } }));
                 store.dispatch(updateMainUi({ pathToLastFile: path.dirname(savePath) }));
             }
@@ -120,7 +121,12 @@ function sendDefineObject (event, data) {
         odm.sourceSystemVersion = state.settings.define.sourceSystemVersion;
     }
 
-    ipcRenderer.send('saveAs', { odm }, { pathToLastFile, addStylesheet });
+    ipcRenderer.send('saveAs', {
+        defineId: state.odm.defineId,
+        odm: state.odm,
+        userName: state.settings.general.userName,
+        studyId: state.ui.main.currentStudyId,
+    }, { pathToLastFile, addStylesheet });
 }
 
 export default sendDefineObject;
