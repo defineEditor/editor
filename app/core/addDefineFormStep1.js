@@ -29,6 +29,7 @@ import path from 'path';
 import parseDefine from 'parsers/parseDefine.js';
 import checkDefineXml from 'utils/checkDefineXml.js';
 import removeTrailingSpaces from 'utils/removeTrailingSpaces.js';
+import recreateDefine from 'utils/recreateDefine.js';
 
 const styles = theme => ({
     button: {
@@ -75,8 +76,7 @@ class AddDefineFormStep1 extends React.Component {
         try {
             let defineData;
             if (pathToDefineXml.endsWith('nogz')) {
-                // NOGZ file
-                defineData = data;
+                defineData = recreateDefine(data.odm);
             } else {
                 // XML file
                 defineData = parseDefine(data);

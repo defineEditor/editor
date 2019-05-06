@@ -29,6 +29,8 @@ import { MetaDataVersion } from 'core/defineStructure.js';
 import {
     UPD_MDV,
     UPD_MODEL,
+    ADD_REVIEWCOMMENT,
+    DEL_REVIEWCOMMENT,
 } from 'constants/action-types';
 
 const initialState = new MetaDataVersion();
@@ -41,28 +43,56 @@ const updateModel = (state, action) => {
     return new MetaDataVersion({ ...state, ...action.updateObj.model });
 };
 
-const metaDataVersion = (state = { ...initialState }, action) => {
-    if (action.type === UPD_MDV) {
-        return updateMetaDataVersion(state, action);
-    } else if (action.type === UPD_MODEL) {
-        return updateModel(state, action);
+const addReviewComment = (state, action) => {
+    if (action.updateObj.sources.hasOwnProperty('metaDataVersion')) {
+        return { ...state, reviewCommentOids: state.reviewCommentOids.concat([action.updateObj.oid]) };
     } else {
-        return {
-            ...state,
-            standards: standards(state.standards, action),
-            whereClauses: whereClauses(state.whereClauses, action),
-            valueLists: valueLists(state.valueLists, action),
-            annotatedCrf: annotatedCrf(state.annotatedCrf, action),
-            supplementalDoc: supplementalDoc(state.supplementalDoc, action),
-            itemGroups: itemGroups(state.itemGroups, action),
-            itemDefs: itemDefs(state.itemDefs, action),
-            methods: methods(state.methods, action),
-            comments: comments(state.comments, action),
-            codeLists: codeLists(state.codeLists, action),
-            leafs: leafs(state.leafs, action),
-            analysisResultDisplays: analysisResultDisplays(state.analysisResultDisplays, action),
-            order: order(state.order, action),
-        };
+        return state;
+    }
+};
+
+const deleteReviewComment = (state, action) => {
+    if (action.deleteObj.sources.hasOwnProperty('metaDataVersion')) {
+        let newReviewCommentOids = state.reviewCommentOids.slice();
+        newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
+        return { ...state, reviewCommentOids: newReviewCommentOids };
+    } else {
+        return state;
+    }
+};
+
+const defaultAction = (state, action) => {
+    return {
+        ...state,
+        standards: standards(state.standards, action),
+        whereClauses: whereClauses(state.whereClauses, action),
+        valueLists: valueLists(state.valueLists, action),
+        annotatedCrf: annotatedCrf(state.annotatedCrf, action),
+        supplementalDoc: supplementalDoc(state.supplementalDoc, action),
+        itemGroups: itemGroups(state.itemGroups, action),
+        itemDefs: itemDefs(state.itemDefs, action),
+        methods: methods(state.methods, action),
+        comments: comments(state.comments, action),
+        codeLists: codeLists(state.codeLists, action),
+        leafs: leafs(state.leafs, action),
+        analysisResultDisplays: analysisResultDisplays(state.analysisResultDisplays, action),
+        order: order(state.order, action),
+    };
+};
+
+const metaDataVersion = (state = { ...initialState }, action) => {
+    switch (action.type) {
+        case UPD_MDV:
+            return updateMetaDataVersion(state, action);
+        case UPD_MODEL:
+            return updateModel(state, action);
+        case ADD_REVIEWCOMMENT:
+            return addReviewComment(defaultAction(state, action), action);
+        case DEL_REVIEWCOMMENT:
+            return deleteReviewComment(defaultAction(state, action), action);
+        default: {
+            return defaultAction(state, action);
+        }
     }
 };
 

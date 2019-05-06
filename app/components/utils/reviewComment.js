@@ -45,6 +45,7 @@ const styles = theme => ({
     root: {
         marginTop: theme.spacing.unit,
         marginBottom: theme.spacing.unit,
+        outline: 'none',
     }
 });
 
@@ -82,6 +83,23 @@ class ReviewCommentRaw extends React.Component {
             confirmDelete: false,
             editorState,
         };
+    }
+
+    onKeyDown = (event) => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            if (this.state.editMode && !(!this.state.editorState.getCurrentContent().hasText() && this.props.initialComment)) {
+                event.stopPropagation();
+                this.cancelEdit();
+            }
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            if (this.state.editMode && !this.props.initialComment) {
+                event.stopPropagation();
+                this.handleEditSave();
+            } else if (this.state.editMode && !(!this.state.editorState.getCurrentContent().hasText() && this.props.initialComment)) {
+                event.stopPropagation();
+                this.handleAddComment();
+            }
+        }
     }
 
     cancelEdit = (event) => {
@@ -201,7 +219,11 @@ class ReviewCommentRaw extends React.Component {
         }
 
         return (
-            <div className={classes.root}>
+            <div
+                className={classes.root}
+                onKeyDown={this.onKeyDown}
+                tabIndex='0'
+            >
                 <Card className={classes.card}>
                     <CardContent>
                         <Typography variant='subtitle2' color='primary' inline>

@@ -581,7 +581,8 @@ class MetaDataVersion extends BasicFunctions {
         analysisResultDisplays,
         annotatedCrf = {},
         supplementalDoc = {},
-        order = { itemGroupOrder: [], codeListOrder: [], leafOrder: [] }
+        order = { itemGroupOrder: [], codeListOrder: [], leafOrder: [] },
+        reviewCommentOids = [],
     } = {}) {
         super();
         this.oid = oid || getOid('MetaDataVersion');
@@ -619,6 +620,7 @@ class MetaDataVersion extends BasicFunctions {
         } else {
             this.lang = 'en';
         }
+        this.reviewCommentOids = reviewCommentOids;
     }
     addStandard (standard) {
         this.standards[standard.oid] = standard;
@@ -637,7 +639,7 @@ class Standard {
         version,
         status,
         isDefault,
-        commentOid
+        commentOid,
     } = {}) {
         this.oid = oid || getOid('Standard');
         this.name = name;
@@ -650,10 +652,12 @@ class Standard {
 }
 
 class GlobalVariables {
-    constructor ({ protocolName, studyName, studyDescription } = {}) {
+    constructor ({ protocolName, studyName, studyDescription, reviewCommentOids = [] } = {}) {
         this.protocolName = protocolName;
         this.studyName = studyName;
         this.studyDescription = studyDescription;
+        // Non-define XML properties
+        this.reviewCommentOids = reviewCommentOids;
     }
 }
 
@@ -692,6 +696,7 @@ class Odm {
         isSaved,
         actualData,
         reviewComments = {},
+        reviewCommentOids = [],
     } = {}) {
         this.schemaLocation = schemaLocation;
         this.odmVersion = odmVersion;
@@ -718,6 +723,7 @@ class Odm {
         this.defineId = defineId;
         this.actualData = actualData;
         this.reviewComments = reviewComments;
+        this.reviewCommentOids = reviewCommentOids;
     }
 }
 

@@ -45,6 +45,7 @@ function getTableDataAsText ({ source, datasetName, datasetOid, itemDefs, codeLi
                 lengthAsCodeList: originItemDef.lengthAsCodeList,
                 valueListOid: originItemDef.valueListOid,
                 hasVlm: originItemDef.valueListOid !== undefined ? 'Yes' : 'No',
+                hasReviewComment: originItemDef.reviewCommentOids.length > 0 ? 'Yes' : 'No',
             };
         }
         currentVar.hasDocument = 'No';

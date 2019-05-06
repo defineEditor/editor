@@ -56,6 +56,7 @@ const mapStateToProps = state => {
     return {
         reviewComments: state.present.odm.reviewComments,
         mdv: state.present.odm.study.metaDataVersion,
+        odm: state.present.odm,
         author: state.present.settings.general.userName,
     };
 };
@@ -100,6 +101,12 @@ class ConnectedModalReviewComments extends React.Component {
                 reviewCommentOids = this.props.mdv[type][sources[type][0]].reviewCommentOids;
             } else if (['analysisResults', 'resultDisplays'].includes(type)) {
                 reviewCommentOids = this.props.mdv.analysisResultDisplays[type][sources[type][0]].reviewCommentOids;
+            } else if (type === 'odm') {
+                reviewCommentOids = this.props.odm.reviewCommentOids;
+            } else if (type === 'globalVariables') {
+                reviewCommentOids = this.props.odm.study.globalVariables.reviewCommentOids;
+            } else if (type === 'metaDataVersion') {
+                reviewCommentOids = this.props.mdv.reviewCommentOids;
             }
         });
         return reviewCommentOids;
@@ -173,6 +180,7 @@ ConnectedModalReviewComments.propTypes = {
     author: PropTypes.string.isRequired,
     reviewComments: PropTypes.object.isRequired,
     mdv: PropTypes.object.isRequired,
+    odm: PropTypes.object.isRequired,
     sources: PropTypes.object.isRequired,
 };
 

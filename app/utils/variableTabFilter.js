@@ -132,6 +132,7 @@ const filterFields = {
     'parentItemDef': { label: 'Parent Variable', type: 'string' },
     'hasVlm': { label: 'Has VLM', type: 'flag' },
     'dataset': { label: 'Dataset', type: 'flag' },
+    'hasReviewComment': { label: 'Has Review Comment', type: 'flag' },
 };
 
 class ConnectedVariableTabFilter extends React.Component {

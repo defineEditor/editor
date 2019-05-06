@@ -46,7 +46,7 @@ function openDefineXml (mainWindow, pathToLastFile) {
         mainWindow,
         {
             title: 'Open Define-XML',
-            filters: [{ name: 'XML files', extensions: ['xml'] }, { name: 'NOGZ files', extensions: ['nogz'] }],
+            filters: [{ name: 'XML, NOGZ files', extensions: ['xml', 'nogz'] }],
             properties: ['openFile'],
             defaultPath: pathToLastFile,
         },

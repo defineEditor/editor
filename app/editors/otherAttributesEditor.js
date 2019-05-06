@@ -93,7 +93,7 @@ class OtherAttributesEditor extends React.Component {
         return (
             <Paper className={classes.root} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Typography variant="h5">
-                    Other Attributes
+                    Visual Define-XML Editor Attributes
                     <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
                 </Typography>
                 <Typography variant="caption">

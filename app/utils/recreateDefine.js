@@ -54,7 +54,7 @@ import {
 } from 'core/armStructure.js';
 
 const recreateDefine = (odm) => {
-    return { ...new Odm({ ...odm, globalVariables: recreateGlobalVariables(odm.globalVariables), study: recreateStudy(odm.study) }) };
+    return { ...new Odm({ ...odm, study: recreateStudy(odm.study) }) };
 };
 
 const recreateGlobalVariables = (data) => {
@@ -62,7 +62,11 @@ const recreateGlobalVariables = (data) => {
 };
 
 const recreateStudy = (data) => {
-    return { ...new Study({ ...data, metaDataVersion: recreateMetadataVersion(data.metaDataVersion) }) };
+    return { ...new Study({
+        ...data,
+        globalVariables: recreateGlobalVariables(data.globalVariables),
+        metaDataVersion: recreateMetadataVersion(data.metaDataVersion)
+    }) };
 };
 
 const recreateMetadataVersion = (data) => {
