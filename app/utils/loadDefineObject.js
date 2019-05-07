@@ -29,8 +29,9 @@ function loadDefineObject (event, data) {
         if (!data.odm.hasOwnProperty('reviewComments')) {
             data.odm.reviewComments = {};
         }
-        // Some of the versions require structure update. 4.0.1 - development version
-        if (data.info !== undefined && (data.info.appVersion < '1.0.0-beta.7' || ['4.0.1', '4.1.4', '4.1.5'].includes(data.info.appVersion))) {
+        // Some of the versions require structure update. 4+ - development version
+        // TODO - change > 4 to debug mode check
+        if (data.info !== undefined && (data.info.appVersion < '1.0.0-beta.8' || data.info.appVersion > '4')) {
             store.dispatch(addOdm(recreateDefine(data.odm)));
         } else {
             store.dispatch(addOdm(data.odm));
