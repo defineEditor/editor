@@ -15,7 +15,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { ActionCreators } from 'redux-undo';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -33,7 +32,6 @@ import { withStyles } from '@material-ui/core/styles';
 import {
     changeTab,
     toggleMainMenu,
-    openModal,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -60,8 +58,6 @@ const mapDispatchToProps = dispatch => {
     return {
         toggleMainMenu: () => dispatch(toggleMainMenu()),
         changeTab: (updateObj) => dispatch(changeTab(updateObj)),
-        openModal: updateObj => dispatch(openModal(updateObj)),
-        reset: () => { dispatch(ActionCreators.undo()); dispatch(ActionCreators.redo()); },
     };
 };
 
@@ -101,15 +97,6 @@ class ConnectedEditorTabs extends React.Component {
 
     componentWillUnmount () {
         window.removeEventListener('keydown', this.onKeyDown);
-    }
-
-    componentDidCatch (error, info) {
-        // Automatically undo/redo the last saved action
-        this.props.reset();
-        this.props.openModal({
-            type: 'BUG_REPORT',
-            props: { error, info }
-        });
     }
 
     handleChange = (event, value) => {
@@ -230,7 +217,6 @@ ConnectedEditorTabs.propTypes = {
     changeTab: PropTypes.func.isRequired,
     historyIndex: PropTypes.number.isRequired,
     lastSaveHistoryIndex: PropTypes.number.isRequired,
-    reset: PropTypes.func.isRequired,
 };
 
 const EditorTabs = connect(mapStateToProps, mapDispatchToProps)(ConnectedEditorTabs);

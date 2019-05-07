@@ -19,8 +19,11 @@ import {
     STUDY_DEL,
     DEFINE_DEL,
     UPD_ARMSTATUS,
+    ADD_REVIEWCOMMENT,
+    DEL_REVIEWCOMMENT,
 } from 'constants/action-types';
 import study from 'reducers/study.js';
+import reviewComments from 'reducers/reviewComments.js';
 
 const initialState = {};
 
@@ -60,6 +63,35 @@ const loadActualData = (state, action) => {
     return { ...state, actualData: action.updateObj.actualData };
 };
 
+const addReviewComment = (state, action) => {
+    if (action.updateObj.sources.hasOwnProperty('odm')) {
+        return { ...state, reviewCommentOids: state.reviewCommentOids.concat([action.updateObj.oid]) };
+    } else {
+        return state;
+    }
+};
+
+const deleteReviewComment = (state, action) => {
+    if (action.deleteObj.sources.hasOwnProperty('odm')) {
+        let newReviewCommentOids = state.reviewCommentOids.slice();
+        newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
+        return { ...state, reviewCommentOids: newReviewCommentOids };
+    } else {
+        return state;
+    }
+};
+
+const defaultAction = (state, action) => {
+    if (action.type !== undefined && /^(ADD|UPD|DEL|REP|INSERT)_.*/.test(action.type)) {
+        return { ...state,
+            study: study(state.study, action),
+            reviewComments: reviewComments(state.reviewComments, action),
+        };
+    } else {
+        return state;
+    }
+};
+
 const odm = (state = initialState, action) => {
     switch (action.type) {
         case ADD_ODM:
@@ -74,12 +106,12 @@ const odm = (state = initialState, action) => {
             return handleDefineDelete(state, action);
         case STUDY_DEL:
             return handleStudyDelete(state, action);
+        case ADD_REVIEWCOMMENT:
+            return addReviewComment(defaultAction(state, action), action);
+        case DEL_REVIEWCOMMENT:
+            return deleteReviewComment(defaultAction(state, action), action);
         default: {
-            if (action.type !== undefined && /^(ADD|UPD|DEL|REP|INSERT)_.*/.test(action.type)) {
-                return { ...state, study: study(state.study, action) };
-            } else {
-                return state;
-            }
+            return defaultAction(state, action);
         }
     }
 };

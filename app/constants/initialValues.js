@@ -108,7 +108,7 @@ const ui = {
 
 // Settings
 const general = {
-    userName: 'Winnie-the-Pooh',
+    userName: process.env.USERNAME || process.env.USER || process.env.user || process.env.username || 'Winnie-the-Pooh',
     controlledTerminologyLocation: '',
     alwaysSaveDefineXml: true,
     addStylesheet: true,
@@ -154,9 +154,9 @@ const defines = {
             'name': 'SDTM',
             'pathToFile': '',
             'stats': {
-                'datasets': '',
-                'codeLists': '',
-                'variables': ''
+                'datasets': 4,
+                'codeLists': 25,
+                'variables': 91,
             },
             'lastChanged': '2019-02-04T15:34:51.947Z'
         },

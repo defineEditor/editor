@@ -70,6 +70,9 @@ class ConnectedCodeListMenu extends React.Component {
                 this.deleteCodeList();
             } else if (event.keyCode === 80 && !(this.props.buffer === undefined)) {
                 this.paste(1)();
+            } else if (event.keyCode === 77) {
+                event.preventDefault();
+                this.openComments();
             } else if (event.keyCode === 86) {
                 this.editCodeListValues();
             }
@@ -112,16 +115,28 @@ class ConnectedCodeListMenu extends React.Component {
     deleteCodeList = () => {
         let codeLists = this.props.codeLists;
         let codeListOids = [this.props.codeListMenuParams.codeListOid];
-        // Get the list of ItemOIDs for which the codelists should be removed;
         let itemDefOids = [];
+        let reviewCommentOids = { codeLists: {} };
         codeListOids.forEach(codeListOid => {
+            // Get the list of ItemOIDs for which the codelists should be removed;
             codeLists[codeListOid].sources.itemDefs.forEach(itemDefOid => {
                 itemDefOids.push(itemDefOid);
             });
+            // Get review comments
+            codeLists[codeListOid].reviewCommentOids.forEach(rcOid => {
+                if (reviewCommentOids.codeLists[rcOid] === undefined) {
+                    reviewCommentOids.codeLists[rcOid] = [];
+                }
+                if (!reviewCommentOids.codeLists[rcOid].includes(codeListOid)) {
+                    reviewCommentOids.codeLists[rcOid].push(codeListOid);
+                }
+            });
         });
+
         let deleteObj = {
             codeListOids,
             itemDefOids,
+            reviewCommentOids,
         };
         // check if the prompt option is enabled and codelist being deleted are used by variables
         if (this.props.showDeleteCodeListWarning && itemDefOids.length !== 0) {
@@ -145,6 +160,14 @@ class ConnectedCodeListMenu extends React.Component {
         };
         this.props.onClose();
         this.props.selectGroup(updateObj);
+    }
+
+    openComments = () => {
+        this.props.openModal({
+            type: 'REVIEW_COMMENT',
+            props: { sources: { codeLists: [this.props.codeListMenuParams.codeListOid] } }
+        });
+        this.props.onClose();
     }
 
     render () {
@@ -181,6 +204,10 @@ class ConnectedCodeListMenu extends React.Component {
                     </MenuItem>
                     <MenuItem key='Paste Codelist Below' onClick={this.paste(1)} disabled={this.props.reviewMode || this.props.buffer === undefined}>
                         <u>P</u>aste Codelist Below
+                    </MenuItem>
+                    <Divider/>
+                    <MenuItem key='Comments' onClick={this.openComments}>
+                        Co<u>m</u>ments
                     </MenuItem>
                     <Divider/>
                     <MenuItem key='Delete' onClick={this.deleteCodeList} disabled={this.props.reviewMode}>

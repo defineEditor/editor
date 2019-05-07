@@ -25,8 +25,6 @@ import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 import grey from '@material-ui/core/colors/grey';
 import indigo from '@material-ui/core/colors/indigo';
-import IconButton from '@material-ui/core/IconButton';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
@@ -59,6 +57,7 @@ import VariableCodeListFormatEditor from 'editors/variableCodeListFormatEditor.j
 import VariableCodeListFormatFormatter from 'formatters/variableCodeListFormatFormatter.js';
 import VariableNameLabelWhereClauseEditor from 'editors/variableNameLabelWhereClauseEditor.js';
 import VariableNameLabelWhereClauseFormatter from 'formatters/variableNameLabelWhereClauseFormatter.js';
+import menuButton from 'components/menus/menuButton.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 import {
     updateItemDef, updateItemRef, updateItemRefKeyOrder, updateItemCodeListDisplayFormat,
@@ -122,6 +121,7 @@ const mapStateToProps = state => {
         reviewMode: state.present.ui.main.reviewMode,
         enableTablePagination: state.present.settings.editor.enableTablePagination,
         rowsPerPage: state.present.ui.main.rowsPerPage.variableTab,
+        reviewComments: state.present.odm.reviewComments,
     };
 };
 
@@ -512,6 +512,7 @@ class ConnectedVariableTable extends React.Component {
             mdv: mdv,
             defineVersion: this.props.defineVersion,
             vlmLevel: 0,
+            reviewComments: this.props.reviewComments,
             filteredOids,
             specialHighlightOids,
         });
@@ -558,14 +559,11 @@ class ConnectedVariableTable extends React.Component {
             vlmLevel: row.vlmLevel,
             hasVlm: (row.valueList !== undefined),
         };
-        return (
-            <IconButton
-                onClick={this.handleMenuOpen(itemMenuParams)}
-                color='default'
-            >
-                <MoreVertIcon/>
-            </IconButton>
-        );
+        return menuButton({
+            reviewCommentStats: row.reviewCommentStats,
+            params: itemMenuParams,
+            handleMenuOpen: this.handleMenuOpen
+        });
     }
 
     handleMenuOpen = (itemMenuParams) => (event) => {
@@ -1077,6 +1075,7 @@ ConnectedVariableTable.propTypes = {
     defineVersion: PropTypes.string.isRequired,
     dataTypes: PropTypes.array.isRequired,
     stdColumns: PropTypes.object.isRequired,
+    reviewComments: PropTypes.object.isRequired,
     tabSettings: PropTypes.object.isRequired,
     filter: PropTypes.object.isRequired,
     showRowSelect: PropTypes.bool,

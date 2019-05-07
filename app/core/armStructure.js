@@ -28,7 +28,7 @@ class AnalysisResultDisplays {
 
 class ResultDisplay extends BasicFunctions {
     constructor ({
-        oid, name, analysisResultOrder = [], descriptions = [], documents = [], analysisResults,
+        oid, name, analysisResultOrder = [], descriptions = [], documents = [], analysisResults, reviewCommentOids = [],
     } = {}) {
         super();
         this.oid = oid;
@@ -36,9 +36,11 @@ class ResultDisplay extends BasicFunctions {
         this.descriptions = descriptions;
         this.documents = documents;
         this.analysisResultOrder = analysisResultOrder;
+        // Non-Define-XML properties
         // analysisResults are normalized and stored all together in the root arm element.
         // It exists in this object for parsing/creation purposes
         this.analysisResults = analysisResults;
+        this.reviewCommentOids = reviewCommentOids;
     }
 }
 
@@ -46,6 +48,7 @@ class AnalysisResult extends BasicFunctions {
     constructor ({
         oid, parameterOid, analysisReason, analysisPurpose,
         descriptions = [], analysisDatasets = {}, analysisDatasetOrder = [], analysisDatasetsCommentOid, documentation, programmingCode,
+        reviewCommentOids = [],
     } = {}) {
         super();
         this.oid = oid;
@@ -58,6 +61,8 @@ class AnalysisResult extends BasicFunctions {
         this.analysisDatasetsCommentOid = analysisDatasetsCommentOid;
         this.documentation = documentation;
         this.programmingCode = programmingCode;
+        // Non-Define-XML properties
+        this.reviewCommentOids = reviewCommentOids;
     }
 }
 

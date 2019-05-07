@@ -21,9 +21,9 @@ import {
     openModal,
 } from 'actions/index.js';
 
-function saveDefineXml (odm, options, lastSaveHistoryIndex, onSaveFinished) {
+function saveDefineXml (data, options, lastSaveHistoryIndex, onSaveFinished) {
     // Get number of datasets/codelists/variables
-    let stats = getDefineStats(odm);
+    let stats = getDefineStats(data.odm);
     ipcRenderer.once('defineSaved', (event, defineId) => {
         store.dispatch(appSave({ defineId, stats, lastSaveHistoryIndex }));
 
@@ -31,7 +31,7 @@ function saveDefineXml (odm, options, lastSaveHistoryIndex, onSaveFinished) {
             onSaveFinished();
         }
     });
-    ipcRenderer.send('saveDefine', { odm }, options);
+    ipcRenderer.send('saveDefine', data, options);
 }
 
 function saveState (type, onSaveFinished) {
@@ -58,7 +58,17 @@ function saveState (type, onSaveFinished) {
                 let odm = stateToSave.odm;
                 if (alwaysSaveDefineXml === true && pathToFile !== '') {
                     ipcRenderer.once('writeDefineObjectFinished', (event) => {
-                        saveDefineXml(odm, { pathToFile, addStylesheet }, fullState.index, onSaveFinished);
+                        saveDefineXml(
+                            {
+                                odm,
+                                defineId,
+                                userName: stateToSave.settings.general.userName,
+                                studyId: stateToSave.ui.main.currentStudyId,
+                            },
+                            { pathToFile, addStylesheet },
+                            fullState.index,
+                            onSaveFinished
+                        );
                     });
                 } else {
                     if (alwaysSaveDefineXml === true && pathToFile === '') {

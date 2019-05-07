@@ -25,7 +25,14 @@ import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
 import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
 import GeneralOrderEditor from 'components/orderEditors/generalOrderEditor.js';
 import {
-    deleteVariables, addValueList, updateVlmItemRefOrder, insertVariable, insertValueLevel, updateCopyBuffer, addVariables,
+    deleteVariables,
+    addValueList,
+    updateVlmItemRefOrder,
+    insertVariable,
+    insertValueLevel,
+    updateCopyBuffer,
+    addVariables,
+    openModal,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -40,7 +47,8 @@ const mapDispatchToProps = dispatch => {
         insertVariable: (itemGroupOid, itemDefOid, orderNumber) => dispatch(insertVariable(itemGroupOid, itemDefOid, orderNumber)),
         insertValueLevel: (valueListOid, itemDefOid, parentItemDefOid, whereClauseOid, orderNumber) => dispatch(insertValueLevel(valueListOid, itemDefOid, parentItemDefOid, whereClauseOid, orderNumber)),
         updateCopyBuffer: (updateObj) => dispatch(updateCopyBuffer(updateObj)),
-        addVariables: (updateObj) => dispatch(addVariables(updateObj))
+        addVariables: (updateObj) => dispatch(addVariables(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
@@ -85,8 +93,8 @@ class ConnectedItemMenu extends React.Component {
             selectedVlmRows = { [this.props.itemMenuParams.itemGroupVLOid]: [this.props.itemMenuParams.itemRefOid] };
         }
         let deleteObj = getItemRefsRelatedOids(this.props.mdv, this.props.itemMenuParams.itemGroupVLOid, selectedRows, selectedVlmRows);
-        this.props.deleteVariables({ itemGroupOid: this.props.itemMenuParams.itemGroupVLOid }, deleteObj);
         this.props.onClose();
+        this.props.deleteVariables({ itemGroupOid: this.props.itemMenuParams.itemGroupVLOid }, deleteObj);
     }
 
     insertRecord = (shift) => () => {
@@ -209,6 +217,14 @@ class ConnectedItemMenu extends React.Component {
         this.props.onClose();
     }
 
+    openComments = () => {
+        this.props.openModal({
+            type: 'REVIEW_COMMENT',
+            props: { sources: { itemDefs: [this.props.itemMenuParams.oid] } }
+        });
+        this.props.onClose();
+    }
+
     onKeyDown = (event) => {
         // Run only when menu is opened
         if (Boolean(this.props.anchorEl) === true) {
@@ -222,6 +238,9 @@ class ConnectedItemMenu extends React.Component {
                 this.copy();
             } else if (event.keyCode === 68) {
                 this.deleteItem();
+            } else if (event.keyCode === 77) {
+                event.preventDefault();
+                this.openComments();
             } else if (event.keyCode === 80 &&
                 !(this.props.reviewMode || (this.props.buffer === undefined || this.props.buffer.vlmLevel !== this.props.itemMenuParams.vlmLevel))) {
                 this.paste(1)();
@@ -300,6 +319,10 @@ class ConnectedItemMenu extends React.Component {
                         )
                     ]}
                     <Divider/>
+                    <MenuItem key='Comments' onClick={this.openComments}>
+                        Co<u>m</u>ments
+                    </MenuItem>
+                    <Divider/>
                     { (!hasVlm && vlmLevel === 0) && (
                         <MenuItem key='AddVlm' onClick={this.addVlm} disabled={this.props.reviewMode}>
                             Add VLM
@@ -342,6 +365,14 @@ ConnectedItemMenu.propTypes = {
     anchorEl: PropTypes.object,
     onAddVariable: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
+    deleteVariables: PropTypes.func.isRequired,
+    addValueList: PropTypes.func.isRequired,
+    updateVlmItemRefOrder: PropTypes.func.isRequired,
+    insertVariable: PropTypes.func.isRequired,
+    insertValueLevel: PropTypes.func.isRequired,
+    updateCopyBuffer: PropTypes.func.isRequired,
+    addVariables: PropTypes.func.isRequired,
+    openModal: PropTypes.func.isRequired,
     reviewMode: PropTypes.bool,
     buffer: PropTypes.object,
 };

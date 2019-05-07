@@ -27,6 +27,8 @@ import {
     DEL_VARS,
     DEL_ITEMGROUPS,
     UPD_LEAFS,
+    ADD_REVIEWCOMMENT,
+    DEL_REVIEWCOMMENT,
 } from 'constants/action-types';
 import { AnalysisResultDisplays, ResultDisplay, AnalysisResult } from 'core/armStructure.js';
 import getOid from 'utils/getOid.js';
@@ -340,6 +342,38 @@ const handleUpdatedLeafs = (state, action) => {
     }
 };
 
+const addReviewComment = (state, action) => {
+    if (action.updateObj.sources.hasOwnProperty('analysisResults') || action.updateObj.sources.hasOwnProperty('resultDisplays')) {
+        // It is expected that only one source is possible when adding a review comment, that is why the 1st element is taken
+        let type = Object.keys(action.updateObj.sources)[0];
+        let oid = action.updateObj.sources[type][0];
+        let newType = {
+            ...state[type],
+            [oid]: {
+                ...state[type][oid],
+                reviewCommentOids: state[type][oid].reviewCommentOids.concat([action.updateObj.oid])
+            }
+        };
+        return { ...state, [type]: newType };
+    } else {
+        return state;
+    }
+};
+
+const deleteReviewComment = (state, action) => {
+    if (action.deleteObj.sources.hasOwnProperty('analysisResults')) {
+        let newAnalysisResults = { ...state.analysisResults };
+        action.deleteObj.sources.analysisResults.forEach(oid => {
+            let newReviewCommentOids = newAnalysisResults[oid].reviewCommentOids.slice();
+            newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
+            newAnalysisResults = { ...newAnalysisResults, [oid]: { ...newAnalysisResults[oid], reviewCommentOids: newReviewCommentOids } };
+        });
+        return { ...state, analysisResults: newAnalysisResults };
+    } else {
+        return state;
+    }
+};
+
 const analysisResultDisplays = (state = {}, action) => {
     switch (action.type) {
         case UPD_ARMSTATUS:
@@ -370,6 +404,10 @@ const analysisResultDisplays = (state = {}, action) => {
             return handleDeleteItemGroups(state, action);
         case UPD_LEAFS:
             return handleUpdatedLeafs(state, action);
+        case ADD_REVIEWCOMMENT:
+            return addReviewComment(state, action);
+        case DEL_REVIEWCOMMENT:
+            return deleteReviewComment(state, action);
         default:
             return state;
     }

@@ -13,7 +13,9 @@
 ***********************************************************************************/
 
 import {
-    UPD_GLOBALVARSSTOID
+    UPD_GLOBALVARSSTOID,
+    ADD_REVIEWCOMMENT,
+    DEL_REVIEWCOMMENT,
 } from 'constants/action-types';
 
 const initialState = {
@@ -33,10 +35,32 @@ const updateGlobalVariables = (state, action) => {
     return { ...state, ...newGlobalVariables };
 };
 
+const addReviewComment = (state, action) => {
+    if (action.updateObj.sources.hasOwnProperty('globalVariables')) {
+        return { ...state, reviewCommentOids: state.reviewCommentOids.concat([action.updateObj.oid]) };
+    } else {
+        return state;
+    }
+};
+
+const deleteReviewComment = (state, action) => {
+    if (action.deleteObj.sources.hasOwnProperty('globalVariables')) {
+        let newReviewCommentOids = state.reviewCommentOids.slice();
+        newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
+        return { ...state, reviewCommentOids: newReviewCommentOids };
+    } else {
+        return state;
+    }
+};
+
 const globalVariables = (state = initialState, action) => {
     switch (action.type) {
         case UPD_GLOBALVARSSTOID:
             return updateGlobalVariables(state, action);
+        case ADD_REVIEWCOMMENT:
+            return addReviewComment(state, action);
+        case DEL_REVIEWCOMMENT:
+            return deleteReviewComment(state, action);
         default:
             return state;
     }

@@ -22,12 +22,10 @@ import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
 import renderColumns from 'utils/renderColumns.js';
 import AddCodeList from 'components/tableActions/addCodeList.js';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
-import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
@@ -47,9 +45,11 @@ import CallMerge from '@material-ui/icons/CallMerge';
 import SelectColumns from 'utils/selectColumns.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import CodeListMenu from 'components/menus/codeListMenu.js';
+import menuButton from 'components/menus/menuButton.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
+import { getReviewCommentCount } from 'utils/reviewCommentUtils.js';
 import {
     updateCodeList,
     updateCodeListStandard,
@@ -108,6 +108,7 @@ const mapStateToProps = state => {
         showDeleteCodeListWarning: state.present.settings.popUp.onCodeListDelete,
         enableTablePagination: state.present.settings.editor.enableTablePagination,
         rowsPerPage: state.present.ui.main.rowsPerPage.codeListTab,
+        reviewComments: state.present.odm.reviewComments,
     };
 };
 
@@ -292,14 +293,11 @@ class ConnectedCodeListTable extends React.Component {
             codeListOid: row.oid,
             codeListType: row.codeListType,
         };
-        return (
-            <IconButton
-                onClick={this.handleMenuOpen(codeListMenuParams)}
-                color='default'
-            >
-                <MoreVertIcon/>
-            </IconButton>
-        );
+        return menuButton({
+            reviewCommentStats: row.reviewCommentStats,
+            params: codeListMenuParams,
+            handleMenuOpen: this.handleMenuOpen
+        });
     }
 
     handleMenuOpen = (codeListMenuParams) => (event) => {
@@ -457,16 +455,27 @@ class ConnectedCodeListTable extends React.Component {
     deleteRows = () => {
         let codeLists = this.props.codeLists;
         let codeListOids = this.state.selectedRows;
-        // Get the list of ItemOIDs for which the codelists should be removed;
         let itemDefOids = [];
+        let reviewCommentOids = { codeLists: {} };
         codeListOids.forEach(codeListOid => {
+            // Get the list of ItemOIDs for which the codelists should be removed;
             codeLists[codeListOid].sources.itemDefs.forEach(itemDefOid => {
                 itemDefOids.push(itemDefOid);
+            });
+            // Get review comments
+            codeLists[codeListOid].reviewCommentOids.forEach(rcOid => {
+                if (reviewCommentOids.codeLists[rcOid] === undefined) {
+                    reviewCommentOids.codeLists[rcOid] = [];
+                }
+                if (!reviewCommentOids.codeLists[rcOid].includes(codeListOid)) {
+                    reviewCommentOids.codeLists[rcOid].push(codeListOid);
+                }
             });
         });
         let deleteObj = {
             codeListOids,
             itemDefOids,
+            reviewCommentOids,
         };
         // check if the prompt option is enabled and codelist being deleted are used by variables
         if (this.props.showDeleteCodeListWarning && itemDefOids.length !== 0) {
@@ -578,6 +587,11 @@ class ConnectedCodeListTable extends React.Component {
                     currentCL.standardDescription = standard.name + ' ' + standard.publishingSet + ' ver. ' + standard.version;
                 } else {
                     currentCL.standardDescription = undefined;
+                }
+                // Review comments
+                if (originCL.reviewCommentOids.length > 0) {
+                    let total = getReviewCommentCount(originCL.reviewCommentOids, this.props.reviewComments);
+                    currentCL.reviewCommentStats = { total };
                 }
                 result[index] = currentCL;
             });
@@ -703,6 +717,7 @@ ConnectedCodeListTable.propTypes = {
     reviewMode: PropTypes.bool,
     updateMainUi: PropTypes.func.isRequired,
     changeTablePageDetails: PropTypes.func.isRequired,
+    reviewComments: PropTypes.object.isRequired,
     rowsPerPage: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.number

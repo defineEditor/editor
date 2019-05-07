@@ -70,8 +70,31 @@ class ControlledTerminology {
     }
 }
 
+class ReviewComment {
+    constructor ({
+        text, author, createdAt, modifiedAt, resolved = false, reviewCommentOids = [], sources = {},
+    } = {}) {
+        this.text = text;
+        this.author = author;
+        this.sources = sources;
+        this.resolved = resolved;
+        if (createdAt === undefined) {
+            this.createdAt = new Date().toJSON();
+        } else {
+            this.createdAt = createdAt;
+        }
+        if (modifiedAt === undefined) {
+            this.modifiedAt = this.createdAt;
+        } else {
+            this.modifiedAt = modifiedAt;
+        }
+        this.reviewCommentOids = reviewCommentOids;
+    }
+}
+
 module.exports = {
     Study,
     Define,
     ControlledTerminology,
+    ReviewComment,
 };

@@ -56,6 +56,7 @@ const mapStateToProps = state => {
         studies: state.present.studies,
         defines: state.present.defines,
         currentDefineId: state.present.ui.main.currentDefineId,
+        currentStudyId: state.present.ui.main.currentStudyId,
         isCurrentDefineSaved: state.present.ui.main.isCurrentDefineSaved,
     };
 };
@@ -107,6 +108,7 @@ class ConnectedStudies extends React.Component {
                             study={study}
                             defines={this.props.defines}
                             currentDefineId={this.props.currentDefineId}
+                            currentStudyId={this.props.currentStudyId}
                             isCurrentDefineSaved={this.props.isCurrentDefineSaved}
                         />
                     </GridListTile>
@@ -165,7 +167,8 @@ ConnectedStudies.propTypes = {
     studies: PropTypes.object.isRequired,
     defines: PropTypes.object.isRequired,
     width: PropTypes.string.isRequired,
-    currentDefineId: PropTypes.string.isRequired,
+    currentDefineId: PropTypes.string,
+    currentStudyId: PropTypes.string,
     addStudy: PropTypes.func.isRequired
 };
 
