@@ -23,8 +23,6 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import IconButton from '@material-ui/core/IconButton';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import CommentEditor from 'editors/commentEditor.js';
 import InteractiveKeyOrderEditor from 'components/orderEditors/interactiveKeyOrderEditor.js';
@@ -44,7 +42,9 @@ import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import SelectColumns from 'utils/selectColumns.js';
 import ItemGroupMenu from 'components/menus/itemGroupMenu.js';
+import menuButton from 'components/menus/menuButton.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
+import { getReviewCommentCount } from 'utils/reviewCommentUtils.js';
 import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {
     updateItemGroup,
@@ -86,6 +86,7 @@ const mapStateToProps = state => {
         tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
         showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
         reviewMode: state.present.ui.main.reviewMode,
+        reviewComments: state.present.odm.reviewComments,
     };
 };
 
@@ -273,18 +274,11 @@ class ConnectedDatasetTable extends React.Component {
     }
 
     menuFormatter = (cell, row) => {
-        let itemGroupMenuParams = {
-            itemGroupOid: row.oid,
-        };
-        return (
-            <IconButton
-                onClick={this.handleMenuOpen(itemGroupMenuParams)}
-                className={this.props.classes.menuButton}
-                color='default'
-            >
-                <MoreVertIcon/>
-            </IconButton>
-        );
+        return menuButton({
+            reviewCommentStats: row.reviewCommentStats,
+            params: { itemGroupOid: row.oid },
+            handleMenuOpen: this.handleMenuOpen
+        });
     }
 
     handleMenuOpen = (itemGroupMenuParams) => (event) => {
@@ -452,6 +446,12 @@ class ConnectedDatasetTable extends React.Component {
             currentDs.keys = originDs.keyOrder.map(keyOid => {
                 return this.props.itemDefs[originDs.itemRefs[keyOid].itemOid].name;
             }).join(', ');
+
+            // Review comments
+            if (originDs.reviewCommentOids.length > 0) {
+                let total = getReviewCommentCount(originDs.reviewCommentOids, this.props.reviewComments);
+                currentDs.reviewCommentStats = { total };
+            }
             datasets[index] = currentDs;
         });
 
@@ -534,6 +534,7 @@ ConnectedDatasetTable.propTypes = {
     leafs: PropTypes.object.isRequired,
     tabs: PropTypes.object.isRequired,
     classTypes: PropTypes.object.isRequired,
+    reviewComments: PropTypes.object.isRequired,
     reviewMode: PropTypes.bool,
     showRowSelect: PropTypes.bool,
 };

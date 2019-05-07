@@ -15,6 +15,7 @@
 import { ipcRenderer } from 'electron';
 import store from 'store/index.js';
 import { ActionCreators } from 'redux-undo';
+import recreateDefine from 'utils/recreateDefine.js';
 import {
     addOdm,
     loadTabs,
@@ -24,7 +25,16 @@ import {
 function loadDefineObject (event, data) {
     if (data.hasOwnProperty('odm')) {
         // Load the ODM
-        store.dispatch(addOdm(data.odm));
+        // If review comments are not present, add default value
+        if (!data.odm.hasOwnProperty('reviewComments')) {
+            data.odm.reviewComments = {};
+        }
+        // Some of the versions require structure update. 4.0.1 - development version
+        if (data.info !== undefined && (data.info.appVersion < '1.0.0-beta.7' || ['4.0.1', '4.1.4', '4.1.5'].includes(data.info.appVersion))) {
+            store.dispatch(addOdm(recreateDefine(data.odm)));
+        } else {
+            store.dispatch(addOdm(data.odm));
+        }
         let ctToLoad = {};
         // Check which CTs are needed
         let currentState = store.getState().present;

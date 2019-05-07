@@ -31,6 +31,7 @@ function getOid (type, suffix, existingOids = []) {
         Define: 'NG.DEF.',
         ResultDisplay: 'RD.',
         AnalysisResult: 'AR.',
+        ReviewComment: 'RC.',
     };
     if (suffix !== undefined) {
         oid = prefix[type] + suffix;

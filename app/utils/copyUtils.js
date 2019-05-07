@@ -88,10 +88,12 @@ const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, par
             sources = { itemGroups: [currentGroup.oid], valueLists: [] };
         }
         processedItemDefs[itemRef.itemOid] = newItemDefOid;
+        // Review Comments are always removed from the copied variable, as the reference in the comment is to the old variable
         itemDefs[newItemDefOid] = { ...new ItemDef({
             ...clone(sourceMdv.itemDefs[itemRef.itemOid]),
             oid: newItemDefOid,
             parentItemDefOid,
+            reviewCommentOids: [],
             sources })
         };
         // Check if VLM is attached
@@ -534,7 +536,12 @@ const copyItemGroups = ({
         } else {
             itemRefsToCopy = Object.keys(sourceGroup.itemRefs);
         }
-        let currentGroup = { ...new ItemGroup({ ...sourceGroup, oid: itemGroupOid, purpose: purpose || sourceGroup.purpose }) };
+        let currentGroup = { ...new ItemGroup({
+            ...sourceGroup,
+            oid: itemGroupOid,
+            purpose: purpose || sourceGroup.purpose,
+            reviewCommentOids: [],
+        }) };
         // Copy itemGroup comment if it exists
         if (currentGroup.commentOid !== undefined) {
             let { newCommentOid, comment, duplicateFound } = copyComment({

@@ -108,7 +108,7 @@ const ui = {
 
 // Settings
 const general = {
-    userName: 'Winnie-the-Pooh',
+    userName: process.env.USERNAME || process.env.USER || process.env.user || process.env.username || 'Winnie-the-Pooh',
     controlledTerminologyLocation: '',
     alwaysSaveDefineXml: true,
     addStylesheet: true,

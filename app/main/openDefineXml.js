@@ -12,9 +12,9 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-const electron = require('electron');
-const dialog = electron.dialog;
-const readXml = require('../utils/readXml.js');
+import electron from 'electron';
+import readXml from '../utils/readXml.js';
+import loadDefineObject from './loadDefineObject.js';
 
 function sendToRender (mainWindow, pathToDefineXml) {
     return function (data) {
@@ -30,19 +30,23 @@ function sendErrorToRender (mainWindow) {
 
 const readDefineXml = (mainWindow) => (pathToDefineXml) => {
     if (pathToDefineXml !== undefined && pathToDefineXml.length > 0) {
-        let xml = Promise.resolve(readXml(pathToDefineXml[0]));
-        xml
-            .then(sendToRender(mainWindow, pathToDefineXml[0]))
-            .catch(sendErrorToRender(mainWindow));
+        if (pathToDefineXml[0].endsWith('nogz')) {
+            loadDefineObject(mainWindow, undefined, '', pathToDefineXml[0]);
+        } else {
+            let xml = Promise.resolve(readXml(pathToDefineXml[0]));
+            xml
+                .then(sendToRender(mainWindow, pathToDefineXml[0]))
+                .catch(sendErrorToRender(mainWindow));
+        }
     }
 };
 
 function openDefineXml (mainWindow, pathToLastFile) {
-    dialog.showOpenDialog(
+    electron.dialog.showOpenDialog(
         mainWindow,
         {
             title: 'Open Define-XML',
-            filters: [{ name: 'XML files', extensions: ['xml'] }],
+            filters: [{ name: 'XML, NOGZ files', extensions: ['xml', 'nogz'] }],
             properties: ['openFile'],
             defaultPath: pathToLastFile,
         },

@@ -63,11 +63,13 @@ const mapStateToProps = state => {
     if (currentPage === 'editor' && tabs.hasOwnProperty('tabNames') && tabs.tabNames.hasOwnProperty(tabs.currentTab)) {
         disableFindToggle = ['Variables', 'Codelists', 'Coded Values'].includes(tabs.tabNames[tabs.currentTab]);
     }
+    let bugModalOpened = state.present.ui && state.present.ui.modal && state.present.ui.modal.type === 'BUG_REPORT';
     return {
         currentPage,
         showInitialMessage: state.present.settings.popUp.onStartUp,
         disableFindToggle,
         sampleStudyCopied: state.present.ui.main.sampleStudyCopied,
+        bugModalOpened,
     };
 };
 
@@ -108,6 +110,13 @@ class ConnectedApp extends Component {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
+    componentDidCatch (error, info) {
+        this.props.openModal({
+            type: 'BUG_REPORT',
+            props: { error, info }
+        });
+    }
+
     onKeyDown = (event) => {
         if (event.ctrlKey && event.keyCode === 72 && this.props.currentPage === 'editor') {
             this.toggleRedoUndo();
@@ -142,6 +151,13 @@ class ConnectedApp extends Component {
     }
 
     render () {
+        if (this.props.bugModalOpened) {
+            return (
+                <MuiThemeProvider theme={theme}>
+                    <ModalRoot />
+                </MuiThemeProvider>
+            );
+        }
         return (
             <MuiThemeProvider theme={theme}>
                 <MainMenu
@@ -167,6 +183,8 @@ ConnectedApp.propTypes = {
     currentPage: PropTypes.string.isRequired,
     showInitialMessage: PropTypes.bool.isRequired,
     disableFindToggle: PropTypes.bool.isRequired,
+    reset: PropTypes.func.isRequired,
+    bugModalOpened: PropTypes.bool,
 };
 
 const App = connect(mapStateToProps, mapDispatchToProps)(ConnectedApp);

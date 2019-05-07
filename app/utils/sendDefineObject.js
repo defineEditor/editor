@@ -120,7 +120,12 @@ function sendDefineObject (event, data) {
         odm.sourceSystemVersion = state.settings.define.sourceSystemVersion;
     }
 
-    ipcRenderer.send('saveAs', { odm }, { pathToLastFile, addStylesheet });
+    ipcRenderer.send('saveAs', {
+        defineId: state.odm.defineId,
+        odm: state.odm,
+        userName: state.settings.general.userName,
+        studyId: state.ui.main.currentStudyId,
+    }, { pathToLastFile, addStylesheet });
 }
 
 export default sendDefineObject;

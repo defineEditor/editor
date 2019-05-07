@@ -29,12 +29,28 @@ function getItemGroupsRelatedOids (mdv, itemGroupOids) {
             }
         }
     });
+
+    let reviewCommentOids = {};
+    itemGroupOids.forEach(itemGroupOid => {
+        let rcOids = itemGroups[itemGroupOid].reviewCommentOids;
+        if (rcOids !== undefined && rcOids.length > 0) {
+            rcOids.forEach(rcOid => {
+                if (reviewCommentOids[rcOid] === undefined) {
+                    reviewCommentOids[rcOid] = [];
+                }
+                if (!reviewCommentOids[rcOid].includes(itemGroupOid)) {
+                    reviewCommentOids[rcOid].push(itemGroupOid);
+                }
+            });
+        }
+    });
+
     // Form an object of variables and all related objects to remove
     let itemGroupData = {};
     let commentCandidateOids = {};
     itemGroupOids.forEach(itemGroupOid => {
         itemGroupData[itemGroupOid] = getItemRefsRelatedOids(mdv, itemGroupOid, itemGroups[itemGroupOid].itemRefOrder, {});
-        // Unit all candidates for further analysis
+        // Unite all candidates for further analysis
         commentCandidateOids = { ...commentCandidateOids, ...itemGroupData[itemGroupOid].commentCandidateOids };
         delete itemGroupData[itemGroupOid].commentCandidateOids;
     });
@@ -70,6 +86,7 @@ function getItemGroupsRelatedOids (mdv, itemGroupOids) {
     return {
         itemGroupOids,
         commentOids,
+        reviewCommentOids,
         itemGroupData
     };
 }

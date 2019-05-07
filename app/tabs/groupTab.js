@@ -153,7 +153,7 @@ class ConnectedGroupTab extends React.Component {
     }
 
     onKeyDown = (event) => {
-        if (event.ctrlKey && (event.keyCode === 192 || event.keyCode === 66)) {
+        if (event.ctrlKey && event.keyCode === 192) {
             this.toggleDrawer();
         }
     }
