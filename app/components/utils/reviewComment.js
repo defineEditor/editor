@@ -205,9 +205,6 @@ class ReviewCommentRaw extends React.Component {
         let modifiedAt = '';
         if (!initialComment) {
             let reviewComment = this.props.reviewComments[oid];
-            if (reviewComment === undefined) {
-                return null;
-            }
             author = reviewComment.author;
             reviewCommentOids = reviewComment.reviewCommentOids;
             createdAt = reviewComment.createdAt;

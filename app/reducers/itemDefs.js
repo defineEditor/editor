@@ -119,9 +119,20 @@ const deleteVariables = (state, action) => {
             delete newState[itemDefOid];
         } else if (state[itemDefOid].sources.itemGroups.includes(action.source.itemGroupOid)) {
             // Delete the dataset from the sources
+            // TODO: Currently review comments are always removed, as in case a variable is removed, review comment is removed as well
+            // TODO: Implement better review comment handling in the future
             let newSourcesForType = state[itemDefOid].sources.itemGroups.slice();
             newSourcesForType.splice(newSourcesForType.indexOf(action.source.itemGroupOid), 1);
-            newState = { ...newState, [itemDefOid]: { ...new ItemDef({ ...state[itemDefOid], sources: { ...state[itemDefOid].sources, itemGroups: newSourcesForType } }) } };
+            newState = {
+                ...newState,
+                [itemDefOid]: {
+                    ...new ItemDef({
+                        ...state[itemDefOid],
+                        reviewCommentOids: [],
+                        sources: { ...state[itemDefOid].sources, itemGroups: newSourcesForType }
+                    })
+                }
+            };
         }
     });
     // Remove value levels
@@ -136,11 +147,14 @@ const deleteVariables = (state, action) => {
                     delete newState[itemDefOid];
                 } else if (state[itemDefOid].sources.valueLists.includes(valueListOid)) {
                     // Delete the dataset from the sources
+                    // TODO: Currently review comments are always removed, as in case a variable is removed, review comment is removed as well
+                    // TODO: Implement better review comment handling in the future
                     let newSourcesForType = state[itemDefOid].sources.valueLists.slice();
                     newSourcesForType.splice(newSourcesForType.indexOf(valueListOid), 1);
                     newState = {
                         ...newState,
                         [itemDefOid]: { ...new ItemDef({ ...state[itemDefOid],
+                            reviewCommentOids: [],
                             sources: { ...state[itemDefOid].sources, valueLists: newSourcesForType }
                         }) }
                     };
