@@ -113,18 +113,20 @@ class ConnectedModalReviewComments extends React.Component {
     }
 
     getComments = (sources) => {
-        return this.getCommentOids(sources).map(oid => (
-            <ReviewComment
-                oid={oid}
-                key={oid}
-                sources={sources}
-                author={this.props.author}
-                reviewComments={this.props.reviewComments}
-                onUpdate={this.props.updateReviewComment}
-                onDelete={this.props.deleteReviewComment}
-                onReply={this.props.addReplyComment}
-            />
-        ));
+        return this.getCommentOids(sources)
+            .filter(oid => (this.props.reviewComments.hasOwnProperty(oid)))
+            .map(oid => (
+                <ReviewComment
+                    oid={oid}
+                    key={oid}
+                    sources={sources}
+                    author={this.props.author}
+                    reviewComments={this.props.reviewComments}
+                    onUpdate={this.props.updateReviewComment}
+                    onDelete={this.props.deleteReviewComment}
+                    onReply={this.props.addReplyComment}
+                />
+            ));
     }
 
     render () {
