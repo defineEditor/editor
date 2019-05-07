@@ -38,7 +38,7 @@ class GlobalVariablesFormatter extends React.Component {
             <Paper className={classes.globalVariables} elevation={4}>
                 <Typography variant="h5">
                     Global Variables and Study OID
-                    <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
+                    <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} type='globalVariables'/>
                 </Typography>
                 <List>
                     <ListItem>

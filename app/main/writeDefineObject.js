@@ -17,13 +17,19 @@ import Jszip from 'jszip';
 import path from 'path';
 import { app } from 'electron';
 
-function writeDefineObject (mainWindow, defineObject, backupFlag) {
-    let pathToDefines = path.join(app.getPath('userData'), 'defines');
+function writeDefineObject (mainWindow, defineObject, backupFlag, pathToFile, onSaveCallback) {
+    let pathToDefines;
     let outputFile;
-    if (backupFlag === true) {
-        outputFile = path.join(pathToDefines, 'backup.nogz');
+    if (pathToFile === undefined) {
+        pathToDefines = path.join(app.getPath('userData'), 'defines');
+        if (backupFlag === true) {
+            outputFile = path.join(pathToDefines, 'backup.nogz');
+        } else {
+            outputFile = path.join(pathToDefines, defineObject.defineId + '.nogz');
+        }
     } else {
-        outputFile = path.join(pathToDefines, defineObject.defineId + '.nogz');
+        pathToDefines = path.dirname(pathToFile);
+        outputFile = pathToFile;
     }
 
     let zip = new Jszip();
@@ -52,7 +58,17 @@ function writeDefineObject (mainWindow, defineObject, backupFlag) {
                 compression: 'DEFLATE'
             })
             .pipe(fs.createWriteStream(outputFile))
-            .once('finish', () => { mainWindow.webContents.send('writeDefineObjectFinished', defineObject.defineId); });
+            .once('finish', () => {
+                if (pathToFile) {
+                    // File is saved using Save As or Save functionality
+                    if (onSaveCallback !== undefined) {
+                        onSaveCallback();
+                    }
+                } else {
+                    // File is written to internal storage
+                    mainWindow.webContents.send('writeDefineObjectFinished', defineObject.defineId);
+                }
+            });
     }
 
     fs.mkdir(pathToDefines, function (err) {

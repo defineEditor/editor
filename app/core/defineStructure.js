@@ -288,6 +288,7 @@ class CodeList extends BasicFunctions {
         codeListItems,
         itemOrder = [],
         descriptions = [],
+        reviewCommentOids = [],
         sources
     } = {}) {
         super();
@@ -330,6 +331,7 @@ class CodeList extends BasicFunctions {
                 itemDefs: []
             };
         }
+        this.reviewCommentOids = reviewCommentOids;
     }
     addEnumeratedItem (item) {
         let oid;
@@ -579,7 +581,8 @@ class MetaDataVersion extends BasicFunctions {
         analysisResultDisplays,
         annotatedCrf = {},
         supplementalDoc = {},
-        order = { itemGroupOrder: [], codeListOrder: [], leafOrder: [] }
+        order = { itemGroupOrder: [], codeListOrder: [], leafOrder: [] },
+        reviewCommentOids = [],
     } = {}) {
         super();
         this.oid = oid || getOid('MetaDataVersion');
@@ -617,6 +620,7 @@ class MetaDataVersion extends BasicFunctions {
         } else {
             this.lang = 'en';
         }
+        this.reviewCommentOids = reviewCommentOids;
     }
     addStandard (standard) {
         this.standards[standard.oid] = standard;
@@ -635,7 +639,7 @@ class Standard {
         version,
         status,
         isDefault,
-        commentOid
+        commentOid,
     } = {}) {
         this.oid = oid || getOid('Standard');
         this.name = name;
@@ -648,10 +652,12 @@ class Standard {
 }
 
 class GlobalVariables {
-    constructor ({ protocolName, studyName, studyDescription } = {}) {
+    constructor ({ protocolName, studyName, studyDescription, reviewCommentOids = [] } = {}) {
         this.protocolName = protocolName;
         this.studyName = studyName;
         this.studyDescription = studyDescription;
+        // Non-define XML properties
+        this.reviewCommentOids = reviewCommentOids;
     }
 }
 
@@ -689,6 +695,8 @@ class Odm {
         defineId,
         isSaved,
         actualData,
+        reviewComments = {},
+        reviewCommentOids = [],
     } = {}) {
         this.schemaLocation = schemaLocation;
         this.odmVersion = odmVersion;
@@ -714,6 +722,8 @@ class Odm {
         this.stylesheetLocation = stylesheetLocation;
         this.defineId = defineId;
         this.actualData = actualData;
+        this.reviewComments = reviewComments;
+        this.reviewCommentOids = reviewCommentOids;
     }
 }
 
@@ -738,7 +748,8 @@ class ItemGroup extends BasicFunctions {
         descriptions = [],
         itemRefs = {},
         itemRefOrder = [],
-        keyOrder = []
+        keyOrder = [],
+        reviewCommentOids = [],
     } = {}) {
         super();
         this.oid = oid || getOid('ItemGroup');
@@ -765,6 +776,8 @@ class ItemGroup extends BasicFunctions {
         } else {
             this.leaf = new Leaf();
         }
+        // Non-define XML properties
+        this.reviewCommentOids = reviewCommentOids;
     }
     addItemRef (oid, itemRef) {
         this.itemRefs[oid] = itemRef;
@@ -825,7 +838,8 @@ class ItemDef extends BasicFunctions {
         parentItemDefOid,
         origins = [],
         descriptions = [],
-        sources
+        sources,
+        reviewCommentOids = [],
     } = {}) {
         super();
         this.oid = oid || getOid('ItemDef');
@@ -843,6 +857,8 @@ class ItemDef extends BasicFunctions {
         // Non-define XML properties
         // Parent Item for VLM records
         this.parentItemDefOid = parentItemDefOid;
+        // Review Comments
+        this.reviewCommentOids = reviewCommentOids;
         // Programming Note
         if (note === undefined) {
             this.note = note;
@@ -876,7 +892,7 @@ class ItemRef {
         roleCodeListOid,
         itemOid,
         hasNoData,
-        isNotStandatd,
+        isNonStandard,
         whereClauseOid
     } = {}) {
         this.mandatory = mandatory;
@@ -885,7 +901,7 @@ class ItemRef {
         this.roleCodeListOid = roleCodeListOid;
         this.itemOid = itemOid;
         this.whereClauseOid = whereClauseOid;
-        this.isNotStandard = isNotStandatd;
+        this.isNonStandard = isNonStandard; // 2.1
         this.hasNoData = hasNoData; // 2.1
         // Non-define XML properties
         this.oid = oid || getOid('ItemRef');

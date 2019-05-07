@@ -17,6 +17,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import { shell, remote } from 'electron';
+import { ActionCreators } from 'redux-undo';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
@@ -59,6 +60,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         closeModal: () => dispatch(closeModal()),
+        undo: () => { dispatch(ActionCreators.undo()); },
+        reset: () => { dispatch(ActionCreators.undo()); dispatch(ActionCreators.redo()); },
     };
 };
 
@@ -72,6 +75,7 @@ class ConnectedModalBugReport extends React.Component {
 
     onClose = () => {
         this.props.closeModal();
+        this.props.reset();
     }
 
     openLink = (event) => {
@@ -128,12 +132,13 @@ class ConnectedModalBugReport extends React.Component {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        The application has just crashed and the state was reset to the last saved action ({actionLabel}).<br/>
-                        It will be appreciated if you report this bug by sending an&nbsp;
+                        Something went wrong. It is suggested to go back to the last saved state (action: {actionLabel}).<br/>
+                        If this did not fix the issue, undo the last change.<br/>
+                        To help us fix it, you can report this bug by sending an&nbsp;
                         <a onClick={this.openLink} href={mailLink}>
                             email.
                         </a>
-                        &nbsp; Please include a short description of your actions which led to this issue.<br/>
+                        &nbsp; A short description of your actions which led to this issue will help to resolve it.<br/>
                         If you have imported a Define-XML file created outside, please validate it as most bugs are caused by incorrect Define-XML files.
                         There may be some structure errors in it, which are causing the application to fail.
                         If you still see a white screen, then undo the last change using the Session History functionality (CTRL + H)
@@ -148,8 +153,11 @@ class ConnectedModalBugReport extends React.Component {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
+                    <Button onClick={this.props.undo} color="primary">
+                        Undo last change
+                    </Button>
                     <Button onClick={this.onClose} color="primary">
-                        Close
+                        Go to last saved state
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -160,6 +168,8 @@ class ConnectedModalBugReport extends React.Component {
 ConnectedModalBugReport.propTypes = {
     classes: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
+    undo: PropTypes.func.isRequired,
+    reset: PropTypes.func.isRequired,
     actionHistory: PropTypes.array.isRequired,
 };
 

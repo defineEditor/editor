@@ -15,22 +15,31 @@
 import fs from 'fs';
 import createDefine from '../core/createDefine.js';
 import copyStylesheet from '../main/copyStylesheet.js';
+import writeDefineObject from '../main/writeDefineObject.js';
+
+const onSaveCallback = (mainWindow, defineId) => () => {
+    mainWindow.webContents.send('defineSaved', defineId);
+};
 
 // Save Define-XML
 function saveDefine (mainWindow, data, options) {
     if (options.pathToFile !== undefined) {
-        let defineXml = createDefine(data.odm, data.odm.study.metaDataVersion.defineVersion);
-        fs.writeFile(options.pathToFile, defineXml, function (err) {
-            let stylesheetLocation = data.odm && data.odm.stylesheetLocation;
-            if (options.addStylesheet === true && stylesheetLocation) {
-                copyStylesheet(stylesheetLocation, options.pathToFile);
-            }
-            if (err) {
-                throw err;
-            } else {
-                mainWindow.webContents.send('defineSaved', data.defineId);
-            }
-        });
+        if (options.pathToFile.endsWith('nogz')) {
+            writeDefineObject(mainWindow, data, false, options.pathToFile, onSaveCallback(mainWindow, data.defineId));
+        } else {
+            let defineXml = createDefine(data.odm, data.odm.study.metaDataVersion.defineVersion);
+            fs.writeFile(options.pathToFile, defineXml, function (err) {
+                let stylesheetLocation = data.odm && data.odm.stylesheetLocation;
+                if (options.addStylesheet === true && stylesheetLocation) {
+                    copyStylesheet(stylesheetLocation, options.pathToFile);
+                }
+                if (err) {
+                    throw err;
+                } else {
+                    onSaveCallback(mainWindow, data.defineId)();
+                }
+            });
+        }
     }
 }
 

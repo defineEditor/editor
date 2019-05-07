@@ -20,10 +20,8 @@ import { BootstrapTable, ButtonGroup } from 'react-bootstrap-table';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
 import renderColumns from 'utils/renderColumns.js';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
@@ -34,10 +32,12 @@ import ArmDescriptionFormatter from 'formatters/armDescriptionFormatter.js';
 import SelectColumns from 'utils/selectColumns.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import ArmSummaryMenu from 'components/menus/armSummaryMenu.js';
+import menuButton from 'components/menus/menuButton.js';
 import AddResultDisplay from 'components/tableActions/addResultDisplay.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import getArmResultDisplayOids from 'utils/getArmResultDisplayOids.js';
+import { getReviewCommentCount } from 'utils/reviewCommentUtils.js';
 import {
     updateResultDisplay,
     deleteResultDisplays,
@@ -67,6 +67,7 @@ const mapStateToProps = state => {
         tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
         showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
         reviewMode: state.present.ui.main.reviewMode,
+        reviewComments: state.present.odm.reviewComments,
     };
 };
 
@@ -154,18 +155,11 @@ class ConnectedArmSummaryTable extends React.Component {
     }
 
     menuFormatter = (cell, row) => {
-        let armSummaryMenuParams = {
-            resultDisplayOid: row.oid,
-        };
-        return (
-            <IconButton
-                onClick={this.handleMenuOpen(armSummaryMenuParams)}
-                className={this.props.classes.menuButton}
-                color='default'
-            >
-                <MoreVertIcon/>
-            </IconButton>
-        );
+        return menuButton({
+            reviewCommentStats: row.reviewCommentStats,
+            params: { resultDisplayOid: row.oid },
+            handleMenuOpen: this.handleMenuOpen
+        });
     }
 
     handleMenuOpen = (armSummaryMenuParams) => (event) => {
@@ -256,12 +250,13 @@ class ConnectedArmSummaryTable extends React.Component {
         let analysisResults = this.props.analysisResultDisplays.analysisResults;
         let resultDisplays = this.props.analysisResultDisplays.resultDisplays;
         let resultDisplayOids = this.state.selectedRows;
-        const { commentOids, whereClauseOids, analysisResultOids } = getArmResultDisplayOids(resultDisplays, analysisResults, resultDisplayOids);
+        const { commentOids, whereClauseOids, analysisResultOids, reviewCommentOids } = getArmResultDisplayOids(resultDisplays, analysisResults, resultDisplayOids);
         let deleteObj = {
             resultDisplayOids,
             analysisResultOids,
             commentOids,
             whereClauseOids,
+            reviewCommentOids,
         };
         this.props.deleteResultDisplays(deleteObj);
         this.setState({ selectedRows: [] });
@@ -311,6 +306,11 @@ class ConnectedArmSummaryTable extends React.Component {
                 description: { descriptions: resultDisplay.descriptions, documents: resultDisplay.documents },
                 leafs: this.props.leafs,
             };
+            // Review comments
+            if (resultDisplay.reviewCommentOids.length > 0) {
+                let total = getReviewCommentCount(resultDisplay.reviewCommentOids, this.props.reviewComments);
+                row.reviewCommentStats = { total };
+            }
             tableData[index] = row;
         });
 
@@ -386,6 +386,7 @@ ConnectedArmSummaryTable.propTypes = {
     stdConstants: PropTypes.object.isRequired,
     classes: PropTypes.object.isRequired,
     defineVersion: PropTypes.string.isRequired,
+    reviewComments: PropTypes.object.isRequired,
     reviewMode: PropTypes.bool,
 };
 ConnectedArmSummaryTable.displayName = 'ArmSummaryTable';

@@ -18,17 +18,24 @@ import { connect } from 'react-redux';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
+import { copyItemGroups } from 'utils/copyUtils.js';
 import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {
     deleteItemGroups,
-    selectGroup
+    updateCopyBuffer,
+    selectGroup,
+    addItemGroups,
+    openModal,
 } from 'actions/index.js';
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
         deleteItemGroups: (deleteObj) => dispatch(deleteItemGroups(deleteObj)),
+        updateCopyBuffer: (updateObj) => dispatch(updateCopyBuffer(updateObj)),
+        addItemGroups: (updateObj) => dispatch(addItemGroups(updateObj)),
         selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
@@ -39,6 +46,7 @@ const mapStateToProps = state => {
         variableTabIndex: state.present.ui.tabs.tabNames.indexOf('Variables'),
         mdv: state.present.odm.study.metaDataVersion,
         reviewMode: state.present.ui.main.reviewMode,
+        buffer: state.present.ui.main.copyBuffer['datasets'],
     };
 };
 
@@ -56,6 +64,13 @@ class ConnectedItemGroupMenu extends React.Component {
         if (Boolean(this.props.anchorEl) === true) {
             if (event.keyCode === 86) {
                 this.editItemGroupVariables();
+            } else if (event.keyCode === 67) {
+                this.copy();
+            } else if (event.keyCode === 80 && !(this.props.reviewMode || this.props.buffer === undefined)) {
+                this.paste(1)();
+            } else if (event.keyCode === 77) {
+                event.preventDefault();
+                this.openComments();
             } else if (event.keyCode === 68) {
                 this.deleteItemGroup();
             }
@@ -88,6 +103,53 @@ class ConnectedItemGroupMenu extends React.Component {
         this.props.selectGroup(updateObj);
     }
 
+    copy = () => {
+        this.props.updateCopyBuffer({
+            tab: 'datasets',
+            buffer: {
+                itemGroupOid: this.props.itemGroupMenuParams.itemGroupOid,
+            }
+
+        });
+        this.props.onClose();
+    }
+
+    paste = (shift) => () => {
+        let itemGroupOid = this.props.buffer.itemGroupOid;
+        let mdv = this.props.mdv;
+        let sourceMdv = mdv;
+        let purpose;
+        if (mdv.model === 'ADaM') {
+            purpose = 'Analysis';
+        } else {
+            purpose = 'Tabulation';
+        }
+        const { itemGroups, itemGroupComments } = copyItemGroups({
+            mdv,
+            sourceMdv,
+            sameDefine: true,
+            purpose,
+            itemGroupList: [itemGroupOid],
+        });
+        // Get position to insert
+        let position = this.props.itemGroupOrder.indexOf(this.props.itemGroupMenuParams.itemGroupOid) + shift;
+
+        this.props.addItemGroups({
+            position,
+            itemGroups,
+            itemGroupComments,
+        });
+        this.props.onClose();
+    }
+
+    openComments = () => {
+        this.props.openModal({
+            type: 'REVIEW_COMMENT',
+            props: { sources: { itemGroups: [this.props.itemGroupMenuParams.itemGroupOid] } }
+        });
+        this.props.onClose();
+    }
+
     render () {
         return (
             <React.Fragment>
@@ -113,6 +175,33 @@ class ConnectedItemGroupMenu extends React.Component {
                         Insert Dataset Below
                     </MenuItem>
                     <Divider/>
+                    <MenuItem key='CopyDataset' onClick={this.copy} disabled={this.props.reviewMode}>
+                        <u>C</u>opy Dataset
+                    </MenuItem>
+                    {[
+                        (
+                            <MenuItem
+                                key='PasteAbove'
+                                onClick={this.paste(0)}
+                                disabled={this.props.reviewMode || this.props.buffer === undefined}
+                            >
+                                Paste Dataset Above
+                            </MenuItem>
+                        ), (
+                            <MenuItem
+                                key='PasteBelow'
+                                onClick={this.paste(1)}
+                                disabled={this.props.reviewMode || this.props.buffer === undefined}
+                            >
+                                <u>P</u>aste Dataset Below
+                            </MenuItem>
+                        )
+                    ]}
+                    <Divider/>
+                    <MenuItem key='Comments' onClick={this.openComments}>
+                        Co<u>m</u>ments
+                    </MenuItem>
+                    <Divider/>
                     <MenuItem key='Delete' onClick={this.deleteItemGroup} disabled={this.props.reviewMode}>
                         <u>D</u>elete
                     </MenuItem>
@@ -126,8 +215,12 @@ ConnectedItemGroupMenu.propTypes = {
     itemGroupMenuParams: PropTypes.object.isRequired,
     itemGroups: PropTypes.object.isRequired,
     onAddDataset: PropTypes.func.isRequired,
+    addItemGroups: PropTypes.func.isRequired,
+    updateCopyBuffer: PropTypes.func.isRequired,
+    openModal: PropTypes.func.isRequired,
     reviewMode: PropTypes.bool,
     variableTabIndex: PropTypes.number,
+    buffer: PropTypes.object,
 };
 
 const ItemGroupMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedItemGroupMenu);

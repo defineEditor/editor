@@ -30,6 +30,8 @@ import {
     DEL_VARS,
     UPD_KEYORDER,
     INSERT_VAR,
+    ADD_REVIEWCOMMENT,
+    DEL_REVIEWCOMMENT,
 } from 'constants/action-types';
 import { ItemGroup, TranslatedText, DatasetClass, Leaf, ItemRef } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
@@ -405,6 +407,29 @@ const addItemGroups = (state, action) => {
     return newState;
 };
 
+const addReviewComment = (state, action) => {
+    if (action.updateObj.sources.hasOwnProperty('itemGroups')) {
+        let itemGroupOid = action.updateObj.sources.itemGroups[0];
+        return { ...state, [itemGroupOid]: { ...state[itemGroupOid], reviewCommentOids: state[itemGroupOid].reviewCommentOids.concat([action.updateObj.oid]) } };
+    } else {
+        return state;
+    }
+};
+
+const deleteReviewComment = (state, action) => {
+    if (action.deleteObj.sources.hasOwnProperty('itemGroups')) {
+        let newState = { ...state };
+        action.deleteObj.sources.itemGroups.forEach(oid => {
+            let newReviewCommentOids = newState[oid].reviewCommentOids.slice();
+            newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
+            newState = { ...newState, [oid]: { ...newState[oid], reviewCommentOids: newReviewCommentOids } };
+        });
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const itemGroups = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMGROUP:
@@ -441,6 +466,10 @@ const itemGroups = (state = {}, action) => {
             return updateKeyOrder(state, action);
         case INSERT_VAR:
             return insertVariable(state, action);
+        case ADD_REVIEWCOMMENT:
+            return addReviewComment(state, action);
+        case DEL_REVIEWCOMMENT:
+            return deleteReviewComment(state, action);
         default:
             return state;
     }

@@ -19,6 +19,9 @@ import { connect } from 'react-redux';
 import CommentIcon from '@material-ui/icons/Comment';
 import EditIcon from '@material-ui/icons/Edit';
 import IconButton from '@material-ui/core/IconButton';
+import {
+    openModal,
+} from 'actions/index.js';
 
 const styles = theme => ({
     icon: {
@@ -26,25 +29,52 @@ const styles = theme => ({
     }
 });
 
+// Redux functions
+const mapDispatchToProps = dispatch => {
+    return {
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
+    };
+};
+
 const mapStateToProps = state => {
     return {
         reviewMode: state.present.ui.main.reviewMode,
+        odm: state.present.odm,
     };
 };
 
 class ConnectedFormattingControlIcons extends React.Component {
+    openComments = () => {
+        this.props.openModal({
+            type: 'REVIEW_COMMENT',
+            props: { sources: { [this.props.type]: ['thisElementIsUnique'] } }
+        });
+    }
+
     render () {
+        // Get comment stats
+        let commentPresent;
+        const { type, reviewMode } = this.props;
+        if (type === undefined) {
+            commentPresent = false;
+        } else if (type === 'odm') {
+            commentPresent = this.props.odm.reviewCommentOids.length > 0;
+        } else if (type === 'globalVariables') {
+            commentPresent = this.props.odm.study.globalVariables.reviewCommentOids.length > 0;
+        } else if (type === 'metaDataVersion') {
+            commentPresent = this.props.odm.study.metaDataVersion.reviewCommentOids.length > 0;
+        }
         const { classes } = this.props;
 
         return (
             <React.Fragment>
-                { !this.props.reviewMode && (
+                { !reviewMode && (
                     <IconButton color='default' onClick={this.props.onEdit} className={classes.icon}>
                         <EditIcon/>
                     </IconButton>
                 )}
-                { this.props.onComment !== undefined && (
-                    <IconButton color='default' onClick={this.props.onComment} className={classes.icon}>
+                { type !== undefined && (
+                    <IconButton color={ commentPresent ? 'primary' : 'default' } onClick={this.openComments} className={classes.icon}>
                         <CommentIcon/>
                     </IconButton>
                 )}
@@ -55,10 +85,13 @@ class ConnectedFormattingControlIcons extends React.Component {
 
 ConnectedFormattingControlIcons.propTypes = {
     reviewMode: PropTypes.bool.isRequired,
+    openModal: PropTypes.func.isRequired,
     onEdit: PropTypes.func.isRequired,
     onHelp: PropTypes.func,
     onComment: PropTypes.func,
+    type: PropTypes.string,
+    odm: PropTypes.object.isRequired,
 };
 
-const FormattingControlIcons = connect(mapStateToProps)(ConnectedFormattingControlIcons);
+const FormattingControlIcons = connect(mapStateToProps, mapDispatchToProps)(ConnectedFormattingControlIcons);
 export default withStyles(styles)(FormattingControlIcons);

@@ -24,6 +24,7 @@ import {
     deleteAnalysisResults,
     addAnalysisResults,
     updateCopyBuffer,
+    openModal,
 } from 'actions/index.js';
 
 // Redux functions
@@ -32,6 +33,7 @@ const mapDispatchToProps = dispatch => {
         deleteAnalysisResults: (deleteObj) => dispatch(deleteAnalysisResults(deleteObj)),
         addAnalysisResults: (updateObj) => dispatch(addAnalysisResults(updateObj)),
         updateCopyBuffer: (updateObj) => dispatch(updateCopyBuffer(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
@@ -48,12 +50,13 @@ class ConnectedAnalysisResultMenu extends React.Component {
     delete = () => {
         let analysisResults = this.props.analysisResultDisplays.analysisResults;
         let analysisResultOids = [this.props.analysisResultMenuParams.analysisResultOid];
-        const { commentOids, whereClauseOids } = getArmAnalysisResultOids(analysisResults, analysisResultOids);
+        const { commentOids, whereClauseOids, reviewCommentOids } = getArmAnalysisResultOids(analysisResults, analysisResultOids);
         let deleteObj = {
             resultDisplayOid: this.props.analysisResultMenuParams.resultDisplayOid,
             analysisResultOids,
             commentOids,
             whereClauseOids,
+            reviewCommentOids,
         };
         this.props.deleteAnalysisResults(deleteObj);
         this.props.onClose();
@@ -93,6 +96,15 @@ class ConnectedAnalysisResultMenu extends React.Component {
         this.props.onClose();
     }
 
+    openComments = () => {
+        const params = this.props.analysisResultMenuParams;
+        this.props.openModal({
+            type: 'REVIEW_COMMENT',
+            props: { sources: { analysisResults: [params.analysisResultOid] } },
+        });
+        this.props.onClose();
+    }
+
     render () {
         return (
             <React.Fragment>
@@ -125,6 +137,10 @@ class ConnectedAnalysisResultMenu extends React.Component {
                         Paste Below
                     </MenuItem>
                     <Divider/>
+                    <MenuItem key='Comments' onClick={this.openComments}>
+                        Comments
+                    </MenuItem>
+                    <Divider/>
                     <MenuItem key='Delete' onClick={this.delete} disabled={this.props.reviewMode}>
                         Delete
                     </MenuItem>
@@ -138,6 +154,7 @@ ConnectedAnalysisResultMenu.propTypes = {
     analysisResultMenuParams: PropTypes.object.isRequired,
     analysisResultDisplays: PropTypes.object.isRequired,
     updateCopyBuffer: PropTypes.func.isRequired,
+    openModal: PropTypes.func.isRequired,
     reviewMode: PropTypes.bool,
 };
 

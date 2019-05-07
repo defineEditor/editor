@@ -20,9 +20,15 @@ import { promisify } from 'util';
 
 const readFile = promisify(fs.readFile);
 
-async function loadDefineObject (mainWindow, defineId, id) {
-    let pathToDefines = path.join(app.getPath('userData'), 'defines');
-    let file = path.join(pathToDefines, defineId + '.nogz');
+async function loadDefineObject (mainWindow, defineId, id, pathToFile) {
+    let pathToDefines;
+    let file;
+    if (pathToFile !== undefined) {
+        file = pathToFile;
+    } else {
+        pathToDefines = path.join(app.getPath('userData'), 'defines');
+        file = path.join(pathToDefines, defineId + '.nogz');
+    }
 
     let zip = new Jszip();
     let data = await readFile(file);
@@ -42,7 +48,11 @@ async function loadDefineObject (mainWindow, defineId, id) {
             let contents = await zip.file(file).async('string');
             result[file.replace(/\.json$/, '')] = JSON.parse(contents);
         }));
-        mainWindow.webContents.send('loadDefineObjectToRender', result, id);
+        if (pathToFile !== undefined) {
+            mainWindow.webContents.send('define', result, pathToFile);
+        } else {
+            mainWindow.webContents.send('loadDefineObjectToRender', result, id);
+        }
     }
 
     return undefined;

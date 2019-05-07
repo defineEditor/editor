@@ -29,6 +29,7 @@ import path from 'path';
 import parseDefine from 'parsers/parseDefine.js';
 import checkDefineXml from 'utils/checkDefineXml.js';
 import removeTrailingSpaces from 'utils/removeTrailingSpaces.js';
+import recreateDefine from 'utils/recreateDefine.js';
 
 const styles = theme => ({
     button: {
@@ -73,7 +74,13 @@ class AddDefineFormStep1 extends React.Component {
     loadDefine = (event, data, pathToDefineXml) => {
         this.props.updateMainUi({ pathToLastFile: path.dirname(pathToDefineXml) });
         try {
-            let defineData = parseDefine(data);
+            let defineData;
+            if (pathToDefineXml.endsWith('nogz')) {
+                defineData = recreateDefine(data.odm);
+            } else {
+                // XML file
+                defineData = parseDefine(data);
+            }
             let checkResult = checkDefineXml(defineData);
             if (this.props.removeTrailingSpaces === true) {
                 removeTrailingSpaces(defineData);
@@ -122,7 +129,7 @@ class AddDefineFormStep1 extends React.Component {
                         >
                             <FormControlLabel value="new" control={<Radio color='primary'/>} label="Create a new Define-XML document"/>
                             <FormControlLabel value="copy" control={<Radio color='primary'/>} label="Copy Define-XML from another study"/>
-                            <FormControlLabel value="import" control={<Radio color='primary'/>} label="Import an existing Define-XML document"/>
+                            <FormControlLabel value="import" control={<Radio color='primary'/>} label="Import an existing Define-XML file"/>
                         </RadioGroup>
                         { this.state.defineCreationMethod === 'import' && (
                             <React.Fragment>

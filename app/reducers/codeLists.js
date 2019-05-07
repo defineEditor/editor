@@ -34,6 +34,8 @@ import {
     DEL_ITEMGROUPS,
     UPD_STDCT,
     UPD_LINKCODELISTS,
+    ADD_REVIEWCOMMENT,
+    DEL_REVIEWCOMMENT,
 } from 'constants/action-types';
 import { CodeList, CodeListItem, ExternalCodeList, EnumeratedItem, Alias } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
@@ -825,6 +827,29 @@ const handleAddItemGroups = (state, action) => {
     return newState;
 };
 
+const addReviewComment = (state, action) => {
+    if (action.updateObj.sources.hasOwnProperty('codeLists')) {
+        let codeListOid = action.updateObj.sources.codeLists[0];
+        return { ...state, [codeListOid]: { ...state[codeListOid], reviewCommentOids: state[codeListOid].reviewCommentOids.concat([action.updateObj.oid]) } };
+    } else {
+        return state;
+    }
+};
+
+const deleteReviewComment = (state, action) => {
+    if (action.deleteObj.sources.hasOwnProperty('codeLists')) {
+        let newState = { ...state };
+        action.deleteObj.sources.codeLists.forEach(oid => {
+            let newReviewCommentOids = newState[oid].reviewCommentOids.slice();
+            newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
+            newState = { ...newState, [oid]: { ...newState[oid], reviewCommentOids: newReviewCommentOids } };
+        });
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const codeLists = (state = {}, action) => {
     switch (action.type) {
         case ADD_CODELIST:
@@ -867,6 +892,10 @@ const codeLists = (state = {}, action) => {
             return handleDeleteStdCodeLists(state, action);
         case ADD_ITEMGROUPS:
             return handleAddItemGroups(state, action);
+        case ADD_REVIEWCOMMENT:
+            return addReviewComment(state, action);
+        case DEL_REVIEWCOMMENT:
+            return deleteReviewComment(state, action);
         default:
             return state;
     }

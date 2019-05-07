@@ -51,7 +51,11 @@ const styles = theme => ({
     },
     title: {
         marginBottom: 16,
-        fontSize: 14
+        fontSize: 14,
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis',
+        overflow: 'hidden',
+        '&:hover': { overflow: 'visible' },
     },
     icon: {
         transform: 'translate(0, -5%)'
@@ -63,16 +67,34 @@ const styles = theme => ({
     defineTitle: {
         marginRight: theme.spacing.unit,
     },
+    currentDefineTitle: {
+        marginRight: theme.spacing.unit,
+        color: '#3F51B5',
+        fontWeight: 'bold',
+    },
     card: {
         borderRadius: '10px',
         boxShadow: 'none',
         border: '2px solid',
         borderColor: theme.palette.grey['200'],
     },
+    currentCard: {
+        borderRadius: '10px',
+        boxShadow: 'none',
+        border: '2px solid',
+        borderColor: '#3F51B5',
+    },
     summary: {
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
         overflow: 'hidden',
+        '&:hover': { overflow: 'visible' },
+    },
+    lastChanged: {
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis',
+        overflow: 'hidden',
+        '&:hover': { overflow: 'visible' },
     },
     root: {
         outline: 'none',
@@ -184,24 +206,35 @@ class ConnectedStudyTile extends React.Component {
     }
 
     getDefines = classes => {
-        return this.state.study.defineIds.map(defineId => (
-            <MenuItem
-                onClick={() => { this.selectDefine(defineId); }}
-                className={classes.menu}
-                key={defineId}
-            >
-                <ListItemText primary={this.props.defines.byId[defineId].name} className={classes.defineTitle}/>
-                <ListItemSecondaryAction>
-                    <IconButton
-                        color="secondary"
-                        onClick={() => this.deleteDefine(defineId)}
-                        className={classes.icon}
-                    >
-                        <ClearIcon />
-                    </IconButton>
-                </ListItemSecondaryAction>
-            </MenuItem>
-        ));
+        return this.state.study.defineIds.map(defineId => {
+            const isCurrent = this.props.currentDefineId === defineId;
+            return (
+                <MenuItem
+                    onClick={() => { this.selectDefine(defineId); }}
+                    className={classes.menu}
+                    key={defineId}
+                >
+                    <ListItemText
+                        primary={ isCurrent ? (
+                            <span className={classes.currentDefineTitle}>
+                                {this.props.defines.byId[defineId].name}
+                            </span>
+                        ) : (
+                            this.props.defines.byId[defineId].name
+                        )}
+                        className={classes.defineTitle}/>
+                    <ListItemSecondaryAction>
+                        <IconButton
+                            color="secondary"
+                            onClick={() => this.deleteDefine(defineId)}
+                            className={classes.icon}
+                        >
+                            <ClearIcon />
+                        </IconButton>
+                    </ListItemSecondaryAction>
+                </MenuItem>
+            );
+        });
     };
 
     deleteStudy = () => {
@@ -267,13 +300,16 @@ class ConnectedStudyTile extends React.Component {
             lastChanged = '';
         }
 
+        // Highlight current study
+        const isCurrent = this.props.study.id === this.props.currentStudyId;
+
         return (
             <div
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
                 className={classes.root}
             >
-                <Card className={classes.card} raised={true}>
+                <Card className={isCurrent ? classes.currentCard : classes.card} raised={true}>
                     <CardActions className={classes.actions}>
                         {this.state.editMode ? (
                             <Grid container justify="flex-start">
@@ -343,7 +379,7 @@ class ConnectedStudyTile extends React.Component {
                                 {this.state.study.name}
                             </Typography>
                         )}
-                        <Typography color="textSecondary" component="p">
+                        <Typography color="textSecondary" component="p" className={classes.lastChanged}>
                             Last changed:{' '}
                             {lastChanged.substr(0, 16).replace('T', ' ')}
                         </Typography>
@@ -388,7 +424,8 @@ ConnectedStudyTile.propTypes = {
     study: PropTypes.object.isRequired,
     defines: PropTypes.object.isRequired,
     updateStudy: PropTypes.func.isRequired,
-    currentDefineId: PropTypes.string.isRequired,
+    currentDefineId: PropTypes.string,
+    currentStudyId: PropTypes.string,
     isCurrentDefineSaved: PropTypes.bool.isRequired,
     openModal: PropTypes.func.isRequired,
 };

@@ -38,7 +38,7 @@ class OdmAttributesFormatter extends React.Component {
             <Paper className={classes.odmAttributes} elevation={4}>
                 <Typography variant="h5">
                     ODM Attributes &amp; Stylesheet location
-                    <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
+                    <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} type='odm'/>
                 </Typography>
                 <List>
                     <ListItem>
