@@ -97,8 +97,7 @@ function sendDefineObject (event, data) {
     ) {
         // If define does not have pathToFile, use the save file as location of the Define-XML
         ipcRenderer.once('fileSavedAs', (event, savePath) => {
-            // When file was saved as nogz or the save was cancelled do not update the pathToFile
-            if (savePath !== '_cancelled_' && !savePath.endsWith('nogz')) {
+            if (savePath !== '_cancelled_') {
                 store.dispatch(updateDefine({ defineId: odm.defineId, properties: { pathToFile: savePath } }));
                 store.dispatch(updateMainUi({ pathToLastFile: path.dirname(savePath) }));
             }

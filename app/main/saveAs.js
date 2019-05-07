@@ -18,11 +18,15 @@ import createDefine from '../core/createDefine.js';
 import copyStylesheet from '../main/copyStylesheet.js';
 import writeDefineObject from '../main/writeDefineObject.js';
 
+const onSaveCallback = (mainWindow, savePath) => () => {
+    mainWindow.webContents.send('fileSavedAs', savePath);
+};
+
 // Create Define-XML
 const convertToDefineXml = (mainWindow, data, options) => (savePath) => {
     if (savePath !== undefined) {
         if (savePath.endsWith('nogz')) {
-            writeDefineObject(mainWindow, data, false, savePath);
+            writeDefineObject(mainWindow, data, false, savePath, onSaveCallback(mainWindow, savePath));
         } else {
             let defineXml = createDefine(data.odm, data.odm.study.metaDataVersion.defineVersion);
             fs.writeFile(savePath, defineXml, function (err) {
@@ -33,7 +37,7 @@ const convertToDefineXml = (mainWindow, data, options) => (savePath) => {
                 if (err) {
                     throw err;
                 } else {
-                    mainWindow.webContents.send('fileSavedAs', savePath);
+                    onSaveCallback(mainWindow, savePath)();
                 }
             });
         }

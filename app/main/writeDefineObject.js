@@ -17,7 +17,7 @@ import Jszip from 'jszip';
 import path from 'path';
 import { app } from 'electron';
 
-function writeDefineObject (mainWindow, defineObject, backupFlag, pathToFile) {
+function writeDefineObject (mainWindow, defineObject, backupFlag, pathToFile, onSaveCallback) {
     let pathToDefines;
     let outputFile;
     if (pathToFile === undefined) {
@@ -60,8 +60,10 @@ function writeDefineObject (mainWindow, defineObject, backupFlag, pathToFile) {
             .pipe(fs.createWriteStream(outputFile))
             .once('finish', () => {
                 if (pathToFile) {
-                    // File is saved using Save As functionality
-                    mainWindow.webContents.send('fileSavedAs', pathToFile);
+                    // File is saved using Save As or Save functionality
+                    if (onSaveCallback !== undefined) {
+                        onSaveCallback();
+                    }
                 } else {
                     // File is written to internal storage
                     mainWindow.webContents.send('writeDefineObjectFinished', defineObject.defineId);
