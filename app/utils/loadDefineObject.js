@@ -31,7 +31,10 @@ function loadDefineObject (event, data) {
         }
         // Some of the versions require structure update. 4+ - development version
         // TODO - change > 4 to debug mode check
-        if (data.info !== undefined && (data.info.appVersion < '1.0.0-beta.8' || data.info.appVersion > '4')) {
+        if (
+            data.info === undefined ||
+            (data.info !== undefined && (data.info.appVersion < '1.0.0-beta.8' || data.info.appVersion > '4'))
+        ) {
             store.dispatch(addOdm(recreateDefine(data.odm)));
         } else {
             store.dispatch(addOdm(data.odm));
