@@ -12,11 +12,12 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import store from 'store/index.js';
 import { withStyles } from '@material-ui/core/styles';
 import CodedValueSelectorTable from 'components/utils/codedValueSelectorTable.js';
 import getSelectionList from 'utils/getSelectionList.js';
+import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -35,19 +36,6 @@ const styles = theme => ({
     root: {
         width: '100%',
         overflowX: 'auto'
-    },
-    table: {
-        minWidth: 100
-    },
-    studySelector: {
-        minWidth: 120,
-        marginRight: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
-    },
-    defineSelector: {
-        minWidth: 140,
-        marginRight: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
     },
     selectionField: {
         minWidth: 150,
@@ -75,48 +63,59 @@ const styles = theme => ({
     },
 });
 
-function ConnectedAddVlmFromCodeList (props) {
+function AddVlmFromCodeList (props) {
+    const onAddVlm = (selectedCodes) => {
+        // sort selected codes as per order in the codelist
+        selectedCodes.sort((first, second) => {
+            return codeLists[codeListOid].itemOrder.indexOf(first) - codeLists[codeListOid].itemOrder.indexOf(second);
+        });
+
+        let valueLists = store.getState().present.odm.study.metaDataVersion.valueLists;
+        let itemDefs = store.getState().present.odm.study.metaDataVersion.itemDefs;
+        let whereClauses = store.getState().present.odm.study.metaDataVersion.whereClauses;
+
+        // this variable show which property to look for inside a codelist
+        let codeListItemsProperty = codeLists[codeListOid].codeListType === 'enumerated' ? 'enumeratedItems' : 'codeListItems';
+
+        // create an object with all VLM attributes
+        // when decoded codelist, also add labels
+        let updateObjLabels = codeLists[codeListOid].codeListType === 'decoded' ? selectedCodes.reduce((object, value, key) => {
+            object.labels.push(codeLists[codeListOid].codeListItems[value].decodes[0].value);
+            return object;
+        }, { labels: [] }) : {};
+        // and all other attributes
+        let updateObj = selectedCodes.reduce((object, value, key) => {
+            object.names.push(codeLists[codeListOid][codeListItemsProperty][value].codedValue);
+            object.itemDefOids.push(getOid('ItemDef', undefined, Object.keys(itemDefs).concat(object['itemDefOids'])));
+            object.whereClauseOids.push(getOid('WhereClause', undefined, Object.keys(whereClauses).concat(object['whereClauseOids'])));
+            return object;
+        }, { ...updateObjLabels, sourceOid: undefined, valueListOid: undefined, itemDefOids: [], whereClauseOids: [], names: [] });
+        updateObj.valueListOid = getOid('ValueList', undefined, Object.keys(valueLists));
+        updateObj.sourceOid = props.currentItemOid;
+        updateObj.sourceGroupOid = props.currentGroupOid;
+        updateObj.selectedOid = itemDefOid;
+
+        store.dispatch(addValueListFromCodelist(updateObj));
+        props.onCancel();
+    };
+
     const { classes } = props;
 
-    // create state variables for selected codeListOid to take selectedCodes from
+    // create state variables for selected itemDefOid, codeListOid
+    const [itemDefOid, setItemDefOid] = useState(undefined);
     const [codeListOid, setCodeListOid] = useState(undefined);
-    const [selectedCodes, setSelectedCodes] = useState([]);
 
     // retrieve data from state
     let codeLists = { ...store.getState().present.odm.study.metaDataVersion.codeLists };
+    let itemDefs = { ...store.getState().present.odm.study.metaDataVersion.itemDefs };
     let defineVersion = store.getState().present.odm.study.metaDataVersion.defineVersion;
 
-    // create object for dropdown list
-    let codeListList = Object.keys(codeLists)
-        .filter(codeList => codeLists[codeList].codeListType === 'decoded')
-        .reduce((object, key) => { object[key] = codeLists[key].name; return object; }, {});
-
-    useEffect(() => {
-        if (selectedCodes.length !== 0) {
-            // sort selected codes as per REVERSE order in the codelist. The reducer reverses the item order, so this results in proper VLM order as per codelist
-            selectedCodes.sort((first, second) => {
-                return codeLists[codeListOid].itemOrder.indexOf(second) - codeLists[codeListOid].itemOrder.indexOf(first);
-            });
-
-            let valueLists = store.getState().present.odm.study.metaDataVersion.valueLists;
-            let itemDefs = store.getState().present.odm.study.metaDataVersion.itemDefs;
-            let whereClauses = store.getState().present.odm.study.metaDataVersion.whereClauses;
-
-            // create an object with all VLM attributes
-            let updateObj = selectedCodes.reduce((object, value, key) => {
-                object.names.push(codeLists[codeListOid].codeListItems[value].codedValue);
-                object.labels.push(codeLists[codeListOid].codeListItems[value].decodes[0].value);
-                object.itemDefOids.push(getOid('ItemDef', undefined, Object.keys(itemDefs).concat(object['itemDefOids'])));
-                object.whereClauseOids.push(getOid('WhereClause', undefined, Object.keys(whereClauses).concat(object['whereClauseOids'])));
-                return object;
-            }, { sourceOid: undefined, valueListOid: undefined, itemDefOids: [], whereClauseOids: [], names: [], labels: [] });
-            updateObj.valueListOid = getOid('ValueList', undefined, Object.keys(valueLists));
-            updateObj.sourceOid = props.currentItemOid;
-
-            store.dispatch(addValueListFromCodelist(updateObj));
-            props.onCancel();
-        }
-    }, [selectedCodes]);
+    // create object for dropdown list: its properties are itemOid name and label concatenated
+    // dropdown list is restricted to variables with either decoded or enumerated codelist
+    let itemDefList = Object.keys(itemDefs)
+        .filter(itemDef => itemDefs[itemDef].codeListOid !== undefined && itemDefs[itemDef].sources.itemGroups.includes(props.currentGroupOid) &&
+            ['decoded', 'enumerated'].includes(codeLists[itemDefs[itemDef].codeListOid].codeListType))
+        .reduce((object, value, key) => { object[value] = itemDefs[value].name + (itemDefs[value].descriptions[0].value && (' (' + itemDefs[value].descriptions[0].value + ')')); return object; }, {});
 
     return (
         <Dialog
@@ -131,8 +130,8 @@ function ConnectedAddVlmFromCodeList (props) {
             <DialogTitle id="alert-dialog-title" className={classes.title}>
                 <Grid container spacing={0} justify='space-between' alignItems='center'>
                     <Grid item>
-                        Create Value Level Metadata from a Codelist
-                        <InternalHelp data={ CODELIST_TO_VLM } />
+                        Create Value Level Metadata from Variable Values
+                        <InternalHelp data={CODELIST_TO_VLM} />
                     </Grid>
                     <Grid item>
                         <IconButton
@@ -147,22 +146,29 @@ function ConnectedAddVlmFromCodeList (props) {
             <DialogContent>
                 <Grid container spacing={8} className={classes.root}>
                     <Grid item>
-                        <TextField
-                            label='Codelist'
-                            disabled={Object.keys(codeListList).length === 0}
-                            value={codeListOid || ' '}
-                            onChange={(updateObj) => setCodeListOid(updateObj.target.value)}
-                            className={classes.selectionField}
-                            select={Object.keys(codeListList).length > 0}
-                        >
-                            { Object.keys(codeListList).length > 0 && getSelectionList(codeListList)}
-                        </TextField>
+                        { Object.keys(itemDefList).length !== 0 && (
+                            <TextField
+                                label='Variable'
+                                disabled={Object.keys(itemDefList).length === 0}
+                                value={itemDefOid || ' '}
+                                onChange={(updateObj) => { setItemDefOid(updateObj.target.value); setCodeListOid(itemDefs[updateObj.target.value].codeListOid); }}
+                                className={classes.selectionField}
+                                select={Object.keys(itemDefList).length > 0}
+                            >
+                                {Object.keys(itemDefList).length > 0 && getSelectionList(itemDefList)}
+                            </TextField>
+                        )}
+                        { Object.keys(itemDefList).length === 0 && (
+                            <Typography variant="body2" gutterBottom align="left" color='error'>
+                                This dataset contains no variables with attached decoded or enumerated codelist.
+                            </Typography>
+                        )}
                     </Grid>
                     <Grid item xs={12}>
                         { codeListOid !== undefined &&
                                 <CodedValueSelectorTable
                                     key={codeListOid}
-                                    onAdd={(selectedCodes) => { setSelectedCodes(selectedCodes); } }
+                                    onAdd={onAddVlm}
                                     addLabel='Create VLM'
                                     sourceCodeList={codeLists[codeListOid]}
                                     defineVersion={defineVersion}
@@ -175,6 +181,4 @@ function ConnectedAddVlmFromCodeList (props) {
     );
 }
 
-const AddVlmFromCodeList = withStyles(styles)(ConnectedAddVlmFromCodeList);
-
-export default AddVlmFromCodeList;
+export default withStyles(styles)(AddVlmFromCodeList);

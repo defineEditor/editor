@@ -204,7 +204,6 @@ const handleAddValueList = (state, action) => {
 const handleAddValueListFromCodeList = (state, action) => {
     // create the first itemDef
     let firstVl = handleAddValueList(state, {
-        type: ADD_VALUELIST,
         source: {
             oid: action.updateObj.sourceOid,
         },
@@ -234,10 +233,10 @@ const handleAddValueListFromCodeList = (state, action) => {
             oid: value,
             updateObj: {
                 name: action.updateObj.names[key],
-                descriptions: [{
+                descriptions: action.updateObj.labels ? [{
                     lang: 'en',
                     value: action.updateObj.labels[key],
-                }],
+                }] : [],
             },
         });
     }, subsequentVls);

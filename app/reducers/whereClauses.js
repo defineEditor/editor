@@ -174,18 +174,38 @@ const createNewWhereClause = (state, action) => {
 };
 
 const handleAddValueListFromCodeList = (state, action) => {
-    return action.updateObj.itemDefOids.reduce((object, value, key) => {
+    let whereClausesBlank = action.updateObj.itemDefOids.reduce((object, value, key) => {
         return createNewWhereClause(object, {
-            type: INSERT_VALLVL,
-            source: {
-                oid: action.updateObj.sourceOid,
-            },
             valueListOid: action.updateObj.valueListOid,
             parentItemDefOid: action.updateObj.sourceOid,
             itemDefOid: action.updateObj.itemDefOids[key],
             whereClauseOid: action.updateObj.whereClauseOids[key],
         });
     }, { ...state });
+
+    let whereClauses = action.updateObj.itemDefOids.reduce((object, value, key) => {
+        return updateWhereClause(object, {
+            source: {
+                valueListOid: [action.updateObj.valueListOid],
+            },
+            whereClause: {
+                oid: action.updateObj.whereClauseOids[key],
+                rangeChecks: [{
+                    checkValues: [action.updateObj.names[key]],
+                    comparator: 'EQ',
+                    itemGroupOid: action.updateObj.sourceGroupOid,
+                    itemOid: action.updateObj.selectedOid,
+                    softHard: 'Soft',
+                }],
+                sources: {
+                    analysisResults: {},
+                    valueLists: [action.updateObj.valueListOid],
+                },
+            },
+        });
+    }, whereClausesBlank);
+
+    return whereClauses;
 };
 
 const deleteItemGroups = (state, action) => {

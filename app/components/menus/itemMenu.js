@@ -317,7 +317,7 @@ class ConnectedItemMenu extends React.Component {
                             </MenuItem>
                         ), (
                             <MenuItem key='AddVlmFromCodeList' onClick={this.addVlmFromCodeList} disabled={this.props.reviewMode}>
-                                Add VLM from a Codelist
+                                Add VLM from Variable
                             </MenuItem>
                         )]
                     )}
@@ -351,6 +351,7 @@ class ConnectedItemMenu extends React.Component {
                     <AddVlmFromCodeList
                         onCancel={this.addVlmFromCodeListClose}
                         currentItemOid={this.props.itemMenuParams.oid}
+                        currentGroupOid={this.props.itemMenuParams.itemGroupVLOid}
                     />
                 )}
             </div>
