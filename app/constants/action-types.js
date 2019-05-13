@@ -80,6 +80,7 @@ export const ADD_REVIEWCOMMENT = 'ADD_REVIEWCOMMENT';
 export const UPD_REVIEWCOMMENT = 'UPD_REVIEWCOMMENT';
 export const DEL_REVIEWCOMMENT = 'DEL_REVIEWCOMMENT';
 export const ADD_REPLYCOMMENT = 'ADD_REPLYCOMMENT';
+export const UPD_RESOLVECOMMENT = 'UPD_RESOLVECOMMENT';
 export const UI_CHANGETAB = 'UI_CHANGETAB';
 export const UI_CHANGEPAGE = 'UI_CHANGEPAGE';
 export const UI_CHANGETABLEPAGEDETAILS = 'UI_CHANGETABLEPAGEDETAILS';
@@ -181,4 +182,5 @@ export const actionLabels = {
     'DEL_REVIEWCOMMENT': 'Delete comment',
     'UPD_REVIEWCOMMENT': 'Update comment',
     'ADD_REPLYCOMMENT': 'Add reply',
+    'UPD_RESOLVECOMMENT': 'Resolve comment',
 };

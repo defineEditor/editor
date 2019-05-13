@@ -42,8 +42,8 @@ const main = (() => {
 
 const tabs = (() => {
     /* TODO: 'Methods', 'Comments', 'Where Conditions' */
-    let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents', 'ARM Summary', 'Analysis Results'];
-    let tabObjectNames = ['standards', 'datasets', 'variables', 'codeLists', 'codedValues', 'documents', 'armSummary', 'analysisResults'];
+    let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents', 'ARM Summary', 'Analysis Results', 'Review Comments'];
+    let tabObjectNames = ['standards', 'datasets', 'variables', 'codeLists', 'codedValues', 'documents', 'armSummary', 'analysisResults', 'reviewComments'];
 
     let setting = {
         windowScrollPosition: 0,

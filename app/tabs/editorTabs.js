@@ -15,6 +15,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { withStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -28,7 +29,7 @@ import CodeListTable from 'tabs/codeListTab.js';
 import ArmSummaryTab from 'tabs/armSummaryTab.js';
 import GroupTab from 'tabs/groupTab.js';
 import DocumentTab from 'tabs/documentTab.js';
-import { withStyles } from '@material-ui/core/styles';
+import ReviewCommentTab from 'tabs/reviewCommentTab.js';
 import {
     changeTab,
     toggleMainMenu,
@@ -203,6 +204,7 @@ class ConnectedEditorTabs extends React.Component {
                     {tabNames[currentTab] === 'Documents' && <DocumentTab/>}
                     {this.props.hasArm && tabNames[currentTab] === 'ARM Summary' && <ArmSummaryTab/>}
                     {this.props.hasArm && tabNames[currentTab] === 'Analysis Results' && <GroupTab groupClass='Analysis Results'/>}
+                    {tabNames[currentTab] === 'Review Comments' && <ReviewCommentTab/>}
                 </TabContainer>
             </div>
         );
