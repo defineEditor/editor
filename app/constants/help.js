@@ -100,3 +100,16 @@ It is expected that Controlled Terminology files are downloaded in XML format fr
 Any Controlled Terminology XML file can be loaded as long as it is created according to the Controlled Terminology in ODM XML specification (\`https://evs.nci.nih.gov/ftp1/CDISC/ControlledTerminologyODM.pdf\`).
 `
 };
+
+export const CODELIST_TO_VLM = {
+    title: 'Create Value Level Metadata from Values of a Codelist',
+    content: `
+#### About
+A Value-Level Metadata can also be created using values of a variable with attached decoded or enumerated codelist. To do so, select a variable in the dropdown menu
+(only variables of the current dataset are listed) and pick items of the corresponding codelist to form VLM entries.
+Based on the selection, a number of VLM records will be added with the following attributes:
+* **Name** - Names are populated from the *Coded Value* codelist column.
+* **Label** - Labels are populated from the *Decode* column of a decoded codelist. In case a variable with enumerated codelist is selected as a source, this attribute is left blank.
+* **Where Clause** - Where Clauses are populated according to pattern *<Source Variable> EQ <Coded Value>*.
+`
+};
