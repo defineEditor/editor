@@ -222,8 +222,8 @@ class ConnectedItemMenu extends React.Component {
     onKeyDown = (event) => {
         // Run only when menu is opened
         if (Boolean(this.props.anchorEl) === true) {
-            // Do not use shortcuts when VLM order is opened
-            if (this.state.openVlmOrder) {
+            // Do not use shortcuts when either VLM order or VLM from variable are opened
+            if (this.state.openVlmOrder || this.state.openVlmFromCodeList) {
                 return;
             }
             if (event.keyCode === 73) {

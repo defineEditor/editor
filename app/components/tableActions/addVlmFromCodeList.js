@@ -73,6 +73,7 @@ function AddVlmFromCodeList (props) {
         let valueLists = store.getState().present.odm.study.metaDataVersion.valueLists;
         let itemDefs = store.getState().present.odm.study.metaDataVersion.itemDefs;
         let whereClauses = store.getState().present.odm.study.metaDataVersion.whereClauses;
+        let lang = store.getState().present.odm.lang;
 
         // this variable show which property to look for inside a codelist
         let codeListItemsProperty = codeLists[codeListOid].codeListType === 'enumerated' ? 'enumeratedItems' : 'codeListItems';
@@ -94,6 +95,7 @@ function AddVlmFromCodeList (props) {
         updateObj.sourceOid = props.currentItemOid;
         updateObj.sourceGroupOid = props.currentGroupOid;
         updateObj.selectedOid = itemDefOid;
+        updateObj.lang = lang;
 
         store.dispatch(addValueListFromCodelist(updateObj));
         props.onCancel();

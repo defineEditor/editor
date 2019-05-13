@@ -105,7 +105,7 @@ export const CODELIST_TO_VLM = {
     title: 'Create Value Level Metadata from Values of a Codelist',
     content: `
 #### About
-A Value Level Metadata can also be created using values of a Variable with attached Decoded or Enumerated Codelist. To do so, select a variable in the dropdown menu
+A Value-Level Metadata can also be created using values of a variable with attached decoded or enumerated codelist. To do so, select a variable in the dropdown menu
 (only variables of the current dataset are listed) and pick items of the corresponding codelist to form VLM entries.
 Based on the selection, a number of VLM records will be added with the following attributes:
 * **Name** - Names are populated from the *Coded Value* codelist column.

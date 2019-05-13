@@ -186,7 +186,7 @@ const handleAddValueListFromCodeList = (state, action) => {
     let whereClauses = action.updateObj.itemDefOids.reduce((object, value, key) => {
         return updateWhereClause(object, {
             source: {
-                valueListOid: [action.updateObj.valueListOid],
+                valueListOid: action.updateObj.valueListOid,
             },
             whereClause: {
                 oid: action.updateObj.whereClauseOids[key],

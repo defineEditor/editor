@@ -233,10 +233,10 @@ const handleAddValueListFromCodeList = (state, action) => {
             oid: value,
             updateObj: {
                 name: action.updateObj.names[key],
-                descriptions: action.updateObj.labels ? [{
-                    lang: 'en',
+                descriptions: action.updateObj.labels ? [{ ...new TranslatedText({
+                    lang: action.updateObj.lang,
                     value: action.updateObj.labels[key],
-                }] : [],
+                }) }] : undefined,
             },
         });
     }, subsequentVls);
