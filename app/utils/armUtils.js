@@ -25,6 +25,7 @@ const copyAnalysisResults = ({
     sourceMdv,
     analysisResultOidList,
     sameDefine,
+    resultDisplayOid,
     existingOids = {
         itemDefs: [],
         methods: [],
@@ -287,6 +288,7 @@ const copyAnalysisResults = ({
             parameterOid: newParameterOid,
             analysisDatasets: newAnalysisDatasets,
             analysisDatasetOrder: newAnalysisDatasetOrder,
+            sources: { resultDisplays: [resultDisplayOid] }
         }) };
         currentAnalysisResults.push(newAnalysisResultOid);
     });

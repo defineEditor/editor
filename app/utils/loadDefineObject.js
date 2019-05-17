@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, remote } from 'electron';
 import store from 'store/index.js';
 import { ActionCreators } from 'redux-undo';
 import recreateDefine from 'utils/recreateDefine.js';
@@ -33,7 +33,7 @@ function loadDefineObject (event, data) {
         // TODO - change > 4 to debug mode check
         if (
             data.info === undefined ||
-            (data.info !== undefined && (data.info.appVersion < '1.0.0-beta.8' || data.info.appVersion > '4'))
+            (data.info !== undefined && (data.info.appVersion !== remote.app.getVersion() || data.info.appVersion > '4'))
         ) {
             store.dispatch(addOdm(recreateDefine(data.odm)));
         } else {

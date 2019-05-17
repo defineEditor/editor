@@ -109,6 +109,8 @@ class ConnectedModalReviewComments extends React.Component {
                 reviewCommentOids = this.props.odm.study.globalVariables.reviewCommentOids;
             } else if (type === 'metaDataVersion') {
                 reviewCommentOids = this.props.mdv.reviewCommentOids;
+            } else if (type === 'reviewComments') {
+                reviewCommentOids = sources[type];
             }
         });
         return reviewCommentOids;
@@ -136,7 +138,7 @@ class ConnectedModalReviewComments extends React.Component {
     }
 
     render () {
-        const { classes, reviewComments } = this.props;
+        const { classes, reviewComments, sources, author } = this.props;
 
         return (
             <Dialog
@@ -155,17 +157,19 @@ class ConnectedModalReviewComments extends React.Component {
                 <DialogContent>
                     <Grid container spacing={16} justify='flex-start' className={classes.content}>
                         <Grid item xs={12}>
-                            {this.getComments(this.props.sources, reviewComments)}
+                            {this.getComments(sources, reviewComments)}
                         </Grid>
-                        <Grid item xs={12}>
-                            <ReviewComment
-                                initialComment
-                                sources={this.props.sources}
-                                author={this.props.author}
-                                reviewComments={reviewComments}
-                                onAdd={this.props.addReviewComment}
-                            />
-                        </Grid>
+                        { !this.props.sources.hasOwnProperty('reviewComments') && (
+                            <Grid item xs={12}>
+                                <ReviewComment
+                                    initialComment
+                                    sources={sources}
+                                    author={author}
+                                    reviewComments={reviewComments}
+                                    onAdd={this.props.addReviewComment}
+                                />
+                            </Grid>
+                        )}
                     </Grid>
                 </DialogContent>
                 <DialogActions>

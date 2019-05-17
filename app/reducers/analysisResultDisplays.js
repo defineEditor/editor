@@ -83,6 +83,7 @@ const addResultDisplay = (state, action) => {
                     oid: newAnalysisResultOid,
                     analysisReason: 'SPECIFIED IN SAP',
                     analysisPurpose: 'PRIMARY OUTCOME MEASURE',
+                    sources: { resultDisplays: [newResultDisplayOid] },
                 }) }
             }
         }
@@ -128,7 +129,12 @@ const addAnalysisResult = (state, action) => {
 
     let newAnalysisResults = {
         ...state.analysisResults,
-        [newAnalysisResultOid]: { ...new AnalysisResult({ oid: newAnalysisResultOid, analysisReason: 'SPECIFIED IN SAP', analysisPurpose: 'PRIMARY OUTCOME MEASURE' }) }
+        [newAnalysisResultOid]: { ...new AnalysisResult({
+            oid: newAnalysisResultOid,
+            analysisReason: 'SPECIFIED IN SAP',
+            analysisPurpose: 'PRIMARY OUTCOME MEASURE',
+            sources: { resultDisplays: [action.updateObj.resultDisplayOid] },
+        }) }
     };
 
     let newResultDisplay = { ...state.resultDisplays[action.updateObj.resultDisplayOid] };

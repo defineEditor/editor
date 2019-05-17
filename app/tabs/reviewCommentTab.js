@@ -15,19 +15,36 @@
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import React from 'react';
+import { sanitize } from 'dompurify';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
+import Tooltip from '@material-ui/core/Tooltip';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableRow from '@material-ui/core/TableRow';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import { FaSignOutAlt as GoToSourceIcon } from 'react-icons/fa';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import IconButton from '@material-ui/core/IconButton';
+import CommentIcon from '@material-ui/icons/Comment';
 import setScrollPosition from 'utils/setScrollPosition.js';
+import { getDescription } from 'utils/defineStructureUtils.js';
 import {
-    updateLeafs,
+    openModal,
+    selectGroup,
 } from 'actions/index.js';
 
 const styles = theme => ({
+    table: {
+        backgroundColor: '#FFFFFF',
+    },
+    resolved: {
+        backgroundColor: '#E0E0E0',
+    },
     root: {
         flexGrow: 1,
         marginTop: theme.spacing.unit * 3,
@@ -49,7 +66,8 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        updateLeafs: (updateObj) => dispatch(updateLeafs(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
+        selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
     };
 };
 
@@ -74,6 +92,15 @@ const panelLabels = {
 
 const panels = Object.keys(panelLabels);
 
+const CustomTableCell = withStyles(theme => ({
+    head: {
+        backgroundColor: theme.palette.primary.main,
+        color: '#EEEEEE',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+}))(TableCell);
+
 class ConnectedReviewCommentTab extends React.Component {
     constructor (props) {
         super(props);
@@ -96,7 +123,7 @@ class ConnectedReviewCommentTab extends React.Component {
         this.setState({ panelStatus: { ...this.state.panelStatus, [panelId]: !this.state.panelStatus[panelId] } });
     }
 
-    getReviewCommentData = (reviewComments, panelId) => {
+    getReviewCommentData = (reviewComments, panelId, mdv) => {
         // Filter required comments
         let results = [];
         let rcOids = Object.keys(reviewComments).filter(id => {
@@ -114,7 +141,8 @@ class ConnectedReviewCommentTab extends React.Component {
         rcOids.forEach(id => {
             let reviewComment = reviewComments[id];
             let commentData = {
-                text: reviewComment.text,
+                id: id,
+                text: sanitize(reviewComment.text),
                 resolved: false,
                 lastModified: reviewComment.modifiedAt,
                 author: reviewComment.author,
@@ -122,10 +150,148 @@ class ConnectedReviewCommentTab extends React.Component {
             if (reviewComment.resolvedBy) {
                 commentData.resolved = true;
             }
+            // Get names of the sources
+            let sourceName = '';
+            let sources = reviewComments[id].sources;
+            if (panelId === 'standards') {
+                let sourceId = Object.keys(sources)[0];
+                switch (sourceId) {
+                    case 'standards':
+                        sourceName = 'Standards';
+                        break;
+                    case 'metaDataVersion':
+                        sourceName = 'Metadata Version';
+                        break;
+                    case 'globalVariables':
+                        sourceName = 'Global Variables';
+                        break;
+                    case 'odm':
+                        sourceName = 'ODM';
+                        break;
+                    default:
+                        sourceName = '';
+                        break;
+                }
+            } else {
+                let sourceId = Object.keys(sources)[0];
+                let sourceValue = sources[sourceId][0];
+                if (['analysisResults', 'resultDisplays'].includes(panelId)) {
+                    if (sourceId &&
+                        mdv.analysisResultDisplays &&
+                        mdv.analysisResultDisplays[sourceId] &&
+                        mdv.analysisResultDisplays[sourceId].hasOwnProperty(sourceValue) &&
+                        mdv.analysisResultDisplays[sourceId][sourceValue].descriptions
+                    ) {
+                        if (panelId === 'analysisResults') {
+                            sourceName = getDescription(mdv.analysisResultDisplays[sourceId][sourceValue]);
+                            // Get name of the result display
+                            const analysisResult = mdv.analysisResultDisplays[sourceId][sourceValue];
+                            if (analysisResult.sources &&
+                                analysisResult.sources.resultDisplays
+                            ) {
+                                const resultDisplay = mdv.analysisResultDisplays.resultDisplays[analysisResult.sources.resultDisplays[0]];
+                                commentData.parentItemOid = resultDisplay.oid;
+                                if (resultDisplay) {
+                                    sourceName = `${resultDisplay.name} ${sourceName}`;
+                                }
+                            }
+                        } else {
+                            sourceName = mdv.analysisResultDisplays[sourceId][sourceValue].name;
+                        }
+                    }
+                } else {
+                    if (sourceId && mdv[sourceId] && mdv[sourceId].hasOwnProperty(sourceValue)) {
+                        sourceName = mdv[sourceId][sourceValue].name;
+                        if (sourceId === 'itemDefs') {
+                            // Get the dataset name or the VLM name
+                            const itemDef = mdv[sourceId][sourceValue];
+                            if (itemDef.parentItemDefOid && mdv.itemDefs.hasOwnProperty(itemDef.parentItemDefOid)) {
+                                // VLM
+                                const parentItemDef = mdv.itemDefs[itemDef.parentItemDefOid];
+                                const itemGroupOid = parentItemDef.sources && parentItemDef.sources.itemGroups && parentItemDef.sources.itemGroups[0];
+                                commentData.parentItemOid = itemGroupOid;
+                                if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
+                                    sourceName = `${mdv.itemGroups[itemGroupOid].name}.${parentItemDef.name}.${sourceName}`;
+                                }
+                            } else {
+                                const itemGroupOid = itemDef.sources && itemDef.sources.itemGroups && itemDef.sources.itemGroups[0];
+                                commentData.parentItemOid = itemGroupOid;
+                                if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
+                                    sourceName = `${mdv.itemGroups[itemGroupOid].name}.${sourceName}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            commentData.sourceName = sourceName;
             results.push(commentData);
         });
 
         return results;
+    }
+
+    openComments = (reviewCommentId) => () => {
+        this.props.openModal({
+            type: 'REVIEW_COMMENT',
+            props: { sources: { reviewComments: [reviewCommentId] } },
+        });
+    }
+
+    goToSource = (panelId, parentItemOid) => () => {
+        const tabNames = this.props.tabs.tabNames;
+        switch (panelId) {
+            case 'analysisResults': {
+                let updateObj = {
+                    tabIndex: tabNames.indexOf('Analysis Results'),
+                    groupOid: parentItemOid,
+                    scrollPosition: {},
+                };
+                this.props.selectGroup(updateObj);
+                break;
+            }
+        }
+    }
+
+    getTable = (data, panelId) => {
+        const { classes } = this.props;
+        return (
+            <Table className={classes.table}>
+                <colgroup>
+                    <col style={{ width: '15%' }}/>
+                    <col style={{ width: '15%' }}/>
+                    <col style={{ width: '55%' }}/>
+                    <col style={{ width: '20%' }}/>
+                </colgroup>
+                <TableBody>
+                    { data.map(row =>
+                        <TableRow key={row.id} className={row.resolved ? classes.resolved : undefined}>
+                            <CustomTableCell>
+                                {row.sourceName}
+                            </CustomTableCell>
+                            <CustomTableCell>
+                                {row.author}
+                            </CustomTableCell>
+                            <CustomTableCell>
+                                <div dangerouslySetInnerHTML={{ __html: row.text }}/>
+                            </CustomTableCell>
+                            <CustomTableCell>
+                                <Tooltip title="Open Comment" placement="bottom-end" enterDelay={700}>
+                                    <IconButton onClick={this.openComments(row.id)} className={classes.icon}>
+                                        <CommentIcon/>
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Go to source" placement="bottom-end" enterDelay={700}>
+                                    <IconButton onClick={this.goToSource(panelId, row.parentItemOid)} className={classes.icon}>
+                                        <GoToSourceIcon/>
+                                    </IconButton>
+                                </Tooltip>
+                            </CustomTableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+        );
     }
 
     getPanelStats = (data) => {
@@ -136,7 +302,7 @@ class ConnectedReviewCommentTab extends React.Component {
     }
 
     render () {
-        const { classes, reviewComments } = this.props;
+        const { classes, reviewComments, mdv } = this.props;
         return (
             <div className={classes.root}>
                 <Grid container spacing={8}>
@@ -147,7 +313,7 @@ class ConnectedReviewCommentTab extends React.Component {
                     </Grid>
                     <Grid item xs={12}>
                         { panels.map(panelId => {
-                            let data = this.getReviewCommentData(reviewComments, panelId);
+                            let data = this.getReviewCommentData(reviewComments, panelId, mdv);
                             let panelStats = this.getPanelStats(data);
                             return (
                                 <ExpansionPanel
@@ -164,9 +330,7 @@ class ConnectedReviewCommentTab extends React.Component {
                                         </Typography>
                                     </ExpansionPanelSummary>
                                     <ExpansionPanelDetails>
-                                        <Typography>
-                                            Here go details
-                                        </Typography>
+                                        {this.getTable(data, panelId)}
                                     </ExpansionPanelDetails>
                                 </ExpansionPanel>
                             );
@@ -183,6 +347,7 @@ ConnectedReviewCommentTab.propTypes = {
     reviewComments: PropTypes.object.isRequired,
     mdv: PropTypes.object.isRequired,
     odm: PropTypes.object.isRequired,
+    openModal: PropTypes.func.isRequired,
 };
 ConnectedReviewCommentTab.displayName = 'ReviewCommentTab';
 
