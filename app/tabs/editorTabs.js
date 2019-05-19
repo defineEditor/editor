@@ -101,9 +101,10 @@ class ConnectedEditorTabs extends React.Component {
     }
 
     handleChange = (event, value) => {
-        if (value !== this.props.currentTab) {
+        let updatedValue = Number(value);
+        if (updatedValue !== this.props.tabs.currentTab) {
             let updateObj = {
-                selectedTab: value,
+                selectedTab: updatedValue,
                 currentScrollPosition: window.scrollY,
             };
             this.props.changeTab(updateObj);
@@ -127,10 +128,12 @@ class ConnectedEditorTabs extends React.Component {
             this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Result Displays'));
         } else if (event.ctrlKey && (event.keyCode === 56) && this.props.hasArm) {
             this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Analysis Results'));
+        } else if (event.ctrlKey && (event.keyCode === 57)) {
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Review Comments'));
         } else if (event.ctrlKey && (event.keyCode === 187 || event.keyCode === 189)) {
             // Change to the next tab
             let currentTab = this.props.tabs.currentTab;
-            let tabCount = this.props.hasArm ? this.props.tabs.tabNames.length : this.props.tabs.tabNames.length - 2;
+            let tabCount = this.props.tabs.tabNames.length;
             let shift;
             if (event.keyCode === 187) {
                 shift = 1;
@@ -138,7 +141,18 @@ class ConnectedEditorTabs extends React.Component {
                 shift = -1;
             }
             if ((currentTab + shift) < tabCount && (currentTab + shift) >= 0) {
-                this.handleChange(undefined, currentTab + shift);
+                // In case there is no ARM, manually skip ARM tabs
+                if (!this.props.hasArm && shift === 1 &&
+                    (currentTab === this.props.tabs.tabNames.indexOf('Result Displays') - 1)
+                ) {
+                    this.handleChange(undefined, currentTab + shift + 2);
+                } else if (!this.props.hasArm && shift === -1 &&
+                        (currentTab === this.props.tabs.tabNames.indexOf('Analysis Results') + 1)
+                ) {
+                    this.handleChange(undefined, currentTab + shift - 2);
+                } else {
+                    this.handleChange(undefined, currentTab + shift);
+                }
             } else {
                 if (shift < 0) {
                     this.handleChange(undefined, tabCount - 1);
@@ -156,10 +170,10 @@ class ConnectedEditorTabs extends React.Component {
         // If there is no ARM, hide related tabs
         if (this.props.hasArm !== true) {
             if (tabNames.includes('Result Displays')) {
-                tabNames.splice(tabNames.indexOf('Result Displays'), 1);
+                tabNames.splice(tabNames.indexOf('Result Displays'), 1, undefined);
             }
             if (tabNames.includes('Analysis Results')) {
-                tabNames.splice(tabNames.indexOf('Analysis Results'), 1);
+                tabNames.splice(tabNames.indexOf('Analysis Results'), 1, undefined);
             }
         }
 
@@ -179,7 +193,7 @@ class ConnectedEditorTabs extends React.Component {
                     </IconButton>
                     <AppBar position="fixed" color='default'>
                         <Tabs
-                            value={currentTab}
+                            value={currentTab.toString()}
                             onChange={this.handleChange}
                             variant='scrollable'
                             indicatorColor='primary'
@@ -187,9 +201,12 @@ class ConnectedEditorTabs extends React.Component {
                             className={classes.tabs}
                             scrollButtons="auto"
                         >
-                            { tabNames.map(tab => {
-                                return <Tab key={tab} label={tab} className={classes.tab}/>;
-                            })
+                            { tabNames
+                                .map((tab, index) => {
+                                    if (tab !== undefined) {
+                                        return <Tab key={tab} label={tab} className={classes.tab} value={index.toString()}/>;
+                                    }
+                                })
                             }
                         </Tabs>
                     </AppBar>

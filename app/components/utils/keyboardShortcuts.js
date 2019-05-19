@@ -83,6 +83,7 @@ const shortcuts = {
         'Ctrl + 6': 'Switch to the Documents tab',
         'Ctrl + 7': 'Switch to the Result Displays tab',
         'Ctrl + 8': 'Switch to the Analysis Results tab',
+        'Ctrl + 9': 'Switch to the Review Comments tab',
         'Ctrl + =': 'Switch to the next tab',
         'Ctrl + -': 'Switch to the previous tab',
     },
