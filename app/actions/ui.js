@@ -30,7 +30,7 @@ import {
     UI_TOGGLEREVIEWMODE,
     UI_UPDCOPYBUFFER,
     UI_CHANGETABLEPAGEDETAILS,
-    UI_TOGGLEREVIEWCOMMENTPANEL,
+    UI_TOGGLEREVIEWCOMMENTPANELS,
     UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED,
 } from 'constants/action-types';
 
@@ -117,8 +117,8 @@ export const updateCopyBuffer = updateObj => ({
     updateObj
 });
 
-export const toggleReviewCommentPanel = updateObj => ({
-    type: UI_TOGGLEREVIEWCOMMENTPANEL,
+export const toggleReviewCommentPanels = updateObj => ({
+    type: UI_TOGGLEREVIEWCOMMENTPANELS,
     updateObj
 });
 

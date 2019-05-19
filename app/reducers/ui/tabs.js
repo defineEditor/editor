@@ -21,7 +21,7 @@ import {
     UI_UPDATEFILTER,
     UI_LOADTABS,
     UI_CHANGETABLEPAGEDETAILS,
-    UI_TOGGLEREVIEWCOMMENTPANEL,
+    UI_TOGGLEREVIEWCOMMENTPANELS,
     UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED,
 } from 'constants/action-types';
 import { ui } from 'constants/initialValues.js';
@@ -211,16 +211,23 @@ const changeTablePageDetails = (state, action) => {
     };
 };
 
-const toggleReviewCommentPanel = (state, action) => {
+const toggleReviewCommentPanels = (state, action) => {
     let currentTab = state.currentTab;
-    const panelId = action.updateObj.panelId;
+    const panelIds = action.updateObj.panelIds;
+    const status = action.updateObj.status;
     let newSettings = state.settings.slice();
-    let panelStatus;
-    if (state.settings[currentTab].panelStatus[panelId] !== true) {
-        panelStatus = { ...state.settings[currentTab].panelStatus, [panelId]: true };
-    } else {
-        panelStatus = { ...state.settings[currentTab].panelStatus, [panelId]: false };
-    }
+    let panelStatus = { ...state.settings[currentTab].panelStatus };
+    panelIds.forEach(panelId => {
+        if (status === undefined) {
+            if (state.settings[currentTab].panelStatus[panelId] !== true) {
+                panelStatus = { ...panelStatus, [panelId]: true };
+            } else {
+                panelStatus = { ...panelStatus, [panelId]: false };
+            }
+        } else {
+            panelStatus = { ...panelStatus, [panelId]: status };
+        }
+    });
     let newSetting = {
         ...state.settings[currentTab],
         panelStatus,
@@ -264,8 +271,8 @@ const tabs = (state = initialState, action) => {
             return loadTabs(state, action);
         case UI_CHANGETABLEPAGEDETAILS:
             return changeTablePageDetails(state, action);
-        case UI_TOGGLEREVIEWCOMMENTPANEL:
-            return toggleReviewCommentPanel(state, action);
+        case UI_TOGGLEREVIEWCOMMENTPANELS:
+            return toggleReviewCommentPanels(state, action);
         case UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED:
             return toggleReviewCommentShowResolved(state, action);
         default:

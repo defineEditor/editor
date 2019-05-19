@@ -19,16 +19,18 @@ import { sanitize } from 'dompurify';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
+import TextField from '@material-ui/core/TextField';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import { FaArrowCircleRight as GoToSourceIcon, FaCheck, FaTimes } from 'react-icons/fa';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Typography from '@material-ui/core/Typography';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import CommentIcon from '@material-ui/icons/Comment';
@@ -39,7 +41,7 @@ import {
     selectGroup,
     changeTab,
     toggleResolveComment,
-    toggleReviewCommentPanel,
+    toggleReviewCommentPanels,
     toggleReviewCommentShowResolved,
 } from 'actions/index.js';
 
@@ -69,8 +71,12 @@ const styles = theme => ({
     icon: {
         marginLeft: theme.spacing.unit,
     },
-    button: {
-        marginLeft: theme.spacing.unit,
+    searchInput: {
+        paddingTop: '9px',
+        paddingBottom: '9px',
+    },
+    searchLabel: {
+        transform: 'translate(10px, 10px)',
     },
 });
 
@@ -81,7 +87,7 @@ const mapDispatchToProps = dispatch => {
         selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
         changeTab: (updateObj) => dispatch(changeTab(updateObj)),
         toggleResolveComment: (updateObj) => dispatch(toggleResolveComment(updateObj)),
-        toggleReviewCommentPanel: (updateObj) => dispatch(toggleReviewCommentPanel(updateObj)),
+        toggleReviewCommentPanels: (updateObj) => dispatch(toggleReviewCommentPanels(updateObj)),
         toggleReviewCommentShowResolved: () => dispatch(toggleReviewCommentShowResolved()),
     };
 };
@@ -124,29 +130,65 @@ class ConnectedReviewCommentTab extends React.Component {
     constructor (props) {
         super(props);
 
-        let panelStatus = {};
-        panels.forEach(panelId => {
-            panelStatus[panelId] = false;
-        });
+        this.searchFieldRef = React.createRef();
+        // Expanded is true unless all panels are expanded
+        let expandedToggled = !panels.some(panelId => (props.panelStatus[panelId] === false));
 
         this.state = {
-            panelStatus,
+            expandedToggled,
+            searchString: '',
         };
     }
 
     componentDidMount () {
+        window.addEventListener('keydown', this.onKeyDown);
         setScrollPosition(this.props.tabs);
     }
 
+    componentWillUnmount () {
+        window.removeEventListener('keydown', this.onKeyDown);
+    }
+
+    onKeyDown = (event) => {
+        if (event.ctrlKey && (event.keyCode === 70)) {
+            this.searchFieldRef.current.focus();
+        }
+    }
+
+    onSearchKeyDown = (event) => {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            this.setState({ searchString: event.target.value });
+        }
+    }
+
+    static getDerivedStateFromProps (nextProps, prevState) {
+        // If all panels are got closed/opened change the expandedToggle status;
+        let allAreClosed = !panels.reduce((accStatus, panelId) => (accStatus || Boolean(nextProps.panelStatus[panelId])), false);
+        let allAreOpened = panels.reduce((accStatus, panelId) => (accStatus && Boolean(nextProps.panelStatus[panelId])), true);
+        if ((prevState.expandedToggled === true && allAreOpened) ||
+            (prevState.expandedToggled === false && allAreClosed)
+        ) {
+            return ({ expandedToggled: !prevState.expandedToggled });
+        } else {
+            return null;
+        }
+    }
+
     handleChange = (panelId) => () => {
-        this.props.toggleReviewCommentPanel({ panelId });
+        this.props.toggleReviewCommentPanels({ panelIds: [panelId] });
     }
 
     toggleShowResolved = () => {
         this.props.toggleReviewCommentShowResolved();
     }
 
-    getReviewCommentData = (reviewComments, panelId, showResolved, mdv) => {
+    toggleExpand = () => {
+        this.props.toggleReviewCommentPanels({ panelIds: panels, status: this.state.expandedToggled });
+        this.setState({ expandedToggled: !this.state.expandedToggled });
+    }
+
+    getReviewCommentData = (reviewComments, panelId, showResolved, mdv, searchString) => {
         // Filter required comments
         let results = [];
         let rcOids = Object.keys(reviewComments).filter(id => {
@@ -167,7 +209,6 @@ class ConnectedReviewCommentTab extends React.Component {
                 id: id,
                 text: sanitize(reviewComment.text),
                 resolved: false,
-                lastModified: reviewComment.modifiedAt,
                 author: reviewComment.author,
             };
             if (reviewComment.resolvedBy) {
@@ -229,30 +270,54 @@ class ConnectedReviewCommentTab extends React.Component {
                     }
                 } else {
                     if (sourceId && mdv[sourceId] && mdv[sourceId].hasOwnProperty(sourceValue)) {
-                        sourceName = mdv[sourceId][sourceValue].name;
                         if (sourceId === 'itemDefs') {
+                            const variableName = mdv[sourceId][sourceValue].name;
+                            sourceName = '';
                             // Get the dataset name or the VLM name
                             const itemDef = mdv[sourceId][sourceValue];
                             if (itemDef.parentItemDefOid && mdv.itemDefs.hasOwnProperty(itemDef.parentItemDefOid)) {
                                 // VLM
                                 const parentItemDef = mdv.itemDefs[itemDef.parentItemDefOid];
-                                const itemGroupOid = parentItemDef.sources && parentItemDef.sources.itemGroups && parentItemDef.sources.itemGroups[0];
-                                commentData.parentItemOid = itemGroupOid;
-                                if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
-                                    sourceName = `${mdv.itemGroups[itemGroupOid].name}.${parentItemDef.name}.${sourceName}`;
-                                }
+                                const itemGroupOids = parentItemDef.sources && parentItemDef.sources.itemGroups && parentItemDef.sources.itemGroups;
+                                itemGroupOids.forEach(itemGroupOid => {
+                                    commentData.parentItemOid = itemGroupOid;
+                                    if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
+                                        sourceName = `${sourceName} ${mdv.itemGroups[itemGroupOid].name}.${parentItemDef.name}.${variableName}`;
+                                    }
+                                });
                             } else {
-                                const itemGroupOid = itemDef.sources && itemDef.sources.itemGroups && itemDef.sources.itemGroups[0];
-                                commentData.parentItemOid = itemGroupOid;
-                                if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
-                                    sourceName = `${mdv.itemGroups[itemGroupOid].name}.${sourceName}`;
-                                }
+                                const itemGroupOids = itemDef.sources && itemDef.sources.itemGroups && itemDef.sources.itemGroups;
+                                itemGroupOids.forEach(itemGroupOid => {
+                                    commentData.parentItemOid = itemGroupOid;
+                                    if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
+                                        sourceName = `${sourceName} ${mdv.itemGroups[itemGroupOid].name}.${variableName}`;
+                                    }
+                                });
                             }
+                        } else {
+                            sourceName = mdv[sourceId][sourceValue].name;
                         }
                     }
                 }
             }
-            commentData.sourceName = sourceName;
+            commentData.sourceName = sourceName.trim();
+            if (searchString) {
+                // If search string contains capital cases, use case-sensitive search
+                const caseSensitiveSearch = /[A-Z]/.test(searchString);
+                // Go through each text item and search for the corresponding text, exlude ID items
+                const matched = Object.keys(commentData)
+                    .filter(item => (!['id'].includes(item)))
+                    .some(item => {
+                        if (caseSensitiveSearch) {
+                            return typeof commentData[item] === 'string' && commentData[item].includes(searchString);
+                        } else {
+                            return typeof commentData[item] === 'string' && commentData[item].toLowerCase().includes(searchString);
+                        }
+                    });
+                if (!matched) {
+                    return;
+                }
+            }
             results.push(commentData);
         });
 
@@ -348,25 +413,51 @@ class ConnectedReviewCommentTab extends React.Component {
         const { classes, reviewComments, mdv, showResolved } = this.props;
         return (
             <div className={classes.root}>
-                <Grid container spacing={8}>
-                    <Grid item xs={6}>
+                <Grid container spacing={8} justify='space-between'>
+                    <Grid item>
                         <Typography variant="h4" color='textSecondary' inline>
                             Review Comments
                         </Typography>
                     </Grid>
-                    <Grid item xs={6}>
-                        <Button
-                            variant='contained'
-                            color='default'
-                            className={classes.button}
-                            onClick={ this.toggleShowResolved }
-                        >
-                            {`${showResolved ? 'Hide' : 'Show'} resolved`}
-                        </Button>
+                    <Grid item>
+                        <Grid container spacing={16} justify='flex-end'>
+                            <Grid item>
+                                <TextField
+                                    variant='outlined'
+                                    label='Search'
+                                    placeholder='Ctrl+F'
+                                    inputRef={this.searchFieldRef}
+                                    inputProps={{ className: classes.searchInput }}
+                                    InputLabelProps={{ className: classes.searchLabel, shrink: true }}
+                                    defaultValue={this.state.searchString}
+                                    onKeyDown={this.onSearchKeyDown}
+                                    onBlur={(event) => { this.setState({ searchString: event.target.value }); }}
+                                />
+                            </Grid>
+                            <Grid item>
+                                <Button
+                                    variant='contained'
+                                    color={showResolved ? 'default' : 'primary'}
+                                    onClick={ this.toggleShowResolved }
+                                >
+                                    {`${showResolved ? 'Hide' : 'Show'} resolved`}
+                                </Button>
+                            </Grid>
+                            <Grid item>
+                                <Button
+                                    variant='contained'
+                                    color='default'
+                                    onClick={this.toggleExpand}
+                                >
+                                    {`${this.state.expandedToggled ? 'Expand' : 'Collapse'} all`}
+                                    {this.state.expandedToggled ? <ExpandMoreIcon style={{ marginLeft: '7px' }}/> : <ExpandLessIcon style={{ marginLeft: '7px' }}/>}
+                                </Button>
+                            </Grid>
+                        </Grid>
                     </Grid>
                     <Grid item xs={12}>
                         { panels.map(panelId => {
-                            let data = this.getReviewCommentData(reviewComments, panelId, showResolved, mdv);
+                            let data = this.getReviewCommentData(reviewComments, panelId, showResolved, mdv, this.state.searchString);
                             let panelStats = this.getPanelStats(data);
                             return (
                                 <ExpansionPanel
@@ -405,7 +496,7 @@ ConnectedReviewCommentTab.propTypes = {
     selectGroup: PropTypes.func.isRequired,
     changeTab: PropTypes.func.isRequired,
     toggleResolveComment: PropTypes.func.isRequired,
-    toggleReviewCommentPanel: PropTypes.func.isRequired,
+    toggleReviewCommentPanels: PropTypes.func.isRequired,
     toggleReviewCommentShowResolved: PropTypes.func.isRequired,
 };
 ConnectedReviewCommentTab.displayName = 'ReviewCommentTab';
