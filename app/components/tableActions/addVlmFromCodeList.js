@@ -159,8 +159,8 @@ function AddVlmFromCodeList (props) {
     const [selectedAttributes, setSelectedAttributes] = useState([]);
 
     // retrieve data from state
-    let codeLists = { ...storeState.present.odm.study.metaDataVersion.codeLists };
-    let itemDefs = { ...storeState.present.odm.study.metaDataVersion.itemDefs };
+    let codeLists = storeState.present.odm.study.metaDataVersion.codeLists;
+    let itemDefs = storeState.present.odm.study.metaDataVersion.itemDefs;
     let defineVersion = storeState.present.odm.study.metaDataVersion.defineVersion;
 
     // create object for dropdown list: its properties are itemOid name and label concatenated
