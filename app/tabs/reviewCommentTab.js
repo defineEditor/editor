@@ -24,11 +24,12 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import { FaSignOutAlt as GoToSourceIcon } from 'react-icons/fa';
+import { FaArrowCircleRight as GoToSourceIcon, FaCheck, FaTimes } from 'react-icons/fa';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import CommentIcon from '@material-ui/icons/Comment';
 import setScrollPosition from 'utils/setScrollPosition.js';
@@ -36,6 +37,10 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 import {
     openModal,
     selectGroup,
+    changeTab,
+    toggleResolveComment,
+    toggleReviewCommentPanel,
+    toggleReviewCommentShowResolved,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -43,7 +48,7 @@ const styles = theme => ({
         backgroundColor: '#FFFFFF',
     },
     resolved: {
-        backgroundColor: '#E0E0E0',
+        backgroundColor: '#EEEEEE',
     },
     root: {
         flexGrow: 1,
@@ -61,6 +66,12 @@ const styles = theme => ({
         fontSize: theme.typography.pxToRem(15),
         color: theme.palette.text.secondary,
     },
+    icon: {
+        marginLeft: theme.spacing.unit,
+    },
+    button: {
+        marginLeft: theme.spacing.unit,
+    },
 });
 
 // Redux functions
@@ -68,16 +79,24 @@ const mapDispatchToProps = dispatch => {
     return {
         openModal: (updateObj) => dispatch(openModal(updateObj)),
         selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
+        changeTab: (updateObj) => dispatch(changeTab(updateObj)),
+        toggleResolveComment: (updateObj) => dispatch(toggleResolveComment(updateObj)),
+        toggleReviewCommentPanel: (updateObj) => dispatch(toggleReviewCommentPanel(updateObj)),
+        toggleReviewCommentShowResolved: () => dispatch(toggleReviewCommentShowResolved()),
     };
 };
 
 const mapStateToProps = state => {
+    const settings = state.present.ui.tabs.settings[state.present.ui.tabs.currentTab];
     return {
         defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
         reviewComments: state.present.odm.reviewComments,
         mdv: state.present.odm.study.metaDataVersion,
         odm: state.present.odm,
         tabs: state.present.ui.tabs,
+        author: state.present.settings.general.userName,
+        panelStatus: settings.panelStatus,
+        showResolved: settings.showResolved,
     };
 };
 
@@ -120,10 +139,14 @@ class ConnectedReviewCommentTab extends React.Component {
     }
 
     handleChange = (panelId) => () => {
-        this.setState({ panelStatus: { ...this.state.panelStatus, [panelId]: !this.state.panelStatus[panelId] } });
+        this.props.toggleReviewCommentPanel({ panelId });
     }
 
-    getReviewCommentData = (reviewComments, panelId, mdv) => {
+    toggleShowResolved = () => {
+        this.props.toggleReviewCommentShowResolved();
+    }
+
+    getReviewCommentData = (reviewComments, panelId, showResolved, mdv) => {
         // Filter required comments
         let results = [];
         let rcOids = Object.keys(reviewComments).filter(id => {
@@ -148,7 +171,12 @@ class ConnectedReviewCommentTab extends React.Component {
                 author: reviewComment.author,
             };
             if (reviewComment.resolvedBy) {
-                commentData.resolved = true;
+                if (showResolved === false) {
+                    // In case resolved comments are not show, skip the iteration
+                    return;
+                } else {
+                    commentData.resolved = true;
+                }
             }
             // Get names of the sources
             let sourceName = '';
@@ -240,17 +268,27 @@ class ConnectedReviewCommentTab extends React.Component {
 
     goToSource = (panelId, parentItemOid) => () => {
         const tabNames = this.props.tabs.tabNames;
-        switch (panelId) {
-            case 'analysisResults': {
-                let updateObj = {
-                    tabIndex: tabNames.indexOf('Analysis Results'),
-                    groupOid: parentItemOid,
-                    scrollPosition: {},
-                };
-                this.props.selectGroup(updateObj);
-                break;
-            }
+        if (['standards', 'itemGroups', 'codeLists', 'resultDisplays'].includes(panelId)) {
+            let updateObj = {
+                selectedTab: tabNames.indexOf(panelLabels[panelId]),
+                currentScrollPosition: window.scrollY,
+            };
+            this.props.changeTab(updateObj);
+        } else if (['analysisResults', 'itemDefs'].includes(panelId)) {
+            let updateObj = {
+                tabIndex: tabNames.indexOf(panelLabels[panelId]),
+                groupOid: parentItemOid,
+                scrollPosition: window.scrollY,
+            };
+            this.props.selectGroup(updateObj);
         }
+    }
+
+    toggleResolve = (oid) => () => {
+        this.props.toggleResolveComment({
+            oid: oid,
+            author: this.props.author,
+        });
     }
 
     getTable = (data, panelId) => {
@@ -273,7 +311,7 @@ class ConnectedReviewCommentTab extends React.Component {
                                 {row.author}
                             </CustomTableCell>
                             <CustomTableCell>
-                                <div dangerouslySetInnerHTML={{ __html: row.text }}/>
+                                <div className='htmlContent' dangerouslySetInnerHTML={{ __html: row.text }}/>
                             </CustomTableCell>
                             <CustomTableCell>
                                 <Tooltip title="Open Comment" placement="bottom-end" enterDelay={700}>
@@ -284,6 +322,11 @@ class ConnectedReviewCommentTab extends React.Component {
                                 <Tooltip title="Go to source" placement="bottom-end" enterDelay={700}>
                                     <IconButton onClick={this.goToSource(panelId, row.parentItemOid)} className={classes.icon}>
                                         <GoToSourceIcon/>
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title={row.resolved ? 'Unresolve' : 'Resolve'} placement="bottom-end" enterDelay={700}>
+                                    <IconButton onClick={this.toggleResolve(row.id)} className={classes.icon}>
+                                        {row.resolved ? <FaTimes/> : <FaCheck/>}
                                     </IconButton>
                                 </Tooltip>
                             </CustomTableCell>
@@ -302,23 +345,33 @@ class ConnectedReviewCommentTab extends React.Component {
     }
 
     render () {
-        const { classes, reviewComments, mdv } = this.props;
+        const { classes, reviewComments, mdv, showResolved } = this.props;
         return (
             <div className={classes.root}>
                 <Grid container spacing={8}>
-                    <Grid item xs={12}>
-                        <Typography variant="h4" color='textSecondary'>
+                    <Grid item xs={6}>
+                        <Typography variant="h4" color='textSecondary' inline>
                             Review Comments
                         </Typography>
                     </Grid>
+                    <Grid item xs={6}>
+                        <Button
+                            variant='contained'
+                            color='default'
+                            className={classes.button}
+                            onClick={ this.toggleShowResolved }
+                        >
+                            {`${showResolved ? 'Hide' : 'Show'} resolved`}
+                        </Button>
+                    </Grid>
                     <Grid item xs={12}>
                         { panels.map(panelId => {
-                            let data = this.getReviewCommentData(reviewComments, panelId, mdv);
+                            let data = this.getReviewCommentData(reviewComments, panelId, showResolved, mdv);
                             let panelStats = this.getPanelStats(data);
                             return (
                                 <ExpansionPanel
                                     key={panelId}
-                                    expanded={this.state.panelStatus[panelId] === true && panelStats.count > 0}
+                                    expanded={this.props.panelStatus[panelId] === true && panelStats.count > 0}
                                     onChange={this.handleChange(panelId)}
                                     disabled={panelStats.count === 0}
                                 >
@@ -347,7 +400,13 @@ ConnectedReviewCommentTab.propTypes = {
     reviewComments: PropTypes.object.isRequired,
     mdv: PropTypes.object.isRequired,
     odm: PropTypes.object.isRequired,
+    author: PropTypes.string.isRequired,
     openModal: PropTypes.func.isRequired,
+    selectGroup: PropTypes.func.isRequired,
+    changeTab: PropTypes.func.isRequired,
+    toggleResolveComment: PropTypes.func.isRequired,
+    toggleReviewCommentPanel: PropTypes.func.isRequired,
+    toggleReviewCommentShowResolved: PropTypes.func.isRequired,
 };
 ConnectedReviewCommentTab.displayName = 'ReviewCommentTab';
 

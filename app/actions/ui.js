@@ -30,6 +30,8 @@ import {
     UI_TOGGLEREVIEWMODE,
     UI_UPDCOPYBUFFER,
     UI_CHANGETABLEPAGEDETAILS,
+    UI_TOGGLEREVIEWCOMMENTPANEL,
+    UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED,
 } from 'constants/action-types';
 
 export const changeTab = updateObj => ({
@@ -113,4 +115,13 @@ export const toggleReviewMode = () => ({
 export const updateCopyBuffer = updateObj => ({
     type: UI_UPDCOPYBUFFER,
     updateObj
+});
+
+export const toggleReviewCommentPanel = updateObj => ({
+    type: UI_TOGGLEREVIEWCOMMENTPANEL,
+    updateObj
+});
+
+export const toggleReviewCommentShowResolved = () => ({
+    type: UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED,
 });

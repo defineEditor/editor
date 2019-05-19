@@ -183,7 +183,6 @@ ConnectedApp.propTypes = {
     currentPage: PropTypes.string.isRequired,
     showInitialMessage: PropTypes.bool.isRequired,
     disableFindToggle: PropTypes.bool.isRequired,
-    reset: PropTypes.func.isRequired,
     bugModalOpened: PropTypes.bool,
 };
 

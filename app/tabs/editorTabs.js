@@ -26,7 +26,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import StandardTable from 'tabs/standardTab.js';
 import DatasetTable from 'tabs/datasetTab.js';
 import CodeListTable from 'tabs/codeListTab.js';
-import ArmSummaryTab from 'tabs/armSummaryTab.js';
+import ResultDisplayTab from 'tabs/resultDisplayTab.js';
 import GroupTab from 'tabs/groupTab.js';
 import DocumentTab from 'tabs/documentTab.js';
 import ReviewCommentTab from 'tabs/reviewCommentTab.js';
@@ -124,7 +124,7 @@ class ConnectedEditorTabs extends React.Component {
         } else if (event.ctrlKey && (event.keyCode === 54)) {
             this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Documents'));
         } else if (event.ctrlKey && (event.keyCode === 55) && this.props.hasArm) {
-            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('ARM Summary'));
+            this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Result Displays'));
         } else if (event.ctrlKey && (event.keyCode === 56) && this.props.hasArm) {
             this.handleChange(undefined, this.props.tabs.tabNames.indexOf('Analysis Results'));
         } else if (event.ctrlKey && (event.keyCode === 187 || event.keyCode === 189)) {
@@ -155,8 +155,8 @@ class ConnectedEditorTabs extends React.Component {
         let tabNames = this.props.tabs.tabNames.slice();
         // If there is no ARM, hide related tabs
         if (this.props.hasArm !== true) {
-            if (tabNames.includes('ARM Summary')) {
-                tabNames.splice(tabNames.indexOf('ARM Summary'), 1);
+            if (tabNames.includes('Result Displays')) {
+                tabNames.splice(tabNames.indexOf('Result Displays'), 1);
             }
             if (tabNames.includes('Analysis Results')) {
                 tabNames.splice(tabNames.indexOf('Analysis Results'), 1);
@@ -202,7 +202,7 @@ class ConnectedEditorTabs extends React.Component {
                     {tabNames[currentTab] === 'Codelists' && <CodeListTable/>}
                     {tabNames[currentTab] === 'Coded Values' && <GroupTab groupClass='Coded Values'/>}
                     {tabNames[currentTab] === 'Documents' && <DocumentTab/>}
-                    {this.props.hasArm && tabNames[currentTab] === 'ARM Summary' && <ArmSummaryTab/>}
+                    {this.props.hasArm && tabNames[currentTab] === 'Result Displays' && <ResultDisplayTab/>}
                     {this.props.hasArm && tabNames[currentTab] === 'Analysis Results' && <GroupTab groupClass='Analysis Results'/>}
                     {tabNames[currentTab] === 'Review Comments' && <ReviewCommentTab/>}
                 </TabContainer>

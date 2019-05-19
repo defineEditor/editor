@@ -14,7 +14,7 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Editor, EditorState, ContentState, convertFromHTML } from 'draft-js';
+import { Editor, EditorState, ContentState, convertFromHTML, RichUtils } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { withStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -221,6 +221,15 @@ class ReviewCommentRaw extends React.Component {
             ));
     }
 
+    handleReturn = (e) => {
+        const { editorState } = this.state;
+        if (e.shiftKey) {
+            this.setState({ editorState: RichUtils.insertSoftNewline(editorState) });
+            return 'handled';
+        }
+        return 'not-handled';
+    }
+
     render () {
         const { classes, oid, initialComment, isParentResolved, reviewComments } = this.props;
 
@@ -274,7 +283,11 @@ class ReviewCommentRaw extends React.Component {
                             </Typography>
                         )}
                         <div className={this.state.editMode ? classes.editorEdit : classes.editorView }>
-                            <Editor editorState={this.state.editorState} onChange={this.onChange} readOnly={!this.state.editMode}/>
+                            <Editor
+                                editorState={this.state.editorState}
+                                onChange={this.onChange}
+                                readOnly={!this.state.editMode}
+                            />
                         </div>
                         { (this.state.confirmDelete || this.state.editMode) && this.props.author !== author && (
                             <Typography variant='caption' color='secondary'>

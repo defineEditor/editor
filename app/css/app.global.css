@@ -39,3 +39,7 @@
         display: none !important;
     }
 }
+
+div.htmlContent p {
+    margin-bottom: 5px;
+}

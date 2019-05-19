@@ -21,6 +21,8 @@ import {
     UI_UPDATEFILTER,
     UI_LOADTABS,
     UI_CHANGETABLEPAGEDETAILS,
+    UI_TOGGLEREVIEWCOMMENTPANEL,
+    UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED,
 } from 'constants/action-types';
 import { ui } from 'constants/initialValues.js';
 
@@ -209,6 +211,41 @@ const changeTablePageDetails = (state, action) => {
     };
 };
 
+const toggleReviewCommentPanel = (state, action) => {
+    let currentTab = state.currentTab;
+    const panelId = action.updateObj.panelId;
+    let newSettings = state.settings.slice();
+    let panelStatus;
+    if (state.settings[currentTab].panelStatus[panelId] !== true) {
+        panelStatus = { ...state.settings[currentTab].panelStatus, [panelId]: true };
+    } else {
+        panelStatus = { ...state.settings[currentTab].panelStatus, [panelId]: false };
+    }
+    let newSetting = {
+        ...state.settings[currentTab],
+        panelStatus,
+    };
+    newSettings.splice(currentTab, 1, newSetting);
+    return {
+        ...state,
+        settings: newSettings,
+    };
+};
+
+const toggleReviewCommentShowResolved = (state, action) => {
+    let currentTab = state.currentTab;
+    let newSettings = state.settings.slice();
+    let newSetting = {
+        ...state.settings[currentTab],
+        showResolved: !state.settings[currentTab].showResolved,
+    };
+    newSettings.splice(currentTab, 1, newSetting);
+    return {
+        ...state,
+        settings: newSettings,
+    };
+};
+
 const tabs = (state = initialState, action) => {
     switch (action.type) {
         case UI_CHANGETAB:
@@ -227,6 +264,10 @@ const tabs = (state = initialState, action) => {
             return loadTabs(state, action);
         case UI_CHANGETABLEPAGEDETAILS:
             return changeTablePageDetails(state, action);
+        case UI_TOGGLEREVIEWCOMMENTPANEL:
+            return toggleReviewCommentPanel(state, action);
+        case UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED:
+            return toggleReviewCommentShowResolved(state, action);
         default:
             return state;
     }

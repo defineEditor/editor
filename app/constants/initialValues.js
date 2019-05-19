@@ -42,8 +42,8 @@ const main = (() => {
 
 const tabs = (() => {
     /* TODO: 'Methods', 'Comments', 'Where Conditions' */
-    let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents', 'ARM Summary', 'Analysis Results', 'Review Comments'];
-    let tabObjectNames = ['standards', 'datasets', 'variables', 'codeLists', 'codedValues', 'documents', 'armSummary', 'analysisResults', 'reviewComments'];
+    let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents', 'Result Displays', 'Analysis Results', 'Review Comments'];
+    let tabObjectNames = ['standards', 'datasets', 'variables', 'codeLists', 'codedValues', 'documents', 'resultDisplays', 'analysisResults', 'reviewComments'];
 
     let setting = {
         windowScrollPosition: 0,
@@ -53,11 +53,15 @@ const tabs = (() => {
     for (let i = 0; i < tabNames.length; i++) {
         let tabObjectName = tabObjectNames[i];
         settings[i] = { ...setting };
-        if (['Datasets', 'Variables', 'Codelists', 'Coded Values', 'ARM Summary'].includes(tabNames[i])) {
+        if (['Datasets', 'Variables', 'Codelists', 'Coded Values', 'Result Displays'].includes(tabNames[i])) {
             settings[i].rowSelect = {};
         }
         if (['Variables', 'Codelists', 'Coded Values'].includes(tabNames[i])) {
             settings[i].pagination = {};
+        }
+        if (tabNames[i] === 'Review Comments') {
+            settings[i].panelStatus = {};
+            settings[i].showResolved = true;
         }
         // When tab has multiple tables
         if (['Variables', 'Coded Values', 'Analysis Results'].includes(tabNames[i])) {
@@ -72,7 +76,7 @@ const tabs = (() => {
             };
         }
         // Column state
-        if (['Datasets', 'Variables', 'Codelists', 'Coded Values', 'ARM Summary'].includes(tabNames[i])) {
+        if (['Datasets', 'Variables', 'Codelists', 'Coded Values', 'Result Displays'].includes(tabNames[i])) {
             settings[i].columns = {};
             Object.keys(stdColumns[tabObjectName]).forEach(columnName => {
                 settings[i].columns[columnName] = { hidden: stdColumns[tabObjectName][columnName].hidden };
