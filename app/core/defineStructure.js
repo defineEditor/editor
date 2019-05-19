@@ -832,7 +832,6 @@ class ItemDef extends BasicFunctions {
         valueList,
         valueListOid,
         note,
-        varLength,
         lengthAsData,
         lengthAsCodeList,
         parentItemDefOid,

@@ -36,6 +36,7 @@ import {
     UPD_LINKCODELISTS,
     ADD_REVIEWCOMMENT,
     DEL_REVIEWCOMMENT,
+    ADD_VALUELISTFROMCODELIST,
 } from 'constants/action-types';
 import { CodeList, CodeListItem, ExternalCodeList, EnumeratedItem, Alias } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
@@ -850,6 +851,19 @@ const deleteReviewComment = (state, action) => {
     }
 };
 
+const handleAddValueListFromCodeList = (state, action) => {
+    // Check if codelist is copied to all VLM records
+    const { itemDefAttrs, itemDefOids } = action.updateObj;
+    const codeListOid = itemDefAttrs.codeListOid;
+    if (codeListOid && itemDefOids.length > 0) {
+        let newSources = clone(state[codeListOid].sources);
+        newSources.itemDefs = (newSources.itemDefs || []).concat(itemDefOids);
+        let updatedCodeList = { ...new CodeList({ ...state[codeListOid], sources: newSources }) };
+        return { ...state, [codeListOid]: updatedCodeList };
+    } else {
+        return state;
+    }
+};
 const codeLists = (state = {}, action) => {
     switch (action.type) {
         case ADD_CODELIST:
@@ -896,6 +910,8 @@ const codeLists = (state = {}, action) => {
             return addReviewComment(state, action);
         case DEL_REVIEWCOMMENT:
             return deleteReviewComment(state, action);
+        case ADD_VALUELISTFROMCODELIST:
+            return handleAddValueListFromCodeList(state, action);
         default:
             return state;
     }

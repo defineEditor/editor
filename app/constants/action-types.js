@@ -44,7 +44,7 @@ export const UPD_ITEMSBULK = 'UPD_ITEMSBULK';
 export const ADD_VAR = 'ADD_VAR';
 export const ADD_VARS = 'ADD_VARS';
 export const ADD_VALUELIST = 'ADD_VALUELIST';
-export const ADD_VALUELIST_FROM_CODELIST = 'ADD_VALUELIST_FROM_CODELIST';
+export const ADD_VALUELISTFROMCODELIST = 'ADD_VALUELISTFROMCODELIST';
 export const INSERT_VAR = 'INSERT_VAR';
 export const INSERT_VALLVL = 'INSERT_VALLVL';
 export const DEL_VARS = 'DEL_VARS';
@@ -146,7 +146,7 @@ export const actionLabels = {
     'ADD_VAR': 'Add variable',
     'ADD_VARS': 'Add variables',
     'ADD_VALUELIST': 'Add VLM',
-    'ADD_VALUELIST_FROM_CODELIST': 'Create VLM from a Codelist',
+    'ADD_VALUELISTFROMCODELIST': 'Create VLM from a Codelist',
     'INSERT_VAR': 'Insert variable ',
     'INSERT_VALLVL': 'Insert VLM ',
     'DEL_VARS': 'Delete variables',

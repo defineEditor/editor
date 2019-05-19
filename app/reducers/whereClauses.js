@@ -17,7 +17,7 @@ import {
     DEL_ITEMGROUPS,
     UPD_NAMELABELWHERECLAUSE,
     ADD_VALUELIST,
-    ADD_VALUELIST_FROM_CODELIST,
+    ADD_VALUELISTFROMCODELIST,
     INSERT_VALLVL,
     ADD_VARS,
     ADD_ITEMGROUPS,
@@ -341,7 +341,7 @@ const whereClauses = (state = {}, action) => {
             return updateNameLabelWhereClause(state, action);
         case ADD_VALUELIST:
             return createNewWhereClause(state, action);
-        case ADD_VALUELIST_FROM_CODELIST:
+        case ADD_VALUELISTFROMCODELIST:
             return handleAddValueListFromCodeList(state, action);
         case ADD_VARS:
             return handleAddWhereClauses(state, action);
