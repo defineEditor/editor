@@ -23,7 +23,7 @@ import {
     ADD_VAR,
     ADD_VARS,
     ADD_VALUELIST,
-    ADD_VALUELIST_FROM_CODELIST,
+    ADD_VALUELISTFROMCODELIST,
     INSERT_VAR,
     INSERT_VALLVL,
     DEL_VARS,
@@ -164,7 +164,7 @@ export const addValueList = (source, valueListOid, itemDefOid, whereClauseOid) =
 
 export const addValueListFromCodelist = (updateObj) => (
     {
-        type: ADD_VALUELIST_FROM_CODELIST,
+        type: ADD_VALUELISTFROMCODELIST,
         updateObj,
     }
 );

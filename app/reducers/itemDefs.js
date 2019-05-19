@@ -24,7 +24,7 @@ import {
     DEL_CODELISTS,
     DEL_ITEMGROUPS,
     ADD_VALUELIST,
-    ADD_VALUELIST_FROM_CODELIST,
+    ADD_VALUELISTFROMCODELIST,
     INSERT_VAR,
     INSERT_VALLVL,
     UPD_LOADACTUALDATA,
@@ -242,7 +242,7 @@ const handleAddValueListFromCodeList = (state, action) => {
         });
     }, firstVl);
 
-    // add names and labels to all itemDefs
+    // add names, labels, and additional attributes to all itemDefs
     let namedAndLabelledVls = action.updateObj.itemDefOids.reduce((object, value, key) => {
         return updateItemDef(object, {
             type: UPD_ITEMDEF,
@@ -253,6 +253,7 @@ const handleAddValueListFromCodeList = (state, action) => {
                     lang: action.updateObj.lang,
                     value: action.updateObj.labels[key],
                 }) }] : undefined,
+                ...action.updateObj.itemDefAttrs,
             },
         });
     }, subsequentVls);
@@ -515,7 +516,7 @@ const itemDefs = (state = {}, action) => {
             return deleteCodeLists(state, action);
         case ADD_VALUELIST:
             return handleAddValueList(state, action);
-        case ADD_VALUELIST_FROM_CODELIST:
+        case ADD_VALUELISTFROMCODELIST:
             return handleAddValueListFromCodeList(state, action);
         case INSERT_VAR:
             return insertVariable(state, action);

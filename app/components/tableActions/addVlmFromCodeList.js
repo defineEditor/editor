@@ -14,9 +14,8 @@
 
 import React, { useState } from 'react';
 import store from 'store/index.js';
+import clone from 'clone';
 import { withStyles } from '@material-ui/core/styles';
-import CodedValueSelectorTable from 'components/utils/codedValueSelectorTable.js';
-import getSelectionList from 'utils/getSelectionList.js';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
@@ -24,8 +23,14 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import IconButton from '@material-ui/core/IconButton';
+import Checkbox from '@material-ui/core/Checkbox';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import ClearIcon from '@material-ui/icons/Clear';
+import DoneAll from '@material-ui/icons/DoneAll';
 import InternalHelp from 'components/utils/internalHelp.js';
+import CodedValueSelectorTable from 'components/utils/codedValueSelectorTable.js';
+import getSelectionList from 'utils/getSelectionList.js';
 import getOid from 'utils/getOid.js';
 import { CODELIST_TO_VLM } from 'constants/help.js';
 import {
@@ -37,7 +42,12 @@ const styles = theme => ({
         width: '100%',
         overflowX: 'auto'
     },
-    selectionField: {
+    variableField: {
+        minWidth: 150,
+        marginRight: theme.spacing.unit * 2,
+        marginBottom: theme.spacing.unit * 2,
+    },
+    attributeField: {
         minWidth: 150,
         marginRight: theme.spacing.unit * 2,
         marginBottom: theme.spacing.unit * 2,
@@ -63,17 +73,31 @@ const styles = theme => ({
     },
 });
 
+const attrList = {
+    'dataType': 'Data Type',
+    'codeListOid': 'Codelist',
+    'fractionDigits': 'Fraction Digits',
+    'origins': 'Origin',
+    'length': 'Length',
+    'mandatory': 'Mandatory',
+    'lengthAsCodeList': 'Codelist Length Flag',
+    'displayFormat': 'Display Format',
+    'role': 'Role',
+};
+
 function AddVlmFromCodeList (props) {
+    const storeState = store.getState();
+
     const onAddVlm = (selectedCodes) => {
         // sort selected codes as per order in the codelist
         selectedCodes.sort((first, second) => {
             return codeLists[codeListOid].itemOrder.indexOf(first) - codeLists[codeListOid].itemOrder.indexOf(second);
         });
 
-        let valueLists = store.getState().present.odm.study.metaDataVersion.valueLists;
-        let itemDefs = store.getState().present.odm.study.metaDataVersion.itemDefs;
-        let whereClauses = store.getState().present.odm.study.metaDataVersion.whereClauses;
-        let lang = store.getState().present.odm.lang;
+        let valueLists = storeState.present.odm.study.metaDataVersion.valueLists;
+        let itemDefs = storeState.present.odm.study.metaDataVersion.itemDefs;
+        let whereClauses = storeState.present.odm.study.metaDataVersion.whereClauses;
+        let lang = storeState.present.odm.lang;
 
         // this variable show which property to look for inside a codelist
         let codeListItemsProperty = codeLists[codeListOid].codeListType === 'enumerated' ? 'enumeratedItems' : 'codeListItems';
@@ -96,6 +120,31 @@ function AddVlmFromCodeList (props) {
         updateObj.sourceGroupOid = props.currentGroupOid;
         updateObj.selectedOid = itemDefOid;
         updateObj.lang = lang;
+        // If attributes were selected to be copied;
+        updateObj.itemDefAttrs = {};
+        updateObj.itemRefAttrs = {};
+
+        if (copyAttributes && selectedAttributes.length > 0) {
+            const sourceItemDef = itemDefs[props.currentItemOid];
+            // Find corresponding ItemRef, as some attributes can be copied from it
+            let sourceItemRef = {};
+            const itemRefs = storeState.present.odm.study.metaDataVersion.itemGroups[props.currentGroupOid].itemRefs;
+            Object.values(itemRefs).some(itemRef => {
+                if (itemRef.itemOid === props.currentItemOid) {
+                    sourceItemRef = itemRef;
+                    return true;
+                }
+            });
+            selectedAttributes.forEach(attr => {
+                if (['dataType', 'codeListOid', 'fractionDigits', 'length', 'lengthAsCodeList', 'displayFormat'].includes(attr)) {
+                    updateObj.itemDefAttrs[attr] = sourceItemDef[attr];
+                } else if (['role', 'mandatory'].includes(attr)) {
+                    updateObj.itemRefAttrs[attr] = sourceItemRef[attr];
+                } else if (attr === 'origins') {
+                    updateObj.itemDefAttrs[attr] = clone(sourceItemDef[attr]);
+                }
+            });
+        }
 
         store.dispatch(addValueListFromCodelist(updateObj));
         props.onCancel();
@@ -106,11 +155,13 @@ function AddVlmFromCodeList (props) {
     // create state variables for selected itemDefOid, codeListOid
     const [itemDefOid, setItemDefOid] = useState(undefined);
     const [codeListOid, setCodeListOid] = useState(undefined);
+    const [copyAttributes, setCopyAttributes] = useState(false);
+    const [selectedAttributes, setSelectedAttributes] = useState([]);
 
     // retrieve data from state
-    let codeLists = { ...store.getState().present.odm.study.metaDataVersion.codeLists };
-    let itemDefs = { ...store.getState().present.odm.study.metaDataVersion.itemDefs };
-    let defineVersion = store.getState().present.odm.study.metaDataVersion.defineVersion;
+    let codeLists = { ...storeState.present.odm.study.metaDataVersion.codeLists };
+    let itemDefs = { ...storeState.present.odm.study.metaDataVersion.itemDefs };
+    let defineVersion = storeState.present.odm.study.metaDataVersion.defineVersion;
 
     // create object for dropdown list: its properties are itemOid name and label concatenated
     // dropdown list is restricted to variables with either decoded or enumerated codelist
@@ -149,16 +200,61 @@ function AddVlmFromCodeList (props) {
                 <Grid container spacing={8} className={classes.root}>
                     <Grid item>
                         { Object.keys(itemDefList).length !== 0 && (
-                            <TextField
-                                label='Variable'
-                                disabled={Object.keys(itemDefList).length === 0}
-                                value={itemDefOid || ' '}
-                                onChange={(updateObj) => { setItemDefOid(updateObj.target.value); setCodeListOid(itemDefs[updateObj.target.value].codeListOid); }}
-                                className={classes.selectionField}
-                                select={Object.keys(itemDefList).length > 0}
-                            >
-                                {Object.keys(itemDefList).length > 0 && getSelectionList(itemDefList)}
-                            </TextField>
+                            <Grid container spacing={8} alignItems='flex-end'>
+                                <Grid item>
+                                    <TextField
+                                        label='Variable'
+                                        disabled={Object.keys(itemDefList).length === 0}
+                                        value={itemDefOid || ' '}
+                                        onChange={(updateObj) => { setItemDefOid(updateObj.target.value); setCodeListOid(itemDefs[updateObj.target.value].codeListOid); }}
+                                        className={classes.variableField}
+                                        select={Object.keys(itemDefList).length > 0}
+                                    >
+                                        {Object.keys(itemDefList).length > 0 && getSelectionList(itemDefList)}
+                                    </TextField>
+                                </Grid>
+                                <Grid item>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={copyAttributes}
+                                                onChange={() => { setCopyAttributes(!copyAttributes); }}
+                                                color='primary'
+                                                disabled={codeListOid === undefined}
+                                                value='copyAttributes'
+                                            />
+                                        }
+                                        label="Copy Attributes"
+                                    />
+                                </Grid>
+                                <Grid item>
+                                    <TextField
+                                        label='Attributes'
+                                        value={selectedAttributes}
+                                        multiline
+                                        select
+                                        SelectProps={{ multiple: true }}
+                                        disabled={!copyAttributes}
+                                        onChange={(event) => { setSelectedAttributes(event.target.value); }}
+                                        className={classes.attributeField}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <IconButton
+                                                        color="default"
+                                                        onClick={() => { setSelectedAttributes(Object.keys(attrList)); }}
+                                                        disabled={!copyAttributes}
+                                                    >
+                                                        <DoneAll />
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            )
+                                        }}
+                                    >
+                                        {getSelectionList(attrList)}
+                                    </TextField>
+                                </Grid>
+                            </Grid>
                         )}
                         { Object.keys(itemDefList).length === 0 && (
                             <Typography variant="body2" gutterBottom align="left" color='error'>
