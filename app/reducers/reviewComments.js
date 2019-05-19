@@ -17,6 +17,7 @@ import {
     ADD_REPLYCOMMENT,
     UPD_REVIEWCOMMENT,
     DEL_REVIEWCOMMENT,
+    UPD_RESOLVECOMMENT,
     DEL_VARS,
     DEL_ITEMGROUPS,
     DEL_RESULTDISPLAY,
@@ -61,6 +62,26 @@ const deleteReviewComment = (state, action) => {
         return newState;
     } else {
         return state;
+    }
+};
+
+const toggleResolveComment = (state, action) => {
+    const reviewComment = state[action.updateObj.oid];
+    if (reviewComment.resolvedBy) {
+        // Unresolve the comment
+        return { ...state, [action.updateObj.oid]: { ...new ReviewComment({ ...reviewComment, resolvedBy: '', resolvedAt: undefined }) } };
+    } else {
+        // Resolve the comment
+        return {
+            ...state,
+            [action.updateObj.oid]:
+            { ...new ReviewComment({
+                ...reviewComment,
+                resolvedBy: action.updateObj.author,
+                resolvedAt: new Date().toJSON(),
+            })
+            }
+        };
     }
 };
 
@@ -183,6 +204,8 @@ const reviewComments = (state = initialState, action) => {
             return deleteReviewComment(state, action);
         case ADD_REPLYCOMMENT:
             return addReplyComment(state, action);
+        case UPD_RESOLVECOMMENT:
+            return toggleResolveComment(state, action);
         case DEL_VARS:
             return handleDeleteItems(state, action);
         case DEL_ITEMGROUPS:

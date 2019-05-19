@@ -22,7 +22,6 @@ import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import EditingControlIcons from 'editors/editingControlIcons.js';
-import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Table from '@material-ui/core/Table';
@@ -42,6 +41,10 @@ const styles = theme => ({
     mainPart: {
         padding: 16,
         marginTop: theme.spacing.unit,
+        backgroundColor: '#F5F5F5',
+    },
+    table: {
+        backgroundColor: '#FFFFFF',
     },
     button: {
         marginBottom: theme.spacing.unit,
@@ -249,20 +252,16 @@ class DocumentTableEditor extends React.Component {
         return (
             <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef} className={classes.root}>
                 <Paper className={classes.mainPart} elevation={4}>
-                    <Typography variant="h5">
+                    <Typography variant="h4" color='textSecondary'>
                         Documents
-                        <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} onSort={this.showDocumentOrderEditor}/>
+                        <EditingControlIcons
+                            onSave={this.save}
+                            onCancel={this.props.onCancel}
+                            onSort={this.showDocumentOrderEditor}
+                            onAdd={this.handleChange('addDoc')}
+                        />
                     </Typography>
-                    <Button
-                        color='default'
-                        size='small'
-                        variant='contained'
-                        onClick={this.handleChange('addDoc')}
-                        className={classes.button}
-                    >
-                        Add Document
-                    </Button>
-                    <Table>
+                    <Table className={classes.table}>
                         <TableHead>
                             <TableRow>
                                 <CustomTableCell className={classes.delColumn}></CustomTableCell>

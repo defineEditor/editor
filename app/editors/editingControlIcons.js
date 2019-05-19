@@ -19,6 +19,7 @@ import SaveIcon from '@material-ui/icons/Save';
 import ClearIcon from '@material-ui/icons/Clear';
 import HelpIcon from '@material-ui/icons/HelpOutline';
 import CommentIcon from '@material-ui/icons/Comment';
+import AddIcon from '@material-ui/icons/Add';
 import LowPriority from '@material-ui/icons/LowPriority';
 import IconButton from '@material-ui/core/IconButton';
 
@@ -40,6 +41,11 @@ class editingControlIcons extends React.Component {
                 { this.props.onComment !== undefined && (
                     <IconButton color='default' onClick={this.props.onComment} className={classes.icon}>
                         <CommentIcon/>
+                    </IconButton>
+                )}
+                { this.props.onAdd !== undefined && (
+                    <IconButton color='primary' onClick={this.props.onAdd} className={classes.icon}>
+                        <AddIcon/>
                     </IconButton>
                 )}
                 { this.props.onHelp !== undefined && (
@@ -66,6 +72,7 @@ editingControlIcons.propTypes = {
     onHelp: PropTypes.func,
     onComment: PropTypes.func,
     onSort: PropTypes.func,
+    onAdd: PropTypes.func,
     saveDisabled: PropTypes.bool,
 };
 

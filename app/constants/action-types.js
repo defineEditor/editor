@@ -44,6 +44,7 @@ export const UPD_ITEMSBULK = 'UPD_ITEMSBULK';
 export const ADD_VAR = 'ADD_VAR';
 export const ADD_VARS = 'ADD_VARS';
 export const ADD_VALUELIST = 'ADD_VALUELIST';
+export const ADD_VALUELISTFROMCODELIST = 'ADD_VALUELISTFROMCODELIST';
 export const INSERT_VAR = 'INSERT_VAR';
 export const INSERT_VALLVL = 'INSERT_VALLVL';
 export const DEL_VARS = 'DEL_VARS';
@@ -80,6 +81,7 @@ export const ADD_REVIEWCOMMENT = 'ADD_REVIEWCOMMENT';
 export const UPD_REVIEWCOMMENT = 'UPD_REVIEWCOMMENT';
 export const DEL_REVIEWCOMMENT = 'DEL_REVIEWCOMMENT';
 export const ADD_REPLYCOMMENT = 'ADD_REPLYCOMMENT';
+export const UPD_RESOLVECOMMENT = 'UPD_RESOLVECOMMENT';
 export const UI_CHANGETAB = 'UI_CHANGETAB';
 export const UI_CHANGEPAGE = 'UI_CHANGEPAGE';
 export const UI_CHANGETABLEPAGEDETAILS = 'UI_CHANGETABLEPAGEDETAILS';
@@ -97,6 +99,8 @@ export const UI_CLOSEMODAL = 'UI_CLOSEMODAL';
 export const UI_UPDMAIN = 'UI_UPDMAIN';
 export const UI_TOGGLEREVIEWMODE = 'UI_TOGGLEREVIEWMODE';
 export const UI_UPDCOPYBUFFER = 'UI_UPDCOPYBUFFER';
+export const UI_TOGGLEREVIEWCOMMENTPANELS = 'UI_TOGGLEREVIEWCOMMENTPANELS';
+export const UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED = 'UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED';
 export const STG_UPDATESETTINGS = 'STG_UPDATESETTINGS';
 export const STUDY_ADD = 'STUDY_ADD';
 export const STUDY_DEL = 'STUDY_DEL';
@@ -145,6 +149,7 @@ export const actionLabels = {
     'ADD_VAR': 'Add variable',
     'ADD_VARS': 'Add variables',
     'ADD_VALUELIST': 'Add VLM',
+    'ADD_VALUELISTFROMCODELIST': 'Create VLM from a Codelist',
     'INSERT_VAR': 'Insert variable ',
     'INSERT_VALLVL': 'Insert VLM ',
     'DEL_VARS': 'Delete variables',
@@ -181,4 +186,5 @@ export const actionLabels = {
     'DEL_REVIEWCOMMENT': 'Delete comment',
     'UPD_REVIEWCOMMENT': 'Update comment',
     'ADD_REPLYCOMMENT': 'Add reply',
+    'UPD_RESOLVECOMMENT': 'Toggle comment resolution',
 };

@@ -1,16 +1,16 @@
 /***********************************************************************************
-* This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
-*                                                                                  *
-* Visual Define-XML Editor is free software: you can redistribute it and/or modify *
-* it under the terms of version 3 of the GNU Affero General Public License         *
-*                                                                                  *
-* Visual Define-XML Editor is distributed in the hope that it will be useful,      *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY   *
-* or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
-* version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
-***********************************************************************************/
+ * This file is part of Visual Define-XML Editor. A program which allows to review  *
+ * and edit XML files created using the CDISC Define-XML standard.                  *
+ * Copyright (C) 2018, 2019 Dmitry Kolosov                                          *
+ *                                                                                  *
+ * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
+ * it under the terms of version 3 of the GNU Affero General Public License         *
+ *                                                                                  *
+ * Visual Define-XML Editor is distributed in the hope that it will be useful,      *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY   *
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
+ * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
+ ***********************************************************************************/
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -77,12 +77,14 @@ const styles = theme => ({
         boxShadow: 'none',
         border: '2px solid',
         borderColor: theme.palette.grey['200'],
+        margin: '1px',
     },
     currentCard: {
         borderRadius: '10px',
         boxShadow: 'none',
         border: '2px solid',
         borderColor: '#3F51B5',
+        margin: '1px',
     },
     summary: {
         whiteSpace: 'nowrap',
@@ -258,8 +260,8 @@ class ConnectedStudyTile extends React.Component {
             }
         });
         return totalSummary.datasets + ' dataset' + (totalSummary.datasets !== 0 ? 's, ' : ', ') +
-                totalSummary.variables + ' variable' + (totalSummary.variables !== 0 ? 's, ' : ', ') +
-                totalSummary.codeLists + ' codelist' + (totalSummary.codeLists !== 0 ? 's.' : '.')
+            totalSummary.variables + ' variable' + (totalSummary.variables !== 0 ? 's, ' : ', ') +
+            totalSummary.codeLists + ' codelist' + (totalSummary.codeLists !== 0 ? 's.' : '.')
         ;
     };
 

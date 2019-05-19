@@ -57,10 +57,13 @@ function getTableDataAsText ({ source, datasetName, datasetOid, itemDefs, codeLi
             }
         }
         if (originItemDef.origins.length > 0) {
-            currentVar.origin = originItemDef.origins[0].type;
-            if (originItemDef.origins[0].documents.length > 0) {
-                currentVar.hasDocument = 'Yes';
-            }
+            currentVar.origin = '';
+            originItemDef.origins.forEach(origin => {
+                currentVar.origin += origin.type + getDescription(origin);
+                if (origin.documents.length > 0) {
+                    currentVar.hasDocument = 'Yes';
+                }
+            });
         }
         if (originVar.methodOid !== undefined) {
             let method = mdv.methods[originVar.methodOid];

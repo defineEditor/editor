@@ -47,6 +47,7 @@ const styles = theme => ({
         borderRadius: '25px',
         marginLeft: '10px',
         marginRight: '10px',
+        zIndex: 9999,
     },
     grid: {
         height: '56px',

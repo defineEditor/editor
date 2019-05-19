@@ -22,6 +22,7 @@ import Divider from '@material-ui/core/Divider';
 import getOid from 'utils/getOid.js';
 import { copyVariables } from 'utils/copyUtils.js';
 import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
+import AddVlmFromCodeList from 'components/tableActions/addVlmFromCodeList.js';
 import { getWhereClauseAsText } from 'utils/defineStructureUtils.js';
 import GeneralOrderEditor from 'components/orderEditors/generalOrderEditor.js';
 import {
@@ -69,6 +70,7 @@ class ConnectedItemMenu extends React.Component {
 
         this.state = {
             openVlmOrder: false,
+            openVlmFromCodeList: false,
         };
     }
 
@@ -130,6 +132,14 @@ class ConnectedItemMenu extends React.Component {
         };
         this.props.addValueList(source, valueListOid, itemDefOid, whereClauseOid);
         this.props.onClose();
+    }
+
+    addVlmFromCodeList = () => {
+        this.setState({ openVlmFromCodeList: true });
+    }
+
+    addVlmFromCodeListClose = () => {
+        this.setState({ openVlmFromCodeList: false }, this.props.onClose());
     }
 
     orderVlm = (items) => {
@@ -228,8 +238,8 @@ class ConnectedItemMenu extends React.Component {
     onKeyDown = (event) => {
         // Run only when menu is opened
         if (Boolean(this.props.anchorEl) === true) {
-            // Do not use shortcuts when VLM order is opened
-            if (this.state.openVlmOrder) {
+            // Do not use shortcuts when either VLM order or VLM from variable are opened
+            if (this.state.openVlmOrder || this.state.openVlmFromCodeList) {
                 return;
             }
             if (event.keyCode === 73) {
@@ -323,10 +333,16 @@ class ConnectedItemMenu extends React.Component {
                         Co<u>m</u>ments
                     </MenuItem>
                     <Divider/>
-                    { (!hasVlm && vlmLevel === 0) && (
-                        <MenuItem key='AddVlm' onClick={this.addVlm} disabled={this.props.reviewMode}>
-                            Add VLM
-                        </MenuItem>
+                    { (!hasVlm && vlmLevel === 0) && ([
+                        (
+                            <MenuItem key='AddVlm' onClick={this.addVlm} disabled={this.props.reviewMode}>
+                                Add VLM
+                            </MenuItem>
+                        ), (
+                            <MenuItem key='AddVlmFromCodeList' onClick={this.addVlmFromCodeList} disabled={this.props.reviewMode}>
+                                Add VLM from Variable
+                            </MenuItem>
+                        )]
                     )}
                     { hasVlm && ([
                         (
@@ -344,16 +360,23 @@ class ConnectedItemMenu extends React.Component {
                         <u>D</u>elete
                     </MenuItem>
                 </Menu>
-                { this.state.openVlmOrder &&
-                        <GeneralOrderEditor title='Value Level Order'
-                            items={items}
-                            onSave={this.orderVlm}
-                            onCancel={this.closeVlmOrder}
-                            disabled={this.props.reviewMode}
-                            noButton={true}
-                            width='700px'
-                        />
-                }
+                { this.state.openVlmOrder && (
+                    <GeneralOrderEditor title='Value Level Order'
+                        items={items}
+                        onSave={this.orderVlm}
+                        onCancel={this.closeVlmOrder}
+                        disabled={this.props.reviewMode}
+                        noButton={true}
+                        width='700px'
+                    />
+                )}
+                { this.state.openVlmFromCodeList && (
+                    <AddVlmFromCodeList
+                        onCancel={this.addVlmFromCodeListClose}
+                        currentItemOid={this.props.itemMenuParams.oid}
+                        currentGroupOid={this.props.itemMenuParams.itemGroupVLOid}
+                    />
+                )}
             </div>
         );
     }

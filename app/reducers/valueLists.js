@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
 * and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
+* Copyright (C) 2018, 2019 Dmitry Kolosov                                          *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -18,6 +18,7 @@ import {
     UPD_NAMELABELWHERECLAUSE,
     UPD_ITEMREF,
     ADD_VALUELIST,
+    ADD_VALUELISTFROMCODELIST,
     ADD_VARS,
     ADD_ITEMGROUPS,
     INSERT_VALLVL,
@@ -31,7 +32,8 @@ import getOid from 'utils/getOid.js';
 
 const addValueList = (state, action) => {
     // Create a new ItemRef (valueList will contain 1 variable)
-    let itemRef = { ...new ItemRef({ itemOid: action.itemDefOid, whereClauseOid: action.whereClauseOid }) };
+    const itemRefAttrs = action.itemRefAttrs || {};
+    let itemRef = { ...new ItemRef({ itemOid: action.itemDefOid, whereClauseOid: action.whereClauseOid, ...itemRefAttrs }) };
     let itemRefs = { [itemRef.oid]: itemRef };
     let itemRefOrder = [itemRef.oid];
     let valueList = { ...new ValueList(
@@ -42,6 +44,36 @@ const addValueList = (state, action) => {
             itemRefOrder,
         }) };
     return { ...state, [action.valueListOid]: valueList };
+};
+
+const handleAddValueListFromCodeList = (state, action) => {
+    // create value list for a variable and add first item
+    let firstVl = addValueList(state, {
+        source: {
+            oid: action.updateObj.sourceOid,
+        },
+        valueListOid: action.updateObj.valueListOid,
+        itemDefOid: action.updateObj.itemDefOids[0],
+        whereClauseOid: action.updateObj.whereClauseOids[0],
+        itemRefAttrs: action.updateObj.itemRefAttrs,
+    });
+
+    // add subsequent items to the value list
+    let subsequentVls = action.updateObj.itemDefOids.slice(1).reduce((object, value, key) => {
+        return insertValueLevel(object, {
+            orderNumber: object[action.updateObj.valueListOid].itemRefOrder.length,
+            source: {
+                oid: action.updateObj.sourceOid,
+            },
+            valueListOid: action.updateObj.valueListOid,
+            parentItemDefOid: action.updateObj.sourceOid,
+            itemDefOid: action.updateObj.itemDefOids.slice(1)[key],
+            whereClauseOid: action.updateObj.whereClauseOids.slice(1)[key],
+            itemRefAttrs: action.updateObj.itemRefAttrs,
+        });
+    }, firstVl);
+
+    return subsequentVls;
 };
 
 const updateItemRefOrder = (state, action) => {
@@ -240,7 +272,8 @@ const updateItemRefWhereClause = (state, action) => {
 
 const insertValueLevel = (state, action) => {
     let itemRefOid = getOid('ItemRef', undefined, state[action.valueListOid].itemRefOrder);
-    let itemRef = { ...new ItemRef({ oid: itemRefOid, itemOid: action.itemDefOid, whereClauseOid: action.whereClauseOid }) };
+    const itemRefAttrs = action.itemRefAttrs || {};
+    let itemRef = { ...new ItemRef({ oid: itemRefOid, itemOid: action.itemDefOid, whereClauseOid: action.whereClauseOid, ...itemRefAttrs }) };
     let itemRefs = { ...state[action.valueListOid].itemRefs, [itemRefOid]: itemRef };
     let itemRefOrder = state[action.valueListOid].itemRefOrder.slice();
     if (action.orderNumber === 0) {
@@ -391,6 +424,8 @@ const valueLists = (state = {}, action) => {
     switch (action.type) {
         case ADD_VALUELIST:
             return addValueList(state, action);
+        case ADD_VALUELISTFROMCODELIST:
+            return handleAddValueListFromCodeList(state, action);
         case UPD_ITEMDESCRIPTION:
             return updateItemDescription(state, action);
         case UPD_NAMELABELWHERECLAUSE:

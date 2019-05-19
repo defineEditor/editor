@@ -29,6 +29,7 @@ import {
     addReplyComment,
     deleteReviewComment,
     updateReviewComment,
+    toggleResolveComment,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -38,9 +39,9 @@ const styles = theme => ({
         paddingBottom: theme.spacing.unit * 1,
         position: 'absolute',
         borderRadius: '10px',
-        top: '10%',
-        transform: 'translate(0%, calc(-10%+0.5px))',
-        maxHeight: '85%',
+        top: '5%',
+        transform: 'translate(0%, -5%)',
+        maxHeight: '90%',
         minWidth: '65%',
         maxWidth: '95%',
         overflowX: 'auto',
@@ -68,6 +69,7 @@ const mapDispatchToProps = dispatch => {
         addReplyComment: (updateObj) => dispatch(addReplyComment(updateObj)),
         deleteReviewComment: (updateObj) => dispatch(deleteReviewComment(updateObj)),
         updateReviewComment: (updateObj) => dispatch(updateReviewComment(updateObj)),
+        toggleResolveComment: (updateObj) => dispatch(toggleResolveComment(updateObj)),
     };
 };
 
@@ -107,14 +109,19 @@ class ConnectedModalReviewComments extends React.Component {
                 reviewCommentOids = this.props.odm.study.globalVariables.reviewCommentOids;
             } else if (type === 'metaDataVersion') {
                 reviewCommentOids = this.props.mdv.reviewCommentOids;
+            } else if (type === 'reviewComments') {
+                reviewCommentOids = sources[type];
             }
         });
         return reviewCommentOids;
     }
 
-    getComments = (sources) => {
+    getComments = (sources, reviewComments) => {
         return this.getCommentOids(sources)
             .filter(oid => (this.props.reviewComments.hasOwnProperty(oid)))
+            .sort((oid1, oid2) => {
+                return (reviewComments[oid1].resolvedBy ? 1 : 0) - (reviewComments[oid2].resolvedBy ? 1 : 0);
+            })
             .map(oid => (
                 <ReviewComment
                     oid={oid}
@@ -125,12 +132,13 @@ class ConnectedModalReviewComments extends React.Component {
                     onUpdate={this.props.updateReviewComment}
                     onDelete={this.props.deleteReviewComment}
                     onReply={this.props.addReplyComment}
+                    onResolve={this.props.toggleResolveComment}
                 />
             ));
     }
 
     render () {
-        const { classes } = this.props;
+        const { classes, reviewComments, sources, author } = this.props;
 
         return (
             <Dialog
@@ -149,17 +157,19 @@ class ConnectedModalReviewComments extends React.Component {
                 <DialogContent>
                     <Grid container spacing={16} justify='flex-start' className={classes.content}>
                         <Grid item xs={12}>
-                            {this.getComments(this.props.sources)}
+                            {this.getComments(sources, reviewComments)}
                         </Grid>
-                        <Grid item xs={12}>
-                            <ReviewComment
-                                initialComment
-                                sources={this.props.sources}
-                                author={this.props.author}
-                                reviewComments={this.props.reviewComments}
-                                onAdd={this.props.addReviewComment}
-                            />
-                        </Grid>
+                        { !this.props.sources.hasOwnProperty('reviewComments') && (
+                            <Grid item xs={12}>
+                                <ReviewComment
+                                    initialComment
+                                    sources={sources}
+                                    author={author}
+                                    reviewComments={reviewComments}
+                                    onAdd={this.props.addReviewComment}
+                                />
+                            </Grid>
+                        )}
                     </Grid>
                 </DialogContent>
                 <DialogActions>
@@ -179,6 +189,7 @@ ConnectedModalReviewComments.propTypes = {
     deleteReviewComment: PropTypes.func.isRequired,
     updateReviewComment: PropTypes.func.isRequired,
     addReplyComment: PropTypes.func.isRequired,
+    toggleResolveComment: PropTypes.func.isRequired,
     author: PropTypes.string.isRequired,
     reviewComments: PropTypes.object.isRequired,
     mdv: PropTypes.object.isRequired,

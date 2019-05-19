@@ -24,6 +24,7 @@ import {
     DEL_CODELISTS,
     DEL_ITEMGROUPS,
     ADD_VALUELIST,
+    ADD_VALUELISTFROMCODELIST,
     INSERT_VAR,
     INSERT_VALLVL,
     UPD_LOADACTUALDATA,
@@ -214,6 +215,50 @@ const handleAddValueList = (state, action) => {
         valueListOid: action.valueListOid,
     }) };
     return { ...state, [action.itemDefOid]: newItemDef, [action.source.oid]: parentItemDef };
+};
+
+const handleAddValueListFromCodeList = (state, action) => {
+    // create the first itemDef
+    let firstVl = handleAddValueList(state, {
+        source: {
+            oid: action.updateObj.sourceOid,
+        },
+        valueListOid: action.updateObj.valueListOid,
+        itemDefOid: action.updateObj.itemDefOids[0],
+        whereClauseOid: action.updateObj.whereClauseOids[0],
+    });
+
+    // add subsequent itemDefs
+    let subsequentVls = action.updateObj.itemDefOids.slice(1).reduce((object, value, key) => {
+        return insertValueLevel(object, {
+            type: INSERT_VALLVL,
+            source: {
+                oid: action.updateObj.sourceOid,
+            },
+            valueListOid: action.updateObj.valueListOid,
+            parentItemDefOid: action.updateObj.sourceOid,
+            itemDefOid: action.updateObj.itemDefOids.slice(1)[key],
+            whereClauseOid: action.updateObj.whereClauseOids.slice(1)[key],
+        });
+    }, firstVl);
+
+    // add names, labels, and additional attributes to all itemDefs
+    let namedAndLabelledVls = action.updateObj.itemDefOids.reduce((object, value, key) => {
+        return updateItemDef(object, {
+            type: UPD_ITEMDEF,
+            oid: value,
+            updateObj: {
+                name: action.updateObj.names[key],
+                descriptions: action.updateObj.labels ? [{ ...new TranslatedText({
+                    lang: action.updateObj.lang,
+                    value: action.updateObj.labels[key],
+                }) }] : undefined,
+                ...action.updateObj.itemDefAttrs,
+            },
+        });
+    }, subsequentVls);
+
+    return namedAndLabelledVls;
 };
 
 const insertVariable = (state, action) => {
@@ -471,6 +516,8 @@ const itemDefs = (state = {}, action) => {
             return deleteCodeLists(state, action);
         case ADD_VALUELIST:
             return handleAddValueList(state, action);
+        case ADD_VALUELISTFROMCODELIST:
+            return handleAddValueListFromCodeList(state, action);
         case INSERT_VAR:
             return insertVariable(state, action);
         case INSERT_VALLVL:
