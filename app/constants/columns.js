@@ -238,7 +238,7 @@ const codedValues = {
     },
 };
 
-const armSummary = {
+const resultDisplays = {
     oid: {
         isKey: true,
         text: '',
@@ -268,7 +268,7 @@ const columns = {
     variables,
     codeLists,
     codedValues,
-    armSummary,
+    resultDisplays,
 };
 
 export default columns;

@@ -49,7 +49,7 @@ const mapStateToProps = state => {
     };
 };
 
-class ConnectedArmSummaryMenu extends React.Component {
+class ConnectedResultDisplayMenu extends React.Component {
     componentDidMount () {
         window.addEventListener('keydown', this.onKeyDown);
     }
@@ -79,7 +79,7 @@ class ConnectedArmSummaryMenu extends React.Component {
     deleteResultDisplay = () => {
         let analysisResults = this.props.analysisResultDisplays.analysisResults;
         let resultDisplays = this.props.analysisResultDisplays.resultDisplays;
-        let resultDisplayOids = [this.props.armSummaryMenuParams.resultDisplayOid];
+        let resultDisplayOids = [this.props.resultDisplaysMenuParams.resultDisplayOid];
         const { commentOids, whereClauseOids, analysisResultOids, reviewCommentOids } = getArmResultDisplayOids(resultDisplays, analysisResults, resultDisplayOids);
         let deleteObj = {
             resultDisplayOids,
@@ -93,7 +93,7 @@ class ConnectedArmSummaryMenu extends React.Component {
     }
 
     insertRecordDialog = (shift) => () => {
-        let params = this.props.armSummaryMenuParams;
+        let params = this.props.resultDisplaysMenuParams;
         // This is confusing as insertRecord does not have +1 added to the orderNumber, but users probably will be confused with position 0
         // that is why +1 is added, to show the first position as 1.
         let orderNumber = this.props.analysisResultDisplays.resultDisplayOrder.indexOf(params.resultDisplayOid) + shift + 1;
@@ -104,7 +104,7 @@ class ConnectedArmSummaryMenu extends React.Component {
     editResultDisplayValues = () => {
         let updateObj = {
             tabIndex: this.props.armDetailsTabIndex,
-            groupOid: this.props.armSummaryMenuParams.resultDisplayOid,
+            groupOid: this.props.resultDisplaysMenuParams.resultDisplayOid,
             scrollPosition: {},
         };
         this.props.onClose();
@@ -115,14 +115,14 @@ class ConnectedArmSummaryMenu extends React.Component {
         this.props.updateCopyBuffer({
             tab: 'resultDisplays',
             buffer: {
-                resultDisplayOid: this.props.armSummaryMenuParams.resultDisplayOid,
+                resultDisplayOid: this.props.resultDisplaysMenuParams.resultDisplayOid,
             }
         });
         this.props.onClose();
     }
 
     paste = (shift) => () => {
-        const { resultDisplayOid } = this.props.armSummaryMenuParams;
+        const { resultDisplayOid } = this.props.resultDisplaysMenuParams;
         let buffer = this.props.buffer;
         let mdv = this.props.mdv;
         let sourceMdv = mdv;
@@ -149,7 +149,7 @@ class ConnectedArmSummaryMenu extends React.Component {
     openComments = () => {
         this.props.openModal({
             type: 'REVIEW_COMMENT',
-            props: { sources: { resultDisplays: [this.props.armSummaryMenuParams.resultDisplayOid] } }
+            props: { sources: { resultDisplays: [this.props.resultDisplaysMenuParams.resultDisplayOid] } }
         });
         this.props.onClose();
     }
@@ -210,8 +210,8 @@ class ConnectedArmSummaryMenu extends React.Component {
     }
 }
 
-ConnectedArmSummaryMenu.propTypes = {
-    armSummaryMenuParams: PropTypes.object.isRequired,
+ConnectedResultDisplayMenu.propTypes = {
+    resultDisplaysMenuParams: PropTypes.object.isRequired,
     analysisResultDisplays: PropTypes.object.isRequired,
     reviewMode: PropTypes.bool,
     onAddVariable: PropTypes.func.isRequired,
@@ -219,5 +219,5 @@ ConnectedArmSummaryMenu.propTypes = {
     openModal: PropTypes.func.isRequired,
 };
 
-const ArmSummaryMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedArmSummaryMenu);
-export default ArmSummaryMenu;
+const ResultDisplayMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedResultDisplayMenu);
+export default ResultDisplayMenu;

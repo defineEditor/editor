@@ -21,6 +21,8 @@ import {
     UI_UPDATEFILTER,
     UI_LOADTABS,
     UI_CHANGETABLEPAGEDETAILS,
+    UI_TOGGLEREVIEWCOMMENTPANELS,
+    UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED,
 } from 'constants/action-types';
 import { ui } from 'constants/initialValues.js';
 
@@ -209,6 +211,48 @@ const changeTablePageDetails = (state, action) => {
     };
 };
 
+const toggleReviewCommentPanels = (state, action) => {
+    let currentTab = state.currentTab;
+    const panelIds = action.updateObj.panelIds;
+    const status = action.updateObj.status;
+    let newSettings = state.settings.slice();
+    let panelStatus = { ...state.settings[currentTab].panelStatus };
+    panelIds.forEach(panelId => {
+        if (status === undefined) {
+            if (state.settings[currentTab].panelStatus[panelId] !== true) {
+                panelStatus = { ...panelStatus, [panelId]: true };
+            } else {
+                panelStatus = { ...panelStatus, [panelId]: false };
+            }
+        } else {
+            panelStatus = { ...panelStatus, [panelId]: status };
+        }
+    });
+    let newSetting = {
+        ...state.settings[currentTab],
+        panelStatus,
+    };
+    newSettings.splice(currentTab, 1, newSetting);
+    return {
+        ...state,
+        settings: newSettings,
+    };
+};
+
+const toggleReviewCommentShowResolved = (state, action) => {
+    let currentTab = state.currentTab;
+    let newSettings = state.settings.slice();
+    let newSetting = {
+        ...state.settings[currentTab],
+        showResolved: !state.settings[currentTab].showResolved,
+    };
+    newSettings.splice(currentTab, 1, newSetting);
+    return {
+        ...state,
+        settings: newSettings,
+    };
+};
+
 const tabs = (state = initialState, action) => {
     switch (action.type) {
         case UI_CHANGETAB:
@@ -227,6 +271,10 @@ const tabs = (state = initialState, action) => {
             return loadTabs(state, action);
         case UI_CHANGETABLEPAGEDETAILS:
             return changeTablePageDetails(state, action);
+        case UI_TOGGLEREVIEWCOMMENTPANELS:
+            return toggleReviewCommentPanels(state, action);
+        case UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED:
+            return toggleReviewCommentShowResolved(state, action);
         default:
             return state;
     }

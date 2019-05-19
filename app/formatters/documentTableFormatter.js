@@ -30,6 +30,10 @@ const styles = theme => ({
     mainPart: {
         padding: 16,
         marginTop: theme.spacing.unit * 3,
+        backgroundColor: '#F5F5F5',
+    },
+    table: {
+        backgroundColor: '#FFFFFF',
     },
     typeColumn: {
         width: '20%',
@@ -79,11 +83,11 @@ class DocumentTableFormatter extends React.Component {
 
         return (
             <Paper className={classes.mainPart} elevation={4}>
-                <Typography variant="h5">
+                <Typography variant="h4" color='textSecondary'>
                     Documents
                     <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} />
                 </Typography>
-                <Table>
+                <Table className={classes.table}>
                     <TableHead>
                         <TableRow>
                             <CustomTableCell className={classes.typeColumn}>Type</CustomTableCell>

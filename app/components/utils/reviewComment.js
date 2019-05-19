@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
 * and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
+* Copyright (C) 2019 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -14,7 +14,7 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Editor, EditorState, ContentState, convertFromHTML } from 'draft-js';
+import { Editor, EditorState, ContentState, convertFromHTML, RichUtils } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { withStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -33,6 +33,10 @@ const styles = theme => ({
     },
     editorView: {
         marginTop: theme.spacing.unit * 2,
+    },
+    resolved: {
+        backgroundColor: '#F5F5F5',
+        opacity: '0.6',
     },
     time: {
         fontSize: '10pt',
@@ -55,6 +59,7 @@ class ReviewCommentRaw extends React.Component {
 
         let editorState;
         let editMode;
+        let showReplies = true;
 
         if (props.initialComment) {
             editorState = EditorState.moveFocusToEnd(EditorState.createEmpty());
@@ -62,6 +67,9 @@ class ReviewCommentRaw extends React.Component {
         } else {
             let comment = props.reviewComments[props.oid];
             let text = comment.text;
+            if (comment.resolvedBy) {
+                showReplies = false;
+            }
             const blocksFromHTML = convertFromHTML(text);
             if (blocksFromHTML.contentBlocks === null) {
                 editorState = EditorState.createEmpty();
@@ -81,7 +89,9 @@ class ReviewCommentRaw extends React.Component {
         this.state = {
             editMode,
             confirmDelete: false,
+            confirmResolve: false,
             editorState,
+            showReplies,
         };
     }
 
@@ -173,42 +183,74 @@ class ReviewCommentRaw extends React.Component {
         });
     }
 
+    toggleResolve = () => {
+        this.props.onResolve({
+            oid: this.props.oid,
+            author: this.props.author,
+        });
+        this.setState({ showReplies: false });
+    }
+
     toggleConfirmDelete = () => {
         this.setState({ confirmDelete: !this.state.confirmDelete });
+    }
+
+    toggleShowReplies = () => {
+        this.setState({ showReplies: !this.state.showReplies });
     }
 
     onChange = (editorState) => {
         this.setState({ editorState });
     }
 
-    getChildComments = (commentOids) => {
-        return commentOids.map(oid => (
-            <ReviewComment
-                oid={oid}
-                key={oid}
-                sources={{ reviewComments: [this.props.oid] }}
-                author={this.props.author}
-                reviewComments={this.props.reviewComments}
-                onReply={this.props.onReply}
-                onUpdate={this.props.onUpdate}
-                onDelete={this.props.onDelete}
-            />
-        ));
+    getChildComments = (commentOids, isResolved) => {
+        return commentOids
+            .map(oid => (
+                <ReviewComment
+                    oid={oid}
+                    key={oid}
+                    sources={{ reviewComments: [this.props.oid] }}
+                    author={this.props.author}
+                    isReply={true}
+                    isParentResolved={isResolved}
+                    reviewComments={this.props.reviewComments}
+                    onReply={this.props.onReply}
+                    onUpdate={this.props.onUpdate}
+                    onDelete={this.props.onDelete}
+                />
+            ));
+    }
+
+    handleReturn = (e) => {
+        const { editorState } = this.state;
+        if (e.shiftKey) {
+            this.setState({ editorState: RichUtils.insertSoftNewline(editorState) });
+            return 'handled';
+        }
+        return 'not-handled';
     }
 
     render () {
-        const { classes, oid, initialComment } = this.props;
+        const { classes, oid, initialComment, isParentResolved, reviewComments } = this.props;
 
         let author = this.props.author;
         let reviewCommentOids = [];
         let createdAt = '';
         let modifiedAt = '';
+        let resolvedBy = '';
+        let resolvedAt = '';
+        let isResolved = false;
         if (!initialComment) {
-            let reviewComment = this.props.reviewComments[oid];
+            let reviewComment = reviewComments[oid];
             author = reviewComment.author;
             reviewCommentOids = reviewComment.reviewCommentOids;
             createdAt = reviewComment.createdAt;
             modifiedAt = reviewComment.modifiedAt;
+            resolvedBy = reviewComment.resolvedBy;
+            resolvedAt = reviewComment.resolvedAt;
+            if (resolvedBy) {
+                isResolved = true;
+            }
             if (modifiedAt === 'Initial Reply') {
                 modifiedAt = '';
                 createdAt = '';
@@ -221,7 +263,7 @@ class ReviewCommentRaw extends React.Component {
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >
-                <Card className={classes.card}>
+                <Card className={(isResolved || isParentResolved) && classes.resolved}>
                     <CardContent>
                         <Typography variant='subtitle2' color='primary' inline>
                             {author}
@@ -235,8 +277,17 @@ class ReviewCommentRaw extends React.Component {
                                 {'   ' + modifiedAt.replace(/(.*?)T(\d{2}:\d{2}).*/, '$1 $2') + ' (edited)'}
                             </Typography>
                         )}
+                        { isResolved && (
+                            <Typography variant='subtitle2' color='textSecondary' className={classes.time} inline>
+                                {`   (Resolved by ${resolvedBy} on ${resolvedAt.replace(/(.*?)T(\d{2}:\d{2}).*/, '$1 $2')})`}
+                            </Typography>
+                        )}
                         <div className={this.state.editMode ? classes.editorEdit : classes.editorView }>
-                            <Editor editorState={this.state.editorState} onChange={this.onChange} readOnly={!this.state.editMode}/>
+                            <Editor
+                                editorState={this.state.editorState}
+                                onChange={this.onChange}
+                                readOnly={!this.state.editMode}
+                            />
                         </div>
                         { (this.state.confirmDelete || this.state.editMode) && this.props.author !== author && (
                             <Typography variant='caption' color='secondary'>
@@ -257,15 +308,20 @@ class ReviewCommentRaw extends React.Component {
                         </CardActions>
                     ) : (
                         <CardActions>
-                            <Button size='small' color='primary' onClick={this.handleReply} disabled={this.state.editMode}>
+                            <Button size='small' color='primary' onClick={this.handleReply} disabled={this.state.editMode || isResolved || isParentResolved}>
                                 Reply
                             </Button>
-                            <Button size='small' color='primary' onClick={this.handleEditSave}>
+                            <Button size='small' color='primary' onClick={this.handleEditSave} disabled={isResolved || isParentResolved}>
                                 {this.state.editMode ? 'Save' : 'Edit'}
                             </Button>
-                            { this.state.editMode && (
+                            { this.state.editMode && !isResolved && !isParentResolved && (
                                 <Button size='small' color='primary' onClick={this.cancelEdit}>
                                     Cancel
+                                </Button>
+                            )}
+                            { !this.props.isReply && (
+                                <Button size='small' color='primary' onClick={this.toggleResolve} disabled={this.state.editMode}>
+                                    { isResolved ? 'Unresolve' : 'Resolve' }
                                 </Button>
                             )}
                             { this.state.confirmDelete ? (
@@ -283,12 +339,15 @@ class ReviewCommentRaw extends React.Component {
                                     Delete
                                 </Button>
                             )}
+                            <Button size='small' color='primary' onClick={this.toggleShowReplies} disabled={reviewCommentOids.length === 0}>
+                                {this.state.showReplies ? 'Hide' : 'Show' } replies
+                            </Button>
                         </CardActions>
                     )}
                 </Card>
-                { reviewCommentOids.length > 0 && (
+                { reviewCommentOids.length > 0 && this.state.showReplies && (
                     <div className={classes.reply}>
-                        {this.getChildComments(reviewCommentOids)}
+                        {this.getChildComments(reviewCommentOids, isResolved || isParentResolved)}
                     </div>
                 )}
             </div>
@@ -300,6 +359,8 @@ ReviewCommentRaw.propTypes = {
     classes: PropTypes.object.isRequired,
     reviewComments: PropTypes.object.isRequired,
     initialComment: PropTypes.bool,
+    isReply: PropTypes.bool,
+    isParentResolved: PropTypes.bool,
     sources: PropTypes.object.isRequired,
     oid: PropTypes.string,
     author: PropTypes.string.isRequired,

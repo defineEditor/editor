@@ -31,7 +31,7 @@ import ArmDescriptionEditor from 'editors/armDescriptionEditor.js';
 import ArmDescriptionFormatter from 'formatters/armDescriptionFormatter.js';
 import SelectColumns from 'utils/selectColumns.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
-import ArmSummaryMenu from 'components/menus/armSummaryMenu.js';
+import ResultDisplayMenu from 'components/menus/resultDisplayMenu.js';
 import menuButton from 'components/menus/menuButton.js';
 import AddResultDisplay from 'components/tableActions/addResultDisplay.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
@@ -85,11 +85,11 @@ function descriptionFormatter (cell, row) {
     return (<ArmDescriptionFormatter description={cell} leafs={row.leafs}/>);
 }
 
-class ConnectedArmSummaryTable extends React.Component {
+class ConnectedResultDisplayTable extends React.Component {
     constructor (props) {
         super(props);
 
-        let columns = clone(props.stdConstants.columns.armSummary);
+        let columns = clone(props.stdConstants.columns.resultDisplays);
 
         // Menu is not shown when selection is triggered
         if (columns.hasOwnProperty('oid')) {
@@ -123,7 +123,7 @@ class ConnectedArmSummaryTable extends React.Component {
             columns,
             anchorEl: null,
             selectedRows: [],
-            armSummaryMenuParams: {},
+            resultDisplaysMenuParams: {},
             showSelectColumn: false,
             showAddResultDisplay: false,
             insertPosition: null,
@@ -162,12 +162,12 @@ class ConnectedArmSummaryTable extends React.Component {
         });
     }
 
-    handleMenuOpen = (armSummaryMenuParams) => (event) => {
-        this.setState({ armSummaryMenuParams, anchorEl: event.currentTarget });
+    handleMenuOpen = (resultDisplaysMenuParams) => (event) => {
+        this.setState({ resultDisplaysMenuParams, anchorEl: event.currentTarget });
     }
 
     handleMenuClose = () => {
-        this.setState({ armSummaryMenuParams: {}, anchorEl: null });
+        this.setState({ resultDisplaysMenuParams: {}, anchorEl: null });
     }
 
     onBeforeSaveCell = (row, cellName, cellValue) => {
@@ -356,9 +356,9 @@ class ConnectedArmSummaryTable extends React.Component {
                 >
                     {renderColumns(this.state.columns)}
                 </BootstrapTable>
-                <ArmSummaryMenu
+                <ResultDisplayMenu
                     onClose={this.handleMenuClose}
-                    armSummaryMenuParams={this.state.armSummaryMenuParams}
+                    resultDisplaysMenuParams={this.state.resultDisplaysMenuParams}
                     anchorEl={this.state.anchorEl}
                     onAddVariable={ (orderNumber) => { this.setState({ showAddResultDisplay: true, insertPosition: orderNumber }); } }
                 />
@@ -380,7 +380,7 @@ class ConnectedArmSummaryTable extends React.Component {
     }
 }
 
-ConnectedArmSummaryTable.propTypes = {
+ConnectedResultDisplayTable.propTypes = {
     analysisResultDisplays: PropTypes.object.isRequired,
     leafs: PropTypes.object.isRequired,
     stdConstants: PropTypes.object.isRequired,
@@ -389,7 +389,7 @@ ConnectedArmSummaryTable.propTypes = {
     reviewComments: PropTypes.object.isRequired,
     reviewMode: PropTypes.bool,
 };
-ConnectedArmSummaryTable.displayName = 'ArmSummaryTable';
+ConnectedResultDisplayTable.displayName = 'ResultDisplayTable';
 
-const ArmSummaryTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedArmSummaryTable);
-export default withStyles(styles)(ArmSummaryTable);
+const ResultDisplayTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedResultDisplayTable);
+export default withStyles(styles)(ResultDisplayTable);

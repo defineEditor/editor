@@ -83,6 +83,7 @@ const addResultDisplay = (state, action) => {
                     oid: newAnalysisResultOid,
                     analysisReason: 'SPECIFIED IN SAP',
                     analysisPurpose: 'PRIMARY OUTCOME MEASURE',
+                    sources: { resultDisplays: [newResultDisplayOid] },
                 }) }
             }
         }
@@ -128,7 +129,12 @@ const addAnalysisResult = (state, action) => {
 
     let newAnalysisResults = {
         ...state.analysisResults,
-        [newAnalysisResultOid]: { ...new AnalysisResult({ oid: newAnalysisResultOid, analysisReason: 'SPECIFIED IN SAP', analysisPurpose: 'PRIMARY OUTCOME MEASURE' }) }
+        [newAnalysisResultOid]: { ...new AnalysisResult({
+            oid: newAnalysisResultOid,
+            analysisReason: 'SPECIFIED IN SAP',
+            analysisPurpose: 'PRIMARY OUTCOME MEASURE',
+            sources: { resultDisplays: [action.updateObj.resultDisplayOid] },
+        }) }
     };
 
     let newResultDisplay = { ...state.resultDisplays[action.updateObj.resultDisplayOid] };
@@ -361,14 +367,20 @@ const addReviewComment = (state, action) => {
 };
 
 const deleteReviewComment = (state, action) => {
-    if (action.deleteObj.sources.hasOwnProperty('analysisResults')) {
-        let newAnalysisResults = { ...state.analysisResults };
-        action.deleteObj.sources.analysisResults.forEach(oid => {
-            let newReviewCommentOids = newAnalysisResults[oid].reviewCommentOids.slice();
-            newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
-            newAnalysisResults = { ...newAnalysisResults, [oid]: { ...newAnalysisResults[oid], reviewCommentOids: newReviewCommentOids } };
-        });
-        return { ...state, analysisResults: newAnalysisResults };
+    if (action.deleteObj.sources.hasOwnProperty('analysisResults') || action.deleteObj.sources.hasOwnProperty('resultDisplays')) {
+        let newState = { ...state };
+        Object.keys(action.deleteObj.sources)
+            .filter(sourceType => (['analysisResults', 'resultDisplays'].includes(sourceType)))
+            .forEach(sourceType => {
+                let newType = { ...state[sourceType] };
+                action.deleteObj.sources[sourceType].forEach(oid => {
+                    let newReviewCommentOids = newType[oid].reviewCommentOids.slice();
+                    newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
+                    newType = { ...newType, [oid]: { ...newType[oid], reviewCommentOids: newReviewCommentOids } };
+                });
+                newState = { ...newState, [sourceType]: newType };
+            });
+        return newState;
     } else {
         return state;
     }

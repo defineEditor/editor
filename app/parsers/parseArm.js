@@ -132,7 +132,7 @@ function parseProgrammingCode (dataRaw) {
     return programmingCode;
 }
 
-function parseAnalysisResults (datasRaw) {
+function parseAnalysisResults (datasRaw, resultDisplayOid) {
     let analysisResults = {};
     datasRaw.forEach(dataRaw => {
         let args = dataRaw['$'];
@@ -153,6 +153,8 @@ function parseAnalysisResults (datasRaw) {
             args.documentation = parseDocumentation(dataRaw['documentation'][0]);
         }
 
+        args.sources = { resultDisplays: [resultDisplayOid] };
+
         let analysisResult = new AnalysisResult(args);
 
         if (dataRaw.hasOwnProperty('description')) {
@@ -172,7 +174,7 @@ function parseResultDisplays (datasRaw) {
         let args = dataRaw['$'];
 
         if (dataRaw.hasOwnProperty('analysisResult')) {
-            args.analysisResults = parseAnalysisResults(dataRaw['analysisResult']);
+            args.analysisResults = parseAnalysisResults(dataRaw['analysisResult'], args.oid);
             args.analysisResultOrder = Object.keys(args.analysisResults);
         }
 
