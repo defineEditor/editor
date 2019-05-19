@@ -61,7 +61,7 @@ const mapStateToProps = state => {
     let currentPage = state.present.ui.main.currentPage;
     const tabs = state.present.ui.tabs;
     if (currentPage === 'editor' && tabs.hasOwnProperty('tabNames') && tabs.tabNames.hasOwnProperty(tabs.currentTab)) {
-        disableFindToggle = ['Variables', 'Codelists', 'Coded Values'].includes(tabs.tabNames[tabs.currentTab]);
+        disableFindToggle = ['Variables', 'Codelists', 'Coded Values', 'Review Comments'].includes(tabs.tabNames[tabs.currentTab]);
     }
     let bugModalOpened = state.present.ui && state.present.ui.modal && state.present.ui.modal.type === 'BUG_REPORT';
     return {
@@ -183,7 +183,6 @@ ConnectedApp.propTypes = {
     currentPage: PropTypes.string.isRequired,
     showInitialMessage: PropTypes.bool.isRequired,
     disableFindToggle: PropTypes.bool.isRequired,
-    reset: PropTypes.func.isRequired,
     bugModalOpened: PropTypes.bool,
 };
 

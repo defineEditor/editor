@@ -82,6 +82,7 @@ class ConnectedAnalysisResultMenu extends React.Component {
             sourceMdv,
             analysisResultOidList: [ buffer.analysisResultOid ],
             sameDefine: true,
+            resultDisplayOid,
         });
 
         let position = mdv.analysisResultDisplays.resultDisplays[resultDisplayOid].analysisResultOrder.indexOf(analysisResultOid) + shift + 1;
