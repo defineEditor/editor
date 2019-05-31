@@ -43,7 +43,7 @@ const styles = theme => ({
         paddingBottom: theme.spacing.unit * 1,
         position: 'absolute',
         borderRadius: '10px',
-        top: '20%',
+        top: '10%',
         width: '55%',
         transform: 'translate(0%, calc(-20%+0.5px))',
         overflowX: 'auto',
