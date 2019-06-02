@@ -18,6 +18,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -34,6 +35,13 @@ const styles = theme => ({
         width: 200,
         marginBottom: theme.spacing.unit
     },
+    progress: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        marginTop: -12,
+        marginLeft: -12,
+    },
 });
 
 class AddDefineFormStep3 extends React.Component {
@@ -42,6 +50,7 @@ class AddDefineFormStep3 extends React.Component {
 
         this.state = {
             name: this.props.name || this.props.defineData.study.metaDataVersion.model || '',
+            defineIsLoading: false,
         };
     }
 
@@ -51,6 +60,7 @@ class AddDefineFormStep3 extends React.Component {
 
   handleNext = event => {
       this.props.onNext(this.state.name);
+      this.setState({ defineIsLoading: true });
   };
 
   render () {
@@ -159,9 +169,10 @@ class AddDefineFormStep3 extends React.Component {
                       onClick={this.handleNext}
                       className={classes.button}
                   >
-            Finish
+                      Finish
                   </Button>
               </Grid>
+              {this.state.defineIsLoading && <CircularProgress className={classes.progress} />}
           </Grid>
       );
   }

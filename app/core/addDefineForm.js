@@ -122,6 +122,15 @@ class ConnectedAddDefineForm extends React.Component {
             })
         };
         this.props.addDefine({ define, studyId: this.props.study.id });
+        ipcRenderer.once('writeDefineObjectFinished', () => {
+            this.setState({
+                activeStep: 1,
+                defineCreationMethod: 'new',
+                defineData: null,
+                name: null,
+            });
+            this.props.toggleAddDefineForm({});
+        });
         ipcRenderer.send('writeDefineObject', { odm: defineData, defineId });
     };
 
@@ -162,18 +171,11 @@ class ConnectedAddDefineForm extends React.Component {
                 });
             }
         } else if (activeStep === 3) {
-            this.setState({
-                activeStep: 1,
-                defineCreationMethod: 'new',
-                defineData: null,
-                name: null,
-            });
             let defineId = getOid('Define', undefined, this.props.defines.allIds);
             let defineData = this.state.defineData;
             defineData.defineId = defineId;
             defineData.defineName = data;
             this.saveDefineAsObject(defineId, defineData, this.state.pathToDefineXml);
-            this.props.toggleAddDefineForm({});
         }
     };
 

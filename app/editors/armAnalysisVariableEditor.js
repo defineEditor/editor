@@ -23,9 +23,11 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import AddIcon from '@material-ui/icons/AddCircleOutline';
+import LowPriority from '@material-ui/icons/LowPriority';
 import IconButton from '@material-ui/core/IconButton';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import GeneralOrderEditor from 'components/orderEditors/generalOrderEditor.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
@@ -47,6 +49,7 @@ class ArmAnalysisVariableEditor extends React.Component {
         this.state = {
             addAnchorEl: null,
             removeAnchorEl: null,
+            showDatasetOrderEditor: false
         };
     }
 
@@ -80,6 +83,10 @@ class ArmAnalysisVariableEditor extends React.Component {
         }
         this.setState({ removeAnchorEl: null });
     };
+
+    handleVariableOrder = (updateObj) => {
+        this.props.onChange(updateObj.map(item => (item.oid)));
+    }
 
     render () {
         const { classes, itemGroup, analysisVariables } = this.props;
@@ -128,6 +135,16 @@ class ArmAnalysisVariableEditor extends React.Component {
                                 </IconButton>
                             </span>
                         </Tooltip>
+                        <Tooltip title='Order Datasets' placement='bottom' enterDelay={1000}>
+                            <IconButton
+                                color='primary'
+                                onClick={() => { this.setState({ showDatasetOrderEditor: true }); }}
+                                className={classes.button}
+                                disabled = {this.props.analysisVariables.length <= 1}
+                            >
+                                <LowPriority/>
+                            </IconButton>
+                        </Tooltip>
                     </Typography>
                 </Grid>
                 <Grid item xs={12}>
@@ -149,6 +166,21 @@ class ArmAnalysisVariableEditor extends React.Component {
                         })}
                     </List>
                 </Grid>
+                { this.state.showDatasetOrderEditor && (
+                    <Grid item xs={12} >
+                        <GeneralOrderEditor
+                            items={this.props.analysisVariables.map(oid => ({
+                                oid,
+                                name: this.props.itemDefs[oid] !== undefined ? this.props.itemDefs[oid].name : oid,
+                            }))}
+                            onSave={this.handleVariableOrder}
+                            noButton={true}
+                            title='Dataset Order'
+                            width='500px'
+                            onCancel={() => this.setState({ showDatasetOrderEditor: false })}
+                        />
+                    </Grid>
+                )}
                 <Menu
                     id="add-variable-menu"
                     anchorEl={addAnchorEl}

@@ -83,7 +83,7 @@ class ConnectedVariableLengthEditor extends React.Component {
 
     handleChange = name => event => {
         if (name === 'lengthAsData') {
-            let lengthAsCodeList;
+            let lengthAsCodeList = this.state.lengthAsCodeList;
             if (this.state.lengthAsCodeList === true) {
                 lengthAsCodeList = false;
             }
@@ -93,7 +93,7 @@ class ConnectedVariableLengthEditor extends React.Component {
             }
             this.setState({ [name]: event.target.checked, lengthAsCodeList, length });
         } else if (name === 'lengthAsCodeList') {
-            let lengthAsData;
+            let lengthAsData = this.state.lengthAsData;
             if (this.state.lengthAsData === true) {
                 lengthAsData = false;
             }

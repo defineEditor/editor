@@ -365,6 +365,7 @@ const copyResultDisplays = ({
             sourceMdv,
             analysisResultOidList: resultDisplay.analysisResultOrder,
             sameDefine,
+            resultDisplayOid: newResultDisplayOid,
             existingOids: currentExistingOids,
         });
         resultDisplays[newResultDisplayOid] = { ...new ResultDisplay({
