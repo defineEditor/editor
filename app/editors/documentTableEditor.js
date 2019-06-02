@@ -32,6 +32,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Tooltip from '@material-ui/core/Tooltip';
 import FolderOpen from '@material-ui/icons/FolderOpen';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
+import { FaCopy as CopyIcon } from 'react-icons/fa';
 import { Leaf } from 'core/defineStructure.js';
 import GeneralOrderEditor from 'components/orderEditors/generalOrderEditor.js';
 import getSelectionList from 'utils/getSelectionList.js';
@@ -49,8 +50,15 @@ const styles = theme => ({
     button: {
         marginBottom: theme.spacing.unit,
     },
-    delColumn: {
-        width: '50px',
+    icon: {
+        marginLeft: theme.spacing.unit,
+    },
+    actionColumn: {
+        width: '100px',
+    },
+    actionColumnContent: {
+        display: 'flex',
+        flexDirection: 'row',
     },
     typeColumn: {
         width: '230px',
@@ -137,6 +145,13 @@ class DocumentTableEditor extends React.Component {
             let newLeaf = { ...new Leaf({ ...newLeafs[oid], [name]: event.target.value, isPdf }) };
             newLeafs[oid] = newLeaf;
             this.setState({ leafs: newLeafs });
+        } else if (name === 'copyDoc') {
+            let newLeafs = { ...this.state.leafs };
+            let newOid = getOid('Leaf', undefined, Object.keys(this.state.leafs));
+            newLeafs[newOid] = { ...new Leaf({ ...this.state.leafs[oid], id: newOid }) };
+            let newLeafOrder = this.state.leafOrder.slice();
+            newLeafOrder.splice(newLeafOrder.indexOf(oid), 0, newOid);
+            this.setState({ leafs: newLeafs, leafOrder: newLeafOrder });
         } else if (name === 'deleteDoc') {
             let newLeafs = { ...this.state.leafs };
             delete newLeafs[oid];
@@ -163,13 +178,22 @@ class DocumentTableEditor extends React.Component {
         const createRow = (leafId) => {
             return (
                 <TableRow key={leafId}>
-                    <CustomTableCell>
+                    <CustomTableCell className={this.props.classes.actionColumnContent}>
                         <Tooltip title="Remove Document" placement="bottom-end">
                             <IconButton
                                 color='secondary'
                                 onClick={this.handleChange('deleteDoc', leafId)}
                             >
                                 <RemoveIcon />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Copy Document" placement="bottom-end">
+                            <IconButton
+                                color='primary'
+                                onClick={this.handleChange('copyDoc', leafId)}
+                                className={this.props.classes.icon}
+                            >
+                                <CopyIcon />
                             </IconButton>
                         </Tooltip>
                     </CustomTableCell>
@@ -264,7 +288,7 @@ class DocumentTableEditor extends React.Component {
                     <Table className={classes.table}>
                         <TableHead>
                             <TableRow>
-                                <CustomTableCell className={classes.delColumn}></CustomTableCell>
+                                <CustomTableCell className={classes.actionColumn}></CustomTableCell>
                                 <CustomTableCell className={classes.typeColumn}>Type</CustomTableCell>
                                 <CustomTableCell className={classes.titleColumn}>Title</CustomTableCell>
                                 <CustomTableCell className={classes.locationColumn}>Location</CustomTableCell>
