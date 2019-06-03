@@ -9,6 +9,7 @@
   ],
   "plugins": [
       "add-module-exports",
+      "react-hot-loader/babel",
       ["prismjs", {
           "languages": ["sas", "r", "python"],
           "plugins": ["line-numbers"],
