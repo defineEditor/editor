@@ -1,2 +1,6 @@
 *.xsl binary
-app/static/pdfjs/* binary
+app/static/* binary
+viewer.css binary
+viewer.js binary
+viewer.html binary
+debugger.js binary
