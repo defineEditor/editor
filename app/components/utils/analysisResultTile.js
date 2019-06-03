@@ -108,7 +108,7 @@ class ConnectedAnalysisResultTile extends React.Component {
 
     changeEditingMode = (noChanges) => {
         if (noChanges === true) {
-            // If nothing was changed, need to force highlighting. As it is done one when parent component is updated.
+            // If nothing was changed, need to force highlighting. As it is done only when parent component is updated.
             this.setState({ editMode: !this.state.editMode }, Prism.highlightAll);
         } else {
             this.setState({ editMode: !this.state.editMode });
