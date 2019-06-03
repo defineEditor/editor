@@ -268,7 +268,7 @@ export default merge.smart(baseConfig, {
             verbose: true,
             disableDotRule: false
         },
-        before() {
+        before () {
             if (process.env.START_HOT) {
                 console.log('Starting Main Process...');
                 spawn('npm', ['run', 'start-main-dev'], {
@@ -279,6 +279,12 @@ export default merge.smart(baseConfig, {
                     .on('close', code => process.exit(code))
                     .on('error', spawnError => console.error(spawnError));
             }
+        }
+    },
+
+    resolve: {
+        alias: {
+            'react-dom': '@hot-loader/react-dom'
         }
     }
 });
