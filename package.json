@@ -245,6 +245,7 @@
     "fast-deep-equal": "^1.1.0",
     "jquery": "^3.3.1",
     "jszip": "^3.1.5",
+    "pdfjs-dist": "^2.0.943",
     "prismjs": "^1.15.0",
     "prop-types": "^15.6.2",
     "react": "^16.5.2",
