@@ -18,11 +18,12 @@ import { BrowserWindow, dialog } from 'electron';
 
 async function openDocument (mainWindow, defineLocation, pdfLink) {
     // Check the file exists
-    let fullPdfLink = path.join(defineLocation, pdfLink);
+    let fullDocLink = path.join(defineLocation, pdfLink);
     // It is possible that link contains a page number of named destination, remove it before checking
-    let pathToPdf = fullPdfLink.replace(/(.pdf)(#.*)$/, '$1');
+    let pathToDoc = fullDocLink.replace(/(.*\.\w+)(#.*)$/, '$1');
+    let isPdf = (path.extname(pathToDoc) === '.pdf');
 
-    if (fs.existsSync(pathToPdf)) {
+    if (fs.existsSync(pathToDoc)) {
         // TODO temporary fix of https://github.com/electron/electron/issues/12337
         // To update once it is fixed in the application
         let pdfWindow = new BrowserWindow({
@@ -31,15 +32,26 @@ async function openDocument (mainWindow, defineLocation, pdfLink) {
             webPreferences: { nodeIntegration: true },
         });
         pdfWindow.setMenu(null);
-        let pathToPdfJs = path.join(__dirname, '..', 'static', 'pdfjs', 'web', 'viewer.html');
-        pdfWindow.loadURL('file://' + pathToPdfJs + '?file=' + fullPdfLink);
+        if (isPdf) {
+            let pathToPdfJs = path.join(__dirname, '..', 'static', 'pdfjs', 'web', 'viewer.html');
+            if (fullDocLink !== pathToDoc) {
+                // If there are pages specified, use the full link
+                pdfWindow.loadURL('file://' + pathToPdfJs + '?file=' + fullDocLink);
+            } else {
+                // PDF.js loads the last saved page (I have no idea where it stores this date)
+                // To overcome this the first page is manually specified
+                pdfWindow.loadURL('file://' + pathToPdfJs + '?file=' + fullDocLink + '#page=1');
+            }
+        } else {
+            pdfWindow.loadURL('file://' + fullDocLink);
+        }
     } else {
         dialog.showMessageBox(
             mainWindow,
             {
                 type: 'error',
                 title: 'File not found',
-                message: 'File ' + pathToPdf + ' could not be found.',
+                message: 'File ' + pathToDoc + ' could not be found.',
             });
     }
 }

@@ -29,7 +29,7 @@ import AnalysisResultFormatter from 'formatters/analysisResultFormatter.js';
 import EditIcon from '@material-ui/icons/Edit';
 import menuButton from 'components/menus/menuButton.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
-import { getReviewCommentCount } from 'utils/reviewCommentUtils.js';
+import { getReviewCommentStats } from 'utils/reviewCommentUtils.js';
 import {
     selectGroup
 } from 'actions/index.js';
@@ -123,8 +123,7 @@ class ConnectedAnalysisResultTile extends React.Component {
         // Review comments
         let reviewCommentStats;
         if (analysisResult.reviewCommentOids.length > 0) {
-            let total = getReviewCommentCount(analysisResult.reviewCommentOids, this.props.reviewComments);
-            reviewCommentStats = { total };
+            reviewCommentStats = getReviewCommentStats(analysisResult.reviewCommentOids, this.props.reviewComments);
         }
 
         return (

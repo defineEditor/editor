@@ -44,7 +44,7 @@ import SelectColumns from 'utils/selectColumns.js';
 import ItemGroupMenu from 'components/menus/itemGroupMenu.js';
 import menuButton from 'components/menus/menuButton.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
-import { getReviewCommentCount } from 'utils/reviewCommentUtils.js';
+import { getReviewCommentStats } from 'utils/reviewCommentUtils.js';
 import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {
     updateItemGroup,
@@ -449,8 +449,7 @@ class ConnectedDatasetTable extends React.Component {
 
             // Review comments
             if (originDs.reviewCommentOids.length > 0) {
-                let total = getReviewCommentCount(originDs.reviewCommentOids, this.props.reviewComments);
-                currentDs.reviewCommentStats = { total };
+                currentDs.reviewCommentStats = getReviewCommentStats(originDs.reviewCommentOids, this.props.reviewComments);
             }
             datasets[index] = currentDs;
         });

@@ -11,7 +11,7 @@
 * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
-import { getReviewCommentCount } from 'utils/reviewCommentUtils.js';
+import { getReviewCommentStats } from 'utils/reviewCommentUtils.js';
 
 // Extract data required for the table;
 const getTableData = ({
@@ -99,8 +99,7 @@ const getTableData = ({
         };
         // Review comments
         if (originItemDef.reviewCommentOids.length > 0) {
-            let total = getReviewCommentCount(originItemDef.reviewCommentOids, reviewComments);
-            currentVar.reviewCommentStats = { total };
+            currentVar.reviewCommentStats = getReviewCommentStats(originItemDef.reviewCommentOids, reviewComments);
         }
         result[currentVar.keyOrder.orderNumber - 1] = currentVar;
     });

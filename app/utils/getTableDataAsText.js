@@ -59,7 +59,9 @@ function getTableDataAsText ({ source, datasetName, datasetOid, itemDefs, codeLi
         if (originItemDef.origins.length > 0) {
             currentVar.origin = '';
             originItemDef.origins.forEach(origin => {
-                currentVar.origin += origin.type + getDescription(origin);
+                currentVar.origin = originItemDef.origins[0].type;
+                currentVar.fullOrigin += ' ' + origin.type + ' ' + getDescription(origin);
+                currentVar.fullOrigin = currentVar.fullOrigin.trim();
                 if (origin.documents.length > 0) {
                     currentVar.hasDocument = 'Yes';
                 }
@@ -113,6 +115,7 @@ function getTableDataAsText ({ source, datasetName, datasetOid, itemDefs, codeLi
                         case 'description' :
                             delete currentVar.method;
                             delete currentVar.origin;
+                            delete currentVar.fullOrigin;
                             delete currentVar.comment;
                             break;
                     }
