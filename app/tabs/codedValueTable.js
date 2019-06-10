@@ -291,7 +291,7 @@ class ConnectedCodedValueTable extends React.Component {
                 this.handleChangePage(event, page + 1);
             }
         }
-        if (event.ctrlKey && (event.keyCode === 78)) {
+        if (!this.props.reviewMode && event.ctrlKey && (event.keyCode === 78)) {
             this.props.addBlankCodedValue(this.props.codeListOid);
         } else if (event.ctrlKey && (event.keyCode === 70)) {
             this.searchFieldRef.current.focus();

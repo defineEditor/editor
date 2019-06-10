@@ -106,7 +106,7 @@ class ConnectedAnalysisResultTable extends React.Component {
     }
 
     onKeyDown = (event) => {
-        if (event.ctrlKey && (event.keyCode === 78)) {
+        if (!this.props.reviewMode && event.ctrlKey && (event.keyCode === 78)) {
             this.addAnalysisResult();
         }
     }
@@ -150,6 +150,7 @@ class ConnectedAnalysisResultTable extends React.Component {
                                     variant='contained'
                                     onClick={this.addAnalysisResult}
                                     className={classes.button}
+                                    disabled={this.props.reviewMode}
                                 >
                                     Add Analysis Result
                                 </Button>
