@@ -20,6 +20,7 @@ import Typography from '@material-ui/core/Typography';
 import OriginFormatter from 'formatters/originFormatter.js';
 import CommentFormatter from 'formatters/commentFormatter.js';
 import MethodFormatter from 'formatters/methodFormatter.js';
+import noteFormatter from 'formatters/noteFormatter.js';
 
 const styles = theme => ({
     button: {
@@ -36,7 +37,7 @@ const styles = theme => ({
 class DescriptionFormatter extends React.Component {
     render () {
         let result = [];
-        if (this.props.value.origins.length > 0) {
+        if (this.props.value.origins && this.props.value.origins.length > 0) {
             this.props.value.origins.forEach((origin) => {
                 result.push(
                     <Grid item key={origin} xs={12}>
@@ -72,10 +73,10 @@ class DescriptionFormatter extends React.Component {
         if (this.props.value.note !== undefined) {
             result.push(
                 <Grid item key='note' xs={12}>
-                    <Typography variant="subtitle1" gutterBottom>
-                        Note (not part of Define-XML):
+                    <Typography variant="caption" gutterBottom color='textSecondary'>
+                        Programming note (not included in Define-XML)
                     </Typography>
-                    {this.props.value.note.value}
+                    { noteFormatter(this.props.value.note) }
                 </Grid>
             );
         }
@@ -91,6 +92,7 @@ class DescriptionFormatter extends React.Component {
 DescriptionFormatter.propTypes = {
     classes: PropTypes.object.isRequired,
     value: PropTypes.object,
+    leafs: PropTypes.object,
     model: PropTypes.string.isRequired,
 };
 
