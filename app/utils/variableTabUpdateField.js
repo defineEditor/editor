@@ -118,7 +118,6 @@ class VariableTabUpdateField extends React.Component {
                         <CommentEditor
                             comment={value}
                             onUpdate={this.handleChange('setObject')}
-                            stateless
                         />
                     )}
                     { updateType === 'set' && editor === 'MethodEditor' && (
@@ -132,7 +131,6 @@ class VariableTabUpdateField extends React.Component {
                         <OriginEditor
                             origins={value}
                             onUpdate={this.handleChange('setObject')}
-                            stateless
                         />
                     )}
                     { updateType === 'replace' && ['TextField', 'MethodEditor', 'CommentEditor'].includes(editor) && (

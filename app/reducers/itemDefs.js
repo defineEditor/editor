@@ -62,6 +62,7 @@ const updateItemDescription = (state, action) => {
     // Check if origin or comment has changed;
     let newState = { ...state };
     let changedFlag = false;
+    let updatedProps = {};
     // Comment
     let previousCommentOid;
     if (action.prevObj.comment !== undefined) {
@@ -72,17 +73,22 @@ const updateItemDescription = (state, action) => {
         newCommentOid = action.updateObj.comment.oid;
     }
     if (previousCommentOid !== newCommentOid) {
-        newState = { ...state, [action.source.oid]: { ...new ItemDef({ ...newState[action.source.oid], commentOid: newCommentOid }) } };
+        updatedProps = { ...updatedProps, commentOid: newCommentOid };
         changedFlag = true;
     }
     // Origin
     if (!deepEqual(action.updateObj.origins, action.prevObj.origins)) {
-        newState = { ...state, [action.source.oid]: { ...new ItemDef({ ...newState[action.source.oid], origins: action.updateObj.origins }) } };
+        updatedProps = { ...updatedProps, origins: action.updateObj.origins };
+        changedFlag = true;
+    }
+    // Programming note
+    if (action.updateObj.note !== action.prevObj.note) {
+        updatedProps = { ...updatedProps, note: action.updateObj.note };
         changedFlag = true;
     }
 
     if (changedFlag) {
-        return newState;
+        return { ...state, [action.source.oid]: { ...new ItemDef({ ...newState[action.source.oid], ...updatedProps }) } };
     } else {
         return state;
     }

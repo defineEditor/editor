@@ -17,7 +17,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import clone from 'clone';
-import deepEqual from 'fast-deep-equal';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
 import DocumentEditor from 'editors/documentEditor.js';
@@ -33,7 +32,6 @@ import { Comment, TranslatedText } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 import CommentMethodTable from 'components/utils/commentMethodTable.js';
-import SaveCancel from 'editors/saveCancel.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
 import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
 import {
@@ -90,33 +88,14 @@ class ConnectedCommentEditor extends React.Component {
         // Bootstrap table changed undefined to '' when saving the value.
         // Catching this and resetting to undefined in case it is an empty string
         this.rootRef = React.createRef();
-        let comment;
-        if (this.props.stateless !== true) {
-            if (this.props.comment === '') {
-                comment = undefined;
-            } else {
-                comment = clone(this.props.comment);
-            }
-            this.state = {
-                comment: comment,
-                selectCommentOpened: false,
-            };
-        } else {
-            this.state = {
-                selectCommentOpened: false,
-            };
-        }
-    }
-
-    componentDidMount () {
-        if (!this.props.stateless) {
-            this.rootRef.current.focus();
-        }
+        this.state = {
+            selectCommentOpened: false,
+        };
     }
 
     handleChange = (name) => (updateObj) => {
         let newComment;
-        let comment = this.props.stateless === true ? this.props.comment : this.state.comment;
+        let comment = this.props.comment;
         if (name === 'addComment') {
             let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
             newComment = { ...new Comment({ oid: commentOid, descriptions: [ { ...new TranslatedText({ lang: this.props.lang, value: '' }) } ] }) };
@@ -139,16 +118,10 @@ class ConnectedCommentEditor extends React.Component {
             this.setState({ selectCommentOpened: false });
         } else if (name === 'detachComment') {
             let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
-            newComment = { ...new Comment({ ...clone(this.props.stateless ? this.props.comment : this.state.comment), oid: commentOid, sources: undefined }) };
+            newComment = { ...new Comment({ ...clone(this.props.comment), oid: commentOid, sources: undefined }) };
         }
 
-        if (this.props.stateless === true) {
-            // If state should be uplifted - use the callback
-            this.props.onUpdate(newComment);
-        } else {
-            // Otherwise update state locally
-            this.setState({ comment: newComment });
-        }
+        this.props.onUpdate(newComment);
     }
 
     handleSelectDialog = (name) => (updateObj) => {
@@ -159,47 +132,9 @@ class ConnectedCommentEditor extends React.Component {
         }
     }
 
-    save = () => {
-        let row = this.props.row;
-        let oldComment = row['comment'];
-        if (!deepEqual(this.state.comment, oldComment)) {
-            if (this.state.comment === undefined) {
-                // If comment was removed
-                this.props.deleteItemGroupComment({ type: 'itemGroups', oid: row.oid }, row.comment);
-            } else if (oldComment === undefined) {
-                // If comment was added
-                this.props.addItemGroupComment({ type: 'itemGroups', oid: row.oid }, this.state.comment);
-            } else if (oldComment.oid !== this.state.comment.oid) {
-                // If comment was replaced
-                this.props.replaceItemGroupComment({ type: 'itemGroups', oid: row.oid }, this.state.comment, oldComment.oid);
-            } else {
-                this.props.updateItemGroupComment({ type: 'itemGroups', oid: row.oid }, this.state.comment);
-            }
-        }
-        this.props.onUpdate();
-    }
-
-    cancel = () => {
-        this.props.onUpdate();
-    }
-
-    onKeyDown = (event) => {
-        if (this.props.stateless !== true) {
-            if (event.key === 'Escape' || event.keyCode === 27) {
-                this.cancel();
-            } else if (event.ctrlKey && (event.keyCode === 83)) {
-                // Focusing on the root element to fire all onBlur events for input fields
-                this.rootRef.current.focus();
-                // Call save through dummy setState to verify all states were updated
-                // TODO Check if this guarantees that all onBlurs are finished, looks like it is not
-                this.setState({}, this.save);
-            }
-        }
-    }
-
     render () {
         const { classes } = this.props;
-        let comment = this.props.stateless === true ? this.props.comment : this.state.comment;
+        let comment = this.props.comment;
         let sourceLabels = { count: 0 };
         let usedBy;
         let issue = false;
@@ -317,12 +252,6 @@ class ConnectedCommentEditor extends React.Component {
                                 />
                             </Grid>
                     }
-                    {this.props.stateless !== true &&
-                            <Grid item xs={12} >
-                                <br/>
-                                <SaveCancel save={this.save} cancel={this.cancel}/>
-                            </Grid>
-                    }
                 </Grid>
             </div>
         );
@@ -340,7 +269,6 @@ ConnectedCommentEditor.propTypes = {
     comments: PropTypes.object.isRequired,
     onUpdate: PropTypes.func,
     autoFocus: PropTypes.bool,
-    stateless: PropTypes.bool,
     title: PropTypes.string,
     textInstantProcessing: PropTypes.bool,
 };

@@ -186,7 +186,11 @@ class AnalysisResultFormatter extends React.Component {
                             <Grid item xs={12}>
                                 <Typography variant="body1">
                                     Programming Code
-                                    <Tooltip title="Copy code to clipboard" placement="bottom-end" enterDelay={700}>
+                                    <Tooltip
+                                        title={(programmingCode && programmingCode.code) ? 'Copy code to clipboard' : ''}
+                                        placement='bottom'
+                                        enterDelay={700}
+                                    >
                                         <IconButton
                                             onClick={this.copyToClipboard}
                                             className={classes.icon}

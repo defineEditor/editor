@@ -63,7 +63,7 @@ class codeListFormatNameEditor extends React.Component {
         let issue = false;
         let helperText = '';
         if (this.state.formatName !== undefined) {
-            let issues = checkForSpecialChars(this.state.formatName, new RegExp(/[^$a-zA-Z_0-9]/, 'g'), 'Invalid character');
+            let issues = checkForSpecialChars(this.state.formatName, new RegExp(/[^$A-Z_0-9]/, 'gi'), 'Invalid character');
             // Check label length is withing 40 chars
             if (this.state.formatName.length > 32) {
                 let issueText = `Value length is ${this.state.formatName.length}, which exceeds 32 characters.`;

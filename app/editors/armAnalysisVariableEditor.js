@@ -135,7 +135,7 @@ class ArmAnalysisVariableEditor extends React.Component {
                                 </IconButton>
                             </span>
                         </Tooltip>
-                        <Tooltip title='Order Datasets' placement='bottom' enterDelay={1000}>
+                        <Tooltip title='Order Variables' placement='bottom' enterDelay={1000}>
                             <IconButton
                                 color='primary'
                                 onClick={() => { this.setState({ showDatasetOrderEditor: true }); }}

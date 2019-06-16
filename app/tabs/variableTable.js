@@ -420,7 +420,7 @@ class ConnectedVariableTable extends React.Component {
                 });
         }
         // In case of a filter, select all filtered VLM oids
-        if (this.props.filter.isEnabled && this.props.filter.applyToVlm) {
+        if (this.props.filter.isEnabled) {
             Object.keys(dataset.itemRefs)
                 .filter(itemRefOid => (mdv.itemDefs[dataset.itemRefs[itemRefOid].itemOid].valueListOid !== undefined))
                 .filter(itemRefOid => (!searchString || Object.keys(vlmFilteredOidsByItem).includes(dataset.itemRefs[itemRefOid].itemOid)))
@@ -440,7 +440,13 @@ class ConnectedVariableTable extends React.Component {
                         // Keep only rows which were filtered by search string
                         data = data.filter(row => (vlmFilteredOidsByItem[itemOid].includes(row.oid)));
                     }
-                    let vlmFilteredOids = applyFilter(data, this.props.filter);
+                    let vlmFilteredOids = [];
+                    if (this.props.filter.applyToVlm) {
+                        vlmFilteredOids = applyFilter(data, this.props.filter);
+                    } else {
+                        // In case filter is not applied to VLMs, all records are treated as filtered
+                        vlmFilteredOids = data.map(row => (row.oid));
+                    }
                     vlmFilteredOidsByItem[itemOid] = vlmFilteredOids;
                 });
         }

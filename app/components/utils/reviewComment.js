@@ -14,7 +14,7 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Editor, EditorState, ContentState, convertFromHTML, RichUtils } from 'draft-js';
+import { Editor, EditorState, ContentState, convertFromHTML } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { withStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -219,15 +219,6 @@ class ReviewCommentRaw extends React.Component {
                     onDelete={this.props.onDelete}
                 />
             ));
-    }
-
-    handleReturn = (e) => {
-        const { editorState } = this.state;
-        if (e.shiftKey) {
-            this.setState({ editorState: RichUtils.insertSoftNewline(editorState) });
-            return 'handled';
-        }
-        return 'not-handled';
     }
 
     render () {

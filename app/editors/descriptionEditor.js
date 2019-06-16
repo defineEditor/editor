@@ -17,14 +17,20 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { EditorState, ContentState, convertFromHTML } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
+import deepEqual from 'fast-deep-equal';
 import { withStyles } from '@material-ui/core/styles';
 import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
 import CommentEditor from 'editors/commentEditor.js';
-import MethodEditor from 'editors/methodEditor.js';
-import OriginEditor from 'editors/originEditor.js';
 import NoteEditor from 'editors/noteEditor.js';
 import SaveCancel from 'editors/saveCancel.js';
+import {
+    updateItemGroupComment,
+    addItemGroupComment,
+    deleteItemGroupComment,
+    replaceItemGroupComment,
+    updateItemGroup,
+} from 'actions/index.js';
 
 const styles = theme => ({
     button: {
@@ -49,7 +55,17 @@ const mapStateToProps = state => {
     };
 };
 
-class ConnectedItemDescriptionEditor extends React.Component {
+const mapDispatchToProps = dispatch => {
+    return {
+        updateItemGroupComment: (source, updateObj) => dispatch(updateItemGroupComment(source, updateObj)),
+        addItemGroupComment: (source, updateObj) => dispatch(addItemGroupComment(source, updateObj)),
+        deleteItemGroupComment: (source, updateObj) => dispatch(deleteItemGroupComment(source, updateObj)),
+        replaceItemGroupComment: (source, updateObj) => dispatch(replaceItemGroupComment(source, updateObj)),
+        updateItemGroup: (oid, updateObj) => dispatch(updateItemGroup(oid, updateObj)),
+    };
+};
+
+class ConnectedDescriptionEditor extends React.Component {
     constructor (props) {
         super(props);
         this.rootRef = React.createRef();
@@ -66,9 +82,7 @@ class ConnectedItemDescriptionEditor extends React.Component {
             }
         }
         this.state = {
-            origins: this.props.defaultValue.origins,
             comment: this.props.defaultValue.comment,
-            method: this.props.defaultValue.method,
             noteState,
         };
     }
@@ -82,12 +96,29 @@ class ConnectedItemDescriptionEditor extends React.Component {
         if (this.state.noteState !== undefined) {
             note = stateToHTML(this.state.noteState.getCurrentContent());
         }
-        this.props.onUpdate({
-            origins: this.state.origins,
-            comment: this.state.comment,
-            method: this.state.method,
-            note,
-        });
+        if (this.props.type === 'itemGroup') {
+            let row = this.props.row;
+            let oldComment = row['comment'].comment;
+            if (!deepEqual(this.state.comment, oldComment)) {
+                if (this.state.comment === undefined) {
+                    // If comment was removed
+                    this.props.deleteItemGroupComment({ type: 'itemGroups', oid: row.oid }, { comment: oldComment, note });
+                } else if (oldComment === undefined) {
+                    // If comment was added
+                    this.props.addItemGroupComment({ type: 'itemGroups', oid: row.oid }, { comment: this.state.comment, note });
+                } else if (oldComment.oid !== this.state.comment.oid) {
+                    // If comment was replaced
+                    this.props.replaceItemGroupComment({ type: 'itemGroups', oid: row.oid }, { newComment: this.state.comment, oldCommentOid: oldComment.oid, note });
+                } else {
+                    this.props.updateItemGroupComment({ type: 'itemGroups', oid: row.oid }, { comment: this.state.comment, note });
+                }
+            } else {
+                if (note !== row['comment'].note) {
+                    this.props.updateItemGroup(row.oid, { note });
+                }
+            }
+        }
+        this.props.onUpdate();
     }
 
     cancel = () => {
@@ -112,7 +143,6 @@ class ConnectedItemDescriptionEditor extends React.Component {
 
     render () {
         const { classes } = this.props;
-        const originType = this.state.origins.length > 0 && this.state.origins[0].type;
 
         return (
             <div
@@ -123,23 +153,7 @@ class ConnectedItemDescriptionEditor extends React.Component {
             >
                 <Grid container spacing={8} alignItems='center'>
                     <Grid item xs={12} className={classes.gridItem}>
-                        <OriginEditor origins={this.state.origins} onUpdate={this.handleChange('origins')}/>
-                    </Grid>
-                    <Grid item xs={12} className={classes.gridItem}>
-                        <Divider/>
-                    </Grid>
-                    {(['Derived', 'Assigned'].includes(originType) || this.state.method !== undefined) &&
-                            <React.Fragment>
-                                <Grid item xs={12} className={classes.gridItem}>
-                                    <MethodEditor method={this.state.method} onUpdate={this.handleChange('method')} stateless={true} fullName={this.props.row.fullName}/>
-                                </Grid>
-                                <Grid item xs={12} className={classes.gridItem}>
-                                    <Divider/>
-                                </Grid>
-                            </React.Fragment>
-                    }
-                    <Grid item xs={12} className={classes.gridItem}>
-                        <CommentEditor comment={this.state.comment} onUpdate={this.handleChange('comment')}/>
+                        <CommentEditor comment={this.state.comment} onUpdate={this.handleChange('comment')} autoFocus={true}/>
                     </Grid>
                     <Grid item xs={12} className={classes.gridItem}>
                         <Divider/>
@@ -163,11 +177,17 @@ class ConnectedItemDescriptionEditor extends React.Component {
     }
 }
 
-ConnectedItemDescriptionEditor.propTypes = {
+ConnectedDescriptionEditor.propTypes = {
     defaultValue: PropTypes.object,
+    type: PropTypes.string.isRequired,
     lang: PropTypes.string,
+    updateItemGroupComment: PropTypes.func.isRequired,
+    addItemGroupComment: PropTypes.func.isRequired,
+    deleteItemGroupComment: PropTypes.func.isRequired,
+    replaceItemGroupComment: PropTypes.func.isRequired,
+    updateItemGroup: PropTypes.func.isRequired,
 };
-ConnectedItemDescriptionEditor.displayName = 'itemDescriptionEditor';
+ConnectedDescriptionEditor.displayName = 'descriptionEditor';
 
-const ItemDescriptionEditor = connect(mapStateToProps)(ConnectedItemDescriptionEditor);
-export default withStyles(styles)(ItemDescriptionEditor);
+const DescriptionEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedDescriptionEditor);
+export default withStyles(styles)(DescriptionEditor);

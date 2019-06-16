@@ -39,15 +39,16 @@ class SimpleInputEditor extends React.Component {
     }
 
     handleChange = event => {
-        if (this.props.options !== undefined && this.props.options.upcase === true) {
-            this.setState({ value: event.target.value.toUpperCase() });
-        } else {
-            this.setState({ value: event.target.value });
-        }
+        this.setState({ value: event.target.value });
     };
 
     save = (event) => {
-        this.props.onUpdate(event.target.value);
+        let value = event.target.value;
+        if (this.props.options !== undefined && this.props.options.upcase === true) {
+            value = value.toUpperCase();
+        }
+
+        this.props.onUpdate(value);
     }
 
     render () {
