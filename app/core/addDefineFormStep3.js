@@ -23,6 +23,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import TextField from '@material-ui/core/TextField';
+import getDefineStats from 'utils/getDefineStats.js';
 
 const styles = theme => ({
     root: {
@@ -65,6 +66,10 @@ class AddDefineFormStep3 extends React.Component {
 
   render () {
       const { classes } = this.props;
+      let stats = {};
+      if (['import', 'copy'].includes(this.props.defineCreationMethod)) {
+          stats = getDefineStats(this.props.defineData);
+      }
 
       return (
           <Grid container spacing={8} className={classes.root}>
@@ -121,31 +126,19 @@ class AddDefineFormStep3 extends React.Component {
                               <ListItem>
                                   <ListItemText
                                       primary="Datasets"
-                                      secondary={
-                                          Object.keys(
-                                              this.props.defineData.study.metaDataVersion.itemGroups
-                                          ).length
-                                      }
+                                      secondary={stats.datasets}
                                   />
                               </ListItem>
                               <ListItem>
                                   <ListItemText
-                                      primary="Variables"
-                                      secondary={
-                                          Object.keys(
-                                              this.props.defineData.study.metaDataVersion.itemDefs
-                                          ).length
-                                      }
+                                      primary="Variables and VLM"
+                                      secondary={stats.variables}
                                   />
                               </ListItem>
                               <ListItem>
                                   <ListItemText
                                       primary="Codelists"
-                                      secondary={
-                                          Object.keys(
-                                              this.props.defineData.study.metaDataVersion.codeLists
-                                          ).length
-                                      }
+                                      secondary={stats.codeLists}
                                   />
                               </ListItem>
                           </React.Fragment>

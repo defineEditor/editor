@@ -44,11 +44,14 @@ const styles = theme => ({
         position: 'absolute',
         borderRadius: '10px',
         top: '10%',
-        width: '55%',
-        transform: 'translate(0%, calc(-20%+0.5px))',
+        minWidth: '60%',
+        transform: 'translate(0%, -10%)',
         overflowX: 'auto',
-        maxHeight: '85%',
-        overflowY: 'auto',
+        maxHeight: '80%',
+        overflowY: 'auto'
+    },
+    description: {
+        overflowY: 'visible',
     },
     root: {
         width: '100%',
@@ -455,7 +458,7 @@ class AddResultDisplayFromDefineConnected extends React.Component {
                     <DialogTitle id="alert-dialog-title">
                         Missing Variables
                     </DialogTitle>
-                    <DialogContent>
+                    <DialogContent className={classes.description}>
                         Some of the result displays are referencing variables, which are not in the current Define-XML document.
                         Either add those variables to the current document or continue the copy, removing references to all missing variables
                     </DialogContent>
