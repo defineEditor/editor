@@ -19,6 +19,7 @@ import {
     DEL_ITEMGROUPS,
     ADD_ITEMGROUPCOMMENT,
     DEL_ITEMGROUPCOMMENT,
+    UPD_ITEMGROUPCOMMENT,
     UPD_ITEMREF,
     UPD_ITEMREFKEYORDER,
     UPD_ITEMREFORDER,
@@ -112,18 +113,27 @@ const updateItemGroup = (state, action) => {
 };
 
 const addItemGroupComment = (state, action) => {
-    let newItemGroup = { ...new ItemGroup({ ...state[action.source.oid], commentOid: action.comment.oid }) };
+    let newItemGroup = { ...new ItemGroup({ ...state[action.source.oid], commentOid: action.comment.oid, note: action.note }) };
     return { ...state, [action.source.oid]: newItemGroup };
 };
 
 const replaceItemGroupComment = (state, action) => {
-    let newItemGroup = { ...new ItemGroup({ ...state[action.source.oid], commentOid: action.newComment.oid }) };
+    let newItemGroup = { ...new ItemGroup({ ...state[action.source.oid], commentOid: action.newComment.oid, note: action.note }) };
     return { ...state, [action.source.oid]: newItemGroup };
 };
 
 const deleteItemGroupComment = (state, action) => {
-    let newItemGroup = { ...new ItemGroup({ ...state[action.source.oid], commentOid: undefined }) };
+    let newItemGroup = { ...new ItemGroup({ ...state[action.source.oid], commentOid: undefined, note: action.note }) };
     return { ...state, [action.source.oid]: newItemGroup };
+};
+
+const handleUpdateItemGroupComment = (state, action) => {
+    if (action.note !== state[action.source.oid].note) {
+        let newItemGroup = { ...new ItemGroup({ ...state[action.source.oid], note: action.note }) };
+        return { ...state, [action.source.oid]: newItemGroup };
+    } else {
+        return state;
+    }
 };
 
 const updateItemRef = (state, action) => {
@@ -444,6 +454,8 @@ const itemGroups = (state = {}, action) => {
             return addItemGroupComment(state, action);
         case REP_ITEMGROUPCOMMENT:
             return replaceItemGroupComment(state, action);
+        case UPD_ITEMGROUPCOMMENT:
+            return handleUpdateItemGroupComment(state, action);
         case DEL_ITEMGROUPCOMMENT:
             return deleteItemGroupComment(state, action);
         case UPD_ITEMREF:

@@ -14,13 +14,16 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import { EditorState, ContentState, convertFromHTML } from 'draft-js';
+import { stateToHTML } from 'draft-js-export-html';
+import { withStyles } from '@material-ui/core/styles';
 import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
 import CommentEditor from 'editors/commentEditor.js';
 import MethodEditor from 'editors/methodEditor.js';
 import OriginEditor from 'editors/originEditor.js';
+import NoteEditor from 'editors/noteEditor.js';
 import SaveCancel from 'editors/saveCancel.js';
 
 const styles = theme => ({
@@ -41,8 +44,8 @@ const styles = theme => ({
 // Redux functions
 const mapStateToProps = state => {
     return {
-        // TODO : remove mapStateToProps and add mapDispatchToProps
         lang: state.present.odm.study.metaDataVersion.lang,
+        enableProgrammingNote: state.present.settings.editor.enableProgrammingNote,
     };
 };
 
@@ -50,11 +53,23 @@ class ConnectedItemDescriptionEditor extends React.Component {
     constructor (props) {
         super(props);
         this.rootRef = React.createRef();
+
+        let noteState;
+        let note = this.props.defaultValue.note;
+        if (note !== undefined) {
+            const blocksFromHTML = convertFromHTML(note);
+            if (blocksFromHTML.contentBlocks === null) {
+                noteState = EditorState.createEmpty();
+            } else {
+                const content = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
+                noteState = EditorState.createWithContent(content);
+            }
+        }
         this.state = {
             origins: this.props.defaultValue.origins,
             comment: this.props.defaultValue.comment,
             method: this.props.defaultValue.method,
-            prognote: this.props.defaultValue.prognote,
+            noteState,
         };
     }
 
@@ -63,7 +78,16 @@ class ConnectedItemDescriptionEditor extends React.Component {
     }
 
     save = () => {
-        this.props.onUpdate(this.state);
+        let note;
+        if (this.state.noteState !== undefined) {
+            note = stateToHTML(this.state.noteState.getCurrentContent());
+        }
+        this.props.onUpdate({
+            origins: this.state.origins,
+            comment: this.state.comment,
+            method: this.state.method,
+            note,
+        });
     }
 
     cancel = () => {
@@ -115,11 +139,21 @@ class ConnectedItemDescriptionEditor extends React.Component {
                             </React.Fragment>
                     }
                     <Grid item xs={12} className={classes.gridItem}>
-                        <CommentEditor comment={this.state.comment} onUpdate={this.handleChange('comment')} stateless={true}/>
+                        <CommentEditor comment={this.state.comment} onUpdate={this.handleChange('comment')}/>
                     </Grid>
                     <Grid item xs={12} className={classes.gridItem}>
                         <Divider/>
                     </Grid>
+                    { (this.props.enableProgrammingNote || this.state.noteState !== undefined) && [(
+                        <Grid item xs={12} className={classes.gridItem} key='note'>
+                            <NoteEditor noteState={this.state.noteState} onUpdate={this.handleChange('noteState')}/>
+                        </Grid>
+                    ), (
+                        <Grid item xs={12} className={classes.gridItem} key='divider'>
+                            <Divider/>
+                        </Grid>
+                    )]
+                    }
                     <Grid item xs={12} className={classes.gridItem}>
                         <SaveCancel save={this.save} cancel={this.cancel} />
                     </Grid>

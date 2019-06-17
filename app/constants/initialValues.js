@@ -134,6 +134,7 @@ const editor = {
     showLineNumbersInCode: false,
     removeTrailingSpacesWhenParsing: true,
     enableTablePagination: true,
+    enableProgrammingNote: true,
 };
 
 const define = {

@@ -24,7 +24,7 @@ import Button from '@material-ui/core/Button';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
-import CommentEditor from 'editors/commentEditor.js';
+import DescriptionEditor from 'editors/descriptionEditor.js';
 import InteractiveKeyOrderEditor from 'components/orderEditors/interactiveKeyOrderEditor.js';
 import AddDataset from 'components/tableActions/addDataset.js';
 import DatasetOrderEditor from 'components/orderEditors/datasetOrderEditor.js';
@@ -34,7 +34,7 @@ import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 import DatasetFlagsEditor from 'editors/datasetFlagsEditor.js';
 import DatasetDomainEditor from 'editors/datasetDomainEditor.js';
 import DatasetFlagsFormatter from 'formatters/datasetFlagsFormatter.js';
-import CommentFormatter from 'formatters/commentFormatter.js';
+import DescriptionFormatter from 'formatters/descriptionFormatter.js';
 import LeafFormatter from 'formatters/leafFormatter.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import renderColumns from 'utils/renderColumns.js';
@@ -44,7 +44,7 @@ import SelectColumns from 'utils/selectColumns.js';
 import ItemGroupMenu from 'components/menus/itemGroupMenu.js';
 import menuButton from 'components/menus/menuButton.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
-import { getReviewCommentCount } from 'utils/reviewCommentUtils.js';
+import { getReviewCommentStats } from 'utils/reviewCommentUtils.js';
 import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {
     updateItemGroup,
@@ -87,12 +87,13 @@ const mapStateToProps = state => {
         showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
         reviewMode: state.present.ui.main.reviewMode,
         reviewComments: state.present.odm.reviewComments,
+        model,
     };
 };
 
 // Editor functions
 function commentEditor (onUpdate, props) {
-    return (<CommentEditor onUpdate={ onUpdate } {...props} comment={props.defaultValue} autoFocus={true}/>);
+    return (<DescriptionEditor onUpdate={ onUpdate } {...props} type='itemGroup'/>);
 }
 
 function interactiveKeyOrderEditor (onUpdate, props) {
@@ -121,8 +122,8 @@ function simpleSelectEditor (onUpdate, props) {
 
 // Formatter functions
 function commentFormatter (cell, row) {
-    if (cell !== undefined && cell !== '') {
-        return (<CommentFormatter comment={cell} leafs={row.leafs}/>);
+    if (cell !== undefined && Object.values(cell).filter(value => (value !== undefined)).length > 0) {
+        return (<DescriptionFormatter value={cell} leafs={row.leafs} model={row.model}/>);
     } else {
         return null;
     }
@@ -185,7 +186,7 @@ class ConnectedDatasetTable extends React.Component {
                 customEditor: { getElement: simpleInputEditor,
                     customEditorParameters: { options:
                     {
-                        checkForSpecialChars: { type: 'Error', regex: new RegExp(/[^A-Z_0-9]/, 'g') },
+                        checkForSpecialChars: { type: 'Error', regex: new RegExp(/[^A-Z_0-9]/, 'gi') },
                         lengthLimit: { type: 'Error', maxLength: 8 },
                         upcase: true,
                     }
@@ -428,7 +429,11 @@ class ConnectedDatasetTable extends React.Component {
                 currentDs.datasetClass = originDs.datasetClass.name;
             }
             currentDs.description = getDescription(originDs);
-            currentDs.comment = originDs.commentOid === undefined ? undefined : this.props.comments[originDs.commentOid];
+            // Comment (add programming note)
+            currentDs.comment = { note: originDs.note };
+            if (originDs.commentOid !== undefined) {
+                currentDs.comment.comment = this.props.comments[originDs.commentOid];
+            }
             currentDs.leaf = originDs.leaf === undefined ? undefined : { ...originDs.leaf };
             // Group Repeating/IsReferenceData/isStandard
             currentDs.flags = {
@@ -440,6 +445,7 @@ class ConnectedDatasetTable extends React.Component {
                 domain: originDs.domain,
                 alias: originDs.alias,
             };
+            currentDs.model = this.props.model;
 
             // Get key variables
             // TODO: When key is located in the SUPP dataset.
@@ -449,8 +455,7 @@ class ConnectedDatasetTable extends React.Component {
 
             // Review comments
             if (originDs.reviewCommentOids.length > 0) {
-                let total = getReviewCommentCount(originDs.reviewCommentOids, this.props.reviewComments);
-                currentDs.reviewCommentStats = { total };
+                currentDs.reviewCommentStats = getReviewCommentStats(originDs.reviewCommentOids, this.props.reviewComments);
             }
             datasets[index] = currentDs;
         });

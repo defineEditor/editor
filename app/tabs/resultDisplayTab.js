@@ -37,7 +37,7 @@ import AddResultDisplay from 'components/tableActions/addResultDisplay.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import getArmResultDisplayOids from 'utils/getArmResultDisplayOids.js';
-import { getReviewCommentCount } from 'utils/reviewCommentUtils.js';
+import { getReviewCommentStats } from 'utils/reviewCommentUtils.js';
 import {
     updateResultDisplay,
     deleteResultDisplays,
@@ -308,8 +308,7 @@ class ConnectedResultDisplayTable extends React.Component {
             };
             // Review comments
             if (resultDisplay.reviewCommentOids.length > 0) {
-                let total = getReviewCommentCount(resultDisplay.reviewCommentOids, this.props.reviewComments);
-                row.reviewCommentStats = { total };
+                row.reviewCommentStats = getReviewCommentStats(resultDisplay.reviewCommentOids, this.props.reviewComments);
             }
             tableData[index] = row;
         });

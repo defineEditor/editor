@@ -255,10 +255,13 @@ class ConnectedReviewCommentTab extends React.Component {
                             sourceName = getDescription(mdv.analysisResultDisplays[sourceId][sourceValue]);
                             // Get name of the result display
                             const analysisResult = mdv.analysisResultDisplays[sourceId][sourceValue];
+                            const resultDisplays = mdv.analysisResultDisplays.resultDisplays;
                             if (analysisResult.sources &&
-                                analysisResult.sources.resultDisplays
+                                analysisResult.sources.resultDisplays &&
+                                analysisResult.sources.resultDisplays.length > 0 &&
+                                resultDisplays.hasOwnProperty(analysisResult.sources.resultDisplays[0])
                             ) {
-                                const resultDisplay = mdv.analysisResultDisplays.resultDisplays[analysisResult.sources.resultDisplays[0]];
+                                const resultDisplay = resultDisplays[analysisResult.sources.resultDisplays[0]];
                                 commentData.parentItemOid = resultDisplay.oid;
                                 if (resultDisplay) {
                                     sourceName = `${resultDisplay.name} ${sourceName}`;

@@ -463,7 +463,6 @@ class ConnectedAnalysisResultEditor extends React.Component {
                         <CommentEditor
                             comment={this.state.analysisDatasetsComment}
                             onUpdate={this.handleChange('analysisDatasetsComment')('update')}
-                            stateless={true}
                             title='Datasets Comment'
                         />
                     </Grid>

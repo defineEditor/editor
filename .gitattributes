@@ -1,1 +1,2 @@
 *.xsl binary
+app/static/** binary

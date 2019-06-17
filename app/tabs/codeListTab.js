@@ -49,7 +49,7 @@ import menuButton from 'components/menus/menuButton.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
-import { getReviewCommentCount } from 'utils/reviewCommentUtils.js';
+import { getReviewCommentStats } from 'utils/reviewCommentUtils.js';
 import {
     updateCodeList,
     updateCodeListStandard,
@@ -590,8 +590,7 @@ class ConnectedCodeListTable extends React.Component {
                 }
                 // Review comments
                 if (originCL.reviewCommentOids.length > 0) {
-                    let total = getReviewCommentCount(originCL.reviewCommentOids, this.props.reviewComments);
-                    currentCL.reviewCommentStats = { total };
+                    currentCL.reviewCommentStats = getReviewCommentStats(originCL.reviewCommentOids, this.props.reviewComments);
                 }
                 result[index] = currentCL;
             });

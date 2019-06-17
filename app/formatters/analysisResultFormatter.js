@@ -14,11 +14,16 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { clipboard } from 'electron';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
+import { FaRegCopy as CopyIcon } from 'react-icons/fa';
 import ArmDescriptionFormatter from 'formatters/armDescriptionFormatter.js';
 import ArmProgrammingCodeFormatter from 'formatters/armProgrammingCodeFormatter.js';
 import ArmAnalysisDatasetFormatter from 'formatters/armAnalysisDatasetFormatter.js';
@@ -43,9 +48,18 @@ const styles = theme => ({
         paddingTop: 6,
         paddingBottom: 6,
     },
+    icon: {
+        marginLeft: theme.spacing.unit,
+    },
 });
 
 class AnalysisResultFormatter extends React.Component {
+    copyToClipboard = (event) => {
+        const programmingCode = this.props.analysisResult.programmingCode;
+        if (programmingCode && programmingCode.code) {
+            clipboard.writeText(programmingCode.code);
+        }
+    }
     render () {
         const { classes, analysisResult, mdv } = this.props;
         const { analysisReason, analysisPurpose, parameterOid, documentation, programmingCode, analysisDatasets, analysisDatasetOrder } = analysisResult;
@@ -170,7 +184,22 @@ class AnalysisResultFormatter extends React.Component {
                     <ListItem className={classes.listItem}>
                         <Grid container spacing={8}>
                             <Grid item xs={12}>
-                                <ListItemText primary='Programming Code'/>
+                                <Typography variant="body1">
+                                    Programming Code
+                                    <Tooltip
+                                        title={(programmingCode && programmingCode.code) ? 'Copy code to clipboard' : ''}
+                                        placement='bottom'
+                                        enterDelay={700}
+                                    >
+                                        <IconButton
+                                            onClick={this.copyToClipboard}
+                                            className={classes.icon}
+                                            disabled={!(programmingCode && programmingCode.code)}
+                                        >
+                                            <CopyIcon/>
+                                        </IconButton>
+                                    </Tooltip>
+                                </Typography>
                             </Grid>
                             <Grid item xs={12}>
                                 { programmingCode !== undefined && (

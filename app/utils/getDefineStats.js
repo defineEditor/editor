@@ -14,9 +14,12 @@
 const countVariables = (odm) => (varNum, itemDefOid) => {
     let item = odm.study.metaDataVersion.itemDefs[itemDefOid];
     let varCount = varNum;
-    Object.keys(item.sources).forEach(sourceType => {
-        varCount += item.sources[sourceType].length;
-    });
+    // Do not count VLM records
+    if (item.parentItemDefOid === undefined) {
+        Object.keys(item.sources).forEach(sourceType => {
+            varCount += item.sources[sourceType].length;
+        });
+    }
     return varCount;
 };
 

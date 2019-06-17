@@ -29,13 +29,6 @@ const styles = theme => ({
 });
 
 class ArmDatasetEditor extends React.Component {
-    constructor (props) {
-        super(props);
-
-        this.state = {
-            showDatasetOrderEditor: false
-        };
-    }
     handleChange = (name, oid) => updateObj => {
         if (name === 'changeDataset') {
             if (this.props.datasetsNotUsed.includes(updateObj.target.value)) {

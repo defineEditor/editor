@@ -64,36 +64,35 @@ export const deleteItemGroups = (deleteObj) => (
 );
 
 // Comment actions
-export const updateItemGroupComment = (source, comment) => (
+export const updateItemGroupComment = (source, updateObj) => (
     {
         type: UPD_ITEMGROUPCOMMENT,
         source: source,
-        comment: comment,
+        ...updateObj,
     }
 );
 
-export const addItemGroupComment = (source, comment) => (
+export const addItemGroupComment = (source, updateObj) => (
     {
         type: ADD_ITEMGROUPCOMMENT,
         source: source,
-        comment: comment,
+        ...updateObj,
     }
 );
 
-export const deleteItemGroupComment = (source, comment) => (
+export const deleteItemGroupComment = (source, updateObj) => (
     {
         type: DEL_ITEMGROUPCOMMENT,
         source: source,
-        comment: comment,
+        ...updateObj,
     }
 );
 
-export const replaceItemGroupComment = (source, newComment, oldCommentOid) => (
+export const replaceItemGroupComment = (source, updateObj) => (
     {
         type: REP_ITEMGROUPCOMMENT,
         source,
-        newComment,
-        oldCommentOid,
+        ...updateObj,
     }
 );
 

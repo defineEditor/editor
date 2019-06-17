@@ -189,7 +189,7 @@ const codeLists = {
         thStyle: { whiteSpace: 'normal' },
     },
     standardData: {
-        text: 'Standard',
+        text: 'Standard / Ext. codelist details',
         hidden: false,
         width: '15%',
         tdStyle: { whiteSpace: 'normal' },
