@@ -160,7 +160,7 @@ class ConnectedCodeListStandardEditor extends React.Component {
                     <Grid container spacing={8}>
                         <Grid item xs={12}>
                             <TextField
-                                label='Stadard'
+                                label='Standard'
                                 select
                                 autoFocus
                                 value={standardOid}

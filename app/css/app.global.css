@@ -41,5 +41,9 @@
 }
 
 div.htmlContent p {
-    margin-bottom: 5px;
+    margin-bottom: 0;
+}
+
+div.htmlContent {
+    white-space: normal;
 }

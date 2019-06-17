@@ -43,14 +43,6 @@ class TranslatedText {
     }
 }
 
-// Non-define XML element
-class Note {
-    constructor ({ markdown, value } = {}) {
-        this.markdown = markdown;
-        this.value = value;
-    }
-}
-
 class Leaf {
     constructor ({ id, href, title, isPdf, type } = {}) {
         this.id = id;
@@ -745,6 +737,7 @@ class ItemGroup extends BasicFunctions {
         standardOid,
         alias,
         leaf,
+        note,
         descriptions = [],
         itemRefs = {},
         itemRefOrder = [],
@@ -778,6 +771,8 @@ class ItemGroup extends BasicFunctions {
         }
         // Non-define XML properties
         this.reviewCommentOids = reviewCommentOids;
+        // Programming note
+        this.note = note;
     }
     addItemRef (oid, itemRef) {
         this.itemRefs[oid] = itemRef;
@@ -858,12 +853,8 @@ class ItemDef extends BasicFunctions {
         this.parentItemDefOid = parentItemDefOid;
         // Review Comments
         this.reviewCommentOids = reviewCommentOids;
-        // Programming Note
-        if (note === undefined) {
-            this.note = note;
-        } else {
-            this.note = new Note();
-        }
+        // Programming note
+        this.note = note;
         // Length derived from data/codelist
         this.lengthAsData = lengthAsData;
         this.lengthAsCodeList = lengthAsCodeList;
@@ -963,6 +954,5 @@ module.exports = {
     Document: Document,
     PdfPageRef: PdfPageRef,
     Leaf: Leaf,
-    Note: Note,
     BasicFunctions: BasicFunctions,
 };

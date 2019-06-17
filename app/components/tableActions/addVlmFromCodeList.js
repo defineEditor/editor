@@ -150,6 +150,14 @@ function AddVlmFromCodeList (props) {
         props.onCancel();
     };
 
+    const handleSelectAllClick = () => {
+        if (selectedAttributes.length !== Object.keys(attrList).length) {
+            setSelectedAttributes(Object.keys(attrList));
+        } else {
+            setSelectedAttributes([]);
+        }
+    };
+
     const { classes } = props;
 
     // create state variables for selected itemDefOid, codeListOid
@@ -200,7 +208,7 @@ function AddVlmFromCodeList (props) {
                 <Grid container spacing={8} className={classes.root}>
                     <Grid item>
                         { Object.keys(itemDefList).length !== 0 && (
-                            <Grid container spacing={8} alignItems='flex-end'>
+                            <Grid container spacing={8} alignItems='flex-end' wrap='nowrap'>
                                 <Grid item>
                                     <TextField
                                         label='Variable'
@@ -241,8 +249,8 @@ function AddVlmFromCodeList (props) {
                                             startAdornment: (
                                                 <InputAdornment position="start">
                                                     <IconButton
-                                                        color="default"
-                                                        onClick={() => { setSelectedAttributes(Object.keys(attrList)); }}
+                                                        color={selectedAttributes.length > 0 ? 'primary' : 'default'}
+                                                        onClick={handleSelectAllClick}
                                                         disabled={!copyAttributes}
                                                     >
                                                         <DoneAll />

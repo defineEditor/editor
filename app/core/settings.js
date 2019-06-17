@@ -146,6 +146,7 @@ class ConnectedSettings extends React.Component {
             'textInstantProcessing',
             'enableSelectForStdCodedValues',
             'enableTablePagination',
+            'enableProgrammingNote',
             'alwaysSaveDefineXml',
             'showLineNumbersInCode',
             'removeTrailingSpacesWhenParsing',
@@ -377,6 +378,17 @@ class ConnectedSettings extends React.Component {
                                             />
                                         }
                                         label='Enable table pagination'
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.editor.enableProgrammingNote}
+                                                onChange={this.handleChange('editor', 'enableProgrammingNote')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Allow adding programming notes'
                                     />
                                 </FormGroup>
                             </Grid>

@@ -288,7 +288,8 @@ const copyAnalysisResults = ({
             parameterOid: newParameterOid,
             analysisDatasets: newAnalysisDatasets,
             analysisDatasetOrder: newAnalysisDatasetOrder,
-            sources: { resultDisplays: [resultDisplayOid] }
+            sources: { resultDisplays: [resultDisplayOid] },
+            reviewCommentOids: undefined,
         }) };
         currentAnalysisResults.push(newAnalysisResultOid);
     });
@@ -365,12 +366,14 @@ const copyResultDisplays = ({
             sourceMdv,
             analysisResultOidList: resultDisplay.analysisResultOrder,
             sameDefine,
+            resultDisplayOid: newResultDisplayOid,
             existingOids: currentExistingOids,
         });
         resultDisplays[newResultDisplayOid] = { ...new ResultDisplay({
             ...resultDisplay,
             oid: newResultDisplayOid,
             analysisResultOrder: Object.keys(copiedAnalysisResults.analysisResults),
+            reviewCommentOids: undefined,
         }) };
         currentResultDisplays.push(newResultDisplayOid);
         comments = { ...comments, ...copiedAnalysisResults.comments };

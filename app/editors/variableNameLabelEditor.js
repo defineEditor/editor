@@ -37,6 +37,11 @@ const styles = theme => ({
 });
 
 class VariableNameLabelEditor extends React.Component {
+    handleBlur = (event) => {
+        let value = event.target.value.toUpperCase();
+        this.props.handleChange('name')({ target: { value } });
+    }
+
     render () {
         const { classes, label, vlm } = this.props;
 
@@ -63,7 +68,7 @@ class VariableNameLabelEditor extends React.Component {
                         autoFocus
                         value={this.props.name}
                         onChange={this.props.handleChange('name')}
-                        onBlur={this.props.autoLabel ? this.props.onNameBlur : void (0)}
+                        onBlur={this.handleBlur}
                         className={classes.nameTextField}
                     />
                 </Grid>
@@ -88,7 +93,6 @@ class VariableNameLabelEditor extends React.Component {
 VariableNameLabelEditor.propTypes = {
     classes: PropTypes.object.isRequired,
     handleChange: PropTypes.func.isRequired,
-    onNameBlur: PropTypes.func,
     name: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
     autoLabel: PropTypes.bool,

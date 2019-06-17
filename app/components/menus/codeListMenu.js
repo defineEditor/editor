@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
 * and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
+* Copyright (C) 2018, 2019 Dmitry Kolosov                                          *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -15,11 +15,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import clone from 'clone';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import getOid from 'utils/getOid.js';
-import clone from 'clone';
+import { CodeList } from 'core/defineStructure.js';
 import {
     deleteCodeLists,
     selectGroup,
@@ -99,7 +100,7 @@ class ConnectedCodeListMenu extends React.Component {
 
     paste = (shift) => () => {
         // copy codelist from the buffer
-        let codeList = clone(this.props.codeLists[this.props.buffer.codeListOid]);
+        let codeList = { ...new CodeList({ ...clone(this.props.codeLists[this.props.buffer.codeListOid]), reviewCommentOids: undefined }) };
         // change codelist OID/name and remove sources/links to other codelists, if available
         codeList.oid = getOid('CodeList', undefined, this.props.codeListOrder);
         codeList.name = codeList.name + ' (Copy)';
