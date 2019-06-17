@@ -23,13 +23,14 @@ import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Fab from '@material-ui/core/Fab';
+import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
-import IconButton from '@material-ui/core/IconButton';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import CommentIcon from '@material-ui/icons/Comment';
 import OpenDrawer from '@material-ui/icons/ArrowUpward';
 import Typography from '@material-ui/core/Typography';
 import TablePagination from '@material-ui/core/TablePagination';
@@ -54,6 +55,7 @@ import {
     selectGroup,
     updateMainUi,
     changeTablePageDetails,
+    openModal,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -66,6 +68,9 @@ const styles = theme => ({
     },
     variableName: {
         marginLeft: theme.spacing.unit * 2,
+    },
+    commentIcon: {
+        transform: 'translate(0, -5%)',
     },
     drawerButton: {
         marginLeft: theme.spacing.unit,
@@ -97,6 +102,7 @@ const mapDispatchToProps = dispatch => {
         selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
         updateMainUi: (updateObj) => dispatch(updateMainUi(updateObj)),
         changeTablePageDetails: (updateObj) => dispatch(changeTablePageDetails(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
@@ -398,6 +404,15 @@ class ConnectedCodedValueTable extends React.Component {
             this.props.addBlankCodedValue(this.props.codeListOid);
         };
 
+        const openComments = () => {
+            this.props.openModal({
+                type: 'REVIEW_COMMENT',
+                props: { sources: { 'codeLists': [this.props.codeListOid] } }
+            });
+        };
+
+        let commentPresent = codeList.reviewCommentOids !== undefined && codeList.reviewCommentOids.length > 0;
+
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={16}>
@@ -439,6 +454,16 @@ class ConnectedCodedValueTable extends React.Component {
                     </Grid>
                     <Grid item>
                         <CodedValueOrderEditor codeListOid={this.props.codeListOid}/>
+                    </Grid>
+                    <Grid item>
+                        <Fab
+                            size='small'
+                            color={ commentPresent ? 'primary' : 'default' }
+                            onClick={openComments}
+                            className={this.props.classes.commentIcon}
+                        >
+                            <CommentIcon/>
+                        </Fab>
                     </Grid>
                 </Grid>
             </ButtonGroup>
@@ -832,8 +857,9 @@ ConnectedCodedValueTable.propTypes = {
     itemDefs: PropTypes.object.isRequired,
     codeListOid: PropTypes.string.isRequired,
     defineVersion: PropTypes.string.isRequired,
-    tabNames: PropTypes.array,
     lang: PropTypes.string.isRequired,
+    openModal: PropTypes.func.isRequired,
+    tabNames: PropTypes.array,
     stdCodeLists: PropTypes.object,
     reviewMode: PropTypes.bool,
 };
