@@ -20,12 +20,15 @@ import deepEqual from 'fast-deep-equal';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItem from '@material-ui/core/ListItem';
 import List from '@material-ui/core/List';
 import LowPriority from '@material-ui/icons/LowPriority';
+import { FaSortAlphaUp, FaSortAlphaDown } from 'react-icons/fa';
 import Fab from '@material-ui/core/Fab';
+import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
 import SaveCancel from 'editors/saveCancel.js';
 import classNames from 'classnames';
@@ -66,6 +69,9 @@ const styles = theme => ({
     noSelect: {
         userSelect: 'none',
     },
+    icon: {
+        transform: 'translate(0, -5%)',
+    },
 });
 
 const SortableItem = SortableElement(({
@@ -99,6 +105,7 @@ class GeneralOrderEditor extends React.Component {
             dialogOpened: !!props.noButton,
             items: props.items,
             initialItems: props.items,
+            sortAscending: true,
         };
     }
 
@@ -152,6 +159,22 @@ class GeneralOrderEditor extends React.Component {
         });
     };
 
+    sortAlphabetically = () => {
+        let sortedItems = this.state.items.slice();
+        sortedItems.sort((item1, item2) => {
+            if (this.state.sortAscending) {
+                return item1.name > item2.name ? 1 : -1;
+            } else {
+                return item1.name < item2.name ? 1 : -1;
+            }
+        });
+
+        this.setState({
+            items: sortedItems,
+            sortAscending: !this.state.sortAscending,
+        });
+    }
+
     onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             this.handleCancelAndClose();
@@ -187,7 +210,22 @@ class GeneralOrderEditor extends React.Component {
                     onKeyDown={this.onKeyDown}
                     tabIndex='0'
                 >
-                    <DialogTitle>{this.props.title}</DialogTitle>
+                    <DialogTitle>
+                        <Grid container spacing={0} alignItems='center' justify='space-between'>
+                            <Grid item>
+                                <Typography variant="h6">
+                                    {this.props.title}
+                                </Typography>
+                            </Grid>
+                            <Grid item>
+                                <Tooltip title={ this.state.sortAscending ? 'Sort Ascending' : 'Sort Descending' } placement='bottom' enterDelay={700}>
+                                    <IconButton color='default' onClick={this.sortAlphabetically} className={classes.icon}>
+                                        { this.state.sortAscending ? <FaSortAlphaDown /> : <FaSortAlphaUp /> }
+                                    </IconButton>
+                                </Tooltip>
+                            </Grid>
+                        </Grid>
+                    </DialogTitle>
                     <DialogContent>
                         <Grid container spacing={8} alignItems='flex-end' className={classes.noSelect}>
                             <Grid item xs={12}>

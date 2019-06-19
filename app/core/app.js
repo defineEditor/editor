@@ -125,7 +125,7 @@ class ConnectedApp extends Component {
         } else if (event.ctrlKey && event.keyCode === 191) {
             event.preventDefault();
             this.toggleShortcuts();
-        } else if (event.ctrlKey && event.keyCode === 123) {
+        } else if ((event.ctrlKey || event.shiftKey) && event.keyCode === 123) {
             saveState();
         } else if (event.keyCode === 123) {
             sendDefineObject();
