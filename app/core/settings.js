@@ -150,6 +150,8 @@ class ConnectedSettings extends React.Component {
             'alwaysSaveDefineXml',
             'showLineNumbersInCode',
             'removeTrailingSpacesWhenParsing',
+            'disableAnimations',
+            'addStylesheet',
         ].includes(name) || category === 'popUp') {
             this.setState({ [category]: { ...this.state[category], [name]: checked } });
         } else if (['sourceSystemVersion'].includes(name)) {
@@ -250,6 +252,21 @@ class ConnectedSettings extends React.Component {
                                         )
                                     }}
                                 />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <FormGroup>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.general.disableAnimations}
+                                                onChange={this.handleChange('general', 'disableAnimations')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Disable UI animations'
+                                    />
+                                </FormGroup>
                             </Grid>
                         </Grid>
                     </Grid>

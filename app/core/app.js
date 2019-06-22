@@ -34,7 +34,7 @@ import {
     updateMainUi,
 } from 'actions/index.js';
 
-const theme = createMuiTheme({
+const baseThemeObj = {
     palette: {
         primary: {
             light: '#757ce8',
@@ -51,8 +51,25 @@ const theme = createMuiTheme({
     },
     typography: {
         useNextVariants: true,
+    }
+};
+
+const disabledAnimationThemeObj = {
+    ...baseThemeObj,
+    transitions: {
+        // So we have `transition: none;` everywhere
+        create: () => 'none',
     },
-});
+    props: {
+        MuiButtonBase: {
+            // The properties to apply
+            disableRipple: true, // No more ripple, on the whole application 💣!
+        },
+    }
+};
+
+const baseTheme = createMuiTheme(baseThemeObj);
+const disabledAnimationTheme = createMuiTheme(disabledAnimationThemeObj);
 
 // Redux functions
 const mapStateToProps = state => {
@@ -67,6 +84,7 @@ const mapStateToProps = state => {
     return {
         currentPage,
         showInitialMessage: state.present.settings.popUp.onStartUp,
+        disableAnimations: state.present.settings.general.disableAnimations,
         disableFindToggle,
         sampleStudyCopied: state.present.ui.main.sampleStudyCopied,
         bugModalOpened,
@@ -153,13 +171,13 @@ class ConnectedApp extends Component {
     render () {
         if (this.props.bugModalOpened) {
             return (
-                <MuiThemeProvider theme={theme}>
+                <MuiThemeProvider theme={this.props.disableAnimations ? disabledAnimationTheme : baseTheme}>
                     <ModalRoot />
                 </MuiThemeProvider>
             );
         }
         return (
-            <MuiThemeProvider theme={theme}>
+            <MuiThemeProvider theme={this.props.disableAnimations ? disabledAnimationTheme : baseTheme}>
                 <MainMenu
                     onToggleRedoUndo={this.toggleRedoUndo}
                     onToggleFindInPage={this.toggleFindInPage}
@@ -183,6 +201,7 @@ ConnectedApp.propTypes = {
     currentPage: PropTypes.string.isRequired,
     showInitialMessage: PropTypes.bool.isRequired,
     disableFindToggle: PropTypes.bool.isRequired,
+    disableAnimations: PropTypes.bool.isRequired,
     bugModalOpened: PropTypes.bool,
 };
 

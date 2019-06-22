@@ -20,7 +20,6 @@ import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
 import ClearIcon from '@material-ui/icons/Clear';
 import TextField from '@material-ui/core/TextField';
-import { debounce } from 'throttle-debounce';
 
 const styles = theme => ({
     button: {
@@ -61,12 +60,10 @@ class FindInPage extends React.Component {
         };
         this.searchInputRef = React.createRef();
         this.page = remote.getCurrentWindow().webContents;
-        this.findInPageDebounced = debounce(300, this.findInPage);
     }
 
     onFoundInPage = (event, result) => {
-        this.searchInputRef.current.focus();
-        if (result.matches > 1) {
+        if (result.matches > 0) {
             // The input field text is always found
             // TODO exclude input text from the found results
             this.setState({ currentNum: result.activeMatchOrdinal - 1, totalFound: result.matches - 1 });
@@ -95,12 +92,17 @@ class FindInPage extends React.Component {
         if (event.keyCode === 27) {
             this.props.onToggleFindInPage();
         } else if (event.keyCode === 13) {
-            this.findInPageDebounced(this.state.search, { findNext: true });
+            if (this.state.totalFound > 0) {
+                this.findInPage(this.state.search, { findNext: true });
+            } else {
+                this.findInPage(this.state.search);
+            }
+        } else if (document.activeElement.id !== 'findInPage') {
+            this.searchInputRef.current.focus();
         }
     }
 
     handleChange = (event) => {
-        this.findInPageDebounced(event.target.value);
         if (event.target.value === '') {
             // Disabled clearSelection as otherwise TextField looses focus;
             // this.page.webContents.stopFindInPage('clearSelection');
@@ -119,7 +121,7 @@ class FindInPage extends React.Component {
                     <Grid item xs={11}>
                         <TextField
                             label="Find in page"
-                            id="standard"
+                            id="findInPageElement"
                             autoFocus
                             inputRef={this.searchInputRef}
                             value={this.state.search}
