@@ -211,8 +211,10 @@ class WhereClauseEditorInteractive extends React.Component {
             // Reset all other values
             let updatedListOfVariables = this.updateListOfVariables(result[index].itemGroupOid);
             result[index].itemName = undefined;
-            // Use --TESTCD/PARAMCD if they are present
-            if (updatedListOfVariables[result[index].itemGroupOid].includes('PARAMCD')) {
+            // Use --TESTCD/PARAMCD/QNAM if they are present
+            if (result[index].itemGroupName.toUpperCase().startsWith('SUPP') && updatedListOfVariables[result[index].itemGroupOid].includes('QNAM')) {
+                result[index].itemName = 'QNAM';
+            } else if (updatedListOfVariables[result[index].itemGroupOid].includes('PARAMCD')) {
                 result[index].itemName = 'PARAMCD';
             } else {
                 // Look for any --TESTCD
@@ -288,8 +290,10 @@ class WhereClauseEditorInteractive extends React.Component {
             result[newIndex].itemGroupOid = getOidByName(this.props.mdv, 'itemGroups', result[newIndex].itemGroupName);
             // Reset all other values
             let updatedListOfVariables = this.updateListOfVariables(result[newIndex].itemGroupOid);
-            // Use --TESTCD/PARAMCD if they are present
-            if (updatedListOfVariables[result[newIndex].itemGroupOid].includes('PARAMCD')) {
+            // Use --TESTCD/PARAMCD/QNAM if they are present
+            if (result[newIndex].itemGroupName.toUpperCase().startsWith('SUPP') && updatedListOfVariables[result[newIndex].itemGroupOid].includes('QNAM')) {
+                result[newIndex].itemName = 'QNAM';
+            } else if (updatedListOfVariables[result[newIndex].itemGroupOid].includes('PARAMCD')) {
                 result[newIndex].itemName = 'PARAMCD';
             } else {
                 // Look for any --TESTCD

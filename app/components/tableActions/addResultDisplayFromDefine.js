@@ -244,7 +244,16 @@ class AddResultDisplayFromDefineConnected extends React.Component {
         this.setState({ showMissingItemsMessage: false, copiedResultDisplaysData: {} });
     }
 
-    getResultDisplayTable (defineVersion, classes) {
+    onKeyDown = (event) => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            if (this.state.showMissingItemsMessage) {
+                event.stopPropagation();
+                this.cancelCopy();
+            }
+        }
+    }
+
+    getResultDisplayTable = (defineVersion, classes) => {
         const { selected, page, rowsPerPage, searchString, resultDisplaysData } = this.state;
 
         let data;
@@ -454,6 +463,8 @@ class AddResultDisplayFromDefineConnected extends React.Component {
                     open={this.state.showMissingItemsMessage}
                     onClose={this.close}
                     PaperProps={{ className: classes.dialog }}
+                    onKeyDown={this.onKeyDown}
+                    tabIndex='0'
                 >
                     <DialogTitle id="alert-dialog-title">
                         Missing Variables

@@ -88,7 +88,14 @@ class ConnectedOriginEditor extends React.Component {
             this.props.onUpdate(newOrigins);
         } else {
             if (name === 'addOrigin') {
-                newOrigin = { ...new Origin() };
+                let originTypeList = this.props.stdConstants.originTypes[this.props.model];
+                let type;
+                if (originTypeList.includes('Assigned')) {
+                    type = 'Assigned';
+                } else {
+                    type = originTypeList[0];
+                }
+                newOrigin = { ...new Origin({ type }) };
             }
             if (name === 'type') {
                 newOrigin = clone(origin);
@@ -170,7 +177,8 @@ class ConnectedOriginEditor extends React.Component {
         if (this.props.defineVersion === '2.0.0') {
             origin = this.props.origins[0];
             if (origin) {
-                originType = origin.type || '';
+                originType = origin.type;
+
                 if (origin.descriptions.length > 0) {
                     originDescription = getDescription(origin);
                 }

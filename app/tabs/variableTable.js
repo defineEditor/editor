@@ -28,6 +28,7 @@ import indigo from '@material-ui/core/colors/indigo';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import CommentIcon from '@material-ui/icons/Comment';
 import OpenDrawer from '@material-ui/icons/ArrowUpward';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import TablePagination from '@material-ui/core/TablePagination';
@@ -62,7 +63,7 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 import {
     updateItemDef, updateItemRef, updateItemRefKeyOrder, updateItemCodeListDisplayFormat,
     updateItemDescription, deleteVariables, updateNameLabelWhereClause, setVlmState,
-    changeTablePageDetails, updateMainUi,
+    changeTablePageDetails, updateMainUi, openModal,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -75,6 +76,9 @@ const styles = theme => ({
     drawerButton: {
         marginLeft: theme.spacing.unit,
         transform: 'translate(0%, -6%)',
+    },
+    commentIcon: {
+        transform: 'translate(0, -5%)',
     },
     tableTitle: {
         marginTop: theme.spacing.unit * 2,
@@ -106,6 +110,7 @@ const mapDispatchToProps = dispatch => {
         setVlmState: (source, updateObj) => dispatch(setVlmState(source, updateObj)),
         changeTablePageDetails: (updateObj) => dispatch(changeTablePageDetails(updateObj)),
         updateMainUi: (updateObj) => dispatch(updateMainUi(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
@@ -703,6 +708,16 @@ class ConnectedVariableTable extends React.Component {
     }
 
     createCustomButtonGroup = props => {
+        const openComments = () => {
+            this.props.openModal({
+                type: 'REVIEW_COMMENT',
+                props: { sources: { 'itemGroups': [this.props.itemGroupOid] } }
+            });
+        };
+
+        const itemGroup = this.props.mdv.itemGroups[this.props.itemGroupOid];
+        let commentPresent = itemGroup.reviewCommentOids !== undefined && itemGroup.reviewCommentOids.length > 0;
+
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={16}>
@@ -742,6 +757,16 @@ class ConnectedVariableTable extends React.Component {
                     </Grid>
                     <Grid item>
                         <VariableOrderEditor itemGroupOid={this.props.itemGroupOid}/>
+                    </Grid>
+                    <Grid item>
+                        <Fab
+                            size='small'
+                            color={ commentPresent ? 'primary' : 'default' }
+                            onClick={openComments}
+                            className={this.props.classes.commentIcon}
+                        >
+                            <CommentIcon/>
+                        </Fab>
                     </Grid>
                 </Grid>
             </ButtonGroup>
@@ -1093,6 +1118,7 @@ ConnectedVariableTable.propTypes = {
     updateItemDescription: PropTypes.func.isRequired,
     updateMainUi: PropTypes.func.isRequired,
     deleteVariables: PropTypes.func.isRequired,
+    openModal: PropTypes.func.isRequired,
     setVlmState: PropTypes.func.isRequired,
     changeTablePageDetails: PropTypes.func.isRequired,
     rowsPerPage: PropTypes.oneOfType([

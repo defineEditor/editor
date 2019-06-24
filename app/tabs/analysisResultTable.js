@@ -18,6 +18,7 @@ import PropTypes from 'prop-types';
 import Prism from 'prismjs';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import CommentIcon from '@material-ui/icons/Comment';
 import Fab from '@material-ui/core/Fab';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
@@ -27,6 +28,7 @@ import AnalysisResultTile from 'components/utils/analysisResultTile.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 import {
     addAnalysisResult,
+    openModal,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -43,12 +45,16 @@ const styles = theme => ({
     drawerButton: {
         marginLeft: theme.spacing.unit * 2,
     },
+    commentIcon: {
+        transform: 'translate(0, -5%)',
+    },
 });
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
         addAnalysisResult: (updateObj) => dispatch(addAnalysisResult(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
@@ -115,10 +121,19 @@ class ConnectedAnalysisResultTable extends React.Component {
         this.props.addAnalysisResult({ resultDisplayOid: this.props.resultDisplayOid });
     }
 
+    openComments = () => {
+        this.props.openModal({
+            type: 'REVIEW_COMMENT',
+            props: { sources: { 'resultDisplays': [this.props.resultDisplayOid] } }
+        });
+    };
+
     render () {
         const { classes } = this.props;
         const resultDisplay = this.props.resultDisplays[this.props.resultDisplayOid];
         let resultDisplayTitle = resultDisplay.name + ' ' + getDescription(resultDisplay);
+
+        let commentPresent = resultDisplay.reviewCommentOids !== undefined && resultDisplay.reviewCommentOids.length > 0;
 
         return (
             <React.Fragment>
@@ -158,6 +173,16 @@ class ConnectedAnalysisResultTable extends React.Component {
                             <Grid item>
                                 <AnalysisResultOrderEditor resultDisplayOid={this.props.resultDisplayOid}/>
                             </Grid>
+                            <Grid item>
+                                <Fab
+                                    size='small'
+                                    color={ commentPresent ? 'primary' : 'default' }
+                                    onClick={this.openComments}
+                                    className={classes.commentIcon}
+                                >
+                                    <CommentIcon/>
+                                </Fab>
+                            </Grid>
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
@@ -175,6 +200,7 @@ ConnectedAnalysisResultTable.propTypes = {
     resultDisplays: PropTypes.object.isRequired,
     resultDisplayOid: PropTypes.string.isRequired,
     reviewMode: PropTypes.bool,
+    openModal: PropTypes.func.isRequired,
 };
 ConnectedAnalysisResultTable.displayName = 'AnalysisResultTable';
 

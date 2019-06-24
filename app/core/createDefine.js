@@ -562,14 +562,14 @@ function createCodeList (data, version) {
             }
         }
         // Add EnumeratedItem
-        if (data.enumeratedItems !== undefined) {
+        if (data.enumeratedItems !== undefined && data.itemOrder.length > 0) {
             result['EnumeratedItem'] = [];
             data.itemOrder.forEach(function (enumeratedItemOid, position) {
                 result['EnumeratedItem'].push(createEnumeratedItem(data.enumeratedItems[enumeratedItemOid], position, version));
             });
         }
         // Add CodeListItem
-        if (data.codeListItems !== undefined) {
+        if (data.codeListItems !== undefined && data.itemOrder.length > 0) {
             result['CodeListItem'] = [];
             data.itemOrder.forEach(function (codeListItemOid, position) {
                 result['CodeListItem'].push(createCodeListItem(data.codeListItems[codeListItemOid], position, version));
