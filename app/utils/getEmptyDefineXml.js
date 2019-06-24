@@ -46,8 +46,7 @@ function getEmptyDefineXml ({ standard, defineVersion, study, settings, controll
       settings.schemaLocation['schemaLocation' + defineVersion.replace('.', '')];
     }
     if (
-        settings.hasOwnProperty('sourceSystem') &&
-    settings.sourceSystem !== ''
+        settings.hasOwnProperty('sourceSystem') && settings.sourceSystem !== ''
     ) {
         defaultOdmAttrs.sourceSystem = settings.sourceSystem;
         defaultOdmAttrs.sourceSystemVersion = settings.sourceSystemVersion;

@@ -236,6 +236,7 @@ class AddDefineFormStep2 extends React.Component {
 AddDefineFormStep2.propTypes = {
     classes: PropTypes.object.isRequired,
     study: PropTypes.object.isRequired,
+    defines: PropTypes.object.isRequired,
     settings: PropTypes.object.isRequired,
     defineCreationMethod: PropTypes.string.isRequired,
     defineData: PropTypes.object,

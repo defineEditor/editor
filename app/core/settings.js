@@ -521,7 +521,9 @@ class ConnectedSettings extends React.Component {
                                 <TextField
                                     label="Source System Version"
                                     disabled={this.state.defaultSource || this.state.sourceSystem === appName}
-                                    value={(this.state.defaultSource && appVersion) || this.state.define.sourceSystemVersion}
+                                    value={((this.state.defaultSource || this.state.sourceSystem === appName) && appVersion) ||
+                                            this.state.define.sourceSystemVersion
+                                    }
                                     onChange={this.handleChange('define', 'sourceSystemVersion')}
                                     className={classes.sourceSystemVersion}
                                 />
