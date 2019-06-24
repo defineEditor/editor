@@ -75,7 +75,15 @@ const datasets = {
         width: '7%',
         tdStyle: { whiteSpace: 'pre-wrap' },
         thStyle: { whiteSpace: 'normal' }
-    }
+    },
+    numVars: {
+        text: '# Vars',
+        hidden: true,
+        editable: false,
+        width: '80px',
+        tdStyle: { whiteSpace: 'normal' },
+        thStyle: { whiteSpace: 'normal' }
+    },
 };
 
 const variables = {
@@ -156,7 +164,7 @@ const codeLists = {
     },
     name: {
         text: 'Name',
-        width: '20%',
+        width: '30%',
         hidden: false,
         tdStyle: { whiteSpace: 'pre-wrap' },
         thStyle: { whiteSpace: 'normal' }
@@ -184,14 +192,14 @@ const codeLists = {
     },
     linkedCodeList: {
         text: 'Linked Codelist',
-        width: '10%',
+        width: '15%',
         tdStyle: { whiteSpace: 'pre-wrap' },
         thStyle: { whiteSpace: 'normal' },
     },
     standardData: {
         text: 'Standard / Ext. codelist details',
         hidden: false,
-        width: '15%',
+        width: '20%',
         tdStyle: { whiteSpace: 'normal' },
         thStyle: { whiteSpace: 'normal' }
     },
@@ -201,6 +209,14 @@ const codeLists = {
         editable: false,
         width: '15%',
         tdStyle: { whiteSpace: 'pre-wrap', overflowWrap: 'break-word' },
+        thStyle: { whiteSpace: 'normal' }
+    },
+    numCodes: {
+        text: '# Codes',
+        hidden: true,
+        editable: false,
+        width: '90px',
+        tdStyle: { whiteSpace: 'normal' },
         thStyle: { whiteSpace: 'normal' }
     },
 };

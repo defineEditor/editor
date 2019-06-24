@@ -112,7 +112,7 @@ const classTypes = {
         'INTERVENTIONS': 'INTERV',
         'EVENTS': 'EVENTS',
         'FINDINGS': 'FIND',
-        'FINDINGS ABOOUT': 'FA',
+        'FINDINGS ABOUT': 'FA',
         'RELATIONSHIP': 'REL',
     },
     'SEND': {
@@ -121,7 +121,7 @@ const classTypes = {
         'INTERVENTIONS': 'INTERV',
         'EVENTS': 'EVENTS',
         'FINDINGS': 'FIND',
-        'FINDINGS ABOOUT': 'FA',
+        'FINDINGS ABOUT': 'FA',
         'RELATIONSHIP': 'REL',
     }
 };

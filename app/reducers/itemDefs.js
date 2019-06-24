@@ -37,7 +37,13 @@ import { ItemDef, TranslatedText, Origin } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
 
 const updateItemDef = (state, action) => {
-    let newItemDef = { ...new ItemDef({ ...state[action.oid], ...action.updateObj }) };
+    let newItemDef;
+    if (action.updateObj.hasOwnProperty('name') && !action.updateObj.hasOwnProperty('fieldName')) {
+        // Set fieldName to name
+        newItemDef = { ...new ItemDef({ ...state[action.oid], ...action.updateObj, fieldName: action.updateObj.name }) };
+    } else {
+        newItemDef = { ...new ItemDef({ ...state[action.oid], ...action.updateObj }) };
+    }
     return { ...state, [action.oid]: newItemDef };
 };
 

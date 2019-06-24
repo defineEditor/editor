@@ -570,7 +570,7 @@ class MetaDataVersion extends BasicFunctions {
         leafs = {},
         model,
         lang = 'en',
-        analysisResultDisplays,
+        analysisResultDisplays = {},
         annotatedCrf = {},
         supplementalDoc = {},
         order = { itemGroupOrder: [], codeListOrder: [], leafOrder: [] },

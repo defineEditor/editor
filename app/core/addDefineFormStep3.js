@@ -36,6 +36,9 @@ const styles = theme => ({
         width: 200,
         marginBottom: theme.spacing.unit
     },
+    nameLabel: {
+        whiteSpace: 'nowrap',
+    },
     progress: {
         position: 'absolute',
         top: '50%',
@@ -45,12 +48,39 @@ const styles = theme => ({
     },
 });
 
+const defineAdjevtives = [ 'gorgeous', 'handsome', 'lovely', 'beautiful', 'pretty', 'stunning', 'striking', 'prepossessing', 'winning', 'fetching',
+    'captivating', 'bewitching', 'beguiling', 'engaging', 'charming', 'charismatic', 'enchanting', 'appealing', 'delightful', 'irresistible', 'alluring',
+    'fanciable', 'knockout', 'out of this world', 'smashing', 'foxy', 'spunky', 'literary beauteous', 'resplendent', 'magnificent', 'luxurious', 'elegant',
+    'opulent', 'dazzling', 'brilliant', 'glittering', 'spectacular', 'splendid', 'superb', 'wonderful', 'grand', 'impressive', 'awe-inspiring', 'awesome',
+    'astounding', 'astonishing', 'amazing', 'stunning', 'breathtaking', 'stupendous', 'incredible', 'fabulous', 'fantastic',
+];
+
 class AddDefineFormStep3 extends React.Component {
     constructor (props) {
         super(props);
+        let name = this.props.name;
+        if (!name) {
+            // Generate a unique name
+            // Get names of all defines for that study
+            const defines = this.props.defines;
+            const studyNames = this.props.study.defineIds.map(id => {
+                if (defines.byId.hasOwnProperty(id) && defines.byId[id].name) {
+                    return defines.byId[id].name;
+                }
+            });
+            name = this.props.defineData.study.metaDataVersion.model || 'Define-XML';
+            if (studyNames.includes(name)) {
+                for (let i = 0; i < 100 && studyNames.includes(name); i++) {
+                    let adjective = defineAdjevtives[Math.floor(Math.random() * defineAdjevtives.length)];
+                    adjective = adjective.charAt(0).toUpperCase() + adjective.slice(1);
+                    name = adjective + ' ' +
+                        (this.props.defineData.study.metaDataVersion.model || 'Define-XML');
+                }
+            }
+        }
 
         this.state = {
-            name: this.props.name || this.props.defineData.study.metaDataVersion.model || '',
+            name,
             defineIsLoading: false,
         };
     }
@@ -75,11 +105,12 @@ class AddDefineFormStep3 extends React.Component {
           <Grid container spacing={8} className={classes.root}>
               <Grid item xs={12}>
                   <TextField
-                      label="Name"
+                      label="Name (Used to distinguish Define-XML documents on the Studies page, not part of Define-XML)"
                       id="standard"
                       value={this.state.name}
                       onChange={this.handleChange}
                       className={classes.textField}
+                      InputLabelProps={{ className: classes.nameLabel }}
                   />
               </Grid>
               <Grid item xs={12}>
@@ -176,6 +207,8 @@ AddDefineFormStep3.propTypes = {
     defineData: PropTypes.object.isRequired,
     name: PropTypes.string,
     defineCreationMethod: PropTypes.string.isRequired,
+    study: PropTypes.object.isRequired,
+    defines: PropTypes.object.isRequired,
     onNext: PropTypes.func.isRequired,
     onBack: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired

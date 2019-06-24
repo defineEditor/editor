@@ -457,6 +457,11 @@ class ConnectedDatasetTable extends React.Component {
             if (originDs.reviewCommentOids.length > 0) {
                 currentDs.reviewCommentStats = getReviewCommentStats(originDs.reviewCommentOids, this.props.reviewComments);
             }
+            // Number of variables
+            if (originDs.itemRefOrder) {
+                currentDs.numVars = originDs.itemRefOrder.length;
+            }
+
             datasets[index] = currentDs;
         });
 

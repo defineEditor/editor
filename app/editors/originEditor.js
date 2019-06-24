@@ -170,7 +170,15 @@ class ConnectedOriginEditor extends React.Component {
         if (this.props.defineVersion === '2.0.0') {
             origin = this.props.origins[0];
             if (origin) {
-                originType = origin.type || '';
+                originType = origin.type;
+                if (!originType) {
+                    if (originTypeList.includes('Assigned')) {
+                        originType = 'Assigned';
+                    } else {
+                        originType = originTypeList[0];
+                    }
+                }
+
                 if (origin.descriptions.length > 0) {
                     originDescription = getDescription(origin);
                 }

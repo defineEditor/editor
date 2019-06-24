@@ -23,10 +23,10 @@ const onSaveCallback = (mainWindow, savePath) => () => {
 };
 
 // Create Define-XML
-const convertToDefineXml = (mainWindow, data, options) => (savePath) => {
+const convertToDefineXml = (mainWindow, data, originalData, options) => (savePath) => {
     if (savePath !== undefined) {
         if (savePath.endsWith('nogz')) {
-            writeDefineObject(mainWindow, data, false, savePath, onSaveCallback(mainWindow, savePath));
+            writeDefineObject(mainWindow, originalData, false, savePath, onSaveCallback(mainWindow, savePath));
         } else {
             let defineXml = createDefine(data.odm, data.odm.study.metaDataVersion.defineVersion);
             fs.writeFile(savePath, defineXml, function (err) {
@@ -46,7 +46,7 @@ const convertToDefineXml = (mainWindow, data, options) => (savePath) => {
     }
 };
 
-function saveAs (mainWindow, data, options) {
+function saveAs (mainWindow, data, originalData, options) {
     electron.dialog.showSaveDialog(
         mainWindow,
         {
@@ -54,7 +54,7 @@ function saveAs (mainWindow, data, options) {
             filters: [{ name: 'XML files', extensions: ['xml'] }, { name: 'NOGZ files', extensions: ['nogz'] }],
             defaultPath: options.pathToLastFile,
         },
-        convertToDefineXml(mainWindow, data, options));
+        convertToDefineXml(mainWindow, data, originalData, options));
 }
 
 module.exports = saveAs;
