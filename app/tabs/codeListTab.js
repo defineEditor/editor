@@ -592,6 +592,10 @@ class ConnectedCodeListTable extends React.Component {
                 if (originCL.reviewCommentOids.length > 0) {
                     currentCL.reviewCommentStats = getReviewCommentStats(originCL.reviewCommentOids, this.props.reviewComments);
                 }
+                // Number of codes
+                if (originCL.codeListType !== 'external' && originCL.itemOrder) {
+                    currentCL.numCodes = originCL.itemOrder.length;
+                }
                 result[index] = currentCL;
             });
 

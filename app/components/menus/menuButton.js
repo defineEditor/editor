@@ -24,14 +24,14 @@ const menuButton = ({
     menuClass
 } = {}) => {
     if (reviewCommentStats && reviewCommentStats.total > 0) {
-        const { total, totalUnique, resolved } = reviewCommentStats;
+        const { totalUnique, resolved } = reviewCommentStats;
         return (
             <IconButton
                 onClick={handleMenuOpen(params)}
                 className={menuClass}
                 color='default'
             >
-                <Badge color={ (totalUnique === resolved && resolved > 0) ? 'default' : 'primary' } badgeContent={total}>
+                <Badge color={ (totalUnique === resolved && resolved > 0) ? 'default' : 'primary' } badgeContent={totalUnique}>
                     <MoreVertIcon/>
                 </Badge>
             </IconButton>

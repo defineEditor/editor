@@ -201,7 +201,13 @@ class ConnectedAddDefineForm extends React.Component {
     };
 
     handleCancel = () => {
-        this.props.toggleAddDefineForm({});
+        this.setState({
+            activeStep: 1,
+            defineCreationMethod: 'new',
+            defineData: null,
+            pathToDefineXml: '',
+            name: null,
+        }, () => { this.props.toggleAddDefineForm({}); });
     };
 
     onKeyDown = (event) => {
@@ -271,6 +277,8 @@ class ConnectedAddDefineForm extends React.Component {
                             defineData={this.state.defineData}
                             defineCreationMethod={this.state.defineCreationMethod}
                             name={this.state.name}
+                            study={this.props.study}
+                            defines={this.props.defines}
                         />
                     )}
                 </DialogContent>

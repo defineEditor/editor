@@ -16,12 +16,23 @@ import EStore from 'electron-store';
 import { ipcRenderer } from 'electron';
 import store from 'store/index.js';
 import getDefineStats from 'utils/getDefineStats.js';
+import { getUpdatedDefineBeforeSave, updateSourceSystem } from 'utils/getUpdatedDefineBeforeSave.js';
 import {
     appSave,
     openModal,
 } from 'actions/index.js';
 
-function saveDefineXml (data, options, lastSaveHistoryIndex, onSaveFinished) {
+function saveDefineXml (data, options, state, lastSaveHistoryIndex, onSaveFinished) {
+    if (options.pathToFile.toLowerCase().endsWith('.xml')) {
+        // Perform updates (like handling of HasNoData/Unused codelist and etc.)
+        const { odm } = getUpdatedDefineBeforeSave(data.odm);
+        data.odm = odm;
+    } else if (options.pathToFile.toLowerCase().endsWith('.nogz')) {
+        // If it is a nogz, only update the source system info
+        let odm = { ...data.odm };
+        updateSourceSystem(odm, state);
+        data.odm = odm;
+    }
     // Get number of datasets/codelists/variables
     let stats = getDefineStats(data.odm);
     ipcRenderer.once('defineSaved', (event, defineId) => {
@@ -66,6 +77,7 @@ function saveState (type, onSaveFinished) {
                                 studyId: stateToSave.ui.main.currentStudyId,
                             },
                             { pathToFile, addStylesheet },
+                            state,
                             fullState.index,
                             onSaveFinished
                         );

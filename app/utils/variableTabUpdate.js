@@ -126,7 +126,7 @@ const updateAttrs = {
     'length': { label: 'Length', editor: 'TextField' },
     'method': { label: 'Method', editor: 'MethodEditor' },
     'comment': { label: 'Comment', editor: 'CommentEditor' },
-    'mandatory': { label: 'Mandatory', editor: 'Select' },
+    'mandatory': { label: 'Mandatory', editor: 'Select', optional: false },
     'displayFormat': { label: 'Display Format', editor: 'TextField' },
     'role': { label: 'Role', editor: 'Select' },
 };
@@ -140,9 +140,9 @@ class ConnectedVariableTabUpdate extends React.Component {
             selectedItems = props.selectedItems || [];
         } else {
             selectedItems = props.currentData
-                .filter(row => (!row.vlmLevel > 0))
                 .map(row => ({
-                    itemGroupOid: row.itemGroupOid,
+                    itemGroupOid: row.vlmLevel > 0 ? row.datasetOid : row.itemGroupOid,
+                    valueListOid: row.vlmLevel > 0 ? row.itemGroupOid : undefined,
                     itemDefOid: row.oid,
                 }));
         }
@@ -162,7 +162,7 @@ class ConnectedVariableTabUpdate extends React.Component {
             dataType: this.props.stdConstants.dataTypes,
             origins: this.props.stdConstants.originTypes[this.props.mdv.model],
             role: this.props.stdConstants.variableRoles,
-            mandatory: { Yes: 'Yes' },
+            mandatory: { Yes: 'Yes', No: 'No' },
             codeListOid: codeLists,
         };
 

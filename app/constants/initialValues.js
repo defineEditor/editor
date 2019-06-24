@@ -116,6 +116,7 @@ const general = {
     controlledTerminologyLocation: '',
     alwaysSaveDefineXml: true,
     addStylesheet: true,
+    disableAnimations: false,
 };
 
 const popUp = {

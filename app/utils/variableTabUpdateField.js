@@ -59,6 +59,7 @@ class VariableTabUpdateField extends React.Component {
         const { classes, field, updateAttrs } = this.props;
         const { updateType, attr, updateValue } = field;
         const editor = updateAttrs[field.attr].editor;
+        const optional = updateAttrs[field.attr].optional !== undefined ? updateAttrs[field.attr].optional : true;
 
         let value = updateValue.value;
         if (updateType === 'set' && value === undefined) {
@@ -111,7 +112,7 @@ class VariableTabUpdateField extends React.Component {
                             onChange={this.handleChange('setTextField')}
                             className={classes.textField}
                         >
-                            {getSelectionList(this.props.values[field.attr], true)}
+                            {getSelectionList(this.props.values[field.attr], optional)}
                         </TextField>
                     )}
                     { updateType === 'set' && editor === 'CommentEditor' && (
