@@ -103,6 +103,10 @@ class AddVariableSimpleConnected extends React.Component {
         let itemDef = { ...new ItemDef({
             oid: itemDefOid,
             name: this.state.name,
+            sources: {
+                itemGroups: [this.props.itemGroupOid],
+                valueLists: []
+            },
         }) };
         let itemRef = { ...new ItemRef({
             oid: itemRefOid,
