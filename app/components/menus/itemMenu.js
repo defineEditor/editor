@@ -207,6 +207,7 @@ class ConnectedItemMenu extends React.Component {
             copyVlm: true,
             detachMethods: true,
             detachComments: true,
+            isVlm: itemMenuParams.vlmLevel > 0,
         });
 
         let position = currentGroup.itemRefOrder.indexOf(itemMenuParams.itemRefOid) + shift + 1;
