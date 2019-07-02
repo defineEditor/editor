@@ -196,7 +196,7 @@ class ConnectedVariableLengthEditor extends React.Component {
                             disabled={lengthAsData || lengthAsCodeList || lengthNotApplicable}
                         />
                     </Grid>
-                    { dataType === 'float' &&
+                    { (dataType === 'float' || fractionDigits !== '') &&
                             <Grid item xs={12}>
                                 <TextField
                                     label='Fraction Digits'

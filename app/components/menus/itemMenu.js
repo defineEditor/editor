@@ -177,9 +177,18 @@ class ConnectedItemMenu extends React.Component {
         this.props.onClose();
     }
 
-    paste = (shift) => () => {
+    duplicate = () => {
+        const buffer = {
+            groupOid: this.props.itemMenuParams.itemGroupVLOid,
+            itemRefOid: this.props.itemMenuParams.itemRefOid,
+            vlmLevel: this.props.itemMenuParams.vlmLevel,
+        };
+        this.paste(1, buffer)();
+    }
+
+    paste = (shift, copyBuffer) => () => {
         let itemMenuParams = this.props.itemMenuParams;
-        let buffer = this.props.buffer;
+        let buffer = copyBuffer || this.props.buffer;
         let mdv = this.props.mdv;
         let sourceMdv = mdv;
         let groupOid = itemMenuParams.itemGroupVLOid;
@@ -247,6 +256,8 @@ class ConnectedItemMenu extends React.Component {
                 this.insertRecord(1)();
             } else if (event.keyCode === 67) {
                 this.copy();
+            } else if (event.keyCode === 85) {
+                this.duplicate();
             } else if (event.keyCode === 68) {
                 this.deleteItem();
             } else if (event.keyCode === 77) {
@@ -329,6 +340,9 @@ class ConnectedItemMenu extends React.Component {
                             </MenuItem>
                         )
                     ]}
+                    <MenuItem key='DuplicateVariable' onClick={this.duplicate} disabled={this.props.reviewMode}>
+                        D<u>u</u>plicate Variable
+                    </MenuItem>
                     <Divider/>
                     <MenuItem key='Comments' onClick={this.openComments}>
                         Co<u>m</u>ments

@@ -97,6 +97,12 @@ const modal = {
     props: {},
 };
 
+const snackbar = {
+    type: null,
+    message: undefined,
+    props: {},
+};
+
 const studiesUi = {
     orderType: 'alphabetical',
     defineForm: false,
@@ -107,6 +113,7 @@ const ui = {
     main,
     tabs,
     modal,
+    snackbar,
     studies: studiesUi,
 };
 

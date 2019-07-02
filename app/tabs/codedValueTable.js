@@ -56,6 +56,7 @@ import {
     updateMainUi,
     changeTablePageDetails,
     openModal,
+    openSnackbar,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -97,12 +98,13 @@ const styles = theme => ({
 const mapDispatchToProps = dispatch => {
     return {
         updateCodedValue: (source, updateObj) => dispatch(updateCodedValue(source, updateObj)),
-        addBlankCodedValue: (codeListOid) => dispatch(addCodedValue(codeListOid, { codedValue: '', orderNumber: undefined })),
+        addBlankCodedValue: (codeListOid, extendedValue) => dispatch(addCodedValue(codeListOid, { codedValue: '', orderNumber: undefined, extendedValue })),
         deleteCodedValues: (codeListOid, deletedOids) => dispatch(deleteCodedValues(codeListOid, deletedOids)),
         selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
         updateMainUi: (updateObj) => dispatch(updateMainUi(updateObj)),
         changeTablePageDetails: (updateObj) => dispatch(changeTablePageDetails(updateObj)),
         openModal: (updateObj) => dispatch(openModal(updateObj)),
+        openSnackbar: (updateObj) => dispatch(openSnackbar(updateObj)),
     };
 };
 
@@ -298,7 +300,7 @@ class ConnectedCodedValueTable extends React.Component {
             }
         }
         if (!this.props.reviewMode && event.ctrlKey && (event.keyCode === 78)) {
-            this.props.addBlankCodedValue(this.props.codeListOid);
+            this.addNewCodedValue(this.props.codeListOid);
         } else if (event.ctrlKey && (event.keyCode === 70)) {
             this.searchFieldRef.current.focus();
         }
@@ -339,6 +341,26 @@ class ConnectedCodedValueTable extends React.Component {
         this.setState({ showCodedValueSelector: true, addStdCodesOrderNumber: orderNumber });
     }
 
+    addNewCodedValue = (codeListOid) => {
+        // If codelist is from CT and extensible, mark the new value as extended
+        const codeList = this.props.codeLists[this.props.codeListOid];
+        if (codeList.alias !== undefined &&
+            codeList.standardOid !== undefined &&
+            codeList.alias.context === 'nci:ExtCodeID' &&
+            this.props.stdCodeLists.hasOwnProperty(codeList.standardOid)
+        ) {
+            let standard = this.props.stdCodeLists[codeList.standardOid];
+            let stdCodeList = standard.codeLists[standard.nciCodeOids[codeList.alias.name]];
+            if (stdCodeList.codeListExtensible === 'Yes') {
+                this.props.addBlankCodedValue(this.props.codeListOid, 'Yes');
+            } else {
+                this.props.addBlankCodedValue(this.props.codeListOid);
+            }
+        } else {
+            this.props.addBlankCodedValue(this.props.codeListOid);
+        }
+    }
+
     onBeforeSaveCell = (row, cellName, cellValue) => {
         // Update on if the value changed
         if (!deepEqual(row[cellName], cellValue)) {
@@ -348,7 +370,8 @@ class ConnectedCodedValueTable extends React.Component {
                 const codeList = this.props.codeLists[this.props.codeListOid];
                 // Check if the same value already exists in the codelist;
                 if (getCodedValuesAsArray(codeList).includes(cellValue)) {
-                    // TODO Warn users  that coded Value already exists in the codelist;
+                    // Warn users that coded Value already exists in the codelist;
+                    this.props.openSnackbar({ type: 'error', message: `Value ${cellValue} already exists` });
                     return false;
                 }
                 if (codeList.alias !== undefined &&
@@ -372,9 +395,24 @@ class ConnectedCodedValueTable extends React.Component {
                         }
                     });
                     // If item was not found, reset the code value and decode
-                    if (!itemFound && row.ccode !== undefined) {
+                    if (!itemFound && row.ccode !== undefined && row.ccode !== 'Extended') {
                         updateObj.alias = undefined;
                         updateObj.decodes = [];
+                    }
+                    if (stdCodeList.codeListExtensible === 'Yes' && !itemFound) {
+                        updateObj.extendedValue = 'Yes';
+                    }
+                    if (itemFound && row.ccode === 'Extended') {
+                        updateObj.extendedValue = undefined;
+                    }
+                    if (stdCodeList.codeListExtensible !== 'Yes' && !itemFound) {
+                        // Such values cannot be added
+                        this.props.openSnackbar({
+                            type: 'error',
+                            message: `Value ${cellValue} cannot be added as the codelist is not extensible`,
+                            props: { duration: 5000 },
+                        });
+                        return false;
                     }
                 }
             } else if (cellName === 'decode') {
@@ -401,7 +439,7 @@ class ConnectedCodedValueTable extends React.Component {
         let enumAndHasLinked = (codeList.codeListType === 'enumerated' && codeList.linkedCodeListOid !== undefined);
 
         const handleClick = (event) => {
-            this.props.addBlankCodedValue(this.props.codeListOid);
+            this.addNewCodedValue(this.props.codeListOid);
         };
 
         const openComments = () => {
@@ -859,6 +897,7 @@ ConnectedCodedValueTable.propTypes = {
     defineVersion: PropTypes.string.isRequired,
     lang: PropTypes.string.isRequired,
     openModal: PropTypes.func.isRequired,
+    openSnackbar: PropTypes.func.isRequired,
     tabNames: PropTypes.array,
     stdCodeLists: PropTypes.object,
     reviewMode: PropTypes.bool,

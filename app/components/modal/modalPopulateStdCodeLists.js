@@ -33,6 +33,7 @@ import InternalHelp from 'components/utils/internalHelp.js';
 import {
     updateCodeListsStandard,
     closeModal,
+    openSnackbar,
 } from 'actions/index.js';
 import { CODELIST_POPULATESTD } from 'constants/help.js';
 
@@ -73,6 +74,7 @@ const mapDispatchToProps = dispatch => {
     return {
         updateCodeListsStandard: (updateObj) => dispatch(updateCodeListsStandard(updateObj)),
         closeModal: () => dispatch(closeModal()),
+        openSnackbar: (updateObj) => dispatch(openSnackbar(updateObj)),
     };
 };
 
@@ -240,6 +242,15 @@ class ConnectedModalAttachStdCodelists extends React.Component {
         this.props.closeModal();
         if (Object.keys(updatedCodeListData).length > 0) {
             this.props.updateCodeListsStandard(updatedCodeListData);
+            this.props.openSnackbar({
+                type: 'success',
+                message: `Standard was added for ${Object.keys(updatedCodeListData).length} codelists`,
+            });
+        } else {
+            this.props.openSnackbar({
+                type: 'info',
+                message: `Standard was not added to any codelist`,
+            });
         }
     }
 
@@ -439,6 +450,7 @@ ConnectedModalAttachStdCodelists.propTypes = {
     codeLists: PropTypes.object.isRequired,
     updateCodeListsStandard: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
+    openSnackbar: PropTypes.func.isRequired,
 };
 
 const ModalAttachStdCodelists = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalAttachStdCodelists);

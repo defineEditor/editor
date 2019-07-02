@@ -32,6 +32,8 @@ import {
     UI_CHANGETABLEPAGEDETAILS,
     UI_TOGGLEREVIEWCOMMENTPANELS,
     UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED,
+    UI_OPENSNACKBAR,
+    UI_CLOSESNACKBAR,
 } from 'constants/action-types';
 
 export const changeTab = updateObj => ({
@@ -124,4 +126,13 @@ export const toggleReviewCommentPanels = updateObj => ({
 
 export const toggleReviewCommentShowResolved = () => ({
     type: UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED,
+});
+
+export const openSnackbar = updateObj => ({
+    type: UI_OPENSNACKBAR,
+    updateObj
+});
+
+export const closeSnackbar = () => ({
+    type: UI_CLOSESNACKBAR,
 });

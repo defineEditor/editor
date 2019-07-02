@@ -43,9 +43,15 @@ function loadState () {
     });
 
     state.stdConstants = stdConstants;
-    // If there is any modal loaded in the current state, disable it
-    if (state.hasOwnProperty('ui') && state.ui.hasOwnProperty('modal') && state.ui.modal.type !== '') {
-        state.ui.modal = uiInitialValues.modal;
+    if (state.hasOwnProperty('ui')) {
+        // If there is any modal loaded in the current state, disable it
+        if (state.ui.hasOwnProperty('modal') && state.ui.modal.type !== '') {
+            state.ui.modal = uiInitialValues.modal;
+        }
+        // If there is any snackbar loaded in the current state, disable it
+        if (state.ui.hasOwnProperty('snackbar') && state.ui.snackbar.type !== '') {
+            state.ui.snackbar = uiInitialValues.snackbar;
+        }
     }
     // If the comment/method table is shown, disable it
     if (state.hasOwnProperty('ui') && state.ui.hasOwnProperty('main')) {
