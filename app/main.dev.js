@@ -29,6 +29,7 @@ import scanControlledTerminologyFolder from './main/scanControlledTerminologyFol
 import openDocument from './main/openDocument.js';
 import openFileInExternalApp from './main/openFileInExternalApp.js';
 import createMenu from './menu/menu.js';
+import exportReviewComments from './main/exportReviewComments.js';
 
 let mainWindow = null;
 
@@ -152,6 +153,10 @@ ipcMain.on('importStudy', (event, idObject) => {
 // Copy sample study data from the app directory to the user config directory
 ipcMain.on('copySampleStudy', (event) => {
     copySampleStudy(mainWindow);
+});
+// Export review comments into a file
+ipcMain.on('exportReviewComments', (event, exportData) => {
+    exportReviewComments(mainWindow, exportData);
 });
 
 ipcMain.on('quitConfirmed', (event) => {

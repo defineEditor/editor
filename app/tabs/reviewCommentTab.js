@@ -15,8 +15,9 @@
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import React from 'react';
-import { sanitize } from 'dompurify';
+import { ipcRenderer } from 'electron';
 import { withStyles } from '@material-ui/core/styles';
+import { sanitize } from 'dompurify';
 import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
 import TextField from '@material-ui/core/TextField';
@@ -188,145 +189,6 @@ class ConnectedReviewCommentTab extends React.Component {
         this.setState({ expandedToggled: !this.state.expandedToggled });
     }
 
-    getReviewCommentData = (reviewComments, panelId, showResolved, mdv, searchString) => {
-        // Filter required comments
-        let results = [];
-        let rcOids = Object.keys(reviewComments).filter(id => {
-            if (panelId === 'standards') {
-                return Object.keys(reviewComments[id].sources).some(sourceId => {
-                    if (['standards', 'metaDataVersion', 'globalVariables', 'odm'].includes(sourceId)) {
-                        return true;
-                    }
-                });
-            } else {
-                return Object.keys(reviewComments[id].sources).includes(panelId);
-            }
-        });
-
-        rcOids.forEach(id => {
-            let reviewComment = reviewComments[id];
-            let commentData = {
-                id: id,
-                text: sanitize(reviewComment.text),
-                resolved: false,
-                author: reviewComment.author,
-            };
-            if (reviewComment.resolvedBy) {
-                if (showResolved === false) {
-                    // In case resolved comments are not show, skip the iteration
-                    return;
-                } else {
-                    commentData.resolved = true;
-                }
-            }
-            // Get names of the sources
-            let sourceName = '';
-            let sources = reviewComments[id].sources;
-            if (panelId === 'standards') {
-                let sourceId = Object.keys(sources)[0];
-                switch (sourceId) {
-                    case 'standards':
-                        sourceName = 'Standards';
-                        break;
-                    case 'metaDataVersion':
-                        sourceName = 'Metadata Version';
-                        break;
-                    case 'globalVariables':
-                        sourceName = 'Global Variables';
-                        break;
-                    case 'odm':
-                        sourceName = 'ODM';
-                        break;
-                    default:
-                        sourceName = '';
-                        break;
-                }
-            } else {
-                let sourceId = Object.keys(sources)[0];
-                let sourceValue = sources[sourceId][0];
-                if (['analysisResults', 'resultDisplays'].includes(panelId)) {
-                    if (sourceId &&
-                        mdv.analysisResultDisplays &&
-                        mdv.analysisResultDisplays[sourceId] &&
-                        mdv.analysisResultDisplays[sourceId].hasOwnProperty(sourceValue) &&
-                        mdv.analysisResultDisplays[sourceId][sourceValue].descriptions
-                    ) {
-                        if (panelId === 'analysisResults') {
-                            sourceName = getDescription(mdv.analysisResultDisplays[sourceId][sourceValue]);
-                            // Get name of the result display
-                            const analysisResult = mdv.analysisResultDisplays[sourceId][sourceValue];
-                            const resultDisplays = mdv.analysisResultDisplays.resultDisplays;
-                            if (analysisResult.sources &&
-                                analysisResult.sources.resultDisplays &&
-                                analysisResult.sources.resultDisplays.length > 0 &&
-                                resultDisplays.hasOwnProperty(analysisResult.sources.resultDisplays[0])
-                            ) {
-                                const resultDisplay = resultDisplays[analysisResult.sources.resultDisplays[0]];
-                                commentData.parentItemOid = resultDisplay.oid;
-                                if (resultDisplay) {
-                                    sourceName = `${resultDisplay.name} ${sourceName}`;
-                                }
-                            }
-                        } else {
-                            sourceName = mdv.analysisResultDisplays[sourceId][sourceValue].name;
-                        }
-                    }
-                } else {
-                    if (sourceId && mdv[sourceId] && mdv[sourceId].hasOwnProperty(sourceValue)) {
-                        if (sourceId === 'itemDefs') {
-                            const variableName = mdv[sourceId][sourceValue].name;
-                            sourceName = '';
-                            // Get the dataset name or the VLM name
-                            const itemDef = mdv[sourceId][sourceValue];
-                            if (itemDef.parentItemDefOid && mdv.itemDefs.hasOwnProperty(itemDef.parentItemDefOid)) {
-                                // VLM
-                                const parentItemDef = mdv.itemDefs[itemDef.parentItemDefOid];
-                                const itemGroupOids = parentItemDef.sources && parentItemDef.sources.itemGroups && parentItemDef.sources.itemGroups;
-                                itemGroupOids.forEach(itemGroupOid => {
-                                    commentData.parentItemOid = itemGroupOid;
-                                    if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
-                                        sourceName = `${sourceName} ${mdv.itemGroups[itemGroupOid].name}.${parentItemDef.name}.${variableName}`;
-                                    }
-                                });
-                            } else {
-                                const itemGroupOids = itemDef.sources && itemDef.sources.itemGroups && itemDef.sources.itemGroups;
-                                itemGroupOids.forEach(itemGroupOid => {
-                                    commentData.parentItemOid = itemGroupOid;
-                                    if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
-                                        sourceName = `${sourceName} ${mdv.itemGroups[itemGroupOid].name}.${variableName}`;
-                                    }
-                                });
-                            }
-                        } else {
-                            sourceName = mdv[sourceId][sourceValue].name;
-                        }
-                    }
-                }
-            }
-            commentData.sourceName = sourceName.trim();
-            if (searchString) {
-                // If search string contains capital cases, use case-sensitive search
-                const caseSensitiveSearch = /[A-Z]/.test(searchString);
-                // Go through each text item and search for the corresponding text, exlude ID items
-                const matched = Object.keys(commentData)
-                    .filter(item => (!['id'].includes(item)))
-                    .some(item => {
-                        if (caseSensitiveSearch) {
-                            return typeof commentData[item] === 'string' && commentData[item].includes(searchString);
-                        } else {
-                            return typeof commentData[item] === 'string' && commentData[item].toLowerCase().includes(searchString);
-                        }
-                    });
-                if (!matched) {
-                    return;
-                }
-            }
-            results.push(commentData);
-        });
-
-        return results;
-    }
-
     openComments = (reviewCommentId) => () => {
         this.props.openModal({
             type: 'REVIEW_COMMENT',
@@ -358,6 +220,179 @@ class ConnectedReviewCommentTab extends React.Component {
             author: this.props.author,
         });
     }
+
+    exportReviewComments = () => {
+        // Prepare data for the export
+        const { reviewComments, mdv } = this.props;
+        let exportData = {};
+        panels.forEach(panelId => {
+            let data = this.getReviewCommentData(reviewComments, panelId, true, mdv, undefined, true);
+            let panelStats = this.getPanelStats(data);
+            exportData[panelId] = { data, panelStats };
+        });
+        ipcRenderer.send('exportReviewComments', exportData);
+    }
+
+    getReviewCommentData = (reviewComments, panelId, showResolved, mdv, searchString, extendedFormat) => {
+        // Filter required comments
+        let results = [];
+        let rcOids = Object.keys(reviewComments).filter(id => {
+            if (panelId === 'standards') {
+                return Object.keys(reviewComments[id].sources).some(sourceId => {
+                    if (['standards', 'metaDataVersion', 'globalVariables', 'odm'].includes(sourceId)) {
+                        return true;
+                    }
+                });
+            } else {
+                return Object.keys(reviewComments[id].sources).includes(panelId);
+            }
+        });
+
+        rcOids.forEach(id => {
+            let reviewComment = reviewComments[id];
+            let commentData = {};
+            if (extendedFormat) {
+                commentData = { ...reviewComment };
+            } else {
+                commentData = {
+                    id: id,
+                    text: sanitize(reviewComment.text),
+                    resolved: false,
+                    author: reviewComment.author,
+                };
+            }
+            if (reviewComment.resolvedBy) {
+                if (showResolved === false) {
+                    // In case resolved comments are not show, skip the iteration
+                    return;
+                } else {
+                    commentData.resolved = true;
+                }
+            }
+            // Get names of the sources
+            let sourceName = '';
+            let sourceParts = [];
+            let sources = reviewComments[id].sources;
+            if (panelId === 'standards') {
+                let sourceId = Object.keys(sources)[0];
+                switch (sourceId) {
+                    case 'standards':
+                        sourceName = 'Standards';
+                        break;
+                    case 'metaDataVersion':
+                        sourceName = 'Metadata Version';
+                        break;
+                    case 'globalVariables':
+                        sourceName = 'Global Variables';
+                        break;
+                    case 'odm':
+                        sourceName = 'ODM';
+                        break;
+                    default:
+                        sourceName = '';
+                        break;
+                }
+                sourceParts.push(sourceName);
+            } else {
+                let sourceId = Object.keys(sources)[0];
+                let sourceValue = sources[sourceId][0];
+                if (['analysisResults', 'resultDisplays'].includes(panelId)) {
+                    if (sourceId &&
+                        mdv.analysisResultDisplays &&
+                        mdv.analysisResultDisplays[sourceId] &&
+                        mdv.analysisResultDisplays[sourceId].hasOwnProperty(sourceValue) &&
+                        mdv.analysisResultDisplays[sourceId][sourceValue].descriptions
+                    ) {
+                        if (panelId === 'analysisResults') {
+                            sourceName = getDescription(mdv.analysisResultDisplays[sourceId][sourceValue]);
+                            // Get name of the result display
+                            const analysisResult = mdv.analysisResultDisplays[sourceId][sourceValue];
+                            const resultDisplays = mdv.analysisResultDisplays.resultDisplays;
+                            if (analysisResult.sources &&
+                                analysisResult.sources.resultDisplays &&
+                                analysisResult.sources.resultDisplays.length > 0 &&
+                                resultDisplays.hasOwnProperty(analysisResult.sources.resultDisplays[0])
+                            ) {
+                                const resultDisplay = resultDisplays[analysisResult.sources.resultDisplays[0]];
+                                commentData.parentItemOid = resultDisplay.oid;
+                                if (resultDisplay) {
+                                    sourceName = `${resultDisplay.name} ${sourceName}`;
+                                    sourceParts = [resultDisplay.name, sourceName];
+                                }
+                            }
+                        } else {
+                            sourceName = mdv.analysisResultDisplays[sourceId][sourceValue].name;
+                            sourceParts.push(sourceName);
+                        }
+                    }
+                } else {
+                    if (sourceId && mdv[sourceId] && mdv[sourceId].hasOwnProperty(sourceValue)) {
+                        if (sourceId === 'itemDefs') {
+                            const variableName = mdv[sourceId][sourceValue].name;
+                            sourceName = '';
+                            // Get the dataset name or the VLM name
+                            const itemDef = mdv[sourceId][sourceValue];
+                            if (itemDef.parentItemDefOid && mdv.itemDefs.hasOwnProperty(itemDef.parentItemDefOid)) {
+                                // VLM
+                                const parentItemDef = mdv.itemDefs[itemDef.parentItemDefOid];
+                                const itemGroupOids = parentItemDef.sources && parentItemDef.sources.itemGroups && parentItemDef.sources.itemGroups;
+                                itemGroupOids.forEach(itemGroupOid => {
+                                    commentData.parentItemOid = itemGroupOid;
+                                    if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
+                                        sourceName = `${sourceName} ${mdv.itemGroups[itemGroupOid].name}.${parentItemDef.name}.${variableName}`;
+                                        sourceParts = sourceParts.concat([mdv.itemGroups[itemGroupOid].name, parentItemDef.name, variableName]);
+                                    }
+                                });
+                            } else {
+                                const itemGroupOids = itemDef.sources && itemDef.sources.itemGroups && itemDef.sources.itemGroups;
+                                itemGroupOids.forEach(itemGroupOid => {
+                                    commentData.parentItemOid = itemGroupOid;
+                                    if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
+                                        sourceName = `${sourceName} ${mdv.itemGroups[itemGroupOid].name}.${variableName}`;
+                                        sourceParts = sourceParts.concat([mdv.itemGroups[itemGroupOid].name, variableName, '']);
+                                    }
+                                });
+                            }
+                        } else {
+                            sourceName = mdv[sourceId][sourceValue].name;
+                            sourceParts.push(sourceName);
+                        }
+                    }
+                }
+            }
+            commentData.sourceName = sourceName.trim();
+            if (extendedFormat) {
+                commentData.sourceParts = sourceParts;
+            }
+            if (searchString) {
+                // If search string contains capital cases, use case-sensitive search
+                const caseSensitiveSearch = /[A-Z]/.test(searchString);
+                // Go through each text item and search for the corresponding text, exlude ID items
+                const matched = Object.keys(commentData)
+                    .filter(item => (!['id'].includes(item)))
+                    .some(item => {
+                        if (caseSensitiveSearch) {
+                            return typeof commentData[item] === 'string' && commentData[item].includes(searchString);
+                        } else {
+                            return typeof commentData[item] === 'string' && commentData[item].toLowerCase().includes(searchString);
+                        }
+                    });
+                if (!matched) {
+                    return;
+                }
+            }
+            results.push(commentData);
+        });
+
+        return results;
+    };
+
+    getPanelStats = (data) => {
+        let result = { count: 0, resolvedCount: 0 };
+        result.count = Object.keys(data).length;
+        result.resolvedCount = Object.values(data).filter(comment => (comment.resolved)).length;
+        return result;
+    };
 
     getTable = (data, panelId) => {
         const { classes } = this.props;
@@ -405,13 +440,6 @@ class ConnectedReviewCommentTab extends React.Component {
         );
     }
 
-    getPanelStats = (data) => {
-        let result = { count: 0, resolvedCount: 0 };
-        result.count = Object.keys(data).length;
-        result.resolvedCount = Object.values(data).filter(comment => (comment.resolved)).length;
-        return result;
-    }
-
     render () {
         const { classes, reviewComments, mdv, showResolved } = this.props;
         return (
@@ -436,6 +464,14 @@ class ConnectedReviewCommentTab extends React.Component {
                                     onKeyDown={this.onSearchKeyDown}
                                     onBlur={(event) => { this.setState({ searchString: event.target.value }); }}
                                 />
+                            </Grid>
+                            <Grid item>
+                                <Button
+                                    variant='contained'
+                                    onClick={ this.exportReviewComments }
+                                >
+                                    Export
+                                </Button>
                             </Grid>
                             <Grid item>
                                 <Button
