@@ -20,6 +20,7 @@ import {
     addOdm,
     loadTabs,
     deleteStdCodeLists,
+    openSnackbar,
 } from 'actions/index.js';
 
 function loadDefineObject (event, data) {
@@ -40,6 +41,7 @@ function loadDefineObject (event, data) {
             store.dispatch(addOdm(data.odm));
         }
         let ctToLoad = {};
+        let missingCts = [];
         // Check which CTs are needed
         let currentState = store.getState().present;
         let currentStdCodeListIds = Object.keys(currentState.stdCodeLists);
@@ -49,10 +51,20 @@ function loadDefineObject (event, data) {
         ctIds.forEach(ctId => {
             if (!currentStdCodeListIds.includes(ctId) && controlledTerminology.allIds.includes(ctId)) {
                 ctToLoad[ctId] = controlledTerminology.byId[ctId];
+            } else if (!controlledTerminology.allIds.includes(ctId)) {
+                missingCts.push(standards[ctId].publishingSet + ' ' + standards[ctId].version);
             }
         });
+        if (missingCts.length > 0) {
+            store.dispatch(openSnackbar({
+                type: 'warning',
+                message: `Controlled Terminolog${missingCts.length > 1 ? 'ies' : 'y'} ${missingCts.join(', ')} could not be found`,
+            }));
+        }
         // Emit event to the main process to read the CTs
-        ipcRenderer.send('loadControlledTerminology', ctToLoad);
+        if (Object.keys(ctToLoad).length > 0) {
+            ipcRenderer.send('loadControlledTerminology', ctToLoad);
+        }
         // Remove CT from stdCodeLists which are not required by this ODM
         let ctIdsToRemove = currentStdCodeListIds.filter(ctId => (!ctIds.includes(ctId)));
         if (ctIdsToRemove.length > 0) {

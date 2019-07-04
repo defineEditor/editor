@@ -33,6 +33,7 @@ import { CODELIST_LINK } from 'constants/help.js';
 import {
     closeModal,
     updateLinkCodeLists,
+    openSnackbar,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -67,6 +68,7 @@ const mapDispatchToProps = dispatch => {
     return {
         closeModal: () => dispatch(closeModal()),
         updateLinkCodeLists: (updateObj) => dispatch(updateLinkCodeLists(updateObj)),
+        openSnackbar: (updateObj) => dispatch(openSnackbar(updateObj)),
     };
 };
 
@@ -160,6 +162,15 @@ class ConnectedModalLinkCodeLists extends React.Component {
         if (Object.keys(linkedCodeLists).length !== 0) {
             // perform an action only if there are codelists to link
             this.props.updateLinkCodeLists(linkedCodeLists);
+            this.props.openSnackbar({
+                type: 'success',
+                message: `${Object.keys(linkedCodeLists).length * 2} codelists were linked`,
+            });
+        } else {
+            this.props.openSnackbar({
+                type: 'info',
+                message: `None of the codelists were linked`,
+            });
         }
     }
 
@@ -298,6 +309,7 @@ ConnectedModalLinkCodeLists.propTypes = {
     classes: PropTypes.object.isRequired,
     codeLists: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
+    openSnackbar: PropTypes.func.isRequired,
 };
 
 const ModalLinkCodeLists = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalLinkCodeLists);

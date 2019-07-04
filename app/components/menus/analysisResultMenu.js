@@ -72,9 +72,16 @@ class ConnectedAnalysisResultMenu extends React.Component {
         this.props.onClose();
     }
 
-    paste = (shift) => () => {
+    duplicate = () => {
+        const buffer = {
+            analysisResultOid: this.props.analysisResultMenuParams.analysisResultOid,
+        };
+        this.paste(1, buffer)();
+    }
+
+    paste = (shift, copyBuffer) => () => {
         const { resultDisplayOid, analysisResultOid } = this.props.analysisResultMenuParams;
-        let buffer = this.props.buffer;
+        let buffer = copyBuffer || this.props.buffer;
         let mdv = this.props.mdv;
         let sourceMdv = mdv;
         let { analysisResults, whereClauses, comments } = copyAnalysisResults({
@@ -136,6 +143,9 @@ class ConnectedAnalysisResultMenu extends React.Component {
                         disabled={this.props.reviewMode || this.props.buffer === undefined}
                     >
                         Paste Below
+                    </MenuItem>
+                    <MenuItem key='DuplicateResult' onClick={this.duplicate} disabled={this.props.reviewMode}>
+                        D<u>u</u>plicate
                     </MenuItem>
                     <Divider/>
                     <MenuItem key='Comments' onClick={this.openComments}>

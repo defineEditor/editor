@@ -153,7 +153,7 @@ class ConnectedCodeListStandardEditor extends React.Component {
         }
 
         return (
-            <React.Fragment>
+            <div onKeyDown={this.onKeyDown} tabIndex='0'>
                 {(this.state.standardList.length === 0) ? (
                     <div>There are no Controlled Terminologies assigned to this study.</div>
                 ) : (
@@ -192,7 +192,7 @@ class ConnectedCodeListStandardEditor extends React.Component {
                     </Grid>
                 )
                 }
-            </React.Fragment>
+            </div>
         );
     }
 }

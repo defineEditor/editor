@@ -441,6 +441,7 @@ const addCodedValue = (state, action, skipLinkedCodeListUpdate) => {
     // action.updateObj.codedValue - new value
     // action.updateObj.orderNumber - position to insert, if undefined insert to the end
     // action.updateObj.oid - new oid for the value (used in case of a linked codelist update)
+    // action.updateObj.extendedValue - whether the value is extended for extensible ST)
     // action.codeListOid - OID of the codelist
     let codeList = state[action.codeListOid];
     let newCodeList;
@@ -468,13 +469,13 @@ const addCodedValue = (state, action, skipLinkedCodeListUpdate) => {
     if (codeList.codeListType === 'decoded') {
         let newCodeListItems = {
             ...codeList.codeListItems,
-            [newOid]: { ...new CodeListItem({ codedValue: action.updateObj.codedValue, decodes: [{ value: '' }] }) },
+            [newOid]: { ...new CodeListItem({ decodes: [{ value: '' }], ...action.updateObj }) },
         };
         newCodeList = { ...new CodeList({ ...state[action.codeListOid], codeListItems: newCodeListItems, itemOrder: newItemOrder }) };
     } else if (codeList.codeListType === 'enumerated') {
         let newEnumeratedItems = {
             ...codeList.enumeratedItems,
-            [newOid]: { ...new EnumeratedItem({ codedValue: action.updateObj.codedValue }) },
+            [newOid]: { ...new EnumeratedItem({ ...action.updateObj }) },
         };
         newCodeList = { ...new CodeList({ ...state[action.codeListOid], enumeratedItems: newEnumeratedItems, itemOrder: newItemOrder }) };
     } else if (codeList.codeListType === 'external') {

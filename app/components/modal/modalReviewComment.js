@@ -116,6 +116,21 @@ class ConnectedModalReviewComments extends React.Component {
         return reviewCommentOids;
     }
 
+    deleteReviewComment = (deleteObj) => {
+        const { reviewComments, sources } = this.props;
+        if (!sources.hasOwnProperty('reviewComments')) {
+            this.props.deleteReviewComment(deleteObj);
+        } else {
+            let reviewCommentOid = sources.reviewComments[0];
+            if (reviewComments.hasOwnProperty(reviewCommentOid)) {
+                this.props.deleteReviewComment({
+                    oid: reviewCommentOid,
+                    sources: reviewComments[reviewCommentOid].sources,
+                });
+            }
+        }
+    }
+
     getComments = (sources, reviewComments) => {
         return this.getCommentOids(sources)
             .filter(oid => (this.props.reviewComments.hasOwnProperty(oid)))
@@ -130,7 +145,7 @@ class ConnectedModalReviewComments extends React.Component {
                     author={this.props.author}
                     reviewComments={this.props.reviewComments}
                     onUpdate={this.props.updateReviewComment}
-                    onDelete={this.props.deleteReviewComment}
+                    onDelete={this.deleteReviewComment}
                     onReply={this.props.addReplyComment}
                     onResolve={this.props.toggleResolveComment}
                 />

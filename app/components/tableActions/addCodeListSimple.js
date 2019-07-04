@@ -45,6 +45,7 @@ const mapStateToProps = state => {
         defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
         codeLists: state.present.odm.study.metaDataVersion.codeLists,
         codeListTypes: state.present.stdConstants.codeListTypes,
+        dataTypes: state.present.stdConstants.dataTypes,
     };
 };
 
@@ -54,6 +55,7 @@ class AddVariableEditorConnected extends React.Component {
         this.state = {
             name: '',
             codeListType: 'decoded',
+            dataType: 'text',
         };
     }
 
@@ -61,6 +63,7 @@ class AddVariableEditorConnected extends React.Component {
         this.setState({
             name: '',
             codeListType: 'decoded',
+            dataType: 'text',
         });
     }
 
@@ -74,8 +77,7 @@ class AddVariableEditorConnected extends React.Component {
         // Get all possible IDs
         this.props.addCodeList({
             oid: codeListOid,
-            name: this.state.name,
-            codeListType: this.state.codeListType,
+            ...this.state,
         });
         this.resetState();
         this.props.onClose();
@@ -112,6 +114,17 @@ class AddVariableEditorConnected extends React.Component {
                         {getSelectionList(this.props.codeListTypes)}
                     </TextField>
                 </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        label='Data Type'
+                        select
+                        value={this.state.dataType}
+                        onChange={this.handleChange('dataType')}
+                        className={classes.name}
+                    >
+                        {getSelectionList(this.props.dataTypes)}
+                    </TextField>
+                </Grid>
                 <Grid item>
                     <Button
                         onClick={this.handleSaveAndClose}
@@ -132,6 +145,7 @@ AddVariableEditorConnected.propTypes = {
     classes: PropTypes.object.isRequired,
     codeLists: PropTypes.object.isRequired,
     codeListTypes: PropTypes.array.isRequired,
+    dataTypes: PropTypes.array.isRequired,
     defineVersion: PropTypes.string.isRequired,
     disabled: PropTypes.bool,
 };

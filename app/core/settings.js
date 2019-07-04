@@ -94,10 +94,12 @@ class ConnectedSettings extends React.Component {
 
     componentDidMount () {
         ipcRenderer.on('selectedFile', this.setCTLocation);
+        window.addEventListener('keydown', this.onKeyDown);
     }
 
     componentWillUnmount () {
         ipcRenderer.removeListener('selectedFile', this.setCTLocation);
+        window.removeEventListener('keydown', this.onKeyDown);
         // If settings are not saved, open a confirmation window
         let diff = this.getSettingsDiff();
         if (Object.keys(diff).length > 0) {
@@ -150,6 +152,9 @@ class ConnectedSettings extends React.Component {
             'alwaysSaveDefineXml',
             'showLineNumbersInCode',
             'removeTrailingSpacesWhenParsing',
+            'stripWhitespacesForCodeValues',
+            'allowNonExtCodeListExtension',
+            'allowSigDigitsForNonFloat',
             'disableAnimations',
             'addStylesheet',
         ].includes(name) || category === 'popUp') {
@@ -215,8 +220,6 @@ class ConnectedSettings extends React.Component {
                 <Grid
                     container
                     spacing={16}
-                    onKeyDown={this.onKeyDown}
-                    tabIndex="0"
                     className={classes.settings}
                 >
                     <Grid item xs={12}>
@@ -318,6 +321,60 @@ class ConnectedSettings extends React.Component {
                         </Typography>
                         <Grid container>
                             <Grid item xs={12}>
+                                <Typography variant="h6" gutterBottom align="left" color='textSecondary'>
+                                    General
+                                </Typography>
+                                <FormGroup>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.editor.textInstantProcessing}
+                                                onChange={this.handleChange('editor', 'textInstantProcessing')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Instantly process text in Comments and Methods'
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.editor.removeTrailingSpacesWhenParsing}
+                                                onChange={this.handleChange('editor', 'removeTrailingSpacesWhenParsing')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Remove trailing spaces from element values when importing Define-XML'
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.editor.enableProgrammingNote}
+                                                onChange={this.handleChange('editor', 'enableProgrammingNote')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Allow adding programming notes'
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.editor.enableTablePagination}
+                                                onChange={this.handleChange('editor', 'enableTablePagination')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Enable table pagination'
+                                    />
+                                </FormGroup>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Typography variant="h6" gutterBottom align="left" color='textSecondary'>
+                                    Variables
+                                </Typography>
                                 <FormGroup>
                                     <FormControlLabel
                                         control={
@@ -339,19 +396,24 @@ class ConnectedSettings extends React.Component {
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Allow to set length for all datatypes. In any case a Define-XML file will have Length set only for valid datatypes.'
+                                        label='Allow to set length for all data types. In any case a Define-XML file will have Length set only for valid data types.'
                                     />
                                     <FormControlLabel
                                         control={
                                             <Switch
-                                                checked={this.state.editor.textInstantProcessing}
-                                                onChange={this.handleChange('editor', 'textInstantProcessing')}
+                                                checked={this.state.editor.allowSigDigitsForNonFloat}
+                                                onChange={this.handleChange('editor', 'allowSigDigitsForNonFloat')}
                                                 color='primary'
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Instantly process text in Comments and Methods'
+                                        label='Allow to set fraction digits for non-float data types.'
                                     />
+                                </FormGroup>
+                                <Typography variant="h6" gutterBottom align="left" color='textSecondary'>
+                                    Coded Values
+                                </Typography>
+                                <FormGroup>
                                     <FormControlLabel
                                         control={
                                             <Switch
@@ -366,6 +428,33 @@ class ConnectedSettings extends React.Component {
                                     <FormControlLabel
                                         control={
                                             <Switch
+                                                checked={this.state.editor.stripWhitespacesForCodeValues}
+                                                onChange={this.handleChange('editor', 'stripWhitespacesForCodeValues')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Remove leading and trailing whitespaces when entering coded values'
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.editor.allowNonExtCodeListExtension}
+                                                onChange={this.handleChange('editor', 'allowNonExtCodeListExtension')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Allow to extend non-extensible codelists'
+                                    />
+                                </FormGroup>
+                                <Typography variant="h6" gutterBottom align="left" color='textSecondary'>
+                                    Analysis Results
+                                </Typography>
+                                <FormGroup>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
                                                 checked={this.state.editor.showLineNumbersInCode}
                                                 onChange={this.handleChange('editor', 'showLineNumbersInCode')}
                                                 color='primary'
@@ -373,39 +462,6 @@ class ConnectedSettings extends React.Component {
                                             />
                                         }
                                         label='Show line numbers in ARM programming code'
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Switch
-                                                checked={this.state.editor.removeTrailingSpacesWhenParsing}
-                                                onChange={this.handleChange('editor', 'removeTrailingSpacesWhenParsing')}
-                                                color='primary'
-                                                className={classes.switch}
-                                            />
-                                        }
-                                        label='Remove trailing spaces from element values when importing Define-XML'
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Switch
-                                                checked={this.state.editor.enableTablePagination}
-                                                onChange={this.handleChange('editor', 'enableTablePagination')}
-                                                color='primary'
-                                                className={classes.switch}
-                                            />
-                                        }
-                                        label='Enable table pagination'
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Switch
-                                                checked={this.state.editor.enableProgrammingNote}
-                                                onChange={this.handleChange('editor', 'enableProgrammingNote')}
-                                                color='primary'
-                                                className={classes.switch}
-                                            />
-                                        }
-                                        label='Allow adding programming notes'
                                     />
                                 </FormGroup>
                             </Grid>

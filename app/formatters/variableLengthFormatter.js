@@ -47,7 +47,7 @@ class VariableLengthFormatter extends React.Component {
         return (
             <div className={classes.div}>
                 {length}
-                {dataType === 'float' && this.props.value.fractionDigits !== undefined &&
+                {(dataType === 'float' || this.props.value.fractionDigits !== undefined) &&
                         <div>
                             <abbr title='Fraction Digits (Significant Digits)'>FD</abbr>: {this.props.value.fractionDigits}
                         </div>

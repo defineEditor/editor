@@ -23,6 +23,7 @@ import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
 const mapStateToProps = state => {
     return {
         enableSelectForStdCodedValues: state.present.settings.editor.enableSelectForStdCodedValues,
+        allowNonExtCodeListExtension: state.present.settings.editor.allowNonExtCodeListExtension,
     };
 };
 
@@ -48,7 +49,7 @@ class ConnectedCodedValueEditor extends React.Component {
                     handleChange={ this.props.onUpdate }
                     value={this.props.defaultValue}
                     options={options}
-                    extensible={stdCodeList.codeListExtensible === 'Yes'}
+                    extensible={stdCodeList.codeListExtensible === 'Yes' || this.props.allowNonExtCodeListExtension}
                 />
             );
         } else {
@@ -65,6 +66,7 @@ ConnectedCodedValueEditor.propTypes = {
     defaultValue: PropTypes.string.isRequired,
     row: PropTypes.object.isRequired,
     enableSelectForStdCodedValues: PropTypes.bool,
+    allowNonExtCodeListExtension: PropTypes.bool,
     onUpdate: PropTypes.func
 };
 
