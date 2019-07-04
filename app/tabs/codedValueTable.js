@@ -123,6 +123,8 @@ const mapStateToProps = state => {
         codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
         reviewMode: state.present.ui.main.reviewMode,
         enableTablePagination: state.present.settings.editor.enableTablePagination,
+        stripWhitespacesForCodeValues: state.present.settings.editor.stripWhitespacesForCodeValues,
+        allowNonExtCodeListExtension: state.present.settings.editor.allowNonExtCodeListExtension,
         rowsPerPage: state.present.ui.main.rowsPerPage.codedValuesTab,
     };
 };
@@ -366,7 +368,11 @@ class ConnectedCodedValueTable extends React.Component {
         if (!deepEqual(row[cellName], cellValue)) {
             let updateObj = {};
             if (cellName === 'value') {
-                updateObj.codedValue = cellValue;
+                if (this.props.stripWhitespacesForCodeValues) {
+                    updateObj.codedValue = cellValue.trim();
+                } else {
+                    updateObj.codedValue = cellValue;
+                }
                 const codeList = this.props.codeLists[this.props.codeListOid];
                 // Check if the same value already exists in the codelist;
                 if (getCodedValuesAsArray(codeList).includes(cellValue)) {
@@ -399,13 +405,13 @@ class ConnectedCodedValueTable extends React.Component {
                         updateObj.alias = undefined;
                         updateObj.decodes = [];
                     }
-                    if (stdCodeList.codeListExtensible === 'Yes' && !itemFound) {
+                    if ((stdCodeList.codeListExtensible === 'Yes' || this.props.allowNonExtCodeListExtension) && !itemFound) {
                         updateObj.extendedValue = 'Yes';
                     }
                     if (itemFound && row.ccode === 'Extended') {
                         updateObj.extendedValue = undefined;
                     }
-                    if (stdCodeList.codeListExtensible !== 'Yes' && !itemFound) {
+                    if (stdCodeList.codeListExtensible !== 'Yes' && !itemFound && !this.props.allowNonExtCodeListExtension) {
                         // Such values cannot be added
                         this.props.openSnackbar({
                             type: 'error',
@@ -901,6 +907,8 @@ ConnectedCodedValueTable.propTypes = {
     tabNames: PropTypes.array,
     stdCodeLists: PropTypes.object,
     reviewMode: PropTypes.bool,
+    stripWhitespacesForCodeValues: PropTypes.bool,
+    allowNonExtCodeListExtension: PropTypes.bool,
 };
 ConnectedCodedValueTable.displayName = 'CodedValueTable';
 

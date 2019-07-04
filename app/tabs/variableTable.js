@@ -125,6 +125,7 @@ const mapStateToProps = state => {
         filter: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].filter,
         reviewMode: state.present.ui.main.reviewMode,
         enableTablePagination: state.present.settings.editor.enableTablePagination,
+        allowSigDigitsForNonFloat: state.present.settings.editor.allowSigDigitsForNonFloat,
         rowsPerPage: state.present.ui.main.rowsPerPage.variableTab,
         reviewComments: state.present.odm.reviewComments,
     };
@@ -595,6 +596,14 @@ class ConnectedVariableTable extends React.Component {
             let updateObj = {};
             if (cellName === 'dataType') {
                 updateObj[cellName] = cellValue;
+                // If the type is changed from float and SD was provided, reset it
+                if (!this.props.allowSigDigitsForNonFloat &&
+                    row[cellName] === 'float' &&
+                    row.lengthAttrs &&
+                    row.lengthAttrs.fractionDigits !== undefined
+                ) {
+                    updateObj.fractionDigits = undefined;
+                }
             } else {
                 updateObj = cellValue;
             }
@@ -1120,6 +1129,7 @@ ConnectedVariableTable.propTypes = {
     deleteVariables: PropTypes.func.isRequired,
     openModal: PropTypes.func.isRequired,
     setVlmState: PropTypes.func.isRequired,
+    allowSigDigitsForNonFloat: PropTypes.bool,
     changeTablePageDetails: PropTypes.func.isRequired,
     rowsPerPage: PropTypes.oneOfType([
         PropTypes.string,

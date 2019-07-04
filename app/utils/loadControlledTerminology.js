@@ -17,11 +17,28 @@ import getCodeListStandardOids from 'utils/getCodeListStandardOids.js';
 import {
     loadStdCodeLists,
     updateCodeListStandardOids,
+    openSnackbar,
 } from 'actions/index.js';
 
 function loadControlledTerminology (event, data) {
-    if (Object.keys(data).length > 0) {
-        store.dispatch(loadStdCodeLists({ ctList: data }));
+    // Check whether all of the files were successfully loaded
+    let ctList = {};
+    let failedCts = [];
+    Object.keys(data).forEach(ctId => {
+        if (typeof data[ctId] === 'string') {
+            failedCts.push(ctId);
+        } else {
+            ctList[ctId] = data[ctId];
+        }
+    });
+    if (Object.keys(ctList).length > 0) {
+        store.dispatch(loadStdCodeLists({ ctList }));
+    }
+    if (failedCts.length > 0) {
+        store.dispatch(openSnackbar({
+            type: 'warning',
+            message: `Failed loading Controlled Terminology ${failedCts.join(', ')}`,
+        }));
     }
     // Connect codelists to standards
     let state = store.getState();

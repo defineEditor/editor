@@ -143,6 +143,9 @@ const editor = {
     removeTrailingSpacesWhenParsing: true,
     enableTablePagination: true,
     enableProgrammingNote: true,
+    stripWhitespacesForCodeValues: false,
+    allowNonExtCodeListExtension: false,
+    allowSigDigitsForNonFloat: false,
 };
 
 const define = {

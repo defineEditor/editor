@@ -511,12 +511,14 @@ class ConnectedDatasetTable extends React.Component {
                 >
                     {renderColumns(this.state.columns)}
                 </BootstrapTable>
-                <ItemGroupMenu
-                    onClose={this.handleMenuClose}
-                    itemGroupMenuParams={this.state.itemGroupMenuParams}
-                    onAddDataset={ (orderNumber) => { this.setState({ showAddDataset: true, insertPosition: orderNumber }); } }
-                    anchorEl={this.state.anchorEl}
-                />
+                { this.state.anchorEl !== null &&
+                        <ItemGroupMenu
+                            onClose={this.handleMenuClose}
+                            itemGroupMenuParams={this.state.itemGroupMenuParams}
+                            onAddDataset={ (orderNumber) => { this.setState({ showAddDataset: true, insertPosition: orderNumber }); } }
+                            anchorEl={this.state.anchorEl}
+                        />
+                }
                 { this.state.showSelectColumn && (
                     <SelectColumns
                         onClose={ () => { this.setState({ showSelectColumn: false }); } }
