@@ -230,6 +230,10 @@ class ConnectedReviewCommentTab extends React.Component {
             let panelStats = this.getPanelStats(data);
             exportData[panelId] = { data, panelStats };
         });
+        // All comments
+        let data = this.getReviewCommentData(reviewComments, 'allComments', true, mdv, undefined, true);
+        let panelStats = this.getPanelStats(data);
+        exportData['allComments'] = { data, panelStats };
         ipcRenderer.send('exportReviewComments', exportData);
     }
 
@@ -243,6 +247,8 @@ class ConnectedReviewCommentTab extends React.Component {
                         return true;
                     }
                 });
+            } else if (panelId === 'allComments') {
+                return true;
             } else {
                 return Object.keys(reviewComments[id].sources).includes(panelId);
             }
@@ -252,10 +258,13 @@ class ConnectedReviewCommentTab extends React.Component {
             let reviewComment = reviewComments[id];
             let commentData = {};
             if (extendedFormat) {
-                commentData = { ...reviewComment };
+                commentData = { ...reviewComment, id };
+                if (reviewComment.resolvedBy) {
+                    commentData.resolvedFlag = 'Yes';
+                }
             } else {
                 commentData = {
-                    id: id,
+                    id,
                     text: sanitize(reviewComment.text),
                     resolved: false,
                     author: reviewComment.author,
@@ -293,6 +302,9 @@ class ConnectedReviewCommentTab extends React.Component {
                         break;
                 }
                 sourceParts.push(sourceName);
+            } else if (panelId === 'allComments') {
+                sourceName = 'Review Comment';
+                sourceParts.push(sourceName);
             } else {
                 let sourceId = Object.keys(sources)[0];
                 let sourceValue = sources[sourceId][0];
@@ -316,8 +328,8 @@ class ConnectedReviewCommentTab extends React.Component {
                                 const resultDisplay = resultDisplays[analysisResult.sources.resultDisplays[0]];
                                 commentData.parentItemOid = resultDisplay.oid;
                                 if (resultDisplay) {
-                                    sourceName = `${resultDisplay.name} ${sourceName}`;
                                     sourceParts = [resultDisplay.name, sourceName];
+                                    sourceName = `${resultDisplay.name} ${sourceName}`;
                                 }
                             }
                         } else {

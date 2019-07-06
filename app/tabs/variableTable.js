@@ -550,6 +550,7 @@ class ConnectedVariableTable extends React.Component {
                             mdv: mdv,
                             defineVersion: this.props.defineVersion,
                             vlmLevel: 1,
+                            reviewComments: this.props.reviewComments,
                             filteredOids: vlmFilteredOidsByItem[itemOid],
                         }).filter(el => (el !== undefined));
                         // For all VLM which are expanded, add VLM data to VLM variables

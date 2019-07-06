@@ -27,17 +27,36 @@ const panelLabels = {
 
 const panels = Object.keys(panelLabels);
 
+const updateText = (text) => {
+    return text.replace(/<\/p>/g, ' ').replace(/<p>/g, '').replace(/<br>/g, '\n');
+};
+
 const saveReviewCommentsToFile = (mainWindow, exportData) => async (savePath) => {
     let pathTotemplate = path.join(__dirname, '..', 'static', 'templates', 'reviewCommentsTemplate.xlsx');
     let workbook = await xlsx.fromFileAsync(pathTotemplate);
-    // Get summary
     let summary = [];
     panels.forEach(panelId => {
+        // Get summary
         if (exportData.hasOwnProperty(panelId)) {
-            summary.push([exportData[panelId].panelStats.count, exportData[panelId].panelStats.resolvedCount]);
+            summary.push([panelLabels[panelId], exportData[panelId].panelStats.count, exportData[panelId].panelStats.resolvedCount]);
+        }
+        // Individual panel data
+        let comments = exportData[panelId].data.map(comment =>
+            (comment.sourceParts.concat([comment.author, updateText(comment.text), comment.resolvedFlag]))
+        );
+        if (comments.length > 0) {
+            workbook.sheet(panelLabels[panelId]).cell('A2').value(comments);
         }
     });
-    workbook.sheet('Summary').cell('B3').value(summary);
+    // Handle All Comments
+    let comments = exportData['allComments'].data.map(comment =>
+        ([comment.id, comment.author, comment.text, comment.createdAt, comment.modifiedAt, comment.resolvedAt, comment.resolvedBy,
+            JSON.stringify(comment.reviewCommentOids), JSON.stringify(comment.sources)
+        ])
+    );
+    workbook.sheet('All Comments').cell('A2').value(comments);
+
+    workbook.sheet('Summary').cell('A3').value(summary);
     await workbook.toFileAsync(savePath);
 };
 
