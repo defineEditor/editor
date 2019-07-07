@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Editor, EditorState, ContentState, convertFromHTML } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
+import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
@@ -248,6 +249,23 @@ class ReviewCommentRaw extends React.Component {
             }
         }
 
+        let initCommHasText = false;
+        if (initialComment) {
+            initCommHasText = this.state.editorState.getCurrentContent().hasText();
+        }
+        // Class for editor
+        // Additional class is added to identify if there are opened editors, when the comments window is closed
+        let editorClass;
+        if (this.state.editMode) {
+            if (initCommHasText || !initialComment) {
+                editorClass = classNames(classes.editorEdit, 'generalCommentEditorClass');
+            } else {
+                editorClass = classes.editorEdit;
+            }
+        } else {
+            editorClass = classes.editorView;
+        }
+
         return (
             <div
                 className={classes.root}
@@ -273,7 +291,7 @@ class ReviewCommentRaw extends React.Component {
                                 {`   (Resolved by ${resolvedBy} on ${resolvedAt.replace(/(.*?)T(\d{2}:\d{2}).*/, '$1 $2')})`}
                             </Typography>
                         )}
-                        <div className={this.state.editMode ? classes.editorEdit : classes.editorView }>
+                        <div className={editorClass}>
                             <Editor
                                 editorState={this.state.editorState}
                                 onChange={this.onChange}
@@ -292,7 +310,7 @@ class ReviewCommentRaw extends React.Component {
                                 size='small'
                                 color='primary'
                                 onClick={this.handleAddComment}
-                                disabled={!this.state.editorState.getCurrentContent().hasText()}
+                                disabled={!initCommHasText}
                             >
                                 Add
                             </Button>
