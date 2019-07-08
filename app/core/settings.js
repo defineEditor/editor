@@ -157,6 +157,7 @@ class ConnectedSettings extends React.Component {
             'allowSigDigitsForNonFloat',
             'disableAnimations',
             'addStylesheet',
+            'onlyArmEdit',
         ].includes(name) || category === 'popUp') {
             this.setState({ [category]: { ...this.state[category], [name]: checked } });
         } else if (['sourceSystemVersion'].includes(name)) {
@@ -357,6 +358,17 @@ class ConnectedSettings extends React.Component {
                                             />
                                         }
                                         label='Allow adding programming notes'
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.editor.onlyArmEdit}
+                                                onChange={this.handleChange('editor', 'onlyArmEdit')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Allow only ARM metadata editing'
                                     />
                                     <FormControlLabel
                                         control={

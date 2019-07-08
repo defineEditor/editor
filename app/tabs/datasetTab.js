@@ -72,6 +72,7 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
     let model = state.present.odm.study.metaDataVersion.model;
+    let reviewMode = state.present.ui.main.reviewMode || state.present.settings.editor.onlyArmEdit;
     return {
         itemGroups: state.present.odm.study.metaDataVersion.itemGroups,
         itemGroupOrder: state.present.odm.study.metaDataVersion.order.itemGroupOrder,
@@ -85,7 +86,7 @@ const mapStateToProps = state => {
         stdConstants: state.present.stdConstants,
         tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
         showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
-        reviewMode: state.present.ui.main.reviewMode,
+        reviewMode,
         reviewComments: state.present.odm.reviewComments,
         model,
     };

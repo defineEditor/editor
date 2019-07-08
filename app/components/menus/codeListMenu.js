@@ -41,10 +41,11 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
+    let reviewMode = state.present.ui.main.reviewMode || state.present.settings.editor.onlyArmEdit;
     return {
         codeLists: state.present.odm.study.metaDataVersion.codeLists,
         codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
-        reviewMode: state.present.ui.main.reviewMode,
+        reviewMode,
         codeListOrder: state.present.odm.study.metaDataVersion.order.codeListOrder,
         buffer: state.present.ui.main.copyBuffer['codeLists'],
         showDeleteCodeListWarning: state.present.settings.popUp.onCodeListDelete,

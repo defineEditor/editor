@@ -228,7 +228,7 @@ class WhereClauseEditorInteractive extends React.Component {
                     result[index].itemName = updatedListOfVariables[result[index].itemGroupOid][0];
                 }
             }
-            result[index].itemOid = getOidByName(this.props.mdv, 'itemDefs', result[index].itemName);
+            result[index].itemOid = getOidByName(this.props.mdv, 'itemDefs', result[index].itemName, result[index].itemGroupOid);
             result[index].comparator = 'EQ';
             result[index].checkValues = [''];
             this.setState({
@@ -310,7 +310,7 @@ class WhereClauseEditorInteractive extends React.Component {
             result[newIndex].comparator = 'EQ';
             result[newIndex].checkValues = [''];
             if (result[newIndex].itemName !== undefined) {
-                result[newIndex].itemOid = getOidByName(this.props.mdv, 'itemDefs', result[newIndex].itemName);
+                result[newIndex].itemOid = getOidByName(this.props.mdv, 'itemDefs', result[newIndex].itemName, result[newIndex].itemGroupOid);
                 this.setState({
                     rangeChecks: result,
                     listOfVariables: updatedListOfVariables,

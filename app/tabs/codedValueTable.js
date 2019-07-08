@@ -109,6 +109,7 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
+    let reviewMode = state.present.ui.main.reviewMode || state.present.settings.editor.onlyArmEdit;
     return {
         codeLists: state.present.odm.study.metaDataVersion.codeLists,
         itemDefs: state.present.odm.study.metaDataVersion.itemDefs,
@@ -121,7 +122,7 @@ const mapStateToProps = state => {
         showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
         tabNames: state.present.ui.tabs.tabNames,
         codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
-        reviewMode: state.present.ui.main.reviewMode,
+        reviewMode,
         enableTablePagination: state.present.settings.editor.enableTablePagination,
         stripWhitespacesForCodeValues: state.present.settings.editor.stripWhitespacesForCodeValues,
         allowNonExtCodeListExtension: state.present.settings.editor.allowNonExtCodeListExtension,
