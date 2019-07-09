@@ -26,6 +26,7 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = (state, props) => {
+    let reviewMode = state.present.ui.main.reviewMode || state.present.settings.editor.onlyArmEdit;
     let codeList = state.present.odm.study.metaDataVersion.codeLists[props.codeListOid];
     let itemOrder = codeList.itemOrder;
     let items;
@@ -39,7 +40,7 @@ const mapStateToProps = (state, props) => {
     return {
         itemOrder,
         items,
-        reviewMode: state.present.ui.main.reviewMode,
+        reviewMode,
     };
 };
 

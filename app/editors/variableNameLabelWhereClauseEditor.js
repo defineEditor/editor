@@ -75,7 +75,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
             let rangeChecks = updateObj ? updateObj.rangeChecks : [];
             // Populate current name and label if they are blank and EQ range is used
             let additionalAttrs = {};
-            if (this.props.getNameLabelFromWhereClause && rangeChecks.length === 1 && rangeChecks[0].comparator === 'EQ') {
+            if (this.props.getNameLabelFromWhereClause && rangeChecks.length === 1 && rangeChecks[0].comparator === 'EQ' && this.state.name === '') {
                 additionalAttrs.name = rangeChecks[0].checkValues[0];
                 // Check if there is a codelist with decodes
                 let mdv = this.props.mdv;

@@ -1,22 +1,24 @@
 /***********************************************************************************
-* This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018, 2019 Dmitry Kolosov                                          *
-*                                                                                  *
-* Visual Define-XML Editor is free software: you can redistribute it and/or modify *
-* it under the terms of version 3 of the GNU Affero General Public License         *
-*                                                                                  *
-* Visual Define-XML Editor is distributed in the hope that it will be useful,      *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY   *
-* or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
-* version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
-***********************************************************************************/
+ * This file is part of Visual Define-XML Editor. A program which allows to review  *
+ * and edit XML files created using the CDISC Define-XML standard.                  *
+ * Copyright (C) 2018, 2019 Dmitry Kolosov                                          *
+ *                                                                                  *
+ * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
+ * it under the terms of version 3 of the GNU Affero General Public License         *
+ *                                                                                  *
+ * Visual Define-XML Editor is distributed in the hope that it will be useful,      *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY   *
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
+ * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
+ ***********************************************************************************/
 
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import store from 'store/index.js';
 import clone from 'clone';
+import deepEqual from 'fast-deep-equal';
 import Grid from '@material-ui/core/Grid';
 import Popover from '@material-ui/core/Popover';
 import Dialog from '@material-ui/core/Dialog';
@@ -35,10 +37,12 @@ import VariableTabUpdateField from 'utils/variableTabUpdateField.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
 import applyFilter from 'utils/applyFilter.js';
 import sortCodeLists from 'utils/sortCodeLists.js';
+import getTableData from 'utils/getTableData.js';
 import InternalHelp from 'components/utils/internalHelp.js';
 import { VARIABLE_UPDATE } from 'constants/help.js';
 import {
-    updateItemsBulk
+    updateItemsBulk,
+    openSnackbar,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -105,6 +109,7 @@ const styles = theme => ({
 const mapDispatchToProps = dispatch => {
     return {
         updateItemsBulk: (updateObj) => dispatch(updateItemsBulk(updateObj)),
+        openSnackbar: (updateObj) => dispatch(openSnackbar(updateObj)),
     };
 };
 
@@ -426,6 +431,70 @@ class ConnectedVariableTabUpdate extends React.Component {
         );
     }
 
+    // This function copies items before state update, so that it can be later compared with to identify what has changed
+    copyItems = ({ mdv, selectedItems, itemDefItemRefMap } = {}) => {
+        let items = [];
+
+        // Find all unique datasets;
+        let selectedItemGroupOids = [];
+        selectedItems.forEach(item => {
+            if (!selectedItemGroupOids.includes(item.itemGroupOid)) {
+                selectedItemGroupOids.push(item.itemGroupOid);
+            }
+        });
+
+        selectedItemGroupOids.forEach(itemGroupOid => {
+            let dataset = mdv.itemGroups[itemGroupOid];
+            let filteredOids = selectedItems.filter(item => (item.itemGroupOid === itemGroupOid && !item.valueListOid)).map(item => (item.itemDefOid));
+            let variables = getTableData({
+                source: dataset,
+                datasetName: dataset.name,
+                datasetOid: dataset.oid,
+                itemDefs: mdv.itemDefs,
+                codeLists: mdv.codeLists,
+                mdv: mdv,
+                defineVersion: mdv.defineVersion,
+                vlmLevel: 0,
+                reviewComments: mdv.reviewComments,
+                filteredOids,
+            });
+            // Get VLM metadata for items which are selected
+            // Get all value lists
+            let valueListOids = selectedItems.filter(item => (item.itemGroupOid === itemGroupOid && item.valueListOid)).map(item => (item.valueListOid));
+            Object.keys(dataset.itemRefs)
+                .filter(itemRefOid => (valueListOids.includes(mdv.itemDefs[dataset.itemRefs[itemRefOid].itemOid].valueListOid)))
+                .forEach(itemRefOid => {
+                    let itemOid = dataset.itemRefs[itemRefOid].itemOid;
+                    let valueListOid = mdv.itemDefs[itemOid].valueListOid;
+                    let filteredVlmOids = selectedItems
+                        .filter(item => (item.itemGroupOid === itemGroupOid && item.valueListOid === valueListOid))
+                        .map(item => (item.itemDefOid));
+                    // Get the VLM data, run only for those items which are expanded
+                    // During filtering it is possible that some of the elements will be undefined or empty, remove them
+                    let vlmData = getTableData({
+                        source: mdv.valueLists[mdv.itemDefs[itemOid].valueListOid],
+                        datasetName: dataset.name,
+                        datasetOid: dataset.oid,
+                        itemDefs: mdv.itemDefs,
+                        codeLists: mdv.codeLists,
+                        mdv: mdv,
+                        defineVersion: mdv.defineVersion,
+                        vlmLevel: 1,
+                        filteredOids: filteredVlmOids,
+                    }).filter(el => (el !== undefined));
+                    // For all VLM which are expanded, add VLM data to VLM variables
+                    // If  there is no parent variable (in case of filter), add VLM for that parent at the end
+                    let startIndex = variables.map(item => item.oid).indexOf(itemOid) + 1;
+                    variables.splice.apply(variables, [startIndex === 0 ? variables.length : startIndex, 0].concat(vlmData));
+                });
+            // Remove link to MDV
+            variables = variables.map(item => { delete item.mdv; return item; });
+            items = items.concat(variables);
+        });
+
+        return items;
+    }
+
     update = () => {
         // Lang is required when Label is set
         // If methods are updated, generated an ItemDefOid -> ItemRefOid map, as within method reducer there is no data for that
@@ -487,6 +556,23 @@ class ConnectedVariableTabUpdate extends React.Component {
         } else {
             this.props.updateItemsBulk({ selectedItems: this.state.selectedItems, fields, lang: this.props.lang });
             this.setState({ changedAfterUpdated: false });
+        }
+        // Find the number of variables which were modified as the result of the bulk update;
+        let itemsBeforeUpdated = this.copyItems({ mdv: this.props.mdv, selectedItems: this.state.selectedItems });
+        // Although it is discouraged to get store directly, it has to be done because it is needed right after the previous action
+        let newMdv = store.getState().present.odm.study.metaDataVersion;
+        let itemsAfterUpdate = this.copyItems({ mdv: newMdv, selectedItems: this.state.selectedItems });
+        let numUpdated = itemsBeforeUpdated.map((item, index) => (deepEqual(item, itemsAfterUpdate[index]))).filter(item => (!item)).length;
+        if (numUpdated > 0) {
+            this.props.openSnackbar({
+                type: 'success',
+                message: `${numUpdated} variables were updated`,
+            });
+        } else {
+            this.props.openSnackbar({
+                type: 'info',
+                message: 'None of the variables were updated',
+            });
         }
     }
 
@@ -608,6 +694,7 @@ ConnectedVariableTabUpdate.propTypes = {
     defineVersion: PropTypes.string.isRequired,
     lang: PropTypes.string.isRequired,
     updateItemsBulk: PropTypes.func.isRequired,
+    openSnackbar: PropTypes.func.isRequired,
 };
 
 const VariableTabUpdate = connect(mapStateToProps, mapDispatchToProps)(ConnectedVariableTabUpdate);

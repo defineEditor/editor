@@ -335,27 +335,63 @@ const handleItemsBulkUpdate = (state, action) => {
     }
 };
 
+const updateMethodSource = ({ methodSource, itemRefs, state, action, groupOid, type } = {}) => {
+    let methodSourceUpdated = clone(methodSource);
+    Object.keys(itemRefs).forEach(itemRefOid => {
+        let itemRef = itemRefs[itemRefOid];
+        if (itemRef.methodOid !== undefined &&
+            !action.updateObj.methods.hasOwnProperty(itemRef.methodOid) &&
+            state.hasOwnProperty(itemRef.methodOid)
+        ) {
+            if (methodSourceUpdated.hasOwnProperty(itemRef.methodOid)) {
+                if (methodSourceUpdated[itemRef.methodOid][type].hasOwnProperty(groupOid)) {
+                    methodSourceUpdated[itemRef.methodOid][type][groupOid].push(itemRefOid);
+                } else {
+                    methodSourceUpdated[itemRef.methodOid][type][groupOid] = [itemRefOid];
+                }
+            } else {
+                methodSourceUpdated[itemRef.methodOid] = { itemGroups: { }, valueLists: { }, [type]: { [groupOid]: [itemRefOid] } };
+            }
+        }
+    });
+    return methodSourceUpdated;
+};
+
 const handleAddVariables = (state, action) => {
     // Some of the methods can be just referenced and not copied
     // Find all added ItemRefs with method links, which do not link to any of the new methods
     let methodSourceUpdated = {};
-    // For itemGroups
-    Object.keys(action.updateObj.itemRefs).forEach(itemGroupOid => {
-        let itemRefs = action.updateObj.itemRefs[itemGroupOid];
-        Object.keys(itemRefs).forEach(itemRefOid => {
-            let itemRef = itemRefs[itemRefOid];
-            if (itemRef.methodOid !== undefined &&
-                !action.updateObj.methods.hasOwnProperty(itemRef.methodOid) &&
-                state.hasOwnProperty(itemRef.methodOid)
-            ) {
-                if (methodSourceUpdated.hasOwnProperty(itemRef.methodOid)) {
-                    methodSourceUpdated[itemRef.methodOid].itemGroups[itemGroupOid].push(itemRefOid);
-                } else {
-                    methodSourceUpdated[itemRef.methodOid] = { itemGroups: { [itemGroupOid]: [itemRefOid] }, valueLists: {} };
+    if (!action.updateObj.isVlm) {
+        // For itemGroups
+        Object.keys(action.updateObj.itemRefs).forEach(itemGroupOid => {
+            let itemRefs = action.updateObj.itemRefs[itemGroupOid];
+            Object.keys(itemRefs).forEach(itemRefOid => {
+                let itemRef = itemRefs[itemRefOid];
+                if (itemRef.methodOid !== undefined &&
+                    !action.updateObj.methods.hasOwnProperty(itemRef.methodOid) &&
+                    state.hasOwnProperty(itemRef.methodOid)
+                ) {
+                    if (methodSourceUpdated.hasOwnProperty(itemRef.methodOid)) {
+                        methodSourceUpdated[itemRef.methodOid].itemGroups[itemGroupOid].push(itemRefOid);
+                    } else {
+                        methodSourceUpdated[itemRef.methodOid] = { itemGroups: { [itemGroupOid]: [itemRefOid] }, valueLists: {} };
+                    }
                 }
-            }
+            });
         });
-    });
+    } else {
+        // For separately copied VLM
+        Object.keys(action.updateObj.itemRefs).forEach(groupOid => {
+            methodSourceUpdated = updateMethodSource({
+                methodSource: methodSourceUpdated,
+                itemRefs: action.updateObj.itemRefs[groupOid],
+                state,
+                action,
+                groupOid,
+                type: 'valueLists',
+            });
+        });
+    }
     // For valueLists
     Object.keys(action.updateObj.valueLists).forEach(valueListOid => {
         let itemRefs = action.updateObj.valueLists[valueListOid].itemRefs;

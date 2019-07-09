@@ -131,7 +131,7 @@ const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, par
     return { itemDefs, itemRefs, valueLists, whereClauses, processedItemDefs, processedItemRefs };
 };
 
-const copyMethod = ({ sourceMethodOid, mdv, sourceMdv, searchForDuplicate, groupOid, itemRefOid, vlm, existingOids } = {}) => {
+const copyMethod = ({ sourceMethodOid, mdv, sourceMdv, searchForDuplicate, groupOid, itemRefOid, isVlm, existingOids } = {}) => {
     let method = clone(sourceMdv.methods[sourceMethodOid]);
     let methodOids = Object.keys(mdv.methods).concat(existingOids.methods);
     let name = method.name;
@@ -156,7 +156,7 @@ const copyMethod = ({ sourceMethodOid, mdv, sourceMdv, searchForDuplicate, group
     }
     if (!duplicateFound) {
         newMethodOid = getOid('Method', undefined, methodOids);
-        if (vlm === true) {
+        if (isVlm === true) {
             method.sources = { itemGroups: {}, valueLists: { [groupOid]: [itemRefOid] } };
         } else {
             method.sources = { itemGroups: { [groupOid]: [itemRefOid] }, valueLists: {} };
@@ -210,6 +210,7 @@ const copyVariables = ({
     copyVlm,
     detachMethods,
     detachComments,
+    isVlm = false,
     existingOids = defaultExistingOids,
     copiedItems = { codeLists: {} }
 } = {}
@@ -306,7 +307,7 @@ const copyVariables = ({
                     searchForDuplicate: (detachMethods === false && sameDefine === false),
                     groupOid: itemGroupOid,
                     itemRefOid,
-                    vlm: false,
+                    isVlm,
                     existingOids,
                 });
                 itemRef.methodOid = newMethodOid;
@@ -328,7 +329,7 @@ const copyVariables = ({
                             searchForDuplicate: (detachMethods === false && sameDefine === false),
                             groupOid: valueListOid,
                             itemRefOid,
-                            vlm: true,
+                            isVlm: true,
                             existingOids,
                         });
                         itemRef.methodOid = newMethodOid;

@@ -67,6 +67,8 @@ class ConnectedResultDisplayMenu extends React.Component {
                 this.deleteResultDisplay();
             } else if (event.keyCode === 80 && !(this.props.reviewMode || (this.props.buffer === undefined))) {
                 this.paste(1)();
+            } else if (event.keyCode === 85) {
+                this.duplicate();
             } else if (event.keyCode === 77) {
                 event.preventDefault();
                 this.openComments();
@@ -121,9 +123,16 @@ class ConnectedResultDisplayMenu extends React.Component {
         this.props.onClose();
     }
 
-    paste = (shift) => () => {
+    duplicate = () => {
+        const buffer = {
+            resultDisplayOid: this.props.resultDisplaysMenuParams.resultDisplayOid,
+        };
+        this.paste(1, buffer)();
+    }
+
+    paste = (shift, copyBuffer) => () => {
         const { resultDisplayOid } = this.props.resultDisplaysMenuParams;
-        let buffer = this.props.buffer;
+        let buffer = copyBuffer || this.props.buffer;
         let mdv = this.props.mdv;
         let sourceMdv = mdv;
         let { resultDisplays, analysisResults, whereClauses, comments, leafs } = copyResultDisplays({
@@ -195,6 +204,9 @@ class ConnectedResultDisplayMenu extends React.Component {
                         disabled={this.props.reviewMode || this.props.buffer === undefined}
                     >
                         <u>P</u>aste Below
+                    </MenuItem>
+                    <MenuItem key='DuplicateDisplay' onClick={this.duplicate} disabled={this.props.reviewMode}>
+                        D<u>u</u>plicate
                     </MenuItem>
                     <Divider/>
                     <MenuItem key='Comments' onClick={this.openComments}>

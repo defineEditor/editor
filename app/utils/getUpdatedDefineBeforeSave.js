@@ -17,7 +17,7 @@ import { getMaxLength } from 'utils/defineStructureUtils.js';
 import { ActionCreators } from 'redux-undo';
 import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {
-    deleteItemGroups,
+    deleteItemGroupsNoHistory,
     dummyAction,
 } from 'actions/index.js';
 
@@ -52,14 +52,15 @@ export const getUpdatedDefineBeforeSave = (inputOdm) => {
         // Perform dummy action, so that current state is saved
         store.dispatch(dummyAction());
         // As this is a very complex operation it is done via reducers and then an undo is performed
+        // This action is not written to the history
         const deleteObj = getItemGroupsRelatedOids(mdv, itemGroupOidsToRemove);
-        store.dispatch(deleteItemGroups(deleteObj));
+        store.dispatch(deleteItemGroupsNoHistory(deleteObj));
         state = { ...store.getState().present };
         odm = state.odm;
         mdv = odm.study.metaDataVersion;
+        // Perform redo undo to go back to the dummy state
         store.dispatch(ActionCreators.undo());
-        // Perform dummy action, so that dataset removal action is erased from the history
-        store.dispatch(dummyAction());
+        store.dispatch(ActionCreators.redo());
     }
     // Remove unused codelists if corresponding option is set
     if (state.settings.editor.hasOwnProperty('removeUnusedCodeListsInDefineXml') && state.settings.editor.removeUnusedCodeListsInDefineXml === true) {

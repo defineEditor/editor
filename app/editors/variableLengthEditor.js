@@ -40,6 +40,7 @@ const styles = theme => ({
 const mapStateToProps = state => {
     return {
         lengthForAllDataTypes: state.present.settings.editor.lengthForAllDataTypes,
+        allowSigDigitsForNonFloat: state.present.settings.editor.allowSigDigitsForNonFloat,
         actualData: state.present.odm.actualData || {},
     };
 };
@@ -196,7 +197,7 @@ class ConnectedVariableLengthEditor extends React.Component {
                             disabled={lengthAsData || lengthAsCodeList || lengthNotApplicable}
                         />
                     </Grid>
-                    { dataType === 'float' &&
+                    { (dataType === 'float' || fractionDigits !== '' || this.props.allowSigDigitsForNonFloat) &&
                             <Grid item xs={12}>
                                 <TextField
                                     label='Fraction Digits'
@@ -220,6 +221,7 @@ ConnectedVariableLengthEditor.propTypes = {
     defaultValue: PropTypes.object.isRequired,
     onUpdate: PropTypes.func.isRequired,
     lengthForAllDataTypes: PropTypes.bool.isRequired,
+    allowSigDigitsForNonFloat: PropTypes.bool,
     actualData: PropTypes.object,
 };
 

@@ -115,6 +115,7 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
+    let reviewMode = state.present.ui.main.reviewMode || state.present.settings.editor.onlyArmEdit;
     return {
         mdv: state.present.odm.study.metaDataVersion,
         dataTypes: state.present.stdConstants.dataTypes,
@@ -123,8 +124,9 @@ const mapStateToProps = state => {
         tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
         showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
         filter: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].filter,
-        reviewMode: state.present.ui.main.reviewMode,
+        reviewMode,
         enableTablePagination: state.present.settings.editor.enableTablePagination,
+        allowSigDigitsForNonFloat: state.present.settings.editor.allowSigDigitsForNonFloat,
         rowsPerPage: state.present.ui.main.rowsPerPage.variableTab,
         reviewComments: state.present.odm.reviewComments,
     };
@@ -370,7 +372,7 @@ class ConnectedVariableTable extends React.Component {
                 this.handleChangePage(event, page + 1);
             }
         }
-        if (event.ctrlKey && (event.keyCode === 78)) {
+        if (event.ctrlKey && event.keyCode === 78 && !this.props.reviewMode) {
             this.setState({ showAddVariable: true, insertPosition: null });
         } else if (event.ctrlKey && (event.keyCode === 70)) {
             this.searchFieldRef.current.focus();
@@ -549,6 +551,7 @@ class ConnectedVariableTable extends React.Component {
                             mdv: mdv,
                             defineVersion: this.props.defineVersion,
                             vlmLevel: 1,
+                            reviewComments: this.props.reviewComments,
                             filteredOids: vlmFilteredOidsByItem[itemOid],
                         }).filter(el => (el !== undefined));
                         // For all VLM which are expanded, add VLM data to VLM variables
@@ -595,6 +598,14 @@ class ConnectedVariableTable extends React.Component {
             let updateObj = {};
             if (cellName === 'dataType') {
                 updateObj[cellName] = cellValue;
+                // If the type is changed from float and SD was provided, reset it
+                if (!this.props.allowSigDigitsForNonFloat &&
+                    row[cellName] === 'float' &&
+                    row.lengthAttrs &&
+                    row.lengthAttrs.fractionDigits !== undefined
+                ) {
+                    updateObj.fractionDigits = undefined;
+                }
             } else {
                 updateObj = cellValue;
             }
@@ -1120,6 +1131,7 @@ ConnectedVariableTable.propTypes = {
     deleteVariables: PropTypes.func.isRequired,
     openModal: PropTypes.func.isRequired,
     setVlmState: PropTypes.func.isRequired,
+    allowSigDigitsForNonFloat: PropTypes.bool,
     changeTablePageDetails: PropTypes.func.isRequired,
     rowsPerPage: PropTypes.oneOfType([
         PropTypes.string,

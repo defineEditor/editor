@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
 * and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
+* Copyright (C) 2019 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -12,17 +12,35 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { combineReducers } from 'redux';
-import tabs from 'reducers/ui/tabs.js';
-import main from 'reducers/ui/main.js';
-import studies from 'reducers/ui/studies.js';
-import modal from 'reducers/ui/modal.js';
-import snackbar from 'reducers/ui/snackbar.js';
+import {
+    UI_OPENSNACKBAR,
+    UI_CLOSESNACKBAR,
+} from 'constants/action-types';
+import { ui } from 'constants/initialValues.js';
 
-export default combineReducers({
-    tabs,
-    main,
-    studies,
-    modal,
-    snackbar,
-});
+const initialState = ui.snackbar;
+
+const closeSnackbar = (state, action) => {
+    return initialState;
+};
+
+const openSnackbar = (state, action) => {
+    return {
+        type: action.updateObj.type,
+        message: action.updateObj.message,
+        props: action.updateObj.props || {},
+    };
+};
+
+const snackbar = (state = initialState, action) => {
+    switch (action.type) {
+        case UI_OPENSNACKBAR:
+            return openSnackbar(state, action);
+        case UI_CLOSESNACKBAR:
+            return closeSnackbar(state, action);
+        default:
+            return state;
+    }
+};
+
+export default snackbar;

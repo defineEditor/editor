@@ -89,9 +89,10 @@ function parseAnalysisDatasets (datasRaw) {
             args.analysisVariableOids = dataRaw['analysisVariable'].map(anVar => (anVar['$'].itemOid));
         }
 
-        let analysisDataset = new AnalysisDataset(args);
-
-        analysisDatasets[analysisDataset.itemGroupOid] = analysisDataset;
+        if (args !== undefined) {
+            let analysisDataset = new AnalysisDataset(args);
+            analysisDatasets[analysisDataset.itemGroupOid] = analysisDataset;
+        }
     });
     return analysisDatasets;
 }

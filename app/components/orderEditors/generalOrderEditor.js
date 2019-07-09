@@ -26,7 +26,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItem from '@material-ui/core/ListItem';
 import List from '@material-ui/core/List';
 import LowPriority from '@material-ui/icons/LowPriority';
-import { FaSortAlphaUp, FaSortAlphaDown } from 'react-icons/fa';
+import { FaSortAlphaUp, FaSortAlphaDown, FaBook } from 'react-icons/fa';
 import Fab from '@material-ui/core/Fab';
 import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
@@ -159,6 +159,28 @@ class GeneralOrderEditor extends React.Component {
         });
     };
 
+    sortPerSpecification = () => {
+        let sortedItems = this.state.items.slice();
+        let classOrder = Object.keys(this.props.classTypes[this.props.model]);
+        sortedItems.sort((item1, item2) => {
+            let item1Order = classOrder.indexOf(item1.class);
+            let item2Order = classOrder.indexOf(item2.class);
+            if (item1Order === item2Order) {
+                if (item1.name < item2.name) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            } else {
+                return item1Order - item2Order;
+            }
+        });
+
+        this.setState({
+            items: sortedItems,
+        });
+    }
+
     sortAlphabetically = () => {
         let sortedItems = this.state.items.slice();
         sortedItems.sort((item1, item2) => {
@@ -218,11 +240,22 @@ class GeneralOrderEditor extends React.Component {
                                 </Typography>
                             </Grid>
                             <Grid item>
-                                <Tooltip title={ this.state.sortAscending ? 'Sort Ascending' : 'Sort Descending' } placement='bottom' enterDelay={700}>
-                                    <IconButton color='default' onClick={this.sortAlphabetically} className={classes.icon}>
-                                        { this.state.sortAscending ? <FaSortAlphaDown /> : <FaSortAlphaUp /> }
-                                    </IconButton>
-                                </Tooltip>
+                                <Grid container spacing={0} alignItems='center' justify='flex-end'>
+                                    <Grid item>
+                                        { this.props.classTypes !== undefined && (
+                                            <Tooltip title='Sort per Define-XML Specification' placement='bottom' enterDelay={700}>
+                                                <IconButton color='default' onClick={this.sortPerSpecification} className={classes.icon}>
+                                                    <FaBook />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
+                                    </Grid>
+                                    <Tooltip title={ this.state.sortAscending ? 'Sort Ascending' : 'Sort Descending' } placement='bottom' enterDelay={700}>
+                                        <IconButton color='default' onClick={this.sortAlphabetically} className={classes.icon}>
+                                            { this.state.sortAscending ? <FaSortAlphaDown /> : <FaSortAlphaUp /> }
+                                        </IconButton>
+                                    </Tooltip>
+                                </Grid>
                             </Grid>
                         </Grid>
                     </DialogTitle>

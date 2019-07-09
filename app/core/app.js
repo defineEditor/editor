@@ -18,6 +18,7 @@ import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import ModalRoot from 'components/modal/modalRoot.js';
+import SnackbarRoot from 'components/utils/snackbarRoot.js';
 import MainMenu from 'core/mainMenu.js';
 import KeyboardShortcuts from 'components/utils/keyboardShortcuts.js';
 import Editor from 'core/editor.js';
@@ -190,6 +191,7 @@ class ConnectedApp extends Component {
                 {this.props.currentPage === 'settings' && <Settings />}
                 {this.props.currentPage === 'about' && <About />}
                 <ModalRoot />
+                <SnackbarRoot />
                 { this.state.showRedoUndo && <RedoUndo onToggleRedoUndo={this.toggleRedoUndo}/> }
                 { this.state.showFindInPage && <FindInPage onToggleFindInPage={this.toggleFindInPage}/> }
             </MuiThemeProvider>

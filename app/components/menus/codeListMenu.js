@@ -41,10 +41,11 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
+    let reviewMode = state.present.ui.main.reviewMode || state.present.settings.editor.onlyArmEdit;
     return {
         codeLists: state.present.odm.study.metaDataVersion.codeLists,
         codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
-        reviewMode: state.present.ui.main.reviewMode,
+        reviewMode,
         codeListOrder: state.present.odm.study.metaDataVersion.order.codeListOrder,
         buffer: state.present.ui.main.copyBuffer['codeLists'],
         showDeleteCodeListWarning: state.present.settings.popUp.onCodeListDelete,
@@ -67,6 +68,8 @@ class ConnectedCodeListMenu extends React.Component {
                 this.insertRecord(1)();
             } else if (event.keyCode === 67) {
                 this.copy();
+            } else if (event.keyCode === 85) {
+                this.duplicate();
             } else if (event.keyCode === 68) {
                 this.deleteCodeList();
             } else if (event.keyCode === 80 && !(this.props.buffer === undefined)) {
@@ -98,9 +101,17 @@ class ConnectedCodeListMenu extends React.Component {
         this.props.onClose();
     }
 
-    paste = (shift) => () => {
+    duplicate = () => {
+        const buffer = {
+            codeListOid: this.props.codeListMenuParams.codeListOid,
+        };
+        this.paste(1, buffer)();
+    }
+
+    paste = (shift, copyBuffer) => () => {
+        let buffer = copyBuffer || this.props.buffer;
         // copy codelist from the buffer
-        let codeList = { ...new CodeList({ ...clone(this.props.codeLists[this.props.buffer.codeListOid]), reviewCommentOids: undefined }) };
+        let codeList = { ...new CodeList({ ...clone(this.props.codeLists[buffer.codeListOid]), reviewCommentOids: undefined }) };
         // change codelist OID/name and remove sources/links to other codelists, if available
         codeList.oid = getOid('CodeList', undefined, this.props.codeListOrder);
         codeList.name = codeList.name + ' (Copy)';
@@ -205,6 +216,9 @@ class ConnectedCodeListMenu extends React.Component {
                     </MenuItem>
                     <MenuItem key='Paste Codelist Below' onClick={this.paste(1)} disabled={this.props.reviewMode || this.props.buffer === undefined}>
                         <u>P</u>aste Codelist Below
+                    </MenuItem>
+                    <MenuItem key='DuplicateVariable' onClick={this.duplicate} disabled={this.props.reviewMode}>
+                        D<u>u</u>plicate Codelist
                     </MenuItem>
                     <Divider/>
                     <MenuItem key='Comments' onClick={this.openComments}>

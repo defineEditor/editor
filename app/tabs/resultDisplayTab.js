@@ -149,7 +149,7 @@ class ConnectedResultDisplayTable extends React.Component {
     }
 
     onKeyDown = (event) => {
-        if (event.ctrlKey && (event.keyCode === 78)) {
+        if (event.ctrlKey && event.keyCode === 78 && !this.props.reviewMode) {
             this.setState({ showAddResultDisplay: true, insertPosition: null });
         }
     }
@@ -355,12 +355,14 @@ class ConnectedResultDisplayTable extends React.Component {
                 >
                     {renderColumns(this.state.columns)}
                 </BootstrapTable>
-                <ResultDisplayMenu
-                    onClose={this.handleMenuClose}
-                    resultDisplaysMenuParams={this.state.resultDisplaysMenuParams}
-                    anchorEl={this.state.anchorEl}
-                    onAddVariable={ (orderNumber) => { this.setState({ showAddResultDisplay: true, insertPosition: orderNumber }); } }
-                />
+                { this.state.anchorEl !== null &&
+                        <ResultDisplayMenu
+                            onClose={this.handleMenuClose}
+                            resultDisplaysMenuParams={this.state.resultDisplaysMenuParams}
+                            anchorEl={this.state.anchorEl}
+                            onAddVariable={ (orderNumber) => { this.setState({ showAddResultDisplay: true, insertPosition: orderNumber }); } }
+                        />
+                }
                 { this.state.showSelectColumn && (
                     <SelectColumns
                         onClose={ () => { this.setState({ showSelectColumn: false }); } }

@@ -15,6 +15,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import clone from 'clone';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
@@ -29,9 +30,10 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
+    let reviewMode = state.present.ui.main.reviewMode || state.present.settings.editor.onlyArmEdit;
     return {
         codeLists: state.present.odm.study.metaDataVersion.codeLists,
-        reviewMode: state.present.ui.main.reviewMode,
+        reviewMode,
     };
 };
 
@@ -49,6 +51,8 @@ class ConnectedCodedValueMenu extends React.Component {
         if (Boolean(this.props.anchorEl) === true && !this.props.reviewMode) {
             if (event.keyCode === 73) {
                 this.insertRecord(1)();
+            } else if (event.keyCode === 85) {
+                this.duplicate();
             } else if (event.keyCode === 68) {
                 this.deleteCodedValue();
             }
@@ -65,10 +69,7 @@ class ConnectedCodedValueMenu extends React.Component {
 
     insertRecord = shift => () => {
         let params = this.props.codedValueMenuParams;
-        let orderNumber =
-            this.props.codeLists[params.codeListOid].itemOrder.indexOf(params.oid) +
-            1 +
-            shift;
+        let orderNumber = this.props.codeLists[params.codeListOid].itemOrder.indexOf(params.oid) + 1 + shift;
         this.props.addCodedValue(params.codeListOid, {
             codedValue: '',
             orderNumber
@@ -78,13 +79,29 @@ class ConnectedCodedValueMenu extends React.Component {
 
     insertStdRecord = shift => () => {
         let params = this.props.codedValueMenuParams;
-        let orderNumber =
-            this.props.codeLists[params.codeListOid].itemOrder.indexOf(params.oid) +
-            1 +
-            shift;
+        let orderNumber = this.props.codeLists[params.codeListOid].itemOrder.indexOf(params.oid) + 1 + shift;
         this.props.onShowCodedValueSelector(orderNumber)();
         this.props.onClose();
     };
+
+    duplicate = () => {
+        let params = this.props.codedValueMenuParams;
+        let orderNumber = this.props.codeLists[params.codeListOid].itemOrder.indexOf(params.oid) + 1 + 1;
+        // Copy the current item
+        let codeList = this.props.codeLists[params.codeListOid];
+        let item = {};
+        if (codeList.codeListType === 'enumerated' && codeList.enumeratedItems && codeList.enumeratedItems[params.oid]) {
+            item = clone(codeList.enumeratedItems[params.oid]);
+        }
+        if (codeList.codeListType === 'decoded' && codeList.codeListItems && codeList.codeListItems[params.oid]) {
+            item = clone(codeList.codeListItems[params.oid]);
+        }
+        this.props.addCodedValue(params.codeListOid, {
+            ...item,
+            orderNumber
+        });
+        this.props.onClose();
+    }
 
     render () {
         let hasStandard = this.props.codedValueMenuParams.hasStandard;
@@ -119,6 +136,9 @@ class ConnectedCodedValueMenu extends React.Component {
                             </MenuItem>
                         ]
                     )}
+                    <MenuItem key='DuplicateValue' onClick={this.duplicate} disabled={this.props.reviewMode}>
+                        D<u>u</u>plicate
+                    </MenuItem>
                     <Divider/>
                     <MenuItem key="Delete" onClick={this.deleteCodedValue} disabled={this.props.reviewMode}>
                         <u>D</u>elete
