@@ -18,6 +18,7 @@ import clone from 'clone';
 import { dirname, relative, join } from 'path';
 import { withStyles } from '@material-ui/core/styles';
 import { ipcRenderer } from 'electron';
+import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
@@ -274,7 +275,9 @@ class DocumentTableEditor extends React.Component {
             return { oid: leafId, name: this.state.leafs[leafId].title };
         });
         return (
-            <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef} className={classes.root}>
+            <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef}
+                className={classNames(classes.root, 'generalEditorClass')}
+            >
                 <Paper className={classes.mainPart} elevation={4}>
                     <Typography variant="h4" color='textSecondary'>
                         Documents

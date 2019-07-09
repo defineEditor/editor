@@ -354,7 +354,7 @@ function createWhereClauseDef (data, version) {
         }
         // Add RangeChecks
         result['RangeCheck'] = [];
-        data.rangeChecks.forEach(function (rangeCheck) {
+        data.rangeChecks.filter(rangeCheck => (rangeCheck.itemOid !== undefined)).forEach(function (rangeCheck) {
             let rangeCheckObj = {
                 '@Comparator': rangeCheck.comparator,
                 '@SoftHard': rangeCheck.softHard,
@@ -367,6 +367,10 @@ function createWhereClauseDef (data, version) {
             });
             result['RangeCheck'].push(rangeCheckObj);
         });
+        // If there are no range checks, do not create this element
+        if (result['RangeCheck'].length === 0) {
+            delete result.RangeCheck;
+        }
     }
 
     return result;

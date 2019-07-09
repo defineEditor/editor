@@ -47,6 +47,17 @@ const styles = theme => ({
         overflowX: 'auto',
         overflowY: 'auto',
     },
+    dialogConfirm: {
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 1,
+        position: 'absolute',
+        borderRadius: '10px',
+        top: '35%',
+        transform: 'translate(0%, -35%)',
+        maxHeight: '50%',
+        width: '40%',
+    },
     content: {
         marginTop: theme.spacing.unit * 2,
         marginBottom: theme.spacing.unit * 1,
@@ -79,11 +90,17 @@ class ConnectedModalReviewComments extends React.Component {
 
         this.state = {
             commentText: '',
+            confirmClose: false,
         };
     }
 
     onClose = () => {
-        this.props.closeModal();
+        let editors = document.getElementsByClassName('generalCommentEditorClass');
+        if (!this.state.confirmClose && typeof editors === 'object' && Object.keys(editors).length > 0) {
+            this.setState({ confirmClose: true });
+        } else {
+            this.props.closeModal();
+        }
     }
 
     handleTextChange = (event) => {
@@ -156,43 +173,68 @@ class ConnectedModalReviewComments extends React.Component {
         const { classes, reviewComments, sources, author } = this.props;
 
         return (
-            <Dialog
-                disableBackdropClick
-                disableEscapeKeyDown
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-                open
-                PaperProps={{ className: classes.dialog }}
-                onKeyDown={this.onKeyDown}
-                tabIndex='0'
-            >
-                <DialogTitle id='alert-dialog-title'>
-                    Review Comments
-                </DialogTitle>
-                <DialogContent>
-                    <Grid container spacing={16} justify='flex-start' className={classes.content}>
-                        <Grid item xs={12}>
-                            {this.getComments(sources, reviewComments)}
-                        </Grid>
-                        { !this.props.sources.hasOwnProperty('reviewComments') && (
+            <React.Fragment>
+                <Dialog
+                    disableBackdropClick
+                    disableEscapeKeyDown
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                    open
+                    PaperProps={{ className: classes.dialog }}
+                    onKeyDown={this.onKeyDown}
+                    tabIndex='0'
+                >
+                    <DialogTitle>
+                        Review Comments
+                    </DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={16} justify='flex-start' className={classes.content}>
                             <Grid item xs={12}>
-                                <ReviewComment
-                                    initialComment
-                                    sources={sources}
-                                    author={author}
-                                    reviewComments={reviewComments}
-                                    onAdd={this.props.addReviewComment}
-                                />
+                                {this.getComments(sources, reviewComments)}
                             </Grid>
-                        )}
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={this.onClose} color='primary'>
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                            { !this.props.sources.hasOwnProperty('reviewComments') && (
+                                <Grid item xs={12}>
+                                    <ReviewComment
+                                        initialComment
+                                        sources={sources}
+                                        author={author}
+                                        reviewComments={reviewComments}
+                                        onAdd={this.props.addReviewComment}
+                                    />
+                                </Grid>
+                            )}
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.onClose} color='primary'>
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+                { this.state.confirmClose &&
+                        <Dialog
+                            disableBackdropClick
+                            disableEscapeKeyDown
+                            open
+                            PaperProps={{ className: classes.dialogConfirm }}
+                        >
+                            <DialogTitle>
+                                Confirm Close
+                            </DialogTitle>
+                            <DialogContent>
+                                You have not saved changes to a comment. By continuing all of the unsaved changes will be lost.
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={this.onClose} color='primary'>
+                                    Continue
+                                </Button>
+                                <Button onClick={() => { this.setState({ confirmClose: false }); }} color='primary'>
+                                    Cancel
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
+                }
+            </React.Fragment>
         );
     }
 }

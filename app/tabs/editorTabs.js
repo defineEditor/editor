@@ -33,6 +33,7 @@ import ReviewCommentTab from 'tabs/reviewCommentTab.js';
 import {
     changeTab,
     toggleMainMenu,
+    openModal,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -59,6 +60,7 @@ const mapDispatchToProps = dispatch => {
     return {
         toggleMainMenu: () => dispatch(toggleMainMenu()),
         changeTab: (updateObj) => dispatch(changeTab(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
@@ -107,7 +109,19 @@ class ConnectedEditorTabs extends React.Component {
                 selectedTab: updatedValue,
                 currentScrollPosition: window.scrollY,
             };
-            this.props.changeTab(updateObj);
+            // Check if there is an edit mode active
+            let editors = document.getElementsByClassName('generalEditorClass');
+            if (typeof editors === 'object' && Object.keys(editors).length > 0) {
+                this.props.openModal({
+                    type: 'CONFIRM_CHANGE',
+                    props: {
+                        type: 'CHANGETAB',
+                        updateObj: JSON.stringify(updateObj),
+                    }
+                });
+            } else {
+                this.props.changeTab(updateObj);
+            }
         }
     }
 
@@ -234,6 +248,7 @@ ConnectedEditorTabs.propTypes = {
     hasArm: PropTypes.bool.isRequired,
     toggleMainMenu: PropTypes.func.isRequired,
     changeTab: PropTypes.func.isRequired,
+    openModal: PropTypes.func.isRequired,
     historyIndex: PropTypes.number.isRequired,
     lastSaveHistoryIndex: PropTypes.number.isRequired,
 };

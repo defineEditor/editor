@@ -30,9 +30,10 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
+    let reviewMode = state.present.ui.main.reviewMode || state.present.settings.editor.onlyArmEdit;
     return {
         codeLists: state.present.odm.study.metaDataVersion.codeLists,
-        reviewMode: state.present.ui.main.reviewMode,
+        reviewMode,
     };
 };
 

@@ -54,12 +54,13 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
+    let reviewMode = state.present.ui.main.reviewMode || state.present.settings.editor.onlyArmEdit;
     return {
         valueLists: state.present.odm.study.metaDataVersion.valueLists,
         itemDefs: state.present.odm.study.metaDataVersion.itemDefs,
         whereClauses: state.present.odm.study.metaDataVersion.whereClauses,
         mdv: state.present.odm.study.metaDataVersion,
-        reviewMode: state.present.ui.main.reviewMode,
+        reviewMode,
         buffer: state.present.ui.main.copyBuffer['variables'],
     };
 };

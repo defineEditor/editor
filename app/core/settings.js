@@ -157,6 +157,7 @@ class ConnectedSettings extends React.Component {
             'allowSigDigitsForNonFloat',
             'disableAnimations',
             'addStylesheet',
+            'onlyArmEdit',
         ].includes(name) || category === 'popUp') {
             this.setState({ [category]: { ...this.state[category], [name]: checked } });
         } else if (['sourceSystemVersion'].includes(name)) {
@@ -361,6 +362,17 @@ class ConnectedSettings extends React.Component {
                                     <FormControlLabel
                                         control={
                                             <Switch
+                                                checked={this.state.editor.onlyArmEdit}
+                                                onChange={this.handleChange('editor', 'onlyArmEdit')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Allow only ARM metadata editing'
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
                                                 checked={this.state.editor.enableTablePagination}
                                                 onChange={this.handleChange('editor', 'enableTablePagination')}
                                                 color='primary'
@@ -385,7 +397,7 @@ class ConnectedSettings extends React.Component {
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Populate Name and Label values from Where Clause'
+                                        label='Populate Name and Label values from Where Clause when Name is missing'
                                     />
                                     <FormControlLabel
                                         control={

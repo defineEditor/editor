@@ -115,6 +115,7 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
+    let reviewMode = state.present.ui.main.reviewMode || state.present.settings.editor.onlyArmEdit;
     return {
         mdv: state.present.odm.study.metaDataVersion,
         dataTypes: state.present.stdConstants.dataTypes,
@@ -123,7 +124,7 @@ const mapStateToProps = state => {
         tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
         showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
         filter: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].filter,
-        reviewMode: state.present.ui.main.reviewMode,
+        reviewMode,
         enableTablePagination: state.present.settings.editor.enableTablePagination,
         allowSigDigitsForNonFloat: state.present.settings.editor.allowSigDigitsForNonFloat,
         rowsPerPage: state.present.ui.main.rowsPerPage.variableTab,
@@ -371,7 +372,7 @@ class ConnectedVariableTable extends React.Component {
                 this.handleChangePage(event, page + 1);
             }
         }
-        if (event.ctrlKey && (event.keyCode === 78)) {
+        if (event.ctrlKey && event.keyCode === 78 && !this.props.reviewMode) {
             this.setState({ showAddVariable: true, insertPosition: null });
         } else if (event.ctrlKey && (event.keyCode === 70)) {
             this.searchFieldRef.current.focus();

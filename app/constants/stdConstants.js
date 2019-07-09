@@ -98,13 +98,13 @@ const documentTypes = {
 
 const classTypes = {
     'ADaM': {
-        'BASIC DATA STRUCTURE': 'BDS',
-        'OCCURRENCE DATA STRUCTURE': 'OCCDS',
         'SUBJECT LEVEL ANALYSIS DATASET': 'ADSL',
-        'ADAM OTHER': 'Other',
-        'INTEGRATED BASIC DATA STRUCTURE': 'IBDS',
-        'INTEGRATED OCCURRENCE DATA STRUCTURE': 'IOCCDS',
+        'OCCURRENCE DATA STRUCTURE': 'OCCDS',
+        'BASIC DATA STRUCTURE': 'BDS',
         'INTEGRATED SUBJECT LEVEL': 'IADSL',
+        'INTEGRATED OCCURRENCE DATA STRUCTURE': 'IOCCDS',
+        'INTEGRATED BASIC DATA STRUCTURE': 'IBDS',
+        'ADAM OTHER': 'Other',
     },
     'SDTM': {
         'TRIAL DESIGN': 'TD',
@@ -114,6 +114,7 @@ const classTypes = {
         'FINDINGS': 'FIND',
         'FINDINGS ABOUT': 'FA',
         'RELATIONSHIP': 'REL',
+        'STUDY REFERENCE': 'STREF',
     },
     'SEND': {
         'TRIAL DESIGN': 'TD',
@@ -123,6 +124,7 @@ const classTypes = {
         'FINDINGS': 'FIND',
         'FINDINGS ABOUT': 'FA',
         'RELATIONSHIP': 'REL',
+        'STUDY REFERENCE': 'STREF',
     }
 };
 

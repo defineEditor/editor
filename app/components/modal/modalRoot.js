@@ -28,6 +28,7 @@ import ModalBugReport from 'components/modal/modalBugReport.js';
 import ModalSaveSettings from 'components/modal/modalSaveSettings.js';
 import ModalGeneral from 'components/modal/modalGeneral.js';
 import ModalReviewComment from 'components/modal/modalReviewComment.js';
+import ModalConfirmChange from 'components/modal/modalConfirmChange.js';
 
 const mapStateToProps = state => {
     return {
@@ -49,6 +50,7 @@ const MODAL_COMPONENTS = {
     'REVIEW_COMMENT': ModalReviewComment,
     'QUIT': ModalQuitApplication,
     'GENERAL': ModalGeneral,
+    'CONFIRM_CHANGE': ModalConfirmChange,
 };
 
 class ConnectedModalRoot extends React.Component {

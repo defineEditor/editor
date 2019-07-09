@@ -146,6 +146,7 @@ const editor = {
     stripWhitespacesForCodeValues: false,
     allowNonExtCodeListExtension: false,
     allowSigDigitsForNonFloat: false,
+    onlyArmEdit: false,
 };
 
 const define = {

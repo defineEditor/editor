@@ -93,6 +93,7 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
+    let reviewMode = state.present.ui.main.reviewMode || state.present.settings.editor.onlyArmEdit;
     return {
         mdv: state.present.odm.study.metaDataVersion,
         codeLists: state.present.odm.study.metaDataVersion.codeLists,
@@ -104,7 +105,7 @@ const mapStateToProps = state => {
         tabs: state.present.ui.tabs,
         tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
         showRowSelect: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].rowSelect['overall'],
-        reviewMode: state.present.ui.main.reviewMode,
+        reviewMode,
         showDeleteCodeListWarning: state.present.settings.popUp.onCodeListDelete,
         enableTablePagination: state.present.settings.editor.enableTablePagination,
         rowsPerPage: state.present.ui.main.rowsPerPage.codeListTab,
@@ -274,7 +275,7 @@ class ConnectedCodeListTable extends React.Component {
                 this.handleChangePage(event, page + 1);
             }
         }
-        if (event.ctrlKey && (event.keyCode === 78)) {
+        if (event.ctrlKey && event.keyCode === 78 && !this.props.reviewMode) {
             this.setState({ showAddCodeList: true, insertPosition: null });
         } else if (event.ctrlKey && (event.keyCode === 70)) {
             this.searchFieldRef.current.focus();

@@ -25,6 +25,7 @@ import getTableDataAsText from 'utils/getTableDataAsText.js';
 import applyFilter from 'utils/applyFilter.js';
 import {
     selectGroup,
+    openModal,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -37,6 +38,7 @@ const styles = theme => ({
 const mapDispatchToProps = dispatch => {
     return {
         selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
@@ -94,7 +96,20 @@ class ConnectedGroupTab extends React.Component {
             } else {
                 scrollPosition = { [this.props.groupOid]: window.scrollY };
             }
-            this.props.selectGroup({ groupOid, scrollPosition, tabIndex: this.props.tabIndex });
+            let updateObj = { groupOid, scrollPosition, tabIndex: this.props.tabIndex };
+            // Check if there is an edit mode active
+            let editors = document.getElementsByClassName('generalEditorClass');
+            if (typeof editors === 'object' && Object.keys(editors).length > 0) {
+                this.props.openModal({
+                    type: 'CONFIRM_CHANGE',
+                    props: {
+                        type: 'SELECTGROUP',
+                        updateObj: JSON.stringify(updateObj),
+                    }
+                });
+            } else {
+                this.props.selectGroup(updateObj);
+            }
         }
         this.toggleDrawer(false);
     }
@@ -247,6 +262,8 @@ ConnectedGroupTab.propTypes = {
     groupOrder: PropTypes.array.isRequired,
     groupOid: PropTypes.string,
     groupClass: PropTypes.string.isRequired,
+    openModal: PropTypes.func.isRequired,
+    selectGroup: PropTypes.func.isRequired,
 };
 
 const GroupTab = connect(mapStateToProps, mapDispatchToProps)(ConnectedGroupTab);
