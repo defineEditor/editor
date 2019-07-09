@@ -54,12 +54,13 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
+    let reviewMode = state.present.ui.main.reviewMode || state.present.settings.editor.onlyArmEdit;
     return {
         valueLists: state.present.odm.study.metaDataVersion.valueLists,
         itemDefs: state.present.odm.study.metaDataVersion.itemDefs,
         whereClauses: state.present.odm.study.metaDataVersion.whereClauses,
         mdv: state.present.odm.study.metaDataVersion,
-        reviewMode: state.present.ui.main.reviewMode,
+        reviewMode,
         buffer: state.present.ui.main.copyBuffer['variables'],
     };
 };
@@ -177,9 +178,18 @@ class ConnectedItemMenu extends React.Component {
         this.props.onClose();
     }
 
-    paste = (shift) => () => {
+    duplicate = () => {
+        const buffer = {
+            groupOid: this.props.itemMenuParams.itemGroupVLOid,
+            itemRefOid: this.props.itemMenuParams.itemRefOid,
+            vlmLevel: this.props.itemMenuParams.vlmLevel,
+        };
+        this.paste(1, buffer)();
+    }
+
+    paste = (shift, copyBuffer) => () => {
         let itemMenuParams = this.props.itemMenuParams;
-        let buffer = this.props.buffer;
+        let buffer = copyBuffer || this.props.buffer;
         let mdv = this.props.mdv;
         let sourceMdv = mdv;
         let groupOid = itemMenuParams.itemGroupVLOid;
@@ -207,6 +217,7 @@ class ConnectedItemMenu extends React.Component {
             copyVlm: true,
             detachMethods: true,
             detachComments: true,
+            isVlm: itemMenuParams.vlmLevel > 0,
         });
 
         let position = currentGroup.itemRefOrder.indexOf(itemMenuParams.itemRefOid) + shift + 1;
@@ -246,6 +257,8 @@ class ConnectedItemMenu extends React.Component {
                 this.insertRecord(1)();
             } else if (event.keyCode === 67) {
                 this.copy();
+            } else if (event.keyCode === 85) {
+                this.duplicate();
             } else if (event.keyCode === 68) {
                 this.deleteItem();
             } else if (event.keyCode === 77) {
@@ -328,6 +341,9 @@ class ConnectedItemMenu extends React.Component {
                             </MenuItem>
                         )
                     ]}
+                    <MenuItem key='DuplicateVariable' onClick={this.duplicate} disabled={this.props.reviewMode}>
+                        D<u>u</u>plicate Variable
+                    </MenuItem>
                     <Divider/>
                     <MenuItem key='Comments' onClick={this.openComments}>
                         Co<u>m</u>ments

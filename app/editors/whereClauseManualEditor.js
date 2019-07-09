@@ -271,7 +271,7 @@ class WhereClauseManualEditor extends React.Component {
             this.props.fixedDataset,
         );
 
-        if (this.props.isRequired && this.state.whereClauseLine === '') {
+        if (this.props.isRequired && this.state.whereClauseLine.trim() === '') {
             wcIsInvalid = true;
         }
 

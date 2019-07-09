@@ -18,6 +18,7 @@ import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
+import classNames from 'classnames';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -375,7 +376,12 @@ class ConnectedAnalysisResultEditor extends React.Component {
         }
 
         return (
-            <div className={classes.root} onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef}>
+            <div
+                className={classNames(classes.root, 'generalEditorClass')}
+                onKeyDown={this.onKeyDown}
+                tabIndex='0'
+                ref={this.rootRef}
+            >
                 <Grid container spacing={8}>
                     <Grid item xs={12}>
                         <TextField

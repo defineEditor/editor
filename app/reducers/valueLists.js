@@ -33,7 +33,7 @@ import getOid from 'utils/getOid.js';
 const addValueList = (state, action) => {
     // Create a new ItemRef (valueList will contain 1 variable)
     const itemRefAttrs = action.itemRefAttrs || {};
-    let itemRef = { ...new ItemRef({ itemOid: action.itemDefOid, whereClauseOid: action.whereClauseOid, ...itemRefAttrs }) };
+    let itemRef = { ...new ItemRef({ itemOid: action.itemDefOid, whereClauseOid: action.whereClauseOid, mandatory: 'No', ...itemRefAttrs }) };
     let itemRefs = { [itemRef.oid]: itemRef };
     let itemRefOrder = [itemRef.oid];
     let valueList = { ...new ValueList(
@@ -273,7 +273,7 @@ const updateItemRefWhereClause = (state, action) => {
 const insertValueLevel = (state, action) => {
     let itemRefOid = getOid('ItemRef', undefined, state[action.valueListOid].itemRefOrder);
     const itemRefAttrs = action.itemRefAttrs || {};
-    let itemRef = { ...new ItemRef({ oid: itemRefOid, itemOid: action.itemDefOid, whereClauseOid: action.whereClauseOid, ...itemRefAttrs }) };
+    let itemRef = { ...new ItemRef({ oid: itemRefOid, itemOid: action.itemDefOid, whereClauseOid: action.whereClauseOid, mandatory: 'No', ...itemRefAttrs }) };
     let itemRefs = { ...state[action.valueListOid].itemRefs, [itemRefOid]: itemRef };
     let itemRefOrder = state[action.valueListOid].itemRefOrder.slice();
     if (action.orderNumber === 0) {

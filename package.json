@@ -1,7 +1,7 @@
 {
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0-rc.3",
   "license": "AGPL-3.0-only",
   "private": "true",
   "description": "Visual Define-XML Editor",
@@ -220,7 +220,7 @@
     "uglifyjs-webpack-plugin": "1.2.5",
     "url-loader": "^1.0.1",
     "webpack": "^4.8.3",
-    "webpack-bundle-analyzer": "^2.13.1",
+    "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.3.4",
     "webpack-dev-server": "^3.1.4",
     "webpack-merge": "^4.1.2"
@@ -262,6 +262,7 @@
     "throttle-debounce": "^2.0.1",
     "typeface-roboto": "^0.0.54",
     "typeface-roboto-mono": "^0.0.54",
+    "xlsx-populate": "^1.19.1",
     "xml2js": "^0.4.19",
     "xmlbuilder": "^10.1.1"
   },

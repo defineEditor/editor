@@ -55,6 +55,10 @@ class ArmDatasetEditor extends React.Component {
         const { classes, datasets, analysisDataset, datasetsNotUsed } = this.props;
         let disabledDatasets = Object.keys(datasets).filter(oid => (!datasetsNotUsed.includes(oid) && oid !== analysisDataset.itemGroupOid)).map(oid => (oid));
 
+        if (analysisDataset === undefined || analysisDataset.itemGroupOid === undefined) {
+            return null;
+        }
+
         return (
             <Grid container spacing={8}>
                 <Grid item xs={12}>

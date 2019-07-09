@@ -15,8 +15,9 @@
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import React from 'react';
-import { sanitize } from 'dompurify';
+import { ipcRenderer } from 'electron';
 import { withStyles } from '@material-ui/core/styles';
+import { sanitize } from 'dompurify';
 import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
 import TextField from '@material-ui/core/TextField';
@@ -25,13 +26,14 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import { FaArrowCircleRight as GoToSourceIcon, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaArrowCircleRight as GoToSourceIcon, FaCheck, FaTimes, FaFileDownload } from 'react-icons/fa';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import IconButton from '@material-ui/core/IconButton';
 import CommentIcon from '@material-ui/icons/Comment';
 import setScrollPosition from 'utils/setScrollPosition.js';
@@ -77,6 +79,12 @@ const styles = theme => ({
     },
     searchLabel: {
         transform: 'translate(10px, 10px)',
+    },
+    exportComments: {
+        transform: 'translate(0, -5%)',
+    },
+    exportIcon: {
+        height: '20px',
     },
 });
 
@@ -188,7 +196,63 @@ class ConnectedReviewCommentTab extends React.Component {
         this.setState({ expandedToggled: !this.state.expandedToggled });
     }
 
-    getReviewCommentData = (reviewComments, panelId, showResolved, mdv, searchString) => {
+    openComments = (reviewCommentId) => () => {
+        this.props.openModal({
+            type: 'REVIEW_COMMENT',
+            props: { sources: { reviewComments: [reviewCommentId] } },
+        });
+    }
+
+    goToSource = (panelId, parentItemOid) => () => {
+        const tabNames = this.props.tabs.tabNames;
+        if (['standards', 'itemGroups', 'resultDisplays'].includes(panelId)) {
+            let updateObj = {
+                selectedTab: tabNames.indexOf(panelLabels[panelId]),
+                currentScrollPosition: window.scrollY,
+            };
+            this.props.changeTab(updateObj);
+        } else if (['analysisResults', 'itemDefs'].includes(panelId)) {
+            let updateObj = {
+                tabIndex: tabNames.indexOf(panelLabels[panelId]),
+                groupOid: parentItemOid,
+                scrollPosition: window.scrollY,
+            };
+            this.props.selectGroup(updateObj);
+        } else if (['codeLists'].includes(panelId)) {
+            // For codelists, navigate to the Coded Value tab instead
+            let updateObj = {
+                tabIndex: tabNames.indexOf('Coded Values'),
+                groupOid: parentItemOid,
+                scrollPosition: window.scrollY,
+            };
+            this.props.selectGroup(updateObj);
+        }
+    }
+
+    toggleResolve = (oid) => () => {
+        this.props.toggleResolveComment({
+            oid: oid,
+            author: this.props.author,
+        });
+    }
+
+    exportReviewComments = () => {
+        // Prepare data for the export
+        const { reviewComments, mdv } = this.props;
+        let exportData = {};
+        panels.forEach(panelId => {
+            let data = this.getReviewCommentData(reviewComments, panelId, true, mdv, undefined, true);
+            let panelStats = this.getPanelStats(data);
+            exportData[panelId] = { data, panelStats };
+        });
+        // All comments
+        let data = this.getReviewCommentData(reviewComments, 'allComments', true, mdv, undefined, true);
+        let panelStats = this.getPanelStats(data);
+        exportData['allComments'] = { data, panelStats };
+        ipcRenderer.send('exportReviewComments', exportData);
+    }
+
+    getReviewCommentData = (reviewComments, panelId, showResolved, mdv, searchString, extendedFormat) => {
         // Filter required comments
         let results = [];
         let rcOids = Object.keys(reviewComments).filter(id => {
@@ -198,6 +262,8 @@ class ConnectedReviewCommentTab extends React.Component {
                         return true;
                     }
                 });
+            } else if (panelId === 'allComments') {
+                return true;
             } else {
                 return Object.keys(reviewComments[id].sources).includes(panelId);
             }
@@ -205,12 +271,20 @@ class ConnectedReviewCommentTab extends React.Component {
 
         rcOids.forEach(id => {
             let reviewComment = reviewComments[id];
-            let commentData = {
-                id: id,
-                text: sanitize(reviewComment.text),
-                resolved: false,
-                author: reviewComment.author,
-            };
+            let commentData = {};
+            if (extendedFormat) {
+                commentData = { ...reviewComment, id };
+                if (reviewComment.resolvedBy) {
+                    commentData.resolvedFlag = 'Yes';
+                }
+            } else {
+                commentData = {
+                    id,
+                    text: sanitize(reviewComment.text),
+                    resolved: false,
+                    author: reviewComment.author,
+                };
+            }
             if (reviewComment.resolvedBy) {
                 if (showResolved === false) {
                     // In case resolved comments are not show, skip the iteration
@@ -221,6 +295,7 @@ class ConnectedReviewCommentTab extends React.Component {
             }
             // Get names of the sources
             let sourceName = '';
+            let sourceParts = [];
             let sources = reviewComments[id].sources;
             if (panelId === 'standards') {
                 let sourceId = Object.keys(sources)[0];
@@ -241,6 +316,10 @@ class ConnectedReviewCommentTab extends React.Component {
                         sourceName = '';
                         break;
                 }
+                sourceParts.push(sourceName);
+            } else if (panelId === 'allComments') {
+                sourceName = 'Review Comment';
+                sourceParts.push(sourceName);
             } else {
                 let sourceId = Object.keys(sources)[0];
                 let sourceValue = sources[sourceId][0];
@@ -264,11 +343,13 @@ class ConnectedReviewCommentTab extends React.Component {
                                 const resultDisplay = resultDisplays[analysisResult.sources.resultDisplays[0]];
                                 commentData.parentItemOid = resultDisplay.oid;
                                 if (resultDisplay) {
+                                    sourceParts = [resultDisplay.name, sourceName];
                                     sourceName = `${resultDisplay.name} ${sourceName}`;
                                 }
                             }
                         } else {
                             sourceName = mdv.analysisResultDisplays[sourceId][sourceValue].name;
+                            sourceParts.push(sourceName);
                         }
                     }
                 } else {
@@ -286,6 +367,7 @@ class ConnectedReviewCommentTab extends React.Component {
                                     commentData.parentItemOid = itemGroupOid;
                                     if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
                                         sourceName = `${sourceName} ${mdv.itemGroups[itemGroupOid].name}.${parentItemDef.name}.${variableName}`;
+                                        sourceParts = sourceParts.concat([mdv.itemGroups[itemGroupOid].name, parentItemDef.name, variableName]);
                                     }
                                 });
                             } else {
@@ -294,16 +376,21 @@ class ConnectedReviewCommentTab extends React.Component {
                                     commentData.parentItemOid = itemGroupOid;
                                     if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
                                         sourceName = `${sourceName} ${mdv.itemGroups[itemGroupOid].name}.${variableName}`;
+                                        sourceParts = sourceParts.concat([mdv.itemGroups[itemGroupOid].name, variableName, '']);
                                     }
                                 });
                             }
                         } else {
                             sourceName = mdv[sourceId][sourceValue].name;
+                            sourceParts.push(sourceName);
                         }
                     }
                 }
             }
             commentData.sourceName = sourceName.trim();
+            if (extendedFormat) {
+                commentData.sourceParts = sourceParts;
+            }
             if (searchString) {
                 // If search string contains capital cases, use case-sensitive search
                 const caseSensitiveSearch = /[A-Z]/.test(searchString);
@@ -325,39 +412,14 @@ class ConnectedReviewCommentTab extends React.Component {
         });
 
         return results;
-    }
+    };
 
-    openComments = (reviewCommentId) => () => {
-        this.props.openModal({
-            type: 'REVIEW_COMMENT',
-            props: { sources: { reviewComments: [reviewCommentId] } },
-        });
-    }
-
-    goToSource = (panelId, parentItemOid) => () => {
-        const tabNames = this.props.tabs.tabNames;
-        if (['standards', 'itemGroups', 'codeLists', 'resultDisplays'].includes(panelId)) {
-            let updateObj = {
-                selectedTab: tabNames.indexOf(panelLabels[panelId]),
-                currentScrollPosition: window.scrollY,
-            };
-            this.props.changeTab(updateObj);
-        } else if (['analysisResults', 'itemDefs'].includes(panelId)) {
-            let updateObj = {
-                tabIndex: tabNames.indexOf(panelLabels[panelId]),
-                groupOid: parentItemOid,
-                scrollPosition: window.scrollY,
-            };
-            this.props.selectGroup(updateObj);
-        }
-    }
-
-    toggleResolve = (oid) => () => {
-        this.props.toggleResolveComment({
-            oid: oid,
-            author: this.props.author,
-        });
-    }
+    getPanelStats = (data) => {
+        let result = { count: 0, resolvedCount: 0 };
+        result.count = Object.keys(data).length;
+        result.resolvedCount = Object.values(data).filter(comment => (comment.resolved)).length;
+        return result;
+    };
 
     getTable = (data, panelId) => {
         const { classes } = this.props;
@@ -405,13 +467,6 @@ class ConnectedReviewCommentTab extends React.Component {
         );
     }
 
-    getPanelStats = (data) => {
-        let result = { count: 0, resolvedCount: 0 };
-        result.count = Object.keys(data).length;
-        result.resolvedCount = Object.values(data).filter(comment => (comment.resolved)).length;
-        return result;
-    }
-
     render () {
         const { classes, reviewComments, mdv, showResolved } = this.props;
         return (
@@ -436,6 +491,18 @@ class ConnectedReviewCommentTab extends React.Component {
                                     onKeyDown={this.onSearchKeyDown}
                                     onBlur={(event) => { this.setState({ searchString: event.target.value }); }}
                                 />
+                            </Grid>
+                            <Grid item>
+                                <Tooltip title="Export comments" placement="bottom-end" enterDelay={700}>
+                                    <Fab
+                                        size='small'
+                                        color='default'
+                                        onClick={ this.exportReviewComments }
+                                        className={this.props.classes.exportComments}
+                                    >
+                                        <FaFileDownload className={this.props.classes.exportIcon}/>
+                                    </Fab>
+                                </Tooltip>
                             </Grid>
                             <Grid item>
                                 <Button
