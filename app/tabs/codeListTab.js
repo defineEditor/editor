@@ -275,7 +275,7 @@ class ConnectedCodeListTable extends React.Component {
                 this.handleChangePage(event, page + 1);
             }
         }
-        if (event.ctrlKey && (event.keyCode === 78)) {
+        if (event.ctrlKey && event.keyCode === 78 && !this.props.reviewMode) {
             this.setState({ showAddCodeList: true, insertPosition: null });
         } else if (event.ctrlKey && (event.keyCode === 70)) {
             this.searchFieldRef.current.focus();

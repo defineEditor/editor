@@ -194,7 +194,7 @@ class AddResultDisplayFromDefineConnected extends React.Component {
 
         let copiedResultDisplaysData = this.state.copiedResultDisplaysData;
 
-        // When handleAddResultDisplays is called from the window reprting about missing variables, there is no need to copy once again
+        // When handleAddResultDisplays is called from the window reporting about missing variables, there is no need to copy once again
         if (Object.keys(copiedResultDisplaysData).length === 0) {
             copiedResultDisplaysData = copyResultDisplays({
                 mdv,

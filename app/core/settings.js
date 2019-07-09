@@ -397,7 +397,7 @@ class ConnectedSettings extends React.Component {
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Populate Name and Label values from Where Clause'
+                                        label='Populate Name and Label values from Where Clause when Name is missing'
                                     />
                                     <FormControlLabel
                                         control={

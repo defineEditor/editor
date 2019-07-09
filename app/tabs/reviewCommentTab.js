@@ -26,13 +26,14 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import { FaArrowCircleRight as GoToSourceIcon, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaArrowCircleRight as GoToSourceIcon, FaCheck, FaTimes, FaFileDownload } from 'react-icons/fa';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import IconButton from '@material-ui/core/IconButton';
 import CommentIcon from '@material-ui/icons/Comment';
 import setScrollPosition from 'utils/setScrollPosition.js';
@@ -78,6 +79,12 @@ const styles = theme => ({
     },
     searchLabel: {
         transform: 'translate(10px, 10px)',
+    },
+    exportComments: {
+        transform: 'translate(0, -5%)',
+    },
+    exportIcon: {
+        height: '20px',
     },
 });
 
@@ -198,7 +205,7 @@ class ConnectedReviewCommentTab extends React.Component {
 
     goToSource = (panelId, parentItemOid) => () => {
         const tabNames = this.props.tabs.tabNames;
-        if (['standards', 'itemGroups', 'codeLists', 'resultDisplays'].includes(panelId)) {
+        if (['standards', 'itemGroups', 'resultDisplays'].includes(panelId)) {
             let updateObj = {
                 selectedTab: tabNames.indexOf(panelLabels[panelId]),
                 currentScrollPosition: window.scrollY,
@@ -207,6 +214,14 @@ class ConnectedReviewCommentTab extends React.Component {
         } else if (['analysisResults', 'itemDefs'].includes(panelId)) {
             let updateObj = {
                 tabIndex: tabNames.indexOf(panelLabels[panelId]),
+                groupOid: parentItemOid,
+                scrollPosition: window.scrollY,
+            };
+            this.props.selectGroup(updateObj);
+        } else if (['codeLists'].includes(panelId)) {
+            // For codelists, navigate to the Coded Value tab instead
+            let updateObj = {
+                tabIndex: tabNames.indexOf('Coded Values'),
                 groupOid: parentItemOid,
                 scrollPosition: window.scrollY,
             };
@@ -478,12 +493,16 @@ class ConnectedReviewCommentTab extends React.Component {
                                 />
                             </Grid>
                             <Grid item>
-                                <Button
-                                    variant='contained'
-                                    onClick={ this.exportReviewComments }
-                                >
-                                    Export
-                                </Button>
+                                <Tooltip title="Export comments" placement="bottom-end" enterDelay={700}>
+                                    <Fab
+                                        size='small'
+                                        color='default'
+                                        onClick={ this.exportReviewComments }
+                                        className={this.props.classes.exportComments}
+                                    >
+                                        <FaFileDownload className={this.props.classes.exportIcon}/>
+                                    </Fab>
+                                </Tooltip>
                             </Grid>
                             <Grid item>
                                 <Button

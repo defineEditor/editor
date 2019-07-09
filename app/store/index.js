@@ -23,12 +23,13 @@ const filterActions = (action, currentState, previousHistory) => {
     return (
         !action.type.startsWith('UI_') &&
         !action.type.startsWith('@@') &&
-        !['STDCDL_LOAD', 'APP_SAVE', 'STG_UPDATESETTINGS', 'DUMMY_ACTION'].includes(action.type)
+        !(action.noHistory === true) &&
+        !['STDCDL_LOAD', 'APP_SAVE', 'STG_UPDATESETTINGS'].includes(action.type)
     );
 };
 
 const actionSanitizer = (action) => (
-    action.type === 'STDCDL_LOAD' && action.updateObj ? { ...action, updateObj: { ...action.updateObj, ctList: {} } } : action
+    ['STDCDL_LOAD', 'ADD_ODM'].includes(action.type) && action.updateObj ? { ...action, updateObj: { ...action.updateObj, ctList: {} } } : action
 );
 
 const store = createStore(

@@ -302,7 +302,7 @@ class ConnectedCodedValueTable extends React.Component {
                 this.handleChangePage(event, page + 1);
             }
         }
-        if (!this.props.reviewMode && event.ctrlKey && (event.keyCode === 78)) {
+        if (!this.props.reviewMode && event.ctrlKey && event.keyCode === 78) {
             this.addNewCodedValue(this.props.codeListOid);
         } else if (event.ctrlKey && (event.keyCode === 70)) {
             this.searchFieldRef.current.focus();

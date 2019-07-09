@@ -270,7 +270,7 @@ class ConnectedDatasetTable extends React.Component {
     }
 
     onKeyDown = (event) => {
-        if (event.ctrlKey && (event.keyCode === 78)) {
+        if (event.ctrlKey && event.keyCode === 78 && !this.props.reviewMode) {
             this.setState({ showAddDataset: true, insertPosition: null });
         }
     }

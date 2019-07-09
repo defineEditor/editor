@@ -63,6 +63,14 @@ export const deleteItemGroups = (deleteObj) => (
     }
 );
 
+export const deleteItemGroupsNoHistory = (deleteObj) => (
+    {
+        type: DEL_ITEMGROUPS,
+        deleteObj,
+        noHistory: true,
+    }
+);
+
 // Comment actions
 export const updateItemGroupComment = (source, updateObj) => (
     {

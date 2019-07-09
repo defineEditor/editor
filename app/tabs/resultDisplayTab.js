@@ -149,7 +149,7 @@ class ConnectedResultDisplayTable extends React.Component {
     }
 
     onKeyDown = (event) => {
-        if (event.ctrlKey && (event.keyCode === 78)) {
+        if (event.ctrlKey && event.keyCode === 78 && !this.props.reviewMode) {
             this.setState({ showAddResultDisplay: true, insertPosition: null });
         }
     }
