@@ -20,6 +20,7 @@ import { getUpdatedDefineBeforeSave, updateSourceSystem } from 'utils/getUpdated
 import {
     appSave,
     openModal,
+    openSnackbar,
 } from 'actions/index.js';
 
 function saveDefineXml (data, options, state, lastSaveHistoryIndex, onSaveFinished) {
@@ -37,7 +38,7 @@ function saveDefineXml (data, options, state, lastSaveHistoryIndex, onSaveFinish
     let stats = getDefineStats(data.odm);
     ipcRenderer.once('defineSaved', (event, defineId) => {
         store.dispatch(appSave({ defineId, stats, lastSaveHistoryIndex }));
-
+        store.dispatch(openSnackbar({ type: 'success', message: 'File and state were saved' }));
         if (typeof onSaveFinished === 'function') {
             onSaveFinished();
         }
@@ -97,6 +98,7 @@ function saveState (type, onSaveFinished) {
                     let stats = getDefineStats(odm);
                     ipcRenderer.once('writeDefineObjectFinished', (event, defineId) => {
                         store.dispatch(appSave({ defineId, stats, lastSaveHistoryIndex: fullState.index }));
+                        store.dispatch(openSnackbar({ type: 'success', message: 'Define-XML state was saved' }));
                         if (typeof onSaveFinished === 'function') {
                             onSaveFinished();
                         }
