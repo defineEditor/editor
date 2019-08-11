@@ -107,7 +107,7 @@ class DocumentEditor extends React.Component {
                     <Grid item>
                         <ItemSelect
                             options={documentList}
-                            value={document.leafId || Object.keys(documentList[0])[0]}
+                            value={document.leafId}
                             handleChange={this.handleChange('updateDocument', index)}
                             label='Document'
                         />

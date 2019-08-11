@@ -146,7 +146,11 @@ class ConnectedAnalysisResultEditor extends React.Component {
             if (name === 'textUpdate') {
                 setDescription(newDescriptions, updateObj.target.value, this.props.lang);
             } else if (name === 'addDocument') {
-                addDocument(docObj);
+                if (updateObj !== undefined) {
+                    addDocument(docObj, updateObj);
+                } else {
+                    addDocument(docObj);
+                }
             } else if (name === 'updateDocument') {
                 docObj = updateObj;
             } else if (name === 'addDocumentation') {
@@ -191,7 +195,11 @@ class ConnectedAnalysisResultEditor extends React.Component {
             } else if (name === 'codeUpdate') {
                 code = updateObj.target.value;
             } else if (name === 'addDocument') {
-                addDocument(docObj);
+                if (updateObj !== undefined) {
+                    addDocument(docObj, updateObj);
+                } else {
+                    addDocument(docObj);
+                }
             } else if (name === 'updateDocument') {
                 docObj = updateObj;
             } else if (name === 'addProgrammingCode') {

@@ -152,7 +152,13 @@ class ConnectedOriginEditor extends React.Component {
             }
             if (name === 'addDocument') {
                 newOrigin = clone(origin);
-                addDocument(newOrigin);
+                let leafs = this.props.leafs;
+                if (leafs && Object.keys(leafs).length > 0) {
+                    let document = new Document({ leafId: Object.keys(leafs)[0] });
+                    addDocument(newOrigin, document);
+                } else {
+                    addDocument(newOrigin);
+                }
             }
             if (name === 'updateDocument') {
                 newOrigin = updateObj;
@@ -212,7 +218,7 @@ class ConnectedOriginEditor extends React.Component {
                                 <span>
                                     <IconButton
                                         onClick={this.handleChange('addDocument', 0)}
-                                        disabled={origin === undefined}
+                                        disabled={origin === undefined || Object.keys(this.props.leafs).length < 1}
                                         className={classes.iconButton}
                                         color={origin !== undefined ? 'primary' : 'default'}
                                     >

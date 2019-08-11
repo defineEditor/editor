@@ -1,5 +1,6 @@
 data
 node_modules
+coverage
 dll
 release*
 app/dist

@@ -48,7 +48,11 @@ class ConnectedArmDescriptionEditor extends React.Component {
             this.setState({ descriptionText: updateObj.target.value });
         } else if (name === 'addDocument') {
             let docObj = clone(this.state.docObj);
-            addDocument(docObj);
+            if (updateObj !== undefined) {
+                addDocument(docObj, updateObj);
+            } else {
+                addDocument(docObj);
+            }
             this.setState({ docObj });
         } else if (name === 'updateDocument') {
             this.setState({ docObj: updateObj });

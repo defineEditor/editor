@@ -99,7 +99,6 @@ class ConnectedAnalysisResultTable extends React.Component {
             }
             this.setState({ setScrollY: false });
         }
-        Prism.highlightAll();
     }
 
     componentDidMount () {
