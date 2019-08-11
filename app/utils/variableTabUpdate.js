@@ -372,7 +372,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                 }
             }
         });
-        this.setState({ filter, selectedItems });
+        this.setState({ filter, selectedItems, changedAfterUpdated: true });
     }
 
     getUpdateFields = () => {

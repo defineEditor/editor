@@ -110,11 +110,19 @@ class ConnectedMethodEditor extends React.Component {
         let method = this.props.stateless === true ? this.props.method : this.state.method;
         if (name === 'addMethod') {
             let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
-            let name = 'Algorithm for ' + this.props.fullName;
+            let name;
+            let autoMethodName;
+            if (this.props.fullName !== undefined) {
+                autoMethodName = true;
+                name = 'Algorithm for ' + this.props.fullName;
+            } else {
+                autoMethodName = false;
+                name = '';
+            }
             newMethod = { ...new Method({
                 oid: methodOid,
                 name,
-                autoMethodName: true,
+                autoMethodName,
                 descriptions: [ { ...new TranslatedText({ lang: this.props.lang, value: '' }) } ]
             }) };
         } else if (name === 'deleteMethod') {
