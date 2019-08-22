@@ -27,6 +27,7 @@ import loadControlledTerminology from './main/loadControlledTerminology.js';
 import deleteDefineObject from './main/deleteDefineObject.js';
 import scanControlledTerminologyFolder from './main/scanControlledTerminologyFolder.js';
 import openDocument from './main/openDocument.js';
+import openWithStylesheet from './main/openWithStylesheet.js';
 import openFileInExternalApp from './main/openFileInExternalApp.js';
 import createMenu from './menu/menu.js';
 import exportReviewComments from './main/exportReviewComments.js';
@@ -141,6 +142,10 @@ ipcMain.on('openDocument', (event, defineLocation, pdfLink) => {
 // Open file using external application
 ipcMain.on('openFileInExternalApp', (event, defineLocation, fileLink) => {
     openFileInExternalApp(mainWindow, defineLocation, fileLink);
+});
+// Open Define-XML using a stylesheet
+ipcMain.on('openWithStylesheet', (event, odm) => {
+    openWithStylesheet(mainWindow, odm);
 });
 // Export Study
 ipcMain.on('exportStudy', (event, exportObject) => {

@@ -12,34 +12,104 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import electron from 'electron';
 import fs from 'fs';
+import path from 'path';
+import { BrowserWindow, dialog, app } from 'electron';
 import createDefine from '../core/createDefine.js';
 import copyStylesheet from '../main/copyStylesheet.js';
 import writeDefineObject from '../main/writeDefineObject.js';
+import { promisify } from 'util';
+
+const writeFile = promisify(fs.writeFile);
+const unlink = promisify(fs.unlink);
 
 const onSaveCallback = (mainWindow, savePath) => () => {
     mainWindow.webContents.send('fileSavedAs', savePath);
 };
 
+const saveUsingStylesheet = async (savePath, odm, callback) => {
+    // Save temporary Define-XML file
+    let tempDefine = path.join(app.getPath('userData'), 'defineHtml.xml');
+    let stylesheetLocation = odm && odm.stylesheetLocation;
+    let fullStypesheetLocation = path.join(path.dirname(savePath), stylesheetLocation);
+    // If temporary file exist, remove it
+    if (fs.existsSync(tempDefine)) {
+        await unlink(tempDefine);
+    }
+    // Check the stylesheet, if XML is referencing a stylesheet which exists, use it, otherwise use default
+    if (!fs.existsSync(fullStypesheetLocation)) {
+        fullStypesheetLocation = path.join(__dirname, '..', 'static', 'stylesheets', 'define2-0.xsl');
+    }
+    let odmUpdated = { ...odm };
+    odmUpdated.stylesheetLocation = fullStypesheetLocation;
+
+    let defineXml = createDefine(odmUpdated, odmUpdated.study.metaDataVersion.defineVersion);
+    await writeFile(tempDefine, defineXml);
+    let pdfWindow = new BrowserWindow({
+        show: false,
+        webPreferences: { webSecurity: false },
+    });
+    pdfWindow.loadURL('file://' + tempDefine).then(() => {
+        if (savePath.endsWith('html')) {
+            pdfWindow.webContents.savePage(savePath, 'HTMLComplete', (err) => {
+                if (err) {
+                    throw err;
+                }
+                pdfWindow.close();
+                unlink(tempDefine);
+                callback();
+            });
+        } else if (savePath.endsWith('pdf')) {
+            pdfWindow.webContents.printToPDF({
+                pageSize: 'Letter',
+                landscape: true,
+            }, (err, data) => {
+                if (err) {
+                    throw err;
+                }
+                fs.writeFile(savePath, data, (err) => {
+                    if (err) {
+                        throw err;
+                    }
+                    pdfWindow.close();
+                    unlink(tempDefine);
+                    callback();
+                });
+            });
+        }
+    }).catch(err => {
+        throw err;
+    });
+
+    pdfWindow.on('closed', () => {
+        pdfWindow = null;
+    });
+
+    callback();
+};
+
 // Create Define-XML
-const convertToDefineXml = (mainWindow, data, originalData, options) => (savePath) => {
+const saveFile = (mainWindow, data, originalData, options) => (savePath) => {
     if (savePath !== undefined) {
         if (savePath.endsWith('nogz')) {
             writeDefineObject(mainWindow, originalData, false, savePath, onSaveCallback(mainWindow, savePath));
         } else {
             let defineXml = createDefine(data.odm, data.odm.study.metaDataVersion.defineVersion);
-            fs.writeFile(savePath, defineXml, function (err) {
-                let stylesheetLocation = data.odm && data.odm.stylesheetLocation;
-                if (options.addStylesheet === true && stylesheetLocation) {
-                    copyStylesheet(stylesheetLocation, savePath);
-                }
-                if (err) {
-                    throw err;
-                } else {
-                    onSaveCallback(mainWindow, savePath)();
-                }
-            });
+            if (savePath.endsWith('xml')) {
+                fs.writeFile(savePath, defineXml, function (err) {
+                    let stylesheetLocation = data.odm && data.odm.stylesheetLocation;
+                    if (options.addStylesheet === true && stylesheetLocation) {
+                        copyStylesheet(stylesheetLocation, savePath);
+                    }
+                    if (err) {
+                        throw err;
+                    } else {
+                        onSaveCallback(mainWindow, savePath)();
+                    }
+                });
+            } else if (savePath.endsWith('html') || savePath.endsWith('pdf')) {
+                saveUsingStylesheet(savePath, data.odm, onSaveCallback(mainWindow, savePath));
+            }
         }
     } else {
         mainWindow.webContents.send('fileSavedAs', '_cancelled_');
@@ -47,14 +117,19 @@ const convertToDefineXml = (mainWindow, data, originalData, options) => (savePat
 };
 
 function saveAs (mainWindow, data, originalData, options) {
-    electron.dialog.showSaveDialog(
+    dialog.showSaveDialog(
         mainWindow,
         {
             title: 'Export Define-XML',
-            filters: [{ name: 'XML files', extensions: ['xml'] }, { name: 'NOGZ files', extensions: ['nogz'] }],
+            filters: [
+                { name: 'XML files', extensions: ['xml'] },
+                { name: 'NOGZ files', extensions: ['nogz'] },
+                { name: 'HTML files', extensions: ['html'] },
+                { name: 'PDF files', extensions: ['pdf'] },
+            ],
             defaultPath: options.pathToLastFile,
         },
-        convertToDefineXml(mainWindow, data, originalData, options));
+        saveFile(mainWindow, data, originalData, options));
 }
 
 module.exports = saveAs;
