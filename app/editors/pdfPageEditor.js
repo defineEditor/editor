@@ -38,7 +38,7 @@ const styles = theme => ({
         marginTop: theme.spacing.unit * 2,
     },
     textField: {
-        width: '100px',
+        minWidth: '100px',
         whiteSpace: 'nowrap',
     },
     textFieldFirst: {
@@ -101,7 +101,7 @@ class PdfPageEditor extends React.Component {
         if (type === 'PhysicalRef') {
             result.push(
                 <Grid item key='switch'>
-                    <Tooltip title={!this.state.pageRangeFlag ? 'Enable Range of Pages' : 'Disable Range of Pages'} placement='bottom' enterDelay={1000}>
+                    <Tooltip title={!this.state.pageRangeFlag ? 'Enable Range of Pages' : 'Disable Range of Pages'} placement='bottom' enterDelay={700}>
                         <Switch
                             checked={this.state.pageRangeFlag}
                             onChange={(event, checked) => this.setState({ pageRangeFlag: checked })}
@@ -117,6 +117,8 @@ class PdfPageEditor extends React.Component {
                         <TextField
                             label='Pages (space separated)'
                             className={classes.textField}
+                            fullWidth
+                            multiline
                             defaultValue={this.props.value.pageRefs}
                             onBlur={this.handleChange('pageRefs')}
                         />
@@ -172,9 +174,9 @@ class PdfPageEditor extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={8} alignItems='center'>
+            <Grid container spacing={8} alignItems='center' justify='flex-start'>
                 <Grid item>
-                    <Tooltip title='Remove PDF Page Reference' placement='bottom-end' enterDelay={1000}>
+                    <Tooltip title='Remove PDF Page Reference' placement='bottom-end' enterDelay={700}>
                         <IconButton
                             color='secondary'
                             onClick={this.props.handleChange('deletePdfPageRef', this.props.documentId, this.props.pdfPageRefId)}

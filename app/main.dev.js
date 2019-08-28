@@ -163,6 +163,10 @@ ipcMain.on('copySampleStudy', (event) => {
 ipcMain.on('exportReviewComments', (event, exportData) => {
     exportReviewComments(mainWindow, exportData);
 });
+// Change Title
+ipcMain.on('setTitle', (event, title) => {
+    mainWindow.setTitle(title);
+});
 
 ipcMain.on('quitConfirmed', (event) => {
     mainWindow = null;

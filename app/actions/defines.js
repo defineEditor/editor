@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
 * and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
+* Copyright (C) 2018, 2019 Dmitry Kolosov                                          *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -17,6 +17,7 @@ import {
     DEFINE_ADD,
     DEFINE_DEL,
 } from 'constants/action-types';
+import changeAppTitle from 'utils/changeAppTitle.js';
 
 export const updateDefine = (updateObj) => (
     {
@@ -32,9 +33,12 @@ export const addDefine = (updateObj) => (
     }
 );
 
-export const deleteDefine = (deleteObj) => (
-    {
+export const deleteDefine = (deleteObj) => {
+    // Reset title of the application
+    changeAppTitle();
+
+    return {
         type: DEFINE_DEL,
         deleteObj,
-    }
-);
+    };
+};
