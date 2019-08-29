@@ -127,6 +127,7 @@ const mapStateToProps = state => {
         reviewMode,
         enableTablePagination: state.present.settings.editor.enableTablePagination,
         allowSigDigitsForNonFloat: state.present.settings.editor.allowSigDigitsForNonFloat,
+        showVlmWithParent: state.present.settings.editor.showVlmWithParent,
         rowsPerPage: state.present.ui.main.rowsPerPage.variableTab,
         reviewComments: state.present.odm.reviewComments,
     };
@@ -506,6 +507,18 @@ class ConnectedVariableTable extends React.Component {
             filteredOids = applyFilter(data, this.props.filter);
         }
         if (filteredOids !== undefined) {
+            // If an option is enabled to always show VLM records when parent variable is filtered, update vlmFilteredOidsByItem to include all
+            // VLM records for each filtered variable with VLM
+            if (this.props.showVlmWithParent === true) {
+                filteredOids.forEach(itemOid => {
+                    if (mdv.itemDefs[itemOid].valueListOid !== undefined) {
+                        let valueList = mdv.valueLists[mdv.itemDefs[itemOid].valueListOid];
+                        if (valueList !== undefined) {
+                            vlmFilteredOidsByItem[itemOid] = Object.values(valueList.itemRefs).map(itemRef => (itemRef.itemOid));
+                        }
+                    }
+                });
+            }
             // In case VLMs are selected by a filter, show parent variables
             // Track those which were not selected by a filter, so that they can be highlighted
             Object.keys(vlmFilteredOidsByItem).forEach(itemOid => {
@@ -1132,6 +1145,7 @@ ConnectedVariableTable.propTypes = {
     openModal: PropTypes.func.isRequired,
     setVlmState: PropTypes.func.isRequired,
     allowSigDigitsForNonFloat: PropTypes.bool,
+    showVlmWithParent: PropTypes.bool,
     changeTablePageDetails: PropTypes.func.isRequired,
     rowsPerPage: PropTypes.oneOfType([
         PropTypes.string,
