@@ -33,9 +33,11 @@ const tempDefine = path.join(pathToUserData, 'defineHtml.xml');
 
 const updatePaths = (match) => {
     // Extract path to the file
-    let pathToFile = match.replace(/href="file:\/\/([^#]*)(#.+)?/, '$1');
+    let pathToFile = match.replace(/href="file:\/+([^#]*)(#.+)?/, '$1');
+    // As this is HTML, path is encoded;
+    pathToFile = decodeURI(pathToFile);
     // Link to page/named destination
-    let additionalLink = match.replace(/href="file:\/\/([^#]*)(#.+)?/, '$2');
+    let additionalLink = match.replace(/href="file:\/+([^#]*)(#.+)?/, '$2');
     // Get path relative to the current file
     let relativePath = path.relative(pathToUserData, path.dirname(pathToFile));
     // Relative path cannot be blank, so ./ is added
@@ -45,8 +47,9 @@ const updatePaths = (match) => {
 const updateHtml = async (sourcePath, destPath, callback) => {
     // Remove absolute paths
     let contents = await readFile(sourcePath, 'utf8');
-    contents = contents.replace(/href="file:\/\/[^"]*defineHtml.xml/g, 'href="');
-    contents = contents.replace(/href="file:\/\/[^"]*/g, updatePaths);
+    contents = contents
+        .replace(/href="file:\/+[^"]*defineHtml.xml/g, 'href="')
+        .replace(/href="file:\/+[^"]*/g, updatePaths);
     await writeFile(destPath, contents);
     callback();
 };
@@ -73,22 +76,23 @@ const saveUsingStylesheet = async (savePath, odm, callback) => {
 
     let defineXml = createDefine(odmUpdated, odmUpdated.study.metaDataVersion.defineVersion);
     await writeFile(tempDefine, defineXml);
-    let pdfWindow = new BrowserWindow({
+    let hiddenWindow = new BrowserWindow({
         show: false,
         webPreferences: { webSecurity: false },
     });
-    pdfWindow.loadURL('file://' + tempDefine).then(() => {
+    hiddenWindow.loadURL('file://' + tempDefine).then(() => {
         if (savePath.endsWith('html')) {
-            pdfWindow.webContents.savePage(tempHtml, 'HTMLComplete', (err) => {
+            hiddenWindow.webContents.savePage(tempHtml, 'HTMLComplete', (err) => {
                 if (err) {
                     throw err;
                 }
-                pdfWindow.close();
-                unlink(tempDefine);
                 updateHtml(tempHtml, savePath, callback);
+                hiddenWindow.close();
+                unlink(tempDefine);
+                unlink(tempHtml);
             });
         } else if (savePath.endsWith('pdf')) {
-            pdfWindow.webContents.printToPDF({
+            hiddenWindow.webContents.printToPDF({
                 pageSize: 'Letter',
                 landscape: true,
             }, (err, data) => {
@@ -99,7 +103,7 @@ const saveUsingStylesheet = async (savePath, odm, callback) => {
                     if (err) {
                         throw err;
                     }
-                    pdfWindow.close();
+                    hiddenWindow.close();
                     unlink(tempDefine);
                     callback();
                 });
@@ -109,11 +113,9 @@ const saveUsingStylesheet = async (savePath, odm, callback) => {
         throw err;
     });
 
-    pdfWindow.on('closed', () => {
-        pdfWindow = null;
+    hiddenWindow.on('closed', () => {
+        hiddenWindow = null;
     });
-
-    callback();
 };
 
 // Create Define-XML
