@@ -27,6 +27,7 @@ import loadControlledTerminology from './main/loadControlledTerminology.js';
 import deleteDefineObject from './main/deleteDefineObject.js';
 import scanControlledTerminologyFolder from './main/scanControlledTerminologyFolder.js';
 import openDocument from './main/openDocument.js';
+import openWithStylesheet from './main/openWithStylesheet.js';
 import openFileInExternalApp from './main/openFileInExternalApp.js';
 import createMenu from './menu/menu.js';
 import exportReviewComments from './main/exportReviewComments.js';
@@ -142,6 +143,10 @@ ipcMain.on('openDocument', (event, defineLocation, pdfLink) => {
 ipcMain.on('openFileInExternalApp', (event, defineLocation, fileLink) => {
     openFileInExternalApp(mainWindow, defineLocation, fileLink);
 });
+// Open Define-XML using a stylesheet
+ipcMain.on('openWithStylesheet', (event, odm) => {
+    openWithStylesheet(mainWindow, odm);
+});
 // Export Study
 ipcMain.on('exportStudy', (event, exportObject) => {
     exportStudy(mainWindow, exportObject);
@@ -157,6 +162,10 @@ ipcMain.on('copySampleStudy', (event) => {
 // Export review comments into a file
 ipcMain.on('exportReviewComments', (event, exportData) => {
     exportReviewComments(mainWindow, exportData);
+});
+// Change Title
+ipcMain.on('setTitle', (event, title) => {
+    mainWindow.setTitle(title);
 });
 
 ipcMain.on('quitConfirmed', (event) => {

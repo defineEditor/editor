@@ -19,6 +19,7 @@ import { getUpdatedDefineBeforeSave } from 'utils/getUpdatedDefineBeforeSave.js'
 import {
     updateDefine,
     updateMainUi,
+    openSnackbar,
 } from 'actions/index.js';
 
 function sendDefineObject (event, data) {
@@ -32,9 +33,12 @@ function sendDefineObject (event, data) {
     ) {
         // If define does not have pathToFile, use the save file as location of the Define-XML
         ipcRenderer.once('fileSavedAs', (event, savePath) => {
-            if (savePath !== '_cancelled_') {
+            if (savePath !== '_cancelled_' && !savePath.endsWith('html')) {
                 store.dispatch(updateDefine({ defineId: odm.defineId, properties: { pathToFile: savePath } }));
                 store.dispatch(updateMainUi({ pathToLastFile: path.dirname(savePath) }));
+                store.dispatch(openSnackbar({ type: 'success', message: `File saved to ${savePath}` }));
+            } else if (savePath.endsWith('html')) {
+                store.dispatch(openSnackbar({ type: 'success', message: `File saved to ${savePath}` }));
             }
         });
     } else {
@@ -42,6 +46,7 @@ function sendDefineObject (event, data) {
         ipcRenderer.once('fileSavedAs', (event, savePath) => {
             if (savePath !== '_cancelled_') {
                 store.dispatch(updateMainUi({ pathToLastFile: path.dirname(savePath) }));
+                store.dispatch(openSnackbar({ type: 'success', message: `File saved to ${savePath}` }));
             }
         });
     }

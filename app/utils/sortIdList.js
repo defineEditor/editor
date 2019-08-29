@@ -12,17 +12,17 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-function sortCodeLists (codeLists) {
-    const sortCLIds = (id1, id2) => {
-        if (codeLists[id1].name > codeLists[id2].name) {
+function sortIdList (list, propName = 'name') {
+    const sortList = (id1, id2) => {
+        if (list[id1][propName].toLowerCase() > list[id2][propName].toLowerCase()) {
             return 1;
-        } else if (codeLists[id1].name < codeLists[id2].name) {
+        } else if (list[id1][propName].toLowerCase() < list[id2][propName].toLowerCase()) {
             return -1;
         } else {
             return 0;
         }
     };
-    return Object.keys(codeLists).sort(sortCLIds);
+    return Object.keys(list).sort(sortList);
 }
 
-export default sortCodeLists;
+export default sortIdList;

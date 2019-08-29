@@ -16,7 +16,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import { remote } from 'electron';
+import { remote, ipcRenderer } from 'electron';
+import store from 'store/index.js';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -37,10 +38,12 @@ import Search from '@material-ui/icons/Search';
 import Review from '@material-ui/icons/RemoveRedEye';
 import Archive from '@material-ui/icons/Archive';
 import Description from '@material-ui/icons/Description';
+import OpenInBrowser from '@material-ui/icons/OpenInBrowser';
 import Close from '@material-ui/icons/Close';
 import Assignment from '@material-ui/icons/Assignment';
 import Edit from '@material-ui/icons/Edit';
 import Public from '@material-ui/icons/Public';
+import { getUpdatedDefineBeforeSave } from 'utils/getUpdatedDefineBeforeSave.js';
 import sendDefineObject from 'utils/sendDefineObject.js';
 import saveState from 'utils/saveState.js';
 import {
@@ -68,9 +71,17 @@ const styles = theme => ({
 
 // Redux functions
 const mapStateToProps = state => {
+    let currentPage = state.present.ui.main.currentPage;
+    let pathToDefine;
+    if (currentPage === 'editor') {
+        if (state.present.odm && state.present.odm.defineId) {
+            pathToDefine = state.present.defines.byId[state.present.odm.defineId].pathToFile || '';
+        }
+    }
     return {
         mainMenuOpened: state.present.ui.main.mainMenuOpened,
-        currentPage: state.present.ui.main.currentPage,
+        currentPage,
+        pathToDefine,
         currentDefineId: state.present.ui.main.currentDefineId,
         reviewMode: state.present.ui.main.reviewMode,
         actionsDone: state.index,
@@ -147,6 +158,15 @@ class ConnectedMainMenu extends React.Component {
     openSettings = () => {
         this.props.changePage({ page: 'settings' });
     }
+
+    openWithStylesheet = (event) => {
+        let fullState = store.getState();
+        let state = fullState.present;
+        const { odm } = getUpdatedDefineBeforeSave(state.odm);
+        // Get number of datasets/codelists/variables
+        ipcRenderer.send('openWithStylesheet', odm);
+        this.props.toggleMainMenu();
+    };
 
     render () {
         const { classes } = this.props;
@@ -251,6 +271,13 @@ class ConnectedMainMenu extends React.Component {
                                         <ListItemText primary='Comments/Methods'/>
                                     </ListItem>
                                 ), (
+                                    <ListItem button key='stylesheetview' onClick={this.openWithStylesheet}>
+                                        <ListItemIcon>
+                                            <OpenInBrowser/>
+                                        </ListItemIcon>
+                                        <ListItemText primary='View with stylesheet'/>
+                                    </ListItem>
+                                ), (
                                     <ListItem button key='reviewModeToggle' onClick={() => { this.props.toggleReviewMode(); }}>
                                         <ListItemIcon>
                                             { this.props.reviewMode === true ? (
@@ -292,6 +319,7 @@ ConnectedMainMenu.propTypes = {
     classes: PropTypes.object.isRequired,
     mainMenuOpened: PropTypes.bool.isRequired,
     currentPage: PropTypes.string.isRequired,
+    pathToDefine: PropTypes.string,
     currentDefineId: PropTypes.string.isRequired,
     reviewMode: PropTypes.bool.isRequired,
     toggleMainMenu: PropTypes.func.isRequired,

@@ -36,7 +36,7 @@ import getSelectionList from 'utils/getSelectionList.js';
 import VariableTabUpdateField from 'utils/variableTabUpdateField.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
 import applyFilter from 'utils/applyFilter.js';
-import sortCodeLists from 'utils/sortCodeLists.js';
+import sortIdList from 'utils/sortIdList.js';
 import getTableData from 'utils/getTableData.js';
 import InternalHelp from 'components/utils/internalHelp.js';
 import { VARIABLE_UPDATE } from 'constants/help.js';
@@ -158,7 +158,7 @@ class ConnectedVariableTabUpdate extends React.Component {
             connectors: [],
         };
         // Get value lists for select editors
-        let sortedCodeListIds = sortCodeLists(this.props.mdv.codeLists);
+        let sortedCodeListIds = sortIdList(this.props.mdv.codeLists);
         let codeLists = {};
         sortedCodeListIds.forEach(codeListOid => {
             codeLists[codeListOid] = this.props.mdv.codeLists[codeListOid].name + ' (' + codeListOid + ')';
@@ -372,7 +372,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                 }
             }
         });
-        this.setState({ filter, selectedItems });
+        this.setState({ filter, selectedItems, changedAfterUpdated: true });
     }
 
     getUpdateFields = () => {

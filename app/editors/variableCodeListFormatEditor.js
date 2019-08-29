@@ -19,7 +19,7 @@ import Grid from '@material-ui/core/Grid';
 import SaveCancel from 'editors/saveCancel.js';
 import TextField from '@material-ui/core/TextField';
 import getSelectionList from 'utils/getSelectionList.js';
-import sortCodeLists from 'utils/sortCodeLists.js';
+import sortIdList from 'utils/sortIdList.js';
 import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 
 const styles = theme => ({
@@ -85,7 +85,7 @@ class VariableCodeListFormatEditor extends React.Component {
         const displayFormat = this.state.displayFormat || '';
         const codeListOid = this.state.codeListOid || '';
         // Get list of codeLists
-        let sortedCodeListIds = sortCodeLists(this.props.codeLists);
+        let sortedCodeListIds = sortIdList(this.props.codeLists);
         let codeLists = sortedCodeListIds.map(codeListOid => {
             let result = {};
             if (this.props.defaultValue.dataType === undefined || this.props.defaultValue.dataType === this.props.codeLists[codeListOid].dataType) {

@@ -38,7 +38,7 @@ import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 import CommentMethodTable from 'components/utils/commentMethodTable.js';
 import getMethodSourceLabels from 'utils/getMethodSourceLabels.js';
 import SelectMethodIcon from '@material-ui/icons/OpenInNew';
-import { Method, TranslatedText, FormalExpression } from 'core/defineStructure.js';
+import { Method, TranslatedText, FormalExpression, Document } from 'core/defineStructure.js';
 import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
@@ -110,11 +110,19 @@ class ConnectedMethodEditor extends React.Component {
         let method = this.props.stateless === true ? this.props.method : this.state.method;
         if (name === 'addMethod') {
             let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
-            let name = 'Algorithm for ' + this.props.fullName;
+            let name;
+            let autoMethodName;
+            if (this.props.fullName !== undefined) {
+                autoMethodName = true;
+                name = 'Algorithm for ' + this.props.fullName;
+            } else {
+                autoMethodName = false;
+                name = '';
+            }
             newMethod = { ...new Method({
                 oid: methodOid,
                 name,
-                autoMethodName: true,
+                autoMethodName,
                 descriptions: [ { ...new TranslatedText({ lang: this.props.lang, value: '' }) } ]
             }) };
         } else if (name === 'deleteMethod') {
@@ -136,7 +144,13 @@ class ConnectedMethodEditor extends React.Component {
             }
         } else if (name === 'addDocument') {
             newMethod = clone(method);
-            addDocument(newMethod);
+            let leafs = this.props.leafs;
+            if (leafs && Object.keys(leafs).length > 0) {
+                let document = new Document({ leafId: Object.keys(leafs)[0] });
+                addDocument(newMethod, document);
+            } else {
+                addDocument(newMethod);
+            }
         } else if (name === 'updateDocument') {
             newMethod = updateObj;
         } else if (name === 'addFormalExpression') {
@@ -274,7 +288,7 @@ class ConnectedMethodEditor extends React.Component {
                                 <span>
                                     <IconButton
                                         onClick={this.handleChange('addDocument')}
-                                        disabled={method === undefined}
+                                        disabled={method === undefined || Object.keys(this.props.leafs).length < 1}
                                         className={classes.iconButton}
                                         color={method !== undefined ? 'primary' : 'default'}
                                     >

@@ -130,7 +130,7 @@ const popUp = {
     onCodeListTypeUpdate: true,
     onCodeListDelete: true,
     onCodeListLink: true,
-    onStartUp: true,
+    onStartUp: false,
 };
 
 const editor = {
@@ -147,6 +147,7 @@ const editor = {
     allowNonExtCodeListExtension: false,
     allowSigDigitsForNonFloat: false,
     onlyArmEdit: false,
+    showVlmWithParent: false,
 };
 
 const define = {
