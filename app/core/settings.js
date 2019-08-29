@@ -155,6 +155,7 @@ class ConnectedSettings extends React.Component {
             'stripWhitespacesForCodeValues',
             'allowNonExtCodeListExtension',
             'allowSigDigitsForNonFloat',
+            'showVlmWithParent',
             'disableAnimations',
             'addStylesheet',
             'onlyArmEdit',
@@ -420,6 +421,17 @@ class ConnectedSettings extends React.Component {
                                             />
                                         }
                                         label='Allow to set fraction digits for non-float data types.'
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.editor.showVlmWithParent}
+                                                onChange={this.handleChange('editor', 'showVlmWithParent')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='When a variable is selected using search or filter, show all VLM records for it.'
                                     />
                                 </FormGroup>
                                 <Typography variant="h6" gutterBottom align="left" color='textSecondary'>

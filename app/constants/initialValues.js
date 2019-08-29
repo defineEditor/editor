@@ -147,6 +147,7 @@ const editor = {
     allowNonExtCodeListExtension: false,
     allowSigDigitsForNonFloat: false,
     onlyArmEdit: false,
+    showVlmWithParent: false,
 };
 
 const define = {

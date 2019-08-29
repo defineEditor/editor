@@ -91,7 +91,7 @@ function saveState (type, onSaveFinished) {
                                 title: 'Missing path to Define-XML',
                                 message: 'You have enabled the "Write changes to Define-XML" option, but did not specify' +
                                 ' a path for the current Define-XML. Either disable the option or specify the path. To specify the path' +
-                                ' use the "Save As" button in the main menu once or set it in Standards -> Other Attributes.',
+                                ' use the "Save As" button in the main menu once or set it in Standards -> Visual Define-XML Editor Attributes.',
                             }
                         }));
                     }

@@ -23,6 +23,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import React from 'react';
 import clone from 'clone';
 import ItemSelect from 'utils/itemSelect.js';
+import sortIdList from 'utils/sortIdList.js';
 import { addDocument } from 'utils/defineStructureUtils.js';
 import { PdfPageRef } from 'core/defineStructure.js';
 
@@ -36,6 +37,17 @@ const styles = theme => ({
 });
 
 class DocumentEditor extends React.Component {
+    constructor (props) {
+        super(props);
+        const leafs = this.props.leafs;
+        let sortedLeafIds = sortIdList(leafs, 'title');
+        let documentList = [];
+        sortedLeafIds.forEach((leafId) => {
+            documentList.push({ [leafId]: leafs[leafId].title });
+        });
+        this.documentList = documentList;
+    }
+
     handleChange = (name, documentId, pdfPageRefId) => event => {
         let newObject = clone(this.props.parentObj);
         if (name === 'updateDocument') {
@@ -94,7 +106,7 @@ class DocumentEditor extends React.Component {
             return (
                 <Grid container justify='flex-start' alignItems='flex-end' spacing={8} key={index}>
                     <Grid item>
-                        <Tooltip title="Remove Document" placement="bottom-end" enterDelay={1000}>
+                        <Tooltip title="Remove Document" placement="bottom-end" enterDelay={700}>
                             <IconButton
                                 color='secondary'
                                 onClick={this.handleChange('deleteDocument', index)}
@@ -113,7 +125,7 @@ class DocumentEditor extends React.Component {
                         />
                     </Grid>
                     <Grid item>
-                        <Tooltip title="Add PDF Page Referece" placement="bottom" enterDelay={1000}>
+                        <Tooltip title="Add PDF Page Referece" placement="bottom" enterDelay={700}>
                             <span>
                                 <IconButton
                                     disabled={!isPdf}
@@ -138,17 +150,12 @@ class DocumentEditor extends React.Component {
 
     render () {
         // Get the list of available documents
-        const leafs = this.props.leafs;
-        let documentList = [];
-        Object.keys(leafs).forEach((leafId) => {
-            documentList.push({ [leafId]: leafs[leafId].title });
-        });
 
         const { classes } = this.props;
 
         return (
             <Grid xs={12} item>
-                {this.getDocuments(this.props.parentObj.documents, documentList, classes)}
+                {this.getDocuments(this.props.parentObj.documents, this.documentList, classes)}
             </Grid>
         );
     }

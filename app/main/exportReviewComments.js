@@ -28,7 +28,7 @@ const panelLabels = {
 const panels = Object.keys(panelLabels);
 
 const updateText = (text) => {
-    return text.replace(/<\/p>/g, ' ').replace(/<p>/g, '').replace(/<br>/g, '\n');
+    return text.replace(/<\/p>/g, ' ').replace(/<p>/g, '').replace(/<br>/g, '\n').replace(/&nbsp;/g, ' ');
 };
 
 const saveReviewCommentsToFile = (mainWindow, exportData) => async (savePath) => {
