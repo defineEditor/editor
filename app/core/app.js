@@ -30,6 +30,7 @@ import RedoUndo from 'components/utils/redoUndo.js';
 import FindInPage from 'components/utils/findInPage.js';
 import saveState from 'utils/saveState.js';
 import sendDefineObject from 'utils/sendDefineObject.js';
+import changeAppTitle from 'utils/changeAppTitle.js';
 import {
     openModal,
     updateMainUi,
@@ -88,6 +89,8 @@ const mapStateToProps = state => {
         disableAnimations: state.present.settings.general.disableAnimations,
         disableFindToggle,
         sampleStudyCopied: state.present.ui.main.sampleStudyCopied,
+        currentDefineId: state.present.ui.main.currentDefineId,
+        currentStudyId: state.present.ui.main.currentStudyId,
         bugModalOpened,
     };
 };
@@ -122,6 +125,10 @@ class ConnectedApp extends Component {
                 this.props.updateMainUi({ sampleStudyCopied: true });
             });
             ipcRenderer.send('copySampleStudy');
+        }
+        // Set title of the application
+        if (this.props.currentStudyId && this.props.currentDefineId) {
+            changeAppTitle({ studyId: this.props.currentStudyId, defineId: this.props.currentDefineId });
         }
     }
 
@@ -201,6 +208,8 @@ class ConnectedApp extends Component {
 
 ConnectedApp.propTypes = {
     currentPage: PropTypes.string.isRequired,
+    currentStudyId: PropTypes.string.isRequired,
+    currentDefineId: PropTypes.string.isRequired,
     showInitialMessage: PropTypes.bool.isRequired,
     disableFindToggle: PropTypes.bool.isRequired,
     disableAnimations: PropTypes.bool.isRequired,

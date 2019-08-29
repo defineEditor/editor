@@ -25,6 +25,7 @@ import AddIcon from '@material-ui/icons/AddCircle';
 import Typography from '@material-ui/core/Typography';
 import InsertLink from '@material-ui/icons/InsertLink';
 import Tooltip from '@material-ui/core/Tooltip';
+import { Document } from 'core/defineStructure.js';
 import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
@@ -51,6 +52,16 @@ const mapStateToProps = state => {
 };
 
 class ConnectedArmDocumentationView extends React.Component {
+    addDocument = () => {
+        let leafs = this.props.leafs;
+        if (leafs && Object.keys(leafs).length > 0) {
+            let document = new Document({ leafId: Object.keys(leafs)[0] });
+            this.props.onChange('addDocument')(document);
+        } else {
+            this.props.onChange('addDocument')();
+        }
+    }
+
     render () {
         const { classes, documentation } = this.props;
         let issue = false;
@@ -90,10 +101,10 @@ class ConnectedArmDocumentationView extends React.Component {
                         <Tooltip title='Add Link to Document' placement='bottom' enterDelay={1000}>
                             <span>
                                 <IconButton
-                                    onClick={this.props.onChange('addDocument')}
+                                    onClick={this.addDocument}
                                     className={classes.iconButton}
                                     color='primary'
-                                    disabled={documentation === undefined}
+                                    disabled={documentation === undefined || Object.keys(this.props.leafs).length < 1}
                                 >
                                     <InsertLink/>
                                 </IconButton>

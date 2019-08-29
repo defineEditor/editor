@@ -28,7 +28,7 @@ import AddIcon from '@material-ui/icons/AddCircle';
 import SelectCommentIcon from '@material-ui/icons/OpenInNew';
 import DetachCommentIcon from '@material-ui/icons/CallSplit';
 import Tooltip from '@material-ui/core/Tooltip';
-import { Comment, TranslatedText } from 'core/defineStructure.js';
+import { Comment, TranslatedText, Document } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 import CommentMethodTable from 'components/utils/commentMethodTable.js';
@@ -106,7 +106,13 @@ class ConnectedCommentEditor extends React.Component {
             setDescription(newComment, updateObj.target.value);
         } else if (name === 'addDocument') {
             newComment = clone(comment);
-            addDocument(newComment);
+            let leafs = this.props.leafs;
+            if (leafs && Object.keys(leafs).length > 0) {
+                let document = new Document({ leafId: Object.keys(leafs)[0] });
+                addDocument(newComment, document);
+            } else {
+                addDocument(newComment);
+            }
         } else if (name === 'updateDocument') {
             newComment = updateObj;
         } else if (name === 'selectComment') {
@@ -181,7 +187,7 @@ class ConnectedCommentEditor extends React.Component {
                                 <span>
                                     <IconButton
                                         onClick={this.handleChange('addDocument')}
-                                        disabled={comment === undefined}
+                                        disabled={comment === undefined || Object.keys(this.props.leafs).length < 1 }
                                         className={classes.iconButton}
                                         color={comment !== undefined ? 'primary' : 'default'}
                                     >

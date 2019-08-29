@@ -20,6 +20,7 @@ import { getUpdatedDefineBeforeSave, updateSourceSystem } from 'utils/getUpdated
 import {
     appSave,
     openModal,
+    openSnackbar,
 } from 'actions/index.js';
 
 function saveDefineXml (data, options, state, lastSaveHistoryIndex, onSaveFinished) {
@@ -37,7 +38,7 @@ function saveDefineXml (data, options, state, lastSaveHistoryIndex, onSaveFinish
     let stats = getDefineStats(data.odm);
     ipcRenderer.once('defineSaved', (event, defineId) => {
         store.dispatch(appSave({ defineId, stats, lastSaveHistoryIndex }));
-
+        store.dispatch(openSnackbar({ type: 'success', message: 'File and state were saved' }));
         if (typeof onSaveFinished === 'function') {
             onSaveFinished();
         }
@@ -90,13 +91,14 @@ function saveState (type, onSaveFinished) {
                                 title: 'Missing path to Define-XML',
                                 message: 'You have enabled the "Write changes to Define-XML" option, but did not specify' +
                                 ' a path for the current Define-XML. Either disable the option or specify the path. To specify the path' +
-                                ' use the "Save As" button in the main menu once or set it in Standards -> Other Attributes.',
+                                ' use the "Save As" button in the main menu once or set it in Standards -> Visual Define-XML Editor Attributes.',
                             }
                         }));
                     }
                     let stats = getDefineStats(odm);
                     ipcRenderer.once('writeDefineObjectFinished', (event, defineId) => {
                         store.dispatch(appSave({ defineId, stats, lastSaveHistoryIndex: fullState.index }));
+                        store.dispatch(openSnackbar({ type: 'success', message: 'Define-XML state was saved' }));
                         if (typeof onSaveFinished === 'function') {
                             onSaveFinished();
                         }

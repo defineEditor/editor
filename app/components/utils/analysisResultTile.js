@@ -81,6 +81,12 @@ class ConnectedAnalysisResultTile extends React.Component {
         };
     }
 
+    componentDidUpdate () {
+        if (!this.state.editMode) {
+            Prism.highlightAll();
+        }
+    }
+
     toggleEditMode = () => {
         this.setState({ editMode: !this.state.editMode });
     };

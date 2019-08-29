@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
 * and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
+* Copyright (C) 2018, 2019 Dmitry Kolosov                                          *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -35,16 +35,23 @@ import {
     UI_OPENSNACKBAR,
     UI_CLOSESNACKBAR,
 } from 'constants/action-types';
+import changeAppTitle from 'utils/changeAppTitle.js';
 
 export const changeTab = updateObj => ({
     type: UI_CHANGETAB,
     updateObj
 });
 
-export const changePage = updateObj => ({
-    type: UI_CHANGEPAGE,
-    updateObj
-});
+export const changePage = updateObj => {
+    // If define is changed, change title of the application
+    if (updateObj.page === 'editor' && updateObj.defineId) {
+        changeAppTitle(updateObj);
+    }
+    return {
+        type: UI_CHANGEPAGE,
+        updateObj
+    };
+};
 
 export const toggleRowSelect = source => ({
     type: UI_TOGGLEROWSELECT,
