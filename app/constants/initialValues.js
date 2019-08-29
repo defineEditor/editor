@@ -130,7 +130,7 @@ const popUp = {
     onCodeListTypeUpdate: true,
     onCodeListDelete: true,
     onCodeListLink: true,
-    onStartUp: true,
+    onStartUp: false,
 };
 
 const editor = {

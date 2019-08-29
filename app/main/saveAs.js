@@ -20,6 +20,7 @@ import copyStylesheet from '../main/copyStylesheet.js';
 import writeDefineObject from '../main/writeDefineObject.js';
 import { promisify } from 'util';
 
+const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 const unlink = promisify(fs.unlink);
 
@@ -27,9 +28,34 @@ const onSaveCallback = (mainWindow, savePath) => () => {
     mainWindow.webContents.send('fileSavedAs', savePath);
 };
 
+const pathToUserData = app.getPath('userData');
+const tempDefine = path.join(pathToUserData, 'defineHtml.xml');
+
+const updatePaths = (match) => {
+    // Extract path to the file
+    let pathToFile = match.replace(/href="file:\/+([^#]*)(#.+)?/, '$1');
+    // As this is HTML, path is encoded;
+    pathToFile = decodeURI(pathToFile);
+    // Link to page/named destination
+    let additionalLink = match.replace(/href="file:\/+([^#]*)(#.+)?/, '$2');
+    // Get path relative to the current file
+    let relativePath = path.relative(pathToUserData, path.dirname(pathToFile));
+    // Relative path cannot be blank, so ./ is added
+    return 'href="./' + path.join(relativePath, path.basename(pathToFile)) + additionalLink;
+};
+
+const updateHtml = async (sourcePath, destPath, callback) => {
+    // Remove absolute paths
+    let contents = await readFile(sourcePath, 'utf8');
+    contents = contents
+        .replace(/href="file:\/+[^"]*defineHtml.xml/g, 'href="')
+        .replace(/href="file:\/+[^"]*/g, updatePaths);
+    await writeFile(destPath, contents);
+    callback();
+};
+
 const saveUsingStylesheet = async (savePath, odm, callback) => {
     // Save temporary Define-XML file
-    let tempDefine = path.join(app.getPath('userData'), 'defineHtml.xml');
     let stylesheetLocation = odm && odm.stylesheetLocation;
     let fullStypesheetLocation = path.join(path.dirname(savePath), stylesheetLocation);
     // If temporary file exist, remove it
@@ -40,27 +66,33 @@ const saveUsingStylesheet = async (savePath, odm, callback) => {
     if (!fs.existsSync(fullStypesheetLocation)) {
         fullStypesheetLocation = path.join(__dirname, '..', 'static', 'stylesheets', 'define2-0.xsl');
     }
+    // Temporary HTML file
+    let tempHtml = path.join(app.getPath('userData'), 'defineHtml.html');
+    if (fs.existsSync(tempHtml)) {
+        await unlink(tempHtml);
+    }
     let odmUpdated = { ...odm };
     odmUpdated.stylesheetLocation = fullStypesheetLocation;
 
     let defineXml = createDefine(odmUpdated, odmUpdated.study.metaDataVersion.defineVersion);
     await writeFile(tempDefine, defineXml);
-    let pdfWindow = new BrowserWindow({
+    let hiddenWindow = new BrowserWindow({
         show: false,
         webPreferences: { webSecurity: false },
     });
-    pdfWindow.loadURL('file://' + tempDefine).then(() => {
+    hiddenWindow.loadURL('file://' + tempDefine).then(() => {
         if (savePath.endsWith('html')) {
-            pdfWindow.webContents.savePage(savePath, 'HTMLComplete', (err) => {
+            hiddenWindow.webContents.savePage(tempHtml, 'HTMLComplete', (err) => {
                 if (err) {
                     throw err;
                 }
-                pdfWindow.close();
+                updateHtml(tempHtml, savePath, callback);
+                hiddenWindow.close();
                 unlink(tempDefine);
-                callback();
+                unlink(tempHtml);
             });
         } else if (savePath.endsWith('pdf')) {
-            pdfWindow.webContents.printToPDF({
+            hiddenWindow.webContents.printToPDF({
                 pageSize: 'Letter',
                 landscape: true,
             }, (err, data) => {
@@ -71,7 +103,7 @@ const saveUsingStylesheet = async (savePath, odm, callback) => {
                     if (err) {
                         throw err;
                     }
-                    pdfWindow.close();
+                    hiddenWindow.close();
                     unlink(tempDefine);
                     callback();
                 });
@@ -81,11 +113,9 @@ const saveUsingStylesheet = async (savePath, odm, callback) => {
         throw err;
     });
 
-    pdfWindow.on('closed', () => {
-        pdfWindow = null;
+    hiddenWindow.on('closed', () => {
+        hiddenWindow = null;
     });
-
-    callback();
 };
 
 // Create Define-XML
