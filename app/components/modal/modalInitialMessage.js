@@ -16,7 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import { shell } from 'electron';
+import { shell, remote } from 'electron';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
@@ -81,6 +81,8 @@ class ConnectedModalInitialMessage extends React.Component {
 
     render () {
         const { classes } = this.props;
+        let version = remote.app.getVersion();
+        const releaseNotesLink = 'http://defineeditor.com/releases/#version-' + version.replace('.', '-');
 
         return (
             <Dialog
@@ -96,7 +98,12 @@ class ConnectedModalInitialMessage extends React.Component {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        This is a beta version of the application. All of the core functionality is now finished, but bugs are still possible.
+                        {`You are using Visual Define-XML Editor version ${version}.`}
+                        <br/>
+                        See&nbsp;
+                        <a onClick={this.openLink} href={releaseNotesLink}>
+                            release notes
+                        </a> for the list of changes.
                         <br/>
                         Check&nbsp;
                         <a onClick={this.openLink} href='http://defineeditor.com/downloads'>
