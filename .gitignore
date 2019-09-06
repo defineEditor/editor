@@ -13,3 +13,4 @@ app/main.prod*
 *~
 .tern-project
 .eslintcache
+jest.config.js
