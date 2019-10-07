@@ -12,19 +12,41 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { combineReducers } from 'redux';
-import tabs from 'reducers/ui/tabs.js';
-import main from 'reducers/ui/main.js';
-import studies from 'reducers/ui/studies.js';
-import modal from 'reducers/ui/modal.js';
-import snackbar from 'reducers/ui/snackbar.js';
-import cdiscLibrary from 'reducers/ui/cdiscLibrary.js';
+import {
+    UI_TOGGLECDISCLIBRARYPANELS,
+} from 'constants/action-types';
+import { ui } from 'constants/initialValues.js';
 
-export default combineReducers({
-    tabs,
-    main,
-    studies,
-    modal,
-    snackbar,
-    cdiscLibrary,
-});
+const initialState = ui.cdiscLibrary;
+
+const toggleCdiscLibraryPanels = (state, action) => {
+    const panelIds = action.updateObj.panelIds;
+    const status = action.updateObj.status;
+    let panelStatus = { ...state.panelStatus };
+    panelIds.forEach(panelId => {
+        if (status === undefined) {
+            if (state.panelStatus[panelId] !== true) {
+                panelStatus = { ...panelStatus, [panelId]: true };
+            } else {
+                panelStatus = { ...panelStatus, [panelId]: false };
+            }
+        } else {
+            panelStatus = { ...panelStatus, [panelId]: status };
+        }
+    });
+    return {
+        ...state,
+        panelStatus,
+    };
+};
+
+const tabs = (state = initialState, action) => {
+    switch (action.type) {
+        case UI_TOGGLECDISCLIBRARYPANELS:
+            return toggleCdiscLibraryPanels(state, action);
+        default:
+            return state;
+    }
+};
+
+export default tabs;

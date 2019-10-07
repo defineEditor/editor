@@ -23,6 +23,7 @@ import MainMenu from 'core/mainMenu.js';
 import KeyboardShortcuts from 'components/utils/keyboardShortcuts.js';
 import Editor from 'core/editor.js';
 import ControlledTerminology from 'core/controlledTerminology.js';
+import CdiscLibraryPanels from 'core/cdiscLibraryPanels.js';
 import Settings from 'core/settings.js';
 import Studies from 'core/studies.js';
 import About from 'core/about.js';
@@ -195,6 +196,7 @@ class ConnectedApp extends Component {
                 {this.props.currentPage === 'studies' && <Studies />}
                 {this.props.currentPage === 'editor' && <Editor onToggleRedoUndo={this.toggleRedoUndo}/>}
                 {this.props.currentPage === 'controlledTerminology' && <ControlledTerminology />}
+                {this.props.currentPage === 'cdiscLibrary' && <CdiscLibraryPanels />}
                 {this.props.currentPage === 'settings' && <Settings />}
                 {this.props.currentPage === 'about' && <About />}
                 <ModalRoot />

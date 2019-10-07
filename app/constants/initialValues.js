@@ -109,12 +109,17 @@ const studiesUi = {
     currentStudyId: '',
 };
 
+const cdiscLibraryUi = {
+    panelStatus: {},
+};
+
 const ui = {
     main,
     tabs,
     modal,
     snackbar,
     studies: studiesUi,
+    cdiscLibrary: cdiscLibraryUi,
 };
 
 // Settings
@@ -150,6 +155,12 @@ const editor = {
     showVlmWithParent: false,
 };
 
+const cdiscLibrary = {
+    username: '',
+    password: '',
+    baseURL: 'https://library.cdisc.org/api',
+};
+
 const define = {
     schemaLocation200: 'http://www.cdisc.org/ns/def/v2.0/define2-0-0.xsd',
     schemaLocation210: 'http://www.cdisc.org/ns/def/v2.1/define2-1-0.xsd',
@@ -162,6 +173,7 @@ const settings = {
     general,
     editor,
     define,
+    cdiscLibrary,
     popUp,
 };
 

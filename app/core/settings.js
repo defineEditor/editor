@@ -32,6 +32,7 @@ import SaveCancel from 'editors/saveCancel.js';
 import InternalHelp from 'components/utils/internalHelp.js';
 import { CT_LOCATION } from 'constants/help.js';
 import { updateSettings, openModal } from 'actions/index.js';
+import { encrypt, decrypt } from 'utils/encryptDecrypt.js';
 
 const styles = theme => ({
     root: {
@@ -84,6 +85,10 @@ class ConnectedSettings extends React.Component {
     constructor (props) {
         super(props);
         this.state = clone(this.props.settings);
+        // Decrypt the cdiscLibrary password
+        if (this.state.cdiscLibrary && this.state.cdiscLibrary.password) {
+            this.state.cdiscLibrary.password = decrypt(this.state.cdiscLibrary.password);
+        }
         // Check if default System is used
         if (this.state.define && this.state.define.sourceSystem === remote.app.getName()) {
             this.state.defaultSource = true;
@@ -101,7 +106,7 @@ class ConnectedSettings extends React.Component {
         ipcRenderer.removeListener('selectedFile', this.setCTLocation);
         window.removeEventListener('keydown', this.onKeyDown);
         // If settings are not saved, open a confirmation window
-        let diff = this.getSettingsDiff();
+        let diff = this.getSettingsDiff(true);
         if (Object.keys(diff).length > 0) {
             this.props.openModal({
                 type: 'SAVE_SETTINGS',
@@ -173,7 +178,7 @@ class ConnectedSettings extends React.Component {
         }
     };
 
-    getSettingsDiff = () => {
+    getSettingsDiff = (ignorePassword = false) => {
         let result = {};
         let newSettings = clone(this.state);
         // Remove default source flag as not part of the settings
@@ -191,12 +196,25 @@ class ConnectedSettings extends React.Component {
                 }
             });
         });
+        // Ignore password check (because password is stored encrypted in the state and as plain text in the component)
+        if (ignorePassword === true) {
+            if (result.cdiscLibrary && result.cdiscLibrary.password) {
+                delete result.cdiscLibrary.password;
+                if (Object.keys(result.cdiscLibrary).length === 0) {
+                    delete result.cdiscLibrary;
+                }
+            }
+        }
         return result;
     }
 
     save = () => {
         let diff = this.getSettingsDiff();
         if (Object.keys(diff).length > 0) {
+            // Encrypt the cdiscLibrary password
+            if (diff.cdiscLibrary && diff.cdiscLibrary.password) {
+                diff.cdiscLibrary.password = encrypt(diff.cdiscLibrary.password);
+            }
             this.props.updateSettings(diff);
         }
     };
@@ -606,6 +624,41 @@ class ConnectedSettings extends React.Component {
                                     }
                                     onChange={this.handleChange('define', 'sourceSystemVersion')}
                                     className={classes.sourceSystemVersion}
+                                />
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
+                            CDISC Library
+                        </Typography>
+                        <Grid container>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label='Username'
+                                    value={this.state.cdiscLibrary.username}
+                                    onChange={this.handleChange('cdiscLibrary', 'username')}
+                                    helperText='CDISC Library API username'
+                                    className={classes.textField}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label='Password'
+                                    value={this.state.cdiscLibrary.password}
+                                    onChange={this.handleChange('cdiscLibrary', 'password')}
+                                    type='Password'
+                                    helperText='CDISC Library API password'
+                                    className={classes.textField}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label='Base URL'
+                                    value={this.state.cdiscLibrary.baseURL}
+                                    onChange={this.handleChange('cdiscLibrary', 'baseURL')}
+                                    helperText='CDISC Library API base URL'
+                                    className={classes.textField}
                                 />
                             </Grid>
                         </Grid>
