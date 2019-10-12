@@ -13,6 +13,7 @@
 ***********************************************************************************/
 import store from 'store/index.js';
 import { CdiscLibrary } from 'cla-wrapper';
+import { decrypt } from 'utils/encryptDecrypt.js';
 
 const initCdiscLibrary = () => {
     let claSettings = {};
@@ -21,7 +22,11 @@ const initCdiscLibrary = () => {
         claSettings = state.settings.cdiscLibrary;
     }
 
-    return new CdiscLibrary(claSettings);
+    return new CdiscLibrary({
+        username: claSettings.username,
+        password: decrypt(claSettings.password),
+        baseUrl: claSettings.baseURL
+    });
 };
 
 export default initCdiscLibrary;

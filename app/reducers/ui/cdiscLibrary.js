@@ -14,18 +14,47 @@
 
 import {
     UI_TOGGLECDISCLIBRARYPANELS,
+    UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
+    UI_CHANGECDISCLIBRARYVIEW,
 } from 'constants/action-types';
 import { ui } from 'constants/initialValues.js';
 
 const initialState = ui.cdiscLibrary;
 
+const changeCdiscLibraryView = (state, action) => {
+    let newState = {
+        ...state,
+        currentView: action.updateObj.view,
+    };
+
+    if (action.updateObj.productId !== undefined) {
+        newState = { ...newState, itemGroups: { ...newState.itemGroups, productId: action.updateObj.productId, productName: action.updateObj.productName } };
+    }
+
+    if (action.updateObj.itemGroupId !== undefined) {
+        newState = { ...newState, items: { ...newState.items, itemGroupId: action.updateObj.itemGroupId } };
+    }
+
+    return newState;
+};
+
+const toggleCdiscLibraryItemGroupGridView = (state, action) => {
+    return {
+        ...state,
+        itemGroups: {
+            ...state.itemGroups,
+            gridView: !state.itemGroups.gridView
+        }
+    };
+};
+
 const toggleCdiscLibraryPanels = (state, action) => {
     const panelIds = action.updateObj.panelIds;
     const status = action.updateObj.status;
-    let panelStatus = { ...state.panelStatus };
+    let panelStatus = { ...state.products.panelStatus };
     panelIds.forEach(panelId => {
         if (status === undefined) {
-            if (state.panelStatus[panelId] !== true) {
+            if (state.products.panelStatus[panelId] !== true) {
                 panelStatus = { ...panelStatus, [panelId]: true };
             } else {
                 panelStatus = { ...panelStatus, [panelId]: false };
@@ -36,7 +65,7 @@ const toggleCdiscLibraryPanels = (state, action) => {
     });
     return {
         ...state,
-        panelStatus,
+        products: { ...state.products, panelStatus },
     };
 };
 
@@ -44,6 +73,10 @@ const tabs = (state = initialState, action) => {
     switch (action.type) {
         case UI_TOGGLECDISCLIBRARYPANELS:
             return toggleCdiscLibraryPanels(state, action);
+        case UI_CHANGECDISCLIBRARYVIEW:
+            return changeCdiscLibraryView(state, action);
+        case UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW:
+            return toggleCdiscLibraryItemGroupGridView(state, action);
         default:
             return state;
     }

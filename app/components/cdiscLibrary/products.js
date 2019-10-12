@@ -23,56 +23,51 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import NavigationBar from 'core/navigationBar.js';
-import initCdiscLibrary from 'utils/initCdiscLibrary.js';
+import CdiscLibraryBreadcrumbs from 'components/cdiscLibrary/breadcrumbs.js';
+import Loading from 'components/utils/loading.js';
 import {
-    openModal,
     toggleCdiscLibraryPanels,
+    changeCdiscLibraryView,
 } from 'actions/index.js';
 
 const styles = theme => ({
-    root: {
-        flexGrow: 1,
-        marginTop: theme.spacing.unit * 3,
-        width: '98%',
-        padding: theme.spacing.unit * 2,
-        backgroundColor: theme.palette.background.paper,
-    },
     heading: {
         fontSize: theme.typography.pxToRem(15),
         flexBasis: '33.33%',
         flexShrink: 0,
     },
-    group: {
-        width: '100%',
-    },
-    panel: {
+    main: {
         marginTop: theme.spacing.unit * 8,
         marginLeft: theme.spacing.unit * 2,
         outline: 'none'
     },
     classPanel: {
+        width: '98%',
         backgroundColor: '#F1F1F1',
+    },
+    group: {
+        width: '100%',
+    },
+    groupPanel: {
+        backgroundColor: '#F9F9F9',
     },
 });
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        openModal: (updateObj) => dispatch(openModal(updateObj)),
         toggleCdiscLibraryPanels: (updateObj) => dispatch(toggleCdiscLibraryPanels(updateObj)),
+        changeCdiscLibraryView: (updateObj) => dispatch(changeCdiscLibraryView(updateObj)),
     };
 };
 
 const mapStateToProps = state => {
     return {
-        panelStatus: state.present.ui.cdiscLibrary.panelStatus,
+        panelStatus: state.present.ui.cdiscLibrary.products.panelStatus,
     };
 };
 
-const cl = initCdiscLibrary();
-
-class ConnectedCdiscLibraryPanels extends React.Component {
+class ConnectedProducts extends React.Component {
     constructor (props) {
         super(props);
 
@@ -86,7 +81,7 @@ class ConnectedCdiscLibraryPanels extends React.Component {
     }
 
     getItems = async () => {
-        let productClasses = await cl.getProductClasses();
+        let productClasses = await this.props.cdiscLibrary.getProductClasses();
         let panelIds = Object.keys(productClasses);
         let classes = {};
         panelIds.filter(classId => (classId !== 'terminology')).forEach(classId => {
@@ -108,7 +103,7 @@ class ConnectedCdiscLibraryPanels extends React.Component {
                     products[pId] = { title: pId.replace(/\b(\S*)/g, (txt) => {
                         let result = txt.replace(/(\w)-([a-z])/ig, '$1 $2');
                         result = result.replace(/([a-z])-(\w)/ig, '$1 $2');
-                        result = result.replace(/(\d)-(\d)/ig, '$1.$2');
+                        result = result.replace(/(\d)-(?=\d)/ig, '$1.');
                         result = result.replace(/(\w)ig\b/ig, '$1-IG');
                         if (txt.startsWith('adam')) {
                             result = 'ADaM' + result.substring(4);
@@ -129,7 +124,8 @@ class ConnectedCdiscLibraryPanels extends React.Component {
         this.props.toggleCdiscLibraryPanels({ panelIds: [panelId] });
     }
 
-    chooseStandard = (id) => () => {
+    selectProduct = (productId, productName) => () => {
+        this.props.changeCdiscLibraryView({ view: 'itemGroups', productId, productName });
     }
 
     getClasses = (data, panelStatus, classes) => {
@@ -164,6 +160,7 @@ class ConnectedCdiscLibraryPanels extends React.Component {
                     key={panelId}
                     expanded={panelStatus[panelId] === true}
                     onChange={this.handleChange(panelId)}
+                    className={classes.groupPanel}
                 >
                     <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
                         <Typography className={classes.heading}>{data[panelId].title}</Typography>
@@ -186,7 +183,7 @@ class ConnectedCdiscLibraryPanels extends React.Component {
                     <Button
                         variant='contained'
                         color={'default'}
-                        onClick={ this.chooseStandard(id) }
+                        onClick={ this.selectProduct(id, data[id].title) }
                     >
                         {data[id].title}
                     </Button>
@@ -199,28 +196,26 @@ class ConnectedCdiscLibraryPanels extends React.Component {
     render () {
         const { panelStatus, classes } = this.props;
         return (
-            <div className={classes.root}>
-                <NavigationBar />
-                <Grid container spacing={8} justify='space-between' className={classes.panel}>
-                    <Grid item>
-                        <Typography variant="h4" color='textSecondary' inline>
-                            CDISC Library
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        {this.getClasses(this.state.classes, panelStatus, classes)}
-                    </Grid>
+            <Grid container spacing={8} justify='space-between' className={classes.main}>
+                <Grid item xs={12}>
+                    <CdiscLibraryBreadcrumbs traffic={this.props.cdiscLibrary.getTrafficStats()} />
                 </Grid>
-            </div>
+                <Grid item xs={12}>
+                    { Object.keys(this.state.classes).length === 0 && <Loading onRetry={this.getItems} /> }
+                    { this.getClasses(this.state.classes, panelStatus, classes) }
+                </Grid>
+            </Grid>
         );
     }
 }
 
-ConnectedCdiscLibraryPanels.propTypes = {
+ConnectedProducts.propTypes = {
+    cdiscLibrary: PropTypes.object.isRequired,
     panelStatus: PropTypes.object.isRequired,
     toggleCdiscLibraryPanels: PropTypes.func.isRequired,
+    changeCdiscLibraryView: PropTypes.func.isRequired,
 };
-ConnectedCdiscLibraryPanels.displayName = 'CdiscLibraryPanels';
+ConnectedProducts.displayName = 'Products';
 
-const CdiscLibraryPanels = connect(mapStateToProps, mapDispatchToProps)(ConnectedCdiscLibraryPanels);
-export default withStyles(styles)(CdiscLibraryPanels);
+const Products = connect(mapStateToProps, mapDispatchToProps)(ConnectedProducts);
+export default withStyles(styles)(Products);

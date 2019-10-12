@@ -21,6 +21,8 @@ import clone from 'clone';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import FolderOpen from '@material-ui/icons/FolderOpen';
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Switch from '@material-ui/core/Switch';
@@ -43,12 +45,19 @@ const styles = theme => ({
         marginLeft: theme.spacing.unit * 2,
         outline: 'none'
     },
+    adorementIcon: {
+        outline: 'none'
+    },
     userName: {
         width: 200,
         margin: theme.spacing.unit
     },
     textField: {
         width: '90%',
+        margin: theme.spacing.unit
+    },
+    textFieldShort: {
+        width: 300,
         margin: theme.spacing.unit
     },
     sourceSystem: {
@@ -95,6 +104,7 @@ class ConnectedSettings extends React.Component {
         } else {
             this.state.defaultSource = false;
         }
+        this.state.showPassword = false;
     }
 
     componentDidMount () {
@@ -181,8 +191,9 @@ class ConnectedSettings extends React.Component {
     getSettingsDiff = (ignorePassword = false) => {
         let result = {};
         let newSettings = clone(this.state);
-        // Remove default source flag as not part of the settings
+        // Remove default source and password visibility flags as not part of the settings
         delete newSettings.defaultSource;
+        delete newSettings.showPassword;
         Object.keys(newSettings).forEach(category => {
             Object.keys(newSettings[category]).forEach(setting => {
                 if (
@@ -231,6 +242,10 @@ class ConnectedSettings extends React.Component {
         }
     };
 
+    handleClickShowPassword = () => {
+        this.setState(state => ({ showPassword: !state.showPassword }));
+    };
+
     render () {
         const { classes } = this.props;
         let settingsNotChanged = Object.keys(this.getSettingsDiff()).length === 0;
@@ -268,6 +283,7 @@ class ConnectedSettings extends React.Component {
                                                 <IconButton
                                                     color="default"
                                                     onClick={this.selectControlledTerminologyLocation}
+                                                    className={classes.adorementIcon}
                                                 >
                                                     <FolderOpen />
                                                 </IconButton>
@@ -639,7 +655,7 @@ class ConnectedSettings extends React.Component {
                                     value={this.state.cdiscLibrary.username}
                                     onChange={this.handleChange('cdiscLibrary', 'username')}
                                     helperText='CDISC Library API username'
-                                    className={classes.textField}
+                                    className={classes.textFieldShort}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -647,9 +663,22 @@ class ConnectedSettings extends React.Component {
                                     label='Password'
                                     value={this.state.cdiscLibrary.password}
                                     onChange={this.handleChange('cdiscLibrary', 'password')}
-                                    type='Password'
+                                    type={this.state.showPassword ? 'text' : 'password'}
                                     helperText='CDISC Library API password'
-                                    className={classes.textField}
+                                    className={classes.textFieldShort}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <IconButton
+                                                    aria-label="Toggle password visibility"
+                                                    onClick={this.handleClickShowPassword}
+                                                    className={classes.adorementIcon}
+                                                >
+                                                    {this.state.showPassword ? <Visibility /> : <VisibilityOff />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -658,7 +687,7 @@ class ConnectedSettings extends React.Component {
                                     value={this.state.cdiscLibrary.baseURL}
                                     onChange={this.handleChange('cdiscLibrary', 'baseURL')}
                                     helperText='CDISC Library API base URL'
-                                    className={classes.textField}
+                                    className={classes.textFieldShort}
                                 />
                             </Grid>
                         </Grid>

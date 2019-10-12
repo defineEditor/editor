@@ -23,7 +23,7 @@ import MainMenu from 'core/mainMenu.js';
 import KeyboardShortcuts from 'components/utils/keyboardShortcuts.js';
 import Editor from 'core/editor.js';
 import ControlledTerminology from 'core/controlledTerminology.js';
-import CdiscLibraryPanels from 'core/cdiscLibraryPanels.js';
+import CdiscLibraryMain from 'core/cdiscLibraryMain.js';
 import Settings from 'core/settings.js';
 import Studies from 'core/studies.js';
 import About from 'core/about.js';
@@ -82,6 +82,8 @@ const mapStateToProps = state => {
     const tabs = state.present.ui.tabs;
     if (currentPage === 'editor' && tabs.hasOwnProperty('tabNames') && tabs.tabNames.hasOwnProperty(tabs.currentTab)) {
         disableFindToggle = ['Variables', 'Codelists', 'Coded Values', 'Review Comments'].includes(tabs.tabNames[tabs.currentTab]);
+    } else if (currentPage === 'cdiscLibrary') {
+        disableFindToggle = true;
     }
     let bugModalOpened = state.present.ui && state.present.ui.modal && state.present.ui.modal.type === 'BUG_REPORT';
     return {
@@ -196,7 +198,7 @@ class ConnectedApp extends Component {
                 {this.props.currentPage === 'studies' && <Studies />}
                 {this.props.currentPage === 'editor' && <Editor onToggleRedoUndo={this.toggleRedoUndo}/>}
                 {this.props.currentPage === 'controlledTerminology' && <ControlledTerminology />}
-                {this.props.currentPage === 'cdiscLibrary' && <CdiscLibraryPanels />}
+                {this.props.currentPage === 'cdiscLibrary' && <CdiscLibraryMain />}
                 {this.props.currentPage === 'settings' && <Settings />}
                 {this.props.currentPage === 'about' && <About />}
                 <ModalRoot />

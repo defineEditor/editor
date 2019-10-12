@@ -110,7 +110,15 @@ const studiesUi = {
 };
 
 const cdiscLibraryUi = {
-    panelStatus: {},
+    currentView: 'products',
+    products: {
+        panelStatus: {},
+    },
+    itemGroups: {
+        gridView: false,
+    },
+    items: {
+    },
 };
 
 const ui = {
