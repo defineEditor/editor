@@ -23,6 +23,9 @@ import TextField from '@material-ui/core/TextField';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
+import CloudDownload from '@material-ui/icons/CloudDownload';
 import {
     changeCdiscLibraryView,
     toggleCdiscLibraryItemGroupGridView,
@@ -42,6 +45,7 @@ const styles = theme => ({
     },
     searchField: {
         marginTop: '0',
+        marginLeft: theme.spacing.unit * 3,
         marginRight: theme.spacing.unit * 3,
     },
     searchInput: {
@@ -151,6 +155,13 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                 </Grid>
                 <Grid item>
                     <Grid container justify='flex-end'>
+                        { currentView === 'itemGroups' && !this.props.productName.toLowerCase().startsWith('cdash ') &&
+                            <Tooltip title='Load full product' placement='bottom' enterDelay={500}>
+                                <IconButton onClick={this.props.loadFullProduct}>
+                                    <CloudDownload/>
+                                </IconButton>
+                            </Tooltip>
+                        }
                         { currentView !== 'products' &&
                                 <Grid item>
                                     <TextField
@@ -190,6 +201,7 @@ ConnectedCdiscLibraryBreadcrumbs.propTypes = {
     gridView: PropTypes.bool.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
     toggleCdiscLibraryItemGroupGridView: PropTypes.func.isRequired,
+    loadFullProduct: PropTypes.func,
     onSearchUpdate: PropTypes.func,
 };
 

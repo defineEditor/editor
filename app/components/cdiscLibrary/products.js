@@ -81,6 +81,12 @@ class ConnectedProducts extends React.Component {
     }
 
     getItems = async () => {
+        // As a temporary bugfix, send a dummy request in 3 seconds if the object did not load
+        setTimeout(() => {
+            if (Object.keys(this.state.classes).length === 0) {
+                this.dummyRequest(3);
+            }
+        }, 1000);
         let productClasses = await this.props.cdiscLibrary.getProductClasses();
         let panelIds = Object.keys(productClasses);
         let classes = {};
@@ -118,6 +124,23 @@ class ConnectedProducts extends React.Component {
             classes[classId].groups = groups;
         });
         this.setState({ classes });
+    }
+
+    dummyRequest = async (maxRetries) => {
+        // There is a glitch, which causes the response not to come back in some cases
+        // It is currently fixed by sending a dummy request in 1 seconds if the main response did not come back
+        if (maxRetries > 1) {
+            setTimeout(() => {
+                if (Object.keys(this.state.classes).length === 0) {
+                    this.dummyRequest(maxRetries - 1);
+                }
+            }, 1000);
+        }
+        try {
+            await this.props.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint');
+        } catch (error) {
+            // It is expected to fail, so do nothing
+        }
     }
 
     handleChange = (panelId) => () => {

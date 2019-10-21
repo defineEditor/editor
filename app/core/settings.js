@@ -684,8 +684,8 @@ class ConnectedSettings extends React.Component {
                             <Grid item xs={12}>
                                 <TextField
                                     label='Base URL'
-                                    value={this.state.cdiscLibrary.baseURL}
-                                    onChange={this.handleChange('cdiscLibrary', 'baseURL')}
+                                    value={this.state.cdiscLibrary.baseUrl}
+                                    onChange={this.handleChange('cdiscLibrary', 'baseUrl')}
                                     helperText='CDISC Library API base URL'
                                     className={classes.textFieldShort}
                                 />

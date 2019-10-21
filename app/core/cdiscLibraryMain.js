@@ -21,6 +21,7 @@ import CdiscLibraryItemGroups from 'components/cdiscLibrary/itemGroups.js';
 import CdiscLibraryItems from 'components/cdiscLibrary/items.js';
 import NavigationBar from 'core/navigationBar.js';
 import initCdiscLibrary from 'utils/initCdiscLibrary.js';
+import { decrypt } from 'utils/encryptDecrypt.js';
 import {
     openSnackbar,
 } from 'actions/index.js';
@@ -44,6 +45,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
     return {
         currentView: state.present.ui.cdiscLibrary.currentView,
+        settings: state.present.settings.cdiscLibrary,
     };
 };
 
@@ -51,7 +53,21 @@ const cdiscLibrary = initCdiscLibrary();
 
 class ConnectedCdiscLibraryMain extends React.Component {
     componentDidMount () {
+        this.checkCredentials();
         this.checkConnection();
+    }
+
+    checkCredentials = () => {
+        let settings = this.props.settings;
+        let coreObject = cdiscLibrary.coreObject;
+        if (settings.username !== coreObject.username ||
+            decrypt(settings.password) !== coreObject.password ||
+            settings.baseUrl !== coreObject.baseUrl
+        ) {
+            coreObject.username = settings.username;
+            coreObject.password = decrypt(settings.password);
+            coreObject.baseUrl = settings.baseUrl;
+        }
     }
 
     checkConnection = async () => {
@@ -86,6 +102,7 @@ class ConnectedCdiscLibraryMain extends React.Component {
 
 ConnectedCdiscLibraryMain.propTypes = {
     currentView: PropTypes.string.isRequired,
+    settings: PropTypes.object.isRequired,
 };
 ConnectedCdiscLibraryMain.displayName = 'CdiscLibraryMain';
 

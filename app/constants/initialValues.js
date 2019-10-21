@@ -166,7 +166,7 @@ const editor = {
 const cdiscLibrary = {
     username: '',
     password: '',
-    baseURL: 'https://library.cdisc.org/api',
+    baseUrl: 'https://library.cdisc.org/api',
 };
 
 const define = {

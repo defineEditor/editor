@@ -82,10 +82,45 @@ class ConnectedItemGroups extends React.Component {
         let cl = this.props.cdiscLibrary;
         let productFullId = await cl.getProductIdByAlias(this.props.productId);
         let product = cl.productClasses[productFullId.productClassId].productGroups[productFullId.productGroupId].products[productFullId.productId];
+        // As a temporary bugfix, send a dummy request in 3 seconds if the object did not load
+        setTimeout(() => {
+            if (this.state.product === null) {
+                this.dummyRequest(3);
+            }
+        }, 1000);
 
+        this.updateState(product);
+    }
+
+    loadFullProduct = async () => {
+        let cl = this.props.cdiscLibrary;
+        this.setState({ itemGroups: [], product: null });
+        let product = await cl.getFullProduct(this.props.productId);
+
+        this.updateState(product);
+    }
+
+    updateState = async (product) => {
         let itemGroupsRaw = await product.getItemGroups({ type: 'short' });
         let itemGroups = Object.values(itemGroupsRaw).sort((ig1, ig2) => (ig1.name > ig2.name ? 1 : -1));
         this.setState({ itemGroups, product });
+    }
+
+    dummyRequest = async (maxRetries) => {
+        // There is a glitch, which causes the response not to come back in some cases
+        // It is currently fixed by sending a dummy request in 1 seconds if the main response did not come back
+        if (maxRetries > 1) {
+            setTimeout(() => {
+                if (this.state.product === null) {
+                    this.dummyRequest(maxRetries - 1);
+                }
+            }, 1000);
+        }
+        try {
+            await this.props.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint');
+        } catch (error) {
+            // It is expected to fail, so do nothing
+        }
     }
 
     selectItemGroup = (itemGroupId) => () => {
@@ -172,10 +207,11 @@ class ConnectedItemGroups extends React.Component {
                         traffic={this.props.cdiscLibrary.getTrafficStats()}
                         searchString={this.state.searchString}
                         onSearchUpdate={this.handleSearchUpdate}
+                        loadFullProduct={this.loadFullProduct}
                     />
                 </Grid>
                 <Grid item xs={12}>
-                    { this.state.itemGroups.length === 0 && <Loading onRetry={this.getItemGroups} /> }
+                    { this.state.product === null && <Loading onRetry={this.getItemGroups} /> }
                     { this.props.gridView ? this.showGrid() : this.showList()}
                 </Grid>
             </Grid>
