@@ -34,6 +34,9 @@ import {
     UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED,
     UI_OPENSNACKBAR,
     UI_CLOSESNACKBAR,
+    UI_TOGGLECDISCLIBRARYPANELS,
+    UI_CHANGECDISCLIBRARYVIEW,
+    UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
 } from 'constants/action-types';
 import changeAppTitle from 'utils/changeAppTitle.js';
 
@@ -142,4 +145,18 @@ export const openSnackbar = updateObj => ({
 
 export const closeSnackbar = () => ({
     type: UI_CLOSESNACKBAR,
+});
+
+export const toggleCdiscLibraryPanels = updateObj => ({
+    type: UI_TOGGLECDISCLIBRARYPANELS,
+    updateObj
+});
+
+export const changeCdiscLibraryView = updateObj => ({
+    type: UI_CHANGECDISCLIBRARYVIEW,
+    updateObj
+});
+
+export const toggleCdiscLibraryItemGroupGridView = () => ({
+    type: UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
 });

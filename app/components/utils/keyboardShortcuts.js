@@ -96,6 +96,7 @@ const shortcuts = {
         'E': 'Open Editor',
         'C': 'Open Controlled Terminology',
         'T': 'Open Settings',
+        'L': 'Open CDISC Library',
         'Ctrl + P': 'Print',
     },
 };

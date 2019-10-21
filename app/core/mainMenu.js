@@ -37,6 +37,7 @@ import Print from '@material-ui/icons/Print';
 import Search from '@material-ui/icons/Search';
 import Review from '@material-ui/icons/RemoveRedEye';
 import Archive from '@material-ui/icons/Archive';
+import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import Description from '@material-ui/icons/Description';
 import OpenInBrowser from '@material-ui/icons/OpenInBrowser';
 import Close from '@material-ui/icons/Close';
@@ -119,6 +120,8 @@ class ConnectedMainMenu extends React.Component {
                 this.openSettings();
             } else if (event.keyCode === 67) {
                 this.openControlledTerminology();
+            } else if (event.keyCode === 76) {
+                this.openCdiscLibrary();
             } else if (event.keyCode === 80) {
                 this.print();
             }
@@ -153,6 +156,10 @@ class ConnectedMainMenu extends React.Component {
 
     openControlledTerminology = () => {
         this.props.changePage({ page: 'controlledTerminology' });
+    }
+
+    openCdiscLibrary = () => {
+        this.props.changePage({ page: 'cdiscLibrary' });
     }
 
     openSettings = () => {
@@ -201,6 +208,12 @@ class ConnectedMainMenu extends React.Component {
                                     <Public/>
                                 </ListItemIcon>
                                 <ListItemText primary='Controlled Teminology'/>
+                            </ListItem>
+                            <ListItem button key='cdiscLibrary' onClick={this.openCdiscLibrary}>
+                                <ListItemIcon>
+                                    <LocalLibrary/>
+                                </ListItemIcon>
+                                <ListItemText primary='CDISC Library'/>
                             </ListItem>
                             <ListItem button key='settings' onClick={this.openSettings}>
                                 <ListItemIcon>

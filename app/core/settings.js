@@ -21,6 +21,8 @@ import clone from 'clone';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import FolderOpen from '@material-ui/icons/FolderOpen';
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Switch from '@material-ui/core/Switch';
@@ -32,6 +34,7 @@ import SaveCancel from 'editors/saveCancel.js';
 import InternalHelp from 'components/utils/internalHelp.js';
 import { CT_LOCATION } from 'constants/help.js';
 import { updateSettings, openModal } from 'actions/index.js';
+import { encrypt, decrypt } from 'utils/encryptDecrypt.js';
 
 const styles = theme => ({
     root: {
@@ -42,12 +45,19 @@ const styles = theme => ({
         marginLeft: theme.spacing.unit * 2,
         outline: 'none'
     },
+    adorementIcon: {
+        outline: 'none'
+    },
     userName: {
         width: 200,
         margin: theme.spacing.unit
     },
     textField: {
         width: '90%',
+        margin: theme.spacing.unit
+    },
+    textFieldShort: {
+        width: 300,
         margin: theme.spacing.unit
     },
     sourceSystem: {
@@ -84,12 +94,17 @@ class ConnectedSettings extends React.Component {
     constructor (props) {
         super(props);
         this.state = clone(this.props.settings);
+        // Decrypt the cdiscLibrary password
+        if (this.state.cdiscLibrary && this.state.cdiscLibrary.password) {
+            this.state.cdiscLibrary.password = decrypt(this.state.cdiscLibrary.password);
+        }
         // Check if default System is used
         if (this.state.define && this.state.define.sourceSystem === remote.app.getName()) {
             this.state.defaultSource = true;
         } else {
             this.state.defaultSource = false;
         }
+        this.state.showPassword = false;
     }
 
     componentDidMount () {
@@ -101,7 +116,7 @@ class ConnectedSettings extends React.Component {
         ipcRenderer.removeListener('selectedFile', this.setCTLocation);
         window.removeEventListener('keydown', this.onKeyDown);
         // If settings are not saved, open a confirmation window
-        let diff = this.getSettingsDiff();
+        let diff = this.getSettingsDiff(true);
         if (Object.keys(diff).length > 0) {
             this.props.openModal({
                 type: 'SAVE_SETTINGS',
@@ -173,11 +188,12 @@ class ConnectedSettings extends React.Component {
         }
     };
 
-    getSettingsDiff = () => {
+    getSettingsDiff = (ignorePassword = false) => {
         let result = {};
         let newSettings = clone(this.state);
-        // Remove default source flag as not part of the settings
+        // Remove default source and password visibility flags as not part of the settings
         delete newSettings.defaultSource;
+        delete newSettings.showPassword;
         Object.keys(newSettings).forEach(category => {
             Object.keys(newSettings[category]).forEach(setting => {
                 if (
@@ -191,12 +207,25 @@ class ConnectedSettings extends React.Component {
                 }
             });
         });
+        // Ignore password check (because password is stored encrypted in the state and as plain text in the component)
+        if (ignorePassword === true) {
+            if (result.cdiscLibrary && result.cdiscLibrary.password) {
+                delete result.cdiscLibrary.password;
+                if (Object.keys(result.cdiscLibrary).length === 0) {
+                    delete result.cdiscLibrary;
+                }
+            }
+        }
         return result;
     }
 
     save = () => {
         let diff = this.getSettingsDiff();
         if (Object.keys(diff).length > 0) {
+            // Encrypt the cdiscLibrary password
+            if (diff.cdiscLibrary && diff.cdiscLibrary.password) {
+                diff.cdiscLibrary.password = encrypt(diff.cdiscLibrary.password);
+            }
             this.props.updateSettings(diff);
         }
     };
@@ -211,6 +240,10 @@ class ConnectedSettings extends React.Component {
         } else if (event.ctrlKey && event.keyCode === 83) {
             this.save();
         }
+    };
+
+    handleClickShowPassword = () => {
+        this.setState(state => ({ showPassword: !state.showPassword }));
     };
 
     render () {
@@ -250,6 +283,7 @@ class ConnectedSettings extends React.Component {
                                                 <IconButton
                                                     color="default"
                                                     onClick={this.selectControlledTerminologyLocation}
+                                                    className={classes.adorementIcon}
                                                 >
                                                     <FolderOpen />
                                                 </IconButton>
@@ -606,6 +640,54 @@ class ConnectedSettings extends React.Component {
                                     }
                                     onChange={this.handleChange('define', 'sourceSystemVersion')}
                                     className={classes.sourceSystemVersion}
+                                />
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
+                            CDISC Library
+                        </Typography>
+                        <Grid container>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label='Username'
+                                    value={this.state.cdiscLibrary.username}
+                                    onChange={this.handleChange('cdiscLibrary', 'username')}
+                                    helperText='CDISC Library API username'
+                                    className={classes.textFieldShort}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label='Password'
+                                    value={this.state.cdiscLibrary.password}
+                                    onChange={this.handleChange('cdiscLibrary', 'password')}
+                                    type={this.state.showPassword ? 'text' : 'password'}
+                                    helperText='CDISC Library API password'
+                                    className={classes.textFieldShort}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <IconButton
+                                                    aria-label="Toggle password visibility"
+                                                    onClick={this.handleClickShowPassword}
+                                                    className={classes.adorementIcon}
+                                                >
+                                                    {this.state.showPassword ? <Visibility /> : <VisibilityOff />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label='Base URL'
+                                    value={this.state.cdiscLibrary.baseUrl}
+                                    onChange={this.handleChange('cdiscLibrary', 'baseUrl')}
+                                    helperText='CDISC Library API base URL'
+                                    className={classes.textFieldShort}
                                 />
                             </Grid>
                         </Grid>
