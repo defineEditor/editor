@@ -174,6 +174,7 @@ class ConnectedSettings extends React.Component {
             'disableAnimations',
             'addStylesheet',
             'onlyArmEdit',
+            'enableCdiscLibrary',
         ].includes(name) || category === 'popUp') {
             this.setState({ [category]: { ...this.state[category], [name]: checked } });
         } else if (['sourceSystemVersion'].includes(name)) {
@@ -650,17 +651,34 @@ class ConnectedSettings extends React.Component {
                         </Typography>
                         <Grid container>
                             <Grid item xs={12}>
+                                <FormGroup>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.cdiscLibrary.enableCdiscLibrary}
+                                                onChange={this.handleChange('cdiscLibrary', 'enableCdiscLibrary')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Enable CDISC Library'
+                                    />
+                                </FormGroup>
+                            </Grid>
+                            <Grid item xs={12}>
                                 <TextField
                                     label='Username'
+                                    disabled={!this.state.cdiscLibrary.enableCdiscLibrary}
                                     value={this.state.cdiscLibrary.username}
                                     onChange={this.handleChange('cdiscLibrary', 'username')}
-                                    helperText='CDISC Library API username'
+                                    helperText='CDISC Library API username (not CDISC account name)'
                                     className={classes.textFieldShort}
                                 />
                             </Grid>
                             <Grid item xs={12}>
                                 <TextField
                                     label='Password'
+                                    disabled={!this.state.cdiscLibrary.enableCdiscLibrary}
                                     value={this.state.cdiscLibrary.password}
                                     onChange={this.handleChange('cdiscLibrary', 'password')}
                                     type={this.state.showPassword ? 'text' : 'password'}
@@ -684,6 +702,7 @@ class ConnectedSettings extends React.Component {
                             <Grid item xs={12}>
                                 <TextField
                                     label='Base URL'
+                                    disabled={!this.state.cdiscLibrary.enableCdiscLibrary}
                                     value={this.state.cdiscLibrary.baseUrl}
                                     onChange={this.handleChange('cdiscLibrary', 'baseUrl')}
                                     helperText='CDISC Library API base URL'

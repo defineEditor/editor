@@ -81,10 +81,10 @@ class ConnectedProducts extends React.Component {
     }
 
     getItems = async () => {
-        // As a temporary bugfix, send a dummy request in 3 seconds if the object did not load
+        // As a temporary bugfix, send a dummy request in 1 seconds if the object did not load
         setTimeout(() => {
             if (Object.keys(this.state.classes).length === 0) {
-                this.dummyRequest(3);
+                this.dummyRequest();
             }
         }, 1000);
         let productClasses = await this.props.cdiscLibrary.getProductClasses();
@@ -126,18 +126,11 @@ class ConnectedProducts extends React.Component {
         this.setState({ classes });
     }
 
-    dummyRequest = async (maxRetries) => {
+    dummyRequest = async () => {
         // There is a glitch, which causes the response not to come back in some cases
-        // It is currently fixed by sending a dummy request in 1 seconds if the main response did not come back
-        if (maxRetries > 1) {
-            setTimeout(() => {
-                if (Object.keys(this.state.classes).length === 0) {
-                    this.dummyRequest(maxRetries - 1);
-                }
-            }, 1000);
-        }
+        // It is currently fixed by sending a dummy request in 1 second if the main response did not come back
         try {
-            await this.props.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint');
+            await this.props.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
         } catch (error) {
             // It is expected to fail, so do nothing
         }

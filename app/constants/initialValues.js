@@ -164,6 +164,7 @@ const editor = {
 };
 
 const cdiscLibrary = {
+    enableCdiscLibrary: false,
     username: '',
     password: '',
     baseUrl: 'https://library.cdisc.org/api',

@@ -85,6 +85,7 @@ const mapStateToProps = state => {
         pathToDefine,
         currentDefineId: state.present.ui.main.currentDefineId,
         reviewMode: state.present.ui.main.reviewMode,
+        enableCdiscLibrary: state.present.settings.cdiscLibrary.enableCdiscLibrary,
         actionsDone: state.index,
     };
 };
@@ -195,31 +196,31 @@ class ConnectedMainMenu extends React.Component {
                                 <ListItemIcon>
                                     <Assignment/>
                                 </ListItemIcon>
-                                <ListItemText primary='Studies'/>
+                                <ListItemText primary={<span><u>S</u>tudies</span>}/>
                             </ListItem>
                             <ListItem button key='editor' onClick={this.openEditor} disabled={this.props.currentDefineId === ''}>
                                 <ListItemIcon>
                                     <Edit/>
                                 </ListItemIcon>
-                                <ListItemText primary='Editor'/>
+                                <ListItemText primary={<span><u>E</u>ditor</span>}/>
                             </ListItem>
                             <ListItem button key='controlledTerminology' onClick={this.openControlledTerminology}>
                                 <ListItemIcon>
                                     <Public/>
                                 </ListItemIcon>
-                                <ListItemText primary='Controlled Teminology'/>
+                                <ListItemText primary={<span><u>C</u>ontrolled Teminology</span>}/>
                             </ListItem>
-                            <ListItem button key='cdiscLibrary' onClick={this.openCdiscLibrary}>
+                            <ListItem button key='cdiscLibrary' onClick={this.openCdiscLibrary} disabled={!this.props.enableCdiscLibrary}>
                                 <ListItemIcon>
                                     <LocalLibrary/>
                                 </ListItemIcon>
-                                <ListItemText primary='CDISC Library'/>
+                                <ListItemText primary={<span>CDISC <u>L</u>ibrary</span>}/>
                             </ListItem>
                             <ListItem button key='settings' onClick={this.openSettings}>
                                 <ListItemIcon>
                                     <Settings/>
                                 </ListItemIcon>
-                                <ListItemText primary='Settings'/>
+                                <ListItemText primary={<span>Se<u>t</u>tings</span>}/>
                             </ListItem>
                             <ListItem button key='about' onClick={() => this.props.changePage({ page: 'about' })}>
                                 <ListItemIcon>
@@ -343,6 +344,7 @@ ConnectedMainMenu.propTypes = {
     toggleReviewMode: PropTypes.func.isRequired,
     updateMainUi: PropTypes.func.isRequired,
     actionsDone: PropTypes.number.isRequired,
+    enableCdiscLibrary: PropTypes.bool,
 };
 
 const MainMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedMainMenu);

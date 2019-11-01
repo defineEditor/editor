@@ -40,6 +40,12 @@ const styles = theme => ({
     },
     listItem: {
     },
+    parentGroup: {
+        fontWeight: 'bold',
+    },
+    childGroup: {
+        marginLeft: theme.spacing.unit * 3,
+    },
     main: {
         marginTop: theme.spacing.unit * 8,
         marginLeft: theme.spacing.unit * 1,
@@ -70,6 +76,7 @@ class ConnectedItemGroups extends React.Component {
         this.state = {
             itemGroups: [],
             product: null,
+            type: null,
             searchString: '',
         };
     }
@@ -80,44 +87,43 @@ class ConnectedItemGroups extends React.Component {
 
     getItemGroups = async () => {
         let cl = this.props.cdiscLibrary;
-        let productFullId = await cl.getProductIdByAlias(this.props.productId);
-        let product = cl.productClasses[productFullId.productClassId].productGroups[productFullId.productGroupId].products[productFullId.productId];
+        let product = await cl.getFullProduct(this.props.productId);
         // As a temporary bugfix, send a dummy request in 3 seconds if the object did not load
         setTimeout(() => {
             if (this.state.product === null) {
-                this.dummyRequest(3);
+                this.dummyRequest();
             }
-        }, 1000);
-
-        this.updateState(product);
-    }
-
-    loadFullProduct = async () => {
-        let cl = this.props.cdiscLibrary;
-        this.setState({ itemGroups: [], product: null });
-        let product = await cl.getFullProduct(this.props.productId);
+        }, 3000);
 
         this.updateState(product);
     }
 
     updateState = async (product) => {
-        let itemGroupsRaw = await product.getItemGroups({ type: 'short' });
-        let itemGroups = Object.values(itemGroupsRaw).sort((ig1, ig2) => (ig1.name > ig2.name ? 1 : -1));
-        this.setState({ itemGroups, product });
+        if (typeof product.dataClasses === 'object' && Object.keys(product.dataClasses).length > 0) {
+            let itemGroups = [];
+            Object.values(product.dataClasses).forEach(dataClass => {
+                itemGroups.push({ name: dataClass.name, label: dataClass.label, type: 'parentGroup' });
+                let classGroups = dataClass.getItemGroups();
+                let childGroups = Object.values(classGroups)
+                    .sort((ig1, ig2) => (ig1.name > ig2.name ? 1 : -1))
+                    .map(group => ({ name: group.name, label: group.label, type: 'childGroup' }));
+                if (childGroups.length > 0) {
+                    itemGroups = itemGroups.concat(childGroups);
+                }
+            });
+            this.setState({ itemGroups, product, type: 'subgroups' });
+        } else {
+            let itemGroupsRaw = await product.getItemGroups({ type: 'short' });
+            let itemGroups = Object.values(itemGroupsRaw).sort((ig1, ig2) => (ig1.name > ig2.name ? 1 : -1));
+            this.setState({ itemGroups, product });
+        }
     }
 
-    dummyRequest = async (maxRetries) => {
+    dummyRequest = async () => {
         // There is a glitch, which causes the response not to come back in some cases
         // It is currently fixed by sending a dummy request in 1 seconds if the main response did not come back
-        if (maxRetries > 1) {
-            setTimeout(() => {
-                if (this.state.product === null) {
-                    this.dummyRequest(maxRetries - 1);
-                }
-            }, 1000);
-        }
         try {
-            await this.props.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint');
+            await this.props.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
         } catch (error) {
             // It is expected to fail, so do nothing
         }
@@ -178,19 +184,30 @@ class ConnectedItemGroups extends React.Component {
             });
         }
 
+        const classes = this.props.classes;
+
         return (
             <List>
                 {data.map(itemGroup => (
                     <ListItem
                         button
                         key={itemGroup.name}
-                        className={this.props.classes.listItem}
+                        className={classes.listItem}
                         onClick={this.selectItemGroup(itemGroup.name)}
                     >
-                        <ListItemText
-                            primary={itemGroup.name}
-                            secondary={itemGroup.label}
-                        />
+                        { this.state.type === 'subgroups' &&
+                                <ListItemText
+                                    primary={itemGroup.name}
+                                    secondary={itemGroup.label}
+                                    className={itemGroup.type === 'parentGroup' ? classes.parentGroup : classes.childGroup}
+                                />
+                        }
+                        { this.state.type !== 'subgroups' &&
+                                <ListItemText
+                                    primary={itemGroup.name}
+                                    secondary={itemGroup.label}
+                                />
+                        }
                     </ListItem>
                 ))}
             </List>
@@ -207,7 +224,6 @@ class ConnectedItemGroups extends React.Component {
                         traffic={this.props.cdiscLibrary.getTrafficStats()}
                         searchString={this.state.searchString}
                         onSearchUpdate={this.handleSearchUpdate}
-                        loadFullProduct={this.loadFullProduct}
                     />
                 </Grid>
                 <Grid item xs={12}>

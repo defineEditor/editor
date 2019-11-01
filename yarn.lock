@@ -2863,10 +2863,8 @@ circular-json@^0.3.1:
   resolved "https://registry.yarnpkg.com/circular-json/-/circular-json-0.3.3.tgz#815c99ea84f6809529d2f45791bdf82711352d66"
   integrity sha512-UZK3NBx2Mca+b5LsG7bY183pHWt5Y1xts4P3Pz7ENTwGVnJOUWbRb3ocjvX7hx9tq/yTAdclXm9sZ38gNuem4A==
 
-cla-wrapper@^0.1.2:
+cla-wrapper@../cla-wrapper:
   version "0.1.4"
-  resolved "https://registry.yarnpkg.com/cla-wrapper/-/cla-wrapper-0.1.4.tgz#4e641fc2adc8cc522b4fac23d6b80e61b530542c"
-  integrity sha512-T/QiYuCQrc05ptLTJ6EYklJADdx+vSaDoYo6nc8/6l1fOV99+dPRXr7xG9UqKxGP5Mu8Z7XL6QF4x8Kb9PcAPA==
   dependencies:
     json2csv "^4.5.2"
     request "^2.88.0"
@@ -6469,6 +6467,11 @@ icss-utils@^2.1.0:
   integrity sha1-g/Cg7DeL8yRheLbCrZE28TWxyWI=
   dependencies:
     postcss "^6.0.1"
+
+idb@^4.0.5:
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/idb/-/idb-4.0.5.tgz#23b930fbb0abce391e939c35b7b31a669e74041f"
+  integrity sha512-P+Fk9HT2h1DhXoE1YNK183SY+CRh2GHNh28de94sGwhe0bUA75JJeVJWt3SenE5p0BXK7maflIq29dl6UZHrFw==
 
 identity-obj-proxy@^3.0.0:
   version "3.0.0"

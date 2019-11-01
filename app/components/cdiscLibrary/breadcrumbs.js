@@ -155,7 +155,7 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                 </Grid>
                 <Grid item>
                     <Grid container justify='flex-end'>
-                        { currentView === 'itemGroups' && !this.props.productName.toLowerCase().startsWith('cdash ') &&
+                        { currentView === 'currentlyDisabled' && !this.props.productName.toLowerCase().startsWith('cdash ') &&
                             <Tooltip title='Load full product' placement='bottom' enterDelay={500}>
                                 <IconButton onClick={this.props.loadFullProduct}>
                                     <CloudDownload/>

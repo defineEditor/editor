@@ -12,20 +12,20 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import IconButton from '@material-ui/core/IconButton';
+import React from 'react';
+import clone from 'clone';
 import PropTypes from 'prop-types';
-import PdfPageEditor from 'editors/pdfPageEditor.js';
+import IconButton from '@material-ui/core/IconButton';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import PictureAsPdf from '@material-ui/icons/PictureAsPdf';
 import Grid from '@material-ui/core/Grid';
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
-import React from 'react';
-import clone from 'clone';
+import { PdfPageRef } from 'core/defineStructure.js';
+import PdfPageEditor from 'editors/pdfPageEditor.js';
 import ItemSelect from 'utils/itemSelect.js';
 import sortIdList from 'utils/sortIdList.js';
 import { addDocument } from 'utils/defineStructureUtils.js';
-import { PdfPageRef } from 'core/defineStructure.js';
 
 const styles = theme => ({
     button: {

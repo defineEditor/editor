@@ -149,6 +149,14 @@ class ItemTable extends React.Component {
         this.setState({ rowsPerPage: event.target.value });
     };
 
+    getCodelist (item) {
+        if (!item.codelist) {
+            return null;
+        } else {
+            return (<span>{item.codelist}</span>);
+        }
+    }
+
     getItemTable (classes) {
         const { page, rowsPerPage } = this.state;
         const { items, itemGroup, searchString } = this.props;
@@ -202,7 +210,7 @@ class ItemTable extends React.Component {
                     <Table className={classes.table}>
                         <TableHead>
                             <TableRow>
-                                <TableCell style={{ minWidth: 120, maxWidth: 100 }}>Name</TableCell>
+                                <TableCell style={{ minWidth: 120, maxWidth: 100, whiteSpace: 'nowrap' }}>Name</TableCell>
                                 <TableCell style={{ minWidth: 230, maxWidth: 230 }}>Label</TableCell>
                                 <TableCell style={{ minWidth: 100, maxWidth: 100 }}>Datatype</TableCell>
                                 { layout !== 3 && <TableCell style={{ minWidth: 100, maxWidth: 100 }}>Codelist</TableCell> }
@@ -217,10 +225,10 @@ class ItemTable extends React.Component {
                                 .map(item => {
                                     return (
                                         <TableRow key={item.id}>
-                                            <TableCell style={{ minWidth: 120, maxWidth: 100 }}>{item.name}</TableCell>
+                                            <TableCell style={{ minWidth: 120, maxWidth: 100, whiteSpace: 'nowrap' }}>{item.name}</TableCell>
                                             <TableCell style={{ minWidth: 230, maxWidth: 230 }}>{item.label}</TableCell>
                                             <TableCell style={{ minWidth: 100, maxWidth: 100 }}>{item.simpleDatatype}</TableCell>
-                                            { layout !== 3 && <TableCell style={{ minWidth: 100, maxWidth: 100 }}>{item.codelist}</TableCell> }
+                                            { layout !== 3 && <TableCell style={{ minWidth: 100, maxWidth: 100 }}>{this.getCodelist(item)}</TableCell> }
                                             { layout !== 3 && <TableCell style={{ minWidth: 80, maxWidth: 80 }}>{item.core}</TableCell> }
                                             { layout === 1 && <TableCell style={{ minWidth: 100, maxWidth: 100 }}>{itemRole(item)}</TableCell> }
                                             <TableCell>{itemDescription(item, layout)}</TableCell>

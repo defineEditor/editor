@@ -21,6 +21,7 @@ import selectFile from './main/selectFile.js';
 import writeDefineObject from './main/writeDefineObject.js';
 import exportStudy from './main/exportStudy.js';
 import importStudy from './main/importStudy.js';
+import { claMatch, claPut } from './main/claCache.js';
 import loadDefineObject from './main/loadDefineObject.js';
 import copySampleStudy from './main/copySampleStudy.js';
 import loadControlledTerminology from './main/loadControlledTerminology.js';
@@ -167,7 +168,14 @@ ipcMain.on('exportReviewComments', (event, exportData) => {
 ipcMain.on('setTitle', (event, title) => {
     mainWindow.setTitle(title);
 });
-
+// CDISC Library Cache functions: match
+ipcMain.on('claMatch', (event, request) => {
+    claMatch(mainWindow, request);
+});
+ipcMain.on('claPut', (event, request, response) => {
+    claPut(mainWindow, request, response);
+});
+// Close the main window
 ipcMain.on('quitConfirmed', (event) => {
     mainWindow = null;
 });
