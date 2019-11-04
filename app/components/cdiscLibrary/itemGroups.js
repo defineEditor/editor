@@ -101,16 +101,22 @@ class ConnectedItemGroups extends React.Component {
     updateState = async (product) => {
         if (typeof product.dataClasses === 'object' && Object.keys(product.dataClasses).length > 0) {
             let itemGroups = [];
-            Object.values(product.dataClasses).forEach(dataClass => {
-                itemGroups.push({ name: dataClass.name, label: dataClass.label, type: 'parentGroup' });
-                let classGroups = dataClass.getItemGroups();
-                let childGroups = Object.values(classGroups)
-                    .sort((ig1, ig2) => (ig1.name > ig2.name ? 1 : -1))
-                    .map(group => ({ name: group.name, label: group.label, type: 'childGroup' }));
-                if (childGroups.length > 0) {
-                    itemGroups = itemGroups.concat(childGroups);
-                }
-            });
+            Object.values(product.dataClasses)
+                .sort((dc1, dc2) => (dc1.ordinal > dc2.ordinal ? 1 : -1))
+                .forEach(dataClass => {
+                    if (Object.keys(dataClass.getItems({ immediate: true })).length === 0) {
+                        itemGroups.push({ name: dataClass.name, label: dataClass.label, type: 'headerGroup' });
+                    } else {
+                        itemGroups.push({ name: dataClass.name, label: dataClass.label, type: 'parentGroup' });
+                    }
+                    let classGroups = dataClass.getItemGroups();
+                    let childGroups = Object.values(classGroups)
+                        .sort((ig1, ig2) => (ig1.name > ig2.name ? 1 : -1))
+                        .map(group => ({ name: group.name, label: group.label, type: 'childGroup' }));
+                    if (childGroups.length > 0) {
+                        itemGroups = itemGroups.concat(childGroups);
+                    }
+                });
             this.setState({ itemGroups, product, type: 'subgroups' });
         } else {
             let itemGroupsRaw = await product.getItemGroups({ type: 'short' });
@@ -129,8 +135,28 @@ class ConnectedItemGroups extends React.Component {
         }
     }
 
-    selectItemGroup = (itemGroupId) => () => {
-        this.props.changeCdiscLibraryView({ view: 'items', itemGroupId });
+    selectItemGroup = (itemGroup) => () => {
+        if (this.state.type === 'subgroups') {
+            // Get type
+            let type;
+            let itemGroupId;
+            // A simple domain/dataset is an itemGroup
+            if (itemGroup.type === 'childGroup') {
+                type = 'itemGroup';
+                itemGroupId = itemGroup.name;
+            } else {
+                Object.values(this.state.product.dataClasses).forEach(dataClass => {
+                    if (dataClass.name === itemGroup.name) {
+                        type = 'dataClass';
+                        itemGroupId = dataClass.id;
+                    }
+                });
+            }
+
+            this.props.changeCdiscLibraryView({ view: 'items', itemGroupId, type });
+        } else {
+            this.props.changeCdiscLibraryView({ view: 'items', itemGroupId: itemGroup.name, type: 'itemGroup' });
+        }
     }
 
     handleSearchUpdate = (event) => {
@@ -160,7 +186,7 @@ class ConnectedItemGroups extends React.Component {
                             size='large'
                             fullWidth
                             className={this.props.classes.button}
-                            onClick={this.selectItemGroup(itemGroup.name)}
+                            onClick={this.selectItemGroup(itemGroup)}
                         >
                             {itemGroup.name}
                         </Button>
@@ -168,6 +194,16 @@ class ConnectedItemGroups extends React.Component {
                 )) }
             </GridList>
         );
+    }
+
+    getClassName = (itemGroup, classes) => {
+        if (itemGroup.type === 'parentGroup') {
+            return classes.parentGroup;
+        } else if (itemGroup.type === 'headerGroup') {
+            return classes.parentGroup;
+        } else if (itemGroup.type === 'childGroup') {
+            return classes.childGroup;
+        }
     }
 
     showList = () => {
@@ -193,21 +229,14 @@ class ConnectedItemGroups extends React.Component {
                         button
                         key={itemGroup.name}
                         className={classes.listItem}
-                        onClick={this.selectItemGroup(itemGroup.name)}
+                        disabled={itemGroup.type === 'headerGroup'}
+                        onClick={this.selectItemGroup(itemGroup)}
                     >
-                        { this.state.type === 'subgroups' &&
-                                <ListItemText
-                                    primary={itemGroup.name}
-                                    secondary={itemGroup.label}
-                                    className={itemGroup.type === 'parentGroup' ? classes.parentGroup : classes.childGroup}
-                                />
-                        }
-                        { this.state.type !== 'subgroups' &&
-                                <ListItemText
-                                    primary={itemGroup.name}
-                                    secondary={itemGroup.label}
-                                />
-                        }
+                        <ListItemText
+                            primary={itemGroup.name}
+                            secondary={itemGroup.label}
+                            className={this.getClassName(itemGroup, classes)}
+                        />
                     </ListItem>
                 ))}
             </List>

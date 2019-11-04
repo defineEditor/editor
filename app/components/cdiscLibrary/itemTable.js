@@ -149,7 +149,7 @@ class ItemTable extends React.Component {
         this.setState({ rowsPerPage: event.target.value });
     };
 
-    getCodelist (item) {
+    getCodeList (item) {
         if (!item.codelist) {
             return null;
         } else {
@@ -194,15 +194,27 @@ class ItemTable extends React.Component {
 
         // Define layout depending on the dataset type
         let layout;
-        if (itemGroup.type === 'SDTM Dataset') {
+        let product = this.props.product;
+        if (product.type === 'Foundational Model' && product.model === 'SDTM') {
+            layout = 4;
+        } else if (itemGroup.type === 'SDTM Dataset') {
             layout = 1;
         } else if (itemGroup.constructor && itemGroup.constructor.name === 'DataStructure') {
             layout = 2;
-        } else if (itemGroup.type === 'CDASH Domain') {
+        } else if (product.model === 'CDASH') {
             layout = 3;
-        } else if (itemGroup.constructor && itemGroup.constructor.name) {
+        } else {
             layout = 1;
         }
+
+        let colWidths = {
+            name: 120,
+            label: 230,
+            dataType: 100,
+            codeList: 100,
+            core: 80,
+            role: layout === 4 ? 290 : 100,
+        };
 
         return (
             <Grid container spacing={0}>
@@ -210,12 +222,12 @@ class ItemTable extends React.Component {
                     <Table className={classes.table}>
                         <TableHead>
                             <TableRow>
-                                <TableCell style={{ minWidth: 120, maxWidth: 100, whiteSpace: 'nowrap' }}>Name</TableCell>
-                                <TableCell style={{ minWidth: 230, maxWidth: 230 }}>Label</TableCell>
-                                <TableCell style={{ minWidth: 100, maxWidth: 100 }}>Datatype</TableCell>
-                                { layout !== 3 && <TableCell style={{ minWidth: 100, maxWidth: 100 }}>Codelist</TableCell> }
-                                { layout !== 3 && <TableCell style={{ minWidth: 80, maxWidth: 80 }}>Core</TableCell> }
-                                { layout === 1 && <TableCell style={{ minWidth: 100, maxWidth: 100 }}>Role</TableCell> }
+                                <TableCell style={{ minWidth: colWidths.name, maxWidth: colWidths.name, whiteSpace: 'nowrap' }}>Name</TableCell>
+                                <TableCell style={{ minWidth: colWidths.label, maxWidth: colWidths.label }}>Label</TableCell>
+                                <TableCell style={{ minWidth: colWidths.dataType, maxWidth: colWidths.dataType }}>Datatype</TableCell>
+                                { layout !== 4 && <TableCell style={{ minWidth: colWidths.codeList, maxWidth: colWidths.codeList }}>Codelist</TableCell> }
+                                { ![3, 4].includes(layout) && <TableCell style={{ minWidth: colWidths.core, maxWidth: colWidths.core }}>Core</TableCell> }
+                                { [1, 4].includes(layout) && <TableCell style={{ minWidth: colWidths.role, maxWidth: colWidths.role }}>Role</TableCell> }
                                 <TableCell>Description</TableCell>
                             </TableRow>
                         </TableHead>
@@ -225,12 +237,12 @@ class ItemTable extends React.Component {
                                 .map(item => {
                                     return (
                                         <TableRow key={item.id}>
-                                            <TableCell style={{ minWidth: 120, maxWidth: 100, whiteSpace: 'nowrap' }}>{item.name}</TableCell>
-                                            <TableCell style={{ minWidth: 230, maxWidth: 230 }}>{item.label}</TableCell>
-                                            <TableCell style={{ minWidth: 100, maxWidth: 100 }}>{item.simpleDatatype}</TableCell>
-                                            { layout !== 3 && <TableCell style={{ minWidth: 100, maxWidth: 100 }}>{this.getCodelist(item)}</TableCell> }
-                                            { layout !== 3 && <TableCell style={{ minWidth: 80, maxWidth: 80 }}>{item.core}</TableCell> }
-                                            { layout === 1 && <TableCell style={{ minWidth: 100, maxWidth: 100 }}>{itemRole(item)}</TableCell> }
+                                            <TableCell style={{ minWidth: colWidths.name, maxWidth: colWidths.name, whiteSpace: 'nowrap' }}>{item.name}</TableCell>
+                                            <TableCell style={{ minWidth: colWidths.label, maxWidth: colWidths.label }}>{item.label}</TableCell>
+                                            <TableCell style={{ minWidth: colWidths.dataType, maxWidth: colWidths.dataType }}>{item.simpleDatatype}</TableCell>
+                                            { layout !== 4 && <TableCell style={{ minWidth: colWidths.codeList, maxWidth: colWidths.codeList }}>{this.getCodeList(item)}</TableCell> }
+                                            { ![3, 4].includes(layout) && <TableCell style={{ minWidth: colWidths.core, maxWidth: colWidths.core }}>{item.core}</TableCell> }
+                                            { [1, 4].includes(layout) && <TableCell style={{ minWidth: colWidths.role, maxWidth: colWidths.role }}>{itemRole(item)}</TableCell> }
                                             <TableCell>{itemDescription(item, layout)}</TableCell>
                                         </TableRow>
                                     );
@@ -273,6 +285,7 @@ class ItemTable extends React.Component {
 ItemTable.propTypes = {
     items: PropTypes.array.isRequired,
     itemGroup: PropTypes.object.isRequired,
+    product: PropTypes.object.isRequired,
     searchString: PropTypes.string.isRequired,
 };
 

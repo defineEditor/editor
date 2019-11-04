@@ -32,7 +32,7 @@ const changeCdiscLibraryView = (state, action) => {
     }
 
     if (action.updateObj.itemGroupId !== undefined) {
-        newState = { ...newState, items: { ...newState.items, itemGroupId: action.updateObj.itemGroupId } };
+        newState = { ...newState, items: { ...newState.items, itemGroupId: action.updateObj.itemGroupId, type: action.updateObj.type } };
     }
 
     return newState;

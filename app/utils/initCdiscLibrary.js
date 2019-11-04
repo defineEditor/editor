@@ -45,11 +45,11 @@ const getRequestId = async (request) => {
     let hash = await window.crypto.subtle.digest('SHA-1', new TextEncoder().encode(requestOptions));
     const hashArray = Array.from(new Uint8Array(hash));
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    if (hashHex !== '0afd4c0de6a7b1a685edd9e8d152d66d5b4b7bd0') {
-        return shortenedUrl + hashHex;
-    } else {
-        // These are standard request options, no need to add hash code
+    if (hashHex === '0afd4c0de6a7b1a685edd9e8d152d66d5b4b7bd0') {
+        // These are standard request options, no need to add a hash code
         return shortenedUrl;
+    } else {
+        return shortenedUrl + hashHex;
     }
 };
 

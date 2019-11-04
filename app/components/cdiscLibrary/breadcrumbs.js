@@ -26,6 +26,7 @@ import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import CloudDownload from '@material-ui/icons/CloudDownload';
+import Refresh from '@material-ui/icons/Refresh';
 import {
     changeCdiscLibraryView,
     toggleCdiscLibraryItemGroupGridView,
@@ -155,6 +156,13 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                 </Grid>
                 <Grid item>
                     <Grid container justify='flex-end'>
+                        { currentView === 'products' &&
+                                <Tooltip title='Load full product' placement='bottom' enterDelay={500}>
+                                    <IconButton onClick={this.props.refreshProducts}>
+                                        <Refresh/>
+                                    </IconButton>
+                                </Tooltip>
+                        }
                         { currentView === 'currentlyDisabled' && !this.props.productName.toLowerCase().startsWith('cdash ') &&
                             <Tooltip title='Load full product' placement='bottom' enterDelay={500}>
                                 <IconButton onClick={this.props.loadFullProduct}>

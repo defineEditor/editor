@@ -51,7 +51,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
     return {
         productId: state.present.ui.cdiscLibrary.itemGroups.productId,
-        itemGroupId: state.present.ui.cdiscLibrary.items.itemGroupId,
+        items: state.present.ui.cdiscLibrary.items,
     };
 };
 
@@ -60,6 +60,7 @@ class ConnectedCdiscLibraryItems extends React.Component {
         super(props);
 
         this.state = {
+            product: null,
             itemGroup: null,
             items: [],
             searchString: '',
@@ -76,23 +77,15 @@ class ConnectedCdiscLibraryItems extends React.Component {
 
     getItems = async () => {
         let cl = this.props.cdiscLibrary;
-        // As a temporary bugfix, send a dummy request in 1 second if the object did not load
-        setTimeout(() => {
-            if (this.state.itemGroup === null) {
-                this.dummyRequest();
-            }
-        }, 1000);
-        let itemGroup = await cl.getItemGroup(this.props.itemGroupId, this.props.productId);
-        this.setState({ itemGroup, items: Object.values(itemGroup.getItems()) });
-    }
-
-    dummyRequest = async (maxRetries) => {
-        // There is a glitch, which causes the response not to come back in some cases
-        // It is currently fixed by sending a dummy request in 1 second if the main response did not come back
-        try {
-            await this.props.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
-        } catch (error) {
-            // It is expected to fail, so do nothing
+        let itemGroup = null;
+        if (this.props.items && this.props.items.type === 'itemGroup') {
+            let product = await cl.getFullProduct(this.props.productId);
+            itemGroup = await product.getItemGroup(this.props.items.itemGroupId);
+            this.setState({ itemGroup, items: Object.values(itemGroup.getItems()), product });
+        } else if (this.props.items && this.props.items.type === 'dataClass') {
+            let product = await cl.getFullProduct(this.props.productId);
+            itemGroup = product.dataClasses[this.props.items.itemGroupId];
+            this.setState({ itemGroup, items: Object.values(itemGroup.getItems({ immediate: true })), product });
         }
     }
 
@@ -111,7 +104,12 @@ class ConnectedCdiscLibraryItems extends React.Component {
                 <Grid item xs={12}>
                     { this.state.items.length === 0 && <Loading onRetry={this.getItems} />}
                     { this.state.items.length !== 0 &&
-                        <CdiscLibraryItemTable items={this.state.items} itemGroup={this.state.itemGroup} searchString={this.state.searchString}/>
+                            <CdiscLibraryItemTable
+                                items={this.state.items}
+                                itemGroup={this.state.itemGroup}
+                                searchString={this.state.searchString}
+                                product={this.state.product}
+                            />
                     }
                 </Grid>
             </Grid>
@@ -122,7 +120,7 @@ class ConnectedCdiscLibraryItems extends React.Component {
 ConnectedCdiscLibraryItems.propTypes = {
     cdiscLibrary: PropTypes.object.isRequired,
     productId: PropTypes.string.isRequired,
-    itemGroupId: PropTypes.string.isRequired,
+    items: PropTypes.object.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
 };
 ConnectedCdiscLibraryItems.displayName = 'CdiscLibraryItems';
