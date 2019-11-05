@@ -13,7 +13,6 @@
 ***********************************************************************************/
 
 import {
-    UI_TOGGLECDISCLIBRARYPANELS,
     UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
     UI_CHANGECDISCLIBRARYVIEW,
 } from 'constants/action-types';
@@ -48,31 +47,8 @@ const toggleCdiscLibraryItemGroupGridView = (state, action) => {
     };
 };
 
-const toggleCdiscLibraryPanels = (state, action) => {
-    const panelIds = action.updateObj.panelIds;
-    const status = action.updateObj.status;
-    let panelStatus = { ...state.products.panelStatus };
-    panelIds.forEach(panelId => {
-        if (status === undefined) {
-            if (state.products.panelStatus[panelId] !== true) {
-                panelStatus = { ...panelStatus, [panelId]: true };
-            } else {
-                panelStatus = { ...panelStatus, [panelId]: false };
-            }
-        } else {
-            panelStatus = { ...panelStatus, [panelId]: status };
-        }
-    });
-    return {
-        ...state,
-        products: { ...state.products, panelStatus },
-    };
-};
-
 const tabs = (state = initialState, action) => {
     switch (action.type) {
-        case UI_TOGGLECDISCLIBRARYPANELS:
-            return toggleCdiscLibraryPanels(state, action);
         case UI_CHANGECDISCLIBRARYVIEW:
             return changeCdiscLibraryView(state, action);
         case UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW:

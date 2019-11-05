@@ -17,24 +17,20 @@ import { connect } from 'react-redux';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import Divider from '@material-ui/core/Divider';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import CdiscLibraryBreadcrumbs from 'components/cdiscLibrary/breadcrumbs.js';
 import Loading from 'components/utils/loading.js';
 import {
-    toggleCdiscLibraryPanels,
     changeCdiscLibraryView,
 } from 'actions/index.js';
 
 const styles = theme => ({
     heading: {
-        fontSize: theme.typography.pxToRem(15),
-        flexBasis: '33.33%',
-        flexShrink: 0,
+        marginBottom: theme.spacing.unit * 0.5,
     },
     main: {
         marginTop: theme.spacing.unit * 8,
@@ -56,7 +52,6 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        toggleCdiscLibraryPanels: (updateObj) => dispatch(toggleCdiscLibraryPanels(updateObj)),
         changeCdiscLibraryView: (updateObj) => dispatch(changeCdiscLibraryView(updateObj)),
     };
 };
@@ -136,10 +131,6 @@ class ConnectedProducts extends React.Component {
         }
     }
 
-    handleChange = (panelId) => () => {
-        this.props.toggleCdiscLibraryPanels({ panelIds: [panelId] });
-    }
-
     selectProduct = (productId, productName) => () => {
         this.props.changeCdiscLibraryView({ view: 'itemGroups', productId, productName });
     }
@@ -147,23 +138,27 @@ class ConnectedProducts extends React.Component {
     getClasses = (data, panelStatus, classes) => {
         let result = Object.keys(data).map(panelId => {
             return (
-                <ExpansionPanel
+                <List
                     key={panelId}
-                    expanded={panelStatus[panelId] !== false}
-                    onChange={this.handleChange(panelId)}
                     className={classes.classPanel}
                 >
-                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography className={classes.heading}>{data[panelId].title}</Typography>
-                    </ExpansionPanelSummary>
-                    <ExpansionPanelDetails>
-                        <Grid container spacing={8}>
+                    <ListItem
+                        key={panelId}
+                        fullwidth
+                        className={classes.listItem}
+                        elevation={12}
+                        dense
+                    >
+                        <Grid container>
+                            <Grid item ls={12} className={classes.group}>
+                                <Typography variant='h5' color='textSecondary' className={classes.heading}>{data[panelId].title}</Typography>
+                            </Grid>
                             <Grid item className={classes.group}>
                                 {this.getGroups(data[panelId].groups, panelStatus, classes)}
                             </Grid>
                         </Grid>
-                    </ExpansionPanelDetails>
-                </ExpansionPanel>
+                    </ListItem>
+                </List>
             );
         });
         return (result);
@@ -172,21 +167,31 @@ class ConnectedProducts extends React.Component {
     getGroups = (data, panelStatus, classes) => {
         let result = Object.keys(data).map(panelId => {
             return (
-                <ExpansionPanel
-                    key={panelId}
-                    expanded={panelStatus[panelId] === true}
-                    onChange={this.handleChange(panelId)}
-                    className={classes.groupPanel}
-                >
-                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography className={classes.heading}>{data[panelId].title}</Typography>
-                    </ExpansionPanelSummary>
-                    <ExpansionPanelDetails>
-                        <Grid container spacing={8} justify='flex-start'>
-                            {this.getProducts(data[panelId].products, classes)}
-                        </Grid>
-                    </ExpansionPanelDetails>
-                </ExpansionPanel>
+                <React.Fragment key={panelId}>
+                    <List
+                        key={panelId}
+                        className={classes.groupPanel}
+                    >
+                        <ListItem
+                            key={panelId}
+                            fullwidth
+                            className={classes.listItem}
+                            dense
+                        >
+                            <Grid container justify='flex-start'>
+                                <Grid item ls={12} className={classes.group}>
+                                    <Typography variant='h6' color='textSecondary' className={classes.heading}>{data[panelId].title}</Typography>
+                                </Grid>
+                                <Grid item className={classes.group}>
+                                    <Grid container spacing={8} justify='flex-start'>
+                                        {this.getProducts(data[panelId].products, classes)}
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </ListItem>
+                    </List>
+                    <Divider key={panelId + 'divider'}/>
+                </React.Fragment>
             );
         });
         return (result);
@@ -228,7 +233,6 @@ class ConnectedProducts extends React.Component {
 ConnectedProducts.propTypes = {
     cdiscLibrary: PropTypes.object.isRequired,
     panelStatus: PropTypes.object.isRequired,
-    toggleCdiscLibraryPanels: PropTypes.func.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
 };
 ConnectedProducts.displayName = 'Products';

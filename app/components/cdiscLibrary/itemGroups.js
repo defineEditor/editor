@@ -16,10 +16,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
+import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -35,8 +33,17 @@ const styles = theme => ({
         flexBasis: '33.33%',
         flexShrink: 0,
     },
-    button: {
+    longItemGroupButton: {
         height: 40,
+    },
+    shortItemGroupButton: {
+        height: 40,
+        width: 64,
+    },
+    classButton: {
+        height: 40,
+        width: 260,
+        fontWeight: 'bold',
     },
     listItem: {
     },
@@ -163,40 +170,7 @@ class ConnectedItemGroups extends React.Component {
         this.setState({ searchString: event.target.value });
     }
 
-    showGrid = () => {
-        const searchString = this.state.searchString;
-        let data = this.state.itemGroups.slice();
-
-        if (searchString !== '') {
-            data = data.filter(row => {
-                if (/[A-Z]/.test(searchString)) {
-                    return row.name.includes(searchString);
-                } else {
-                    return row.name.toLowerCase().includes(searchString);
-                }
-            });
-        }
-
-        return (
-            <GridList cellHeight={40} className={this.props.classes.gridList} cols={8}>
-                { data.map(itemGroup => (
-                    <GridListTile key={itemGroup.name}>
-                        <Button
-                            color='primary'
-                            size='large'
-                            fullWidth
-                            className={this.props.classes.button}
-                            onClick={this.selectItemGroup(itemGroup)}
-                        >
-                            {itemGroup.name}
-                        </Button>
-                    </GridListTile>
-                )) }
-            </GridList>
-        );
-    }
-
-    getClassName = (itemGroup, classes) => {
+    getListClassName = (itemGroup, classes) => {
         if (itemGroup.type === 'parentGroup') {
             return classes.parentGroup;
         } else if (itemGroup.type === 'headerGroup') {
@@ -204,6 +178,80 @@ class ConnectedItemGroups extends React.Component {
         } else if (itemGroup.type === 'childGroup') {
             return classes.childGroup;
         }
+    }
+
+    getGridClassName = (dataClass, classes) => {
+        if (['Relationship', 'Associated Persons'].includes(dataClass.name)) {
+            return classes.longItemGroupButton;
+        } else {
+            return classes.shortItemGroupButton;
+        }
+    }
+
+    showGrid = () => {
+        const searchString = this.state.searchString;
+
+        // Convert the data to hierarhical structure
+        let gridData = [];
+        let currentGridItem = {};
+        this.state.itemGroups.forEach(itemGroup => {
+            if (itemGroup.type !== 'childGroup') {
+                if (Object.keys(currentGridItem).length >= 1) {
+                    gridData.push(currentGridItem);
+                }
+                currentGridItem = { ...itemGroup, childGroups: [] };
+            } else {
+                currentGridItem.childGroups.push(itemGroup);
+            }
+        });
+        if (Object.keys(currentGridItem).length >= 1) {
+            gridData.push(currentGridItem);
+        }
+
+        if (searchString !== '') {
+            gridData = gridData.filter(dataClass => {
+                dataClass.childGroups = dataClass.childGroups.filter(itemGroup => {
+                    if (/[A-Z]/.test(searchString)) {
+                        return itemGroup.name.includes(searchString);
+                    } else {
+                        return itemGroup.name.toLowerCase().includes(searchString);
+                    }
+                });
+                if (/[A-Z]/.test(searchString)) {
+                    return (dataClass.name.includes(searchString) || dataClass.childGroups.length > 0);
+                } else {
+                    return (dataClass.name.toLowerCase().includes(searchString) || dataClass.childGroups.length > 0);
+                }
+            });
+        }
+
+        return gridData.map(dataClass => (
+            <Grid container justify='flex-start' direction='row' alignItems='flex-start' key={dataClass.name}>
+                <Grid item>
+                    <Button
+                        color='primary'
+                        size='large'
+                        key={dataClass.name}
+                        className={this.props.classes.classButton}
+                        disabled={dataClass.type === 'headerGroup'}
+                        onClick={this.selectItemGroup(dataClass)}
+                    >
+                        {dataClass.name}
+                    </Button>
+                    { dataClass.childGroups.map(itemGroup => (
+                        <Button
+                            color='primary'
+                            size='large'
+                            key={itemGroup.name}
+                            className={this.getGridClassName(dataClass, this.props.classes)}
+                            onClick={this.selectItemGroup(itemGroup)}
+                        >
+                            {itemGroup.name}
+                        </Button>
+                    ))}
+                </Grid>
+            </Grid>
+        ));
     }
 
     showList = () => {
@@ -235,7 +283,7 @@ class ConnectedItemGroups extends React.Component {
                         <ListItemText
                             primary={itemGroup.name}
                             secondary={itemGroup.label}
-                            className={this.getClassName(itemGroup, classes)}
+                            className={this.getListClassName(itemGroup, classes)}
                         />
                     </ListItem>
                 ))}

@@ -112,7 +112,6 @@ const studiesUi = {
 const cdiscLibraryUi = {
     currentView: 'products',
     products: {
-        panelStatus: {},
     },
     itemGroups: {
         gridView: false,
