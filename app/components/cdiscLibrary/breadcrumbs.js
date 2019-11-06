@@ -49,6 +49,9 @@ const styles = theme => ({
         marginLeft: theme.spacing.unit * 3,
         marginRight: theme.spacing.unit * 3,
     },
+    refreshButton: {
+        marginRight: theme.spacing.unit * 3,
+    },
     searchInput: {
         paddingTop: '9px',
         paddingBottom: '9px',
@@ -158,7 +161,7 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                     <Grid container justify='flex-end'>
                         { currentView === 'products' &&
                                 <Tooltip title='Reload list of products' placement='bottom' enterDelay={500}>
-                                    <IconButton onClick={this.props.refreshProducts}>
+                                    <IconButton onClick={this.props.reloadProducts} className={classes.refreshButton}>
                                         <Refresh/>
                                     </IconButton>
                                 </Tooltip>
@@ -211,6 +214,7 @@ ConnectedCdiscLibraryBreadcrumbs.propTypes = {
     toggleCdiscLibraryItemGroupGridView: PropTypes.func.isRequired,
     loadFullProduct: PropTypes.func,
     onSearchUpdate: PropTypes.func,
+    reloadProducts: PropTypes.func,
 };
 
 ConnectedCdiscLibraryBreadcrumbs.displayName = 'CdiscLibraryItemGroups';

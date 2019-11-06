@@ -22,8 +22,10 @@ import ListItem from '@material-ui/core/ListItem';
 import Divider from '@material-ui/core/Divider';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import CdiscLibraryBreadcrumbs from 'components/cdiscLibrary/breadcrumbs.js';
 import Loading from 'components/utils/loading.js';
+import { openDB } from 'idb';
 import {
     changeCdiscLibraryView,
 } from 'actions/index.js';
@@ -71,6 +73,8 @@ class ConnectedProducts extends React.Component {
         };
     }
 
+    static contextType = CdiscLibraryContext;
+
     componentDidMount () {
         this.getItems();
     }
@@ -82,7 +86,7 @@ class ConnectedProducts extends React.Component {
                 this.dummyRequest();
             }
         }, 1000);
-        let productClasses = await this.props.cdiscLibrary.getProductClasses();
+        let productClasses = await this.context.getProductClasses();
         let panelIds = Object.keys(productClasses);
         let classes = {};
         panelIds.filter(classId => (classId !== 'terminology')).forEach(classId => {
@@ -125,7 +129,7 @@ class ConnectedProducts extends React.Component {
         // There is a glitch, which causes the response not to come back in some cases
         // It is currently fixed by sending a dummy request in 1 second if the main response did not come back
         try {
-            await this.props.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
+            await this.context.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
         } catch (error) {
             // It is expected to fail, so do nothing
         }
@@ -212,12 +216,29 @@ class ConnectedProducts extends React.Component {
         return (result);
     }
 
+    reloadProducts = async () => {
+        this.setState({ classes: {} });
+        const db = await openDB('cdiscLibrary-store', 1, {
+            upgrade (db) {
+                // Create a store of objects
+                db.createObjectStore('cdiscLibrary', {});
+            },
+        });
+
+        await db.delete('cdiscLibrary', 'products');
+
+        // Reset the library contents
+        this.context.reset();
+
+        this.getItems();
+    }
+
     render () {
         const { panelStatus, classes } = this.props;
         return (
             <Grid container spacing={8} justify='space-between' className={classes.main}>
                 <Grid item xs={12}>
-                    <CdiscLibraryBreadcrumbs traffic={this.props.cdiscLibrary.getTrafficStats()} />
+                    <CdiscLibraryBreadcrumbs traffic={this.context.getTrafficStats()} reloadProducts={this.reloadProducts} />
                 </Grid>
                 <Grid item xs={12}>
                     { Object.keys(this.state.classes).length === 0 && <Loading onRetry={this.getItems} /> }
@@ -229,7 +250,6 @@ class ConnectedProducts extends React.Component {
 }
 
 ConnectedProducts.propTypes = {
-    cdiscLibrary: PropTypes.object.isRequired,
     panelStatus: PropTypes.object.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
 };

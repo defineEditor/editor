@@ -17,6 +17,7 @@ import { connect } from 'react-redux';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
+import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import CdiscLibraryBreadcrumbs from 'components/cdiscLibrary/breadcrumbs.js';
 import CdiscLibraryItemTable from 'components/cdiscLibrary/itemTable.js';
 import Loading from 'components/utils/loading.js';
@@ -67,6 +68,8 @@ class ConnectedCdiscLibraryItems extends React.Component {
         };
     }
 
+    static contextType = CdiscLibraryContext;
+
     componentDidMount () {
         this.getItems();
     }
@@ -76,7 +79,7 @@ class ConnectedCdiscLibraryItems extends React.Component {
     }
 
     getItems = async () => {
-        let cl = this.props.cdiscLibrary;
+        let cl = this.context;
         let itemGroup = null;
         if (this.props.items && this.props.items.type === 'itemGroup') {
             let product = await cl.getFullProduct(this.props.productId);
@@ -96,7 +99,7 @@ class ConnectedCdiscLibraryItems extends React.Component {
             <Grid container justify='flex-start' className={classes.main}>
                 <Grid item xs={12}>
                     <CdiscLibraryBreadcrumbs
-                        traffic={this.props.cdiscLibrary.getTrafficStats()}
+                        traffic={this.context.getTrafficStats()}
                         searchString={this.state.searchString}
                         onSearchUpdate={this.handleSearchUpdate}
                     />
@@ -118,7 +121,6 @@ class ConnectedCdiscLibraryItems extends React.Component {
 }
 
 ConnectedCdiscLibraryItems.propTypes = {
-    cdiscLibrary: PropTypes.object.isRequired,
     productId: PropTypes.string.isRequired,
     items: PropTypes.object.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,

@@ -21,6 +21,7 @@ import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import CdiscLibraryBreadcrumbs from 'components/cdiscLibrary/breadcrumbs.js';
 import Loading from 'components/utils/loading.js';
 import {
@@ -93,7 +94,7 @@ class ConnectedItemGroups extends React.Component {
     }
 
     getItemGroups = async () => {
-        let cl = this.props.cdiscLibrary;
+        let cl = this.context;
         let product = await cl.getFullProduct(this.props.productId);
         // As a temporary bugfix, send a dummy request in 3 seconds if the object did not load
         setTimeout(() => {
@@ -104,6 +105,8 @@ class ConnectedItemGroups extends React.Component {
 
         this.updateState(product);
     }
+
+    static contextType = CdiscLibraryContext;
 
     updateState = async (product) => {
         if (typeof product.dataClasses === 'object' && Object.keys(product.dataClasses).length > 0) {
@@ -136,7 +139,7 @@ class ConnectedItemGroups extends React.Component {
         // There is a glitch, which causes the response not to come back in some cases
         // It is currently fixed by sending a dummy request in 1 seconds if the main response did not come back
         try {
-            await this.props.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
+            await this.context.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
         } catch (error) {
             // It is expected to fail, so do nothing
         }
@@ -298,7 +301,7 @@ class ConnectedItemGroups extends React.Component {
             <Grid container justify='space-between' className={classes.main}>
                 <Grid item xs={12}>
                     <CdiscLibraryBreadcrumbs
-                        traffic={this.props.cdiscLibrary.getTrafficStats()}
+                        traffic={this.context.getTrafficStats()}
                         searchString={this.state.searchString}
                         onSearchUpdate={this.handleSearchUpdate}
                     />
@@ -313,7 +316,6 @@ class ConnectedItemGroups extends React.Component {
 }
 
 ConnectedItemGroups.propTypes = {
-    cdiscLibrary: PropTypes.object.isRequired,
     productId: PropTypes.string.isRequired,
     productName: PropTypes.string.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,

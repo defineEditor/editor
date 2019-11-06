@@ -75,7 +75,7 @@ const styles = theme => ({
         margin: theme.spacing.unit
     },
     cdiscLibraryButton: {
-        marginRight: theme.spacing.unit * 2
+        marginRight: theme.spacing.unit * 3
     },
 });
 
@@ -780,7 +780,7 @@ class ConnectedSettings extends React.Component {
                                     onClick={this.checkCdiscLibraryConnection}
                                     className={classes.cdiscLibraryButton}
                                 >
-                                    Check
+                                    Check Connection
                                 </Button>
                                 <Button
                                     variant='contained'

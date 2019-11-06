@@ -20,7 +20,6 @@ import CdiscLibraryProducts from 'components/cdiscLibrary/products.js';
 import CdiscLibraryItemGroups from 'components/cdiscLibrary/itemGroups.js';
 import CdiscLibraryItems from 'components/cdiscLibrary/items.js';
 import NavigationBar from 'core/navigationBar.js';
-import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 
 const styles = theme => ({
     root: {
@@ -39,17 +38,15 @@ const mapStateToProps = state => {
 };
 
 class ConnectedCdiscLibraryMain extends React.Component {
-    static contextType = CdiscLibraryContext;
-
     render () {
         const { currentView, classes } = this.props;
         return (
             <div className={classes.root}>
                 <NavigationBar />
                 <div className={classes.body}>
-                    { currentView === 'products' && <CdiscLibraryProducts cdiscLibrary={this.context} />}
-                    { currentView === 'itemGroups' && <CdiscLibraryItemGroups cdiscLibrary={this.context} />}
-                    { currentView === 'items' && <CdiscLibraryItems cdiscLibrary={this.context} />}
+                    { currentView === 'products' && <CdiscLibraryProducts/>}
+                    { currentView === 'itemGroups' && <CdiscLibraryItemGroups/>}
+                    { currentView === 'items' && <CdiscLibraryItems/>}
                 </div>
             </div>
         );

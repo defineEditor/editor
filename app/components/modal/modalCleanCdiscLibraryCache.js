@@ -47,7 +47,7 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-class ConnectedModalQuitApplication extends React.Component {
+class ConnectedModalCleanCdiscLibraryCache extends React.Component {
     constructor (props) {
         super(props);
 
@@ -111,13 +111,20 @@ class ConnectedModalQuitApplication extends React.Component {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        { this.state.info.endpointsCount !== null && (
+                        { this.state.info.endpointsCount > 0 && (
                             `You have ${this.state.info.endpointsCount} endpoints saved in your cache. Are you sure you want to delete them?`
+                        )}
+                        { this.state.info.endpointsCount <= 0 && (
+                            'There are no saved endpoints.'
                         )}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={this.onDelete} color="primary">
+                    <Button
+                        onClick={this.onDelete}
+                        color="primary"
+                        disabled={this.state.info.endpointsCount <= 0}
+                    >
                         Delete
                     </Button>
                     <Button onClick={this.onCancel} color="primary">
@@ -129,12 +136,11 @@ class ConnectedModalQuitApplication extends React.Component {
     }
 }
 
-ConnectedModalQuitApplication.propTypes = {
+ConnectedModalCleanCdiscLibraryCache.propTypes = {
     classes: PropTypes.object.isRequired,
     updateSettings: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
-    updatedSettings: PropTypes.object.isRequired,
 };
 
-const ModalQuitApplication = connect(undefined, mapDispatchToProps)(ConnectedModalQuitApplication);
-export default withStyles(styles)(ModalQuitApplication);
+const ModalCleanCdiscLibraryCache = connect(undefined, mapDispatchToProps)(ConnectedModalCleanCdiscLibraryCache);
+export default withStyles(styles)(ModalCleanCdiscLibraryCache);

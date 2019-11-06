@@ -92,9 +92,6 @@ class ConnectedSnackbarRoot extends React.Component {
                     className={classes.snackbar}
                 >
                     <SnackbarContent
-                        ContentProps={{
-                            'aria-describedby': 'message-id',
-                        }}
                         message={
                             <span id="client-snackbar" className={classes.message}>
                                 <Icon className={classes.icon} />
