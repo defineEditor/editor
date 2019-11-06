@@ -20,11 +20,7 @@ import CdiscLibraryProducts from 'components/cdiscLibrary/products.js';
 import CdiscLibraryItemGroups from 'components/cdiscLibrary/itemGroups.js';
 import CdiscLibraryItems from 'components/cdiscLibrary/items.js';
 import NavigationBar from 'core/navigationBar.js';
-import initCdiscLibrary from 'utils/initCdiscLibrary.js';
-import { decrypt } from 'utils/encryptDecrypt.js';
-import {
-    openSnackbar,
-} from 'actions/index.js';
+import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 
 const styles = theme => ({
     root: {
@@ -35,13 +31,6 @@ const styles = theme => ({
     },
 });
 
-// Redux functions
-const mapDispatchToProps = dispatch => {
-    return {
-        openSnackbar: (updateObj) => dispatch(openSnackbar(updateObj)),
-    };
-};
-
 const mapStateToProps = state => {
     return {
         currentView: state.present.ui.cdiscLibrary.currentView,
@@ -49,41 +38,8 @@ const mapStateToProps = state => {
     };
 };
 
-const cdiscLibrary = initCdiscLibrary();
-
 class ConnectedCdiscLibraryMain extends React.Component {
-    componentDidMount () {
-        this.checkCredentials();
-        this.checkConnection();
-    }
-
-    checkCredentials = () => {
-        let settings = this.props.settings;
-        let coreObject = cdiscLibrary.coreObject;
-        if (settings.username !== coreObject.username ||
-            decrypt(settings.password) !== coreObject.password ||
-            settings.baseUrl !== coreObject.baseUrl
-        ) {
-            coreObject.username = settings.username;
-            coreObject.password = decrypt(settings.password);
-            coreObject.baseUrl = settings.baseUrl;
-        }
-    }
-
-    checkConnection = async () => {
-        let check = await cdiscLibrary.checkConnection();
-        if (!check) {
-            this.props.openSnackbar({
-                type: 'error',
-                message: 'Failed to connected to CDISC Library.',
-            });
-        } else if (!check || check.statusCode !== 200) {
-            this.props.openSnackbar({
-                type: 'error',
-                message: `Failed to connected to CDISC Library. Status code ${check.statusCode}: ${check.description}`,
-            });
-        }
-    }
+    static contextType = CdiscLibraryContext;
 
     render () {
         const { currentView, classes } = this.props;
@@ -91,9 +47,9 @@ class ConnectedCdiscLibraryMain extends React.Component {
             <div className={classes.root}>
                 <NavigationBar />
                 <div className={classes.body}>
-                    { currentView === 'products' && <CdiscLibraryProducts cdiscLibrary={cdiscLibrary} />}
-                    { currentView === 'itemGroups' && <CdiscLibraryItemGroups cdiscLibrary={cdiscLibrary} />}
-                    { currentView === 'items' && <CdiscLibraryItems cdiscLibrary={cdiscLibrary} />}
+                    { currentView === 'products' && <CdiscLibraryProducts cdiscLibrary={this.context} />}
+                    { currentView === 'itemGroups' && <CdiscLibraryItemGroups cdiscLibrary={this.context} />}
+                    { currentView === 'items' && <CdiscLibraryItems cdiscLibrary={this.context} />}
                 </div>
             </div>
         );
@@ -106,5 +62,5 @@ ConnectedCdiscLibraryMain.propTypes = {
 };
 ConnectedCdiscLibraryMain.displayName = 'CdiscLibraryMain';
 
-const CdiscLibraryMain = connect(mapStateToProps, mapDispatchToProps)(ConnectedCdiscLibraryMain);
+const CdiscLibraryMain = connect(mapStateToProps)(ConnectedCdiscLibraryMain);
 export default withStyles(styles)(CdiscLibraryMain);

@@ -144,7 +144,6 @@ class ConnectedProducts extends React.Component {
                 >
                     <ListItem
                         key={panelId}
-                        fullwidth
                         className={classes.listItem}
                         elevation={12}
                         dense
@@ -174,7 +173,6 @@ class ConnectedProducts extends React.Component {
                     >
                         <ListItem
                             key={panelId}
-                            fullwidth
                             className={classes.listItem}
                             dense
                         >

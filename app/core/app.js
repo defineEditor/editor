@@ -32,6 +32,8 @@ import FindInPage from 'components/utils/findInPage.js';
 import saveState from 'utils/saveState.js';
 import sendDefineObject from 'utils/sendDefineObject.js';
 import changeAppTitle from 'utils/changeAppTitle.js';
+import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
+import initCdiscLibrary from 'utils/initCdiscLibrary.js';
 import {
     openModal,
     updateMainUi,
@@ -188,24 +190,26 @@ class ConnectedApp extends Component {
             );
         }
         return (
-            <MuiThemeProvider theme={this.props.disableAnimations ? disabledAnimationTheme : baseTheme}>
-                <MainMenu
-                    onToggleRedoUndo={this.toggleRedoUndo}
-                    onToggleFindInPage={this.toggleFindInPage}
-                    onToggleShortcuts={this.toggleShortcuts}
-                />
-                <KeyboardShortcuts open={this.state.showShortcuts} onToggleShortcuts={this.toggleShortcuts}/>
-                {this.props.currentPage === 'studies' && <Studies />}
-                {this.props.currentPage === 'editor' && <Editor onToggleRedoUndo={this.toggleRedoUndo}/>}
-                {this.props.currentPage === 'controlledTerminology' && <ControlledTerminology />}
-                {this.props.currentPage === 'cdiscLibrary' && <CdiscLibraryMain />}
-                {this.props.currentPage === 'settings' && <Settings />}
-                {this.props.currentPage === 'about' && <About />}
-                <ModalRoot />
-                <SnackbarRoot />
-                { this.state.showRedoUndo && <RedoUndo onToggleRedoUndo={this.toggleRedoUndo}/> }
-                { this.state.showFindInPage && <FindInPage onToggleFindInPage={this.toggleFindInPage}/> }
-            </MuiThemeProvider>
+            <CdiscLibraryContext.Provider value={initCdiscLibrary()}>
+                <MuiThemeProvider theme={this.props.disableAnimations ? disabledAnimationTheme : baseTheme}>
+                    <MainMenu
+                        onToggleRedoUndo={this.toggleRedoUndo}
+                        onToggleFindInPage={this.toggleFindInPage}
+                        onToggleShortcuts={this.toggleShortcuts}
+                    />
+                    <KeyboardShortcuts open={this.state.showShortcuts} onToggleShortcuts={this.toggleShortcuts}/>
+                    {this.props.currentPage === 'studies' && <Studies />}
+                    {this.props.currentPage === 'editor' && <Editor onToggleRedoUndo={this.toggleRedoUndo}/>}
+                    {this.props.currentPage === 'controlledTerminology' && <ControlledTerminology />}
+                    {this.props.currentPage === 'cdiscLibrary' && <CdiscLibraryMain />}
+                    {this.props.currentPage === 'settings' && <Settings />}
+                    {this.props.currentPage === 'about' && <About />}
+                    <ModalRoot />
+                    <SnackbarRoot />
+                    { this.state.showRedoUndo && <RedoUndo onToggleRedoUndo={this.toggleRedoUndo}/> }
+                    { this.state.showFindInPage && <FindInPage onToggleFindInPage={this.toggleFindInPage}/> }
+                </MuiThemeProvider>
+            </CdiscLibraryContext.Provider>
         );
     }
 }

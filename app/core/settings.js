@@ -24,6 +24,7 @@ import FolderOpen from '@material-ui/icons/FolderOpen';
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Switch from '@material-ui/core/Switch';
 import FormGroup from '@material-ui/core/FormGroup';
@@ -32,8 +33,9 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import NavigationBar from 'core/navigationBar.js';
 import SaveCancel from 'editors/saveCancel.js';
 import InternalHelp from 'components/utils/internalHelp.js';
+import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import { CT_LOCATION } from 'constants/help.js';
-import { updateSettings, openModal } from 'actions/index.js';
+import { updateSettings, openModal, openSnackbar } from 'actions/index.js';
 import { encrypt, decrypt } from 'utils/encryptDecrypt.js';
 
 const styles = theme => ({
@@ -72,6 +74,9 @@ const styles = theme => ({
         width: '90%',
         margin: theme.spacing.unit
     },
+    cdiscLibraryButton: {
+        marginRight: theme.spacing.unit * 2
+    },
 });
 
 const appVersion = remote.app.getVersion();
@@ -81,6 +86,7 @@ const mapDispatchToProps = dispatch => {
     return {
         updateSettings: updateObj => dispatch(updateSettings(updateObj)),
         openModal: (updateObj) => dispatch(openModal(updateObj)),
+        openSnackbar: (updateObj) => dispatch(openSnackbar(updateObj)),
     };
 };
 
@@ -106,6 +112,8 @@ class ConnectedSettings extends React.Component {
         }
         this.state.showPassword = false;
     }
+
+    static contextType = CdiscLibraryContext;
 
     componentDidMount () {
         ipcRenderer.on('selectedFile', this.setCTLocation);
@@ -223,6 +231,8 @@ class ConnectedSettings extends React.Component {
     save = () => {
         let diff = this.getSettingsDiff();
         if (Object.keys(diff).length > 0) {
+            // Update CDISC Library credentials
+            this.updatedCredentials(this.props.settings.cdiscLibrary, false);
             // Encrypt the cdiscLibrary password
             if (diff.cdiscLibrary && diff.cdiscLibrary.password) {
                 diff.cdiscLibrary.password = encrypt(diff.cdiscLibrary.password);
@@ -232,7 +242,14 @@ class ConnectedSettings extends React.Component {
     };
 
     cancel = () => {
-        this.setState(clone(this.props.settings));
+        // Update CDISC Library credentials
+        this.updatedCredentials(this.props.settings.cdiscLibrary);
+        let newState = clone(this.props.settings);
+        // Decrypt the cdiscLibrary password
+        if (newState.cdiscLibrary && newState.cdiscLibrary.password) {
+            newState.cdiscLibrary.password = decrypt(newState.cdiscLibrary.password);
+        }
+        this.setState(newState);
     };
 
     onKeyDown = event => {
@@ -246,6 +263,52 @@ class ConnectedSettings extends React.Component {
     handleClickShowPassword = () => {
         this.setState(state => ({ showPassword: !state.showPassword }));
     };
+
+    updatedCredentials = (settings, encrypted = true) => {
+        let coreObject = this.context.coreObject;
+        let settingsPassword;
+        if (encrypted) {
+            settingsPassword = decrypt(settings.password);
+        } else {
+            settingsPassword = settings.password;
+        }
+
+        if (settings.username !== coreObject.username ||
+            settingsPassword !== coreObject.password ||
+            settings.baseUrl !== coreObject.baseUrl
+        ) {
+            coreObject.username = settings.username;
+            coreObject.password = settingsPassword;
+            coreObject.baseUrl = settings.baseUrl;
+        }
+    }
+
+    checkCdiscLibraryConnection = async () => {
+        this.updatedCredentials(this.state.cdiscLibrary, false);
+        let check = await this.context.checkConnection();
+        if (!check || check.statusCode === -1) {
+            this.props.openSnackbar({
+                type: 'error',
+                message: 'Failed to connected to CDISC Library.',
+            });
+        } else if (check.statusCode !== 200) {
+            this.props.openSnackbar({
+                type: 'error',
+                message: `Failed to connected to CDISC Library. Status code ${check.statusCode}: ${check.description}`,
+            });
+        } else {
+            this.props.openSnackbar({
+                type: 'success',
+                message: 'Successfully connected to the CDISC Library.',
+            });
+        }
+    }
+
+    cleanCdiscLibraryCache = () => {
+        this.props.openModal({
+            type: 'CLEAN_CDISC_LIBRARY_CACHE',
+        });
+    }
 
     render () {
         const { classes } = this.props;
@@ -709,6 +772,26 @@ class ConnectedSettings extends React.Component {
                                     className={classes.textFieldShort}
                                 />
                             </Grid>
+                            <Grid item xs={12}>
+                                <Button
+                                    variant='contained'
+                                    color={'default'}
+                                    disabled={!this.state.cdiscLibrary.enableCdiscLibrary}
+                                    onClick={this.checkCdiscLibraryConnection}
+                                    className={classes.cdiscLibraryButton}
+                                >
+                                    Check
+                                </Button>
+                                <Button
+                                    variant='contained'
+                                    color={'default'}
+                                    disabled={!this.state.cdiscLibrary.enableCdiscLibrary}
+                                    onClick={this.cleanCdiscLibraryCache}
+                                    className={classes.cdiscLibraryButton}
+                                >
+                                    Clean Cache
+                                </Button>
+                            </Grid>
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
@@ -725,6 +808,7 @@ ConnectedSettings.propTypes = {
     settings: PropTypes.object.isRequired,
     updateSettings: PropTypes.func.isRequired,
     openModal: PropTypes.func.isRequired,
+    openSnackbar: PropTypes.func.isRequired,
 };
 
 const Settings = connect(mapStateToProps, mapDispatchToProps)(

@@ -110,12 +110,16 @@ const initCdiscLibrary = () => {
         claSettings = state.settings.cdiscLibrary;
     }
 
-    return new CdiscLibrary({
-        username: claSettings.username,
-        password: decrypt(claSettings.password),
-        baseUrl: claSettings.baseUrl,
-        cache: { match: claMatch, put: claPut },
-    });
+    if (claSettings.enableCdiscLibrary === true) {
+        return new CdiscLibrary({
+            username: claSettings.username,
+            password: decrypt(claSettings.password),
+            baseUrl: claSettings.baseUrl,
+            cache: { match: claMatch, put: claPut },
+        });
+    } else {
+        return {};
+    }
 };
 
 export default initCdiscLibrary;
