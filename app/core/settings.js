@@ -34,7 +34,7 @@ import NavigationBar from 'core/navigationBar.js';
 import SaveCancel from 'editors/saveCancel.js';
 import InternalHelp from 'components/utils/internalHelp.js';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
-import { CT_LOCATION } from 'constants/help.js';
+import { CT_LOCATION, CDISC_LIBRARY } from 'constants/help.js';
 import { updateSettings, openModal, openSnackbar } from 'actions/index.js';
 import { encrypt, decrypt } from 'utils/encryptDecrypt.js';
 
@@ -285,6 +285,15 @@ class ConnectedSettings extends React.Component {
 
     checkCdiscLibraryConnection = async () => {
         this.updatedCredentials(this.state.cdiscLibrary, false);
+        // There is a glitch, which causes the response not to come back in some cases
+        // It is currently fixed by sending a dummy request
+        setTimeout(async () => {
+            try {
+                await this.context.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
+            } catch (error) {
+                // It is expected to fail, so do nothing
+            }
+        }, 500);
         let check = await this.context.checkConnection();
         if (!check || check.statusCode === -1) {
             this.props.openSnackbar({
@@ -343,7 +352,7 @@ class ConnectedSettings extends React.Component {
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">
-                                                <InternalHelp data={CT_LOCATION} />
+                                                <InternalHelp data={CT_LOCATION} buttonType='icon'/>
                                                 <IconButton
                                                     color="default"
                                                     onClick={this.selectControlledTerminologyLocation}
@@ -711,6 +720,7 @@ class ConnectedSettings extends React.Component {
                     <Grid item xs={12}>
                         <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
                             CDISC Library
+                            <InternalHelp data={CDISC_LIBRARY}/>
                         </Typography>
                         <Grid container>
                             <Grid item xs={12}>

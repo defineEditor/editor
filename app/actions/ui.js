@@ -36,6 +36,7 @@ import {
     UI_CLOSESNACKBAR,
     UI_CHANGECDISCLIBRARYVIEW,
     UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
+    UI_SAVECDISCLIBRARYINFO,
 } from 'constants/action-types';
 import changeAppTitle from 'utils/changeAppTitle.js';
 
@@ -153,4 +154,9 @@ export const changeCdiscLibraryView = updateObj => ({
 
 export const toggleCdiscLibraryItemGroupGridView = () => ({
     type: UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
+});
+
+export const saveCdiscLibraryInfo = (updateObj) => ({
+    type: UI_SAVECDISCLIBRARYINFO,
+    updateObj,
 });

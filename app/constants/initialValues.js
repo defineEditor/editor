@@ -118,6 +118,8 @@ const cdiscLibraryUi = {
     },
     items: {
     },
+    info: {
+    },
 };
 
 const ui = {

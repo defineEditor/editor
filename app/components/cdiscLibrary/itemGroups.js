@@ -95,13 +95,13 @@ class ConnectedItemGroups extends React.Component {
 
     getItemGroups = async () => {
         let cl = this.context;
-        let product = await cl.getFullProduct(this.props.productId);
-        // As a temporary bugfix, send a dummy request in 3 seconds if the object did not load
+        // As a temporary bugfix, send a dummy request in 2 seconds if the object did not load
         setTimeout(() => {
             if (this.state.product === null) {
                 this.dummyRequest();
             }
-        }, 3000);
+        }, 2000);
+        let product = await cl.getFullProduct(this.props.productId);
 
         this.updateState(product);
     }

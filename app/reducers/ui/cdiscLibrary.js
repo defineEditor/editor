@@ -15,6 +15,7 @@
 import {
     UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
     UI_CHANGECDISCLIBRARYVIEW,
+    UI_SAVECDISCLIBRARYINFO,
 } from 'constants/action-types';
 import { ui } from 'constants/initialValues.js';
 
@@ -47,12 +48,24 @@ const toggleCdiscLibraryItemGroupGridView = (state, action) => {
     };
 };
 
+const saveCdiscLibraryInfo = (state, action) => {
+    return {
+        ...state,
+        info: {
+            ...state.info,
+            ...action.updateObj,
+        }
+    };
+};
+
 const tabs = (state = initialState, action) => {
     switch (action.type) {
         case UI_CHANGECDISCLIBRARYVIEW:
             return changeCdiscLibraryView(state, action);
         case UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW:
             return toggleCdiscLibraryItemGroupGridView(state, action);
+        case UI_SAVECDISCLIBRARYINFO:
+            return saveCdiscLibraryInfo(state, action);
         default:
             return state;
     }

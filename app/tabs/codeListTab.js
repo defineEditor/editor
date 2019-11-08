@@ -77,6 +77,11 @@ const styles = theme => ({
     searchLabel: {
         transform: 'translate(10px, 10px)',
     },
+    tableHeader: {
+        backgroundColor: indigo[500],
+        color: grey[200],
+        fontSize: '16px',
+    },
 });
 
 // Redux functions
@@ -672,7 +677,7 @@ class ConnectedCodeListTable extends React.Component {
                     version='4'
                     cellEdit={this.props.reviewMode || this.props.showRowSelect ? undefined : cellEditProp}
                     keyBoardNav={this.props.showRowSelect ? false : { enterToEdit: true }}
-                    headerStyle={{ backgroundColor: indigo[500], color: grey[200], fontSize: '16px' }}
+                    tableHeaderClass={this.props.classes.tableHeader}
                     selectRow={selectRowProp}
                 >
                     {renderColumns(this.state.columns)}

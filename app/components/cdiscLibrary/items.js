@@ -17,10 +17,13 @@ import { connect } from 'react-redux';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
+import TextField from '@material-ui/core/TextField';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import CdiscLibraryBreadcrumbs from 'components/cdiscLibrary/breadcrumbs.js';
 import CdiscLibraryItemTable from 'components/cdiscLibrary/itemTable.js';
+import Typography from '@material-ui/core/Typography';
 import Loading from 'components/utils/loading.js';
+import getSelectionList from 'utils/getSelectionList.js';
 import {
     changeCdiscLibraryView,
 } from 'actions/index.js';
@@ -39,6 +42,14 @@ const styles = theme => ({
         marginLeft: theme.spacing.unit * 1,
         marginRight: theme.spacing.unit * 1,
         outline: 'none'
+    },
+    header: {
+        marginTop: theme.spacing.unit,
+        marginBottom: theme.spacing.unit,
+    },
+    varSetSelection: {
+        marginRight: theme.spacing.unit * 6,
+        minWidth: 200,
     },
 });
 
@@ -65,6 +76,8 @@ class ConnectedCdiscLibraryItems extends React.Component {
             itemGroup: null,
             items: [],
             searchString: '',
+            currentVariableSet: '',
+            variableSets: {},
         };
     }
 
@@ -84,13 +97,50 @@ class ConnectedCdiscLibraryItems extends React.Component {
         if (this.props.items && this.props.items.type === 'itemGroup') {
             let product = await cl.getFullProduct(this.props.productId);
             itemGroup = await product.getItemGroup(this.props.items.itemGroupId);
-            this.setState({ itemGroup, items: Object.values(itemGroup.getItems()), product });
+            if (product.model === 'ADaM') {
+                let variableSets = itemGroup.getVariableSetList({ descriptions: true });
+                // Add variable set all to show all values;
+                variableSets = { all: 'All', ...variableSets };
+                this.setState({ itemGroup, items: Object.values(itemGroup.getItems()), product, variableSets, currentVariableSet: 'all' });
+            } else {
+                this.setState({ itemGroup, items: Object.values(itemGroup.getItems()), product });
+            }
         } else if (this.props.items && this.props.items.type === 'dataClass') {
             let product = await cl.getFullProduct(this.props.productId);
             itemGroup = product.dataClasses[this.props.items.itemGroupId];
             this.setState({ itemGroup, items: Object.values(itemGroup.getItems({ immediate: true })), product });
         }
     }
+
+    getItemGroupDescription = () => {
+        let itemGroup = this.state.itemGroup;
+        return (
+            <React.Fragment>
+                <Typography variant="h5" inline>
+                    {itemGroup.name}
+                </Typography>
+                <Typography variant="h5" color='textSecondary' inline>
+                    &nbsp; {itemGroup.label}
+                </Typography>
+                {itemGroup.description !== undefined && (
+                    <Typography variant="body2">
+                        {itemGroup.description}
+                    </Typography>
+                )}
+            </React.Fragment>
+        );
+    }
+
+    handleVariableSetChange = event => {
+        let currentVariableSet = event.target.value;
+        let items = [];
+        if (currentVariableSet === 'all') {
+            items = Object.values(this.state.itemGroup.getItems());
+        } else {
+            items = Object.values(this.state.itemGroup.analysisVariableSets[currentVariableSet].getItems());
+        }
+        this.setState({ currentVariableSet, items });
+    };
 
     render () {
         const { classes } = this.props;
@@ -104,17 +154,43 @@ class ConnectedCdiscLibraryItems extends React.Component {
                         onSearchUpdate={this.handleSearchUpdate}
                     />
                 </Grid>
-                <Grid item xs={12}>
-                    { this.state.items.length === 0 && <Loading onRetry={this.getItems} />}
-                    { this.state.items.length !== 0 &&
+                { this.state.items.length === 0 && (
+                    <Grid item xs={12}>
+                        <Loading onRetry={this.getItems} />
+                    </Grid>
+                )}
+                { this.state.items.length !== 0 && (
+                    <React.Fragment>
+                        <Grid item xs={12}>
+                            <Grid container justify='space-between' alignItems='flex-start' className={classes.header}>
+                                <Grid item>
+                                    {this.getItemGroupDescription()}
+                                </Grid>
+                                { this.state.product.model === 'ADaM' && (
+                                    <Grid item>
+                                        <TextField
+                                            label='Analysis Variable Set'
+                                            select
+                                            className={classes.varSetSelection}
+                                            value={this.state.currentVariableSet}
+                                            onChange={this.handleVariableSetChange}
+                                        >
+                                            {getSelectionList(this.state.variableSets)}
+                                        </TextField>
+                                    </Grid>
+                                )}
+                            </Grid>
+                        </Grid>
+                        <Grid item xs={12}>
                             <CdiscLibraryItemTable
                                 items={this.state.items}
                                 itemGroup={this.state.itemGroup}
                                 searchString={this.state.searchString}
                                 product={this.state.product}
                             />
-                    }
-                </Grid>
+                        </Grid>
+                    </React.Fragment>
+                )}
             </Grid>
         );
     }

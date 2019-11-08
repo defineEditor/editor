@@ -381,6 +381,9 @@ class ConnectedReviewCommentTab extends React.Component {
                                 });
                             }
                         } else {
+                            if (sourceId === 'codeLists') {
+                                commentData.parentItemOid = sourceValue;
+                            }
                             sourceName = mdv[sourceId][sourceValue].name;
                             sourceParts.push(sourceName);
                         }

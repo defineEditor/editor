@@ -31,8 +31,15 @@ import {
 } from 'actions/index.js';
 
 const styles = theme => ({
+    classHeading: {
+        marginBottom: theme.spacing.unit,
+    },
     heading: {
         marginBottom: theme.spacing.unit * 0.5,
+    },
+    classItem: {
+        paddingTop: 0,
+        paddingBottom: 0,
     },
     main: {
         marginTop: theme.spacing.unit * 8,
@@ -41,7 +48,7 @@ const styles = theme => ({
     },
     classPanel: {
         width: '98%',
-        backgroundColor: '#F1F1F1',
+        backgroundColor: '#FFFFFF',
     },
     group: {
         width: '100%',
@@ -148,13 +155,13 @@ class ConnectedProducts extends React.Component {
                 >
                     <ListItem
                         key={panelId}
-                        className={classes.listItem}
+                        className={classes.classItem}
                         elevation={12}
                         dense
                     >
                         <Grid container>
                             <Grid item ls={12} className={classes.group}>
-                                <Typography variant='h5' color='textSecondary' className={classes.heading}>{data[panelId].title}</Typography>
+                                <Typography variant='h5' color='textSecondary' className={classes.classHeading}>{data[panelId].title}</Typography>
                             </Grid>
                             <Grid item className={classes.group}>
                                 {this.getGroups(data[panelId].groups, panelStatus, classes)}
@@ -177,7 +184,6 @@ class ConnectedProducts extends React.Component {
                     >
                         <ListItem
                             key={panelId}
-                            className={classes.listItem}
                             dense
                         >
                             <Grid container justify='flex-start'>

@@ -113,3 +113,19 @@ Based on the selection, a number of VLM records will be added with the following
 * **Where Clause** - Where Clauses are populated according to pattern *<Source Variable> EQ <Coded Value>*.
 `
 };
+
+export const CDISC_LIBRARY = {
+    title: 'CDISC Library',
+    content: `
+#### About
+CDISC Library is the single, trusted, authoritative source of CDISC standards metadata. It contains information about CDISC Standards as well as CDISC Terminology.
+Visual Define-XML Editor allows to browse CDISC Library and use it for the development of the Define-XML documents.
+#### Credentials
+CDISC Library requires credentials in order to access it. These are not the CDISC account credentials and you need to obtain separate credentials for the CDISC Library usage.
+See \`https://www.cdisc.org/cdisc-library\` to find more information about it.
+#### Storage of Credentials
+The credentials are stored on your computer in an encrypted format. If you update your computer or change your user name and the CDISC Library functionality does not work anymore, you need to enter the credentials once again.
+#### CDISC Relay
+If you would like users to avoid the need to specify credentials, consider using CLA Relay \`https://github.com/defineEditor/cla-relay\`. In this case **baseURL** shall contain the URL of the server where CLA-Relay is installed (e.g., \`http://my.server.int/api\`).
+`
+};

@@ -160,7 +160,7 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                 <Grid item>
                     <Grid container justify='flex-end'>
                         { currentView === 'products' &&
-                                <Tooltip title='Reload list of products' placement='bottom' enterDelay={500}>
+                                <Tooltip title='Reload the list of products' placement='bottom' enterDelay={500}>
                                     <IconButton onClick={this.props.reloadProducts} className={classes.refreshButton}>
                                         <Refresh/>
                                     </IconButton>

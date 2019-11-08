@@ -19,16 +19,7 @@ import TextField from '@material-ui/core/TextField';
 import getSelectionList from 'utils/getSelectionList.js';
 
 const styles = theme => ({
-    container: {
-        display: 'flex',
-        flexWrap: 'wrap',
-    },
-    formControl: {
-        margin: 'normal',
-        minWidth: 120,
-    },
-    selectEmpty: {
-        marginTop: theme.spacing.unit * 2,
+    textField: {
     },
 });
 
@@ -55,7 +46,7 @@ class SimpleSelectEditor extends React.Component {
                 label={label}
                 fullWidth
                 autoFocus={this.props.autoFocus}
-                select={true}
+                select
                 onKeyDown={this.onKeyDown}
                 value={value}
                 onChange={this.handleChange}

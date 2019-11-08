@@ -59,14 +59,14 @@ const claMatch = async (request) => {
 
     const db = await openDB('cdiscLibrary-store', 1, {
         upgrade (db) {
-            // Create a store of objects
             db.createObjectStore('cdiscLibrary', {});
         },
     });
 
-    // Search for an response in cache
-    let zippedData = await db.get('cdiscLibrary', id);
-    if (zippedData !== undefined) {
+    // Search for the response in cache
+    let response = await db.get('cdiscLibrary', id);
+    if (response !== undefined) {
+        let zippedData = response.data;
         let zip = new Jszip();
         await zip.loadAsync(zippedData);
         if (Object.keys(zip.files).includes('response.json')) {
@@ -94,13 +94,12 @@ const claPut = async (request, response) => {
 
     const db = await openDB('cdiscLibrary-store', 1, {
         upgrade (db) {
-            // Create a store of objects
             db.createObjectStore('cdiscLibrary', {});
         },
     });
 
     // Add response to cache
-    await db.put('cdiscLibrary', zippedData, id);
+    await db.put('cdiscLibrary', { date: new Date(), data: zippedData }, id);
 };
 
 const initCdiscLibrary = () => {
@@ -109,14 +108,22 @@ const initCdiscLibrary = () => {
     if (state.settings && state.settings.cdiscLibrary) {
         claSettings = state.settings.cdiscLibrary;
     }
+    let info = {};
+    if (state.ui && state.ui.cdiscLibrary && state.ui.cdiscLibrary.info) {
+        info = state.ui.cdiscLibrary.info;
+    }
 
     if (claSettings.enableCdiscLibrary === true) {
-        return new CdiscLibrary({
+        let options = {
             username: claSettings.username,
             password: decrypt(claSettings.password),
             baseUrl: claSettings.baseUrl,
             cache: { match: claMatch, put: claPut },
-        });
+        };
+        if (info) {
+            options.traffic = info.traffic;
+        }
+        return new CdiscLibrary(options);
     } else {
         return {};
     }

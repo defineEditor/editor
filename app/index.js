@@ -23,7 +23,6 @@ import saveState from 'utils/saveState.js';
 import sendDefineObject from 'utils/sendDefineObject.js';
 import loadDefineObject from 'utils/loadDefineObject.js';
 import loadControlledTerminology from 'utils/loadControlledTerminology.js';
-import quitApplication from 'utils/quitApplication.js';
 import 'css/index.css';
 import 'css/app.global.css';
 import 'typeface-roboto-mono/index.css';
@@ -33,7 +32,6 @@ ipcRenderer.on('sendDefineObjectToMain', sendDefineObject);
 ipcRenderer.on('loadDefineObjectToRender', loadDefineObject);
 ipcRenderer.on('loadControlledTerminologyToRender', loadControlledTerminology);
 ipcRenderer.on('saveState', saveState);
-ipcRenderer.on('quit', quitApplication);
 
 ReactDOM.render(
     <AppContainer>

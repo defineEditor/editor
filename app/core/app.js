@@ -16,6 +16,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
+import store from 'store/index.js';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import ModalRoot from 'components/modal/modalRoot.js';
 import SnackbarRoot from 'components/utils/snackbarRoot.js';
@@ -34,10 +35,24 @@ import sendDefineObject from 'utils/sendDefineObject.js';
 import changeAppTitle from 'utils/changeAppTitle.js';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import initCdiscLibrary from 'utils/initCdiscLibrary.js';
+import quitApplication from 'utils/quitApplication.js';
 import {
     openModal,
     updateMainUi,
+    saveCdiscLibraryInfo
 } from 'actions/index.js';
+
+const cdiscLibrary = initCdiscLibrary();
+
+const handleQuitApplication = () => {
+    if (typeof cdiscLibrary === 'object' && cdiscLibrary.coreObject && cdiscLibrary.coreObject.traffic) {
+        store.dispatch(saveCdiscLibraryInfo({ traffic: cdiscLibrary.coreObject.traffic }));
+    }
+    quitApplication();
+};
+
+// Comparing to other event listeners which are defined in index.js, this one needs to be here, so that CDISC Library object can be used
+ipcRenderer.on('quit', handleQuitApplication);
 
 const baseThemeObj = {
     palette: {
@@ -190,7 +205,7 @@ class ConnectedApp extends Component {
             );
         }
         return (
-            <CdiscLibraryContext.Provider value={initCdiscLibrary()}>
+            <CdiscLibraryContext.Provider value={cdiscLibrary}>
                 <MuiThemeProvider theme={this.props.disableAnimations ? disabledAnimationTheme : baseTheme}>
                     <MainMenu
                         onToggleRedoUndo={this.toggleRedoUndo}

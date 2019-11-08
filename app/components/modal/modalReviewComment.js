@@ -34,8 +34,6 @@ import {
 
 const styles = theme => ({
     dialog: {
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
         paddingBottom: theme.spacing.unit * 1,
         position: 'absolute',
         borderRadius: '10px',
@@ -48,8 +46,6 @@ const styles = theme => ({
         overflowY: 'auto',
     },
     dialogConfirm: {
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
         paddingBottom: theme.spacing.unit * 1,
         position: 'absolute',
         borderRadius: '10px',
@@ -61,6 +57,16 @@ const styles = theme => ({
     content: {
         marginTop: theme.spacing.unit * 2,
         marginBottom: theme.spacing.unit * 1,
+    },
+    title: {
+        marginBottom: theme.spacing.unit * 2,
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
     },
 });
 
@@ -184,7 +190,7 @@ class ConnectedModalReviewComments extends React.Component {
                     onKeyDown={this.onKeyDown}
                     tabIndex='0'
                 >
-                    <DialogTitle>
+                    <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
                         Review Comments
                     </DialogTitle>
                     <DialogContent>

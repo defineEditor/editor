@@ -36,13 +36,21 @@ const styles = theme => ({
         width: '40%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
         paddingBottom: theme.spacing.unit * 1,
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'primary',
+    },
+    title: {
+        marginBottom: theme.spacing.unit * 2,
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
     },
 });
 
@@ -101,7 +109,7 @@ class ConnectedModalConfirmChange extends React.Component {
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >
-                <DialogTitle id="alert-dialog-title">
+                <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
                     {title}
                 </DialogTitle>
                 <DialogContent>
