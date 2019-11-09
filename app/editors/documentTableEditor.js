@@ -151,7 +151,7 @@ class DocumentTableEditor extends React.Component {
             let newOid = getOid('Leaf', undefined, Object.keys(this.state.leafs));
             newLeafs[newOid] = { ...new Leaf({ ...this.state.leafs[oid], id: newOid }) };
             let newLeafOrder = this.state.leafOrder.slice();
-            newLeafOrder.splice(newLeafOrder.indexOf(oid), 0, newOid);
+            newLeafOrder.splice(newLeafOrder.indexOf(oid) + 1, 0, newOid);
             this.setState({ leafs: newLeafs, leafOrder: newLeafOrder });
         } else if (name === 'deleteDoc') {
             let newLeafs = { ...this.state.leafs };

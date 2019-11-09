@@ -31,8 +31,6 @@ import { selectColumns } from 'actions/index.js';
 
 const styles = theme => ({
     dialog: {
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
         paddingBottom: theme.spacing.unit * 1,
         position: 'absolute',
         borderRadius: '10px',
@@ -44,6 +42,16 @@ const styles = theme => ({
         maxHeight: '85%',
         overflowY: 'auto',
         width: '400px',
+    },
+    title: {
+        marginBottom: theme.spacing.unit * 2,
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
     },
 });
 
@@ -140,7 +148,7 @@ class ConnectedSelectColumns extends React.Component {
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >
-                <DialogTitle>
+                <DialogTitle className={classes.title} disableTypography>
                     Column Settings
                 </DialogTitle>
                 <DialogContent>

@@ -1,7 +1,7 @@
 {
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "license": "AGPL-3.0-only",
   "private": "true",
   "description": "Visual Define-XML Editor",
@@ -232,7 +232,7 @@
     "@material-ui/lab": "^3.0.0-alpha.18",
     "babel-plugin-prismjs": "^1.0.2",
     "bootstrap": "^4.1.1",
-    "cla-wrapper": "../cla-wrapper",
+    "cla-wrapper": "^0.2.0",
     "clone": "^2.1.2",
     "csvtojson": "^2.0.8",
     "devtron": "^1.4.0",

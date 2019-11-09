@@ -13,9 +13,9 @@
 ***********************************************************************************/
 
 import {
-    UI_TOGGLECDISCLIBRARYPANELS,
     UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
     UI_CHANGECDISCLIBRARYVIEW,
+    UI_SAVECDISCLIBRARYINFO,
 } from 'constants/action-types';
 import { ui } from 'constants/initialValues.js';
 
@@ -32,7 +32,7 @@ const changeCdiscLibraryView = (state, action) => {
     }
 
     if (action.updateObj.itemGroupId !== undefined) {
-        newState = { ...newState, items: { ...newState.items, itemGroupId: action.updateObj.itemGroupId } };
+        newState = { ...newState, items: { ...newState.items, itemGroupId: action.updateObj.itemGroupId, type: action.updateObj.type } };
     }
 
     return newState;
@@ -48,35 +48,24 @@ const toggleCdiscLibraryItemGroupGridView = (state, action) => {
     };
 };
 
-const toggleCdiscLibraryPanels = (state, action) => {
-    const panelIds = action.updateObj.panelIds;
-    const status = action.updateObj.status;
-    let panelStatus = { ...state.products.panelStatus };
-    panelIds.forEach(panelId => {
-        if (status === undefined) {
-            if (state.products.panelStatus[panelId] !== true) {
-                panelStatus = { ...panelStatus, [panelId]: true };
-            } else {
-                panelStatus = { ...panelStatus, [panelId]: false };
-            }
-        } else {
-            panelStatus = { ...panelStatus, [panelId]: status };
-        }
-    });
+const saveCdiscLibraryInfo = (state, action) => {
     return {
         ...state,
-        products: { ...state.products, panelStatus },
+        info: {
+            ...state.info,
+            ...action.updateObj,
+        }
     };
 };
 
 const tabs = (state = initialState, action) => {
     switch (action.type) {
-        case UI_TOGGLECDISCLIBRARYPANELS:
-            return toggleCdiscLibraryPanels(state, action);
         case UI_CHANGECDISCLIBRARYVIEW:
             return changeCdiscLibraryView(state, action);
         case UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW:
             return toggleCdiscLibraryItemGroupGridView(state, action);
+        case UI_SAVECDISCLIBRARYINFO:
+            return saveCdiscLibraryInfo(state, action);
         default:
             return state;
     }

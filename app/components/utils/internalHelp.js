@@ -22,6 +22,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import HelpIcon from '@material-ui/icons/HelpOutline';
 import IconButton from '@material-ui/core/IconButton';
+import Fab from '@material-ui/core/Fab';
 import ReactMarkdown from 'react-markdown';
 
 const styles = theme => ({
@@ -32,13 +33,33 @@ const styles = theme => ({
         width: '55%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
         paddingBottom: theme.spacing.unit * 1,
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'primary',
+    },
+    title: {
+        marginBottom: theme.spacing.unit * 2,
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
+    },
+    icon: {
+        transform: 'translate(0, -5%)',
+        marginLeft: theme.spacing.unit,
+    },
+    fab: {
+        marginLeft: theme.spacing.unit,
+    },
+    iconDark: {
+        transform: 'translate(0, -5%)',
+        backgroundColor: theme.palette.primary.light,
+        marginLeft: theme.spacing.unit,
     },
 });
 
@@ -63,9 +84,16 @@ class InternalHelp extends React.Component {
 
         return (
             <React.Fragment>
-                <IconButton color='primary' onClick={this.open} className={classes.icon}>
-                    <HelpIcon/>
-                </IconButton>
+                { this.props.buttonType === 'icon' &&
+                    <IconButton color='primary' onClick={this.open} className={classes.fab}>
+                        <HelpIcon/>
+                    </IconButton>
+                }
+                { this.props.buttonType !== 'icon' &&
+                    <Fab size='small' color='default' onClick={this.open} className={classes.icon}>
+                        <HelpIcon/>
+                    </Fab>
+                }
                 <Dialog
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description"
@@ -75,7 +103,7 @@ class InternalHelp extends React.Component {
                     onClose={this.close}
                     PaperProps={{ className: classes.dialog }}
                 >
-                    <DialogTitle id="alert-dialog-title">
+                    <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
                         {this.props.data.title}
                     </DialogTitle>
                     <DialogContent>
@@ -95,6 +123,7 @@ class InternalHelp extends React.Component {
 InternalHelp.propTypes = {
     classes: PropTypes.object.isRequired,
     data: PropTypes.object.isRequired,
+    buttonType: PropTypes.string,
 };
 
 export default withStyles(styles)(InternalHelp);

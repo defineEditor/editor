@@ -16,20 +16,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import { shell, remote } from 'electron';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
-import saveState from 'utils/saveState.js';
-import {
-    closeModal,
-    updateSettings,
-} from 'actions/index.js';
+import { openDB, deleteDB } from 'idb';
+import { updateSettings, closeModal } from 'actions/index.js';
 
 const styles = theme => ({
     dialog: {
@@ -57,40 +51,57 @@ const styles = theme => ({
 const mapDispatchToProps = dispatch => {
     return {
         closeModal: () => dispatch(closeModal()),
-        updateSettings: (updateObj) => dispatch(updateSettings(updateObj)),
+        updateSettings: updateObj => dispatch(updateSettings(updateObj)),
     };
 };
 
-class ConnectedModalInitialMessage extends React.Component {
+class ConnectedModalCleanCdiscLibraryCache extends React.Component {
     constructor (props) {
         super(props);
+
         this.state = {
-            doNotShowAgain: false,
+            info: { endpointsCount: null },
         };
     }
 
-    onClose = () => {
-        this.props.closeModal();
-        if (this.state.doNotShowAgain) {
-            // if so, update the corresponding setting
-            this.props.updateSettings({
-                popUp: {
-                    onStartUp: false,
-                },
-            });
-            saveState();
-        }
+    componentDidMount () {
+        this.getInfo();
     }
 
-    openLink = (event) => {
-        event.preventDefault();
-        shell.openExternal('http://defineeditor.com/downloads');
+    getInfo = async () => {
+        let info = {};
+
+        const db = await openDB('cdiscLibrary-store', 1, {
+            upgrade (db) {
+                // Create a store of objects
+                db.createObjectStore('cdiscLibrary', {});
+            },
+        });
+
+        info.endpointsCount = await db.count('cdiscLibrary');
+
+        this.setState({ info });
+    }
+
+    onDelete = async () => {
+        this.props.closeModal();
+        await deleteDB('cdiscLibrary-store');
+    }
+
+    onCancel = () => {
+        this.props.closeModal();
+    }
+
+    onKeyDown = (event) => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            this.onCancel();
+        } else if (event.ctrlKey && (event.keyCode === 83)) {
+            this.onDelete();
+        }
     }
 
     render () {
         const { classes } = this.props;
-        let version = remote.app.getVersion();
-        const releaseNotesLink = 'http://defineeditor.com/releases/#version-' + version.replace('.', '-');
 
         return (
             <Dialog
@@ -100,40 +111,32 @@ class ConnectedModalInitialMessage extends React.Component {
                 aria-describedby="alert-dialog-description"
                 open
                 PaperProps={{ className: classes.dialog }}
+                onKeyDown={this.onKeyDown}
+                tabIndex='0'
             >
                 <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
-                    Visual Define-XML Editor
+                    Clean CDISC Library Cache
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        {`You are using Visual Define-XML Editor version ${version}.`}
-                        <br/>
-                        See&nbsp;
-                        <a onClick={this.openLink} href={releaseNotesLink}>
-                            release notes
-                        </a> for the list of changes.
-                        <br/>
-                        Check&nbsp;
-                        <a onClick={this.openLink} href='http://defineeditor.com/downloads'>
-                            defineeditor.com/downloads
-                        </a>
-                        &nbsp;for the latest available version.
+                        { this.state.info.endpointsCount > 0 && (
+                            `You have ${this.state.info.endpointsCount} endpoints saved in your cache. Are you sure you want to delete them?`
+                        )}
+                        { this.state.info.endpointsCount <= 0 && (
+                            'There are no saved endpoints.'
+                        )}
                     </DialogContentText>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={this.state.doNotShowAgain}
-                                onChange={() => { this.setState({ doNotShowAgain: !this.state.doNotShowAgain }); }}
-                                color='primary'
-                                value='doNotShowAgain'
-                            />
-                        }
-                        label="Do not show again"
-                    />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={this.onClose} color="primary" autoFocus>
-                        Close
+                    <Button
+                        onClick={this.onDelete}
+                        color="primary"
+                        disabled={this.state.info.endpointsCount <= 0}
+                    >
+                        Delete
+                    </Button>
+                    <Button onClick={this.onCancel} color="primary">
+                        Cancel
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -141,10 +144,11 @@ class ConnectedModalInitialMessage extends React.Component {
     }
 }
 
-ConnectedModalInitialMessage.propTypes = {
+ConnectedModalCleanCdiscLibraryCache.propTypes = {
     classes: PropTypes.object.isRequired,
+    updateSettings: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
 };
 
-const ModalInitialMessage = connect(undefined, mapDispatchToProps)(ConnectedModalInitialMessage);
-export default withStyles(styles)(ModalInitialMessage);
+const ModalCleanCdiscLibraryCache = connect(undefined, mapDispatchToProps)(ConnectedModalCleanCdiscLibraryCache);
+export default withStyles(styles)(ModalCleanCdiscLibraryCache);

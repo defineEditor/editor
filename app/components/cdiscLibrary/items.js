@@ -17,9 +17,13 @@ import { connect } from 'react-redux';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
+import TextField from '@material-ui/core/TextField';
+import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import CdiscLibraryBreadcrumbs from 'components/cdiscLibrary/breadcrumbs.js';
 import CdiscLibraryItemTable from 'components/cdiscLibrary/itemTable.js';
+import Typography from '@material-ui/core/Typography';
 import Loading from 'components/utils/loading.js';
+import getSelectionList from 'utils/getSelectionList.js';
 import {
     changeCdiscLibraryView,
 } from 'actions/index.js';
@@ -39,6 +43,14 @@ const styles = theme => ({
         marginRight: theme.spacing.unit * 1,
         outline: 'none'
     },
+    header: {
+        marginTop: theme.spacing.unit,
+        marginBottom: theme.spacing.unit,
+    },
+    varSetSelection: {
+        marginRight: theme.spacing.unit * 6,
+        minWidth: 200,
+    },
 });
 
 // Redux functions
@@ -51,7 +63,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
     return {
         productId: state.present.ui.cdiscLibrary.itemGroups.productId,
-        itemGroupId: state.present.ui.cdiscLibrary.items.itemGroupId,
+        items: state.present.ui.cdiscLibrary.items,
     };
 };
 
@@ -60,11 +72,16 @@ class ConnectedCdiscLibraryItems extends React.Component {
         super(props);
 
         this.state = {
+            product: null,
             itemGroup: null,
             items: [],
             searchString: '',
+            currentVariableSet: '',
+            variableSets: {},
         };
     }
+
+    static contextType = CdiscLibraryContext;
 
     componentDidMount () {
         this.getItems();
@@ -75,26 +92,55 @@ class ConnectedCdiscLibraryItems extends React.Component {
     }
 
     getItems = async () => {
-        let cl = this.props.cdiscLibrary;
-        // As a temporary bugfix, send a dummy request in 1 second if the object did not load
-        setTimeout(() => {
-            if (this.state.itemGroup === null) {
-                this.dummyRequest();
+        let cl = this.context;
+        let itemGroup = null;
+        if (this.props.items && this.props.items.type === 'itemGroup') {
+            let product = await cl.getFullProduct(this.props.productId);
+            itemGroup = await product.getItemGroup(this.props.items.itemGroupId);
+            if (product.model === 'ADaM') {
+                let variableSets = itemGroup.getVariableSetList({ descriptions: true });
+                // Add variable set all to show all values;
+                variableSets = { all: 'All', ...variableSets };
+                this.setState({ itemGroup, items: Object.values(itemGroup.getItems()), product, variableSets, currentVariableSet: 'all' });
+            } else {
+                this.setState({ itemGroup, items: Object.values(itemGroup.getItems()), product });
             }
-        }, 1000);
-        let itemGroup = await cl.getItemGroup(this.props.itemGroupId, this.props.productId);
-        this.setState({ itemGroup, items: Object.values(itemGroup.getItems()) });
-    }
-
-    dummyRequest = async (maxRetries) => {
-        // There is a glitch, which causes the response not to come back in some cases
-        // It is currently fixed by sending a dummy request in 1 second if the main response did not come back
-        try {
-            await this.props.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
-        } catch (error) {
-            // It is expected to fail, so do nothing
+        } else if (this.props.items && this.props.items.type === 'dataClass') {
+            let product = await cl.getFullProduct(this.props.productId);
+            itemGroup = product.dataClasses[this.props.items.itemGroupId];
+            this.setState({ itemGroup, items: Object.values(itemGroup.getItems({ immediate: true })), product });
         }
     }
+
+    getItemGroupDescription = () => {
+        let itemGroup = this.state.itemGroup;
+        return (
+            <React.Fragment>
+                <Typography variant="h5" inline>
+                    {itemGroup.name}
+                </Typography>
+                <Typography variant="h5" color='textSecondary' inline>
+                    &nbsp; {itemGroup.label}
+                </Typography>
+                {itemGroup.description !== undefined && (
+                    <Typography variant="body2">
+                        {itemGroup.description}
+                    </Typography>
+                )}
+            </React.Fragment>
+        );
+    }
+
+    handleVariableSetChange = event => {
+        let currentVariableSet = event.target.value;
+        let items = [];
+        if (currentVariableSet === 'all') {
+            items = Object.values(this.state.itemGroup.getItems());
+        } else {
+            items = Object.values(this.state.itemGroup.analysisVariableSets[currentVariableSet].getItems());
+        }
+        this.setState({ currentVariableSet, items });
+    };
 
     render () {
         const { classes } = this.props;
@@ -103,26 +149,56 @@ class ConnectedCdiscLibraryItems extends React.Component {
             <Grid container justify='flex-start' className={classes.main}>
                 <Grid item xs={12}>
                     <CdiscLibraryBreadcrumbs
-                        traffic={this.props.cdiscLibrary.getTrafficStats()}
+                        traffic={this.context.getTrafficStats()}
                         searchString={this.state.searchString}
                         onSearchUpdate={this.handleSearchUpdate}
                     />
                 </Grid>
-                <Grid item xs={12}>
-                    { this.state.items.length === 0 && <Loading onRetry={this.getItems} />}
-                    { this.state.items.length !== 0 &&
-                        <CdiscLibraryItemTable items={this.state.items} itemGroup={this.state.itemGroup} searchString={this.state.searchString}/>
-                    }
-                </Grid>
+                { this.state.items.length === 0 && (
+                    <Grid item xs={12}>
+                        <Loading onRetry={this.getItems} />
+                    </Grid>
+                )}
+                { this.state.items.length !== 0 && (
+                    <React.Fragment>
+                        <Grid item xs={12}>
+                            <Grid container justify='space-between' alignItems='flex-start' className={classes.header}>
+                                <Grid item>
+                                    {this.getItemGroupDescription()}
+                                </Grid>
+                                { this.state.product.model === 'ADaM' && (
+                                    <Grid item>
+                                        <TextField
+                                            label='Analysis Variable Set'
+                                            select
+                                            className={classes.varSetSelection}
+                                            value={this.state.currentVariableSet}
+                                            onChange={this.handleVariableSetChange}
+                                        >
+                                            {getSelectionList(this.state.variableSets)}
+                                        </TextField>
+                                    </Grid>
+                                )}
+                            </Grid>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <CdiscLibraryItemTable
+                                items={this.state.items}
+                                itemGroup={this.state.itemGroup}
+                                searchString={this.state.searchString}
+                                product={this.state.product}
+                            />
+                        </Grid>
+                    </React.Fragment>
+                )}
             </Grid>
         );
     }
 }
 
 ConnectedCdiscLibraryItems.propTypes = {
-    cdiscLibrary: PropTypes.object.isRequired,
     productId: PropTypes.string.isRequired,
-    itemGroupId: PropTypes.string.isRequired,
+    items: PropTypes.object.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
 };
 ConnectedCdiscLibraryItems.displayName = 'CdiscLibraryItems';

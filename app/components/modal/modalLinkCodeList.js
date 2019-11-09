@@ -72,8 +72,6 @@ const styles = theme => ({
         width: '50%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
         paddingBottom: theme.spacing.unit * 1,
         margin: '0 auto',
         borderRadius: '10px',
@@ -84,6 +82,16 @@ const styles = theme => ({
         width: '100%',
         marginTop: theme.spacing.unit * 1,
         marginBottom: theme.spacing.unit * 2,
+    },
+    title: {
+        marginBottom: theme.spacing.unit * 2,
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
     },
 });
 
@@ -154,7 +162,9 @@ class ConnectedModalLinkCodeList extends React.Component {
                 fullWidth
                 maxWidth={false}
             >
-                <DialogTitle id="alert-dialog-title">Linking Codelists</DialogTitle>
+                <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
+                    Linking Codelists
+                </DialogTitle>
                 <DialogContent>
                     {elementsPop.length > 0 &&
                         <div>

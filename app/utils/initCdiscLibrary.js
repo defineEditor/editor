@@ -45,11 +45,11 @@ const getRequestId = async (request) => {
     let hash = await window.crypto.subtle.digest('SHA-1', new TextEncoder().encode(requestOptions));
     const hashArray = Array.from(new Uint8Array(hash));
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    if (hashHex !== '0afd4c0de6a7b1a685edd9e8d152d66d5b4b7bd0') {
-        return shortenedUrl + hashHex;
-    } else {
-        // These are standard request options, no need to add hash code
+    if (hashHex === '0afd4c0de6a7b1a685edd9e8d152d66d5b4b7bd0') {
+        // These are standard request options, no need to add a hash code
         return shortenedUrl;
+    } else {
+        return shortenedUrl + hashHex;
     }
 };
 
@@ -59,14 +59,14 @@ const claMatch = async (request) => {
 
     const db = await openDB('cdiscLibrary-store', 1, {
         upgrade (db) {
-            // Create a store of objects
             db.createObjectStore('cdiscLibrary', {});
         },
     });
 
-    // Search for an response in cache
-    let zippedData = await db.get('cdiscLibrary', id);
-    if (zippedData !== undefined) {
+    // Search for the response in cache
+    let response = await db.get('cdiscLibrary', id);
+    if (response !== undefined) {
+        let zippedData = response.data;
         let zip = new Jszip();
         await zip.loadAsync(zippedData);
         if (Object.keys(zip.files).includes('response.json')) {
@@ -94,13 +94,12 @@ const claPut = async (request, response) => {
 
     const db = await openDB('cdiscLibrary-store', 1, {
         upgrade (db) {
-            // Create a store of objects
             db.createObjectStore('cdiscLibrary', {});
         },
     });
 
     // Add response to cache
-    await db.put('cdiscLibrary', zippedData, id);
+    await db.put('cdiscLibrary', { date: new Date(), data: zippedData }, id);
 };
 
 const initCdiscLibrary = () => {
@@ -109,13 +108,25 @@ const initCdiscLibrary = () => {
     if (state.settings && state.settings.cdiscLibrary) {
         claSettings = state.settings.cdiscLibrary;
     }
+    let info = {};
+    if (state.ui && state.ui.cdiscLibrary && state.ui.cdiscLibrary.info) {
+        info = state.ui.cdiscLibrary.info;
+    }
 
-    return new CdiscLibrary({
-        username: claSettings.username,
-        password: decrypt(claSettings.password),
-        baseUrl: claSettings.baseUrl,
-        cache: { match: claMatch, put: claPut },
-    });
+    if (claSettings.enableCdiscLibrary === true) {
+        let options = {
+            username: claSettings.username,
+            password: decrypt(claSettings.password),
+            baseUrl: claSettings.baseUrl,
+            cache: { match: claMatch, put: claPut },
+        };
+        if (info) {
+            options.traffic = info.traffic;
+        }
+        return new CdiscLibrary(options);
+    } else {
+        return {};
+    }
 };
 
 export default initCdiscLibrary;

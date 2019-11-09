@@ -17,24 +17,29 @@ import { connect } from 'react-redux';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import Divider from '@material-ui/core/Divider';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import CdiscLibraryBreadcrumbs from 'components/cdiscLibrary/breadcrumbs.js';
 import Loading from 'components/utils/loading.js';
+import { openDB } from 'idb';
 import {
-    toggleCdiscLibraryPanels,
     changeCdiscLibraryView,
 } from 'actions/index.js';
 
 const styles = theme => ({
+    classHeading: {
+        marginBottom: theme.spacing.unit,
+    },
     heading: {
-        fontSize: theme.typography.pxToRem(15),
-        flexBasis: '33.33%',
-        flexShrink: 0,
+        marginBottom: theme.spacing.unit * 0.5,
+    },
+    classItem: {
+        paddingTop: 0,
+        paddingBottom: 0,
     },
     main: {
         marginTop: theme.spacing.unit * 8,
@@ -43,7 +48,7 @@ const styles = theme => ({
     },
     classPanel: {
         width: '98%',
-        backgroundColor: '#F1F1F1',
+        backgroundColor: '#FFFFFF',
     },
     group: {
         width: '100%',
@@ -56,7 +61,6 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        toggleCdiscLibraryPanels: (updateObj) => dispatch(toggleCdiscLibraryPanels(updateObj)),
         changeCdiscLibraryView: (updateObj) => dispatch(changeCdiscLibraryView(updateObj)),
     };
 };
@@ -76,6 +80,8 @@ class ConnectedProducts extends React.Component {
         };
     }
 
+    static contextType = CdiscLibraryContext;
+
     componentDidMount () {
         this.getItems();
     }
@@ -87,7 +93,7 @@ class ConnectedProducts extends React.Component {
                 this.dummyRequest();
             }
         }, 1000);
-        let productClasses = await this.props.cdiscLibrary.getProductClasses();
+        let productClasses = await this.context.getProductClasses();
         let panelIds = Object.keys(productClasses);
         let classes = {};
         panelIds.filter(classId => (classId !== 'terminology')).forEach(classId => {
@@ -130,14 +136,10 @@ class ConnectedProducts extends React.Component {
         // There is a glitch, which causes the response not to come back in some cases
         // It is currently fixed by sending a dummy request in 1 second if the main response did not come back
         try {
-            await this.props.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
+            await this.context.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
         } catch (error) {
             // It is expected to fail, so do nothing
         }
-    }
-
-    handleChange = (panelId) => () => {
-        this.props.toggleCdiscLibraryPanels({ panelIds: [panelId] });
     }
 
     selectProduct = (productId, productName) => () => {
@@ -147,23 +149,26 @@ class ConnectedProducts extends React.Component {
     getClasses = (data, panelStatus, classes) => {
         let result = Object.keys(data).map(panelId => {
             return (
-                <ExpansionPanel
+                <List
                     key={panelId}
-                    expanded={panelStatus[panelId] !== false}
-                    onChange={this.handleChange(panelId)}
                     className={classes.classPanel}
                 >
-                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography className={classes.heading}>{data[panelId].title}</Typography>
-                    </ExpansionPanelSummary>
-                    <ExpansionPanelDetails>
-                        <Grid container spacing={8}>
+                    <ListItem
+                        key={panelId}
+                        className={classes.classItem}
+                        elevation={12}
+                        dense
+                    >
+                        <Grid container>
+                            <Grid item ls={12} className={classes.group}>
+                                <Typography variant='h5' color='textSecondary' className={classes.classHeading}>{data[panelId].title}</Typography>
+                            </Grid>
                             <Grid item className={classes.group}>
                                 {this.getGroups(data[panelId].groups, panelStatus, classes)}
                             </Grid>
                         </Grid>
-                    </ExpansionPanelDetails>
-                </ExpansionPanel>
+                    </ListItem>
+                </List>
             );
         });
         return (result);
@@ -172,21 +177,29 @@ class ConnectedProducts extends React.Component {
     getGroups = (data, panelStatus, classes) => {
         let result = Object.keys(data).map(panelId => {
             return (
-                <ExpansionPanel
-                    key={panelId}
-                    expanded={panelStatus[panelId] === true}
-                    onChange={this.handleChange(panelId)}
-                    className={classes.groupPanel}
-                >
-                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography className={classes.heading}>{data[panelId].title}</Typography>
-                    </ExpansionPanelSummary>
-                    <ExpansionPanelDetails>
-                        <Grid container spacing={8} justify='flex-start'>
-                            {this.getProducts(data[panelId].products, classes)}
-                        </Grid>
-                    </ExpansionPanelDetails>
-                </ExpansionPanel>
+                <React.Fragment key={panelId}>
+                    <List
+                        key={panelId}
+                        className={classes.groupPanel}
+                    >
+                        <ListItem
+                            key={panelId}
+                            dense
+                        >
+                            <Grid container justify='flex-start'>
+                                <Grid item ls={12} className={classes.group}>
+                                    <Typography variant='h6' color='textSecondary' className={classes.heading}>{data[panelId].title}</Typography>
+                                </Grid>
+                                <Grid item className={classes.group}>
+                                    <Grid container spacing={8} justify='flex-start'>
+                                        {this.getProducts(data[panelId].products, classes)}
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </ListItem>
+                    </List>
+                    <Divider key={panelId + 'divider'}/>
+                </React.Fragment>
             );
         });
         return (result);
@@ -209,12 +222,29 @@ class ConnectedProducts extends React.Component {
         return (result);
     }
 
+    reloadProducts = async () => {
+        this.setState({ classes: {} });
+        const db = await openDB('cdiscLibrary-store', 1, {
+            upgrade (db) {
+                // Create a store of objects
+                db.createObjectStore('cdiscLibrary', {});
+            },
+        });
+
+        await db.delete('cdiscLibrary', 'products');
+
+        // Reset the library contents
+        this.context.reset();
+
+        this.getItems();
+    }
+
     render () {
         const { panelStatus, classes } = this.props;
         return (
             <Grid container spacing={8} justify='space-between' className={classes.main}>
                 <Grid item xs={12}>
-                    <CdiscLibraryBreadcrumbs traffic={this.props.cdiscLibrary.getTrafficStats()} />
+                    <CdiscLibraryBreadcrumbs traffic={this.context.getTrafficStats()} reloadProducts={this.reloadProducts} />
                 </Grid>
                 <Grid item xs={12}>
                     { Object.keys(this.state.classes).length === 0 && <Loading onRetry={this.getItems} /> }
@@ -226,9 +256,7 @@ class ConnectedProducts extends React.Component {
 }
 
 ConnectedProducts.propTypes = {
-    cdiscLibrary: PropTypes.object.isRequired,
     panelStatus: PropTypes.object.isRequired,
-    toggleCdiscLibraryPanels: PropTypes.func.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
 };
 ConnectedProducts.displayName = 'Products';

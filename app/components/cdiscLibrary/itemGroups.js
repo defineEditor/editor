@@ -16,13 +16,12 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
+import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import CdiscLibraryBreadcrumbs from 'components/cdiscLibrary/breadcrumbs.js';
 import Loading from 'components/utils/loading.js';
 import {
@@ -35,8 +34,17 @@ const styles = theme => ({
         flexBasis: '33.33%',
         flexShrink: 0,
     },
-    button: {
+    longItemGroupButton: {
         height: 40,
+    },
+    shortItemGroupButton: {
+        height: 40,
+        width: 64,
+    },
+    classButton: {
+        height: 40,
+        width: 260,
+        fontWeight: 'bold',
     },
     listItem: {
     },
@@ -86,31 +94,39 @@ class ConnectedItemGroups extends React.Component {
     }
 
     getItemGroups = async () => {
-        let cl = this.props.cdiscLibrary;
-        let product = await cl.getFullProduct(this.props.productId);
-        // As a temporary bugfix, send a dummy request in 3 seconds if the object did not load
+        let cl = this.context;
+        // As a temporary bugfix, send a dummy request in 2 seconds if the object did not load
         setTimeout(() => {
             if (this.state.product === null) {
                 this.dummyRequest();
             }
-        }, 3000);
+        }, 2000);
+        let product = await cl.getFullProduct(this.props.productId);
 
         this.updateState(product);
     }
 
+    static contextType = CdiscLibraryContext;
+
     updateState = async (product) => {
         if (typeof product.dataClasses === 'object' && Object.keys(product.dataClasses).length > 0) {
             let itemGroups = [];
-            Object.values(product.dataClasses).forEach(dataClass => {
-                itemGroups.push({ name: dataClass.name, label: dataClass.label, type: 'parentGroup' });
-                let classGroups = dataClass.getItemGroups();
-                let childGroups = Object.values(classGroups)
-                    .sort((ig1, ig2) => (ig1.name > ig2.name ? 1 : -1))
-                    .map(group => ({ name: group.name, label: group.label, type: 'childGroup' }));
-                if (childGroups.length > 0) {
-                    itemGroups = itemGroups.concat(childGroups);
-                }
-            });
+            Object.values(product.dataClasses)
+                .sort((dc1, dc2) => (dc1.ordinal > dc2.ordinal ? 1 : -1))
+                .forEach(dataClass => {
+                    if (Object.keys(dataClass.getItems({ immediate: true })).length === 0) {
+                        itemGroups.push({ name: dataClass.name, label: dataClass.label, type: 'headerGroup' });
+                    } else {
+                        itemGroups.push({ name: dataClass.name, label: dataClass.label, type: 'parentGroup' });
+                    }
+                    let classGroups = dataClass.getItemGroups();
+                    let childGroups = Object.values(classGroups)
+                        .sort((ig1, ig2) => (ig1.name > ig2.name ? 1 : -1))
+                        .map(group => ({ name: group.name, label: group.label, type: 'childGroup' }));
+                    if (childGroups.length > 0) {
+                        itemGroups = itemGroups.concat(childGroups);
+                    }
+                });
             this.setState({ itemGroups, product, type: 'subgroups' });
         } else {
             let itemGroupsRaw = await product.getItemGroups({ type: 'short' });
@@ -123,51 +139,122 @@ class ConnectedItemGroups extends React.Component {
         // There is a glitch, which causes the response not to come back in some cases
         // It is currently fixed by sending a dummy request in 1 seconds if the main response did not come back
         try {
-            await this.props.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
+            await this.context.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
         } catch (error) {
             // It is expected to fail, so do nothing
         }
     }
 
-    selectItemGroup = (itemGroupId) => () => {
-        this.props.changeCdiscLibraryView({ view: 'items', itemGroupId });
+    selectItemGroup = (itemGroup) => () => {
+        if (this.state.type === 'subgroups') {
+            // Get type
+            let type;
+            let itemGroupId;
+            // A simple domain/dataset is an itemGroup
+            if (itemGroup.type === 'childGroup') {
+                type = 'itemGroup';
+                itemGroupId = itemGroup.name;
+            } else {
+                Object.values(this.state.product.dataClasses).forEach(dataClass => {
+                    if (dataClass.name === itemGroup.name) {
+                        type = 'dataClass';
+                        itemGroupId = dataClass.id;
+                    }
+                });
+            }
+
+            this.props.changeCdiscLibraryView({ view: 'items', itemGroupId, type });
+        } else {
+            this.props.changeCdiscLibraryView({ view: 'items', itemGroupId: itemGroup.name, type: 'itemGroup' });
+        }
     }
 
     handleSearchUpdate = (event) => {
         this.setState({ searchString: event.target.value });
     }
 
+    getListClassName = (itemGroup, classes) => {
+        if (itemGroup.type === 'parentGroup') {
+            return classes.parentGroup;
+        } else if (itemGroup.type === 'headerGroup') {
+            return classes.parentGroup;
+        } else if (itemGroup.type === 'childGroup') {
+            return classes.childGroup;
+        }
+    }
+
+    getGridClassName = (dataClass, classes) => {
+        if (['Relationship', 'Associated Persons'].includes(dataClass.name)) {
+            return classes.longItemGroupButton;
+        } else {
+            return classes.shortItemGroupButton;
+        }
+    }
+
     showGrid = () => {
         const searchString = this.state.searchString;
-        let data = this.state.itemGroups.slice();
+
+        // Convert the data to hierarhical structure
+        let gridData = [];
+        let currentGridItem = {};
+        this.state.itemGroups.forEach(itemGroup => {
+            if (itemGroup.type !== 'childGroup') {
+                if (Object.keys(currentGridItem).length >= 1) {
+                    gridData.push(currentGridItem);
+                }
+                currentGridItem = { ...itemGroup, childGroups: [] };
+            } else {
+                currentGridItem.childGroups.push(itemGroup);
+            }
+        });
+        if (Object.keys(currentGridItem).length >= 1) {
+            gridData.push(currentGridItem);
+        }
 
         if (searchString !== '') {
-            data = data.filter(row => {
+            gridData = gridData.filter(dataClass => {
+                dataClass.childGroups = dataClass.childGroups.filter(itemGroup => {
+                    if (/[A-Z]/.test(searchString)) {
+                        return itemGroup.name.includes(searchString);
+                    } else {
+                        return itemGroup.name.toLowerCase().includes(searchString);
+                    }
+                });
                 if (/[A-Z]/.test(searchString)) {
-                    return row.name.includes(searchString);
+                    return (dataClass.name.includes(searchString) || dataClass.childGroups.length > 0);
                 } else {
-                    return row.name.toLowerCase().includes(searchString);
+                    return (dataClass.name.toLowerCase().includes(searchString) || dataClass.childGroups.length > 0);
                 }
             });
         }
 
-        return (
-            <GridList cellHeight={40} className={this.props.classes.gridList} cols={8}>
-                { data.map(itemGroup => (
-                    <GridListTile key={itemGroup.name}>
+        return gridData.map(dataClass => (
+            <Grid container justify='flex-start' direction='row' alignItems='flex-start' key={dataClass.name}>
+                <Grid item>
+                    <Button
+                        color='primary'
+                        size='large'
+                        key={dataClass.name}
+                        className={this.props.classes.classButton}
+                        disabled={dataClass.type === 'headerGroup'}
+                        onClick={this.selectItemGroup(dataClass)}
+                    >
+                        {dataClass.name}
+                    </Button>
+                    { dataClass.childGroups.map(itemGroup => (
                         <Button
                             color='primary'
                             size='large'
-                            fullWidth
-                            className={this.props.classes.button}
-                            onClick={this.selectItemGroup(itemGroup.name)}
+                            key={itemGroup.name}
+                            className={this.getGridClassName(dataClass, this.props.classes)}
+                            onClick={this.selectItemGroup(itemGroup)}
                         >
                             {itemGroup.name}
                         </Button>
-                    </GridListTile>
-                )) }
-            </GridList>
-        );
+                    ))}
+                </Grid>
+            </Grid>
+        ));
     }
 
     showList = () => {
@@ -193,21 +280,14 @@ class ConnectedItemGroups extends React.Component {
                         button
                         key={itemGroup.name}
                         className={classes.listItem}
-                        onClick={this.selectItemGroup(itemGroup.name)}
+                        disabled={itemGroup.type === 'headerGroup'}
+                        onClick={this.selectItemGroup(itemGroup)}
                     >
-                        { this.state.type === 'subgroups' &&
-                                <ListItemText
-                                    primary={itemGroup.name}
-                                    secondary={itemGroup.label}
-                                    className={itemGroup.type === 'parentGroup' ? classes.parentGroup : classes.childGroup}
-                                />
-                        }
-                        { this.state.type !== 'subgroups' &&
-                                <ListItemText
-                                    primary={itemGroup.name}
-                                    secondary={itemGroup.label}
-                                />
-                        }
+                        <ListItemText
+                            primary={itemGroup.name}
+                            secondary={itemGroup.label}
+                            className={this.getListClassName(itemGroup, classes)}
+                        />
                     </ListItem>
                 ))}
             </List>
@@ -221,7 +301,7 @@ class ConnectedItemGroups extends React.Component {
             <Grid container justify='space-between' className={classes.main}>
                 <Grid item xs={12}>
                     <CdiscLibraryBreadcrumbs
-                        traffic={this.props.cdiscLibrary.getTrafficStats()}
+                        traffic={this.context.getTrafficStats()}
                         searchString={this.state.searchString}
                         onSearchUpdate={this.handleSearchUpdate}
                     />
@@ -236,7 +316,6 @@ class ConnectedItemGroups extends React.Component {
 }
 
 ConnectedItemGroups.propTypes = {
-    cdiscLibrary: PropTypes.object.isRequired,
     productId: PropTypes.string.isRequired,
     productName: PropTypes.string.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
