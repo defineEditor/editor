@@ -13,6 +13,7 @@
 ***********************************************************************************/
 
 import EStore from 'electron-store';
+import { remote } from 'electron';
 import stdConstants from 'constants/stdConstants.js';
 import {
     ui as uiInitialValues,
@@ -53,10 +54,14 @@ function loadState () {
             state.ui.snackbar = uiInitialValues.snackbar;
         }
     }
-    // If the comment/method table is shown, disable it
     if (state.hasOwnProperty('ui') && state.ui.hasOwnProperty('main')) {
+        // If the comment/method table is shown, disable it
         if (state.ui.main.showCommentMethodTable === true) {
             state.ui.main.showCommentMethodTable = false;
+        }
+        // If the application was updated/downgraded, start from studies page
+        if (state.ui.main.appVersion !== remote.app.getVersion()) {
+            state.ui.main.currentPage = 'studies';
         }
         state.ui.main.lastSaveHistoryIndex = 0;
         state.ui.main.actionHistory = [];

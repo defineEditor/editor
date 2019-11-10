@@ -37,6 +37,7 @@ const main = (() => {
             codedValuesTab: 100,
         },
         pathToLastFile: undefined,
+        appVersion: remote.app.getVersion(),
     };
 })();
 

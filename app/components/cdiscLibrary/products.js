@@ -93,7 +93,7 @@ class ConnectedProducts extends React.Component {
                 this.dummyRequest();
             }
         }, 1000);
-        let productClasses = await this.context.getProductClasses();
+        let productClasses = await this.context.cdiscLibrary.getProductClasses();
         let panelIds = Object.keys(productClasses);
         let classes = {};
         panelIds.filter(classId => (classId !== 'terminology')).forEach(classId => {
@@ -136,7 +136,7 @@ class ConnectedProducts extends React.Component {
         // There is a glitch, which causes the response not to come back in some cases
         // It is currently fixed by sending a dummy request in 1 second if the main response did not come back
         try {
-            await this.context.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
+            await this.context.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
         } catch (error) {
             // It is expected to fail, so do nothing
         }
@@ -234,7 +234,7 @@ class ConnectedProducts extends React.Component {
         await db.delete('cdiscLibrary', 'products');
 
         // Reset the library contents
-        this.context.reset();
+        this.context.cdiscLibrary.reset();
 
         this.getItems();
     }
@@ -244,7 +244,7 @@ class ConnectedProducts extends React.Component {
         return (
             <Grid container spacing={8} justify='space-between' className={classes.main}>
                 <Grid item xs={12}>
-                    <CdiscLibraryBreadcrumbs traffic={this.context.getTrafficStats()} reloadProducts={this.reloadProducts} />
+                    <CdiscLibraryBreadcrumbs traffic={this.context.cdiscLibrary.getTrafficStats()} reloadProducts={this.reloadProducts} />
                 </Grid>
                 <Grid item xs={12}>
                     { Object.keys(this.state.classes).length === 0 && <Loading onRetry={this.getItems} /> }

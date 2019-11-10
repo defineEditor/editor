@@ -94,7 +94,7 @@ class ConnectedItemGroups extends React.Component {
     }
 
     getItemGroups = async () => {
-        let cl = this.context;
+        let cl = this.context.cdiscLibrary;
         // As a temporary bugfix, send a dummy request in 2 seconds if the object did not load
         setTimeout(() => {
             if (this.state.product === null) {
@@ -139,7 +139,7 @@ class ConnectedItemGroups extends React.Component {
         // There is a glitch, which causes the response not to come back in some cases
         // It is currently fixed by sending a dummy request in 1 seconds if the main response did not come back
         try {
-            await this.context.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
+            await this.context.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
         } catch (error) {
             // It is expected to fail, so do nothing
         }
@@ -301,7 +301,7 @@ class ConnectedItemGroups extends React.Component {
             <Grid container justify='space-between' className={classes.main}>
                 <Grid item xs={12}>
                     <CdiscLibraryBreadcrumbs
-                        traffic={this.context.getTrafficStats()}
+                        traffic={this.context.cdiscLibrary.getTrafficStats()}
                         searchString={this.state.searchString}
                         onSearchUpdate={this.handleSearchUpdate}
                     />

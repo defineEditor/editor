@@ -34,6 +34,7 @@ import NavigationBar from 'core/navigationBar.js';
 import SaveCancel from 'editors/saveCancel.js';
 import InternalHelp from 'components/utils/internalHelp.js';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
+import { initCdiscLibrary, updateCdiscLibrarySettings } from 'utils/cdiscLibraryUtils.js';
 import { CT_LOCATION, CDISC_LIBRARY } from 'constants/help.js';
 import { updateSettings, openModal, openSnackbar } from 'actions/index.js';
 import { encrypt, decrypt } from 'utils/encryptDecrypt.js';
@@ -249,31 +250,24 @@ class ConnectedSettings extends React.Component {
         if (Object.keys(diff).length > 0) {
             // Update CDISC Library credentials
             if (diff.cdiscLibrary) {
-                // If the credentials were changed, use the new
-                this.updatedCredentials(this.state.settings.cdiscLibrary, false);
-            } else {
-                // User may have changed the credentials and checked connection using the button, so the values must be reset
-                this.updatedCredentials(this.props.settings.cdiscLibrary);
-            }
-            // Encrypt the cdiscLibrary password
-            if (diff.cdiscLibrary && diff.cdiscLibrary.password) {
-                // Save the new unencrypted password in state
-                this.setState({ originalPassword: diff.cdiscLibrary.password });
-                diff.cdiscLibrary.password = encrypt(diff.cdiscLibrary.password);
+                if (diff.cdiscLibrary.password) {
+                    // Save the new unencrypted password in state
+                    this.setState({ originalPassword: diff.cdiscLibrary.password });
+                }
+                // If password was changed, it is encrypted by the updateCdiscLibrarySettings
+                diff.cdiscLibrary = updateCdiscLibrarySettings(diff.cdiscLibrary, this.props.settings.cdiscLibrary, this.context);
             }
             this.props.updateSettings(diff);
         }
     };
 
     cancel = () => {
-        // Update CDISC Library credentials
-        this.updatedCredentials(this.props.settings.cdiscLibrary);
         let newState = clone(this.props.settings);
         // Decrypt the cdiscLibrary password
         if (newState.cdiscLibrary && newState.cdiscLibrary.password) {
             newState.cdiscLibrary.password = decrypt(newState.cdiscLibrary.password);
         }
-        this.setState(newState);
+        this.setState({ settings: newState });
     };
 
     onKeyDown = event => {
@@ -288,37 +282,22 @@ class ConnectedSettings extends React.Component {
         this.setState(state => ({ showPassword: !state.showPassword }));
     };
 
-    updatedCredentials = (settings, encrypted = true) => {
-        let coreObject = this.context.coreObject;
-        let settingsPassword;
-        if (encrypted) {
-            settingsPassword = decrypt(settings.password);
-        } else {
-            settingsPassword = settings.password;
-        }
-
-        if (settings.username !== coreObject.username ||
-            settingsPassword !== coreObject.password ||
-            settings.baseUrl !== coreObject.baseUrl
-        ) {
-            coreObject.username = settings.username;
-            coreObject.password = settingsPassword;
-            coreObject.baseUrl = settings.baseUrl;
-        }
-    }
-
     checkCdiscLibraryConnection = async () => {
-        this.updatedCredentials(this.state.settings.cdiscLibrary, false);
+        // For the check, create a new instance of CDISC Library, because user may have not saved the changed settings
+        let claSettings = clone(this.state.settings.cdiscLibrary);
+        // Encrypt password
+        claSettings.password = encrypt(claSettings.password);
+        let newCl = initCdiscLibrary(claSettings);
         // There is a glitch, which causes the response not to come back in some cases
         // It is currently fixed by sending a dummy request
         setTimeout(async () => {
             try {
-                await this.context.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
+                await newCl.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
             } catch (error) {
                 // It is expected to fail, so do nothing
             }
         }, 500);
-        let check = await this.context.checkConnection();
+        let check = await newCl.checkConnection();
         if (!check || check.statusCode === -1) {
             this.props.openSnackbar({
                 type: 'error',

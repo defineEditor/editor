@@ -43,11 +43,13 @@ class ConnectedCdiscLibraryMain extends React.Component {
         return (
             <div className={classes.root}>
                 <NavigationBar />
-                <div className={classes.body}>
-                    { currentView === 'products' && <CdiscLibraryProducts/>}
-                    { currentView === 'itemGroups' && <CdiscLibraryItemGroups/>}
-                    { currentView === 'items' && <CdiscLibraryItems/>}
-                </div>
+                { this.props.settings.enableCdiscLibrary === true && (
+                    <div className={classes.body}>
+                        { currentView === 'products' && <CdiscLibraryProducts/>}
+                        { currentView === 'itemGroups' && <CdiscLibraryItemGroups/>}
+                        { currentView === 'items' && <CdiscLibraryItems/>}
+                    </div>
+                )}
             </div>
         );
     }

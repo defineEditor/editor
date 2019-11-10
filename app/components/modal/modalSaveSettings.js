@@ -22,6 +22,8 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
+import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
+import { updateCdiscLibrarySettings } from 'utils/cdiscLibraryUtils.js';
 import { updateSettings, closeModal } from 'actions/index.js';
 
 const styles = theme => ({
@@ -54,10 +56,23 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
+const mapStateToProps = state => {
+    return {
+        settings: state.present.settings
+    };
+};
+
 class ConnectedModalQuitApplication extends React.Component {
+    static contextType = CdiscLibraryContext;
+
     onSave = () => {
         this.props.closeModal();
-        this.props.updateSettings(this.props.updatedSettings);
+        let diff = this.props.updatedSettings;
+        if (diff.cdiscLibrary) {
+            // If password was changed, it is encrypted by the updateCdiscLibrarySettings
+            diff.cdiscLibrary = updateCdiscLibrarySettings(diff.cdiscLibrary, this.props.settings.cdiscLibrary, this.context);
+        }
+        this.props.updateSettings(diff);
     }
 
     onDiscard = () => {
@@ -112,7 +127,8 @@ ConnectedModalQuitApplication.propTypes = {
     updateSettings: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
     updatedSettings: PropTypes.object.isRequired,
+    settings: PropTypes.object.isRequired,
 };
 
-const ModalQuitApplication = connect(undefined, mapDispatchToProps)(ConnectedModalQuitApplication);
+const ModalQuitApplication = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalQuitApplication);
 export default withStyles(styles)(ModalQuitApplication);
