@@ -16,7 +16,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
-import store from 'store/index.js';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import ModalRoot from 'components/modal/modalRoot.js';
 import SnackbarRoot from 'components/utils/snackbarRoot.js';
@@ -34,25 +33,13 @@ import saveState from 'utils/saveState.js';
 import sendDefineObject from 'utils/sendDefineObject.js';
 import changeAppTitle from 'utils/changeAppTitle.js';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
-import initCdiscLibrary from 'utils/initCdiscLibrary.js';
+import { initCdiscLibrary } from 'utils/cdiscLibraryUtils.js';
 import quitApplication from 'utils/quitApplication.js';
 import {
     openModal,
     updateMainUi,
     saveCdiscLibraryInfo
 } from 'actions/index.js';
-
-const cdiscLibrary = initCdiscLibrary();
-
-const handleQuitApplication = () => {
-    if (typeof cdiscLibrary === 'object' && cdiscLibrary.coreObject && cdiscLibrary.coreObject.traffic) {
-        store.dispatch(saveCdiscLibraryInfo({ traffic: cdiscLibrary.coreObject.traffic }));
-    }
-    quitApplication();
-};
-
-// Comparing to other event listeners which are defined in index.js, this one needs to be here, so that CDISC Library object can be used
-ipcRenderer.on('quit', handleQuitApplication);
 
 const baseThemeObj = {
     palette: {
@@ -119,6 +106,7 @@ const mapDispatchToProps = dispatch => {
     return {
         openModal: updateObj => dispatch(openModal(updateObj)),
         updateMainUi: (updateObj) => dispatch(updateMainUi(updateObj)),
+        saveCdiscLibraryInfo: (updateObj) => dispatch(saveCdiscLibraryInfo(updateObj)),
     };
 };
 
@@ -129,10 +117,13 @@ class ConnectedApp extends Component {
             showRedoUndo: false,
             showFindInPage: false,
             showShortcuts: false,
+            cdiscLibraryKit: { cdiscLibrary: initCdiscLibrary(), updateCdiscLibrary: this.updateCdiscLibrary },
         };
     }
 
     componentDidMount () {
+        // Comparing to other event listeners which are defined in index.js, this one needs to be here, so that CDISC Library object can be used
+        ipcRenderer.on('quit', this.handleQuitApplication);
         window.addEventListener('keydown', this.onKeyDown);
         if (this.props.showInitialMessage) {
             this.props.openModal({
@@ -154,6 +145,7 @@ class ConnectedApp extends Component {
 
     componentWillUnmount () {
         window.removeEventListener('keydown', this.onKeyDown);
+        ipcRenderer.remove('quit', this.handleQuitApplication);
     }
 
     componentDidCatch (error, info) {
@@ -162,6 +154,18 @@ class ConnectedApp extends Component {
             props: { error, info }
         });
     }
+
+    updateCdiscLibrary = (value) => {
+        this.setState({ cdiscLibraryKit: { cdiscLibrary: value, updateCdiscLibrary: this.state.cdiscLibraryKit.updateCdiscLibrary } });
+    };
+
+    handleQuitApplication = () => {
+        let cdiscLibrary = this.state.cdiscLibraryKit.cdiscLibrary;
+        if (typeof cdiscLibrary === 'object' && cdiscLibrary.coreObject && cdiscLibrary.coreObject.traffic) {
+            this.props.saveCdiscLibraryInfo({ traffic: cdiscLibrary.coreObject.traffic });
+        }
+        quitApplication();
+    };
 
     onKeyDown = (event) => {
         if (event.ctrlKey && event.keyCode === 72 && this.props.currentPage === 'editor') {
@@ -205,7 +209,7 @@ class ConnectedApp extends Component {
             );
         }
         return (
-            <CdiscLibraryContext.Provider value={cdiscLibrary}>
+            <CdiscLibraryContext.Provider value={this.state.cdiscLibraryKit}>
                 <MuiThemeProvider theme={this.props.disableAnimations ? disabledAnimationTheme : baseTheme}>
                     <MainMenu
                         onToggleRedoUndo={this.toggleRedoUndo}
@@ -237,6 +241,9 @@ ConnectedApp.propTypes = {
     disableFindToggle: PropTypes.bool.isRequired,
     disableAnimations: PropTypes.bool.isRequired,
     bugModalOpened: PropTypes.bool,
+    openModal: PropTypes.func,
+    updateMainUi: PropTypes.func,
+    saveCdiscLibraryInfo: PropTypes.func,
 };
 
 const App = connect(mapStateToProps, mapDispatchToProps)(ConnectedApp);

@@ -125,7 +125,11 @@ CDISC Library requires credentials in order to access it. These are not the CDIS
 See \`https://www.cdisc.org/cdisc-library\` to find more information about it.
 #### Storage of Credentials
 The credentials are stored on your computer in an encrypted format. If you update your computer or change your user name and the CDISC Library functionality does not work anymore, you need to enter the credentials once again.
+#### Traffic Statistics
+CDISC Library does not provide information on the amounth of traffic used. This statistics is calculated by the application based on the size of the packages sent and received from the CDISC Library API and shall not be relied on. To get the exact traffic usage statistics, consult the CDISC Library support.
 #### CDISC Relay
-If you would like users to avoid the need to specify credentials, consider using CLA Relay \`https://github.com/defineEditor/cla-relay\`. In this case **baseURL** shall contain the URL of the server where CLA-Relay is installed (e.g., \`http://my.server.int/api\`).
+If you would like users to avoid the need to specify credentials, consider using CLA Relay \`https://github.com/defineEditor/cla-relay\`. In this case **baseURL** shall contain the URL of the server where CLA-Relay is installed (e.g., \`http://my.server.int:4600/api\`).
+#### Disclaimer
+Visual Define-XML Editor does not instruct how CDISC Library shall be used, nor represents CDISC in any way. Check your CDISC Library account EULA for the details on how CDISC Library can be used. If you have any questions regarding the contents of CDISC Library, please write to the CDISC Library support.
 `
 };

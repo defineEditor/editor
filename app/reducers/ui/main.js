@@ -123,7 +123,7 @@ const deleteCodeLists = (state, action) => {
 };
 
 const handleDummyAction = (state, action) => {
-    return { ...state, main: { ...state.main, dummyActionTimeStamp: new Date().toString() } };
+    return { ...state, dummyActionTimeStamp: new Date().toString() };
 };
 
 const handleOdmChange = (state, action) => {

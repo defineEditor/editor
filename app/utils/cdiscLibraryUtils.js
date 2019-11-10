@@ -13,7 +13,8 @@
 ***********************************************************************************/
 import store from 'store/index.js';
 import { CdiscLibrary } from 'cla-wrapper';
-import { decrypt } from 'utils/encryptDecrypt.js';
+import clone from 'clone';
+import { encrypt, decrypt } from 'utils/encryptDecrypt.js';
 import { openDB } from 'idb';
 import Jszip from 'jszip';
 
@@ -102,10 +103,12 @@ const claPut = async (request, response) => {
     await db.put('cdiscLibrary', { date: new Date(), data: zippedData }, id);
 };
 
-const initCdiscLibrary = () => {
+const initCdiscLibrary = (settings) => {
     let claSettings = {};
     let state = store.getState().present;
-    if (state.settings && state.settings.cdiscLibrary) {
+    if (settings !== undefined) {
+        claSettings = settings;
+    } else if (state.settings && state.settings.cdiscLibrary) {
         claSettings = state.settings.cdiscLibrary;
     }
     let info = {};
@@ -129,4 +132,33 @@ const initCdiscLibrary = () => {
     }
 };
 
-export default initCdiscLibrary;
+const updateCdiscLibrarySettings = (settingsDiff, originalSettings, cdiscLibraryKit) => {
+    // Encrypt the cdiscLibrary password
+    let diff = clone(settingsDiff);
+    if (diff.password) {
+        diff.password = encrypt(diff.password);
+    }
+    // Enable/Disable the CDISC Library
+    if (diff.enableCdiscLibrary === true) {
+        let settings = { ...originalSettings, ...diff };
+        cdiscLibraryKit.updateCdiscLibrary(initCdiscLibrary(settings));
+    } else if (diff.enableCdiscLibrary === false) {
+        cdiscLibraryKit.updateCdiscLibrary({});
+    } else if (originalSettings.enableCdiscLibrary === true) {
+        // If the credentials were changed, use the new
+        let coreObject = cdiscLibraryKit.cdiscLibrary.coreObject;
+        if (diff.username !== undefined) {
+            coreObject.username = diff.username;
+        }
+        if (diff.password !== undefined) {
+            coreObject.password = decrypt(diff.password);
+        }
+        if (diff.baseUrl !== undefined) {
+            coreObject.baseUrl = diff.baseUrl;
+        }
+    }
+    // Returns settings with encrypted password if it was in diff
+    return diff;
+};
+
+export default { initCdiscLibrary, updateCdiscLibrarySettings };

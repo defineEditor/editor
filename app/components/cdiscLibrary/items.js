@@ -92,7 +92,7 @@ class ConnectedCdiscLibraryItems extends React.Component {
     }
 
     getItems = async () => {
-        let cl = this.context;
+        let cl = this.context.cdiscLibrary;
         let itemGroup = null;
         if (this.props.items && this.props.items.type === 'itemGroup') {
             let product = await cl.getFullProduct(this.props.productId);
@@ -149,7 +149,7 @@ class ConnectedCdiscLibraryItems extends React.Component {
             <Grid container justify='flex-start' className={classes.main}>
                 <Grid item xs={12}>
                     <CdiscLibraryBreadcrumbs
-                        traffic={this.context.getTrafficStats()}
+                        traffic={this.context.cdiscLibrary.getTrafficStats()}
                         searchString={this.state.searchString}
                         onSearchUpdate={this.handleSearchUpdate}
                     />

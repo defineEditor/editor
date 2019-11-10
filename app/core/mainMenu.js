@@ -121,7 +121,7 @@ class ConnectedMainMenu extends React.Component {
                 this.openSettings();
             } else if (event.keyCode === 67) {
                 this.openControlledTerminology();
-            } else if (event.keyCode === 76) {
+            } else if (event.keyCode === 76 && this.props.enableCdiscLibrary) {
                 this.openCdiscLibrary();
             } else if (event.keyCode === 80) {
                 this.print();

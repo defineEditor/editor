@@ -27,6 +27,7 @@ import Button from '@material-ui/core/Button';
 import { actionLabels } from 'constants/action-types';
 import {
     closeModal,
+    changePage,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -68,6 +69,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         closeModal: () => dispatch(closeModal()),
+        changePage: (updateObj) => dispatch(changePage(updateObj)),
         undo: () => { dispatch(ActionCreators.undo()); },
         reset: () => { dispatch(ActionCreators.undo()); dispatch(ActionCreators.redo()); },
     };
@@ -91,6 +93,11 @@ class ConnectedModalBugReport extends React.Component {
         shell.openExternal(event.target.href);
     }
 
+    openStudies = () => {
+        this.props.closeModal();
+        this.props.changePage({ page: 'studies' });
+    }
+
     render () {
         const { classes } = this.props;
 
@@ -102,17 +109,13 @@ class ConnectedModalBugReport extends React.Component {
             '%0D%0AApplication Version: ' + encodeURIComponent(remote.app.getVersion())
         ;
         const emails = [
-            'black.hole@defineeditor.com',
-            'moc.rotideenifed@defineeditor.com',
-            'no.more.bugs@defineedifor.com',
-            'too.many.bugs@defineeditor.com',
+            'rescue.rangers@defineeditor.com',
+            'chip.n.dale@defineeditor.com',
+            'darkwing@defineeditor.com',
+            'gyro.gearloose@defineeditor.com',
             'santa.claus@defineeditor.com',
             'nights.watch@defineeditor.com',
-            'it.really.does.not.matter.what.is.here@defineeditor.com',
-            'senior.vice.president.of.support.emails@defineeditor.com',
-            'senior.principal.support.specialist.3@defineeditor.com',
-            'associate.director.support.specialist@defineeditor.com',
-            'chief.executive.janitor@defineeditor.com',
+            'support@defineeditor.com',
         ];
         const mailLink = 'mailto:' + emails[Math.floor(Math.random() * emails.length)] + '?subject=' + mailSubject + '&body=' + mailBody;
 
@@ -161,6 +164,9 @@ class ConnectedModalBugReport extends React.Component {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
+                    <Button onClick={this.openStudies} color="primary">
+                        Go to Studies
+                    </Button>
                     <Button onClick={this.props.undo} color="primary">
                         Undo last change
                     </Button>
