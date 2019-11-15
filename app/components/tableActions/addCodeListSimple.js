@@ -93,7 +93,7 @@ class AddVariableEditorConnected extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={8} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
+            <Grid container spacing={1} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Grid item xs={12}>
                     <TextField
                         label='Name'

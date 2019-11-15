@@ -102,7 +102,9 @@ class ConnectedEditor extends React.Component {
                 )}
                 {this.props.currentDefineId && !this.props.odmLoaded && (
                     <div className={classes.loading}>
-                        Loading Define-XML.
+                        <Typography variant="h5">
+                            Loading Define-XML.
+                        </Typography>
                         <Typography variant="caption" gutterBottom color='textSecondary'>
                             Taking too long? Use Ctrl+M to open the menu.
                         </Typography>

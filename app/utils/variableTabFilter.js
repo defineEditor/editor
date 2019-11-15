@@ -452,7 +452,7 @@ class ConnectedVariableTabFilter extends React.Component {
             ;
 
             result.push(
-                <Grid container spacing={8} key={index} alignItems='flex-end'>
+                <Grid container spacing={1} key={index} alignItems='flex-end'>
                     {index !== 0 &&
                             [
                                 <Grid item xs={12} key='connector' className={classes.connector}>
@@ -565,7 +565,7 @@ class ConnectedVariableTabFilter extends React.Component {
             );
         });
         result.push(
-            <Grid container spacing={8} key='buttonLine' alignItems='flex-end' className={classes.connector}>
+            <Grid container spacing={1} key='buttonLine' alignItems='flex-end' className={classes.connector}>
                 <Grid item xs={12} className={classes.buttonLine}>
                     <Button
                         color='primary'
@@ -611,7 +611,7 @@ class ConnectedVariableTabFilter extends React.Component {
                     <InternalHelp data={VARIABLE_FILTER} />
                 </DialogTitle>
                 <DialogContent>
-                    <Grid container spacing={16} alignItems='flex-end'>
+                    <Grid container spacing={2} alignItems='flex-end'>
                         {this.getRangeChecks()}
                         <Grid item xs={12}>
                             <FormControl component="fieldset">
@@ -630,7 +630,7 @@ class ConnectedVariableTabFilter extends React.Component {
                             </FormControl>
                         </Grid>
                         <Grid item xs={12} className={classes.controlButtons}>
-                            <Grid container spacing={16} justify='flex-start'>
+                            <Grid container spacing={2} justify='flex-start'>
                                 { this.props.onUpdate === undefined ? (
                                     <React.Fragment>
                                         <Grid item>

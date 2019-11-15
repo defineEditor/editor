@@ -474,14 +474,14 @@ class ConnectedReviewCommentTab extends React.Component {
         const { classes, reviewComments, mdv, showResolved } = this.props;
         return (
             <div className={classes.root}>
-                <Grid container spacing={8} justify='space-between'>
+                <Grid container spacing={1} justify='space-between'>
                     <Grid item>
                         <Typography variant="h4" color='textSecondary' inline>
                             Review Comments
                         </Typography>
                     </Grid>
                     <Grid item>
-                        <Grid container spacing={16} justify='flex-end'>
+                        <Grid container spacing={2} justify='flex-end'>
                             <Grid item>
                                 <TextField
                                     variant='outlined'

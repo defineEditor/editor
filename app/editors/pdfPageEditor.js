@@ -174,7 +174,7 @@ class PdfPageEditor extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={8} alignItems='center' justify='flex-start'>
+            <Grid container spacing={1} alignItems='center' justify='flex-start'>
                 <Grid item>
                     <Tooltip title='Remove PDF Page Reference' placement='bottom-end' enterDelay={700}>
                         <IconButton

@@ -117,7 +117,7 @@ class AddDefineFormStep1 extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container direction='column' spacing={8}>
+            <Grid container direction='column' spacing={1}>
                 <Grid item>
                     <FormControl component="fieldset" required className={classes.formControl}>
                         <RadioGroup
@@ -133,7 +133,7 @@ class AddDefineFormStep1 extends React.Component {
                         </RadioGroup>
                         { this.state.defineCreationMethod === 'import' && (
                             <React.Fragment>
-                                <Grid container spacing={8} justify='flex-start' alignItems='center'>
+                                <Grid container spacing={1} justify='flex-start' alignItems='center'>
                                     <Typography variant='body1' color='primary'>
                                         It is important to verify that the imported Define-XML file does not have any structural (technical) issues.
                                         Otherwise it might result in application issues and you might not be able to save the changes done in the editor.

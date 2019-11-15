@@ -604,7 +604,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                     <InternalHelp data={VARIABLE_UPDATE} />
                 </DialogTitle>
                 <DialogContent>
-                    <Grid container spacing={16} alignItems='flex-end'>
+                    <Grid container spacing={2} alignItems='flex-end'>
                         <Grid item xs={12}>
                             <Typography>
                                 <Fab
@@ -633,7 +633,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                             {this.getUpdateFields()}
                         </Grid>
                         <Grid item xs={12} className={classes.controlButtons}>
-                            <Grid container spacing={16} justify='flex-start'>
+                            <Grid container spacing={2} justify='flex-start'>
                                 <Grid item>
                                     <Button
                                         color='primary'

@@ -152,7 +152,7 @@ class ConnectedAddCodeListFromCT extends React.Component {
         }
 
         return (
-            <Grid container spacing={8} justify='flex-start' className={classes.root}>
+            <Grid container spacing={1} justify='flex-start' className={classes.root}>
                 <Grid item>
                     <TextField
                         label='Standard'

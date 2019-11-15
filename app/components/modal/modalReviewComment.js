@@ -194,7 +194,7 @@ class ConnectedModalReviewComments extends React.Component {
                         Review Comments
                     </DialogTitle>
                     <DialogContent>
-                        <Grid container spacing={16} justify='flex-start' className={classes.content}>
+                        <Grid container spacing={2} justify='flex-start' className={classes.content}>
                             <Grid item xs={12}>
                                 {this.getComments(sources, reviewComments)}
                             </Grid>

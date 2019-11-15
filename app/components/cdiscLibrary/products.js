@@ -191,7 +191,7 @@ class ConnectedProducts extends React.Component {
                                     <Typography variant='h6' color='textSecondary' className={classes.heading}>{data[panelId].title}</Typography>
                                 </Grid>
                                 <Grid item className={classes.group}>
-                                    <Grid container spacing={8} justify='flex-start'>
+                                    <Grid container spacing={1} justify='flex-start'>
                                         {this.getProducts(data[panelId].products, classes)}
                                     </Grid>
                                 </Grid>
@@ -242,7 +242,7 @@ class ConnectedProducts extends React.Component {
     render () {
         const { panelStatus, classes } = this.props;
         return (
-            <Grid container spacing={8} justify='space-between' className={classes.main}>
+            <Grid container spacing={1} justify='space-between' className={classes.main}>
                 <Grid item xs={12}>
                     <CdiscLibraryBreadcrumbs traffic={this.context.cdiscLibrary.getTrafficStats()} reloadProducts={this.reloadProducts} />
                 </Grid>

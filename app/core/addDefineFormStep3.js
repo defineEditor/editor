@@ -102,7 +102,7 @@ class AddDefineFormStep3 extends React.Component {
       }
 
       return (
-          <Grid container spacing={8} className={classes.root}>
+          <Grid container spacing={1} className={classes.root}>
               <Grid item xs={12}>
                   <TextField
                       label="Name (Used to distinguish Define-XML documents on the Studies page, not part of Define-XML)"

@@ -198,7 +198,7 @@ function variableLengthFormatter (cell, row) {
 
 function keyOrderFormatter (cell, row) {
     return (
-        <Grid container spacing={16}>
+        <Grid container spacing={2}>
             <Grid item>
                 {cell.orderNumber}
             </Grid>
@@ -749,7 +749,7 @@ class ConnectedVariableTable extends React.Component {
 
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
-                <Grid container spacing={16}>
+                <Grid container spacing={2}>
                     <Grid item>
                         <ToggleRowSelect oid='overall' disabled={this.props.reviewMode} cleanSelection={this.cleanSelection}/>
                     </Grid>
@@ -818,12 +818,12 @@ class ConnectedVariableTable extends React.Component {
         });
 
         return (
-            <Grid container spacing={16} justify='space-between'>
+            <Grid container spacing={2} justify='space-between'>
                 <Grid item style={{ paddingLeft: '8px' }}>
                     { props.components.btnGroup }
                 </Grid>
                 <Grid item style={{ paddingRight: '25px' }}>
-                    <Grid container spacing={16} justify='flex-end'>
+                    <Grid container spacing={2} justify='flex-end'>
                         <Grid item>
                             <TextField
                                 variant='outlined'

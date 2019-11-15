@@ -104,7 +104,7 @@ class DocumentEditor extends React.Component {
                 isPdf = this.props.leafs[document.leafId].isPdf;
             }
             return (
-                <Grid container justify='flex-start' alignItems='flex-end' spacing={8} key={index}>
+                <Grid container justify='flex-start' alignItems='flex-end' spacing={1} key={index}>
                     <Grid item>
                         <Tooltip title="Remove Document" placement="bottom-end" enterDelay={700}>
                             <IconButton

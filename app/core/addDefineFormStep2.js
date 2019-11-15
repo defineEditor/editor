@@ -145,10 +145,10 @@ class AddDefineFormStep2 extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container direction="column" spacing={8} className={classes.root}>
+            <Grid container direction="column" spacing={1} className={classes.root}>
                 <Grid item>
                     { this.props.defineCreationMethod === 'new' && (
-                        <Grid container spacing={16} className={classes.root}>
+                        <Grid container spacing={2} className={classes.root}>
                             <Grid item xs={12}>
                                 <TextField
                                     label="Standard"
@@ -179,7 +179,7 @@ class AddDefineFormStep2 extends React.Component {
                         </Grid>
                     )}
                     { this.props.defineCreationMethod === 'copy' && (
-                        <Grid container spacing={16} className={classes.root}>
+                        <Grid container spacing={2} className={classes.root}>
                             <Grid item>
                                 <TextField
                                     label='Study'

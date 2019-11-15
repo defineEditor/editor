@@ -97,7 +97,7 @@ class About extends React.Component {
                 </div>
                 {/* End hero unit */}
                 <div className={classNames(classes.layout, classes.features)}>
-                    <Grid container spacing={40}>
+                    <Grid container spacing={5}>
                         <Grid item xs={12} md={4}>
                             <Card className={classes.card}>
                                 <div className={classes.cardContent}>

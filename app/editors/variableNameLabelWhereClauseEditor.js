@@ -184,7 +184,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
 
         return (
             <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef} className={this.props.classes.root}>
-                <Grid container spacing={8}>
+                <Grid container spacing={1}>
                     <Grid item xs={12}>
                         <VariableNameLabelEditor
                             handleChange={this.handleChange}

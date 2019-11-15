@@ -192,7 +192,7 @@ class ConnectedOriginEditor extends React.Component {
         }
 
         return (
-            <Grid container spacing={8}>
+            <Grid container spacing={1}>
                 <Grid item xs={12}>
                     <Grid container spacing={0} justify='flex-start' alignItems='center'>
                         <Grid item className={classes.editorHeading}>
@@ -245,7 +245,7 @@ class ConnectedOriginEditor extends React.Component {
                 </Grid>
                 {origin !== undefined &&
                         <Grid item xs={12}>
-                            <Grid container spacing={16} justify='flex-start'>
+                            <Grid container spacing={2} justify='flex-start'>
                                 <React.Fragment>
                                     <Grid item>
                                         <TextField

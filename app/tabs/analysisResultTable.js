@@ -136,7 +136,7 @@ class ConnectedAnalysisResultTable extends React.Component {
 
         return (
             <React.Fragment>
-                <Grid container spacing={8}>
+                <Grid container spacing={1}>
                     <Grid item xs={12}>
                         <Grid container alignItems='center' justify='flex-start' wrap='nowrap'>
                             <Grid>
@@ -157,7 +157,7 @@ class ConnectedAnalysisResultTable extends React.Component {
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
-                        <Grid container spacing={16} alignItems='center'>
+                        <Grid container spacing={2} alignItems='center'>
                             <Grid item>
                                 <Button
                                     color='default'

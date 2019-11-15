@@ -65,7 +65,7 @@ class VariableNameLabelWhereClauseFormatter extends React.Component {
         }
 
         return (
-            <Grid container spacing={8} justify='space-between' alignItems='flex-end' className={classes.main}>
+            <Grid container spacing={1} justify='space-between' alignItems='flex-end' className={classes.main}>
                 <Grid container justify='space-between' className={classes.nameLabel}>
                     <Grid item>
                         {nameLabel}

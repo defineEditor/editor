@@ -189,7 +189,7 @@ class ConnectedVariableTabUpdate extends React.Component {
             >
                 <DialogTitle>Import Actual Data Attributes</DialogTitle>
                 <DialogContent>
-                    <Grid container spacing={16} alignItems='flex-end'>
+                    <Grid container spacing={2} alignItems='flex-end'>
                         <Grid item xs={12}>
                             { dataLoaded && this.state.nonParsedData.length > 0 && (
                                 <Typography variant="body1" gutterBottom className={classes.notImported} color='primary'>
@@ -228,7 +228,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                             </Grid>
                         )}
                         <Grid item xs={12}>
-                            <Grid container spacing={16} justify='flex-start'>
+                            <Grid container spacing={2} justify='flex-start'>
                                 <Grid item>
                                     <Button
                                         color='primary'

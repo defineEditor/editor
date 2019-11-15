@@ -205,10 +205,10 @@ function AddVlmFromCodeList (props) {
                 </Grid>
             </DialogTitle>
             <DialogContent>
-                <Grid container spacing={8} className={classes.root}>
+                <Grid container spacing={1} className={classes.root}>
                     <Grid item>
                         { Object.keys(itemDefList).length !== 0 && (
-                            <Grid container spacing={8} alignItems='flex-end' wrap='nowrap'>
+                            <Grid container spacing={1} alignItems='flex-end' wrap='nowrap'>
                                 <Grid item>
                                     <TextField
                                         label='Variable'

@@ -209,7 +209,7 @@ class ConnectedModalLinkCodeLists extends React.Component {
                 <DialogContent>
                     <Grid
                         container
-                        spacing={16}
+                        spacing={2}
                     >
                         <Grid item xs={12}>
                             <Typography variant="h5" gutterBottom align="left">

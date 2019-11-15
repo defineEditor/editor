@@ -209,7 +209,7 @@ class ConnectedAddCodeListFromOtherStudy extends React.Component {
         }
 
         return (
-            <Grid container spacing={8} className={classes.root}>
+            <Grid container spacing={1} className={classes.root}>
                 <Grid item>
                     <TextField
                         label='Study'

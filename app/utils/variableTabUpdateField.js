@@ -70,7 +70,7 @@ class VariableTabUpdateField extends React.Component {
             }
         }
         return (
-            <Grid container spacing={8}>
+            <Grid container spacing={1}>
                 <Grid item xs={12}>
                     <TextField
                         label='Field'
@@ -135,7 +135,7 @@ class VariableTabUpdateField extends React.Component {
                         />
                     )}
                     { updateType === 'replace' && ['TextField', 'MethodEditor', 'CommentEditor'].includes(editor) && (
-                        <Grid container spacing={8} alignItems='flex-start'>
+                        <Grid container spacing={1} alignItems='flex-start'>
                             <Grid item>
                                 <TextField
                                     label='Find What'
@@ -195,7 +195,7 @@ class VariableTabUpdateField extends React.Component {
                         </Grid>
                     )}
                     { updateType === 'replace' && ['Select', 'OriginEditor'].includes(editor) && (
-                        <Grid container spacing={8} alignItems='flex-start'>
+                        <Grid container spacing={1} alignItems='flex-start'>
                             <Grid item>
                                 <TextField
                                     label='Find What'

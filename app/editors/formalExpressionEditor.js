@@ -42,7 +42,7 @@ class FormalExpressionEditor extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={8} alignItems='center'>
+            <Grid container spacing={1} alignItems='center'>
                 <Grid xs={12} item>
                     <TextField
                         label='Expression Context'

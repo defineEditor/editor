@@ -177,7 +177,7 @@ class InteractiveKeyOrderEditorConnected extends React.Component {
                         allVariables={this.state.allVariables}
                         handleChange={this.handleKeyChange}
                     />
-                    <Grid container spacing={8} alignItems='flex-end'>
+                    <Grid container spacing={1} alignItems='flex-end'>
                         <Grid item xs={12}>
                             <SortableList
                                 items={this.state.keyVariables}

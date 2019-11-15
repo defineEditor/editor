@@ -330,7 +330,7 @@ class ConnectedSettings extends React.Component {
                 <NavigationBar />
                 <Grid
                     container
-                    spacing={16}
+                    spacing={2}
                     className={classes.settings}
                 >
                     <Grid item xs={12}>

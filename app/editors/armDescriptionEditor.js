@@ -93,7 +93,7 @@ class ConnectedArmDescriptionEditor extends React.Component {
                 ref={this.rootRef}
                 style={{ outline: 'none' }}
             >
-                <Grid container spacing={8}>
+                <Grid container spacing={1}>
                     <Grid item xs={12}>
                         <DescriptionView
                             descriptionText={this.state.descriptionText}

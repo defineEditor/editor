@@ -44,11 +44,8 @@ const styles = theme => ({
         marginLeft: theme.spacing(2),
     },
     gridList: {
-        width: '100%'
+        width: '100%',
     },
-    gridTile: {
-        width: 100
-    }
 });
 
 const mapStateToProps = state => {
@@ -103,7 +100,7 @@ class ConnectedStudies extends React.Component {
             let study = studies[studyId];
             return (
                 <Grow in={true} timeout={ Math.min(100 * index, 1000) } key={index} style={{ transformOrigin: '0 0 0' }}>
-                    <GridListTile key={study.id} className={this.props.classes.gridTile}>
+                    <GridListTile key={study.id}>
                         <StudyTile
                             study={study}
                             defines={this.props.defines}
@@ -141,10 +138,10 @@ class ConnectedStudies extends React.Component {
                 </NavigationBar>
                 <div className={classes.root}>
                     <GridList
-                        cellHeight={209}
+                        cellHeight={214}
                         className={classes.gridList}
                         cols={cols}
-                        spacing={8}
+                        spacing={4}
                     >
                         <GridListTile
                             key="subheader"
