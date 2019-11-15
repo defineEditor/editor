@@ -81,7 +81,7 @@ const styles = theme => ({
 });
 
 const appVersion = remote.app.getVersion();
-const appName = remote.app.getName();
+const appName = remote.app.name;
 
 const mapDispatchToProps = dispatch => {
     return {

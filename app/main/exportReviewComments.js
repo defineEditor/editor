@@ -31,44 +31,47 @@ const updateText = (text) => {
     return text.replace(/<\/p>/g, ' ').replace(/<p>/g, '').replace(/<br>/g, '\n').replace(/&nbsp;/g, ' ');
 };
 
-const saveReviewCommentsToFile = (mainWindow, exportData) => async (savePath) => {
-    let pathTotemplate = path.join(__dirname, '..', 'static', 'templates', 'reviewCommentsTemplate.xlsx');
-    let workbook = await xlsx.fromFileAsync(pathTotemplate);
-    let summary = [];
-    panels.forEach(panelId => {
-        // Get summary
-        if (exportData.hasOwnProperty(panelId)) {
-            summary.push([panelLabels[panelId], exportData[panelId].panelStats.count, exportData[panelId].panelStats.resolvedCount]);
-        }
-        // Individual panel data
-        let comments = exportData[panelId].data.map(comment =>
-            (comment.sourceParts.concat([comment.author, updateText(comment.text), comment.resolvedFlag]))
+const saveReviewCommentsToFile = async (mainWindow, exportData, saveDialogResult) => {
+    const { filePath, canceled } = saveDialogResult;
+    if (!canceled && filePath !== undefined) {
+        let pathTotemplate = path.join(__dirname, '..', 'static', 'templates', 'reviewCommentsTemplate.xlsx');
+        let workbook = await xlsx.fromFileAsync(pathTotemplate);
+        let summary = [];
+        panels.forEach(panelId => {
+            // Get summary
+            if (exportData.hasOwnProperty(panelId)) {
+                summary.push([panelLabels[panelId], exportData[panelId].panelStats.count, exportData[panelId].panelStats.resolvedCount]);
+            }
+            // Individual panel data
+            let comments = exportData[panelId].data.map(comment =>
+                (comment.sourceParts.concat([comment.author, updateText(comment.text), comment.resolvedFlag]))
+            );
+            if (comments.length > 0) {
+                workbook.sheet(panelLabels[panelId]).cell('A2').value(comments);
+            }
+        });
+        // Handle All Comments
+        let comments = exportData['allComments'].data.map(comment =>
+            ([comment.id, comment.author, comment.text, comment.createdAt, comment.modifiedAt, comment.resolvedAt, comment.resolvedBy,
+                JSON.stringify(comment.reviewCommentOids), JSON.stringify(comment.sources)
+            ])
         );
-        if (comments.length > 0) {
-            workbook.sheet(panelLabels[panelId]).cell('A2').value(comments);
-        }
-    });
-    // Handle All Comments
-    let comments = exportData['allComments'].data.map(comment =>
-        ([comment.id, comment.author, comment.text, comment.createdAt, comment.modifiedAt, comment.resolvedAt, comment.resolvedBy,
-            JSON.stringify(comment.reviewCommentOids), JSON.stringify(comment.sources)
-        ])
-    );
-    workbook.sheet('All Comments').cell('A2').value(comments);
+        workbook.sheet('All Comments').cell('A2').value(comments);
 
-    workbook.sheet('Summary').cell('A3').value(summary);
-    await workbook.toFileAsync(savePath);
+        workbook.sheet('Summary').cell('A3').value(summary);
+        await workbook.toFileAsync(filePath);
+    }
 };
 
-const exportReviewComments = (mainWindow, exportData) => {
-    dialog.showSaveDialog(
+const exportReviewComments = async (mainWindow, exportData) => {
+    let result = await dialog.showSaveDialog(
         mainWindow,
         {
             title: 'Export Review Comments',
             filters: [{ name: 'XLSX files', extensions: ['xlsx'] }],
-        },
-        saveReviewCommentsToFile(mainWindow, exportData)
+        }
     );
+    saveReviewCommentsToFile(mainWindow, exportData, result);
 };
 
 export default exportReviewComments;

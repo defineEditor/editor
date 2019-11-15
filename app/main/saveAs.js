@@ -80,34 +80,22 @@ const saveUsingStylesheet = async (savePath, odm, callback) => {
         show: false,
         webPreferences: { webSecurity: false },
     });
-    hiddenWindow.loadURL('file://' + tempDefine).then(() => {
+    hiddenWindow.loadURL('file://' + tempDefine).then(async () => {
         if (savePath.endsWith('html')) {
-            hiddenWindow.webContents.savePage(tempHtml, 'HTMLComplete', (err) => {
-                if (err) {
-                    throw err;
-                }
-                updateHtml(tempHtml, savePath, callback);
-                hiddenWindow.close();
-                unlink(tempDefine);
-                unlink(tempHtml);
-            });
+            await hiddenWindow.webContents.savePage(tempHtml, 'HTMLComplete');
+            updateHtml(tempHtml, savePath, callback);
+            hiddenWindow.close();
+            unlink(tempDefine);
+            unlink(tempHtml);
         } else if (savePath.endsWith('pdf')) {
-            hiddenWindow.webContents.printToPDF({
+            let pdfData = await hiddenWindow.webContents.printToPDF({
                 pageSize: 'Letter',
                 landscape: true,
-            }, (err, data) => {
-                if (err) {
-                    throw err;
-                }
-                fs.writeFile(savePath, data, (err) => {
-                    if (err) {
-                        throw err;
-                    }
-                    hiddenWindow.close();
-                    unlink(tempDefine);
-                    callback();
-                });
             });
+            await writeFile(savePath, pdfData);
+            hiddenWindow.close();
+            unlink(tempDefine);
+            callback();
         }
     }).catch(err => {
         throw err;
@@ -119,26 +107,27 @@ const saveUsingStylesheet = async (savePath, odm, callback) => {
 };
 
 // Create Define-XML
-const saveFile = (mainWindow, data, originalData, options) => (savePath) => {
-    if (savePath !== undefined) {
-        if (savePath.endsWith('nogz')) {
-            writeDefineObject(mainWindow, originalData, false, savePath, onSaveCallback(mainWindow, savePath));
+const saveFile = (mainWindow, data, originalData, options, saveDialogResult) => {
+    const { filePath, canceled } = saveDialogResult;
+    if (!canceled && filePath !== undefined) {
+        if (filePath.endsWith('nogz')) {
+            writeDefineObject(mainWindow, originalData, false, filePath, onSaveCallback(mainWindow, filePath));
         } else {
             let defineXml = createDefine(data.odm, data.odm.study.metaDataVersion.defineVersion);
-            if (savePath.endsWith('xml')) {
-                fs.writeFile(savePath, defineXml, function (err) {
+            if (filePath.endsWith('xml')) {
+                fs.writeFile(filePath, defineXml, function (err) {
                     let stylesheetLocation = data.odm && data.odm.stylesheetLocation;
                     if (options.addStylesheet === true && stylesheetLocation) {
-                        copyStylesheet(stylesheetLocation, savePath);
+                        copyStylesheet(stylesheetLocation, filePath);
                     }
                     if (err) {
                         throw err;
                     } else {
-                        onSaveCallback(mainWindow, savePath)();
+                        onSaveCallback(mainWindow, filePath)();
                     }
                 });
-            } else if (savePath.endsWith('html') || savePath.endsWith('pdf')) {
-                saveUsingStylesheet(savePath, data.odm, onSaveCallback(mainWindow, savePath));
+            } else if (filePath.endsWith('html') || filePath.endsWith('pdf')) {
+                saveUsingStylesheet(filePath, data.odm, onSaveCallback(mainWindow, filePath));
             }
         }
     } else {
@@ -146,8 +135,8 @@ const saveFile = (mainWindow, data, originalData, options) => (savePath) => {
     }
 };
 
-function saveAs (mainWindow, data, originalData, options) {
-    dialog.showSaveDialog(
+const saveAs = async (mainWindow, data, originalData, options) => {
+    let result = await dialog.showSaveDialog(
         mainWindow,
         {
             title: 'Export Define-XML',
@@ -158,8 +147,9 @@ function saveAs (mainWindow, data, originalData, options) {
                 { name: 'PDF files', extensions: ['pdf'] },
             ],
             defaultPath: options.pathToLastFile,
-        },
-        saveFile(mainWindow, data, originalData, options));
-}
+        }
+    );
+    saveFile(mainWindow, data, originalData, options, result);
+};
 
 module.exports = saveAs;

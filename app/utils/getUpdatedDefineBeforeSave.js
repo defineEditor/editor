@@ -23,7 +23,7 @@ import {
 
 export const updateSourceSystem = (odm, state) => {
     // Set proper version of the app;
-    const appName = remote.app.getName();
+    const appName = remote.app.name;
     if (state.settings.define.sourceSystem === '' || state.settings.define.sourceSystem === appName) {
         odm.sourceSystem = appName;
         odm.sourceSystemVersion = remote.app.getVersion();

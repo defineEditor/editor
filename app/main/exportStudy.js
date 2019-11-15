@@ -40,8 +40,9 @@ async function getDefineObject (defineId) {
     return result;
 }
 
-const saveStudyToFile = (mainWindow, data) => (savePath) => {
-    if (savePath !== undefined) {
+const saveStudyToFile = (mainWindow, data, saveDialogResult) => {
+    const { filePath, canceled } = saveDialogResult;
+    if (!canceled && filePath !== undefined) {
         let zip = new Jszip();
         zip.file('study.json', JSON.stringify(data.study));
         zip.file('defines.json', JSON.stringify(data.defines));
@@ -57,11 +58,11 @@ const saveStudyToFile = (mainWindow, data) => (savePath) => {
                 streamFiles: true,
                 compression: 'DEFLATE'
             })
-            .pipe(fs.createWriteStream(savePath));
+            .pipe(fs.createWriteStream(filePath));
     }
 };
 
-async function exportStudy (mainWindow, exportObject) {
+const exportStudy = async (mainWindow, exportObject) => {
     try {
         await Promise.all(exportObject.study.defineIds.map(async (defineId) => {
             exportObject.defines[defineId].data = await getDefineObject(defineId);
@@ -76,14 +77,14 @@ async function exportStudy (mainWindow, exportObject) {
             });
     }
 
-    dialog.showSaveDialog(
+    let result = await dialog.showSaveDialog(
         mainWindow,
         {
             title: 'Export Study',
             filters: [{ name: 'STGZ files', extensions: ['stgz'] }],
-        },
-        saveStudyToFile(mainWindow, exportObject)
+        }
     );
-}
+    saveStudyToFile(mainWindow, exportObject, result);
+};
 
 module.exports = exportStudy;

@@ -78,7 +78,7 @@ function createOdm (data, version) {
     let xmlRoot = xmlBuilder.create('ODM', { stringify: { elEscape: escapeFunc } });
     // In case system name is the same as the app name, use the current version
     let sourceSystemVersion = data.sourceSystemVersion;
-    if (data.sourceSystem === app.getName()) {
+    if (data.sourceSystem === app.name) {
         sourceSystemVersion = app.getVersion();
     }
     if (version === '2.0.0') {
