@@ -43,32 +43,32 @@ const styles = theme => ({
     textFieldValues: {
         whiteSpace: 'normal',
         minWidth: '100px',
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     valuesGridItem: {
         maxWidth: '60%',
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     buttonLine: {
-        marginTop: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginTop: theme.spacing(2),
+        marginBottom: theme.spacing(2),
     },
     andLine: {
-        marginLeft: theme.spacing.unit * 8,
-        marginTop: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(8),
+        marginTop: theme.spacing(2),
     },
     button: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     saveCancelButtons: {
-        marginTop: theme.spacing.unit * 4,
+        marginTop: theme.spacing(4),
     },
     chips: {
         display: 'flex',
         flexWrap: 'wrap',
     },
     chip: {
-        margin: theme.spacing.unit / 4,
+        margin: theme.spacing(0.25),
     },
 });
 

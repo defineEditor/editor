@@ -28,18 +28,18 @@ const styles = theme => ({
     },
     textField: {
         width: 200,
-        marginBottom: theme.spacing.unit
+        marginBottom: theme.spacing(1)
     },
     button: {
-        marginRight: theme.spacing.unit
+        marginRight: theme.spacing(1)
     },
     studySelector: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
         minWidth: '100px',
     },
     defineSelector: {
         minWidth: '100px',
-        marginLeft: theme.spacing.unit * 4,
+        marginLeft: theme.spacing(4),
     },
 });
 

@@ -42,9 +42,9 @@ const mapDispatchToProps = dispatch => {
 
 const styles = theme => ({
     dialog: {
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         top: '10%',

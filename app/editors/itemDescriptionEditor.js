@@ -28,7 +28,7 @@ import SaveCancel from 'editors/saveCancel.js';
 
 const styles = theme => ({
     button: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
     },
     iconButton: {
         marginBottom: '8px',

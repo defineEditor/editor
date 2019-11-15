@@ -25,7 +25,7 @@ import FormattingControlIcons from 'formatters/formattingControlIcons.js';
 const styles = theme => ({
     odmAttributes: {
         padding: 16,
-        marginTop: theme.spacing.unit * 3,
+        marginTop: theme.spacing(3),
         width: '100%',
     },
 });

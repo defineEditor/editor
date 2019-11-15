@@ -45,7 +45,7 @@ import {
 
 const styles = theme => ({
     buttonGroup: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
 });
 

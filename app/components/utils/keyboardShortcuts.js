@@ -39,7 +39,7 @@ const styles = theme => ({
         backgroundColor: theme.palette.grey['200'],
     },
     headerTitle: {
-        marginLeft: theme.spacing.unit * 1,
+        marginLeft: theme.spacing(1),
         color: 'white',
     },
     drawerHeader: {

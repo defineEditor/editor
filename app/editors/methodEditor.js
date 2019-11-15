@@ -43,7 +43,7 @@ import { addDocument, getDescription, setDescription } from 'utils/defineStructu
 
 const styles = theme => ({
     button: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
     },
     iconButton: {
         marginLeft: '0px',

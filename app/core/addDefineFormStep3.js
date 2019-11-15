@@ -30,11 +30,11 @@ const styles = theme => ({
         width: '90%'
     },
     button: {
-        marginRight: theme.spacing.unit
+        marginRight: theme.spacing(1)
     },
     textField: {
         width: 200,
-        marginBottom: theme.spacing.unit
+        marginBottom: theme.spacing(1)
     },
     nameLabel: {
         whiteSpace: 'nowrap',

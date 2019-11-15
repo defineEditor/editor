@@ -44,13 +44,13 @@ const styles = theme => ({
     },
     variableField: {
         minWidth: 150,
-        marginRight: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginRight: theme.spacing(2),
+        marginBottom: theme.spacing(2),
     },
     attributeField: {
         minWidth: 150,
-        marginRight: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginRight: theme.spacing(2),
+        marginBottom: theme.spacing(2),
     },
     dialog: {
         position: 'absolute',
@@ -59,16 +59,16 @@ const styles = theme => ({
         width: '80%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'primary',
     },
     title: {
-        marginTop: theme.spacing.unit,
+        marginTop: theme.spacing(1),
         paddingBottom: 0,
     },
 });

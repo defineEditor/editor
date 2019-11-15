@@ -35,20 +35,20 @@ import getModelFromStandard from 'utils/getModelFromStandard.js';
 const styles = theme => ({
     Standard: {
         padding: 16,
-        marginTop: theme.spacing.unit * 1,
+        marginTop: theme.spacing(1),
         outline: 'none',
     },
     inputField: {
         minWidth: '200',
     },
     button: {
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
     },
     listItem: {
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
     },
     switch: {
-        marginLeft: theme.spacing.unit * 3,
+        marginLeft: theme.spacing(3),
     },
 });
 

@@ -35,7 +35,7 @@ class Loading extends React.Component {
         const { classes, onRetry } = this.props;
         return (
             <div className={classes.root}>
-                <Grid container spacing={32} direction='column' alignItems='center'>
+                <Grid container spacing={3} direction='column' alignItems='center'>
                     <Grid item>
                         <Typography variant="h6" color='textSecondary' inline>
                             Loading

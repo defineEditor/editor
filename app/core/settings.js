@@ -44,8 +44,8 @@ const styles = theme => ({
         maxWidth: '95%',
     },
     settings: {
-        marginTop: theme.spacing.unit * 8,
-        marginLeft: theme.spacing.unit * 2,
+        marginTop: theme.spacing(8),
+        marginLeft: theme.spacing(2),
         outline: 'none'
     },
     adorementIcon: {
@@ -53,30 +53,30 @@ const styles = theme => ({
     },
     userName: {
         width: 200,
-        margin: theme.spacing.unit
+        margin: theme.spacing(1)
     },
     textField: {
         width: '90%',
-        margin: theme.spacing.unit
+        margin: theme.spacing(1)
     },
     textFieldShort: {
         width: 300,
-        margin: theme.spacing.unit
+        margin: theme.spacing(1)
     },
     sourceSystem: {
         width: 300,
-        margin: theme.spacing.unit
+        margin: theme.spacing(1)
     },
     sourceSystemVersion: {
         width: 200,
-        margin: theme.spacing.unit
+        margin: theme.spacing(1)
     },
     ctLocation: {
         width: '90%',
-        margin: theme.spacing.unit
+        margin: theme.spacing(1)
     },
     cdiscLibraryButton: {
-        marginRight: theme.spacing.unit * 3
+        marginRight: theme.spacing(3)
     },
 });
 

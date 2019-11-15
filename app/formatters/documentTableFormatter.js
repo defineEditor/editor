@@ -29,7 +29,7 @@ import { ipcRenderer } from 'electron';
 const styles = theme => ({
     mainPart: {
         padding: 16,
-        marginTop: theme.spacing.unit * 3,
+        marginTop: theme.spacing(3),
         backgroundColor: '#F5F5F5',
     },
     table: {

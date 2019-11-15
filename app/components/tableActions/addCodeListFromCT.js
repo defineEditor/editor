@@ -35,11 +35,11 @@ const styles = theme => ({
     },
     standardSelection: {
         minWidth: 100,
-        marginRight: theme.spacing.unit * 6,
+        marginRight: theme.spacing(6),
     },
     codeListSelection: {
         minWidth: 150,
-        marginTop: theme.spacing.unit * 2,
+        marginTop: theme.spacing(2),
     },
 });
 

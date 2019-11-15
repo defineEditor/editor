@@ -35,7 +35,7 @@ const styles = theme => ({
         margin: 'none',
     },
     select: {
-        marginTop: theme.spacing.unit * 2,
+        marginTop: theme.spacing(2),
     },
     textField: {
         minWidth: '100px',
@@ -51,7 +51,7 @@ const styles = theme => ({
     },
     textFieldLast: {
         width: '80px',
-        marginLeft: theme.spacing.unit
+        marginLeft: theme.spacing(1)
     },
     rangeSwitch: {
         alignItems: 'flex-end',

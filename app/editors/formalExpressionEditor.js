@@ -22,7 +22,7 @@ import clone from 'clone';
 
 const styles = theme => ({
     context: {
-        marginBottom: theme.spacing.unit
+        marginBottom: theme.spacing(1)
     },
     value: {
         fontFamily: 'Courier'

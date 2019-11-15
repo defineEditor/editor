@@ -61,20 +61,20 @@ import {
 
 const styles = theme => ({
     buttonGroup: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     button: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
         transform: 'translate(0%, -6%)',
     },
     variableName: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     commentIcon: {
         transform: 'translate(0, -5%)',
     },
     drawerButton: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
         transform: 'translate(0%, -6%)',
     },
     link: {

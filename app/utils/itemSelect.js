@@ -30,7 +30,7 @@ const styles = theme => ({
         minWidth: 100,
     },
     selectEmpty: {
-        marginTop: theme.spacing.unit * 2,
+        marginTop: theme.spacing(2),
     },
 });
 

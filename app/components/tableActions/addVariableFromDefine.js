@@ -43,25 +43,25 @@ const styles = theme => ({
         minWidth: 100
     },
     addButton: {
-        marginLeft: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
+        marginBottom: theme.spacing(2),
     },
     datasetSelector: {
         minWidth: 100,
-        marginLeft: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
+        marginBottom: theme.spacing(2),
     },
     checkBoxes: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     searchField: {
         width: 120,
-        marginRight: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginRight: theme.spacing(2),
+        marginBottom: theme.spacing(2),
     },
     icon: {
         transform: 'translate(0, -5%)',
-        marginLeft: theme.spacing.unit
+        marginLeft: theme.spacing(1)
     },
 });
 

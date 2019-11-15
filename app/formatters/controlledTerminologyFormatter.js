@@ -27,7 +27,7 @@ import FormattingControlIcons from 'formatters/formattingControlIcons.js';
 const styles = theme => ({
     mainPart: {
         padding: 16,
-        marginTop: theme.spacing.unit,
+        marginTop: theme.spacing(1),
     },
 });
 

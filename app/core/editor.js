@@ -31,15 +31,15 @@ import {
 const styles = theme => ({
     root: {
         flexGrow: 1,
-        marginTop: theme.spacing.unit * 3,
+        marginTop: theme.spacing(3),
         backgroundColor: theme.palette.background.paper
     },
     progress: {
-        margin: theme.spacing.unit * 2
+        margin: theme.spacing(2)
     },
     noDefineMessage: {
         position: 'absolute',
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
         top: '47%',
         transform: 'translate(0%, -47%)',
     },

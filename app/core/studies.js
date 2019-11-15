@@ -37,11 +37,11 @@ const styles = theme => ({
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
         backgroundColor: theme.palette.grey[50],
-        minHeight: 'calc(100vh -  ' + (theme.spacing.unit * 7).toString() + 'px)',
-        marginTop: theme.spacing.unit * 7
+        minHeight: 'calc(100vh -  ' + (theme.spacing(7)).toString() + 'px)',
+        marginTop: theme.spacing(7)
     },
     orderButton: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     gridList: {
         width: '100%'

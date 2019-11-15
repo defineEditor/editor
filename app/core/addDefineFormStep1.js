@@ -33,13 +33,13 @@ import recreateDefine from 'utils/recreateDefine.js';
 
 const styles = theme => ({
     button: {
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
     },
     formControl: {
-        margin: theme.spacing.unit * 3,
+        margin: theme.spacing(3),
     },
     group: {
-        margin: `${theme.spacing.unit}px 0`,
+        margin: `${theme.spacing(1)}px 0`,
     },
 });
 

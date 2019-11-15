@@ -32,7 +32,7 @@ const styles = theme => ({
     textField: {
         whiteSpace: 'normal',
         minWidth: '200px',
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
     },
 });
 

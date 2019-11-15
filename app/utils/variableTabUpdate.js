@@ -52,14 +52,14 @@ const styles = theme => ({
         maxHeight: '80%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'primary',
     },
     title: {
-        marginBottom: theme.spacing.unit * 2,
+        marginBottom: theme.spacing(2),
         backgroundColor: theme.palette.primary.main,
         color: '#FFFFFF',
         fontWeight: 'bold',
@@ -79,33 +79,33 @@ const styles = theme => ({
     textFieldValues: {
         whiteSpace: 'normal',
         minWidth: '100px',
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     valuesGridItem: {
         maxWidth: '60%',
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     buttonLine: {
-        marginTop: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginTop: theme.spacing(2),
+        marginBottom: theme.spacing(2),
     },
     connector: {
-        marginLeft: theme.spacing.unit * 7,
-        marginTop: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(7),
+        marginTop: theme.spacing(2),
     },
     firstRangeCheck: {
-        marginLeft: theme.spacing.unit * 8,
-        marginTop: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(8),
+        marginTop: theme.spacing(2),
     },
     button: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     controlButtons: {
-        marginTop: theme.spacing.unit * 4,
-        marginLeft: theme.spacing.unit,
+        marginTop: theme.spacing(4),
+        marginLeft: theme.spacing(1),
     },
     paper: {
-        padding: theme.spacing.unit,
+        padding: theme.spacing(1),
         minWidth: '400px',
     },
     filteredItemsCount: {

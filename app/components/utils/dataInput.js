@@ -33,9 +33,9 @@ import {
 
 const styles = theme => ({
     dialog: {
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         border: '2px solid',
@@ -48,7 +48,7 @@ const styles = theme => ({
         overflowY: 'auto'
     },
     textFieldInput: {
-        padding: theme.spacing.unit,
+        padding: theme.spacing(1),
         borderRadius: 4,
         border: '1px solid',
     },
@@ -56,10 +56,10 @@ const styles = theme => ({
         padding: 0,
     },
     button: {
-        marginRight: theme.spacing.unit * 2,
+        marginRight: theme.spacing(2),
     },
     notImported: {
-        marginTop: theme.spacing.unit,
+        marginTop: theme.spacing(1),
     },
 });
 

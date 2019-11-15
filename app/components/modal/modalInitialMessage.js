@@ -33,7 +33,7 @@ import {
 
 const styles = theme => ({
     dialog: {
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         top: '40%',
@@ -43,7 +43,7 @@ const styles = theme => ({
         overflowY: 'auto',
     },
     title: {
-        marginBottom: theme.spacing.unit * 2,
+        marginBottom: theme.spacing(2),
         backgroundColor: theme.palette.primary.main,
         color: '#FFFFFF',
         fontWeight: 'bold',

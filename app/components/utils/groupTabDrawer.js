@@ -43,9 +43,9 @@ const styles = theme => ({
         outline: 'none',
     },
     textField: {
-        marginLeft: theme.spacing.unit * 1.3,
-        marginTop: theme.spacing.unit * 1.3,
-        paddingRight: theme.spacing.unit * 2.5
+        marginLeft: theme.spacing(1.3),
+        marginTop: theme.spacing(1.3),
+        paddingRight: theme.spacing(2.5)
     },
 });
 

@@ -32,18 +32,18 @@ import {
 
 const styles = theme => ({
     classHeading: {
-        marginBottom: theme.spacing.unit,
+        marginBottom: theme.spacing(1),
     },
     heading: {
-        marginBottom: theme.spacing.unit * 0.5,
+        marginBottom: theme.spacing(0.5),
     },
     classItem: {
         paddingTop: 0,
         paddingBottom: 0,
     },
     main: {
-        marginTop: theme.spacing.unit * 8,
-        marginLeft: theme.spacing.unit * 2,
+        marginTop: theme.spacing(8),
+        marginLeft: theme.spacing(2),
         outline: 'none'
     },
     classPanel: {

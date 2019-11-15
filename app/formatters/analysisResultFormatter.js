@@ -49,7 +49,7 @@ const styles = theme => ({
         paddingBottom: 6,
     },
     icon: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
 });
 

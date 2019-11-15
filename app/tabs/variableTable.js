@@ -68,21 +68,21 @@ import {
 
 const styles = theme => ({
     button: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
     },
     buttonGroup: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     drawerButton: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
         transform: 'translate(0%, -6%)',
     },
     commentIcon: {
         transform: 'translate(0, -5%)',
     },
     tableTitle: {
-        marginTop: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginTop: theme.spacing(2),
+        marginBottom: theme.spacing(2),
         color: grey[600]
     },
     searchField: {

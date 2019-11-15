@@ -35,7 +35,7 @@ import { addDocument, deleteDocument, getDescription, setDescription } from 'uti
 
 const styles = theme => ({
     button: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
     },
     iconButton: {
         marginLeft: '0px',

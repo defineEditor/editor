@@ -37,7 +37,7 @@ const styles = theme => ({
         color: '#000000',
     },
     shifted: {
-        marginLeft: theme.spacing.unit * 3,
+        marginLeft: theme.spacing(3),
     },
 });
 

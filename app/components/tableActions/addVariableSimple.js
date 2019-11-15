@@ -28,8 +28,8 @@ const styles = theme => ({
         width: '200px',
     },
     addButton: {
-        marginLeft: theme.spacing.unit * 2,
-        marginTop: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
+        marginTop: theme.spacing(2),
     },
 });
 

@@ -56,9 +56,9 @@ const styles = theme => ({
     },
     root: {
         flexGrow: 1,
-        marginTop: theme.spacing.unit * 3,
+        marginTop: theme.spacing(3),
         width: '100%',
-        padding: theme.spacing.unit * 2,
+        padding: theme.spacing(2),
         backgroundColor: '#F5F5F5',
     },
     heading: {
@@ -71,7 +71,7 @@ const styles = theme => ({
         color: theme.palette.text.secondary,
     },
     icon: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     searchInput: {
         paddingTop: '9px',

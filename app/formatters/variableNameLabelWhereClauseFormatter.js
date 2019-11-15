@@ -30,7 +30,7 @@ const styles = theme => ({
         flexWrap: 'nowrap',
     },
     expandIcon: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     }
 });
 

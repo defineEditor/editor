@@ -33,7 +33,7 @@ import classNames from 'classnames';
 
 const styles = theme => ({
     dialog: {
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         border: '2px solid',
@@ -67,10 +67,10 @@ const styles = theme => ({
     },
     icon: {
         transform: 'translate(0, -5%)',
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     title: {
-        marginBottom: theme.spacing.unit * 2,
+        marginBottom: theme.spacing(2),
         backgroundColor: theme.palette.primary.main,
         color: '#FFFFFF',
         fontWeight: 'bold',
