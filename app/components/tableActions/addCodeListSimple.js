@@ -28,8 +28,8 @@ const styles = theme => ({
         width: '200px',
     },
     addButton: {
-        marginLeft: theme.spacing.unit * 2,
-        marginTop: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
+        marginTop: theme.spacing(2),
     },
 });
 
@@ -93,7 +93,7 @@ class AddVariableEditorConnected extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={8} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
+            <Grid container spacing={1} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Grid item xs={12}>
                     <TextField
                         label='Name'
@@ -129,7 +129,6 @@ class AddVariableEditorConnected extends React.Component {
                     <Button
                         onClick={this.handleSaveAndClose}
                         color="default"
-                        mini
                         variant="contained"
                         className={classes.addButton}
                     >

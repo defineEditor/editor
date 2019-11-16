@@ -57,11 +57,12 @@ const writeDefineObject = async (defineObject) => {
     }
 };
 
-const importStudyData = (mainWindow, idObject) => async (file) => {
+const importStudyData = async (mainWindow, idObject, openDialogResult) => {
     try {
-        if (file !== undefined && file.length === 1) {
+        const { filePaths, canceled } = openDialogResult;
+        if (!canceled && filePaths !== undefined && filePaths.length === 1) {
             let zip = new Jszip();
-            let data = await readFile(file[0]);
+            let data = await readFile(filePaths[0]);
 
             let studyData = {};
 
@@ -123,16 +124,17 @@ const importStudyData = (mainWindow, idObject) => async (file) => {
     }
 };
 
-async function importStudy (mainWindow, idObject) {
-    dialog.showOpenDialog(
+const importStudy = async (mainWindow, idObject) => {
+    let result = await dialog.showOpenDialog(
         mainWindow,
         {
             title: 'Import Study',
             filters: [{ name: 'STGZ files', extensions: ['stgz'] }],
             properties: ['openFile'],
 
-        },
-        importStudyData(mainWindow, idObject));
-}
+        }
+    );
+    importStudyData(mainWindow, idObject, result);
+};
 
 module.exports = importStudy;

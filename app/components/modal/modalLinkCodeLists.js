@@ -44,17 +44,17 @@ const styles = theme => ({
         width: '50%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'primary',
     },
     checkBox: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     title: {
-        marginBottom: theme.spacing.unit * 2,
+        marginBottom: theme.spacing(2),
         backgroundColor: theme.palette.primary.main,
         color: '#FFFFFF',
         fontWeight: 'bold',
@@ -209,7 +209,7 @@ class ConnectedModalLinkCodeLists extends React.Component {
                 <DialogContent>
                     <Grid
                         container
-                        spacing={16}
+                        spacing={2}
                     >
                         <Grid item xs={12}>
                             <Typography variant="h5" gutterBottom align="left">

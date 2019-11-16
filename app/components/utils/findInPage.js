@@ -23,7 +23,7 @@ import TextField from '@material-ui/core/TextField';
 
 const styles = theme => ({
     button: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     root: {
         top: 'calc(100vh - 65px)',
@@ -41,12 +41,12 @@ const styles = theme => ({
     },
     textField: {
         width: 200,
-        marginBottom: theme.spacing.unit,
-        marginLeft: theme.spacing.unit * 3,
+        marginBottom: theme.spacing(1),
+        marginLeft: theme.spacing(3),
     },
     count: {
         color: '#AAAAAA',
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
 });
 

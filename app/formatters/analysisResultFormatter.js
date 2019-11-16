@@ -49,7 +49,7 @@ const styles = theme => ({
         paddingBottom: 6,
     },
     icon: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
 });
 
@@ -149,7 +149,7 @@ class AnalysisResultFormatter extends React.Component {
                         </Grid>
                     </ListItem>
                     <ListItem className={classes.listItem}>
-                        <Grid container spacing={8}>
+                        <Grid container spacing={1}>
                             <Grid item xs={12}>
                                 <ListItemText primary='Datasets' secondary={commentText || ''}/>
                                 { (commentDocuments !== undefined) &&
@@ -157,7 +157,7 @@ class AnalysisResultFormatter extends React.Component {
                                 }
                             </Grid>
                             <Grid item xs={12}>
-                                <Grid container spacing={8}>
+                                <Grid container spacing={1}>
                                     { Object.keys(datasetData).map(dsOid => (
                                         <Grid key={dsOid} item xs={6}>
                                             <ArmAnalysisDatasetFormatter
@@ -172,7 +172,7 @@ class AnalysisResultFormatter extends React.Component {
                         </Grid>
                     </ListItem>
                     <ListItem className={classes.listItem}>
-                        <Grid container spacing={8}>
+                        <Grid container spacing={1}>
                             <Grid item xs={12}>
                                 <ListItemText primary='Documentation'/>
                             </Grid>
@@ -182,7 +182,7 @@ class AnalysisResultFormatter extends React.Component {
                         </Grid>
                     </ListItem>
                     <ListItem className={classes.listItem}>
-                        <Grid container spacing={8}>
+                        <Grid container spacing={1}>
                             <Grid item xs={12}>
                                 <Typography variant="body1">
                                     Programming Code

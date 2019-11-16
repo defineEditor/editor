@@ -28,7 +28,7 @@ import SaveCancel from 'editors/saveCancel.js';
 
 const styles = theme => ({
     button: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
     },
     iconButton: {
         marginBottom: '8px',
@@ -121,7 +121,7 @@ class ConnectedItemDescriptionEditor extends React.Component {
                 ref={this.rootRef}
                 className={classes.root}
             >
-                <Grid container spacing={8} alignItems='center'>
+                <Grid container spacing={1} alignItems='center'>
                     <Grid item xs={12} className={classes.gridItem}>
                         <OriginEditor origins={this.state.origins} onUpdate={this.handleChange('origins')}/>
                     </Grid>

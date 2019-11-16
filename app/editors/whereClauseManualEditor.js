@@ -276,7 +276,7 @@ class WhereClauseManualEditor extends React.Component {
         }
 
         return (
-            <Grid container spacing={16} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
+            <Grid container spacing={2} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
                 { this.props.onChangeEditingMode !== undefined && (
                     <Grid item xs={12}>
                         <FormControlLabel
@@ -305,7 +305,7 @@ class WhereClauseManualEditor extends React.Component {
                     />
                 </Grid>
                 <Grid item xs={12} className={classes.saveCancelButtons}>
-                    <Grid container spacing={16} justify='flex-start'>
+                    <Grid container spacing={2} justify='flex-start'>
                         <Grid item>
                             <SaveCancel save={this.save} cancel={this.cancel} disabled={wcIsInvalid}/>
                         </Grid>

@@ -42,17 +42,17 @@ import getOid from 'utils/getOid.js';
 const styles = theme => ({
     mainPart: {
         padding: 16,
-        marginTop: theme.spacing.unit,
+        marginTop: theme.spacing(1),
         backgroundColor: '#F5F5F5',
     },
     table: {
         backgroundColor: '#FFFFFF',
     },
     button: {
-        marginBottom: theme.spacing.unit,
+        marginBottom: theme.spacing(1),
     },
     icon: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     actionColumn: {
         width: '100px',

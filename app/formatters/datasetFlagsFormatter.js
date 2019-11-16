@@ -32,7 +32,7 @@ class datasetFlagsFormatter extends React.Component {
         const repeatingTooltipText = value.repeating === 'Yes' ? 'Repeating' : 'Not repeating';
 
         return (
-            <Grid container spacing={16}>
+            <Grid container spacing={2}>
                 <Grid item>
                     <Tooltip title={repeatingTooltipText} placement='bottom'>
                         {value.repeating === 'Yes' ? <FormatAlignLeftIcon/> : <FormatAlignJustifyIcon/>}

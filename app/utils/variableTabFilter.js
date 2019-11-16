@@ -47,14 +47,14 @@ const styles = theme => ({
         width: '60%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'primary',
     },
     title: {
-        marginBottom: theme.spacing.unit * 2,
+        marginBottom: theme.spacing(2),
         backgroundColor: theme.palette.primary.main,
         color: '#FFFFFF',
         fontWeight: 'bold',
@@ -74,30 +74,30 @@ const styles = theme => ({
     textFieldValues: {
         whiteSpace: 'normal',
         minWidth: '100px',
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     valuesGridItem: {
         maxWidth: '60%',
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     buttonLine: {
-        marginTop: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginTop: theme.spacing(2),
+        marginBottom: theme.spacing(2),
     },
     connector: {
-        marginLeft: theme.spacing.unit * 7,
-        marginTop: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(7),
+        marginTop: theme.spacing(2),
     },
     firstRangeCheck: {
-        marginLeft: theme.spacing.unit * 8,
-        marginTop: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(8),
+        marginTop: theme.spacing(2),
     },
     button: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     controlButtons: {
-        marginTop: theme.spacing.unit * 4,
-        marginLeft: theme.spacing.unit,
+        marginTop: theme.spacing(4),
+        marginLeft: theme.spacing(1),
     },
 });
 
@@ -452,7 +452,7 @@ class ConnectedVariableTabFilter extends React.Component {
             ;
 
             result.push(
-                <Grid container spacing={8} key={index} alignItems='flex-end'>
+                <Grid container spacing={1} key={index} alignItems='flex-end'>
                     {index !== 0 &&
                             [
                                 <Grid item xs={12} key='connector' className={classes.connector}>
@@ -565,7 +565,7 @@ class ConnectedVariableTabFilter extends React.Component {
             );
         });
         result.push(
-            <Grid container spacing={8} key='buttonLine' alignItems='flex-end' className={classes.connector}>
+            <Grid container spacing={1} key='buttonLine' alignItems='flex-end' className={classes.connector}>
                 <Grid item xs={12} className={classes.buttonLine}>
                     <Button
                         color='primary'
@@ -611,7 +611,7 @@ class ConnectedVariableTabFilter extends React.Component {
                     <InternalHelp data={VARIABLE_FILTER} />
                 </DialogTitle>
                 <DialogContent>
-                    <Grid container spacing={16} alignItems='flex-end'>
+                    <Grid container spacing={2} alignItems='flex-end'>
                         {this.getRangeChecks()}
                         <Grid item xs={12}>
                             <FormControl component="fieldset">
@@ -630,7 +630,7 @@ class ConnectedVariableTabFilter extends React.Component {
                             </FormControl>
                         </Grid>
                         <Grid item xs={12} className={classes.controlButtons}>
-                            <Grid container spacing={16} justify='flex-start'>
+                            <Grid container spacing={2} justify='flex-start'>
                                 { this.props.onUpdate === undefined ? (
                                     <React.Fragment>
                                         <Grid item>

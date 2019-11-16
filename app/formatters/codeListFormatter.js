@@ -31,11 +31,11 @@ import { selectGroup } from 'actions/index.js';
 const styles = theme => ({
     root: {
         width: '100%',
-        marginTop: theme.spacing.unit * 3,
+        marginTop: theme.spacing(3),
         overflowX: 'auto',
     },
     codeListTable: {
-        marginTop: theme.spacing.unit,
+        marginTop: theme.spacing(1),
     },
     table: {
         minWidth: 100,

@@ -33,17 +33,17 @@ import {
 
 const styles = theme => ({
     buttonGroup: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     button: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
     },
     chip: {
         verticalAlign: 'top',
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     drawerButton: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     commentIcon: {
         transform: 'translate(0, -5%)',
@@ -136,7 +136,7 @@ class ConnectedAnalysisResultTable extends React.Component {
 
         return (
             <React.Fragment>
-                <Grid container spacing={8}>
+                <Grid container spacing={1}>
                     <Grid item xs={12}>
                         <Grid container alignItems='center' justify='flex-start' wrap='nowrap'>
                             <Grid>
@@ -157,7 +157,7 @@ class ConnectedAnalysisResultTable extends React.Component {
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
-                        <Grid container spacing={16} alignItems='center'>
+                        <Grid container spacing={2} alignItems='center'>
                             <Grid item>
                                 <Button
                                     color='default'

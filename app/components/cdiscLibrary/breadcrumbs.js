@@ -18,7 +18,7 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import Breadcrumbs from '@material-ui/lab/Breadcrumbs';
+import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import TextField from '@material-ui/core/TextField';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -34,23 +34,23 @@ import {
 
 const styles = theme => ({
     switch: {
-        marginLeft: theme.spacing.unit * 5,
+        marginLeft: theme.spacing(5),
         outline: 'none',
     },
     traffic: {
-        marginTop: theme.spacing.unit * 1.6,
-        marginRight: theme.spacing.unit * 3,
+        marginTop: theme.spacing(1.6),
+        marginRight: theme.spacing(3),
     },
     breadcrumbs: {
-        marginTop: theme.spacing.unit * 1,
+        marginTop: theme.spacing(1),
     },
     searchField: {
         marginTop: '0',
-        marginLeft: theme.spacing.unit * 3,
-        marginRight: theme.spacing.unit * 3,
+        marginLeft: theme.spacing(3),
+        marginRight: theme.spacing(3),
     },
     refreshButton: {
-        marginRight: theme.spacing.unit * 3,
+        marginRight: theme.spacing(3),
     },
     searchInput: {
         paddingTop: '9px',

@@ -32,16 +32,16 @@ import { ControlledTerminology } from 'core/mainStructure.js';
 
 const styles = theme => ({
     root: {
-        marginTop: theme.spacing.unit * 7,
-        marginLeft: theme.spacing.unit,
-        marginRight: theme.spacing.unit,
+        marginTop: theme.spacing(7),
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(1),
     },
     header: {
-        marginBottom: theme.spacing.unit * 2,
+        marginBottom: theme.spacing(2),
     },
     noCTMessage: {
         position: 'absolute',
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
         top: '47%',
         transform: 'translate(0%, -47%)',
     },

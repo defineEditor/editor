@@ -38,17 +38,17 @@ const styles = theme => ({
         height: 40,
     },
     main: {
-        marginTop: theme.spacing.unit * 8,
-        marginLeft: theme.spacing.unit * 1,
-        marginRight: theme.spacing.unit * 1,
+        marginTop: theme.spacing(8),
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(1),
         outline: 'none'
     },
     header: {
-        marginTop: theme.spacing.unit,
-        marginBottom: theme.spacing.unit,
+        marginTop: theme.spacing(1),
+        marginBottom: theme.spacing(1),
     },
     varSetSelection: {
-        marginRight: theme.spacing.unit * 6,
+        marginRight: theme.spacing(6),
         minWidth: 200,
     },
 });
@@ -116,10 +116,10 @@ class ConnectedCdiscLibraryItems extends React.Component {
         let itemGroup = this.state.itemGroup;
         return (
             <React.Fragment>
-                <Typography variant="h5" inline>
+                <Typography variant="h5" display='inline'>
                     {itemGroup.name}
                 </Typography>
-                <Typography variant="h5" color='textSecondary' inline>
+                <Typography variant="h5" color='textSecondary' display='inline'>
                     &nbsp; {itemGroup.label}
                 </Typography>
                 {itemGroup.description !== undefined && (

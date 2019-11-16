@@ -18,7 +18,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import Fab from '@material-ui/core/Fab';
 import IconButton from '@material-ui/core/IconButton';
-import Slider from '@material-ui/lab/Slider';
+import Slider from '@material-ui/core/Slider';
 import Grid from '@material-ui/core/Grid';
 import UndoIcon from '@material-ui/icons/Undo';
 import RedoIcon from '@material-ui/icons/Redo';
@@ -31,11 +31,10 @@ import { actionLabels } from 'constants/action-types';
 
 const styles = theme => ({
     button: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     slider: {
-        marginLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 3,
+        marginLeft: theme.spacing(2),
     },
     root: {
         top: 'calc(100vh - 65px)',
@@ -53,7 +52,7 @@ const styles = theme => ({
         height: '56px',
     },
     details: {
-        marginBottom: theme.spacing.unit * 8,
+        marginBottom: theme.spacing(8),
         backgroundColor: '#2196f3',
     },
     message: {
@@ -146,14 +145,13 @@ class RedoUndoConnected extends React.Component {
         return (
             <div className={classes.root}>
                 <Grid container wrap='nowrap' alignItems='center' className={classes.grid}>
-                    <Grid item xs={11}>
+                    <Grid item xs={10} className={classes.slider}>
                         <Slider
                             value={this.props.pastLength + 1}
                             min={1}
                             max={this.props.historyLength}
                             step={1}
                             onChange={this.handleSliderChange}
-                            className={classes.slider}
                         />
                     </Grid>
                     <Grid item>

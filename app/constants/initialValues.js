@@ -175,7 +175,7 @@ const cdiscLibrary = {
 const define = {
     schemaLocation200: 'http://www.cdisc.org/ns/def/v2.0/define2-0-0.xsd',
     schemaLocation210: 'http://www.cdisc.org/ns/def/v2.1/define2-1-0.xsd',
-    sourceSystem: remote.app.getName(),
+    sourceSystem: remote.app.name,
     sourceSystemVersion: remote.app.getVersion(),
     stylesheetLocation: './stylesheet/define2-0-0.xsl'
 };

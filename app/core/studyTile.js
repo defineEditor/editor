@@ -65,10 +65,10 @@ const styles = theme => ({
         width: 'fit-content',
     },
     defineTitle: {
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
     },
     currentDefineTitle: {
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
         color: '#3F51B5',
         fontWeight: 'bold',
     },

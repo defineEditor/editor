@@ -39,7 +39,7 @@ import {
 const styles = theme => ({
     root: {
         flexGrow: 1,
-        marginTop: theme.spacing.unit * 3,
+        marginTop: theme.spacing(3),
         backgroundColor: theme.palette.background.paper,
     },
     menuToggle: {
@@ -48,7 +48,7 @@ const styles = theme => ({
         zIndex: '9000',
     },
     tabs: {
-        marginLeft: theme.spacing.unit * 4,
+        marginLeft: theme.spacing(4),
     },
     tab: {
         flexGrow: 1,

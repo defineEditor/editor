@@ -156,7 +156,7 @@ class ArmDatasetReferenceEditor extends React.Component {
                 </Grid>
                 <Grid item xs={12} >
                     { this.props.analysisDatasetOrder.map((oid, index) => (
-                        <Grid container justify='flex-start' alignItems='flex-start' spacing={8} key={index} wrap='nowrap'>
+                        <Grid container justify='flex-start' alignItems='flex-start' spacing={1} key={index} wrap='nowrap'>
                             <Grid item>
                                 <Tooltip title="Remove Dataset" placement="bottom-end" enterDelay={1000}>
                                     <IconButton

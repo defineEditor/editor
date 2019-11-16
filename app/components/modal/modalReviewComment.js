@@ -34,7 +34,7 @@ import {
 
 const styles = theme => ({
     dialog: {
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         top: '5%',
@@ -46,7 +46,7 @@ const styles = theme => ({
         overflowY: 'auto',
     },
     dialogConfirm: {
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         top: '35%',
@@ -55,11 +55,11 @@ const styles = theme => ({
         width: '40%',
     },
     content: {
-        marginTop: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 1,
+        marginTop: theme.spacing(2),
+        marginBottom: theme.spacing(1),
     },
     title: {
-        marginBottom: theme.spacing.unit * 2,
+        marginBottom: theme.spacing(2),
         backgroundColor: theme.palette.primary.main,
         color: '#FFFFFF',
         fontWeight: 'bold',
@@ -194,7 +194,7 @@ class ConnectedModalReviewComments extends React.Component {
                         Review Comments
                     </DialogTitle>
                     <DialogContent>
-                        <Grid container spacing={16} justify='flex-start' className={classes.content}>
+                        <Grid container spacing={2} justify='flex-start' className={classes.content}>
                             <Grid item xs={12}>
                                 {this.getComments(sources, reviewComments)}
                             </Grid>

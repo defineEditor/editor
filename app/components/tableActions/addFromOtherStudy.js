@@ -30,12 +30,12 @@ const styles = theme => ({
         overflowX: 'auto'
     },
     studySelector: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
         minWidth: '100px',
     },
     defineSelector: {
         minWidth: '100px',
-        marginLeft: theme.spacing.unit * 4,
+        marginLeft: theme.spacing(4),
     },
 });
 

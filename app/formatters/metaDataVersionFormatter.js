@@ -26,7 +26,7 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 const styles = theme => ({
     metaDataVersion: {
         padding: 16,
-        marginTop: theme.spacing.unit * 3,
+        marginTop: theme.spacing(3),
         width: '100%',
     },
 });

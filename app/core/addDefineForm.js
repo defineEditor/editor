@@ -39,9 +39,9 @@ import {
 
 const styles = theme => ({
     dialog: {
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         top: '10%',
@@ -53,11 +53,11 @@ const styles = theme => ({
         overflowY: 'auto'
     },
     backButton: {
-        marginRight: theme.spacing.unit
+        marginRight: theme.spacing(1)
     },
     instructions: {
-        marginTop: theme.spacing.unit,
-        marginBottom: theme.spacing.unit
+        marginTop: theme.spacing(1),
+        marginBottom: theme.spacing(1)
     }
 });
 

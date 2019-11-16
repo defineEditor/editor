@@ -61,20 +61,20 @@ import {
 
 const styles = theme => ({
     buttonGroup: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     button: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
         transform: 'translate(0%, -6%)',
     },
     variableName: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     commentIcon: {
         transform: 'translate(0, -5%)',
     },
     drawerButton: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
         transform: 'translate(0%, -6%)',
     },
     link: {
@@ -465,14 +465,13 @@ class ConnectedCodedValueTable extends React.Component {
 
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
-                <Grid container spacing={16}>
+                <Grid container spacing={2}>
                     <Grid item>
                         <ToggleRowSelect oid='overall' disabled={this.props.reviewMode} cleanSelection={this.cleanSelection}/>
                     </Grid>
                     <Grid item>
                         <Button
                             color='primary'
-                            mini
                             onClick={handleClick}
                             variant='contained'
                             disabled={enumAndHasLinked || this.props.reviewMode}
@@ -483,7 +482,6 @@ class ConnectedCodedValueTable extends React.Component {
                     <Grid item>
                         <Button
                             color='secondary'
-                            mini
                             onClick={this.deleteRows}
                             disabled={!this.props.showRowSelect || enumAndHasLinked || this.props.reviewMode}
                             variant='contained'
@@ -494,7 +492,6 @@ class ConnectedCodedValueTable extends React.Component {
                     <Grid item>
                         <Button
                             color='default'
-                            mini
                             onClick={ this.handleShowCodedValueSelector() }
                             disabled={codeList.standardOid === undefined || enumAndHasLinked || this.props.reviewMode}
                             variant='contained'
@@ -522,12 +519,12 @@ class ConnectedCodedValueTable extends React.Component {
 
     createCustomToolBar = props => {
         return (
-            <Grid container spacing={16} justify='space-between'>
+            <Grid container spacing={2} justify='space-between'>
                 <Grid item style={{ paddingLeft: '8px' }}>
                     { props.components.btnGroup }
                 </Grid>
                 <Grid item style={{ paddingRight: '25px' }}>
-                    <Grid container spacing={16} justify='flex-end'>
+                    <Grid container spacing={2} justify='flex-end'>
                         <Grid item>
                             <TextField
                                 variant='outlined'
@@ -646,7 +643,6 @@ class ConnectedCodedValueTable extends React.Component {
             <Button
                 color='default'
                 key={variableName}
-                mini
                 onClick={() => { this.openDataset(codeListVariables[variableName]); }}
                 variant='contained'
                 className={this.props.classes.variableName}
@@ -661,7 +657,6 @@ class ConnectedCodedValueTable extends React.Component {
                 <Button
                     color='default'
                     key='more items'
-                    mini
                     onClick={ (event) => { this.setState({ moreVariablesAnchor: event.currentTarget }); } }
                     variant='contained'
                     className={this.props.classes.variableName}

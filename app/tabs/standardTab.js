@@ -373,7 +373,7 @@ class ConnectedStandardTable extends React.Component {
 
     render () {
         return (
-            <Grid container spacing={8} alignItems='stretch'>
+            <Grid container spacing={1} alignItems='stretch'>
                 <Grid item xs={6} style={{ display: 'flex' }}>
                     { this.state.globalVariablesEdit === true ? (
                         <GlobalVariablesEditor

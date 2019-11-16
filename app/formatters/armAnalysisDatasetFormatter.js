@@ -37,7 +37,7 @@ const styles = theme => ({
         color: '#000000',
     },
     shifted: {
-        marginLeft: theme.spacing.unit * 3,
+        marginLeft: theme.spacing(3),
     },
 });
 
@@ -47,7 +47,7 @@ class ArmAnalysisDatasetFormatter extends React.Component {
         const { datasetName, whereClauseText, variables, itemGroupOid } = dsData;
 
         return (
-            <Grid container spacing={8}>
+            <Grid container spacing={1}>
                 <Grid item xs={12}>
                     <Typography variant="h5" className={classes.title}>
                         <span onClick={() => { this.props.selectGroup(itemGroupOid); }}>{datasetName}</span>

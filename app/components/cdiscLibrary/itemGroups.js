@@ -52,12 +52,12 @@ const styles = theme => ({
         fontWeight: 'bold',
     },
     childGroup: {
-        marginLeft: theme.spacing.unit * 3,
+        marginLeft: theme.spacing(3),
     },
     main: {
-        marginTop: theme.spacing.unit * 8,
-        marginLeft: theme.spacing.unit * 1,
-        marginRight: theme.spacing.unit * 1,
+        marginTop: theme.spacing(8),
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(1),
         outline: 'none'
     },
 });

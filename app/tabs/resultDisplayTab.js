@@ -45,7 +45,7 @@ import {
 
 const styles = theme => ({
     buttonGroup: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
 });
 
@@ -193,7 +193,7 @@ class ConnectedResultDisplayTable extends React.Component {
     createCustomButtonGroup = props => {
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
-                <Grid container spacing={16}>
+                <Grid container spacing={2}>
                     <Grid item>
                         <ToggleRowSelect oid='overall' disabled={this.props.reviewMode} cleanSelection={this.cleanSelection}/>
                     </Grid>
@@ -210,7 +210,6 @@ class ConnectedResultDisplayTable extends React.Component {
                     <Grid item>
                         <Button
                             color='secondary'
-                            mini
                             onClick={this.deleteRows}
                             disabled={!this.props.showRowSelect || this.props.reviewMode}
                             variant='contained'
@@ -228,12 +227,12 @@ class ConnectedResultDisplayTable extends React.Component {
 
     createCustomToolBar = props => {
         return (
-            <Grid container spacing={16} justify='space-between'>
+            <Grid container spacing={2} justify='space-between'>
                 <Grid item style={{ paddingLeft: '8px' }}>
                     { props.components.btnGroup }
                 </Grid>
                 <Grid item style={{ paddingRight: '25px' }}>
-                    <Grid container spacing={16} justify='flex-end'>
+                    <Grid container spacing={2} justify='flex-end'>
                         <Grid item>
                             <Button variant="contained" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
                                 Columns

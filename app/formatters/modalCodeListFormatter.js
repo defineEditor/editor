@@ -22,10 +22,10 @@ import CodeListFormatter from 'formatters/codeListFormatter.js';
 
 const styles = theme => ({
     paper: {
-        paddingLeft: theme.spacing.unit * 4,
-        paddingRight: theme.spacing.unit * 4,
-        paddingTop: theme.spacing.unit * 1,
-        paddingBottom: theme.spacing.unit * 3,
+        paddingLeft: theme.spacing(4),
+        paddingRight: theme.spacing(4),
+        paddingTop: theme.spacing(1),
+        paddingBottom: theme.spacing(3),
         position: 'absolute',
         borderRadius: '10px',
         border: '2px solid',

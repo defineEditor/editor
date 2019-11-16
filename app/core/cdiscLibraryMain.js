@@ -26,7 +26,7 @@ const styles = theme => ({
         flexGrow: 1,
     },
     body: {
-        marginTop: theme.spacing.unit * 8,
+        marginTop: theme.spacing(8),
     },
 });
 

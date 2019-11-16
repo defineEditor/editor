@@ -111,7 +111,7 @@ class ConnectedDatasetDomainEditor extends React.Component {
                 tabIndex='0'
                 style={{ outline: 'none' }}
             >
-                <Grid container spacing={8} alignItems='center'>
+                <Grid container spacing={1} alignItems='center'>
                     <Grid item xs={12}>
                         <DatasetDomainEditorView
                             domain={this.state.domain}

@@ -23,7 +23,7 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 const styles = theme => ({
     methodName: {
         color: 'grey',
-        marginBottom: theme.spacing.unit,
+        marginBottom: theme.spacing(1),
     },
     methodText: {
         whiteSpace: 'pre-wrap',

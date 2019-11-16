@@ -45,9 +45,9 @@ const mapStateToProps = state => {
 
 const styles = theme => ({
     dialog: {
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         border: '2px solid',
@@ -177,7 +177,7 @@ class InteractiveKeyOrderEditorConnected extends React.Component {
                         allVariables={this.state.allVariables}
                         handleChange={this.handleKeyChange}
                     />
-                    <Grid container spacing={8} alignItems='flex-end'>
+                    <Grid container spacing={1} alignItems='flex-end'>
                         <Grid item xs={12}>
                             <SortableList
                                 items={this.state.keyVariables}

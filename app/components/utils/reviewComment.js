@@ -28,12 +28,12 @@ import getOid from 'utils/getOid.js';
 const styles = theme => ({
     editorEdit: {
         backgroundColor: '#F2F3F5',
-        marginTop: theme.spacing.unit * 2,
-        padding: theme.spacing.unit,
+        marginTop: theme.spacing(2),
+        padding: theme.spacing(1),
         borderRadius: '20px',
     },
     editorView: {
-        marginTop: theme.spacing.unit * 2,
+        marginTop: theme.spacing(2),
     },
     resolved: {
         backgroundColor: '#F5F5F5',
@@ -42,14 +42,14 @@ const styles = theme => ({
     time: {
         fontSize: '10pt',
         whiteSpace: 'pre-wrap',
-        marginBottom: theme.spacing.unit * 2,
+        marginBottom: theme.spacing(2),
     },
     reply: {
-        marginLeft: theme.spacing.unit * 6,
+        marginLeft: theme.spacing(6),
     },
     root: {
-        marginTop: theme.spacing.unit,
-        marginBottom: theme.spacing.unit,
+        marginTop: theme.spacing(1),
+        marginBottom: theme.spacing(1),
         outline: 'none',
     }
 });
@@ -274,20 +274,20 @@ class ReviewCommentRaw extends React.Component {
             >
                 <Card className={(isResolved || isParentResolved) && classes.resolved}>
                     <CardContent>
-                        <Typography variant='subtitle2' color='primary' inline>
+                        <Typography variant='subtitle2' color='primary' display='inline'>
                             {author}
                         </Typography>
                         { createdAt === modifiedAt ? (
-                            <Typography variant='subtitle2' color='textSecondary' className={classes.time} inline>
+                            <Typography variant='subtitle2' color='textSecondary' className={classes.time} display='inline'>
                                 {'   ' + createdAt.replace(/(.*?)T(\d{2}:\d{2}).*/, '$1 $2')}
                             </Typography>
                         ) : (
-                            <Typography variant='subtitle2' color='textSecondary' className={classes.time} inline>
+                            <Typography variant='subtitle2' color='textSecondary' className={classes.time} display='inline'>
                                 {'   ' + modifiedAt.replace(/(.*?)T(\d{2}:\d{2}).*/, '$1 $2') + ' (edited)'}
                             </Typography>
                         )}
                         { isResolved && (
-                            <Typography variant='subtitle2' color='textSecondary' className={classes.time} inline>
+                            <Typography variant='subtitle2' color='textSecondary' className={classes.time} display='inline'>
                                 {`   (Resolved by ${resolvedBy} on ${resolvedAt.replace(/(.*?)T(\d{2}:\d{2}).*/, '$1 $2')})`}
                             </Typography>
                         )}

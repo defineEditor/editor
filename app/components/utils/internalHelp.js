@@ -33,14 +33,14 @@ const styles = theme => ({
         width: '55%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'primary',
     },
     title: {
-        marginBottom: theme.spacing.unit * 2,
+        marginBottom: theme.spacing(2),
         backgroundColor: theme.palette.primary.main,
         color: '#FFFFFF',
         fontWeight: 'bold',
@@ -51,15 +51,15 @@ const styles = theme => ({
     },
     icon: {
         transform: 'translate(0, -5%)',
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     fab: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     iconDark: {
         transform: 'translate(0, -5%)',
         backgroundColor: theme.palette.primary.light,
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
 });
 

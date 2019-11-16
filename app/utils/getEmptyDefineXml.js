@@ -51,7 +51,7 @@ function getEmptyDefineXml ({ standard, defineVersion, study, settings, controll
         defaultOdmAttrs.sourceSystem = settings.sourceSystem;
         defaultOdmAttrs.sourceSystemVersion = settings.sourceSystemVersion;
     } else {
-        defaultOdmAttrs.sourceSystem = remote.app.getName();
+        defaultOdmAttrs.sourceSystem = remote.app.name;
         defaultOdmAttrs.sourceSystemVersion = remote.app.getVersion();
     }
 

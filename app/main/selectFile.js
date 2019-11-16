@@ -15,14 +15,15 @@
 import fs from 'fs';
 import { dialog } from 'electron';
 
-const sendToRender = (mainWindow, title, options) => (selectedFile) => {
-    if (selectedFile !== undefined && selectedFile.length > 0) {
+const sendToRender = (mainWindow, title, options, openDialogResult) => {
+    const { filePaths, canceled } = openDialogResult;
+    if (!canceled && filePaths !== undefined && filePaths.length > 0) {
         let id = options && options.id;
-        mainWindow.webContents.send('selectedFile', selectedFile[0], title, id);
+        mainWindow.webContents.send('selectedFile', filePaths[0], title, id);
     }
 };
 
-function selectFile (mainWindow, title, options) {
+const selectFile = async (mainWindow, title, options) => {
     let defaultPath;
     try {
         fs.accessSync(options.initialFolder, fs.constants.R_OK);
@@ -33,15 +34,16 @@ function selectFile (mainWindow, title, options) {
         console.log('Specified folder does not exist: ' + options.initialFolder);
     }
 
-    dialog.showOpenDialog(
+    let result = dialog.showOpenDialog(
         mainWindow,
         {
             title,
             properties: [options.type],
             defaultPath,
 
-        },
-        sendToRender(mainWindow, title, options));
-}
+        }
+    );
+    sendToRender(mainWindow, title, options, result);
+};
 
 module.exports = selectFile;

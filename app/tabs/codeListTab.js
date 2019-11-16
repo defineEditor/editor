@@ -62,7 +62,7 @@ import {
 
 const styles = theme => ({
     buttonGroup: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     fab: {
         transform: 'translate(0%, -6%)',
@@ -351,7 +351,7 @@ class ConnectedCodeListTable extends React.Component {
     createCustomButtonGroup = props => {
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
-                <Grid container spacing={16}>
+                <Grid container spacing={2}>
                     <Grid item>
                         <ToggleRowSelect oid='overall' disabled={this.props.reviewMode} cleanSelection={this.cleanSelection}/>
                     </Grid>
@@ -368,7 +368,6 @@ class ConnectedCodeListTable extends React.Component {
                     <Grid item>
                         <Button
                             color='secondary'
-                            mini
                             onClick={this.deleteRows}
                             disabled={!this.props.showRowSelect || this.props.reviewMode}
                             variant='contained'
@@ -412,12 +411,12 @@ class ConnectedCodeListTable extends React.Component {
 
     createCustomToolBar = props => {
         return (
-            <Grid container spacing={16} justify='space-between'>
+            <Grid container spacing={2} justify='space-between'>
                 <Grid item style={{ paddingLeft: '8px' }}>
                     { props.components.btnGroup }
                 </Grid>
                 <Grid item style={{ paddingRight: '25px' }}>
-                    <Grid container spacing={16} justify='flex-end'>
+                    <Grid container spacing={2} justify='flex-end'>
                         <Grid item>
                             <TextField
                                 variant='outlined'

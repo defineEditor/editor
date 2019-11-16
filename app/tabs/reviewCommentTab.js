@@ -56,9 +56,9 @@ const styles = theme => ({
     },
     root: {
         flexGrow: 1,
-        marginTop: theme.spacing.unit * 3,
+        marginTop: theme.spacing(3),
         width: '100%',
-        padding: theme.spacing.unit * 2,
+        padding: theme.spacing(2),
         backgroundColor: '#F5F5F5',
     },
     heading: {
@@ -71,7 +71,7 @@ const styles = theme => ({
         color: theme.palette.text.secondary,
     },
     icon: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     searchInput: {
         paddingTop: '9px',
@@ -474,14 +474,14 @@ class ConnectedReviewCommentTab extends React.Component {
         const { classes, reviewComments, mdv, showResolved } = this.props;
         return (
             <div className={classes.root}>
-                <Grid container spacing={8} justify='space-between'>
+                <Grid container spacing={1} justify='space-between'>
                     <Grid item>
-                        <Typography variant="h4" color='textSecondary' inline>
+                        <Typography variant="h4" color='textSecondary' display='inline'>
                             Review Comments
                         </Typography>
                     </Grid>
                     <Grid item>
-                        <Grid container spacing={16} justify='flex-end'>
+                        <Grid container spacing={2} justify='flex-end'>
                             <Grid item>
                                 <TextField
                                     variant='outlined'

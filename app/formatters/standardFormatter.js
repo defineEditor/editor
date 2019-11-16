@@ -29,10 +29,10 @@ import getModelFromStandard from 'utils/getModelFromStandard.js';
 const styles = theme => ({
     mainPart: {
         padding: 16,
-        marginTop: theme.spacing.unit * 1,
+        marginTop: theme.spacing(1),
     },
     checkBox: {
-        marginLeft: theme.spacing.unit * 4,
+        marginLeft: theme.spacing(4),
     },
 });
 

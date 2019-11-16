@@ -47,9 +47,9 @@ const styles = theme => ({
         width: '90%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
@@ -65,11 +65,11 @@ const styles = theme => ({
     },
     searchField: {
         width: 120,
-        marginRight: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginRight: theme.spacing(2),
+        marginBottom: theme.spacing(2),
     },
     typeField: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     col1: {
         width: '55%',

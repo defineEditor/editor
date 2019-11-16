@@ -24,7 +24,7 @@ import noteFormatter from 'formatters/noteFormatter.js';
 
 const styles = theme => ({
     button: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
     },
     iconButton: {
         marginBottom: '8px',
@@ -82,7 +82,7 @@ class DescriptionFormatter extends React.Component {
         }
 
         return (
-            <Grid container spacing={8}>
+            <Grid container spacing={1}>
                 {result}
             </Grid>
         );

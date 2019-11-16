@@ -116,20 +116,20 @@ class ConnectedStudyMenu extends React.Component {
                         <ListItemIcon style={{ marginLeft: '4px' }}>
                             <FaFileExport />
                         </ListItemIcon>
-                        <ListItemText inset primary="Export" />
+                        <ListItemText primary="Export" />
                     </MenuItem>
                     <MenuItem key='Import' onClick={this.import}>
                         <ListItemIcon>
                             <FaFileImport />
                         </ListItemIcon>
-                        <ListItemText inset primary="Import" />
+                        <ListItemText primary="Import" />
                     </MenuItem>
                     <Divider/>
                     <MenuItem key='Delete' onClick={this.delete}>
                         <ListItemIcon>
                             <DeleteIcon />
                         </ListItemIcon>
-                        <ListItemText inset primary="Delete" />
+                        <ListItemText primary="Delete" />
                     </MenuItem>
                 </Menu>
             </React.Fragment>

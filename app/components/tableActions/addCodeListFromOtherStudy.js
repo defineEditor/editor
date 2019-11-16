@@ -35,18 +35,18 @@ const styles = theme => ({
     },
     studySelector: {
         minWidth: 120,
-        marginRight: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginRight: theme.spacing(2),
+        marginBottom: theme.spacing(2),
     },
     defineSelector: {
         minWidth: 140,
-        marginRight: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginRight: theme.spacing(2),
+        marginBottom: theme.spacing(2),
     },
     selectionField: {
         minWidth: 150,
-        marginRight: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginRight: theme.spacing(2),
+        marginBottom: theme.spacing(2),
     },
 });
 
@@ -209,7 +209,7 @@ class ConnectedAddCodeListFromOtherStudy extends React.Component {
         }
 
         return (
-            <Grid container spacing={8} className={classes.root}>
+            <Grid container spacing={1} className={classes.root}>
                 <Grid item>
                     <TextField
                         label='Study'

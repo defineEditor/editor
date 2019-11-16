@@ -42,7 +42,7 @@ const styles = theme => ({
         paddingTop: 8
     },
     title: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
         color: 'rgba(0,0,0,0.54)',
     },
     icon: {
@@ -50,7 +50,7 @@ const styles = theme => ({
     },
     root: {
         outline: 'none',
-        marginBottom: theme.spacing.unit,
+        marginBottom: theme.spacing(1),
     },
 });
 

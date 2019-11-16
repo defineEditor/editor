@@ -32,17 +32,17 @@ import getOid from 'utils/getOid.js';
 const styles = theme => ({
     controlledTerminology: {
         padding: 16,
-        marginTop: theme.spacing.unit * 1,
+        marginTop: theme.spacing(1),
         outline: 'none',
     },
     inputField: {
         minWidth: '450px',
     },
     button: {
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
     },
     listItem: {
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
     },
 });
 

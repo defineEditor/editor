@@ -157,7 +157,7 @@ class ConnectedCodeListStandardEditor extends React.Component {
                 {(this.state.standardList.length === 0) ? (
                     <div>There are no Controlled Terminologies assigned to this study.</div>
                 ) : (
-                    <Grid container spacing={8}>
+                    <Grid container spacing={1}>
                         <Grid item xs={12}>
                             <TextField
                                 label='Standard'

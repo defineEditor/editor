@@ -26,13 +26,13 @@ import {
 
 const styles = theme => ({
     menuToggle: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     navBarItem: {
-        marginTop: theme.spacing.unit,
+        marginTop: theme.spacing(1),
     },
     menu: {
-        marginRight: theme.spacing.unit * 2,
+        marginRight: theme.spacing(2),
     },
 });
 
