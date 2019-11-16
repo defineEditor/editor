@@ -776,7 +776,6 @@ class ConnectedVariableTable extends React.Component {
                     <Grid item>
                         <Button
                             color='secondary'
-                            mini
                             onClick={this.deleteRows}
                             disabled={!this.props.showRowSelect || this.props.reviewMode}
                             variant='contained'

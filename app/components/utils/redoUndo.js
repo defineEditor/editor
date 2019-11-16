@@ -35,7 +35,6 @@ const styles = theme => ({
     },
     slider: {
         marginLeft: theme.spacing(2),
-        paddingRight: theme.spacing(3),
     },
     root: {
         top: 'calc(100vh - 65px)',
@@ -146,14 +145,13 @@ class RedoUndoConnected extends React.Component {
         return (
             <div className={classes.root}>
                 <Grid container wrap='nowrap' alignItems='center' className={classes.grid}>
-                    <Grid item xs={11}>
+                    <Grid item xs={10} className={classes.slider}>
                         <Slider
                             value={this.props.pastLength + 1}
                             min={1}
                             max={this.props.historyLength}
                             step={1}
                             onChange={this.handleSliderChange}
-                            className={classes.slider}
                         />
                     </Grid>
                     <Grid item>

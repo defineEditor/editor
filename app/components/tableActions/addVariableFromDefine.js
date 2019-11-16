@@ -312,7 +312,6 @@ class AddVariableFromDefineConnected extends React.Component {
                                 <Button
                                     onClick={this.handleAddVariables}
                                     color="default"
-                                    mini
                                     variant="contained"
                                     className={classes.addButton}
                                 >

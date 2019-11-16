@@ -172,7 +172,6 @@ class CodedValueSelectorTable extends React.Component {
                                 <Button
                                     onClick={this.handleAddCodedValues}
                                     color="default"
-                                    mini
                                     variant="contained"
                                 >
                                     { this.props.addLabel || `Add ${numSelected} items`}

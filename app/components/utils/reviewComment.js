@@ -274,20 +274,20 @@ class ReviewCommentRaw extends React.Component {
             >
                 <Card className={(isResolved || isParentResolved) && classes.resolved}>
                     <CardContent>
-                        <Typography variant='subtitle2' color='primary' inline>
+                        <Typography variant='subtitle2' color='primary' display='inline'>
                             {author}
                         </Typography>
                         { createdAt === modifiedAt ? (
-                            <Typography variant='subtitle2' color='textSecondary' className={classes.time} inline>
+                            <Typography variant='subtitle2' color='textSecondary' className={classes.time} display='inline'>
                                 {'   ' + createdAt.replace(/(.*?)T(\d{2}:\d{2}).*/, '$1 $2')}
                             </Typography>
                         ) : (
-                            <Typography variant='subtitle2' color='textSecondary' className={classes.time} inline>
+                            <Typography variant='subtitle2' color='textSecondary' className={classes.time} display='inline'>
                                 {'   ' + modifiedAt.replace(/(.*?)T(\d{2}:\d{2}).*/, '$1 $2') + ' (edited)'}
                             </Typography>
                         )}
                         { isResolved && (
-                            <Typography variant='subtitle2' color='textSecondary' className={classes.time} inline>
+                            <Typography variant='subtitle2' color='textSecondary' className={classes.time} display='inline'>
                                 {`   (Resolved by ${resolvedBy} on ${resolvedAt.replace(/(.*?)T(\d{2}:\d{2}).*/, '$1 $2')})`}
                             </Typography>
                         )}

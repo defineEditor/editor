@@ -472,7 +472,6 @@ class ConnectedCodedValueTable extends React.Component {
                     <Grid item>
                         <Button
                             color='primary'
-                            mini
                             onClick={handleClick}
                             variant='contained'
                             disabled={enumAndHasLinked || this.props.reviewMode}
@@ -483,7 +482,6 @@ class ConnectedCodedValueTable extends React.Component {
                     <Grid item>
                         <Button
                             color='secondary'
-                            mini
                             onClick={this.deleteRows}
                             disabled={!this.props.showRowSelect || enumAndHasLinked || this.props.reviewMode}
                             variant='contained'
@@ -494,7 +492,6 @@ class ConnectedCodedValueTable extends React.Component {
                     <Grid item>
                         <Button
                             color='default'
-                            mini
                             onClick={ this.handleShowCodedValueSelector() }
                             disabled={codeList.standardOid === undefined || enumAndHasLinked || this.props.reviewMode}
                             variant='contained'
@@ -646,7 +643,6 @@ class ConnectedCodedValueTable extends React.Component {
             <Button
                 color='default'
                 key={variableName}
-                mini
                 onClick={() => { this.openDataset(codeListVariables[variableName]); }}
                 variant='contained'
                 className={this.props.classes.variableName}
@@ -661,7 +657,6 @@ class ConnectedCodedValueTable extends React.Component {
                 <Button
                     color='default'
                     key='more items'
-                    mini
                     onClick={ (event) => { this.setState({ moreVariablesAnchor: event.currentTarget }); } }
                     variant='contained'
                     className={this.props.classes.variableName}

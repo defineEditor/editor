@@ -476,7 +476,7 @@ class ConnectedReviewCommentTab extends React.Component {
             <div className={classes.root}>
                 <Grid container spacing={1} justify='space-between'>
                     <Grid item>
-                        <Typography variant="h4" color='textSecondary' inline>
+                        <Typography variant="h4" color='textSecondary' display='inline'>
                             Review Comments
                         </Typography>
                     </Grid>

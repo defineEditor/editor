@@ -146,7 +146,6 @@ class AddVariableSimpleConnected extends React.Component {
                     <Button
                         onClick={this.handleSaveAndClose}
                         color="default"
-                        mini
                         variant="contained"
                         className={classes.addButton}
                     >

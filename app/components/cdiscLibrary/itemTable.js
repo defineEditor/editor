@@ -73,7 +73,7 @@ const itemDescription = (item, layout) => {
                 { item.valueList !== undefined &&
                         <React.Fragment>
                             <br />
-                            <Typography variant="body2" color='textSecondary' inline>
+                            <Typography variant="body2" color='textSecondary' display='inline'>
                                 Possible values:&nbsp;
                             </Typography>
                             {item.valueList.join(', ')}
@@ -82,7 +82,7 @@ const itemDescription = (item, layout) => {
                 { item.describedValueDomain !== undefined &&
                         <React.Fragment>
                             <br />
-                            <Typography variant="body2" color='textSecondary' inline>
+                            <Typography variant="body2" color='textSecondary' display='inline'>
                                 Value domain:&nbsp;
                             </Typography>
                             {item.describedValueDomain}
@@ -99,7 +99,7 @@ const itemDescription = (item, layout) => {
                         return (
                             <React.Fragment key={index}>
                                 { index !== 0 && <br />}
-                                <Typography variant="body2" color='textSecondary' inline>
+                                <Typography variant="body2" color='textSecondary' display='inline'>
                                     {cdashAttributes[attr]}:&nbsp;
                                 </Typography>
                                 {item[attr]}
@@ -122,7 +122,7 @@ const itemRole = (item) => {
                         <Typography variant="body2" color='textSecondary'>
                             Description:&nbsp;
                         </Typography>
-                        <Typography variant="body2" color='textPrimary' inline>
+                        <Typography variant="body2" color='textPrimary' display='inline'>
                             {item.roleDescription}
                         </Typography>
                     </React.Fragment>

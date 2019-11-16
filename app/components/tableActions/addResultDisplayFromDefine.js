@@ -315,7 +315,6 @@ class AddResultDisplayFromDefineConnected extends React.Component {
                             <Button
                                 onClick={this.handleAddResultDisplays}
                                 color="default"
-                                mini
                                 variant="contained"
                                 className={classes.addButton}
                             >

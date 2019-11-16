@@ -195,7 +195,6 @@ class ConnectedVariableTabUpdate extends React.Component {
                                 <Typography variant="body1" gutterBottom className={classes.notImported} color='primary'>
                                     <Button
                                         variant='contained'
-                                        mini
                                         onClick={() => { this.setState({ showNonParsed: !this.state.showNonParsed }); }}
                                         className={classes.button}
                                     >

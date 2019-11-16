@@ -291,7 +291,6 @@ class AddDatasetFromDefineConnected extends React.Component {
                             <Button
                                 onClick={this.handleAddDatasets}
                                 color="default"
-                                mini
                                 variant="contained"
                                 className={classes.addButton}
                             >

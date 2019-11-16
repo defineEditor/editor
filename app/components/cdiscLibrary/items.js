@@ -116,10 +116,10 @@ class ConnectedCdiscLibraryItems extends React.Component {
         let itemGroup = this.state.itemGroup;
         return (
             <React.Fragment>
-                <Typography variant="h5" inline>
+                <Typography variant="h5" display='inline'>
                     {itemGroup.name}
                 </Typography>
-                <Typography variant="h5" color='textSecondary' inline>
+                <Typography variant="h5" color='textSecondary' display='inline'>
                     &nbsp; {itemGroup.label}
                 </Typography>
                 {itemGroup.description !== undefined && (
