@@ -38,6 +38,7 @@ function loadControlledTerminology (event, data) {
         store.dispatch(openSnackbar({
             type: 'warning',
             message: `Failed loading Controlled Terminology ${failedCts.join(', ')}`,
+            props: { duration: 10000 },
         }));
     }
     // Connect codelists to standards

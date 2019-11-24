@@ -31,7 +31,7 @@ import { withStyles } from '@material-ui/core/styles';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import CommentIcon from '@material-ui/icons/Comment';
-import OpenDrawer from '@material-ui/icons/ArrowUpward';
+import OpenDrawer from '@material-ui/icons/VerticalSplit';
 import Typography from '@material-ui/core/Typography';
 import TablePagination from '@material-ui/core/TablePagination';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';

@@ -14,7 +14,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, lighten } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
 import Typography from '@material-ui/core/Typography';
@@ -27,7 +27,13 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import { updateControlledTerminology, reloadControlledTerminology } from 'actions/index.js';
+import Box from '@material-ui/core/Box';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import {
+    updateControlledTerminology,
+    reloadControlledTerminology,
+    openSnackbar,
+} from 'actions/index.js';
 import { ControlledTerminology } from 'core/mainStructure.js';
 
 const styles = theme => ({
@@ -39,6 +45,14 @@ const styles = theme => ({
     header: {
         marginBottom: theme.spacing(2),
     },
+    scanning: {
+        marginTop: theme.spacing(10),
+    },
+    progress: {
+        marginTop: theme.spacing(10),
+        marginLeft: theme.spacing(4),
+        marginRight: theme.spacing(4),
+    },
     noCTMessage: {
         position: 'absolute',
         marginLeft: theme.spacing(2),
@@ -46,6 +60,18 @@ const styles = theme => ({
         transform: 'translate(0%, -47%)',
     },
 });
+
+const UpdatedLinearProgress = withStyles({
+    root: {
+        height: 40,
+        backgroundColor: lighten('#3f51b5', 0.5),
+        borderRadius: 30,
+    },
+    bar: {
+        borderRadius: 30,
+        backgroundColor: '#3f51b5',
+    },
+})(LinearProgress);
 
 const mapStateToProps = state => {
     return {
@@ -58,6 +84,7 @@ const mapDispatchToProps = dispatch => {
     return {
         updateControlledTerminology: updateObj => dispatch(updateControlledTerminology(updateObj)),
         reloadControlledTerminology: updateObj => dispatch(reloadControlledTerminology(updateObj)),
+        openSnackbar: updateObj => dispatch(openSnackbar(updateObj)),
     };
 };
 
@@ -74,12 +101,41 @@ const CustomTableCell = withStyles(theme => ({
 }))(TableCell);
 
 class ConnectedControlledTerminology extends React.Component {
+    constructor (props) {
+        super(props);
+        this.state = {
+            scanning: false,
+            totalCount: 0,
+            count: 0,
+        };
+    }
+
     componentDidMount () {
         ipcRenderer.on('controlledTerminologyFolderData', this.loadControlledTerminology);
+        ipcRenderer.on('scanCtFolderFinishedFile', this.updateCount);
+        ipcRenderer.on('scanCtFolderStarted', this.initiateScanning);
+        ipcRenderer.on('scanCtFolderError', this.showError);
     }
 
     componentWillUnmount () {
         ipcRenderer.removeListener('controlledTerminologyFolderData', this.loadControlledTerminology);
+        ipcRenderer.removeListener('scanCtFolderFinishedFile', this.updateCount);
+        ipcRenderer.removeListener('scanCtFolderStarted', this.initiateScanning);
+    }
+
+    updateCount = () => {
+        this.setState({ count: this.state.count + 1 });
+    }
+
+    initiateScanning = (event, value) => {
+        this.setState({ scanning: true, totalCount: value });
+    }
+
+    showError = (event, msg) => {
+        this.props.openSnackbar({
+            type: 'error',
+            message: msg,
+        });
     }
 
     loadControlledTerminology = (event, data) => {
@@ -89,6 +145,8 @@ class ConnectedControlledTerminology extends React.Component {
             ctList[ct.id] = { ...new ControlledTerminology({ ...ct }) };
         });
         this.props.reloadControlledTerminology({ ctList });
+        // Reset scan UI values
+        this.setState({ scanning: false, totalCount: 0, count: 0 });
     }
 
     scanControlledTerminologyFolder = () => {
@@ -149,14 +207,16 @@ class ConnectedControlledTerminology extends React.Component {
                     </Button>
                 </NavigationBar>
                 <div className={classes.root}>
-                    { ctNum === 0 ? (
+                    { this.state.scanning === false && ctNum === 0 && (
                         <Typography variant="h4" gutterBottom className={classes.noCTMessage} color='textSecondary'>
-                            There is no Controlled Terminology available. Download the NCI/CDISC CT in XML format, specify the folder in settings and press the &nbsp;
+                            There is no Controlled Terminology available.
+                            Download the NCI/CDISC CT in XML format, specify the folder in settings and press the &nbsp;
                             <Button size="small" variant="contained" onClick={this.scanControlledTerminologyFolder}>
                                 Scan CT Folder
                             </Button> &nbsp; button
                         </Typography>
-                    ) : (
+                    )}
+                    { this.state.scanning === false && ctNum !== 0 && (
                         <React.Fragment>
                             <Typography variant="h5" className={classes.header}>
                                 Controlled Terminology
@@ -176,6 +236,21 @@ class ConnectedControlledTerminology extends React.Component {
                             </Table>
                         </React.Fragment>
                     )}
+                    { this.state.scanning === true && (
+                        <Box textAlign='center'>
+                            <Typography variant="h4" color='textSecondary' className={classes.scanning}>
+                                Scanning Controlled Terminology
+                            </Typography>
+                            <Typography variant="h6" color='textSecondary'>
+                                Finished {this.state.count} of {this.state.totalCount} files
+                            </Typography>
+                            <UpdatedLinearProgress
+                                variant="determinate"
+                                value={this.state.totalCount > 0 ? this.state.count / this.state.totalCount * 100 : 0}
+                                className={classes.progress}
+                            />
+                        </Box>
+                    )}
                 </div>
             </React.Fragment>
         );
@@ -185,6 +260,7 @@ class ConnectedControlledTerminology extends React.Component {
 ConnectedControlledTerminology.propTypes = {
     classes: PropTypes.object.isRequired,
     updateControlledTerminology: PropTypes.func.isRequired,
+    openSnackbar: PropTypes.func.isRequired,
     controlledTerminology: PropTypes.object.isRequired,
 };
 

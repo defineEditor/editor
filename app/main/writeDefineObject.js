@@ -47,6 +47,8 @@ function writeDefineObject (mainWindow, defineObject, backupFlag, pathToFile, on
     };
     if (defineObject.hasOwnProperty('userName')) {
         info.userName = defineObject.userName;
+    } else if (process && process.env) {
+        info.userName = process.env.USERNAME || process.env.USER || process.env.user || process.env.username;
     }
     zip.file('info.json', JSON.stringify(info));
 

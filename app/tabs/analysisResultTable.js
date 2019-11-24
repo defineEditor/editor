@@ -22,7 +22,7 @@ import CommentIcon from '@material-ui/icons/Comment';
 import Fab from '@material-ui/core/Fab';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
-import OpenDrawer from '@material-ui/icons/ArrowUpward';
+import OpenDrawer from '@material-ui/icons/VerticalSplit';
 import AnalysisResultOrderEditor from 'components/orderEditors/analysisResultOrderEditor.js';
 import AnalysisResultTile from 'components/utils/analysisResultTile.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
