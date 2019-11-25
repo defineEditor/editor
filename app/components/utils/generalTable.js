@@ -28,10 +28,11 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Paper from '@material-ui/core/Paper';
 
 /*
-    @property {boolean} selection Controls whether rows can be selected
+    @property {boolean|Object} selection Controls whether rows can be selected. If boolean - selection is handled internally, if object - externally
+    @property {boolean|Object} selection.selected Selected items
+    @property {boolean|Object} selection.setSelected Function to set selected items
     @property {boolean} sorting Controls whether columns can be sorted
     @property {boolean} pagination Controls whether pagination is enabled
-    @property {boolean} stickyHeader Controls whether the header is fixed
     @property {object} header Array with header settings
     @property {string} header.id Property containing column value
     @property {string} header.label  Column label
@@ -84,12 +85,13 @@ const GeneralTableHead = (props) => {
     return (
         <TableHead>
             <TableRow>
-                {selection === true && (
+                {selection && (
                     <StyledTableCell padding='checkbox'>
                         <Checkbox
                             indeterminate={numSelected > 0 && numSelected < rowCount}
                             checked={numSelected === rowCount}
                             onChange={onSelectAllClick}
+                            color='default'
                         />
                     </StyledTableCell>
                 )}
@@ -204,8 +206,11 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function GeneralTable (props) {
-    const { data, header, selection, sorting, pagination, title, customToolbar } = props;
+    let { data, header, selection, sorting, pagination, title, customToolbar, initialPagesPerRow } = props;
     let keyVar;
+    if (!initialPagesPerRow) {
+        initialPagesPerRow = 50;
+    }
     let defaultOrder;
     header.forEach(column => {
         if (column.key === true) {
@@ -219,9 +224,18 @@ export default function GeneralTable (props) {
     const classes = useStyles();
     const [order, setOrder] = React.useState('desc');
     const [orderBy, setOrderBy] = React.useState(defaultOrder);
-    const [selected, setSelected] = React.useState([]);
+
+    let selected, setSelected;
+    if (typeof selection === 'object') {
+        // Selection handled outside
+        selected = selection.selected;
+        setSelected = selection.setSelected;
+    } else if (selection === true) {
+        // Selection handled internally
+        [selected, setSelected] = React.useState([]);
+    }
     const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(50);
+    const [rowsPerPage, setRowsPerPage] = React.useState(initialPagesPerRow);
 
     const handleRequestSort = (event, property) => {
         const isDesc = orderBy === property && order === 'desc';
@@ -231,8 +245,8 @@ export default function GeneralTable (props) {
 
     const handleSelectAllClick = event => {
         if (event.target.checked) {
-            const newSelecteds = data.map(n => n[keyVar]);
-            setSelected(newSelecteds);
+            const newSelected = data.map(n => n[keyVar]);
+            setSelected(newSelected);
             return;
         }
         setSelected([]);
@@ -308,18 +322,18 @@ export default function GeneralTable (props) {
                                 return (
                                     <TableRow
                                         hover={selection}
-                                        onClick={selection ? event => handleClick(event, row[keyVar]) : undefined}
-                                        role={selection ? 'checkbox' : undefined}
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}
                                         key={row[keyVar]}
                                         selected={isItemSelected}
                                         style={row.styleClass}
                                     >
-                                        {selection === true && (
+                                        {selection && (
                                             <StyledTableCell padding='checkbox'>
                                                 <Checkbox
                                                     checked={isItemSelected}
+                                                    onClick={selection ? event => handleClick(event, row[keyVar]) : undefined}
+                                                    color='primary'
                                                 />
                                             </StyledTableCell>
                                         )}
@@ -362,8 +376,8 @@ GeneralTable.propTypes = {
     header: PropTypes.array.isRequired,
     title: PropTypes.string,
     customToolbar: PropTypes.func,
-    selection: PropTypes.bool,
     sorting: PropTypes.bool,
     pagination: PropTypes.bool,
+    initialPagesPerRow: PropTypes.number,
     stickyHeader: PropTypes.bool,
 };

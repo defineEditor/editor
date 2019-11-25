@@ -15,6 +15,7 @@
 import {
     CT_ADD,
     CT_UPD,
+    CT_DEL,
     CT_RELOAD,
 } from 'constants/action-types';
 
@@ -29,6 +30,13 @@ export const updateControlledTerminology = (updateObj) => (
     {
         type: CT_UPD,
         updateObj,
+    }
+);
+
+export const deleteControlledTerminology = (deleteObj) => (
+    {
+        type: CT_DEL,
+        deleteObj,
     }
 );
 

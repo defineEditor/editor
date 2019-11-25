@@ -18,7 +18,6 @@ import { withStyles, lighten, makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
 import Typography from '@material-ui/core/Typography';
-import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -33,7 +32,8 @@ import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import {
     updateControlledTerminology,
-    reloadControlledTerminology,
+    addControlledTerminology,
+    deleteControlledTerminology,
     openSnackbar,
 } from 'actions/index.js';
 import { ControlledTerminology } from 'core/mainStructure.js';
@@ -89,7 +89,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         updateControlledTerminology: updateObj => dispatch(updateControlledTerminology(updateObj)),
-        reloadControlledTerminology: updateObj => dispatch(reloadControlledTerminology(updateObj)),
+        addControlledTerminology: updateObj => dispatch(addControlledTerminology(updateObj)),
+        deleteControlledTerminology: deleteObj => dispatch(deleteControlledTerminology(deleteObj)),
         openSnackbar: updateObj => dispatch(openSnackbar(updateObj)),
     };
 };
@@ -99,18 +100,30 @@ const useToolbarStyles = makeStyles(theme => ({
         paddingLeft: theme.spacing(2),
         paddingRight: theme.spacing(1),
     },
+    highlight: {
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(1),
+        color: theme.palette.text.primary,
+        backgroundColor: lighten(theme.palette.primary.light, 0.85),
+    },
     title: {
         flex: '1 1 100%',
     },
     type: {
         width: 140,
+        marginRight: theme.spacing(3),
+        marginLeft: theme.spacing(1),
+    },
+    deleteButton: {
+        marginLeft: theme.spacing(3),
     },
     switch: {
+        paddingTop: theme.spacing(1),
         width: 280,
     },
 }));
 
-const ctTypes = ['All', 'SDTM', 'ADaM', 'SEND', 'CDASH', 'COA', 'QS-FT', 'PROTOCOL'];
+const ctTypes = ['All', 'SDTM', 'ADaM', 'SEND', 'CDASH', 'COA', 'QS-FT', 'Protocol'];
 
 class ConnectedControlledTerminology extends React.Component {
     constructor (props) {
@@ -118,6 +131,7 @@ class ConnectedControlledTerminology extends React.Component {
         this.state = {
             cdiscLibraryCts: [],
             currentType: 'All',
+            selected: [],
             showCdiscLibrary: false,
             searchString: '',
             scanning: false,
@@ -133,6 +147,7 @@ class ConnectedControlledTerminology extends React.Component {
         ipcRenderer.on('scanCtFolderFinishedFile', this.updateCount);
         ipcRenderer.on('scanCtFolderStarted', this.initiateScanning);
         ipcRenderer.on('scanCtFolderError', this.showError);
+        ipcRenderer.on('ctFolderError', this.showError);
         if (this.props.enableCdiscLibrary && this.context) {
             this.getCtFromCdiscLibrary();
         }
@@ -142,21 +157,30 @@ class ConnectedControlledTerminology extends React.Component {
         ipcRenderer.removeListener('controlledTerminologyFolderData', this.loadControlledTerminology);
         ipcRenderer.removeListener('scanCtFolderFinishedFile', this.updateCount);
         ipcRenderer.removeListener('scanCtFolderStarted', this.initiateScanning);
+        ipcRenderer.removeListener('scanCtFolderError', this.showError);
+        ipcRenderer.removeListener('ctFolderError', this.showError);
     }
 
     getCtFromCdiscLibrary = async () => {
         let productClasses = await this.context.cdiscLibrary.getProductClasses();
         let cts = productClasses.terminology.productGroups.packages.products;
 
-        let cdiscLibraryCts = Object.values(cts).map(ct => ({ ...new ControlledTerminology({
-            id: ct.id,
-            type: ct.label.replace(/^\s*(\S+).*/, '$1'),
-            name: ct.label,
-            version: ct.version,
-        }),
-        notLoaded: true,
-        styleClass: { backgroundColor: '#F7F7F7', opacity: '0.5' }
-        }));
+        let cdiscLibraryCts = Object.values(cts).map(ct => {
+            let terminologyType = ct.label.replace(/^\s*(\S+).*/, '$1');
+            if (terminologyType === 'PROTOCOL') {
+                terminologyType = 'Protocol';
+            }
+            return ({
+                ...new ControlledTerminology({
+                    id: ct.id,
+                    type: terminologyType,
+                    name: ct.label,
+                    version: ct.version,
+                }),
+                notLoaded: true,
+                styleClass: { backgroundColor: '#F7F7F7', opacity: '0.5' }
+            });
+        });
 
         this.setState({ cdiscLibraryCts });
     }
@@ -182,9 +206,11 @@ class ConnectedControlledTerminology extends React.Component {
             let ct = data[ctId];
             ctList[ct.id] = { ...new ControlledTerminology({ ...ct }) };
         });
-        this.props.reloadControlledTerminology({ ctList });
-        // Reset scan UI values
-        this.setState({ scanning: false, totalCount: 0, count: 0 });
+        this.props.addControlledTerminology({ ctList });
+        if (this.state.scanning === true) {
+            // Reset scan UI values
+            this.setState({ scanning: false, totalCount: 0, count: 0 });
+        }
     }
 
     scanControlledTerminologyFolder = () => {
@@ -199,10 +225,10 @@ class ConnectedControlledTerminology extends React.Component {
 
     addByDefault = (value, row) => {
         return (
-            <Checkbox
+            <Switch
                 checked={value}
                 onChange={this.toggleDefault(row.id)}
-                color="primary"
+                color='primary'
             />
         );
     }
@@ -240,9 +266,36 @@ class ConnectedControlledTerminology extends React.Component {
         this.setState({ showCdiscLibrary: checked });
     };
 
+    handleSelectChange = selected => {
+        this.setState({ selected });
+    };
+
+    deleteControlledTerminology = () => {
+        // Exclude those CTs which are not loaded (coming from CDISC Library)
+        let ctOids = [];
+        let filesToDelete = [];
+        this.state.selected.forEach(id => {
+            if (this.props.controlledTerminology.allIds.includes(id)) {
+                ctOids.push(id);
+                filesToDelete.push(this.props.controlledTerminology.byId[id].pathToFile);
+            }
+        });
+        ipcRenderer.send('deleteFiles', filesToDelete);
+        this.props.deleteControlledTerminology({ ctOids });
+        this.handleSelectChange([]);
+    };
+
     loadCtFromCdiscLibrary = (id) => async () => {
         let ct = await this.context.cdiscLibrary.getFullProduct(id);
         ipcRenderer.send('saveCtFromCdiscLibrary', ct);
+        // As CT uses a lot of memory, manually delete it as it is not needed
+        Object.values(this.context.cdiscLibrary.productClasses.terminology.productGroups.packages.products).forEach(product => {
+            if (product.fullyLoaded) {
+                product.fullyLoaded = false;
+                product.codelists = undefined;
+                console.log('Deleted' + product.id);
+            }
+        });
     };
 
     openCt = (id) => () => {
@@ -252,34 +305,54 @@ class ConnectedControlledTerminology extends React.Component {
     CtToolbar = props => {
         const classes = useToolbarStyles();
         let title = 'Controlled Terminology';
+        let numSelected = this.state.selected.length;
 
         return (
-            <Toolbar className={classes.root}>
-                <Typography className={classes.title} variant='h6' id='tableTitle'>
-                    {title}
-                </Typography>
-                { this.props.enableCdiscLibrary && (
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={this.state.showCdiscLibrary}
-                                onChange={this.handleShowCdiscLibraryChange}
-                                color='primary'
-                            />
-                        }
-                        label='CDISC Library'
-                        className={classes.switch}
-                    />
+            <Toolbar className={numSelected > 0 ? classes.highlight : classes.root}>
+                { numSelected > 0 ? (
+                    <Typography className={classes.title} variant='subtitle1'>
+                        {numSelected} selected
+                        <Button
+                            size='medium'
+                            variant='contained'
+                            color='secondary'
+                            onClick={this.deleteControlledTerminology}
+                            className={classes.deleteButton}
+                        >
+                            Delete
+                        </Button>
+                    </Typography>
+                ) : (
+                    <Typography className={classes.title} variant='h6' id='tableTitle'>
+                        {title}
+                    </Typography>
                 )}
-                <TextField
-                    label='Type'
-                    select
-                    value={this.state.currentType}
-                    onChange={this.handleTypeChange}
-                    className={classes.type}
-                >
-                    {getSelectionList(ctTypes)}
-                </TextField>
+                { numSelected === 0 && (
+                    <React.Fragment>
+                        { this.props.enableCdiscLibrary && (
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={this.state.showCdiscLibrary}
+                                        onChange={this.handleShowCdiscLibraryChange}
+                                        color='primary'
+                                    />
+                                }
+                                label='CDISC Library'
+                                className={classes.switch}
+                            />
+                        )}
+                        <TextField
+                            label='Type'
+                            select
+                            value={this.state.currentType}
+                            onChange={this.handleTypeChange}
+                            className={classes.type}
+                        >
+                            {getSelectionList(ctTypes)}
+                        </TextField>
+                    </React.Fragment>
+                )}
             </Toolbar>
         );
     };
@@ -300,7 +373,9 @@ class ConnectedControlledTerminology extends React.Component {
 
         let data = Object.values(this.props.controlledTerminology.byId);
         if (this.state.cdiscLibraryCts.length > 0 && this.state.showCdiscLibrary) {
-            data = data.concat(this.state.cdiscLibraryCts);
+            // Remove CDISC CTs which are already loaded
+            let loadedIds = data.filter(ct => (ct.isCdiscNci)).map(ct => (ct.type + ct.version));
+            data = data.concat(this.state.cdiscLibraryCts.filter(ct => (!loadedIds.includes(ct.type + ct.version))));
         }
 
         if (this.state.currentType !== 'All') {
@@ -310,39 +385,56 @@ class ConnectedControlledTerminology extends React.Component {
         return (
             <React.Fragment>
                 <NavigationBar>
-                    <Button size="small" variant="contained" onClick={this.scanControlledTerminologyFolder}>
+                    <Button size='small' variant='contained' onClick={this.scanControlledTerminologyFolder}>
                         Scan CT Folder
                     </Button>
                 </NavigationBar>
                 <div className={classes.root}>
-                    { this.state.scanning === false && ctNum === 0 && (
-                        <Typography variant="h4" gutterBottom className={classes.noCTMessage} color='textSecondary'>
+                    { this.state.scanning === false && ctNum === 0 && this.state.showCdiscLibrary === false && (
+                        <Typography variant='h4' gutterBottom className={classes.noCTMessage} color='textSecondary'>
                             There is no Controlled Terminology available.
                             Download the NCI/CDISC CT in XML format, specify the folder in settings and press the &nbsp;
-                            <Button size="small" variant="contained" onClick={this.scanControlledTerminologyFolder}>
+                            <Button
+                                size='small'
+                                variant='contained'
+                                disabled={this.props.controlledTerminologyLocation === ''}
+                                onClick={this.scanControlledTerminologyFolder}>
                                 Scan CT Folder
                             </Button> &nbsp; button
+                            { this.props.enableCdiscLibrary && this.state.showCdiscLibrary === false && (
+                                <React.Fragment>
+                                    <span>&nbsp; or&nbsp; </span>
+                                    <Button
+                                        size='small'
+                                        variant='contained'
+                                        onClick={() => { this.handleShowCdiscLibraryChange({}, true); }}>
+                                        Enable
+                                    </Button> &nbsp; CDISC Library
+                                </React.Fragment>
+                            )}
                         </Typography>
                     )}
-                    { this.state.scanning === false && ctNum !== 0 && (
+                    { this.state.scanning === false && (ctNum !== 0 || this.state.showCdiscLibrary) && (
                         <GeneralTable
                             data={data}
                             header={header}
                             sorting
                             pagination
                             customToolbar={this.CtToolbar}
+                            initialPagesPerRow={25}
+                            selection = {{ selected: this.state.selected, setSelected: this.handleSelectChange }}
                         />
                     )}
                     { this.state.scanning === true && (
                         <Box textAlign='center'>
-                            <Typography variant="h4" color='textSecondary' className={classes.scanning}>
+                            <Typography variant='h4' color='textSecondary' className={classes.scanning}>
                                 Scanning Controlled Terminology
                             </Typography>
-                            <Typography variant="h6" color='textSecondary'>
+                            <Typography variant='h6' color='textSecondary'>
                                 Finished {this.state.count} of {this.state.totalCount} files
                             </Typography>
                             <UpdatedLinearProgress
-                                variant="determinate"
+                                variant='determinate'
                                 value={this.state.totalCount > 0 ? this.state.count / this.state.totalCount * 100 : 0}
                                 className={classes.progress}
                             />
@@ -357,6 +449,8 @@ class ConnectedControlledTerminology extends React.Component {
 ConnectedControlledTerminology.propTypes = {
     classes: PropTypes.object.isRequired,
     updateControlledTerminology: PropTypes.func.isRequired,
+    addControlledTerminology: PropTypes.func.isRequired,
+    deleteControlledTerminology: PropTypes.func.isRequired,
     openSnackbar: PropTypes.func.isRequired,
     controlledTerminology: PropTypes.object.isRequired,
     enableCdiscLibrary: PropTypes.bool.isRequired,

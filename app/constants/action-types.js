@@ -117,6 +117,7 @@ export const DEFINE_UPD = 'DEFINE_UPD';
 export const DEFINE_DEL = 'DEFINE_DEL';
 export const CT_ADD = 'CT_ADD';
 export const CT_UPD = 'CT_UPD';
+export const CT_DEL = 'CT_DEL';
 export const CT_RELOAD = 'CT_RELOAD';
 export const APP_SAVE = 'APP_SAVE';
 export const APP_QUIT = 'APP_QUIT';

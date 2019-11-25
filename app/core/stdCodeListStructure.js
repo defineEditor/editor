@@ -79,7 +79,7 @@ class BasicFunctions {
 
 class StdCodeList extends BasicFunctions {
     constructor ({
-        oid, name, dataType, alias, cdiscSubmissionValue, codeListType, codeListItems, codeListExtensible,
+        oid, name, dataType, alias, cdiscSubmissionValue, codeListType, codeListItems, codeListExtensible, synonyms = [], preferredTerm,
         itemOrder = [],
         descriptions = [],
     } = {}) {
@@ -94,6 +94,8 @@ class StdCodeList extends BasicFunctions {
         this.cdiscSubmissionValue = cdiscSubmissionValue;
         this.codeListType = codeListType;
         this.codeListExtensible = codeListExtensible;
+        this.synonyms = synonyms;
+        this.preferredTerm = preferredTerm;
     }
     addCodeListItem (item) {
         let oid;
@@ -124,13 +126,15 @@ class StdEnumeratedItem {
 
 class StdCodeListItem extends StdEnumeratedItem {
     constructor ({
-        codedValue, alias,
+        codedValue, alias, synonyms = [], definition,
         decodes = []
     } = {}) {
         super({
             codedValue: codedValue,
             alias: alias
         });
+        this.synonyms = synonyms;
+        this.definition = definition;
         this.decodes = decodes;
     }
     addDecode (decode) {

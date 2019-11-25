@@ -26,8 +26,10 @@ import copySampleStudy from './main/copySampleStudy.js';
 import loadControlledTerminology from './main/loadControlledTerminology.js';
 import deleteDefineObject from './main/deleteDefineObject.js';
 import scanControlledTerminologyFolder from './main/scanControlledTerminologyFolder.js';
+import saveCtFromCdiscLibrary from './main/saveCtFromCdiscLibrary.js';
 import openDocument from './main/openDocument.js';
 import openWithStylesheet from './main/openWithStylesheet.js';
+import deleteFiles from './main/deleteFiles.js';
 import openFileInExternalApp from './main/openFileInExternalApp.js';
 import createMenu from './menu/menu.js';
 import exportReviewComments from './main/exportReviewComments.js';
@@ -131,9 +133,17 @@ ipcMain.on('loadDefineObject', (event, defineId, id) => {
 ipcMain.on('scanControlledTerminologyFolder', (event, controlledTerminologyLocation) => {
     scanControlledTerminologyFolder(mainWindow, controlledTerminologyLocation);
 });
+// Save CT loaded from the CDISC Library
+ipcMain.on('saveCtFromCdiscLibrary', (event, controlledTerminology) => {
+    saveCtFromCdiscLibrary(mainWindow, controlledTerminology);
+});
 // Load requested CT
 ipcMain.on('loadControlledTerminology', (event, ctToLoad) => {
     loadControlledTerminology(mainWindow, ctToLoad);
+});
+// Delete files
+ipcMain.on('deleteFiles', (event, filesToDelete) => {
+    deleteFiles(filesToDelete);
 });
 // Open Document file
 ipcMain.on('openDocument', (event, defineLocation, pdfLink) => {

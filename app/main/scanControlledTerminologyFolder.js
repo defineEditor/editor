@@ -57,7 +57,7 @@ const readContents = async (pathToDir, mainWindow) => {
         files = await readdir(pathToDir);
     } catch (error) {
         let msg = 'Could not read the controlled terminology folder: ' + path + 'Error: ' + error;
-        mainWindow.webContents.send('scanCtFolderError', msg);
+        mainWindow.webContents.send('ctFolderError', msg);
         return;
     }
 
