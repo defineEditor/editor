@@ -24,7 +24,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import csv from 'csvtojson';
-import TableWithPagination from 'components/utils/tableWithPagination.js';
+import GeneralTable from 'components/utils/generalTable.js';
 import getOidByName from 'utils/getOidByName.js';
 import {
     loadActualData,
@@ -120,6 +120,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                     parsedData[itemGroupOid] = { [itemOid]: { ...row } };
                 }
             } else {
+                row.id = row.dataset + '.' + row.variable;
                 nonParsedData.push(row);
             }
         });
@@ -141,7 +142,12 @@ class ConnectedVariableTabUpdate extends React.Component {
 
     getDataTable = () => {
         let data = [];
-        let labels = { dataset: 'Dataset', variable: 'Variable', length: 'Length' };
+        let header = [
+            { id: 'id', label: 'id', hidden: true, key: true },
+            { id: 'dataset', label: 'Dataset' },
+            { id: 'variable', label: 'Variable' },
+            { id: 'length', label: 'Length' },
+        ];
         if (this.state.showNonParsed) {
             data = this.state.nonParsedData;
         } else {
@@ -150,6 +156,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                 Object.keys(parsedData[itemGroupOid]).forEach(itemDefOid => {
                     let item = parsedData[itemGroupOid][itemDefOid];
                     data.push({
+                        id: item.dataset + '.' + item.variable,
                         dataset: item.dataset,
                         variable: item.variable,
                         length: item.length,
@@ -158,10 +165,11 @@ class ConnectedVariableTabUpdate extends React.Component {
             });
         }
         return (
-            <TableWithPagination
+            <GeneralTable
                 data={data}
-                labels={labels}
+                header={header}
                 title={this.state.showNonParsed ? 'Not Imported Data' : 'Imported Data'}
+                pagination
             />
         );
     }

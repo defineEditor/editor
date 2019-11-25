@@ -788,7 +788,7 @@ class ConnectedSettings extends React.Component {
                             <Grid item xs={12}>
                                 <Button
                                     variant='contained'
-                                    color={'default'}
+                                    color='default'
                                     disabled={!this.state.settings.cdiscLibrary.enableCdiscLibrary}
                                     onClick={this.checkCdiscLibraryConnection}
                                     className={classes.cdiscLibraryButton}
@@ -797,7 +797,7 @@ class ConnectedSettings extends React.Component {
                                 </Button>
                                 <Button
                                     variant='contained'
-                                    color={'default'}
+                                    color='default'
                                     disabled={!this.state.settings.cdiscLibrary.enableCdiscLibrary}
                                     onClick={this.cleanCdiscLibraryCache}
                                     className={classes.cdiscLibraryButton}

@@ -108,6 +108,10 @@ const readContents = async (pathToDir, mainWindow) => {
                 await writeFile(pathToCt, buffer);
                 mainWindow.webContents.send('scanCtFolderFinishedFile', stdCodeListOdm.fileOid);
 
+                let type = '';
+                if (/^\S+\.\S+\.[-\d]+$/.test(id)) {
+                    type = id.replace(/^\S+\.(\S+)\.[-\d]+$/, '$1');
+                }
                 stdCodeLists[id] = {
                     id,
                     version: stdCodeListOdm.sourceSystemVersion,
@@ -116,6 +120,7 @@ const readContents = async (pathToDir, mainWindow) => {
                     codeListCount: Object.keys(stdCodeListOdm.study.metaDataVersion.codeLists).length,
                     isCdiscNci: stdCodeListOdm.sourceSystem === 'NCI Thesaurus',
                     publishingSet: stdCodeListOdm.sourceSystem === 'NCI Thesaurus' ? getCtPublishingSet(id) : undefined,
+                    type,
                 };
             } catch (error) {
                 let msg = 'Could not parse file ' + file + '. Error: ' + error;
