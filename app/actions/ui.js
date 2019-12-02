@@ -37,6 +37,8 @@ import {
     UI_CHANGECDISCLIBRARYVIEW,
     UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
     UI_SAVECDISCLIBRARYINFO,
+    UI_CHANGECTVIEW,
+    UI_TOGGLECTCDISCLIBRARY,
 } from 'constants/action-types';
 import changeAppTitle from 'utils/changeAppTitle.js';
 
@@ -158,5 +160,15 @@ export const toggleCdiscLibraryItemGroupGridView = () => ({
 
 export const saveCdiscLibraryInfo = (updateObj) => ({
     type: UI_SAVECDISCLIBRARYINFO,
+    updateObj,
+});
+
+export const changeCtView = (updateObj) => ({
+    type: UI_CHANGECTVIEW,
+    updateObj,
+});
+
+export const toggleCtCdiscLibrary = (updateObj) => ({
+    type: UI_TOGGLECTCDISCLIBRARY,
     updateObj,
 });

@@ -123,6 +123,18 @@ const cdiscLibraryUi = {
     },
 };
 
+const controlledTerminology = {
+    currentView: 'packages',
+    useCdiscLibrary: false,
+    packages: {
+        cdiscLibrary: false,
+    },
+    codeLists: {
+    },
+    codedValues: {
+    },
+};
+
 const ui = {
     main,
     tabs,
@@ -130,6 +142,7 @@ const ui = {
     snackbar,
     studies: studiesUi,
     cdiscLibrary: cdiscLibraryUi,
+    controlledTerminology,
 };
 
 // Settings
