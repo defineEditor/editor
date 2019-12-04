@@ -180,7 +180,6 @@ GeneralTableToolbar.propTypes = {
 const useStyles = makeStyles(theme => ({
     root: {
         width: '100%',
-        marginTop: theme.spacing(3),
     },
     paper: {
         width: '100%',
@@ -233,6 +232,8 @@ export default function GeneralTable (props) {
     } else if (selection === true) {
         // Selection handled internally
         [selected, setSelected] = React.useState([]);
+    } else {
+        selected = [];
     }
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(initialPagesPerRow);

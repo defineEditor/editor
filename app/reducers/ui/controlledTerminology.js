@@ -27,11 +27,11 @@ const changeCtView = (state, action) => {
     };
 
     if (action.updateObj.packageId !== undefined) {
-        newState = { ...newState, itemGroups: { ...newState.itemGroups, packageId: action.updateObj.packageId, productName: action.updateObj.productName } };
+        newState = { ...newState, codeLists: { ...newState.codeLists, packageId: action.updateObj.packageId, productName: action.updateObj.productName } };
     }
 
     if (action.updateObj.codeListId !== undefined) {
-        newState = { ...newState, items: { ...newState.items, codeListId: action.updateObj.codeListId, type: action.updateObj.type } };
+        newState = { ...newState, codedValues: { ...newState.codedValues, codeListId: action.updateObj.codeListId, type: action.updateObj.type } };
     }
 
     return newState;

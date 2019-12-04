@@ -152,7 +152,7 @@ class StdCodeListItem extends StdEnumeratedItem {
 class Odm {
     constructor ({
         schemaLocation, odmVersion, fileType, fileOid, creationDateTime, asOfDateTime, originator, sourceSystem,
-        sourceSystemVersion, context, study, xlink, def, xmlns, xsi
+        sourceSystemVersion, context, study, xlink, def, xmlns, xsi, loadedForReview
     } = {}) {
         this.schemaLocation = schemaLocation;
         this.odmVersion = odmVersion;
@@ -169,6 +169,8 @@ class Odm {
         this.def = def;
         this.xmlns = xmlns;
         this.xsi = xsi;
+        // Non-CDISC CT properties
+        this.loadedForReview = loadedForReview;
     }
 }
 
@@ -205,10 +207,11 @@ class MetaDataVersion extends BasicFunctions {
         this.defineVersion = defineVersion;
         this.supplementalDoc = supplementalDoc;
         this.codeLists = codeLists;
-        this.nciCodeOids = nciCodeOids;
         this.comments = comments;
         this.leafs = leafs;
+        // Non-CDISC CT properties
         this.model = model;
+        this.nciCodeOids = nciCodeOids;
     }
     addStandard (standard) {
         this.standards.push(standard);

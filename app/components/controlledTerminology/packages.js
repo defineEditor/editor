@@ -35,7 +35,9 @@ import {
     addControlledTerminology,
     deleteControlledTerminology,
     openSnackbar,
-    toggleCtCdiscLibrary
+    toggleCtCdiscLibrary,
+    deleteStdCodeLists,
+    changeCtView,
 } from 'actions/index.js';
 import { ControlledTerminology } from 'core/mainStructure.js';
 
@@ -82,6 +84,7 @@ const mapStateToProps = state => {
         enableCdiscLibrary: state.present.settings.cdiscLibrary.enableCdiscLibrary,
         useCdiscLibrary: state.present.ui.controlledTerminology.useCdiscLibrary,
         currentView: state.present.ui.controlledTerminology.currentView,
+        stdCodeLists: state.present.stdCodeLists,
     };
 };
 
@@ -92,6 +95,8 @@ const mapDispatchToProps = dispatch => {
         deleteControlledTerminology: deleteObj => dispatch(deleteControlledTerminology(deleteObj)),
         openSnackbar: updateObj => dispatch(openSnackbar(updateObj)),
         toggleCtCdiscLibrary: updateObj => dispatch(toggleCtCdiscLibrary(updateObj)),
+        deleteStdCodeLists: deleteObj => dispatch(deleteStdCodeLists(deleteObj)),
+        changeCtView: updateObj => dispatch(changeCtView(updateObj)),
     };
 };
 
@@ -125,7 +130,7 @@ const useToolbarStyles = makeStyles(theme => ({
 
 const ctTypes = ['All', 'SDTM', 'ADaM', 'SEND', 'CDASH', 'COA', 'QS-FT', 'Protocol'];
 
-class ConnectedPackage extends React.Component {
+class ConnectedPackages extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
@@ -322,7 +327,14 @@ class ConnectedPackage extends React.Component {
     };
 
     openCt = (id) => () => {
-        //
+        // Remove all CTs, which were previously loaded for review purposes
+        let currentStdCodeListIds = Object.keys(this.props.stdCodeLists);
+        let ctIdsToRemove = currentStdCodeListIds.filter(ctId => (ctId !== id && this.props.stdCodeLists[ctId].loadedForReview));
+        if (ctIdsToRemove.length > 0) {
+            this.props.deleteStdCodeLists({ ctIds: ctIdsToRemove });
+        }
+        ipcRenderer.send('loadControlledTerminology', { [id]: { ...this.props.controlledTerminology.byId[id], loadedForReview: true } });
+        this.props.changeCtView({ view: 'codeLists', packageId: id });
     };
 
     CtToolbar = props => {
@@ -465,16 +477,18 @@ class ConnectedPackage extends React.Component {
     }
 }
 
-ConnectedPackage.propTypes = {
+ConnectedPackages.propTypes = {
     classes: PropTypes.object.isRequired,
     updateControlledTerminology: PropTypes.func.isRequired,
     addControlledTerminology: PropTypes.func.isRequired,
     deleteControlledTerminology: PropTypes.func.isRequired,
     openSnackbar: PropTypes.func.isRequired,
+    deleteStdCodeLists: PropTypes.func.isRequired,
     controlledTerminology: PropTypes.object.isRequired,
     enableCdiscLibrary: PropTypes.bool.isRequired,
     useCdiscLibrary: PropTypes.bool.isRequired,
+    stdCodeLists: PropTypes.object.isRequired,
 };
 
-const PackagePage = connect(mapStateToProps, mapDispatchToProps)(ConnectedPackage);
-export default withWidth()(withStyles(styles)(PackagePage));
+const Packages = connect(mapStateToProps, mapDispatchToProps)(ConnectedPackages);
+export default withWidth()(withStyles(styles)(Packages));

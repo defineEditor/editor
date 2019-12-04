@@ -41,6 +41,10 @@ const loadControlledTerminology = async (mainWindow, ctToLoad) => {
             return;
         }
 
+        if (ctToLoad[ctId].loadedForReview === true) {
+            stdCodeListOdm.loadedForReview = true;
+        }
+
         stdCodeLists[ctId] = stdCodeListOdm;
     }));
 

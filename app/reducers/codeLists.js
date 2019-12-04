@@ -22,7 +22,6 @@ import {
     UPD_CODELISTEXT,
     ADD_CODELIST,
     DEL_CODELISTS,
-    UPD_CODELISTSTDOIDS,
     UPD_CODEDVALUE,
     ADD_CODEDVALUE,
     ADD_CODEDVALUES,
@@ -372,20 +371,6 @@ const deleteCodeLists = (state, action) => {
         delete newState[codeListOid];
     });
 
-    return newState;
-};
-
-const updateCodeListStandardOids = (state, action) => {
-    // action.updateObj - object with a list of codeLists each corresponding to an object {standardOid, cdiscSubmissionValue}
-    let newState = { ...state };
-    Object.keys(action.updateObj).forEach(codeListOid => {
-        let newCodeList = { ...new CodeList({
-            ...state[codeListOid],
-            standardOid: action.updateObj[codeListOid].standardOid,
-            cdiscSubmissionValue: action.updateObj[codeListOid].cdiscSubmissionValue,
-        }) };
-        newState = { ...newState, [codeListOid]: newCodeList };
-    });
     return newState;
 };
 
@@ -885,8 +870,6 @@ const codeLists = (state = {}, action) => {
             return handleItemDefUpdate(state, action);
         case UPD_ITEMSBULK:
             return handleItemsBulkUpdate(state, action);
-        case UPD_CODELISTSTDOIDS:
-            return updateCodeListStandardOids(state, action);
         case UPD_CODEDVALUE:
             return updateCodedValue(state, action);
         case ADD_CODEDVALUE:

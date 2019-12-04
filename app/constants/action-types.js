@@ -55,7 +55,6 @@ export const UPD_CODELISTSSTD = 'UPD_CODELISTSSTD';
 export const UPD_CODELISTEXT = 'UPD_CODELISTEXT';
 export const DEL_CODELISTS = 'DEL_CODELISTS';
 export const UPD_CODELISTORDER = 'UPD_CODELISTORDER';
-export const UPD_CODELISTSTDOIDS = 'UPD_CODELISTSTDOIDS';
 export const UPD_LINKCODELISTS = 'UPD_LINKCODELISTS';
 export const UPD_CODEDVALUE = 'UPD_CODEDVALUE';
 export const ADD_CODEDVALUE = 'ADD_CODEDVALUE';
@@ -168,7 +167,6 @@ export const actionLabels = {
     'UPD_CODELISTEXT': 'Update external codelist',
     'DEL_CODELISTS': 'Delete codelist',
     'UPD_CODELISTORDER': 'Update codelist order',
-    'UPD_CODELISTSTDOIDS': 'Update codelist standards',
     'UPD_LINKCODELISTS': 'Update linked codelist',
     'UPD_CODEDVALUE': 'Update coded value',
     'ADD_CODEDVALUE': 'Add coded value',

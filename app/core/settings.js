@@ -348,7 +348,7 @@ class ConnectedSettings extends React.Component {
                             </Grid>
                             <Grid item xs={12}>
                                 <TextField
-                                    label="Controlled Terminology Location"
+                                    label="Controlled Terminology Folder"
                                     value={this.state.settings.general.controlledTerminologyLocation}
                                     disabled={true}
                                     className={classes.ctLocation}
