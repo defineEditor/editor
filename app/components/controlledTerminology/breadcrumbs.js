@@ -18,6 +18,7 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import {
     changeCtView,
@@ -26,6 +27,7 @@ import {
 const styles = theme => ({
     breadcrumbs: {
         marginTop: theme.spacing(1),
+        marginBottom: theme.spacing(1),
     },
     searchField: {
         marginTop: '0',
@@ -40,7 +42,6 @@ const styles = theme => ({
         transform: 'translate(10px, 10px)',
     },
     scanControlledTerminologyFolder: {
-        marginTop: theme.spacing(1),
         marginRight: theme.spacing(3),
     },
 });
@@ -56,8 +57,8 @@ const mapStateToProps = state => {
     return {
         currentView: state.present.ui.controlledTerminology.currentView,
         packageId: state.present.ui.controlledTerminology.codeLists.packageId,
-        packageName: state.present.ui.controlledTerminology.codeLists.packageName,
         codeListId: state.present.ui.controlledTerminology.codedValues.codeListId,
+        stdCodeLists: state.present.stdCodeLists,
     };
 };
 
@@ -90,7 +91,17 @@ class ConnectedControlledTerminologyBreadcrumbs extends React.Component {
     }
 
     render () {
-        const { classes, currentView } = this.props;
+        const { classes, currentView, packageId, codeListId, stdCodeLists } = this.props;
+        let packageName;
+        if (currentView === 'codeLists' || currentView === 'codedValues') {
+            packageName = stdCodeLists[packageId] ? `${stdCodeLists[packageId].type} ${stdCodeLists[packageId].version}` : null;
+        }
+        let codeListName;
+        if (currentView === 'codedValues') {
+            if (stdCodeLists[packageId] && stdCodeLists[packageId].codeLists[codeListId]) {
+                codeListName = stdCodeLists[packageId].codeLists[codeListId].cdiscSubmissionValue;
+            }
+        }
         return (
             <Grid container justify='space-between'>
                 <Grid item>
@@ -107,14 +118,14 @@ class ConnectedControlledTerminologyBreadcrumbs extends React.Component {
                                     color={currentView === 'codeLists' ? 'default' : 'primary'}
                                     onClick={() => { this.props.changeCtView({ view: 'codeLists', codeListId: this.props.codeListId }); }}
                                 >
-                                    {this.props.packageName}
+                                    {packageName}
                                 </Button>
                         }
                         { (currentView === 'codedValues') &&
                                 <Button
                                     color={'default'}
                                     disabled={true}>
-                                    {this.props.codeListId}
+                                    {codeListName}
                                 </Button>
                         }
                     </Breadcrumbs>
@@ -132,6 +143,20 @@ class ConnectedControlledTerminologyBreadcrumbs extends React.Component {
                                 Scan CT Folder
                             </Button>
                         }
+                        <Grid item>
+                            <TextField
+                                variant='outlined'
+                                label='Search'
+                                placeholder='Ctrl+F'
+                                inputRef={this.searchFieldRef}
+                                inputProps={{ className: classes.searchInput }}
+                                InputLabelProps={{ className: classes.searchLabel, shrink: true }}
+                                className={classes.searchField}
+                                defaultValue={this.props.searchString}
+                                onKeyDown={this.onSearchKeyDown}
+                                onBlur={(event) => { this.props.onSearchUpdate(event); }}
+                            />
+                        </Grid>
                     </Grid>
                 </Grid>
             </Grid>
@@ -144,7 +169,6 @@ ConnectedControlledTerminologyBreadcrumbs.propTypes = {
     currentView: PropTypes.string.isRequired,
     searchString: PropTypes.string,
     packageId: PropTypes.string.isRequired,
-    packageName: PropTypes.string.isRequired,
     codeListId: PropTypes.string.isRequired,
     changeCtView: PropTypes.func.isRequired,
     scanControlledTerminologyFolder: PropTypes.func,

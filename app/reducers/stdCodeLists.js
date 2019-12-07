@@ -39,6 +39,7 @@ const loadStdCodeLists = (state, action) => {
                 oid: ct.fileOid,
                 publishingSet,
                 loadedForReview: ct.loadedForReview,
+                type: ct.type,
             };
             newState = { ...newState, [controlledTerminology.oid]: controlledTerminology };
         }

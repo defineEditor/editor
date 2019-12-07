@@ -152,7 +152,7 @@ class StdCodeListItem extends StdEnumeratedItem {
 class Odm {
     constructor ({
         schemaLocation, odmVersion, fileType, fileOid, creationDateTime, asOfDateTime, originator, sourceSystem,
-        sourceSystemVersion, context, study, xlink, def, xmlns, xsi, loadedForReview
+        sourceSystemVersion, context, study, xlink, def, xmlns, xsi, loadedForReview, type
     } = {}) {
         this.schemaLocation = schemaLocation;
         this.odmVersion = odmVersion;
@@ -171,6 +171,7 @@ class Odm {
         this.xsi = xsi;
         // Non-CDISC CT properties
         this.loadedForReview = loadedForReview;
+        this.type = type;
     }
 }
 

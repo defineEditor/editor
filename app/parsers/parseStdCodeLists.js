@@ -219,6 +219,10 @@ function parseStudy (studyRaw, quickParse) {
 function parseOdm (odmRaw, quickParse) {
     let args = odmRaw['$'];
 
+    if (/^\S+\.\S+\.[-\d]+$/.test(odmRaw['$'].fileOid)) {
+        args.type = odmRaw['$'].fileOid.replace(/^\S+\.(\S+)\.[-\d]+$/, '$1');
+    }
+
     args.study = parseStudy(odmRaw.study[0], quickParse);
 
     return new stdCL.Odm(args);

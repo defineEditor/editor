@@ -142,6 +142,7 @@ function parseOdm (ct) {
         schemaLocation: 'http://www.nci.nih.gov/EVS/CDISC ../schema/controlledterminology1-0-0.xsd',
         odmVersion: '1.3.2',
         xmlns: 'http://www.w3.org/2001/XMLSchema-instance',
+        type: ct.terminologyType,
     };
 
     args.study = parseStudy(ct);

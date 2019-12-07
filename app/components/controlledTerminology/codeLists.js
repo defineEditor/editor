@@ -51,8 +51,12 @@ class ConnectedCodeLists extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            count: 0,
+            searchString: '',
         };
+    }
+
+    handleSearchUpdate = (event) => {
+        this.setState({ searchString: event.target.value });
     }
 
     actions = (id, row) => {
@@ -68,7 +72,7 @@ class ConnectedCodeLists extends React.Component {
     }
 
     openCodeList = (id) => () => {
-        //
+        this.props.changeCtView({ view: 'codedValues', codeListId: id });
     };
 
     render () {
@@ -78,13 +82,27 @@ class ConnectedCodeLists extends React.Component {
 
         let header = [
             { id: 'oid', label: 'oid', hidden: true, key: true },
-            { id: 'name', label: 'Name' },
-            { id: 'cdiscSubmissionValue', label: 'Submission Value' },
+            { id: 'name', label: 'Name', defaultOrder: true },
             { id: 'description', label: 'Description' },
+            { id: 'cdiscSubmissionValue', label: 'Submission Value' },
             { id: 'preferredTerm', label: 'Preferred Term' },
             { id: 'synonyms', label: 'Synonyms' },
-            { id: 'id', label: 'Action', formatter: this.actions, noSort: true },
+            { id: 'cCode', label: 'C-Code' },
+            { id: 'oid', label: '', formatter: this.actions, noSort: true },
         ];
+
+        // Add width
+        let colWidths = {
+            name: 300,
+            cCode: 125,
+        };
+
+        header.forEach(column => {
+            let width = colWidths[column.id];
+            if (width !== undefined) {
+                column.style = column.style ? { ...column.style, minWidth: width, maxWidth: width } : { minWidth: width, maxWidth: width };
+            }
+        });
 
         let data = [];
 
@@ -97,12 +115,33 @@ class ConnectedCodeLists extends React.Component {
                     description: getDescription(codeList),
                     preferredTerm: codeList.preferredTerm,
                     synonyms: codeList.synonyms.join(', '),
+                    cCode: codeList.alias ? codeList.alias.name : '',
                 };
             });
         }
+
+        const searchString = this.state.searchString;
+
+        if (searchString !== '') {
+            const caseSensitiveSearch = /[A-Z]/.test(searchString);
+            data = data.filter(row => (Object.keys(row)
+                .filter(item => (!['oid'].includes(item.id)))
+                .some(item => {
+                    if (caseSensitiveSearch) {
+                        return typeof row[item] === 'string' && row[item].includes(searchString);
+                    } else {
+                        return typeof row[item] === 'string' && row[item].toLowerCase().includes(searchString);
+                    }
+                })
+            ));
+        }
+
         return (
             <React.Fragment>
-                <ControlledTerminologyBreadcrumbs scanControlledTerminologyFolder={this.scanControlledTerminologyFolder} />
+                <ControlledTerminologyBreadcrumbs
+                    searchString={this.state.searchString}
+                    onSearchUpdate={this.handleSearchUpdate}
+                />
                 <div className={classes.root}>
                     { ctPackage === null && (
                         <Typography variant='h6' gutterBottom color='textSecondary'>
@@ -115,6 +154,7 @@ class ConnectedCodeLists extends React.Component {
                             header={header}
                             sorting
                             pagination
+                            disableToolbar
                             initialPagesPerRow={25}
                         />
                     )}
@@ -127,10 +167,8 @@ class ConnectedCodeLists extends React.Component {
 ConnectedCodeLists.propTypes = {
     classes: PropTypes.object.isRequired,
     changeCtView: PropTypes.func.isRequired,
-    controlledTerminology: PropTypes.object.isRequired,
     codeListSettings: PropTypes.object.isRequired,
     stdCodeLists: PropTypes.object.isRequired,
-    enableCdiscLibrary: PropTypes.bool.isRequired,
 };
 
 const CodeLists = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodeLists);

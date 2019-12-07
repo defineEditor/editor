@@ -40,6 +40,7 @@ import Paper from '@material-ui/core/Paper';
     @property {function} header.formatter - Custom formatter for the column
     @property {boolean} header.noSort - Disable sorting for the column
     @property {string} header.align - Align column: right, left, ...
+    @property {object} header.style - Style applied to the column
 */
 
 const StyledTableCell = withStyles(theme => ({
@@ -96,31 +97,32 @@ const GeneralTableHead = (props) => {
                     </StyledTableCell>
                 )}
                 {header
-                    .filter(headerCell => (!headerCell.hidden))
-                    .map(headCell => (
+                    .filter(column => (!column.hidden))
+                    .map(column => (
                         <StyledTableCell
-                            key={headCell.id}
-                            align={headCell.align ? headCell.align : 'left'}
-                            padding={headCell.disablePadding ? 'none' : 'default'}
-                            sortDirection={orderBy === headCell.id ? order : false}
+                            key={column.id}
+                            align={column.align ? column.align : 'left'}
+                            padding={column.disablePadding ? 'none' : 'default'}
+                            sortDirection={orderBy === column.id ? order : false}
+                            style={column.style}
                         >
-                            {sorting === true && !headCell.noSort ? (
+                            {sorting === true && !column.noSort ? (
                                 <TableSortLabel
-                                    active={orderBy === headCell.id}
+                                    active={orderBy === column.id}
                                     direction={order}
-                                    onClick={createSortHandler(headCell.id)}
+                                    onClick={createSortHandler(column.id)}
                                     classes={{
                                         active: classes.sortHeader,
                                     }}
                                 >
-                                    {headCell.label}
-                                    {orderBy === headCell.id ? (
+                                    {column.label}
+                                    {orderBy === column.id ? (
                                         <span className={classes.visuallyHidden}>
                                             {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
                                         </span>
                                     ) : null}
                                 </TableSortLabel>
-                            ) : headCell.label
+                            ) : column.label
                             }
                         </StyledTableCell>
                     ))}
@@ -205,7 +207,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function GeneralTable (props) {
-    let { data, header, selection, sorting, pagination, title, customToolbar, initialPagesPerRow } = props;
+    let { data, header, selection, sorting, pagination, title, customToolbar, disableToolbar, initialPagesPerRow } = props;
     let keyVar;
     if (!initialPagesPerRow) {
         initialPagesPerRow = 50;
@@ -221,7 +223,7 @@ export default function GeneralTable (props) {
     });
 
     const classes = useStyles();
-    const [order, setOrder] = React.useState('desc');
+    const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState(defaultOrder);
 
     let selected, setSelected;
@@ -292,9 +294,10 @@ export default function GeneralTable (props) {
     return (
         <div className={classes.root}>
             <Paper className={classes.paper}>
-                { customToolbar ? (
+                { customToolbar && (
                     customToolbar()
-                ) : (
+                )}
+                { (!disableToolbar || selected.length > 0) && !customToolbar && (
                     <GeneralTableToolbar numSelected={selected.length} title={title} />
                 )}
                 <div className={classes.tableWrapper}>
@@ -342,7 +345,11 @@ export default function GeneralTable (props) {
                                             .filter(headerCell => (!headerCell.hidden))
                                             .map(column => {
                                                 return (
-                                                    <StyledTableCell key={column.id} align={column.align ? column.align : 'left'}>
+                                                    <StyledTableCell
+                                                        key={column.id}
+                                                        align={column.align ? column.align : 'left'}
+                                                        style={column.style}
+                                                    >
                                                         { column.formatter ? (
                                                             column.formatter(row[column.id], row)
                                                         ) : (row[column.id])}
@@ -377,6 +384,7 @@ GeneralTable.propTypes = {
     header: PropTypes.array.isRequired,
     title: PropTypes.string,
     customToolbar: PropTypes.func,
+    disableToolbar: PropTypes.bool,
     sorting: PropTypes.bool,
     pagination: PropTypes.bool,
     initialPagesPerRow: PropTypes.number,

@@ -254,6 +254,10 @@ class ConnectedPackages extends React.Component {
         );
     }
 
+    handleSearchUpdate = (event) => {
+        this.setState({ searchString: event.target.value });
+    }
+
     actions = (id, row) => {
         if (row.notLoaded === true) {
             return (
@@ -403,7 +407,7 @@ class ConnectedPackages extends React.Component {
             { id: 'version', label: 'Version', defaultOrder: true },
             { id: 'codeListCount', label: '# Codelists' },
             { id: 'isDefault', label: 'Add by Default', formatter: this.addByDefault, noSort: true },
-            { id: 'id', label: 'Action', formatter: this.actions, noSort: true },
+            { id: 'id', label: '', formatter: this.actions, noSort: true },
         ];
 
         let data = Object.values(this.props.controlledTerminology.byId);
@@ -417,9 +421,29 @@ class ConnectedPackages extends React.Component {
             data = data.filter(row => (row.type === this.state.currentType));
         }
 
+        const searchString = this.state.searchString;
+
+        if (searchString !== '') {
+            const caseSensitiveSearch = /[A-Z]/.test(searchString);
+            data = data.filter(row => (Object.keys(row)
+                .filter(item => (!['id', 'isDefault'].includes(item.id)))
+                .some(item => {
+                    if (caseSensitiveSearch) {
+                        return typeof row[item] === 'string' && row[item].includes(searchString);
+                    } else {
+                        return typeof row[item] === 'string' && row[item].toLowerCase().includes(searchString);
+                    }
+                })
+            ));
+        }
+
         return (
             <React.Fragment>
-                <ControlledTerminologyBreadcrumbs scanControlledTerminologyFolder={this.scanControlledTerminologyFolder} />
+                <ControlledTerminologyBreadcrumbs
+                    scanControlledTerminologyFolder={this.scanControlledTerminologyFolder}
+                    searchString={this.state.searchString}
+                    onSearchUpdate={this.handleSearchUpdate}
+                />
                 <div className={classes.root}>
                     { this.state.scanning === false && ctNum === 0 && this.props.useCdiscLibrary === false && (
                         <Typography variant='h4' gutterBottom className={classes.noCTMessage} color='textSecondary'>
