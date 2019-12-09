@@ -29,9 +29,12 @@ import Paper from '@material-ui/core/Paper';
 
 /*
     @property {boolean|Object} selection Controls whether rows can be selected. If boolean - selection is handled internally, if object - externally
-    @property {boolean|Object} selection.selected Selected items
-    @property {boolean|Object} selection.setSelected Function to set selected items
+    @property {array} selection.selected Selected items
+    @property {func} selection.setSelected Function to set selected items
     @property {boolean} sorting Controls whether columns can be sorted
+    @property {boolean|Object} pagination Controls whether pagination is used. If boolean - pagination is handled internally, if objeca rowsperpage are handled externally
+    @property {array} pagination.rowsPerPage Number of rows per page
+    @property {func} pagination.setRowsPerPage Function to set rowsPerPage
     @property {boolean} pagination Controls whether pagination is enabled
     @property {object} header Array with header settings
     @property {string} header.id Property containing column value
@@ -40,6 +43,7 @@ import Paper from '@material-ui/core/Paper';
     @property {function} header.formatter - Custom formatter for the column
     @property {boolean} header.noSort - Disable sorting for the column
     @property {string} header.align - Align column: right, left, ...
+    @property {string} header.defaultOrder - Use that column as an order column, possible values: asc, desc
     @property {object} header.style - Style applied to the column
 */
 
@@ -137,7 +141,7 @@ GeneralTableHead.propTypes = {
     onRequestSort: PropTypes.func.isRequired,
     onSelectAllClick: PropTypes.func.isRequired,
     order: PropTypes.oneOf(['asc', 'desc']).isRequired,
-    orderBy: PropTypes.string.isRequired,
+    orderBy: PropTypes.string,
     rowCount: PropTypes.number.isRequired,
 };
 
@@ -207,24 +211,30 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function GeneralTable (props) {
-    let { data, header, selection, sorting, pagination, title, customToolbar, disableToolbar, initialPagesPerRow } = props;
+    let { data, header, selection, sorting, pagination, title, customToolbar,
+        disableToolbar, initialPagesPerRow, rowsPerPageOptions
+    } = props;
     let keyVar;
     if (!initialPagesPerRow) {
         initialPagesPerRow = 50;
     }
-    let defaultOrder;
+
+    // Column ordering
+    let defaultOrder = 'asc';
+    let defaultOrderBy;
     header.forEach(column => {
         if (column.key === true) {
             keyVar = column.id;
         }
-        if (column.defaultOrder === true) {
-            defaultOrder = column.id;
+        if (column.defaultOrder !== undefined) {
+            defaultOrder = column.defaultOrder;
+            defaultOrderBy = column.id;
         }
     });
 
     const classes = useStyles();
-    const [order, setOrder] = React.useState('asc');
-    const [orderBy, setOrderBy] = React.useState(defaultOrder);
+    const [order, setOrder] = React.useState(defaultOrder);
+    const [orderBy, setOrderBy] = React.useState(defaultOrderBy);
 
     let selected, setSelected;
     if (typeof selection === 'object') {
@@ -238,7 +248,18 @@ export default function GeneralTable (props) {
         selected = [];
     }
     const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(initialPagesPerRow);
+
+    let rowsPerPage, setRowsPerPage;
+    if (typeof pagination === 'object') {
+        // Rows per page handled outside
+        rowsPerPage = pagination.rowsPerPage;
+        setRowsPerPage = pagination.setRowsPerPage;
+    } else if (pagination === true) {
+        // Rows per page handled internally
+        [rowsPerPage, setRowsPerPage] = React.useState(initialPagesPerRow);
+    } else {
+        rowsPerPage = [];
+    }
 
     const handleRequestSort = (event, property) => {
         const isDesc = orderBy === property && order === 'desc';
@@ -286,7 +307,12 @@ export default function GeneralTable (props) {
 
     const isSelected = name => selected.indexOf(name) !== -1;
 
-    let tableData = stableSort(data, getSorting(order, orderBy));
+    let tableData;
+    if (orderBy) {
+        tableData = stableSort(data, getSorting(order, orderBy));
+    } else {
+        tableData = data;
+    }
     if (pagination) {
         tableData = tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
     }
@@ -325,7 +351,7 @@ export default function GeneralTable (props) {
 
                                 return (
                                     <TableRow
-                                        hover={selection}
+                                        hover={selection !== undefined}
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}
                                         key={row[keyVar]}
@@ -365,7 +391,7 @@ export default function GeneralTable (props) {
                 </div>
                 { pagination && (
                     <TablePagination
-                        rowsPerPageOptions={[25, 50, 100]}
+                        rowsPerPageOptions={rowsPerPageOptions || [25, 50, 100]}
                         component='div'
                         count={data.length}
                         rowsPerPage={rowsPerPage}
@@ -386,7 +412,7 @@ GeneralTable.propTypes = {
     customToolbar: PropTypes.func,
     disableToolbar: PropTypes.bool,
     sorting: PropTypes.bool,
-    pagination: PropTypes.bool,
+    rowsPerPageOptions: PropTypes.array,
     initialPagesPerRow: PropTypes.number,
     stickyHeader: PropTypes.bool,
 };

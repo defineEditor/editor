@@ -14,16 +14,20 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import Typography from '@material-ui/core/Typography';
+import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import withWidth from '@material-ui/core/withWidth';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Toolbar from '@material-ui/core/Toolbar';
 import GeneralTable from 'components/utils/generalTable.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 import ControlledTerminologyBreadcrumbs from 'components/controlledTerminology/breadcrumbs.js';
 import {
     changeCtView,
+    changeCtSettings,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -31,12 +35,23 @@ const styles = theme => ({
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
     },
+    progress: {
+        margin: theme.spacing(2)
+    },
+    loading: {
+        position: 'absolute',
+        top: '47%',
+        left: '47%',
+        transform: 'translate(-47%, -47%)',
+        textAlign: 'center'
+    }
 });
 
 const mapStateToProps = state => {
     return {
         currentView: state.present.ui.controlledTerminology.currentView,
         codeListSettings: state.present.ui.controlledTerminology.codeLists,
+        ctUiSettings: state.present.ui.controlledTerminology.codeLists,
         stdCodeLists: state.present.stdCodeLists,
     };
 };
@@ -44,14 +59,35 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         changeCtView: updateObj => dispatch(changeCtView(updateObj)),
+        changeCtSettings: updateObj => dispatch(changeCtSettings(updateObj)),
     };
 };
+
+const useToolbarStyles = makeStyles(theme => ({
+    root: {
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(1),
+    },
+    searchTermField: {
+        marginTop: '0',
+        marginRight: theme.spacing(2),
+    },
+    searchTermInput: {
+        paddingTop: '9px',
+        paddingBottom: '9px',
+    },
+    searchTermLabel: {
+        transform: 'translate(10px, 10px)',
+    },
+}));
 
 class ConnectedCodeLists extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
             searchString: '',
+            searchTermString: '',
+            matchedCodeListIds: [],
         };
     }
 
@@ -75,6 +111,90 @@ class ConnectedCodeLists extends React.Component {
         this.props.changeCtView({ view: 'codedValues', codeListId: id });
     };
 
+    setRowsPerPage = (rowsPerPage) => {
+        this.props.changeCtSettings({ view: 'codeLists', settings: { rowsPerPage } });
+    }
+
+    CtToolbar = props => {
+        const classes = useToolbarStyles();
+
+        return (
+            <Toolbar className={classes.root}>
+                <ControlledTerminologyBreadcrumbs
+                    searchString={this.state.searchString}
+                    onSearchUpdate={this.handleSearchUpdate}
+                    additionalActions={this.additionalActions(classes)}
+                />
+            </Toolbar>
+        );
+    };
+
+    onSearchKeyDown = (event) => {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            this.handleSearchTermUpdate(event);
+        }
+    }
+
+    handleSearchTermUpdate = (event) => {
+        let searchTermString = event.target.value;
+        let id = this.props.codeListSettings.packageId;
+        let ctPackage = this.props.stdCodeLists[id];
+
+        const caseSensitiveSearch = /[A-Z]/.test(searchTermString);
+        let matchedCodeListIds = [];
+
+        Object.keys(ctPackage.codeLists).forEach(codeListId => {
+            const codeList = ctPackage.codeLists[codeListId];
+
+            if (codeList) {
+                let result = Object.values(codeList.codeListItems).some((value, index) => {
+                    let row = {
+                        codedValue: value.codedValue,
+                        decode: value.decodes.length > 0 ? value.decodes[0].value : '',
+                        definition: value.definition,
+                        synonyms: value.synonyms.join(', '),
+                        cCode: value.alias ? value.alias.name : '',
+                    };
+                    let rowResult = Object.keys(row).some(item => {
+                        if (caseSensitiveSearch) {
+                            return typeof row[item] === 'string' && row[item].includes(searchTermString);
+                        } else {
+                            return typeof row[item] === 'string' && row[item].toLowerCase().includes(searchTermString);
+                        }
+                    });
+                    if (rowResult) {
+                        return true;
+                    }
+                });
+                if (result) {
+                    matchedCodeListIds.push(codeListId);
+                }
+            }
+        });
+        this.setState({
+            matchedCodeListIds,
+            searchTermString,
+        });
+    }
+
+    additionalActions = (classes) => {
+        let result = [];
+        result.push(
+            <TextField
+                variant='outlined'
+                label='Search In Codelist'
+                inputProps={{ className: classes.searchTermInput }}
+                InputLabelProps={{ className: classes.searchTermLabel, shrink: true }}
+                className={classes.searchTermField}
+                defaultValue={this.state.searchTermString}
+                onKeyDown={this.onSearchKeyDown}
+                onBlur={this.handleSearchTermUpdate}
+            />
+        );
+        return result;
+    }
+
     render () {
         const { classes, stdCodeLists, codeListSettings } = this.props;
         let id = codeListSettings.packageId;
@@ -82,7 +202,7 @@ class ConnectedCodeLists extends React.Component {
 
         let header = [
             { id: 'oid', label: 'oid', hidden: true, key: true },
-            { id: 'name', label: 'Name', defaultOrder: true },
+            { id: 'name', label: 'Name' },
             { id: 'description', label: 'Description' },
             { id: 'cdiscSubmissionValue', label: 'Submission Value' },
             { id: 'preferredTerm', label: 'Preferred Term' },
@@ -136,26 +256,29 @@ class ConnectedCodeLists extends React.Component {
             ));
         }
 
+        if (this.state.searchTermString !== '') {
+            data = data.filter(codeList => (this.state.matchedCodeListIds.includes(codeList.oid)));
+        }
+
         return (
             <React.Fragment>
-                <ControlledTerminologyBreadcrumbs
-                    searchString={this.state.searchString}
-                    onSearchUpdate={this.handleSearchUpdate}
-                />
                 <div className={classes.root}>
                     { ctPackage === null && (
-                        <Typography variant='h6' gutterBottom color='textSecondary'>
-                            Loading
-                        </Typography>
+                        <div className={classes.loading}>
+                            <Typography variant="h5">
+                                Loading Controlled Terminology
+                            </Typography>
+                            <br />
+                            <CircularProgress className={classes.progress} />
+                        </div>
                     )}
                     { ctPackage !== null && (
                         <GeneralTable
                             data={data}
                             header={header}
                             sorting
-                            pagination
-                            disableToolbar
-                            initialPagesPerRow={25}
+                            pagination={{ rowsPerPage: this.props.ctUiSettings.rowsPerPage, setRowsPerPage: this.setRowsPerPage }}
+                            customToolbar={this.CtToolbar}
                         />
                     )}
                 </div>
@@ -169,6 +292,7 @@ ConnectedCodeLists.propTypes = {
     changeCtView: PropTypes.func.isRequired,
     codeListSettings: PropTypes.object.isRequired,
     stdCodeLists: PropTypes.object.isRequired,
+    ctUiSettings: PropTypes.object,
 };
 
 const CodeLists = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodeLists);

@@ -127,11 +127,13 @@ const controlledTerminology = {
     currentView: 'packages',
     useCdiscLibrary: false,
     packages: {
-        cdiscLibrary: false,
+        rowsPerPage: 25,
     },
     codeLists: {
+        rowsPerPage: 50,
     },
     codedValues: {
+        rowsPerPage: 100,
     },
 };
 

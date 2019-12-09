@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
 * and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
+* Copyright (C) 2019 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -14,6 +14,7 @@
 
 import {
     UI_CHANGECTVIEW,
+    UI_CHANGECTSETTINGS,
     UI_TOGGLECTCDISCLIBRARY,
 } from 'constants/action-types';
 import { ui } from 'constants/initialValues.js';
@@ -33,6 +34,14 @@ const changeCtView = (state, action) => {
     if (action.updateObj.codeListId !== undefined) {
         newState = { ...newState, codedValues: { ...newState.codedValues, codeListId: action.updateObj.codeListId } };
     }
+
+    return newState;
+};
+
+const changeCtSettings = (state, action) => {
+    let newState = { ...state };
+    let view = action.updateObj.view;
+    newState = { ...newState, [view]: { ...newState[view], ...action.updateObj.settings } };
 
     return newState;
 };
@@ -58,6 +67,8 @@ const tabs = (state = initialState, action) => {
     switch (action.type) {
         case UI_CHANGECTVIEW:
             return changeCtView(state, action);
+        case UI_CHANGECTSETTINGS:
+            return changeCtSettings(state, action);
         case UI_TOGGLECTCDISCLIBRARY:
             return changeCtCdiscLibrary(state, action);
         default:

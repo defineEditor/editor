@@ -38,6 +38,7 @@ import {
     toggleCtCdiscLibrary,
     deleteStdCodeLists,
     changeCtView,
+    changeCtSettings,
 } from 'actions/index.js';
 import { ControlledTerminology } from 'core/mainStructure.js';
 
@@ -83,6 +84,7 @@ const mapStateToProps = state => {
         controlledTerminology: state.present.controlledTerminology,
         enableCdiscLibrary: state.present.settings.cdiscLibrary.enableCdiscLibrary,
         useCdiscLibrary: state.present.ui.controlledTerminology.useCdiscLibrary,
+        ctUiSettings: state.present.ui.controlledTerminology.packages,
         currentView: state.present.ui.controlledTerminology.currentView,
         stdCodeLists: state.present.stdCodeLists,
     };
@@ -97,6 +99,7 @@ const mapDispatchToProps = dispatch => {
         toggleCtCdiscLibrary: updateObj => dispatch(toggleCtCdiscLibrary(updateObj)),
         deleteStdCodeLists: deleteObj => dispatch(deleteStdCodeLists(deleteObj)),
         changeCtView: updateObj => dispatch(changeCtView(updateObj)),
+        changeCtSettings: updateObj => dispatch(changeCtSettings(updateObj)),
     };
 };
 
@@ -111,20 +114,19 @@ const useToolbarStyles = makeStyles(theme => ({
         color: theme.palette.text.primary,
         backgroundColor: lighten(theme.palette.primary.light, 0.85),
     },
-    title: {
-        flex: '1 1 100%',
-    },
     type: {
         width: 140,
-        marginRight: theme.spacing(3),
-        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(4),
     },
     deleteButton: {
         marginLeft: theme.spacing(3),
     },
     switch: {
-        paddingTop: theme.spacing(2),
-        width: 280,
+        paddingTop: theme.spacing(1),
+        marginRight: theme.spacing(4),
+    },
+    scanControlledTerminologyFolder: {
+        marginRight: theme.spacing(4),
     },
 }));
 
@@ -341,9 +343,53 @@ class ConnectedPackages extends React.Component {
         this.props.changeCtView({ view: 'codeLists', packageId: id });
     };
 
+    setRowsPerPage = (rowsPerPage) => {
+        this.props.changeCtSettings({ view: 'packages', settings: { rowsPerPage } });
+    }
+
+    additionalActions = (classes) => {
+        let result = [];
+        result.push(
+            <Button
+                size='small'
+                variant='contained'
+                onClick={this.scanControlledTerminologyFolder}
+                className={classes.scanControlledTerminologyFolder}
+
+            >
+                Scan CT Folder
+            </Button>
+        );
+        if (this.props.enableCdiscLibrary) {
+            result.push(
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={this.props.useCdiscLibrary}
+                            onChange={this.handleShowCdiscLibraryChange}
+                            color='primary'
+                        />
+                    }
+                    label='CDISC Library'
+                    className={classes.switch}
+                />
+            );
+        }
+        result.push(
+            <TextField
+                select
+                value={this.state.currentType}
+                onChange={this.handleTypeChange}
+                className={classes.type}
+            >
+                {getSelectionList(ctTypes)}
+            </TextField>
+        );
+        return result;
+    }
+
     CtToolbar = props => {
         const classes = useToolbarStyles();
-        let title = 'Controlled Terminology';
         let numSelected = this.state.selected.length;
 
         return (
@@ -362,35 +408,11 @@ class ConnectedPackages extends React.Component {
                         </Button>
                     </Typography>
                 ) : (
-                    <Typography className={classes.title} variant='h6' id='tableTitle'>
-                        {title}
-                    </Typography>
-                )}
-                { numSelected === 0 && (
-                    <React.Fragment>
-                        { this.props.enableCdiscLibrary && (
-                            <FormControlLabel
-                                control={
-                                    <Switch
-                                        checked={this.props.useCdiscLibrary}
-                                        onChange={this.handleShowCdiscLibraryChange}
-                                        color='primary'
-                                    />
-                                }
-                                label='CDISC Library'
-                                className={classes.switch}
-                            />
-                        )}
-                        <TextField
-                            label='Type'
-                            select
-                            value={this.state.currentType}
-                            onChange={this.handleTypeChange}
-                            className={classes.type}
-                        >
-                            {getSelectionList(ctTypes)}
-                        </TextField>
-                    </React.Fragment>
+                    <ControlledTerminologyBreadcrumbs
+                        searchString={this.state.searchString}
+                        onSearchUpdate={this.handleSearchUpdate}
+                        additionalActions={this.additionalActions(classes)}
+                    />
                 )}
             </Toolbar>
         );
@@ -404,7 +426,7 @@ class ConnectedPackages extends React.Component {
             { id: 'id', label: 'id', hidden: true, key: true },
             { id: 'name', label: 'Name' },
             { id: 'type', label: 'Type' },
-            { id: 'version', label: 'Version', defaultOrder: true },
+            { id: 'version', label: 'Version', defaultOrder: 'desc' },
             { id: 'codeListCount', label: '# Codelists' },
             { id: 'isDefault', label: 'Add by Default', formatter: this.addByDefault, noSort: true },
             { id: 'id', label: '', formatter: this.actions, noSort: true },
@@ -439,11 +461,6 @@ class ConnectedPackages extends React.Component {
 
         return (
             <React.Fragment>
-                <ControlledTerminologyBreadcrumbs
-                    scanControlledTerminologyFolder={this.scanControlledTerminologyFolder}
-                    searchString={this.state.searchString}
-                    onSearchUpdate={this.handleSearchUpdate}
-                />
                 <div className={classes.root}>
                     { this.state.scanning === false && ctNum === 0 && this.props.useCdiscLibrary === false && (
                         <Typography variant='h4' gutterBottom className={classes.noCTMessage} color='textSecondary'>
@@ -474,9 +491,8 @@ class ConnectedPackages extends React.Component {
                             data={data}
                             header={header}
                             sorting
-                            pagination
+                            pagination={{ rowsPerPage: this.props.ctUiSettings.rowsPerPage, setRowsPerPage: this.setRowsPerPage }}
                             customToolbar={this.CtToolbar}
-                            initialPagesPerRow={25}
                             selection = {{ selected: this.state.selected, setSelected: this.handleSelectChange }}
                         />
                     )}
@@ -509,6 +525,7 @@ ConnectedPackages.propTypes = {
     openSnackbar: PropTypes.func.isRequired,
     deleteStdCodeLists: PropTypes.func.isRequired,
     controlledTerminology: PropTypes.object.isRequired,
+    ctUiSettings: PropTypes.object,
     enableCdiscLibrary: PropTypes.bool.isRequired,
     useCdiscLibrary: PropTypes.bool.isRequired,
     stdCodeLists: PropTypes.object.isRequired,

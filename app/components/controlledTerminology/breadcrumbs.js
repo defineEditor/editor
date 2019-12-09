@@ -31,8 +31,7 @@ const styles = theme => ({
     },
     searchField: {
         marginTop: '0',
-        marginLeft: theme.spacing(3),
-        marginRight: theme.spacing(3),
+        marginRight: theme.spacing(2),
     },
     searchInput: {
         paddingTop: '9px',
@@ -40,9 +39,6 @@ const styles = theme => ({
     },
     searchLabel: {
         transform: 'translate(10px, 10px)',
-    },
-    scanControlledTerminologyFolder: {
-        marginRight: theme.spacing(3),
     },
 });
 
@@ -94,9 +90,9 @@ class ConnectedControlledTerminologyBreadcrumbs extends React.Component {
         const { classes, currentView, packageId, codeListId, stdCodeLists } = this.props;
         let packageName;
         if (currentView === 'codeLists' || currentView === 'codedValues') {
-            packageName = stdCodeLists[packageId] ? `${stdCodeLists[packageId].type} ${stdCodeLists[packageId].version}` : null;
+            packageName = stdCodeLists[packageId] ? `${stdCodeLists[packageId].type} ${stdCodeLists[packageId].version}` : '';
         }
-        let codeListName;
+        let codeListName = '';
         if (currentView === 'codedValues') {
             if (stdCodeLists[packageId] && stdCodeLists[packageId].codeLists[codeListId]) {
                 codeListName = stdCodeLists[packageId].codeLists[codeListId].cdiscSubmissionValue;
@@ -124,25 +120,24 @@ class ConnectedControlledTerminologyBreadcrumbs extends React.Component {
                         { (currentView === 'codedValues') &&
                                 <Button
                                     color={'default'}
-                                    disabled={true}>
+                                    disabled={true}
+                                >
                                     {codeListName}
                                 </Button>
                         }
                     </Breadcrumbs>
                 </Grid>
                 <Grid item>
-                    <Grid container justify='flex-end'>
-                        { currentView === 'packages' &&
-                            <Button
-                                size='small'
-                                variant='contained'
-                                onClick={this.props.scanControlledTerminologyFolder}
-                                className={classes.scanControlledTerminologyFolder}
-
-                            >
-                                Scan CT Folder
-                            </Button>
-                        }
+                    <Grid container justify='flex-end' alignItems='center'>
+                        { this.props.additionalActions && (
+                            this.props.additionalActions.map((action, index) => {
+                                return (
+                                    <Grid key={index} item>
+                                        {action}
+                                    </Grid>
+                                );
+                            })
+                        )}
                         <Grid item>
                             <TextField
                                 variant='outlined'
@@ -168,13 +163,14 @@ ConnectedControlledTerminologyBreadcrumbs.propTypes = {
     classes: PropTypes.object.isRequired,
     currentView: PropTypes.string.isRequired,
     searchString: PropTypes.string,
-    packageId: PropTypes.string.isRequired,
-    codeListId: PropTypes.string.isRequired,
+    packageId: PropTypes.string,
+    codeListId: PropTypes.string,
     changeCtView: PropTypes.func.isRequired,
     scanControlledTerminologyFolder: PropTypes.func,
+    additionalActions: PropTypes.array,
 };
 
-ConnectedControlledTerminologyBreadcrumbs.displayName = 'ControlledTerminologyItemGroups';
+ConnectedControlledTerminologyBreadcrumbs.displayName = 'ControlledTerminologyBreadcrumbs';
 
 const ControlledTerminologyBreadcrumbs = connect(mapStateToProps, mapDispatchToProps)(ConnectedControlledTerminologyBreadcrumbs);
 export default withStyles(styles)(ControlledTerminologyBreadcrumbs);
