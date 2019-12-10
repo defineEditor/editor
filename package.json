@@ -232,7 +232,7 @@
     "@material-ui/lab": "^4.0.0-alpha.32",
     "babel-plugin-prismjs": "^1.0.2",
     "bootstrap": "^4.1.1",
-    "cla-wrapper": "../cla-wrapper",
+    "cla-wrapper": "^0.2.0",
     "clone": "^2.1.2",
     "csvtojson": "^2.0.8",
     "devtron": "^1.4.0",

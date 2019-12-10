@@ -15,7 +15,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles, makeStyles, lighten } from '@material-ui/core/styles';
-import { connect } from 'react-redux';
+import { connect, useSelector, useDispatch } from 'react-redux';
 import { clipboard } from 'electron';
 import Typography from '@material-ui/core/Typography';
 import withWidth from '@material-ui/core/withWidth';
@@ -35,6 +35,7 @@ import ControlledTerminologyBreadcrumbs from 'components/controlledTerminology/b
 import {
     changeCtView,
     changeCtSettings,
+    openSnackbar,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -74,20 +75,77 @@ const useToolbarStyles = makeStyles(theme => ({
     },
 }));
 
-const options = ['As tab-delimited', 'As SAS Format', 'As R list', 'As Python dictionary'];
+const options = {
+    tab: 'As tab-delimited',
+    sas: 'As SAS Format',
+    r: 'As R vector',
+    python: 'As Python dictionary',
+};
 
-const SplitButton = () => {
+const CopyToBuffer = ({ selected }) => {
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef(null);
-    const [selectedIndex, setSelectedIndex] = React.useState(0);
+    const [selectedIndex, setSelectedIndex] = React.useState('tab');
+    const codeListSettings = useSelector(state => state.present.ui.controlledTerminology.codeLists);
+    const codedValuesSettings = useSelector(state => state.present.ui.controlledTerminology.codedValues);
+    const stdCodeLists = useSelector(state => state.present.stdCodeLists);
+    const dispatch = useDispatch();
+
+    const copyToBuffer = (option) => {
+        let id = codeListSettings.packageId;
+        let ctPackage = stdCodeLists[id];
+        let codeList = ctPackage.codeLists[codedValuesSettings.codeListId];
+        let decodes = {};
+        Object.keys(codeList.codeListItems).forEach(oid => {
+            if (selected.includes(oid)) {
+                let item = codeList.codeListItems[oid];
+                if (item.decodes && item.decodes.length > 0) {
+                    decodes[item.codedValue] = item.decodes[0].value;
+                }
+            }
+        });
+        let codeNum = Object.keys(decodes).length;
+        if (option === 'tab') {
+            let result = '';
+            Object.keys(decodes).forEach(code => (
+                result += `${code}\t${decodes[code]}\n`
+            ));
+            clipboard.writeText(result);
+        } else if (option === 'sas') {
+            let result = 'proc format;\n    value $formatName\n';
+            Object.keys(decodes).forEach(code => (
+                result += `        '${code}' = '${decodes[code]}'\n`
+            ));
+            result += '    ;\nrun;';
+            clipboard.writeText(result);
+        } else if (option === 'r') {
+            let result = 'c(\n';
+            Object.keys(decodes).forEach((code, index) => (
+                result += `    "${code}" = "${decodes[code]}"${index !== codeNum - 1 ? ',' : ''}\n`
+            ));
+            result += ')';
+            clipboard.writeText(result);
+        } else if (option === 'python') {
+            let result = '{\n';
+            Object.keys(decodes).forEach((code, index) => (
+                result += `    "${code}": "${decodes[code]}"${index !== codeNum - 1 ? ',' : ''}\n`
+            ));
+            result += '}';
+            clipboard.writeText(result);
+        }
+        dispatch(openSnackbar({
+            type: 'success',
+            message: `${codeNum} value${codeNum === 1 ? 's' : ''} were copied to buffer ${options[option][0].toLowerCase() + options[option].slice(1)}.`,
+        }));
+    };
 
     const handleClick = () => {
-        console.info(`You clicked ${options[selectedIndex]}`);
-        clipboard.writeText(options[selectedIndex]);
+        copyToBuffer(selectedIndex);
     };
 
     const handleMenuItemClick = (event, index) => {
         setSelectedIndex(index);
+        copyToBuffer(index);
         setOpen(false);
     };
 
@@ -131,13 +189,13 @@ const SplitButton = () => {
                             <Paper>
                                 <ClickAwayListener onClickAway={handleClose}>
                                     <MenuList id='split-button-menu'>
-                                        {options.map((option, index) => (
+                                        {Object.keys(options).map(index => (
                                             <MenuItem
-                                                key={option}
+                                                key={options[index]}
                                                 selected={index === selectedIndex}
                                                 onClick={event => handleMenuItemClick(event, index)}
                                             >
-                                                {option}
+                                                {options[index]}
                                             </MenuItem>
                                         ))}
                                     </MenuList>
@@ -182,7 +240,7 @@ class ConnectedCodedValues extends React.Component {
                             </Typography>
                         </Grid>
                         <Grid item>
-                            <SplitButton />
+                            <CopyToBuffer selected={this.state.selected}/>
                         </Grid>
                     </Grid>
                 ) : (
@@ -233,10 +291,11 @@ class ConnectedCodedValues extends React.Component {
 
         let data = [];
 
-        if (codeList !== null) {
-            data = Object.values(codeList.codeListItems).map((value, index) => {
+        if (codeList) {
+            data = Object.keys(codeList.codeListItems).map(oid => {
+                let value = codeList.codeListItems[oid];
                 return {
-                    oid: index,
+                    oid,
                     codedValue: value.codedValue,
                     decode: value.decodes.length > 0 ? value.decodes[0].value : '',
                     definition: value.definition,
@@ -274,6 +333,7 @@ class ConnectedCodedValues extends React.Component {
                             customToolbar={this.CtToolbar}
                             pagination={{ rowsPerPage: this.props.ctUiSettings.rowsPerPage, setRowsPerPage: this.setRowsPerPage }}
                             disableToolbar
+                            fullRowSelect
                             rowsPerPageOptions={[25, 50, 100, 250, 500]}
                         />
                     )}

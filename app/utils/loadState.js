@@ -63,6 +63,12 @@ function loadState () {
         if (state.ui.main.appVersion !== remote.app.getVersion()) {
             state.ui.main.currentPage = 'studies';
         }
+        // If codelist or codedvalues are opened for the CT, reset view to packages
+        if (state.ui.controlledTerminology &&
+            state.ui.controlledTerminology.currentView !== 'packages'
+        ) {
+            state.ui.controlledTerminology.currentView = 'packages';
+        }
         state.ui.main.lastSaveHistoryIndex = 0;
         state.ui.main.actionHistory = [];
         state.ui.main.isCurrentDefineSaved = true;

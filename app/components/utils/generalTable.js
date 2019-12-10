@@ -212,7 +212,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function GeneralTable (props) {
     let { data, header, selection, sorting, pagination, title, customToolbar,
-        disableToolbar, initialPagesPerRow, rowsPerPageOptions
+        disableToolbar, initialPagesPerRow, rowsPerPageOptions, fullRowSelect,
     } = props;
     let keyVar;
     if (!initialPagesPerRow) {
@@ -354,6 +354,8 @@ export default function GeneralTable (props) {
                                         hover={selection !== undefined}
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}
+                                        role={fullRowSelect && 'checkbox'}
+                                        onClick={fullRowSelect && selection ? event => handleClick(event, row[keyVar]) : undefined}
                                         key={row[keyVar]}
                                         selected={isItemSelected}
                                         style={row.styleClass}
@@ -362,7 +364,7 @@ export default function GeneralTable (props) {
                                             <StyledTableCell padding='checkbox'>
                                                 <Checkbox
                                                     checked={isItemSelected}
-                                                    onClick={selection ? event => handleClick(event, row[keyVar]) : undefined}
+                                                    onClick={!fullRowSelect && selection ? event => handleClick(event, row[keyVar]) : undefined}
                                                     color='primary'
                                                 />
                                             </StyledTableCell>
@@ -414,5 +416,5 @@ GeneralTable.propTypes = {
     sorting: PropTypes.bool,
     rowsPerPageOptions: PropTypes.array,
     initialPagesPerRow: PropTypes.number,
-    stickyHeader: PropTypes.bool,
+    fullRowSelect: PropTypes.bool,
 };

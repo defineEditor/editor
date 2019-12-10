@@ -312,7 +312,7 @@ class ConnectedPackages extends React.Component {
         this.handleSelectChange([]);
     };
 
-    loadCtFromCdiscLibrary = (id) => async () => {
+    loadCtFromCdiscLibrary = (id) => async (event) => {
         // As a temporary bugfix, send a dummy request if the object did not load
         const ctNum = this.state.cdiscLibraryCts.length;
         setTimeout(() => {
