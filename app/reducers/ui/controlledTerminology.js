@@ -16,6 +16,7 @@ import {
     UI_CHANGECTVIEW,
     UI_CHANGECTSETTINGS,
     UI_TOGGLECTCDISCLIBRARY,
+    STDCDL_DEL,
 } from 'constants/action-types';
 import { ui } from 'constants/initialValues.js';
 
@@ -63,6 +64,20 @@ const changeCtCdiscLibrary = (state, action) => {
     return newState;
 };
 
+const handleDeleteControlledTerminology = (state, action) => {
+    if (state.currentView !== 'packages') {
+        let newState = state;
+        if (action.deleteObj.ctIds.includes(state.codeLists.packageId)) {
+            newState.currentView = 'packages';
+            newState.codeLists.packageId = undefined;
+            newState.codedValues.codeListId = undefined;
+        }
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const tabs = (state = initialState, action) => {
     switch (action.type) {
         case UI_CHANGECTVIEW:
@@ -71,6 +86,8 @@ const tabs = (state = initialState, action) => {
             return changeCtSettings(state, action);
         case UI_TOGGLECTCDISCLIBRARY:
             return changeCtCdiscLibrary(state, action);
+        case STDCDL_DEL:
+            return handleDeleteControlledTerminology(state, action);
         default:
             return state;
     }

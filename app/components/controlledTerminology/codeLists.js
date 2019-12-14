@@ -18,6 +18,10 @@ import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
+import Tooltip from '@material-ui/core/Tooltip';
+import Grid from '@material-ui/core/Grid';
+import Fab from '@material-ui/core/Fab';
+import Forward from '@material-ui/icons/Forward';
 import Button from '@material-ui/core/Button';
 import withWidth from '@material-ui/core/withWidth';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -44,7 +48,11 @@ const styles = theme => ({
         left: '47%',
         transform: 'translate(-47%, -47%)',
         textAlign: 'center'
-    }
+    },
+    actionIcon: {
+        height: 28,
+        width: 28,
+    },
 });
 
 const mapStateToProps = state => {
@@ -97,13 +105,15 @@ class ConnectedCodeLists extends React.Component {
 
     actions = (id, row) => {
         return (
-            <Button
-                variant='contained'
-                color='default'
-                onClick={this.openCodeList(id)}
-            >
-                Open
-            </Button>
+            <Tooltip title='Open Codelist' placement='bottom' enterDelay={500}>
+                <Fab
+                    onClick={this.openCodeList(id)}
+                    color='default'
+                    size='medium'
+                >
+                    <Forward className={this.props.classes.actionIcon}/>
+                </Fab>
+            </Tooltip>
         );
     }
 
@@ -264,13 +274,25 @@ class ConnectedCodeLists extends React.Component {
             <React.Fragment>
                 <div className={classes.root}>
                     { ctPackage === null && (
-                        <div className={classes.loading}>
-                            <Typography variant="h5">
-                                Loading Controlled Terminology
-                            </Typography>
-                            <br />
-                            <CircularProgress className={classes.progress} />
-                        </div>
+                        <Grid container direction='column' alignItems='center' className={classes.loading}>
+                            <Grid item xs={12}>
+                                <Typography variant="h5">
+                                    Loading Controlled Terminology
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <CircularProgress className={classes.progress} />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Button
+                                    variant='contained'
+                                    onClick={() => { this.props.changeCtView({ view: 'packages' }); }}
+                                    color='default'
+                                >
+                                    Back
+                                </Button>
+                            </Grid>
+                        </Grid>
                     )}
                     { ctPackage !== null && (
                         <GeneralTable

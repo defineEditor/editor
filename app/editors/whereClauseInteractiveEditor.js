@@ -32,6 +32,9 @@ import { comparators } from 'constants/stdConstants.js';
 import { WhereClause, RangeCheck } from 'core/defineStructure.js';
 
 const styles = theme => ({
+    root: {
+        outline: 'none',
+    },
     textField: {
         whiteSpace: 'normal',
         minWidth: '120px',
@@ -501,7 +504,14 @@ class WhereClauseEditorInteractive extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={2} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
+            <Grid
+                container
+                spacing={2}
+                alignItems='flex-end'
+                onKeyDown={this.onKeyDown}
+                className={classes.root}
+                tabIndex='0'
+            >
                 { this.props.onChangeEditingMode !== undefined && (
                     <Grid item xs={12}>
                         <FormControlLabel

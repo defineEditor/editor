@@ -21,9 +21,11 @@ import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import DeleteIcon from '@material-ui/icons/Delete';
+import LowPriority from '@material-ui/icons/LowPriority';
 import { FaFileExport, FaFileImport } from 'react-icons/fa';
 import Divider from '@material-ui/core/Divider';
 import { Study, Define } from 'core/mainStructure.js';
+import DefineOrderEditor from 'components/orderEditors/defineOrderEditor.js';
 import {
     openModal,
     studyImport,
@@ -44,6 +46,14 @@ const mapStateToProps = state => {
 };
 
 class ConnectedStudyMenu extends React.Component {
+    constructor (props) {
+        super(props);
+
+        this.state = {
+            showDefineOrder: false,
+        };
+    }
+
     delete = () => {
         this.props.openModal({
             type: 'DELETE_STUDY',
@@ -72,6 +82,10 @@ class ConnectedStudyMenu extends React.Component {
         // Send the list of existing DefineIds and the id of the study
         ipcRenderer.send('importStudy', { studyId: this.props.study.id, defineIds: Object.keys(this.props.defines) });
         this.props.onClose();
+    }
+
+    sort = () => {
+        this.setState({ showDefineOrder: true });
     }
 
     importData = (event, data, error) => {
@@ -125,6 +139,13 @@ class ConnectedStudyMenu extends React.Component {
                         <ListItemText primary="Import" />
                     </MenuItem>
                     <Divider/>
+                    <MenuItem key='Sort' onClick={this.sort} disabled={this.props.study.defineIds && this.props.study.defineIds.length === 0}>
+                        <ListItemIcon style={{ marginLeft: '4px' }}>
+                            <LowPriority />
+                        </ListItemIcon>
+                        <ListItemText primary="Sort" />
+                    </MenuItem>
+                    <Divider/>
                     <MenuItem key='Delete' onClick={this.delete}>
                         <ListItemIcon>
                             <DeleteIcon />
@@ -132,6 +153,12 @@ class ConnectedStudyMenu extends React.Component {
                         <ListItemText primary="Delete" />
                     </MenuItem>
                 </Menu>
+                { this.state.showDefineOrder && (
+                    <DefineOrderEditor
+                        studyId={this.props.study.id}
+                        onCancel={this.props.onClose}
+                    />
+                )}
             </React.Fragment>
         );
     }

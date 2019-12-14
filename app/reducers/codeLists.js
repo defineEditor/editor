@@ -360,9 +360,9 @@ const deleteCodeLists = (state, action) => {
     // action.deleteObj.codeListOids - list of codeLists to remove
     let newState = { ...state };
     action.deleteObj.codeListOids.forEach(codeListOid => {
-        // If those codelists have a linked codelist, remove reference to it from the linked codelist
+        // If those codelists have a linked codelist, which is not removed, remove reference to it from the linked codelist
         let linkedCodeListOid = state[codeListOid].linkedCodeListOid;
-        if (linkedCodeListOid !== undefined) {
+        if (linkedCodeListOid !== undefined && !action.deleteObj.codeListOids.includes(linkedCodeListOid)) {
             let newLinkedCodeList = { ...new CodeList({
                 ...state[linkedCodeListOid], linkedCodeListOid: undefined
             }) };

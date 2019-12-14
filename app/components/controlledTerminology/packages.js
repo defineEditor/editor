@@ -19,6 +19,12 @@ import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import Tooltip from '@material-ui/core/Tooltip';
+import Fab from '@material-ui/core/Fab';
+import CloudDownload from '@material-ui/icons/CloudDownload';
+import Forward from '@material-ui/icons/Forward';
+import Add from '@material-ui/icons/Add';
+import YoutubeSearchedFor from '@material-ui/icons/YoutubeSearchedFor';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import withWidth from '@material-ui/core/withWidth';
@@ -26,10 +32,12 @@ import Box from '@material-ui/core/Box';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import TextField from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
+import InternalHelp from 'components/utils/internalHelp.js';
 import GeneralTable from 'components/utils/generalTable.js';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import ControlledTerminologyBreadcrumbs from 'components/controlledTerminology/breadcrumbs.js';
+import { CT_LOCATION } from 'constants/help.js';
 import {
     updateControlledTerminology,
     addControlledTerminology,
@@ -61,8 +69,13 @@ const styles = theme => ({
         top: '47%',
         transform: 'translate(0%, -47%)',
     },
-    loadButton: {
-        backgroundColor: '#FFFFFF',
+    actionIcon: {
+        height: 28,
+        width: 28,
+    },
+    inTextButton: {
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(1),
     },
 });
 
@@ -124,9 +137,14 @@ const useToolbarStyles = makeStyles(theme => ({
     switch: {
         paddingTop: theme.spacing(1),
         marginRight: theme.spacing(4),
+        marginLeft: theme.spacing(1),
     },
-    scanControlledTerminologyFolder: {
-        marginRight: theme.spacing(4),
+    toolbarFab: {
+        marginRight: theme.spacing(2),
+    },
+    toolbarIcon: {
+        height: 31,
+        width: 31,
     },
 }));
 
@@ -150,7 +168,7 @@ class ConnectedPackages extends React.Component {
     static contextType = CdiscLibraryContext;
 
     componentDidMount () {
-        ipcRenderer.on('controlledTerminologyFolderData', this.loadPackage);
+        ipcRenderer.on('controlledTerminologyData', this.loadPackage);
         ipcRenderer.on('scanCtFolderFinishedFile', this.updateCount);
         ipcRenderer.on('scanCtFolderStarted', this.initiateScanning);
         ipcRenderer.on('scanCtFolderError', this.showError);
@@ -161,7 +179,7 @@ class ConnectedPackages extends React.Component {
     }
 
     componentWillUnmount () {
-        ipcRenderer.removeListener('controlledTerminologyFolderData', this.loadPackage);
+        ipcRenderer.removeListener('controlledTerminologyData', this.loadPackage);
         ipcRenderer.removeListener('scanCtFolderFinishedFile', this.updateCount);
         ipcRenderer.removeListener('scanCtFolderStarted', this.initiateScanning);
         ipcRenderer.removeListener('scanCtFolderError', this.showError);
@@ -201,7 +219,7 @@ class ConnectedPackages extends React.Component {
                     version: ct.version,
                 }),
                 notLoaded: true,
-                styleClass: { backgroundColor: '#F7F7F7', opacity: '0.5' }
+                styleClass: { backgroundColor: '#E0E0E0' }
             });
         });
 
@@ -220,6 +238,7 @@ class ConnectedPackages extends React.Component {
         this.props.openSnackbar({
             type: 'error',
             message: msg,
+            props: { duration: 10000 },
         });
     }
 
@@ -238,6 +257,10 @@ class ConnectedPackages extends React.Component {
 
     scanControlledTerminologyFolder = () => {
         ipcRenderer.send('scanControlledTerminologyFolder', this.props.controlledTerminologyLocation);
+    }
+
+    addControlledTerminology = () => {
+        ipcRenderer.send('addControlledTerminology');
     }
 
     toggleDefault = (ctId) => () => {
@@ -263,24 +286,27 @@ class ConnectedPackages extends React.Component {
     actions = (id, row) => {
         if (row.notLoaded === true) {
             return (
-                <Button
-                    variant='contained'
-                    color='default'
-                    onClick={this.loadCtFromCdiscLibrary(id)}
-                    className={this.props.classes.loadButton}
-                >
-                    Load
-                </Button>
+                <Tooltip title='Download Controlled Terminology' placement='bottom' enterDelay={500}>
+                    <Fab
+                        onClick={this.loadCtFromCdiscLibrary(id)}
+                        color='default'
+                        size='medium'
+                    >
+                        <CloudDownload className={this.props.classes.actionIcon}/>
+                    </Fab>
+                </Tooltip>
             );
         } else {
             return (
-                <Button
-                    variant='contained'
-                    color='default'
-                    onClick={this.openCt(id)}
-                >
-                    Open
-                </Button>
+                <Tooltip title='Open Controlled Terminology' placement='bottom' enterDelay={500}>
+                    <Fab
+                        onClick={this.openCt(id)}
+                        color='default'
+                        size='medium'
+                    >
+                        <Forward className={this.props.classes.actionIcon}/>
+                    </Fab>
+                </Tooltip>
             );
         }
     }
@@ -327,7 +353,6 @@ class ConnectedPackages extends React.Component {
             if (product.fullyLoaded) {
                 product.fullyLoaded = false;
                 product.codelists = undefined;
-                console.log('Deleted' + product.id);
             }
         });
     };
@@ -350,15 +375,35 @@ class ConnectedPackages extends React.Component {
     additionalActions = (classes) => {
         let result = [];
         result.push(
-            <Button
-                size='small'
-                variant='contained'
-                onClick={this.scanControlledTerminologyFolder}
-                className={classes.scanControlledTerminologyFolder}
-
-            >
-                Scan CT Folder
-            </Button>
+            <Tooltip title='Add Controlled Terminology' placement='bottom' enterDelay={500}>
+                <Fab
+                    onClick={this.addControlledTerminology}
+                    color='default'
+                    size='medium'
+                    className={classes.toolbarFab}
+                >
+                    <Add className={classes.toolbarIcon}/>
+                </Fab>
+            </Tooltip>
+        );
+        result.push(
+            <Tooltip title='Scan Controlled Terminology Folder' placement='bottom' enterDelay={500}>
+                <Fab
+                    onClick={this.scanControlledTerminologyFolder}
+                    color='default'
+                    size='medium'
+                    className={classes.toolbarFab}
+                >
+                    <YoutubeSearchedFor className={classes.toolbarIcon}/>
+                </Fab>
+            </Tooltip>
+        );
+        result.push(
+            <InternalHelp
+                data={CT_LOCATION}
+                size='medium'
+                buttonClass={classes.toolbarFab}
+            />
         );
         if (this.props.enableCdiscLibrary) {
             result.push(
@@ -368,6 +413,7 @@ class ConnectedPackages extends React.Component {
                             checked={this.props.useCdiscLibrary}
                             onChange={this.handleShowCdiscLibraryChange}
                             color='primary'
+                            size='medium'
                         />
                     }
                     label='CDISC Library'
@@ -395,7 +441,7 @@ class ConnectedPackages extends React.Component {
         return (
             <Toolbar className={numSelected > 0 ? classes.highlight : classes.root}>
                 { numSelected > 0 ? (
-                    <Typography className={classes.title} variant='subtitle1'>
+                    <Typography variant='subtitle1'>
                         {numSelected} selected
                         <Button
                             size='medium'
@@ -420,7 +466,6 @@ class ConnectedPackages extends React.Component {
 
     render () {
         const { classes } = this.props;
-        let ctNum = this.props.controlledTerminology.allIds.length;
 
         let header = [
             { id: 'id', label: 'id', hidden: true, key: true },
@@ -462,31 +507,7 @@ class ConnectedPackages extends React.Component {
         return (
             <React.Fragment>
                 <div className={classes.root}>
-                    { this.state.scanning === false && ctNum === 0 && this.props.useCdiscLibrary === false && (
-                        <Typography variant='h4' gutterBottom className={classes.noCTMessage} color='textSecondary'>
-                            There is no Controlled Terminology available.
-                            Download the NCI/CDISC CT in XML format, specify the folder in settings and press the &nbsp;
-                            <Button
-                                size='small'
-                                variant='contained'
-                                disabled={this.props.controlledTerminologyLocation === ''}
-                                onClick={this.scanControlledTerminologyFolder}>
-                                Scan CT Folder
-                            </Button> &nbsp; button
-                            { this.props.enableCdiscLibrary && this.props.useCdiscLibrary === false && (
-                                <React.Fragment>
-                                    <span>&nbsp; or&nbsp; </span>
-                                    <Button
-                                        size='small'
-                                        variant='contained'
-                                        onClick={() => { this.handleShowCdiscLibraryChange({}, true); }}>
-                                        Enable
-                                    </Button> &nbsp; CDISC Library
-                                </React.Fragment>
-                            )}
-                        </Typography>
-                    )}
-                    { this.state.scanning === false && (ctNum !== 0 || this.props.useCdiscLibrary) && (
+                    { this.state.scanning === false && (
                         <GeneralTable
                             data={data}
                             header={header}

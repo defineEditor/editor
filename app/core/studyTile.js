@@ -127,8 +127,8 @@ class ConnectedStudyTile extends React.Component {
 
     static getDerivedStateFromProps (nextProps, prevState) {
         // Check if defineIds changed
-        let allPresent = prevState.study.defineIds.every(defineId =>
-            nextProps.study.defineIds.includes(defineId)
+        let allPresent = prevState.study.defineIds.every((defineId, index) =>
+            nextProps.study.defineIds[index] === defineId
         );
         if (
             nextProps.study.defineIds.length !== prevState.study.defineIds.length ||

@@ -84,7 +84,7 @@ const saveCtFromCdiscLibrary = async (mainWindow, controlledTerminology) => {
         mainWindow.webContents.send('saveCtFromCdiscLibraryError', msg);
     }
 
-    mainWindow.send('controlledTerminologyFolderData', stdCodeLists);
+    mainWindow.send('controlledTerminologyData', stdCodeLists);
 };
 
 export default saveCtFromCdiscLibrary;

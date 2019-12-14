@@ -138,7 +138,7 @@ const scanControlledTerminologyFolder = async (mainWindow, controlledTerminology
     let xmlCount = await countXmlFiles(controlledTerminologyLocation);
     mainWindow.webContents.send('scanCtFolderStarted', xmlCount);
     let result = await readContents(controlledTerminologyLocation, mainWindow);
-    mainWindow.send('controlledTerminologyFolderData', result);
+    mainWindow.send('controlledTerminologyData', result);
 };
 
 export default scanControlledTerminologyFolder;

@@ -33,12 +33,6 @@ import {
 } from 'actions/index.js';
 
 const styles = theme => ({
-    button: {
-        margin: theme.spacing(1),
-    },
-    iconButton: {
-        marginBottom: '8px',
-    },
     gridItem: {
         margin: 'none',
     },

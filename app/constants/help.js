@@ -89,11 +89,16 @@ This is how regular expressions work, SAS programmers can try it by executing **
 };
 
 export const CT_LOCATION = {
-    title: 'Controlled Terminology Location',
+    title: 'Loading Controlled Terminology',
     content: `
 #### About
-To load a controlled terminology in studies it is required to specify a folder containing it and then scan this folder from the Controlled Terminology page (this page can be selected in the Main Menu).
-There is no need to put all files in the same folder, as folder is scanned including all subfolders.
+Visual Define-XML Editor allows to browse and utilize CDISC/NCI Controlled Terminology when create a Define-XML document.
+#### Loading from a Local File
+To load a controlled terminology in studies you need to specify in Settings a folder containing files with the controlled terminology. Once specified this folder can be scanned from the Controlled Terminology page (this page can be selected in the Main Menu).
+
+There is no need to put all files in the same folder, as the folder is scanned including all subfolders.
+#### Loading from CDISC Library
+Controlled Terminology can be downloaded from the CDISC Library. See CDISC Library settings for more details.
 #### Format
 It is expected that Controlled Terminology files are downloaded in XML format from the NCI site (\`https://evs.nci.nih.gov/ftp1/CDISC/\`).
 #### Custom Controlled Terminology

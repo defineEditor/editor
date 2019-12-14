@@ -73,6 +73,12 @@ const useToolbarStyles = makeStyles(theme => ({
         color: theme.palette.text.primary,
         backgroundColor: lighten(theme.palette.primary.light, 0.85),
     },
+    title: {
+        marginRight: theme.spacing(2),
+    },
+    copyToBuffer: {
+        marginRight: theme.spacing(2),
+    },
 }));
 
 const options = {
@@ -226,29 +232,37 @@ class ConnectedCodedValues extends React.Component {
         this.props.changeCtSettings({ view: 'packages', settings: { rowsPerPage } });
     }
 
+    additionalActions = (classes) => {
+        let result = [];
+        let numSelected = this.state.selected.length;
+        if (numSelected) {
+            result.push(
+                <Grid container justify='flex-start' alignItems='center'>
+                    <Grid item>
+                        <Typography className={classes.title} variant='subtitle1'>
+                            {numSelected} item{numSelected === 1 ? '' : 's'} selected
+                        </Typography>
+                    </Grid>
+                    <Grid item className={classes.copyToBuffer}>
+                        <CopyToBuffer selected={this.state.selected}/>
+                    </Grid>
+                </Grid>
+            );
+        }
+        return result;
+    }
+
     CtToolbar = props => {
         const classes = useToolbarStyles();
         let numSelected = this.state.selected.length;
 
         return (
             <Toolbar className={numSelected > 0 ? classes.highlight : classes.root}>
-                { numSelected > 0 ? (
-                    <Grid container justify='flex-start' alignItems='center'>
-                        <Grid item>
-                            <Typography className={classes.title} variant='subtitle1'>
-                                {numSelected} selected&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            </Typography>
-                        </Grid>
-                        <Grid item>
-                            <CopyToBuffer selected={this.state.selected}/>
-                        </Grid>
-                    </Grid>
-                ) : (
-                    <ControlledTerminologyBreadcrumbs
-                        searchString={this.state.searchString}
-                        onSearchUpdate={this.handleSearchUpdate}
-                    />
-                )}
+                <ControlledTerminologyBreadcrumbs
+                    searchString={this.state.searchString}
+                    onSearchUpdate={this.handleSearchUpdate}
+                    additionalActions={this.additionalActions(classes)}
+                />
             </Toolbar>
         );
     };

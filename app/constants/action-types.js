@@ -114,6 +114,7 @@ export const STUDY_DEL = 'STUDY_DEL';
 export const STUDY_UPD = 'STUDY_UPD';
 export const STUDY_IMPORT = 'STUDY_IMPORT';
 export const STUDY_UPDORDER = 'STUDY_UPDORDER';
+export const STUDY_UPDDEFINEORDER = 'STUDY_UPDDEFINEORDER';
 export const DEFINE_ADD = 'DEFINE_ADD';
 export const DEFINE_UPD = 'DEFINE_UPD';
 export const DEFINE_DEL = 'DEFINE_DEL';

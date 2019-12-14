@@ -285,7 +285,7 @@ class CodeList extends BasicFunctions {
     } = {}) {
         super();
         this.oid = oid || getOid('CodeList');
-        this.name = name;
+        this.name = name || '';
         this.dataType = dataType;
         this.standardOid = standardOid;
         this.formatName = formatName;

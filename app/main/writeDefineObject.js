@@ -43,7 +43,9 @@ function writeDefineObject (mainWindow, defineObject, backupFlag, pathToFile, on
         appVersion: app.getVersion(),
         defineVersion: defineObject.odm.study.metaDataVersion.defineVersion,
         defineId: defineObject.defineId,
+        defineName: defineObject.defineName,
         studyId: defineObject.studyId,
+        studyName: defineObject.studyName,
     };
     if (defineObject.hasOwnProperty('userName')) {
         info.userName = defineObject.userName;
