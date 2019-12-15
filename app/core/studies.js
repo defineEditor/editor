@@ -23,7 +23,7 @@ import Button from '@material-ui/core/Button';
 import withWidth from '@material-ui/core/withWidth';
 import Grow from '@material-ui/core/Grow';
 import NavigationBar from 'core/navigationBar.js';
-import StudyTile from 'core/studyTile.js';
+import StudyTile from 'components/utils/studyTile.js';
 import StudyOrderEditor from 'components/orderEditors/studyOrderEditor.js';
 import { Study } from 'core/mainStructure.js';
 import AddDefineForm from 'core/addDefineForm.js';

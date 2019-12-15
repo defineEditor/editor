@@ -124,12 +124,50 @@ class ConnectedCodeListFormatter extends React.Component {
         );
     }
 
+    getExternalCodeList = (codeList, defineVersion, classes) => {
+        let data = codeList.externalCodeList;
+        let result = [];
+        Object.keys(data).forEach(attr => {
+            let attrName = attr[0].toUpperCase() + attr.slice(1);
+            result.push(
+                <div key={attr}>
+                    <Typography variant="h6" color='textSecondary' display='inline'>
+                        {attrName}:&nbsp;
+                    </Typography>
+                    {data[attr]}
+                </div>
+            );
+        });
+        return (
+            <Grid container spacing={0} className={classes.codeListTable}>
+                <Grid item xs={12}>
+                    <Grid container spacing={0} alignItems='center' className={classes.title}>
+                        <Grid item>
+                            <Typography variant="h6">
+                                {codeList.name}
+                            </Typography>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <Grid item xs={12}>
+                    {result}
+                </Grid>
+            </Grid>
+        );
+    }
+
     render () {
         const { codeListOid, codeLists, defineVersion, classes } = this.props;
         const codeList = codeLists[codeListOid];
         return (
             <div className={classes.root}>
-                {this.getCodeListTable(codeList, defineVersion, classes)}
+                {codeList.codeListType !== 'external'
+                    ? (
+                        this.getCodeListTable(codeList, defineVersion, classes)
+                    ) : (
+                        this.getExternalCodeList(codeList, defineVersion, classes)
+                    )
+                }
             </div>
         );
     }

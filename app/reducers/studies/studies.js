@@ -72,15 +72,20 @@ const updateStudy = (state, action) => {
 const addDefine = (state, action) => {
     if (state.byId.hasOwnProperty(action.updateObj.studyId)) {
         let study = state.byId[action.updateObj.studyId];
-        let newState = { ...state };
-        newState.byId = {
-            ...newState.byId,
-            [action.updateObj.studyId]: {
-                ...study,
-                defineIds: [...study.defineIds, action.updateObj.define.id]
-            }
-        };
-        return newState;
+        // In case the define is replaced, do nothing
+        if (study.defineIds.includes(action.updateObj.define.id)) {
+            return state;
+        } else {
+            let newState = { ...state };
+            newState.byId = {
+                ...newState.byId,
+                [action.updateObj.studyId]: {
+                    ...study,
+                    defineIds: [...study.defineIds, action.updateObj.define.id]
+                }
+            };
+            return newState;
+        }
     } else {
         return state;
     }

@@ -2928,9 +2928,9 @@ circular-json@^0.3.1:
   integrity sha512-UZK3NBx2Mca+b5LsG7bY183pHWt5Y1xts4P3Pz7ENTwGVnJOUWbRb3ocjvX7hx9tq/yTAdclXm9sZ38gNuem4A==
 
 cla-wrapper@^0.2.0:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/cla-wrapper/-/cla-wrapper-0.2.1.tgz#0b9bfcb7ccaf1c1c4d7e2119f1f3253880d5a9ee"
-  integrity sha512-XFmHwmu8dyOfnUf0ANCOGxTwE993U1A69gJyQ4Y9GP4uTxxl5zkDZF8NmZzelAQrhS95BhlbbgjjEre/JGUMiQ==
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/cla-wrapper/-/cla-wrapper-0.2.2.tgz#b989adaa98d06d6d4a79fbda9f0153ab9ae34e62"
+  integrity sha512-7vqxWhje0nDpnQnRGMntVCpVhIzPOCCxLzVLa6CMWHvQcCFrlJkaVSjFxjGq7KUXIWYi9P4RU+x6KS2tINOQOw==
   dependencies:
     json2csv "^4.5.2"
     request "^2.88.0"
@@ -4476,9 +4476,9 @@ electron-unhandled@^1.1.0:
     lodash.debounce "^4.0.8"
 
 electron@^7.1.1:
-  version "7.1.4"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-7.1.4.tgz#ea10b4b61a2456e893e7ad34d62705bbaca150c9"
-  integrity sha512-OcihtthS/C4aNKiQtVm7gAVGMgwYzAmqN6U8jdsGvpE2EXqX8tdcN6q150GDCmcUr6v2+PSoLQP181NuZUzxuA==
+  version "7.1.5"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-7.1.5.tgz#414c9590cbab2056a0e12c86960451d3a1edcd8e"
+  integrity sha512-jagsvNz6Axu2Lsp5PqDgkcR+4BwoPP9YyLgMu9lhpFNRNKpNgfsEqUbtNolkFN/TtmWjxGO+iioWRrGqZHmJ8w==
   dependencies:
     "@electron/get" "^1.0.1"
     "@types/node" "^12.0.12"
@@ -5361,9 +5361,9 @@ fast-glob@^2.2.6:
     micromatch "^3.1.10"
 
 fast-json-stable-stringify@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/fast-json-stable-stringify/-/fast-json-stable-stringify-2.0.0.tgz#d5142c0caee6b1189f87d3a76111064f86c8bbf2"
-  integrity sha1-1RQsDK7msRifh9OnYREGT4bIu/I=
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/fast-json-stable-stringify/-/fast-json-stable-stringify-2.1.0.tgz#874bf69c6f404c2b5d99c481341399fd55892633"
+  integrity sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==
 
 fast-levenshtein@^2.0.6, fast-levenshtein@~2.0.4:
   version "2.0.6"

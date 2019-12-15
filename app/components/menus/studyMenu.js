@@ -127,7 +127,7 @@ class ConnectedStudyMenu extends React.Component {
                     }}
                 >
                     <MenuItem key='Export' onClick={this.export} disabled={this.props.study.defineIds && this.props.study.defineIds.length === 0}>
-                        <ListItemIcon style={{ marginLeft: '4px' }}>
+                        <ListItemIcon>
                             <FaFileExport />
                         </ListItemIcon>
                         <ListItemText primary="Export" />
@@ -140,7 +140,7 @@ class ConnectedStudyMenu extends React.Component {
                     </MenuItem>
                     <Divider/>
                     <MenuItem key='Sort' onClick={this.sort} disabled={this.props.study.defineIds && this.props.study.defineIds.length === 0}>
-                        <ListItemIcon style={{ marginLeft: '4px' }}>
+                        <ListItemIcon>
                             <LowPriority />
                         </ListItemIcon>
                         <ListItemText primary="Sort" />
