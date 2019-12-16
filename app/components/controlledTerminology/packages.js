@@ -288,7 +288,7 @@ class ConnectedPackages extends React.Component {
             return (
                 <Tooltip title='Download Controlled Terminology' placement='bottom' enterDelay={500}>
                     <Fab
-                        onClick={this.loadCtFromCdiscLibrary(id)}
+                        onClick={() => { this.loadCtFromCdiscLibrary(id); }}
                         color='default'
                         size='medium'
                     >
@@ -338,7 +338,7 @@ class ConnectedPackages extends React.Component {
         this.handleSelectChange([]);
     };
 
-    loadCtFromCdiscLibrary = (id) => async (event) => {
+    loadCtFromCdiscLibrary = async (id) => {
         // As a temporary bugfix, send a dummy request if the object did not load
         const ctNum = this.state.cdiscLibraryCts.length;
         setTimeout(() => {

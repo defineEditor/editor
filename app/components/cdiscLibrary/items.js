@@ -107,7 +107,10 @@ class ConnectedCdiscLibraryItems extends React.Component {
                 Object.keys(itemGroup.scenarios).forEach(id => {
                     variableSets[id] = itemGroup.scenarios[id].scenario;
                 });
-                // Add variable set all to show all values;
+                if (itemGroup.fields && Object.keys(itemGroup.fields).length > 0) {
+                    // Add variable set all to show default fields;
+                    variableSets = { default: 'Default', ...variableSets };
+                }
                 this.setState({ itemGroup, items: Object.values(itemGroup.getItems()), product, variableSets, currentVariableSet: Object.keys(variableSets)[0] });
             } else {
                 this.setState({ itemGroup, items: Object.values(itemGroup.getItems()), product });
@@ -141,7 +144,7 @@ class ConnectedCdiscLibraryItems extends React.Component {
     handleVariableSetChange = event => {
         let currentVariableSet = event.target.value;
         let items = [];
-        if (currentVariableSet === 'all') {
+        if (currentVariableSet === 'all' || currentVariableSet === 'default') {
             items = Object.values(this.state.itemGroup.getItems());
         } else {
             if (this.state.itemGroup.analysisVariableSets) {
