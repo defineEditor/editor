@@ -144,8 +144,8 @@ class RedoUndoConnected extends React.Component {
 
         return (
             <div className={classes.root}>
-                <Grid container wrap='nowrap' alignItems='center' className={classes.grid}>
-                    <Grid item xs={10} className={classes.slider}>
+                <Grid container wrap='nowrap' justify='space-between' alignItems='center' className={classes.grid}>
+                    <Grid item xs={11} className={classes.slider}>
                         <Slider
                             value={this.props.pastLength + 1}
                             min={1}

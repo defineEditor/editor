@@ -222,7 +222,7 @@ class ItemTable extends React.Component {
                     <Table className={classes.table}>
                         <TableHead>
                             <TableRow>
-                                <TableCell style={{ minWidth: colWidths.name, maxWidth: colWidths.name, whiteSpace: 'nowrap' }}>Name</TableCell>
+                                <TableCell style={{ minWidth: colWidths.name, maxWidth: colWidths.name, wordBreak: 'break-all' }}>Name</TableCell>
                                 <TableCell style={{ minWidth: colWidths.label, maxWidth: colWidths.label }}>Label</TableCell>
                                 <TableCell style={{ minWidth: colWidths.dataType, maxWidth: colWidths.dataType }}>Datatype</TableCell>
                                 { layout !== 4 && <TableCell style={{ minWidth: colWidths.codeList, maxWidth: colWidths.codeList }}>Codelist</TableCell> }
@@ -237,7 +237,7 @@ class ItemTable extends React.Component {
                                 .map(item => {
                                     return (
                                         <TableRow key={item.id}>
-                                            <TableCell style={{ minWidth: colWidths.name, maxWidth: colWidths.name, whiteSpace: 'nowrap' }}>{item.name}</TableCell>
+                                            <TableCell style={{ minWidth: colWidths.name, maxWidth: colWidths.name, wordBreak: 'break-all' }}>{item.name}</TableCell>
                                             <TableCell style={{ minWidth: colWidths.label, maxWidth: colWidths.label }}>{item.label}</TableCell>
                                             <TableCell style={{ minWidth: colWidths.dataType, maxWidth: colWidths.dataType }}>{item.simpleDatatype}</TableCell>
                                             { layout !== 4 && <TableCell style={{ minWidth: colWidths.codeList, maxWidth: colWidths.codeList }}>{this.getCodeList(item)}</TableCell> }

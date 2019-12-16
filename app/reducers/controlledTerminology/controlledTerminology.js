@@ -17,6 +17,7 @@ import {
     DEFINE_DEL,
     CT_ADD,
     CT_UPD,
+    CT_DEL,
     CT_RELOAD,
 } from 'constants/action-types';
 
@@ -27,7 +28,14 @@ const initialState = {
 
 const addControlledTerminology = (state, action) => {
     if (action.updateObj.ctList !== undefined) {
-        return { byId: { ...state.byId, ...action.updateObj.ctList }, allIds: state.allIds.concat(Object.keys(action.updateObj.ctList)) };
+        let allIds = state.allIds.slice();
+        // Add only those which are not yet present
+        Object.keys(action.updateObj.ctList).forEach(id => {
+            if (!allIds.includes(id)) {
+                allIds.push(id);
+            }
+        });
+        return { byId: { ...state.byId, ...action.updateObj.ctList }, allIds };
     } else {
         return state;
     }
@@ -45,6 +53,22 @@ const updateControlledTerminology = (state, action) => {
             }
         });
         return newState;
+    } else {
+        return state;
+    }
+};
+
+const deleteControlledTerminology = (state, action) => {
+    if (action.deleteObj.ctOids !== undefined) {
+        let allIds = [];
+        let byId = {};
+        state.allIds.forEach(id => {
+            if (!action.deleteObj.ctOids.includes(id)) {
+                allIds.push(id);
+                byId[id] = state.byId[id];
+            }
+        });
+        return { byId, allIds };
     } else {
         return state;
     }
@@ -98,6 +122,8 @@ const controlledTerminology = (state = initialState, action) => {
             return updateControlledTerminology(state, action);
         case CT_RELOAD:
             return reloadControlledTerminology(state, action);
+        case CT_DEL:
+            return deleteControlledTerminology(state, action);
         case STUDY_DEL:
             return handleDeleteStudy(state, action);
         case DEFINE_DEL:

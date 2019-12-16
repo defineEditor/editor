@@ -17,6 +17,7 @@ import {
     STUDY_DEL,
     STUDY_UPD,
     STUDY_UPDORDER,
+    STUDY_UPDDEFINEORDER,
     STUDY_IMPORT,
     DEFINE_ADD,
     DEFINE_DEL
@@ -71,15 +72,20 @@ const updateStudy = (state, action) => {
 const addDefine = (state, action) => {
     if (state.byId.hasOwnProperty(action.updateObj.studyId)) {
         let study = state.byId[action.updateObj.studyId];
-        let newState = { ...state };
-        newState.byId = {
-            ...newState.byId,
-            [action.updateObj.studyId]: {
-                ...study,
-                defineIds: [...study.defineIds, action.updateObj.define.id]
-            }
-        };
-        return newState;
+        // In case the define is replaced, do nothing
+        if (study.defineIds.includes(action.updateObj.define.id)) {
+            return state;
+        } else {
+            let newState = { ...state };
+            newState.byId = {
+                ...newState.byId,
+                [action.updateObj.studyId]: {
+                    ...study,
+                    defineIds: [...study.defineIds, action.updateObj.define.id]
+                }
+            };
+            return newState;
+        }
     } else {
         return state;
     }
@@ -112,6 +118,23 @@ const importStudy = (state, action) => {
     };
 };
 
+const updateDefineOrder = (state, action) => {
+    if (state.byId.hasOwnProperty(action.updateObj.studyId)) {
+        let study = state.byId[action.updateObj.studyId];
+        let newState = { ...state };
+        newState.byId = {
+            ...newState.byId,
+            [action.updateObj.studyId]: {
+                ...study,
+                defineIds: action.updateObj.defineIds
+            }
+        };
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const studies = (state = initialState, action) => {
     switch (action.type) {
         case STUDY_ADD:
@@ -122,6 +145,8 @@ const studies = (state = initialState, action) => {
             return updateStudy(state, action);
         case STUDY_UPDORDER:
             return updateStudyOrder(state, action);
+        case STUDY_UPDDEFINEORDER:
+            return updateDefineOrder(state, action);
         case STUDY_IMPORT:
             return importStudy(state, action);
         case DEFINE_ADD:

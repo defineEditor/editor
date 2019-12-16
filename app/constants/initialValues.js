@@ -123,6 +123,20 @@ const cdiscLibraryUi = {
     },
 };
 
+const controlledTerminology = {
+    currentView: 'packages',
+    useCdiscLibrary: false,
+    packages: {
+        rowsPerPage: 25,
+    },
+    codeLists: {
+        rowsPerPage: 50,
+    },
+    codedValues: {
+        rowsPerPage: 100,
+    },
+};
+
 const ui = {
     main,
     tabs,
@@ -130,6 +144,7 @@ const ui = {
     snackbar,
     studies: studiesUi,
     cdiscLibrary: cdiscLibraryUi,
+    controlledTerminology,
 };
 
 // Settings

@@ -382,7 +382,7 @@ class ConnectedItemMenu extends React.Component {
                         onSave={this.orderVlm}
                         onCancel={this.closeVlmOrder}
                         disabled={this.props.reviewMode}
-                        noButton={true}
+                        noButton
                         width='700px'
                     />
                 )}

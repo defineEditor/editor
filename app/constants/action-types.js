@@ -55,7 +55,6 @@ export const UPD_CODELISTSSTD = 'UPD_CODELISTSSTD';
 export const UPD_CODELISTEXT = 'UPD_CODELISTEXT';
 export const DEL_CODELISTS = 'DEL_CODELISTS';
 export const UPD_CODELISTORDER = 'UPD_CODELISTORDER';
-export const UPD_CODELISTSTDOIDS = 'UPD_CODELISTSTDOIDS';
 export const UPD_LINKCODELISTS = 'UPD_LINKCODELISTS';
 export const UPD_CODEDVALUE = 'UPD_CODEDVALUE';
 export const ADD_CODEDVALUE = 'ADD_CODEDVALUE';
@@ -106,17 +105,22 @@ export const UI_CLOSESNACKBAR = 'UI_CLOSESNACKBAR';
 export const UI_CHANGECDISCLIBRARYVIEW = 'UI_CHANGECDISCLIBRARYVIEW';
 export const UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW = 'UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW';
 export const UI_SAVECDISCLIBRARYINFO = 'UI_SAVECDISCLIBRARYINFO';
+export const UI_CHANGECTVIEW = 'UI_CHANGECTVIEW';
+export const UI_CHANGECTSETTINGS = 'UI_CHANGECTSETTINGS';
+export const UI_TOGGLECTCDISCLIBRARY = 'UI_TOGGLECTCDISCLIBRARY';
 export const STG_UPDATESETTINGS = 'STG_UPDATESETTINGS';
 export const STUDY_ADD = 'STUDY_ADD';
 export const STUDY_DEL = 'STUDY_DEL';
 export const STUDY_UPD = 'STUDY_UPD';
 export const STUDY_IMPORT = 'STUDY_IMPORT';
 export const STUDY_UPDORDER = 'STUDY_UPDORDER';
+export const STUDY_UPDDEFINEORDER = 'STUDY_UPDDEFINEORDER';
 export const DEFINE_ADD = 'DEFINE_ADD';
 export const DEFINE_UPD = 'DEFINE_UPD';
 export const DEFINE_DEL = 'DEFINE_DEL';
 export const CT_ADD = 'CT_ADD';
 export const CT_UPD = 'CT_UPD';
+export const CT_DEL = 'CT_DEL';
 export const CT_RELOAD = 'CT_RELOAD';
 export const APP_SAVE = 'APP_SAVE';
 export const APP_QUIT = 'APP_QUIT';
@@ -165,7 +169,6 @@ export const actionLabels = {
     'UPD_CODELISTEXT': 'Update external codelist',
     'DEL_CODELISTS': 'Delete codelist',
     'UPD_CODELISTORDER': 'Update codelist order',
-    'UPD_CODELISTSTDOIDS': 'Update codelist standards',
     'UPD_LINKCODELISTS': 'Update linked codelist',
     'UPD_CODEDVALUE': 'Update coded value',
     'ADD_CODEDVALUE': 'Add coded value',

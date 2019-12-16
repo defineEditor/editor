@@ -34,7 +34,7 @@ const selectFile = async (mainWindow, title, options) => {
         console.log('Specified folder does not exist: ' + options.initialFolder);
     }
 
-    let result = dialog.showOpenDialog(
+    let result = await dialog.showOpenDialog(
         mainWindow,
         {
             title,

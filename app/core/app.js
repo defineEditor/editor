@@ -83,7 +83,7 @@ const mapStateToProps = state => {
     const tabs = state.present.ui.tabs;
     if (currentPage === 'editor' && tabs.hasOwnProperty('tabNames') && tabs.tabNames.hasOwnProperty(tabs.currentTab)) {
         disableFindToggle = ['Variables', 'Codelists', 'Coded Values', 'Review Comments'].includes(tabs.tabNames[tabs.currentTab]);
-    } else if (currentPage === 'cdiscLibrary') {
+    } else if (currentPage === 'cdiscLibrary' || currentPage === 'controlledTerminology') {
         disableFindToggle = true;
     }
     let bugModalOpened = state.present.ui && state.present.ui.modal && state.present.ui.modal.type === 'BUG_REPORT';

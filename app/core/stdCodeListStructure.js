@@ -79,7 +79,7 @@ class BasicFunctions {
 
 class StdCodeList extends BasicFunctions {
     constructor ({
-        oid, name, dataType, alias, cdiscSubmissionValue, codeListType, codeListItems, codeListExtensible,
+        oid, name, dataType, alias, cdiscSubmissionValue, codeListType, codeListItems, codeListExtensible, synonyms = [], preferredTerm,
         itemOrder = [],
         descriptions = [],
     } = {}) {
@@ -94,6 +94,8 @@ class StdCodeList extends BasicFunctions {
         this.cdiscSubmissionValue = cdiscSubmissionValue;
         this.codeListType = codeListType;
         this.codeListExtensible = codeListExtensible;
+        this.synonyms = synonyms;
+        this.preferredTerm = preferredTerm;
     }
     addCodeListItem (item) {
         let oid;
@@ -124,13 +126,15 @@ class StdEnumeratedItem {
 
 class StdCodeListItem extends StdEnumeratedItem {
     constructor ({
-        codedValue, alias,
+        codedValue, alias, synonyms = [], definition,
         decodes = []
     } = {}) {
         super({
             codedValue: codedValue,
             alias: alias
         });
+        this.synonyms = synonyms;
+        this.definition = definition;
         this.decodes = decodes;
     }
     addDecode (decode) {
@@ -148,7 +152,7 @@ class StdCodeListItem extends StdEnumeratedItem {
 class Odm {
     constructor ({
         schemaLocation, odmVersion, fileType, fileOid, creationDateTime, asOfDateTime, originator, sourceSystem,
-        sourceSystemVersion, context, study, xlink, def, xmlns, xsi
+        sourceSystemVersion, context, study, xlink, def, xmlns, xsi, loadedForReview, type
     } = {}) {
         this.schemaLocation = schemaLocation;
         this.odmVersion = odmVersion;
@@ -165,6 +169,9 @@ class Odm {
         this.def = def;
         this.xmlns = xmlns;
         this.xsi = xsi;
+        // Non-CDISC CT properties
+        this.loadedForReview = loadedForReview;
+        this.type = type;
     }
 }
 
@@ -201,10 +208,11 @@ class MetaDataVersion extends BasicFunctions {
         this.defineVersion = defineVersion;
         this.supplementalDoc = supplementalDoc;
         this.codeLists = codeLists;
-        this.nciCodeOids = nciCodeOids;
         this.comments = comments;
         this.leafs = leafs;
+        // Non-CDISC CT properties
         this.model = model;
+        this.nciCodeOids = nciCodeOids;
     }
     addStandard (standard) {
         this.standards.push(standard);

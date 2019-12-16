@@ -102,6 +102,13 @@ class ConnectedCdiscLibraryItems extends React.Component {
                 // Add variable set all to show all values;
                 variableSets = { all: 'All', ...variableSets };
                 this.setState({ itemGroup, items: Object.values(itemGroup.getItems()), product, variableSets, currentVariableSet: 'all' });
+            } else if (product.model === 'CDASH' && itemGroup.scenarios) {
+                let variableSets = {};
+                Object.keys(itemGroup.scenarios).forEach(id => {
+                    variableSets[id] = itemGroup.scenarios[id].scenario;
+                });
+                // Add variable set all to show all values;
+                this.setState({ itemGroup, items: Object.values(itemGroup.getItems()), product, variableSets, currentVariableSet: Object.keys(variableSets)[0] });
             } else {
                 this.setState({ itemGroup, items: Object.values(itemGroup.getItems()), product });
             }
@@ -137,7 +144,11 @@ class ConnectedCdiscLibraryItems extends React.Component {
         if (currentVariableSet === 'all') {
             items = Object.values(this.state.itemGroup.getItems());
         } else {
-            items = Object.values(this.state.itemGroup.analysisVariableSets[currentVariableSet].getItems());
+            if (this.state.itemGroup.analysisVariableSets) {
+                items = Object.values(this.state.itemGroup.analysisVariableSets[currentVariableSet].getItems());
+            } else if (this.state.itemGroup.scenarios) {
+                items = Object.values(this.state.itemGroup.scenarios[currentVariableSet].getItems());
+            }
         }
         this.setState({ currentVariableSet, items });
     };
@@ -170,6 +181,19 @@ class ConnectedCdiscLibraryItems extends React.Component {
                                     <Grid item>
                                         <TextField
                                             label='Analysis Variable Set'
+                                            select
+                                            className={classes.varSetSelection}
+                                            value={this.state.currentVariableSet}
+                                            onChange={this.handleVariableSetChange}
+                                        >
+                                            {getSelectionList(this.state.variableSets)}
+                                        </TextField>
+                                    </Grid>
+                                )}
+                                { this.state.product.model === 'CDASH' && this.state.itemGroup.scenarios && (
+                                    <Grid item>
+                                        <TextField
+                                            label='Scenario'
                                             select
                                             className={classes.varSetSelection}
                                             value={this.state.currentVariableSet}

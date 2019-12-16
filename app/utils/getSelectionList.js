@@ -37,7 +37,7 @@ function getSelectionList (rawList, optional, disabledItems) {
             elementIsObject = true;
         }
         if (optional === true) {
-            selectionList.push(<MenuItem key='0' value=''></MenuItem>);
+            selectionList.push(<MenuItem key='0' value='' style={{ minHeight: 36 }}></MenuItem>);
         }
         if (disabledItems === undefined) {
             list.forEach((value, index) => {

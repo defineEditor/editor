@@ -14,45 +14,38 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { updateStudyOrder } from 'actions/index.js';
+import { useSelector, useDispatch } from 'react-redux';
+import { updateDefineOrder } from 'actions/index.js';
 import GeneralOrderEditor from 'components/orderEditors/generalOrderEditor.js';
 
-// Redux functions
-const mapDispatchToProps = dispatch => {
-    return {
-        updateStudyOrder: (studyOrder) => dispatch(updateStudyOrder({ studyOrder })),
+const DefineOrderEditor = (props) => {
+    const allDefines = useSelector(state => state.present.defines);
+    const studyDefines = useSelector(state => state.present.studies.byId[props.studyId].defineIds);
+    const dispatch = useDispatch();
+
+    const onSave = (items) => {
+        dispatch(updateDefineOrder({ studyId: props.studyId, defineIds: items.map(item => (item.oid)) }));
     };
+
+    let items = [];
+    studyDefines.forEach(defineId => {
+        items.push({ oid: defineId, name: allDefines.byId[defineId].name });
+    });
+
+    return (
+        <GeneralOrderEditor
+            title='Define Order'
+            items={items}
+            onSave={onSave}
+            onCancel={props.onCancel}
+            noButton
+        />
+    );
 };
 
-const mapStateToProps = state => {
-    return {
-        studies: state.present.studies,
-    };
+DefineOrderEditor.propTypes = {
+    studyId: PropTypes.string.isRequired,
+    onCancel: PropTypes.func.isRequired,
 };
 
-class StudyOrderEditorConnected extends React.Component {
-    onSave = (items) => {
-        this.props.updateStudyOrder(items.map(item => (item.oid)));
-    }
-
-    render () {
-        let items = [];
-
-        this.props.studies.allIds.forEach(studyId => {
-            items.push({ oid: studyId, name: this.props.studies.byId[studyId].name });
-        });
-
-        return (
-            <GeneralOrderEditor title='Study Order' items={items} onSave={this.onSave} iconClass={this.props.iconClass}/>
-        );
-    }
-}
-
-StudyOrderEditorConnected.propTypes = {
-    studies: PropTypes.object.isRequired,
-    iconClass: PropTypes.string,
-};
-
-const StudyOrderEditor = connect(mapStateToProps, mapDispatchToProps)(StudyOrderEditorConnected);
-export default StudyOrderEditor;
+export default DefineOrderEditor;

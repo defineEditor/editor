@@ -29,7 +29,7 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import CommentIcon from '@material-ui/icons/Comment';
-import OpenDrawer from '@material-ui/icons/ArrowUpward';
+import OpenDrawer from '@material-ui/icons/VerticalSplit';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import TablePagination from '@material-ui/core/TablePagination';
 import renderColumns from 'utils/renderColumns.js';

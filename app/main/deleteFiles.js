@@ -12,21 +12,14 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { combineReducers } from 'redux';
-import tabs from 'reducers/ui/tabs.js';
-import main from 'reducers/ui/main.js';
-import studies from 'reducers/ui/studies.js';
-import modal from 'reducers/ui/modal.js';
-import snackbar from 'reducers/ui/snackbar.js';
-import cdiscLibrary from 'reducers/ui/cdiscLibrary.js';
-import controlledTerminology from 'reducers/ui/controlledTerminology.js';
+import fs from 'fs';
 
-export default combineReducers({
-    tabs,
-    main,
-    studies,
-    modal,
-    snackbar,
-    cdiscLibrary,
-    controlledTerminology,
-});
+const deleteFiles = (filesToDelete) => {
+    filesToDelete.forEach(file => {
+        fs.unlink(file, (err) => {
+            if (err) throw new Error('Could not remove file ' + file + '.');
+        });
+    });
+};
+
+export default deleteFiles;

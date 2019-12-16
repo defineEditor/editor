@@ -116,6 +116,12 @@ function parseCodeLists (codeListsRaw, mdv, quickParse) {
             if (codeListRaw.hasOwnProperty('cDISCSubmissionValue')) {
                 args.cdiscSubmissionValue = codeListRaw['cDISCSubmissionValue'][0];
             }
+            if (codeListRaw.hasOwnProperty('cDISCSynonym')) {
+                args.synonyms = codeListRaw['cDISCSynonym'];
+            }
+            if (codeListRaw.hasOwnProperty('preferredTerm')) {
+                args.preferredTerm = codeListRaw['preferredTerm'][0];
+            }
             // CodeList type is always set to decoded
             args.codeListType = 'decoded';
             codeList = new stdCL.StdCodeList(args);
@@ -130,6 +136,12 @@ function parseCodeLists (codeListsRaw, mdv, quickParse) {
                         context: 'nci:ExtCodeID',
                         name: item['$'].extCodeId,
                     });
+                    if (item.hasOwnProperty('cDISCSynonym')) {
+                        itemArgs.synonyms = item['cDISCSynonym'];
+                    }
+                    if (item.hasOwnProperty('cDISCDefinition')) {
+                        itemArgs.definition = item['cDISCDefinition'][0];
+                    }
                     let codeListItem = new stdCL.StdCodeListItem(itemArgs);
                     item['preferredTerm'].forEach(function (item) {
                         codeListItem.addDecode(new stdCL.TranslatedText({ value: item }));
@@ -206,6 +218,10 @@ function parseStudy (studyRaw, quickParse) {
 
 function parseOdm (odmRaw, quickParse) {
     let args = odmRaw['$'];
+
+    if (/^\S+\.\S+\.[-\d]+$/.test(odmRaw['$'].fileOid)) {
+        args.type = odmRaw['$'].fileOid.replace(/^\S+\.(\S+)\.[-\d]+$/, '$1');
+    }
 
     args.study = parseStudy(odmRaw.study[0], quickParse);
 

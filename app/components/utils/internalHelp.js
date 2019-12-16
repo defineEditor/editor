@@ -85,12 +85,22 @@ class InternalHelp extends React.Component {
         return (
             <React.Fragment>
                 { this.props.buttonType === 'icon' &&
-                    <IconButton color='primary' onClick={this.open} className={classes.fab}>
+                    <IconButton
+                        color='primary'
+                        onClick={this.open}
+                        className={this.props.buttonClass ? this.props.buttonClass : classes.fab}
+                        size={this.props.size}
+                    >
                         <HelpIcon/>
                     </IconButton>
                 }
                 { this.props.buttonType !== 'icon' &&
-                    <Fab size='small' color='default' onClick={this.open} className={classes.icon}>
+                    <Fab
+                        size={this.props.size ? this.props.size : 'small'}
+                        color='default'
+                        onClick={this.open}
+                        className={this.props.buttonClass ? this.props.buttonClass : classes.icon}
+                    >
                         <HelpIcon/>
                     </Fab>
                 }
@@ -124,6 +134,8 @@ InternalHelp.propTypes = {
     classes: PropTypes.object.isRequired,
     data: PropTypes.object.isRequired,
     buttonType: PropTypes.string,
+    size: PropTypes.string,
+    buttonClass: PropTypes.string,
 };
 
 export default withStyles(styles)(InternalHelp);

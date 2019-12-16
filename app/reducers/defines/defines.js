@@ -23,13 +23,24 @@ import {
 import { defines as initialState } from 'constants/initialValues.js';
 
 const addDefine = (state, action) => {
-    return {
-        byId: {
-            ...state.byId,
-            [action.updateObj.define.id]: action.updateObj.define
-        },
-        allIds: [...state.allIds, action.updateObj.define.id]
-    };
+    // In case the Define is replaced, update only the define info
+    if (state.allIds.includes(action.updateObj.define.id)) {
+        return {
+            ...state,
+            byId: {
+                ...state.byId,
+                [action.updateObj.define.id]: action.updateObj.define
+            },
+        };
+    } else {
+        return {
+            byId: {
+                ...state.byId,
+                [action.updateObj.define.id]: action.updateObj.define
+            },
+            allIds: [...state.allIds, action.updateObj.define.id]
+        };
+    }
 };
 
 const deleteStudy = (state, action) => {

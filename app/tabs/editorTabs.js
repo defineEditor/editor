@@ -45,10 +45,10 @@ const styles = theme => ({
     menuToggle: {
         marginTop: '-23px',
         position: 'fixed',
-        zIndex: '9000',
+        zIndex: '1190',
     },
     tabs: {
-        marginLeft: theme.spacing(4),
+        marginLeft: theme.spacing(6),
     },
     tab: {
         flexGrow: 1,
