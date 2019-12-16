@@ -4,7 +4,7 @@ language: node_js
 
 node_js:
   - node
-  - 9
+  - 12
 
 cache:
   yarn: true
@@ -36,7 +36,4 @@ before_script:
 
 script:
   - node --version
-  - yarn lint
-  - yarn package
-  - yarn test
-  - yarn test-e2e
+  - yarn package-all

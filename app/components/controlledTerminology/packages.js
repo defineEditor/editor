@@ -390,6 +390,7 @@ class ConnectedPackages extends React.Component {
             <Tooltip title='Scan Controlled Terminology Folder' placement='bottom' enterDelay={500}>
                 <Fab
                     onClick={this.scanControlledTerminologyFolder}
+                    disabled={this.props.controlledTerminologyLocation === ''}
                     color='default'
                     size='medium'
                     className={classes.toolbarFab}
