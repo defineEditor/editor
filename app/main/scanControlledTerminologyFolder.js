@@ -37,16 +37,18 @@ const countXmlFiles = async (pathToDir) => {
         return;
     }
 
-    await Promise.all(files.map(async (file) => {
+    result = (await Promise.all(files.map(async (file) => {
+        let count = 0;
         if (/\.xml$/.test(file)) {
-            result += 1;
+            count += 1;
         } else {
             let fileStat = await stat(path.join(pathToDir, file));
             if (fileStat.isDirectory()) {
-                result += await countXmlFiles(path.join(pathToDir, file));
+                count += await countXmlFiles(path.join(pathToDir, file));
             }
         }
-    }));
+        return count;
+    }))).reduce((x, y) => (x + y), 0);
 
     return result;
 };

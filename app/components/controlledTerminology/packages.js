@@ -155,7 +155,6 @@ class ConnectedPackages extends React.Component {
         super(props);
         this.state = {
             cdiscLibraryCts: [],
-            currentType: 'All',
             selected: [],
             showCdiscLibrary: false,
             searchString: '',
@@ -312,7 +311,7 @@ class ConnectedPackages extends React.Component {
     }
 
     handleTypeChange = event => {
-        this.setState({ currentType: event.target.value });
+        this.props.changeCtSettings({ view: 'packages', settings: { packageType: event.target.value } });
     };
 
     handleShowCdiscLibraryChange = (event, checked) => {
@@ -425,7 +424,7 @@ class ConnectedPackages extends React.Component {
         result.push(
             <TextField
                 select
-                value={this.state.currentType}
+                value={this.props.ctUiSettings.packageType}
                 onChange={this.handleTypeChange}
                 className={classes.type}
             >
@@ -437,7 +436,7 @@ class ConnectedPackages extends React.Component {
 
     CtToolbar = props => {
         const classes = useToolbarStyles();
-        let numSelected = this.state.selected.length;
+        let numSelected = this.state.selected.filter(id => this.props.controlledTerminology.allIds.includes(id)).length;
 
         return (
             <Toolbar className={numSelected > 0 ? classes.highlight : classes.root}>
@@ -485,8 +484,9 @@ class ConnectedPackages extends React.Component {
             data = data.concat(this.state.cdiscLibraryCts.filter(ct => (!loadedIds.includes(ct.type + ct.version))));
         }
 
-        if (this.state.currentType !== 'All') {
-            data = data.filter(row => (row.type === this.state.currentType));
+        let packageType = this.props.ctUiSettings.packageType;
+        if (packageType && packageType !== 'All') {
+            data = data.filter(row => (row.type === packageType));
         }
 
         const searchString = this.state.searchString;

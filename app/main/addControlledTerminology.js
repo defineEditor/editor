@@ -29,7 +29,7 @@ const parseString = promisify(xml2js.parseString);
 const readContents = async (mainWindow, openDialogResult) => {
     const { filePaths, canceled } = openDialogResult;
     if (!canceled && filePaths !== undefined && filePaths.length > 0) {
-        mainWindow.webContents.send('scanCtFolderStarted', 1);
+        mainWindow.webContents.send('scanCtFolderStarted', filePaths.length);
         let stdCodeLists = {};
         const pathToCtFolder = path.join(app.getPath('userData'), 'controlledTerminology');
 
@@ -45,52 +45,53 @@ const readContents = async (mainWindow, openDialogResult) => {
             }
         }
 
-        let stdCodeListOdm;
-        try {
-            let file = filePaths[0];
-            let xmlData = await readFile(file);
-            let parsedXml = await parseString(xmlData);
-            // Second argument enables quickParse
-            stdCodeListOdm = parseStdCodeLists(parsedXml);
-            let zip = new Jszip();
-            zip.file('ct.json', JSON.stringify(stdCodeListOdm));
-            // Write technical information
-            let info = {
-                datetime: new Date().toISOString(),
-                appVersion: app.getVersion(),
-            };
-            if (process && process.env) {
-                info.userName = process.env.USERNAME || process.env.USER || process.env.user || process.env.username;
-            }
-            zip.file('info.json', JSON.stringify(info));
-            let id = stdCodeListOdm.fileOid;
-            const pathToCt = path.join(pathToCtFolder, id.toLowerCase() + '.zip');
-            let buffer = await zip.generateAsync({
-                type: 'nodebuffer',
-                streamFiles: true,
-                compression: 'DEFLATE',
-                compressionOptions: {
-                    level: 6
+        await Promise.all(filePaths.map(async (file) => {
+            let stdCodeListOdm;
+            try {
+                let xmlData = await readFile(file);
+                let parsedXml = await parseString(xmlData);
+                // Second argument enables quickParse
+                stdCodeListOdm = parseStdCodeLists(parsedXml);
+                let zip = new Jszip();
+                zip.file('ct.json', JSON.stringify(stdCodeListOdm));
+                // Write technical information
+                let info = {
+                    datetime: new Date().toISOString(),
+                    appVersion: app.getVersion(),
+                };
+                if (process && process.env) {
+                    info.userName = process.env.USERNAME || process.env.USER || process.env.user || process.env.username;
                 }
-            });
-            await writeFile(pathToCt, buffer);
+                zip.file('info.json', JSON.stringify(info));
+                let id = stdCodeListOdm.fileOid;
+                const pathToCt = path.join(pathToCtFolder, id.toLowerCase() + '.zip');
+                let buffer = await zip.generateAsync({
+                    type: 'nodebuffer',
+                    streamFiles: true,
+                    compression: 'DEFLATE',
+                    compressionOptions: {
+                        level: 6
+                    }
+                });
+                await writeFile(pathToCt, buffer);
 
-            mainWindow.webContents.send('scanCtFolderFinishedFile', stdCodeListOdm.fileOid);
+                mainWindow.webContents.send('scanCtFolderFinishedFile', stdCodeListOdm.fileOid);
 
-            stdCodeLists[id] = {
-                id,
-                version: stdCodeListOdm.sourceSystemVersion,
-                name: stdCodeListOdm.study.globalVariables.studyName,
-                pathToFile: pathToCt,
-                codeListCount: Object.keys(stdCodeListOdm.study.metaDataVersion.codeLists).length,
-                isCdiscNci: stdCodeListOdm.sourceSystem === 'NCI Thesaurus',
-                publishingSet: stdCodeListOdm.sourceSystem === 'NCI Thesaurus' ? getCtPublishingSet(id) : undefined,
-                type: stdCodeListOdm.type,
-            };
-        } catch (error) {
-            let msg = 'Could not parse CT file. Error: ' + error;
-            mainWindow.webContents.send('scanCtFolderError', msg);
-        }
+                stdCodeLists[id] = {
+                    id,
+                    version: stdCodeListOdm.sourceSystemVersion,
+                    name: stdCodeListOdm.study.globalVariables.studyName,
+                    pathToFile: pathToCt,
+                    codeListCount: Object.keys(stdCodeListOdm.study.metaDataVersion.codeLists).length,
+                    isCdiscNci: stdCodeListOdm.sourceSystem === 'NCI Thesaurus',
+                    publishingSet: stdCodeListOdm.sourceSystem === 'NCI Thesaurus' ? getCtPublishingSet(id) : undefined,
+                    type: stdCodeListOdm.type,
+                };
+            } catch (error) {
+                let msg = 'Could not parse CT file. Error: ' + error;
+                mainWindow.webContents.send('scanCtFolderError', msg);
+            }
+        }));
 
         mainWindow.send('controlledTerminologyData', stdCodeLists);
     }
@@ -102,7 +103,7 @@ const addControlledTerminology = async (mainWindow) => {
         {
             title: 'Add Controlled Terminology',
             filters: [{ name: 'XML', extensions: ['xml'] }],
-
+            properties: ['openFile', 'multiSelections']
         }
     );
     readContents(mainWindow, result);

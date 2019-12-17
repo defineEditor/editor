@@ -127,6 +127,7 @@ const controlledTerminology = {
     currentView: 'packages',
     useCdiscLibrary: false,
     packages: {
+        currentType: 'All',
         rowsPerPage: 25,
     },
     codeLists: {

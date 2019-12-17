@@ -43,13 +43,15 @@ const readDefineXml = (mainWindow, openDialogResult) => {
 };
 
 const openDefineXml = async (mainWindow, pathToLastFile) => {
+    let defaultPath = typeof pathToLastFile === 'string' && ['aix', 'linux', 'openbsd', 'sunos', 'freebsd', 'darwin'].includes(process.platform)
+        ? pathToLastFile : undefined;
     let result = await electron.dialog.showOpenDialog(
         mainWindow,
         {
             title: 'Open Define-XML',
             filters: [{ name: 'XML, NOGZ files', extensions: ['xml', 'nogz'] }],
             properties: ['openFile'],
-            defaultPath: pathToLastFile,
+            defaultPath,
         }
     );
     readDefineXml(mainWindow, result);
