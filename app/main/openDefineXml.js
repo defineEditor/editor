@@ -43,8 +43,7 @@ const readDefineXml = (mainWindow, openDialogResult) => {
 };
 
 const openDefineXml = async (mainWindow, pathToLastFile) => {
-    let defaultPath = typeof pathToLastFile === 'string' && ['aix', 'linux', 'openbsd', 'sunos', 'freebsd', 'darwin'].includes(process.platform)
-        ? pathToLastFile : undefined;
+    let defaultPath = typeof pathToLastFile === 'string' ? pathToLastFile : undefined;
     let result = await electron.dialog.showOpenDialog(
         mainWindow,
         {

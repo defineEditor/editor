@@ -24,8 +24,8 @@
     "package-debug": "DEBUG_PROD=true npm run build && electron-builder --publish never",
     "package-linux": "npm run build && electron-builder --linux && npm run moveReleaseFiles",
     "package-mac": "npm run build && electron-builder --mac && npm run moveReleaseFiles",
-    "package-win": "cross-env-shell FILEPREFIX=amd64 \"npm run build && electron-builder --win --x64 && npm run moveReleaseFiles\"",
-    "package-win32": "cross-env-shell FILEPREFIX=ia32 \"npm run build && electron-builder --win --ia32 && npm run moveReleaseFiles\"",
+    "package-win": "npm run build && electron-builder --win --x64 && npm run moveReleaseFiles",
+    "package-win32": "cross-env-shell FILEPREFIX=.ia32 \"npm run build && electron-builder --win --ia32 && npm run moveReleaseFiles\"",
     "package-all": "npm run cleanReleaseFolder && npm run package-linux && npm run package-win32 && npm run package-win",
     "postinstall": "node -r babel-register internals/scripts/CheckNativeDep.js && npm run flow-typed && npm run build-dll && electron-builder install-app-deps && node node_modules/fbjs-scripts/node/check-dev-engines.js package.json",
     "postlint-fix": "prettier --ignore-path .eslintignore --single-quote --write '**/*.js'",
@@ -82,10 +82,10 @@
       ]
     },
     "nsis": {
-      "artifactName": "${productName} Setup ${version} ${env.FILEPREFIX}.${ext}"
+      "artifactName": "${productName}.Setup.${version}${env.FILEPREFIX}.${ext}"
     },
     "appImage": {
-      "artifactName": "${productName} ${version}.${ext}"
+      "artifactName": "${productName}.${version}.${ext}"
     },
     "win": {
       "target": [
