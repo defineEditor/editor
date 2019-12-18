@@ -82,7 +82,7 @@
       ]
     },
     "nsis": {
-      "artifactName": "${productName}.Setup.${version}${env.FILEPREFIX}.${ext}"
+      "artifactName": "${productName}.Setup.${version}.${ext}"
     },
     "appImage": {
       "artifactName": "${productName}.${version}.${ext}"
