@@ -42,15 +42,15 @@ const moveFiles = async () => {
     let prefix = process.env.FILEPREFIX || '';
 
     await Promise.all(files.map(async (fileName) => {
-        if ((new RegExp(`DefineEditor(\\.Setup)?\\.${appVersion}.exe`).test(fileName))) {
+        if ((new RegExp(`DefineEditor(\\.Setup)?[\\. ]${appVersion}.exe$`).test(fileName))) {
             let newFileName = fileName.replace(/^(.*)(\.exe)$/, `$1${prefix}$2`);
             await rename(path.join(releaseRoot, fileName), path.join(destFolder, newFileName));
         }
-        if ((new RegExp(`DefineEditor ${appVersion}.AppImage$`).test(fileName))) {
+        if ((new RegExp(`DefineEditor\\.${appVersion}.AppImage$`).test(fileName))) {
             await rename(path.join(releaseRoot, fileName), path.join(destFolder, fileName));
         }
         if ((new RegExp(`defineEditor_${appVersion}_amd64.deb$`).test(fileName))) {
-            await rename(path.join(releaseRoot, fileName), path.join(destFolder, `DefineEditor ${appVersion}.deb`));
+            await rename(path.join(releaseRoot, fileName), path.join(destFolder, `DefineEditor.${appVersion}.deb`));
         }
     }));
 };
