@@ -38,6 +38,7 @@ const main = (() => {
         },
         pathToLastFile: undefined,
         appVersion: remote.app.getVersion(),
+        updateInfo: {},
     };
 })();
 
@@ -155,6 +156,7 @@ const general = {
     alwaysSaveDefineXml: true,
     addStylesheet: true,
     disableAnimations: false,
+    checkForUpdates: true,
 };
 
 const popUp = {

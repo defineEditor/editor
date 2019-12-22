@@ -72,6 +72,7 @@ function loadState () {
         state.ui.main.lastSaveHistoryIndex = 0;
         state.ui.main.actionHistory = [];
         state.ui.main.isCurrentDefineSaved = true;
+        state.ui.main.updateInfo = {};
     }
     // Update UI structure with initial values, this is required when schema changed and old UI does not have required properties
     Object.keys(uiInitialValues).forEach(uiType => {

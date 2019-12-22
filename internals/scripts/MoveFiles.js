@@ -9,6 +9,9 @@ const readdir = promisify(fs.readdir);
 const moveFiles = async () => {
     let releaseRoot = path.normalize('./release');
     let appVersion = process.env.npm_package_version;
+    // Remove word current from the version
+    // The prefix is needed to identify whether pre-release should be used for autoupdater
+    let appVersionUpdated = appVersion.replace('-current', '');
     try {
         await mkdir(releaseRoot);
     } catch (err) {
@@ -19,7 +22,7 @@ const moveFiles = async () => {
             return;
         }
     }
-    let destFolder = path.join(releaseRoot, 'Release ' + appVersion);
+    let destFolder = path.join(releaseRoot, 'Release ' + appVersionUpdated);
     try {
         await mkdir(destFolder);
     } catch (err) {
@@ -39,12 +42,12 @@ const moveFiles = async () => {
         return;
     }
 
-    let prefix = process.env.FILEPREFIX || '';
-
     await Promise.all(files.map(async (fileName) => {
+        if ((new RegExp(`latest.*.yml`).test(fileName))) {
+            await rename(path.join(releaseRoot, fileName), path.join(destFolder, fileName));
+        }
         if ((new RegExp(`DefineEditor(\\.Setup)?[\\. ]${appVersion}.exe$`).test(fileName))) {
-            let newFileName = fileName.replace(/^(.*)(\.exe)$/, `$1${prefix}$2`);
-            await rename(path.join(releaseRoot, fileName), path.join(destFolder, newFileName));
+            await rename(path.join(releaseRoot, fileName), path.join(destFolder, fileName));
         }
         if ((new RegExp(`DefineEditor\\.${appVersion}.AppImage$`).test(fileName))) {
             await rename(path.join(releaseRoot, fileName), path.join(destFolder, fileName));

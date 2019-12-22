@@ -30,6 +30,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Settings from '@material-ui/icons/Settings';
 import Save from '@material-ui/icons/Save';
 import SaveAlt from '@material-ui/icons/SaveAlt';
+import SystemUpdate from '@material-ui/icons/SystemUpdate';
 import History from '@material-ui/icons/History';
 import Info from '@material-ui/icons/Info';
 import Keyboard from '@material-ui/icons/Keyboard';
@@ -52,6 +53,7 @@ import {
     changePage,
     updateMainUi,
     toggleReviewMode,
+    openModal,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -68,6 +70,12 @@ const styles = theme => ({
     reviewModeSwitch: {
         margin: 'none',
     },
+    update: {
+        backgroundColor: '#42A5F5',
+        '&:hover': {
+            backgroundColor: '#BBDEFB',
+        }
+    },
 });
 
 // Redux functions
@@ -81,6 +89,7 @@ const mapStateToProps = state => {
     }
     return {
         mainMenuOpened: state.present.ui.main.mainMenuOpened,
+        updateInfo: state.present.ui.main.updateInfo,
         currentPage,
         pathToDefine,
         currentDefineId: state.present.ui.main.currentDefineId,
@@ -96,6 +105,7 @@ const mapDispatchToProps = dispatch => {
         changePage: (updateObj) => dispatch(changePage(updateObj)),
         updateMainUi: (updateObj) => dispatch(updateMainUi(updateObj)),
         toggleReviewMode: (updateObj) => dispatch(toggleReviewMode(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
@@ -167,6 +177,13 @@ class ConnectedMainMenu extends React.Component {
         this.props.changePage({ page: 'settings' });
     }
 
+    onUpdate = () => {
+        this.props.openModal({
+            type: 'UPDATE_APPLICATION',
+            props: { releaseNotes: this.props.updateInfo.releaseNotes, version: this.props.updateInfo.version }
+        });
+    }
+
     openWithStylesheet = (event) => {
         let fullState = store.getState();
         let state = fullState.present;
@@ -234,6 +251,14 @@ class ConnectedMainMenu extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary='Keyboard Shortcuts'/>
                             </ListItem>
+                            { this.props.updateInfo && this.props.updateInfo.version &&
+                                <ListItem button key='update' onClick={this.onUpdate} className={classes.update}>
+                                    <ListItemIcon>
+                                        <SystemUpdate/>
+                                    </ListItemIcon>
+                                    <ListItemText primary='Update'/>
+                                </ListItem>
+                            }
                             <Divider/>
                             <ListItem button key='search' onClick={() => { this.props.toggleMainMenu(); this.props.onToggleFindInPage(300); }}>
                                 <ListItemIcon>
@@ -332,6 +357,7 @@ class ConnectedMainMenu extends React.Component {
 ConnectedMainMenu.propTypes = {
     classes: PropTypes.object.isRequired,
     mainMenuOpened: PropTypes.bool.isRequired,
+    updateInfo: PropTypes.object.isRequired,
     currentPage: PropTypes.string.isRequired,
     pathToDefine: PropTypes.string,
     currentDefineId: PropTypes.string.isRequired,

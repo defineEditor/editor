@@ -1,7 +1,7 @@
 {
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
-  "version": "1.1.4",
+  "version": "1.1.5-current",
   "license": "AGPL-3.0-only",
   "private": "true",
   "description": "Visual Define-XML Editor",
@@ -24,15 +24,14 @@
     "package-debug": "DEBUG_PROD=true npm run build && electron-builder --publish never",
     "package-linux": "npm run build && electron-builder --linux && npm run moveReleaseFiles",
     "package-mac": "npm run build && electron-builder --mac && npm run moveReleaseFiles",
-    "package-win": "npm run build && electron-builder --win --x64 && npm run moveReleaseFiles",
-    "package-win32": "cross-env-shell FILEPREFIX=.ia32 \"npm run build && electron-builder --win --ia32 && npm run moveReleaseFiles\"",
-    "package-all": "npm run cleanReleaseFolder && npm run package-linux && npm run package-win32 && npm run package-win",
+    "package-win": "npm run build && electron-builder --win && npm run moveReleaseFiles",
+    "package-all": "npm run cleanReleaseFolder && npm run package-linux && npm run package-win",
     "postinstall": "node -r babel-register internals/scripts/CheckNativeDep.js && npm run flow-typed && npm run build-dll && electron-builder install-app-deps && node node_modules/fbjs-scripts/node/check-dev-engines.js package.json",
     "postlint-fix": "prettier --ignore-path .eslintignore --single-quote --write '**/*.js'",
     "precommit": "lint-staged",
     "prestart": "npm run build",
     "start": "cross-env NODE_ENV=production electron ./app/",
-    "start-main-dev": "cross-env HOT=1 NODE_ENV=development electron -r babel-register --inspect=5858 ./app/main.dev.js",
+    "start-main-dev": "cross-env HOT=1 NODE_ENV=development APPIMAGE=/tmp/ electron -r babel-register --inspect=5858 ./app/main.dev.js",
     "start-renderer-dev": "cross-env NODE_ENV=development node --trace-warnings -r babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server --hot --config webpack.config.renderer.dev.js",
     "test": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 node --trace-warnings -r babel-register ./internals/scripts/RunTests.js",
     "test-all": "npm run lint && npm run flow && npm run build && npm run test && npm run test-e2e",
@@ -91,6 +90,9 @@
       "target": [
         "nsis",
         "portable"
+      ],
+      "publish": [
+          "github"
       ]
     },
     "mac": {
@@ -104,7 +106,10 @@
         "deb",
         "AppImage"
       ],
-      "category": "Development"
+      "category": "Development",
+      "publish": [
+          "github"
+      ]
     },
     "directories": {
       "buildResources": "resources",
@@ -113,7 +118,7 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/defineEditor/editor.git"
   },
   "author": {
     "name": "Dmitry Kolosov",
@@ -249,6 +254,7 @@
     "electron-debug": "^2.0.0",
     "electron-store": "^2.0.0",
     "electron-unhandled": "^1.1.0",
+    "electron-updater": "^4.2.0",
     "fast-deep-equal": "^1.1.0",
     "idb": "^4.0.5",
     "jquery": "^3.3.1",

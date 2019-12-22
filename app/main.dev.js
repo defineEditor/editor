@@ -34,6 +34,7 @@ import deleteFiles from './main/deleteFiles.js';
 import openFileInExternalApp from './main/openFileInExternalApp.js';
 import createMenu from './menu/menu.js';
 import exportReviewComments from './main/exportReviewComments.js';
+import { checkForUpdates, downloadUpdate } from './main/appUpdate.js';
 
 let mainWindow = null;
 
@@ -181,6 +182,14 @@ ipcMain.on('exportReviewComments', (event, exportData) => {
 // Change Title
 ipcMain.on('setTitle', (event, title) => {
     mainWindow.setTitle(title);
+});
+// Check for updates
+ipcMain.on('checkForUpdates', (event, customLabel) => {
+    checkForUpdates(mainWindow, customLabel);
+});
+// Download the update
+ipcMain.on('downloadUpdate', (event) => {
+    downloadUpdate(mainWindow);
 });
 // Close the main window
 ipcMain.on('quitConfirmed', (event) => {

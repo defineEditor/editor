@@ -91,6 +91,7 @@ const mapStateToProps = state => {
         currentPage,
         showInitialMessage: state.present.settings.popUp.onStartUp,
         disableAnimations: state.present.settings.general.disableAnimations,
+        checkForUpdates: state.present.settings.general.checkForUpdates,
         disableFindToggle,
         sampleStudyCopied: state.present.ui.main.sampleStudyCopied,
         currentDefineId: state.present.ui.main.currentDefineId,
@@ -121,6 +122,10 @@ class ConnectedApp extends Component {
     componentDidMount () {
         // Comparing to other event listeners which are defined in index.js, this one needs to be here, so that CDISC Library object can be used
         ipcRenderer.on('quit', this.handleQuitApplication);
+        ipcRenderer.once('updateInformationStartup', this.handleUpdateInformation);
+        if (this.props.checkForUpdates) {
+            ipcRenderer.send('checkForUpdates', 'updateInformationStartup');
+        }
         window.addEventListener('keydown', this.onKeyDown);
         if (this.props.showInitialMessage) {
             this.props.openModal({
@@ -142,6 +147,7 @@ class ConnectedApp extends Component {
 
     componentWillUnmount () {
         window.removeEventListener('keydown', this.onKeyDown);
+        ipcRenderer.remove('updateInformationStartup', this.handleUpdateInformation);
         ipcRenderer.remove('quit', this.handleQuitApplication);
     }
 
@@ -162,6 +168,13 @@ class ConnectedApp extends Component {
             this.props.saveCdiscLibraryInfo({ traffic: cdiscLibrary.coreObject.traffic });
         }
         quitApplication();
+    };
+
+    handleUpdateInformation = (event, updateAvailable, data) => {
+        console.log('was here');
+        if (updateAvailable) {
+            this.props.updateMainUi({ updateInfo: { releaseNotes: data.updateInfo.releaseNotes, version: data.updateInfo.version } });
+        }
     };
 
     onKeyDown = (event) => {
@@ -237,6 +250,7 @@ ConnectedApp.propTypes = {
     showInitialMessage: PropTypes.bool.isRequired,
     disableFindToggle: PropTypes.bool.isRequired,
     disableAnimations: PropTypes.bool.isRequired,
+    checkForUpdates: PropTypes.bool.isRequired,
     bugModalOpened: PropTypes.bool,
     openModal: PropTypes.func,
     updateMainUi: PropTypes.func,
