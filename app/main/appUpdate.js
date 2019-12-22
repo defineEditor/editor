@@ -31,14 +31,14 @@ class AppUpdater {
 
 const autoUpdaterInstance = new AppUpdater(); // eslint-disable-line
 
-const checkForUpdates = async (mainWindow) => {
+const checkForUpdates = async (mainWindow, eventLabel = 'updateInformation') => {
     let result = await autoUpdater.checkForUpdates();
 
     if (typeof result === 'object' && result.updateInfo) {
-        if (result.updateInfo.version > appVersion || process.env.NODE_ENV === 'development') {
-            mainWindow.webContents.send('updateInformation', true, result);
+        if (result.updateInfo.version > appVersion) {
+            mainWindow.webContents.send(eventLabel, true, result);
         } else {
-            mainWindow.webContents.send('updateInformation', false);
+            mainWindow.webContents.send(eventLabel, false);
         }
     }
 };
@@ -52,7 +52,7 @@ const downloadUpdate = async (mainWindow) => {
         sendToRender(progressObj);
     });
 
-    autoUpdater.on('update-downloaded', (progressObj) => {
+    autoUpdater.on('update-downloaded', () => {
         autoUpdater.quitAndInstall();
     });
 

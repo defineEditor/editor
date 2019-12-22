@@ -15,14 +15,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TablePagination from '@material-ui/core/TablePagination';
+import GeneralTable from 'components/utils/generalTable.js';
 import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
 
 const styles = theme => ({
     root: {
@@ -64,7 +58,7 @@ const cdashAttributes = {
     implementationNotes: 'Implementation Notes',
 };
 
-const itemDescription = (item, layout) => {
+const itemDescription = (layout) => (dummyValue, item) => {
     if (layout !== 3) {
         // SDTM or ADaM
         return (
@@ -112,7 +106,7 @@ const itemDescription = (item, layout) => {
     }
 };
 
-const itemRole = (item) => {
+const itemRole = (role, item) => {
     return (
         <React.Fragment>
             {item.role}
@@ -131,13 +125,20 @@ const itemRole = (item) => {
     );
 };
 
+const getCodeList = (codelist, item) => {
+    if (!item.codelist) {
+        return null;
+    } else {
+        return (<span>{item.codelist}</span>);
+    }
+};
+
 class ItemTable extends React.Component {
     constructor (props) {
         super(props);
 
         this.state = {
-            rowsPerPage: 50,
-            page: 0,
+            searchString: '',
         };
     }
 
@@ -149,17 +150,65 @@ class ItemTable extends React.Component {
         this.setState({ rowsPerPage: event.target.value });
     };
 
-    getCodeList (item) {
-        if (!item.codelist) {
-            return null;
-        } else {
-            return (<span>{item.codelist}</span>);
-        }
-    }
-
-    getItemTable (classes) {
-        const { page, rowsPerPage } = this.state;
+    render () {
+        const { classes } = this.props;
         const { items, itemGroup, searchString } = this.props;
+
+        // Define layout depending on the dataset type
+        let layout;
+        let product = this.props.product;
+        if (product.type === 'Foundational Model' && product.model === 'SDTM') {
+            layout = 4;
+        } else if (itemGroup.type === 'SDTM Dataset') {
+            layout = 1;
+        } else if (itemGroup.constructor && itemGroup.constructor.name === 'DataStructure') {
+            layout = 2;
+        } else if (product.model === 'CDASH') {
+            layout = 3;
+        } else {
+            layout = 1;
+        }
+
+        const descriptionFormatter = itemDescription(layout);
+
+        let header = [
+            { id: 'ordinal', label: 'id', hidden: true, key: true },
+            { id: 'name', label: 'Name', style: { wordBreak: 'break-all' } },
+            { id: 'label', label: 'Label' },
+            { id: 'simpleDatatype', label: 'Datatype' },
+            { id: 'codelist', label: 'Codelist', formatter: getCodeList },
+            { id: 'core', label: 'Core' },
+            { id: 'role', label: 'Role', formatter: itemRole },
+            { id: 'description', label: 'Description', formatter: descriptionFormatter },
+        ];
+
+        // Drop columns for some of the layouts
+        if (![1, 4].includes(layout)) {
+            header = header.filter(col => (col.id !== 'role'));
+        }
+        if (layout === 3) {
+            header = header.filter(col => (col.id !== 'core'));
+        }
+        if (layout === 4) {
+            header = header.filter(col => (col.id !== 'codelist' && col.id !== 'core'));
+        }
+
+        // Add width
+        let colWidths = {
+            name: 120,
+            label: 230,
+            simpleDatatype: 100,
+            codelist: 100,
+            core: 80,
+            role: layout === 4 ? 290 : 100,
+        };
+
+        header.forEach(column => {
+            let width = colWidths[column.id];
+            if (width !== undefined) {
+                column.style = column.style ? { ...column.style, minWidth: width, maxWidth: width } : { minWidth: width, maxWidth: width };
+            }
+        });
 
         let data = items.slice();
 
@@ -192,91 +241,18 @@ class ItemTable extends React.Component {
             });
         }
 
-        // Define layout depending on the dataset type
-        let layout;
-        let product = this.props.product;
-        if (product.type === 'Foundational Model' && product.model === 'SDTM') {
-            layout = 4;
-        } else if (itemGroup.type === 'SDTM Dataset') {
-            layout = 1;
-        } else if (itemGroup.constructor && itemGroup.constructor.name === 'DataStructure') {
-            layout = 2;
-        } else if (product.model === 'CDASH') {
-            layout = 3;
-        } else {
-            layout = 1;
-        }
-
-        let colWidths = {
-            name: 120,
-            label: 230,
-            dataType: 100,
-            codeList: 100,
-            core: 80,
-            role: layout === 4 ? 290 : 100,
-        };
-
-        return (
-            <Grid container spacing={0}>
-                <Grid item xs={12}>
-                    <Table className={classes.table}>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell style={{ minWidth: colWidths.name, maxWidth: colWidths.name, wordBreak: 'break-all' }}>Name</TableCell>
-                                <TableCell style={{ minWidth: colWidths.label, maxWidth: colWidths.label }}>Label</TableCell>
-                                <TableCell style={{ minWidth: colWidths.dataType, maxWidth: colWidths.dataType }}>Datatype</TableCell>
-                                { layout !== 4 && <TableCell style={{ minWidth: colWidths.codeList, maxWidth: colWidths.codeList }}>Codelist</TableCell> }
-                                { ![3, 4].includes(layout) && <TableCell style={{ minWidth: colWidths.core, maxWidth: colWidths.core }}>Core</TableCell> }
-                                { [1, 4].includes(layout) && <TableCell style={{ minWidth: colWidths.role, maxWidth: colWidths.role }}>Role</TableCell> }
-                                <TableCell>Description</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {data
-                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                .map(item => {
-                                    return (
-                                        <TableRow key={item.id}>
-                                            <TableCell style={{ minWidth: colWidths.name, maxWidth: colWidths.name, wordBreak: 'break-all' }}>{item.name}</TableCell>
-                                            <TableCell style={{ minWidth: colWidths.label, maxWidth: colWidths.label }}>{item.label}</TableCell>
-                                            <TableCell style={{ minWidth: colWidths.dataType, maxWidth: colWidths.dataType }}>{item.simpleDatatype}</TableCell>
-                                            { layout !== 4 && <TableCell style={{ minWidth: colWidths.codeList, maxWidth: colWidths.codeList }}>{this.getCodeList(item)}</TableCell> }
-                                            { ![3, 4].includes(layout) && <TableCell style={{ minWidth: colWidths.core, maxWidth: colWidths.core }}>{item.core}</TableCell> }
-                                            { [1, 4].includes(layout) && <TableCell style={{ minWidth: colWidths.role, maxWidth: colWidths.role }}>{itemRole(item)}</TableCell> }
-                                            <TableCell>{itemDescription(item, layout)}</TableCell>
-                                        </TableRow>
-                                    );
-                                })
-                            }
-                        </TableBody>
-                    </Table>
-                </Grid>
-                <Grid item xs={12}>
-                    <TablePagination
-                        component="div"
-                        count={this.props.items.length}
-                        page={page}
-                        rowsPerPage={rowsPerPage}
-                        backIconButtonProps={{
-                            'aria-label': 'Previous Page',
-                        }}
-                        nextIconButtonProps={{
-                            'aria-label': 'Next Page',
-                        }}
-                        onChangePage={this.handleChangePage}
-                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                        rowsPerPageOptions={[25, 50, 100]}
-                    />
-                </Grid>
-            </Grid>
-        );
-    }
-
-    render () {
-        const { classes } = this.props;
         return (
             <div className={classes.root}>
-                {this.getItemTable(classes)}
+                <GeneralTable
+                    data={data}
+                    header={header}
+                    sorting
+                    customToolbar={this.CtToolbar}
+                    disableToolbar
+                    fullRowSelect
+                    pagination
+                    rowsPerPageOptions={[25, 50, 100, 250]}
+                />
             </div>
         );
     }

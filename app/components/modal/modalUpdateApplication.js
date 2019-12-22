@@ -17,7 +17,7 @@ import { useDispatch } from 'react-redux';
 import { ipcRenderer, shell } from 'electron';
 import { sanitize } from 'dompurify';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles, makeStyles, lighten } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -48,6 +48,18 @@ const useModalStyles = makeStyles(theme => ({
         letterSpacing: '0.0075em',
     },
 }));
+
+const UpdatedLinearProgress = withStyles({
+    root: {
+        height: 10,
+        backgroundColor: lighten('#3f51b5', 0.5),
+        borderRadius: 30,
+    },
+    bar: {
+        borderRadius: 30,
+        backgroundColor: '#3f51b5',
+    },
+})(LinearProgress);
 
 const openLink = (event) => {
     event.preventDefault();
@@ -83,7 +95,7 @@ const ModalUpdateApplication = (props) => {
     };
 
     const onUpdate = () => {
-        setDownloadPct(null);
+        setDownloadPct(0);
         ipcRenderer.send('downloadUpdate');
     };
 
@@ -116,10 +128,11 @@ const ModalUpdateApplication = (props) => {
                     </a>
                 </div>
                 <div className='htmlContent' dangerouslySetInnerHTML={{ __html: releaseNotes }}/>
-                {downloadPct > 0 && <LinearProgress variant='determinate' value={downloadPct} />}
+                {downloadPct <= 1 && downloadPct !== null && <UpdatedLinearProgress/>}
+                {downloadPct > 1 && <UpdatedLinearProgress variant='determinate' value={downloadPct} />}
             </DialogContent>
             <DialogActions>
-                <Button onClick={onUpdate} color="primary" disabled={downloadPct > 0}>
+                <Button onClick={onUpdate} color="primary" disabled={downloadPct !== null}>
                     Update
                 </Button>
                 <Button onClick={onClose} color="primary">

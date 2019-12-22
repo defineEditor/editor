@@ -82,7 +82,6 @@ function createWindow () {
         }
         mainWindow.show();
         mainWindow.maximize();
-        checkForUpdates();
     });
     // Set the menu
     // Disabled menu at the moment, as most control buttons are available in the mainMenu
@@ -185,8 +184,8 @@ ipcMain.on('setTitle', (event, title) => {
     mainWindow.setTitle(title);
 });
 // Check for updates
-ipcMain.on('checkForUpdates', (event) => {
-    checkForUpdates(mainWindow);
+ipcMain.on('checkForUpdates', (event, customLabel) => {
+    checkForUpdates(mainWindow, customLabel);
 });
 // Download the update
 ipcMain.on('downloadUpdate', (event) => {

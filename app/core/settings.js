@@ -192,6 +192,7 @@ class ConnectedSettings extends React.Component {
             'allowSigDigitsForNonFloat',
             'showVlmWithParent',
             'disableAnimations',
+            'checkForUpdates',
             'addStylesheet',
             'onlyArmEdit',
             'enableCdiscLibrary',
@@ -368,7 +369,7 @@ class ConnectedSettings extends React.Component {
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid item>
                                 <FormGroup>
                                     <FormControlLabel
                                         control={
@@ -381,6 +382,17 @@ class ConnectedSettings extends React.Component {
                                         }
                                         label='Disable UI animations'
                                     />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.settings.general.checkForUpdates}
+                                                onChange={this.handleChange('general', 'checkForUpdates')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Check for application updates at startup'
+                                    />
                                 </FormGroup>
                             </Grid>
                         </Grid>
@@ -390,7 +402,7 @@ class ConnectedSettings extends React.Component {
                             Define-XML Saving Settings
                         </Typography>
                         <Grid container>
-                            <Grid item xs={12}>
+                            <Grid item>
                                 <FormGroup>
                                     <FormControlLabel
                                         control={
@@ -432,7 +444,7 @@ class ConnectedSettings extends React.Component {
                             Editor Settings
                         </Typography>
                         <Grid container>
-                            <Grid item xs={12}>
+                            <Grid item>
                                 <Typography variant="h6" gutterBottom align="left" color='textSecondary'>
                                     General
                                 </Typography>
@@ -493,8 +505,6 @@ class ConnectedSettings extends React.Component {
                                         label='Enable table pagination'
                                     />
                                 </FormGroup>
-                            </Grid>
-                            <Grid item xs={12}>
                                 <Typography variant="h6" gutterBottom align="left" color='textSecondary'>
                                     Variables
                                 </Typography>
@@ -601,7 +611,7 @@ class ConnectedSettings extends React.Component {
                             </Grid>
                         </Grid>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item>
                         <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
                             Notifications
                         </Typography>
@@ -617,7 +627,7 @@ class ConnectedSettings extends React.Component {
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Start-up message'
+                                        label='Startup message'
                                     />
                                 </FormGroup>
                             </Grid>
@@ -660,7 +670,7 @@ class ConnectedSettings extends React.Component {
                             </Grid>
                         </Grid>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item>
                         <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
                             Define-XML Settings
                         </Typography>
@@ -720,7 +730,7 @@ class ConnectedSettings extends React.Component {
                             </Grid>
                         </Grid>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item>
                         <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
                             CDISC Library
                             <InternalHelp data={CDISC_LIBRARY}/>
