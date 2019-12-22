@@ -30,6 +30,7 @@ import ModalGeneral from 'components/modal/modalGeneral.js';
 import ModalReviewComment from 'components/modal/modalReviewComment.js';
 import ModalConfirmChange from 'components/modal/modalConfirmChange.js';
 import ModalCleanCdiscLibraryCache from 'components/modal/modalCleanCdiscLibraryCache.js';
+import ModalUpdateApplication from 'components/modal/modalUpdateApplication.js';
 
 const mapStateToProps = state => {
     return {
@@ -53,6 +54,7 @@ const MODAL_COMPONENTS = {
     'GENERAL': ModalGeneral,
     'CONFIRM_CHANGE': ModalConfirmChange,
     'CLEAN_CDISC_LIBRARY_CACHE': ModalCleanCdiscLibraryCache,
+    'UPDATE_APPLICATION': ModalUpdateApplication,
 };
 
 class ConnectedModalRoot extends React.Component {

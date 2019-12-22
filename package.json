@@ -32,7 +32,7 @@
     "precommit": "lint-staged",
     "prestart": "npm run build",
     "start": "cross-env NODE_ENV=production electron ./app/",
-    "start-main-dev": "cross-env HOT=1 NODE_ENV=development electron -r babel-register --inspect=5858 ./app/main.dev.js",
+    "start-main-dev": "cross-env HOT=1 NODE_ENV=development APPIMAGE=/tmp/ electron -r babel-register --inspect=5858 ./app/main.dev.js",
     "start-renderer-dev": "cross-env NODE_ENV=development node --trace-warnings -r babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server --hot --config webpack.config.renderer.dev.js",
     "test": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 node --trace-warnings -r babel-register ./internals/scripts/RunTests.js",
     "test-all": "npm run lint && npm run flow && npm run build && npm run test && npm run test-e2e",
@@ -91,6 +91,9 @@
       "target": [
         "nsis",
         "portable"
+      ],
+      "publish": [
+          "github"
       ]
     },
     "mac": {
@@ -104,7 +107,10 @@
         "deb",
         "AppImage"
       ],
-      "category": "Development"
+      "category": "Development",
+      "publish": [
+          "github"
+      ]
     },
     "directories": {
       "buildResources": "resources",
@@ -113,7 +119,7 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/defineEditor/editor.git"
   },
   "author": {
     "name": "Dmitry Kolosov",
@@ -249,6 +255,7 @@
     "electron-debug": "^2.0.0",
     "electron-store": "^2.0.0",
     "electron-unhandled": "^1.1.0",
+    "electron-updater": "^4.2.0",
     "fast-deep-equal": "^1.1.0",
     "idb": "^4.0.5",
     "jquery": "^3.3.1",
