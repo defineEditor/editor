@@ -60,11 +60,19 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-const mapStateToProps = state => {
-    return {
-        productId: state.present.ui.cdiscLibrary.itemGroups.productId,
-        items: state.present.ui.cdiscLibrary.items,
-    };
+const mapStateToProps = (state, props) => {
+    let cdiscLibrary;
+    if (props.mountPoint === 'Main') {
+        cdiscLibrary = state.present.ui.cdiscLibrary;
+    } else if (['Variables', 'Datasets'].includes(props.mountPoint)) {
+        cdiscLibrary = state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].cdiscLibrary;
+    }
+    if (cdiscLibrary) {
+        return {
+            productId: cdiscLibrary.itemGroups.productId,
+            items: cdiscLibrary.items,
+        };
+    }
 };
 
 class ConnectedCdiscLibraryItems extends React.Component {
@@ -166,6 +174,7 @@ class ConnectedCdiscLibraryItems extends React.Component {
                         traffic={this.context.cdiscLibrary.getTrafficStats()}
                         searchString={this.state.searchString}
                         onSearchUpdate={this.handleSearchUpdate}
+                        mountPoint={this.props.mountPoint}
                     />
                 </Grid>
                 { this.state.items.length === 0 && (
@@ -227,6 +236,7 @@ ConnectedCdiscLibraryItems.propTypes = {
     productId: PropTypes.string.isRequired,
     items: PropTypes.object.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
+    mountPoint: PropTypes.string.isRequired,
 };
 ConnectedCdiscLibraryItems.displayName = 'CdiscLibraryItems';
 

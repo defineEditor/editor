@@ -65,6 +65,20 @@ const tabs = (() => {
             settings[i].panelStatus = {};
             settings[i].showResolved = true;
         }
+        if (tabNames[i] === 'Variables') {
+            settings[i].cdiscLibrary = {
+                currentView: 'products',
+                products: {
+                },
+                itemGroups: {
+                    gridView: false,
+                },
+                items: {
+                },
+                info: {
+                },
+            };
+        }
         // When tab has multiple tables
         if (['Variables', 'Coded Values', 'Analysis Results'].includes(tabNames[i])) {
             settings[i].vlmState = {};

@@ -27,11 +27,14 @@ import AddResultDisplayFromDefine from 'components/tableActions/addResultDisplay
 const styles = theme => ({
     root: {
         width: '100%',
-        overflowX: 'auto'
+        overflowX: 'auto',
     },
     studySelector: {
         marginLeft: theme.spacing(2),
         minWidth: '100px',
+    },
+    mainTable: {
+        marginTop: theme.spacing(1),
     },
     defineSelector: {
         minWidth: '100px',
@@ -111,7 +114,7 @@ class addFromOtherStudyConnected extends React.Component {
         const { classes } = this.props;
         const sourceExists = Object.keys(this.state.sourceOdm).length > 0;
         return (
-            <Grid container spacing={0} className={classes.root}>
+            <Grid container className={classes.root}>
                 <Grid item>
                     <TextField
                         label='Study'
@@ -135,7 +138,7 @@ class addFromOtherStudyConnected extends React.Component {
                     </TextField>
                 </Grid>
                 { sourceExists && this.props.type === 'variable' &&
-                        <Grid item xs={12}>
+                        <Grid item xs={12} className={classes.mainTable}>
                             <AddVariableFromDefine
                                 sourceMdv={this.state.sourceOdm.study.metaDataVersion}
                                 sourceDefineId={this.state.sourceOdm.defineId}
@@ -146,7 +149,7 @@ class addFromOtherStudyConnected extends React.Component {
                         </Grid>
                 }
                 { sourceExists && this.props.type === 'dataset' &&
-                        <Grid item xs={12}>
+                        <Grid item xs={12} className={classes.mainTable}>
                             <AddDatasetFromDefine
                                 sourceMdv={this.state.sourceOdm.study.metaDataVersion}
                                 sourceDefineId={this.state.sourceOdm.defineId}
@@ -156,7 +159,7 @@ class addFromOtherStudyConnected extends React.Component {
                         </Grid>
                 }
                 { sourceExists && this.props.type === 'resultDisplay' &&
-                        <Grid item xs={12}>
+                        <Grid item xs={12} className={classes.mainTable}>
                             <AddResultDisplayFromDefine
                                 sourceMdv={this.state.sourceOdm.study.metaDataVersion}
                                 sourceDefineId={this.state.sourceOdm.defineId}

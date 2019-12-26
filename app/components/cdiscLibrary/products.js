@@ -54,20 +54,14 @@ const styles = theme => ({
         width: '100%',
     },
     groupPanel: {
-        backgroundColor: '#F9F9F9',
+        backgroundColor: '#ECEFF1',
     },
 });
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        changeCdiscLibraryView: (updateObj) => dispatch(changeCdiscLibraryView(updateObj)),
-    };
-};
-
-const mapStateToProps = state => {
-    return {
-        panelStatus: state.present.ui.cdiscLibrary.products.panelStatus,
+        changeCdiscLibraryView: (updateObj, mountPoint) => dispatch(changeCdiscLibraryView(updateObj, mountPoint)),
     };
 };
 
@@ -143,10 +137,10 @@ class ConnectedProducts extends React.Component {
     }
 
     selectProduct = (productId, productName) => () => {
-        this.props.changeCdiscLibraryView({ view: 'itemGroups', productId, productName });
+        this.props.changeCdiscLibraryView({ view: 'itemGroups', productId, productName }, this.props.mountPoint);
     }
 
-    getClasses = (data, panelStatus, classes) => {
+    getClasses = (data, classes) => {
         let result = Object.keys(data).map(panelId => {
             return (
                 <List
@@ -164,7 +158,7 @@ class ConnectedProducts extends React.Component {
                                 <Typography variant='h5' color='textSecondary' className={classes.classHeading}>{data[panelId].title}</Typography>
                             </Grid>
                             <Grid item className={classes.group}>
-                                {this.getGroups(data[panelId].groups, panelStatus, classes)}
+                                {this.getGroups(data[panelId].groups, classes)}
                             </Grid>
                         </Grid>
                     </ListItem>
@@ -174,7 +168,7 @@ class ConnectedProducts extends React.Component {
         return (result);
     }
 
-    getGroups = (data, panelStatus, classes) => {
+    getGroups = (data, classes) => {
         let result = Object.keys(data).map(panelId => {
             return (
                 <React.Fragment key={panelId}>
@@ -240,15 +234,19 @@ class ConnectedProducts extends React.Component {
     }
 
     render () {
-        const { panelStatus, classes } = this.props;
+        const { classes } = this.props;
         return (
             <Grid container spacing={1} justify='space-between' className={classes.main}>
                 <Grid item xs={12}>
-                    <CdiscLibraryBreadcrumbs traffic={this.context.cdiscLibrary.getTrafficStats()} reloadProducts={this.reloadProducts} />
+                    <CdiscLibraryBreadcrumbs
+                        traffic={this.context.cdiscLibrary.getTrafficStats()}
+                        reloadProducts={this.reloadProducts}
+                        mountPoint={this.props.mountPoint}
+                    />
                 </Grid>
                 <Grid item xs={12}>
                     { Object.keys(this.state.classes).length === 0 && <Loading onRetry={this.getItems} /> }
-                    { this.getClasses(this.state.classes, panelStatus, classes) }
+                    { this.getClasses(this.state.classes, classes) }
                 </Grid>
             </Grid>
         );
@@ -256,10 +254,10 @@ class ConnectedProducts extends React.Component {
 }
 
 ConnectedProducts.propTypes = {
-    panelStatus: PropTypes.object.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
+    mountPoint: PropTypes.string.isRequired,
 };
 ConnectedProducts.displayName = 'Products';
 
-const Products = connect(mapStateToProps, mapDispatchToProps)(ConnectedProducts);
+const Products = connect(undefined, mapDispatchToProps)(ConnectedProducts);
 export default withStyles(styles)(Products);

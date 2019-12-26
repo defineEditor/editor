@@ -65,16 +65,24 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        changeCdiscLibraryView: (updateObj) => dispatch(changeCdiscLibraryView(updateObj)),
+        changeCdiscLibraryView: (updateObj, mountPoint) => dispatch(changeCdiscLibraryView(updateObj, mountPoint)),
     };
 };
 
-const mapStateToProps = state => {
-    return {
-        productId: state.present.ui.cdiscLibrary.itemGroups.productId,
-        productName: state.present.ui.cdiscLibrary.itemGroups.productName,
-        gridView: state.present.ui.cdiscLibrary.itemGroups.gridView,
-    };
+const mapStateToProps = (state, props) => {
+    let cdiscLibrary;
+    if (props.mountPoint === 'Main') {
+        cdiscLibrary = state.present.ui.cdiscLibrary;
+    } else if (['Variables', 'Datasets'].includes(props.mountPoint)) {
+        cdiscLibrary = state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].cdiscLibrary;
+    }
+    if (cdiscLibrary) {
+        return {
+            productId: cdiscLibrary.itemGroups.productId,
+            productName: cdiscLibrary.itemGroups.productName,
+            gridView: cdiscLibrary.itemGroups.gridView,
+        };
+    }
 };
 
 class ConnectedItemGroups extends React.Component {
@@ -163,9 +171,9 @@ class ConnectedItemGroups extends React.Component {
                 });
             }
 
-            this.props.changeCdiscLibraryView({ view: 'items', itemGroupId, type });
+            this.props.changeCdiscLibraryView({ view: 'items', itemGroupId, type }, this.props.mountPoint);
         } else {
-            this.props.changeCdiscLibraryView({ view: 'items', itemGroupId: itemGroup.name, type: 'itemGroup' });
+            this.props.changeCdiscLibraryView({ view: 'items', itemGroupId: itemGroup.name, type: 'itemGroup' }, this.props.mountPoint);
         }
     }
 
@@ -304,6 +312,7 @@ class ConnectedItemGroups extends React.Component {
                         traffic={this.context.cdiscLibrary.getTrafficStats()}
                         searchString={this.state.searchString}
                         onSearchUpdate={this.handleSearchUpdate}
+                        mountPoint={this.props.mountPoint}
                     />
                 </Grid>
                 <Grid item xs={12}>
@@ -318,7 +327,9 @@ class ConnectedItemGroups extends React.Component {
 ConnectedItemGroups.propTypes = {
     productId: PropTypes.string.isRequired,
     productName: PropTypes.string.isRequired,
+    gridView: PropTypes.bool.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
+    mountPoint: PropTypes.string.isRequired,
 };
 ConnectedItemGroups.displayName = 'ItemGroups';
 

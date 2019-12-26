@@ -13,53 +13,51 @@
  ***********************************************************************************/
 
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import CdiscLibraryProducts from 'components/cdiscLibrary/products.js';
 import CdiscLibraryItemGroups from 'components/cdiscLibrary/itemGroups.js';
 import CdiscLibraryItems from 'components/cdiscLibrary/items.js';
 import NavigationBar from 'core/navigationBar.js';
 
-const styles = theme => ({
+const getStyles = makeStyles(theme => ({
     root: {
         flexGrow: 1,
     },
     body: {
         marginTop: theme.spacing(8),
     },
-});
+}));
 
-const mapStateToProps = state => {
-    return {
-        currentView: state.present.ui.cdiscLibrary.currentView,
-        settings: state.present.settings.cdiscLibrary,
-    };
-};
-
-class ConnectedCdiscLibraryMain extends React.Component {
-    render () {
-        const { currentView, classes } = this.props;
-        return (
-            <div className={classes.root}>
-                <NavigationBar />
-                { this.props.settings.enableCdiscLibrary === true && (
-                    <div className={classes.body}>
-                        { currentView === 'products' && <CdiscLibraryProducts/>}
-                        { currentView === 'itemGroups' && <CdiscLibraryItemGroups/>}
-                        { currentView === 'items' && <CdiscLibraryItems/>}
-                    </div>
-                )}
-            </div>
-        );
+const CdiscLibraryMain = (props) => {
+    const mountPoint = props.mountPoint;
+    const settings = useSelector(state => state.present.settings.cdiscLibrary);
+    let currentView, classes;
+    if (mountPoint === 'Main') {
+        classes = getStyles();
+        currentView = useSelector(state => state.present.ui.cdiscLibrary.currentView);
+    } else if (['Variables', 'Datasets'].includes(mountPoint)) {
+        classes = {};
+        currentView = useSelector(state => state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].cdiscLibrary.currentView);
     }
-}
 
-ConnectedCdiscLibraryMain.propTypes = {
-    currentView: PropTypes.string.isRequired,
-    settings: PropTypes.object.isRequired,
+    return (
+        <div className={classes.root}>
+            { mountPoint === 'Main' && <NavigationBar /> }
+            { settings.enableCdiscLibrary === true && (
+                <div className={classes.body}>
+                    { currentView === 'products' && <CdiscLibraryProducts mountPoint={mountPoint}/>}
+                    { currentView === 'itemGroups' && <CdiscLibraryItemGroups mountPoint={mountPoint}/>}
+                    { currentView === 'items' && <CdiscLibraryItems mountPoint={mountPoint}/>}
+                </div>
+            )}
+        </div>
+    );
 };
-ConnectedCdiscLibraryMain.displayName = 'CdiscLibraryMain';
 
-const CdiscLibraryMain = connect(mapStateToProps)(ConnectedCdiscLibraryMain);
-export default withStyles(styles)(CdiscLibraryMain);
+CdiscLibraryMain.propTypes = {
+    mountPoint: PropTypes.string.isRequired,
+};
+
+export default CdiscLibraryMain;

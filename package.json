@@ -92,7 +92,7 @@
         "portable"
       ],
       "publish": [
-          "github"
+        "github"
       ]
     },
     "mac": {
@@ -108,7 +108,7 @@
       ],
       "category": "Development",
       "publish": [
-          "github"
+        "github"
       ]
     },
     "directories": {
@@ -189,17 +189,17 @@
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "enzyme-to-json": "^3.3.4",
-    "eslint": "^5.14.0",
-    "eslint-config-airbnb": "^17.1.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb": "^18.0.1",
     "eslint-config-prettier": "^4.0.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-formatter-pretty": "^2.1.1",
     "eslint-import-resolver-webpack": "^0.11.0",
-    "eslint-plugin-compat": "^2.7.0",
+    "eslint-plugin-compat": "^3.3.0",
     "eslint-plugin-flowtype": "^3.4.2",
     "eslint-plugin-import": "^2.12.0",
     "eslint-plugin-jest": "^22.3.0",
-    "eslint-plugin-jsx-a11y": "6.2.1",
+    "eslint-plugin-jsx-a11y": "6.2.3",
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-react": "^7.8.2",

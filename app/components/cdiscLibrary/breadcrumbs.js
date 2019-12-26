@@ -64,19 +64,27 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        toggleCdiscLibraryItemGroupGridView: (updateObj) => dispatch(toggleCdiscLibraryItemGroupGridView(updateObj)),
-        changeCdiscLibraryView: (updateObj) => dispatch(changeCdiscLibraryView(updateObj)),
+        toggleCdiscLibraryItemGroupGridView: (mountPoint) => dispatch(toggleCdiscLibraryItemGroupGridView(mountPoint)),
+        changeCdiscLibraryView: (updateObj, mountPoint) => dispatch(changeCdiscLibraryView(updateObj, mountPoint)),
     };
 };
 
-const mapStateToProps = state => {
-    return {
-        currentView: state.present.ui.cdiscLibrary.currentView,
-        productId: state.present.ui.cdiscLibrary.itemGroups.productId,
-        productName: state.present.ui.cdiscLibrary.itemGroups.productName,
-        itemGroupId: state.present.ui.cdiscLibrary.items.itemGroupId,
-        gridView: state.present.ui.cdiscLibrary.itemGroups.gridView,
-    };
+const mapStateToProps = (state, props) => {
+    let cdiscLibrary;
+    if (props.mountPoint === 'Main') {
+        cdiscLibrary = state.present.ui.cdiscLibrary;
+    } else if (['Variables', 'Datasets'].includes(props.mountPoint)) {
+        cdiscLibrary = state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].cdiscLibrary;
+    }
+    if (cdiscLibrary) {
+        return {
+            currentView: cdiscLibrary.currentView,
+            productId: cdiscLibrary.itemGroups.productId,
+            productName: cdiscLibrary.itemGroups.productName,
+            itemGroupId: cdiscLibrary.items.itemGroupId,
+            gridView: cdiscLibrary.itemGroups.gridView,
+        };
+    }
 };
 
 class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
@@ -117,7 +125,7 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                             <Breadcrumbs className={classes.breadcrumbs}>
                                 <Button
                                     color={currentView === 'products' ? 'default' : 'primary'}
-                                    onClick={() => { this.props.changeCdiscLibraryView({ view: 'products' }); }}
+                                    onClick={() => { this.props.changeCdiscLibraryView({ view: 'products' }, this.props.mountPoint); }}
                                     disabled={currentView === 'products'}
                                 >
                                     Products
@@ -125,7 +133,13 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                                 { (currentView === 'itemGroups' || currentView === 'items') &&
                                         <Button
                                             color={currentView === 'itemGroups' ? 'default' : 'primary'}
-                                            onClick={() => { this.props.changeCdiscLibraryView({ view: 'itemGroups', itemGroupId: this.props.itemGroupId }); }}
+                                            onClick={() => {
+                                                this.props.changeCdiscLibraryView(
+                                                    {
+                                                        view: 'itemGroups',
+                                                        itemGroupId: this.props.itemGroupId
+                                                    }, this.props.mountPoint);
+                                            }}
                                             disabled={currentView === 'products'}
                                         >
                                             {this.props.productName}
@@ -146,7 +160,7 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                                         control={
                                             <Switch
                                                 checked={this.props.gridView}
-                                                onChange={this.props.toggleCdiscLibraryItemGroupGridView}
+                                                onChange={() => (this.props.toggleCdiscLibraryItemGroupGridView(this.props.mountPoint))}
                                                 color='primary'
                                                 className={classes.switch}
                                             />

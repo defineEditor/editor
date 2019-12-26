@@ -247,7 +247,6 @@ class ItemTable extends React.Component {
                     data={data}
                     header={header}
                     sorting
-                    customToolbar={this.CtToolbar}
                     disableToolbar
                     fullRowSelect
                     pagination

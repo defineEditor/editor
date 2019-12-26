@@ -26,6 +26,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import IconButton from '@material-ui/core/IconButton';
 import ClearIcon from '@material-ui/icons/Clear';
+import CdiscLibraryMain from 'core/cdiscLibraryMain.js';
 import AddVariableSimple from 'components/tableActions/addVariableSimple.js';
 import AddVariableFromDefine from 'components/tableActions/addVariableFromDefine.js';
 import AddFromOtherStudy from 'components/tableActions/addFromOtherStudy.js';
@@ -63,7 +64,7 @@ const mapStateToProps = state => {
     };
 };
 
-const tabNames = ['New Variable', 'This Define', 'Another Define'];
+const tabNames = ['New Variable', 'This Define', 'Another Define', 'CDISC Library'];
 
 function TabContainer (props) {
     return (
@@ -139,7 +140,6 @@ class AddVariableConnected extends React.Component {
                             </Tabs>
                         </AppBar>
                         <TabContainer>
-                            <br/>
                             {tabNames[currentTab] === 'New Variable' && (
                                 <AddVariableSimple
                                     itemGroupOid={this.props.itemGroupOid}
@@ -161,6 +161,9 @@ class AddVariableConnected extends React.Component {
                                         type='variable'
                                         onClose={this.props.onClose}
                                     />
+                            }
+                            {tabNames[currentTab] === 'CDISC Library' &&
+                                    <CdiscLibraryMain mountPoint='Variables'/>
                             }
                         </TabContainer>
                     </DialogContent>

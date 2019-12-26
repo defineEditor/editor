@@ -1,30 +1,26 @@
 /***********************************************************************************
-* This file is part of Visual Define-XML Editor. A program which allows to review  *
-* and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
-*                                                                                  *
-* Visual Define-XML Editor is free software: you can redistribute it and/or modify *
-* it under the terms of version 3 of the GNU Affero General Public License         *
-*                                                                                  *
-* Visual Define-XML Editor is distributed in the hope that it will be useful,      *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY   *
-* or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
-* version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
-***********************************************************************************/
+ * This file is part of Visual Define-XML Editor. A program which allows to review  *
+ * and edit XML files created using the CDISC Define-XML standard.                  *
+ * Copyright (C) 2018 Dmitry Kolosov                                                *
+ *                                                                                  *
+ * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
+ * it under the terms of version 3 of the GNU Affero General Public License         *
+ *                                                                                  *
+ * Visual Define-XML Editor is distributed in the hope that it will be useful,      *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY   *
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
+ * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
+ ***********************************************************************************/
 
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { withStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TablePagination from '@material-ui/core/TablePagination';
+import { withStyles, makeStyles, lighten } from '@material-ui/core/styles';
+import GeneralTable from 'components/utils/generalTable.js';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox';
+import Toolbar from '@material-ui/core/Toolbar';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import Button from '@material-ui/core/Button';
@@ -33,6 +29,7 @@ import getTableDataForImport from 'utils/getTableDataForImport.js';
 import { copyVariables } from 'utils/copyUtils.js';
 import DescriptionFormatter from 'formatters/descriptionFormatter.js';
 import { addVariables } from 'actions/index.js';
+import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     root: {
@@ -41,18 +38,6 @@ const styles = theme => ({
     },
     table: {
         minWidth: 100
-    },
-    addButton: {
-        marginLeft: theme.spacing(2),
-        marginBottom: theme.spacing(2),
-    },
-    datasetSelector: {
-        minWidth: 100,
-        marginLeft: theme.spacing(2),
-        marginBottom: theme.spacing(2),
-    },
-    checkBoxes: {
-        marginLeft: theme.spacing(2),
     },
     searchField: {
         width: 120,
@@ -64,6 +49,29 @@ const styles = theme => ({
         marginLeft: theme.spacing(1)
     },
 });
+
+const useToolbarStyles = makeStyles(theme => ({
+    root: {
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(1),
+    },
+    highlight: {
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(1),
+        color: theme.palette.text.primary,
+        backgroundColor: lighten(theme.palette.primary.light, 0.85),
+    },
+    addButton: {
+        marginLeft: theme.spacing(2),
+    },
+    datasetSelector: {
+        minWidth: 100,
+        marginBottom: theme.spacing(2),
+    },
+    checkBoxes: {
+        marginLeft: theme.spacing(2),
+    },
+}));
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
@@ -109,6 +117,42 @@ const getInitialValues = (props) => {
     return { itemGroupList, sourceItemGroupOid, itemGroupData };
 };
 
+const searchDescription = (description, searchString) => {
+    // Search in comment/method
+    let fields = ['comment', 'method'];
+    let matchFound = fields
+        .filter(field => description[field] !== undefined)
+        .some(field => {
+            let text = getDescription(description[field]);
+            if (field === 'method') {
+                text += ' ' + description[field].name + ' ' + description[field].type;
+            }
+            if (/[A-Z]/.test(searchString)) {
+                return text.includes(searchString);
+            } else {
+                return text.toLowerCase().includes(searchString.toLowerCase());
+            }
+        });
+
+    // Search in origins
+    if (!matchFound) {
+        if (description.origins.length > 0) {
+            let fullOrigin = '';
+            description.origins.forEach(origin => {
+                fullOrigin += ' ' + origin.type + ' ' + getDescription(origin);
+                fullOrigin = fullOrigin.trim();
+            });
+            if (/[A-Z]/.test(searchString)) {
+                matchFound = fullOrigin.includes(searchString);
+            } else {
+                matchFound = fullOrigin.toLowerCase().includes(searchString.toLowerCase());
+            }
+        }
+    }
+
+    return matchFound;
+};
+
 class AddVariableFromDefineConnected extends React.Component {
     constructor (props) {
         super(props);
@@ -125,8 +169,6 @@ class AddVariableFromDefineConnected extends React.Component {
             detachMethods: true,
             detachComments: true,
             copyVlm: true,
-            rowsPerPage: 25,
-            page: 0,
         };
     }
 
@@ -139,46 +181,23 @@ class AddVariableFromDefineConnected extends React.Component {
         }
     }
 
-    handleSelectAllClick = (event, checked) => {
-        if (checked) {
-            const itemRefOids = this.props.sourceMdv.itemGroups[this.state.sourceItemGroupOid].itemRefOrder;
-            this.setState({ selected: itemRefOids });
-        } else {
-            this.setState({ selected: [] });
-        }
-    };
-
-    handleClick = (event, oid) => {
-        const { selected } = this.state;
-        const selectedIndex = selected.indexOf(oid);
-        let newSelected = [];
-
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, oid);
-        } else if (selectedIndex === 0) {
-            newSelected = newSelected.concat(selected.slice(1));
-        } else if (selectedIndex === selected.length - 1) {
-            newSelected = newSelected.concat(selected.slice(0, -1));
-        } else if (selectedIndex > 0) {
-            newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1)
-            );
-        }
-
-        this.setState({ selected: newSelected });
+    handleSelectChange = selected => {
+        this.setState({ selected });
     };
 
     handleAddVariables = () => {
         let { mdv, sourceMdv, itemGroupOid, position, sameDefine } = this.props;
         let currentGroup = mdv.itemGroups[itemGroupOid];
         let sourceGroup = sourceMdv.itemGroups[this.state.sourceItemGroupOid];
+        // Order itemRefOids as they are in the data;
+        let originalSorting = this.state.itemGroupData.map(row => row.itemRefOid);
+        let itemRefList = this.state.selected.sort((id1, id2) => (originalSorting.indexOf(id1) - originalSorting.indexOf(id2)));
         let { itemDefs, itemRefs, codeLists, methods, leafs, comments, valueLists, whereClauses } = copyVariables({
             mdv,
             sourceMdv,
             currentGroup,
             sourceGroup,
-            itemRefList: this.state.selected,
+            itemRefList,
             itemGroupOid,
             sameDefine,
             sourceItemGroupOid: this.state.sourceItemGroupOid,
@@ -204,14 +223,6 @@ class AddVariableFromDefineConnected extends React.Component {
         });
 
         this.props.onClose();
-    };
-
-    handleChangePage = (event, page) => {
-        this.setState({ page });
-    };
-
-    handleChangeRowsPerPage = event => {
-        this.setState({ rowsPerPage: event.target.value });
     };
 
     handleItemGroupChange = event => {
@@ -241,171 +252,164 @@ class AddVariableFromDefineConnected extends React.Component {
         this.setState({ [name]: !this.state[name] });
     }
 
+    Toolbar = props => {
+        const classes = useToolbarStyles();
+        let numSelected = this.state.selected.length;
+
+        return (
+            <Toolbar className={numSelected > 0 ? classes.highlight : classes.root}>
+                <Grid
+                    container
+                    justify='space-between'
+                    alignItems='center'
+                >
+                    <Grid item>
+                        <Grid
+                            container
+                            justify='flex-start'
+                            alignItems='center'
+                        >
+                            <Grid item>
+                                {numSelected > 0 ? (
+                                    <Grid item>
+                                        <Button
+                                            onClick={this.handleAddVariables}
+                                            color='default'
+                                            variant='contained'
+                                            className={classes.addButton}
+                                        >
+                                            Add {numSelected} variables
+                                        </Button>
+                                    </Grid>
+                                ) : (
+                                    <Grid item>
+                                        <TextField
+                                            label='Dataset'
+                                            value={this.state.sourceItemGroupOid}
+                                            onChange={this.handleItemGroupChange}
+                                            className={classes.datasetSelector}
+                                            select
+                                        >
+                                            {getSelectionList(this.state.itemGroupList)}
+                                        </TextField>
+                                    </Grid>
+                                )}
+                            </Grid>
+                            <Grid item>
+                                <FormGroup row className={classes.checkBoxes}>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={this.state.copyVlm}
+                                                onChange={this.handleCheckBoxChange('copyVlm')}
+                                                color='primary'
+                                                value='copyVlm'
+                                            />
+                                        }
+                                        label='Copy VLM'
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={this.state.detachMethods}
+                                                onChange={this.handleCheckBoxChange('detachMethods')}
+                                                disabled={!this.props.sameDefine}
+                                                color='primary'
+                                                value='detachMethods'
+                                            />
+                                        }
+                                        label='Detach Methods'
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={this.state.detachComments}
+                                                onChange={this.handleCheckBoxChange('detachComments')}
+                                                disabled={!this.props.sameDefine}
+                                                color='primary'
+                                                value='detachComments'
+                                            />
+                                        }
+                                        label='Detach Comments'
+                                    />
+                                </FormGroup>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid item>
+                        <TextField
+                            onChange={this.handleChangeSearchString}
+                            value={this.state.searchString}
+                            label='Search'
+                            className={classes.searchField}
+                        />
+                    </Grid>
+                </Grid>
+            </Toolbar>
+        );
+    };
+
+    descriptionFormatter = (value, row) => {
+        return (
+            <DescriptionFormatter
+                model={this.props.sourceMdv.model}
+                leafs={this.props.sourceMdv.leafs}
+                value={row.description}
+            />
+        );
+    }
+
     getVariableTable (defineVersion, classes) {
-        const { selected, page, rowsPerPage, searchString, itemGroupData } = this.state;
+        const { searchString, itemGroupData } = this.state;
+
+        let header = [
+            { id: 'itemRefOid', label: 'oid', hidden: true, key: true },
+            { id: 'name', label: 'Name' },
+            { id: 'label', label: 'Label' },
+            { id: 'description', label: 'Description', formatter: this.descriptionFormatter, noSort: true },
+        ];
+
+        let colWidths = {
+            name: 120,
+            label: 230,
+        };
+
+        header.forEach(column => {
+            let width = colWidths[column.id];
+            if (width !== undefined) {
+                column.style = column.style ? { ...column.style, minWidth: width } : { minWidth: width };
+            }
+        });
 
         let data = itemGroupData.slice();
-
         if (searchString !== '') {
             data = data.filter(row => {
                 if (/[A-Z]/.test(searchString)) {
-                    return row.name.includes(searchString) || row.label.includes(searchString);
+                    return row.name.includes(searchString) ||
+                        row.label.includes(searchString) ||
+                        searchDescription(row.description, searchString)
+                    ;
                 } else {
                     return row.name.toLowerCase().includes(searchString.toLowerCase()) ||
-                        row.label.toLowerCase().includes(searchString.toLowerCase());
+                        row.label.toLowerCase().includes(searchString.toLowerCase()) ||
+                        searchDescription(row.description, searchString)
+                    ;
                 }
             });
         }
 
-        let numSelected = this.state.selected.length;
-
         return (
-            <Grid container spacing={0}>
-                <Grid item xs={12}>
-                    <FormGroup row className={classes.checkBoxes}>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={this.state.copyVlm}
-                                    onChange={this.handleCheckBoxChange('copyVlm')}
-                                    color='primary'
-                                    value='copyVlm'
-                                />
-                            }
-                            label="Copy VLM"
-                        />
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={this.state.detachMethods}
-                                    onChange={this.handleCheckBoxChange('detachMethods')}
-                                    disabled={!this.props.sameDefine}
-                                    color='primary'
-                                    value='detachMethods'
-                                />
-                            }
-                            label="Detach Methods"
-                        />
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={this.state.detachComments}
-                                    onChange={this.handleCheckBoxChange('detachComments')}
-                                    disabled={!this.props.sameDefine}
-                                    color='primary'
-                                    value='detachComments'
-                                />
-                            }
-                            label="Detach Comments"
-                        />
-                    </FormGroup>
-                </Grid>
-                <Grid item xs={12}>
-                    <Grid
-                        container
-                        spacing={0}
-                        justify="space-between"
-                        alignItems="center"
-                    >
-                        {numSelected > 0 ? (
-                            <Grid item>
-                                <Button
-                                    onClick={this.handleAddVariables}
-                                    color="default"
-                                    variant="contained"
-                                    className={classes.addButton}
-                                >
-                                    Add {numSelected} variables
-                                </Button>
-                            </Grid>
-                        ) : (
-                            <Grid item>
-                                <TextField
-                                    label='Dataset'
-                                    value={this.state.sourceItemGroupOid}
-                                    onChange={this.handleItemGroupChange}
-                                    className={classes.datasetSelector}
-                                    select
-                                >
-                                    {getSelectionList(this.state.itemGroupList)}
-                                </TextField>
-                            </Grid>
-                        )}
-                        <Grid item>
-                            <TextField
-                                onChange={this.handleChangeSearchString}
-                                value={this.state.searchString}
-                                label='Search'
-                                className={classes.searchField}
-                            />
-                        </Grid>
-                    </Grid>
-                </Grid>
-                <Grid item xs={12}>
-                    <Table className={classes.table}>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell padding="checkbox">
-                                    <Checkbox
-                                        indeterminate={numSelected > 0 && numSelected < data.length}
-                                        checked={numSelected === data.length}
-                                        onChange={this.handleSelectAllClick}
-                                        color="primary"
-                                    />
-                                </TableCell>
-                                <TableCell>Name</TableCell>
-                                <TableCell>Label</TableCell>
-                                <TableCell>Description</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {data
-                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                .map(row => {
-                                    let isSelected = selected.includes(row.itemRefOid);
-                                    return (
-                                        <TableRow
-                                            key={row.itemRefOid}
-                                            onClick={ event => this.handleClick(event, row.itemRefOid) }
-                                            role="checkbox"
-                                            selected={isSelected}
-                                        >
-                                            <TableCell padding="checkbox">
-                                                <Checkbox
-                                                    checked={isSelected}
-                                                    color="primary"
-                                                />
-                                            </TableCell>
-                                            <TableCell>{row.name}</TableCell>
-                                            <TableCell>{row.label}</TableCell>
-                                            <TableCell>
-                                                <DescriptionFormatter model={this.props.sourceMdv.model} leafs={this.props.sourceMdv.leafs} value={row.description}/>
-                                            </TableCell>
-                                        </TableRow>
-                                    );
-                                })
-                            }
-                        </TableBody>
-                    </Table>
-                </Grid>
-                <Grid item xs={12}>
-                    <TablePagination
-                        component="div"
-                        count={this.state.itemGroupData.length}
-                        page={page}
-                        rowsPerPage={rowsPerPage}
-                        backIconButtonProps={{
-                            'aria-label': 'Previous Page',
-                        }}
-                        nextIconButtonProps={{
-                            'aria-label': 'Next Page',
-                        }}
-                        onChangePage={this.handleChangePage}
-                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                        rowsPerPageOptions={[25, 50, 100]}
-                    />
-                </Grid>
-            </Grid>
+            <div className={classes.root}>
+                <GeneralTable
+                    data={data}
+                    header={header}
+                    customToolbar={this.Toolbar}
+                    fullRowSelect
+                    pagination
+                    selection = {{ selected: this.state.selected, setSelected: this.handleSelectChange }}
+                    initialRowsPerPage= {25}
+                />
+            </div>
         );
     }
 

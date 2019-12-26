@@ -212,11 +212,11 @@ const useStyles = makeStyles(theme => ({
 
 export default function GeneralTable (props) {
     let { data, header, selection, sorting, pagination, title, customToolbar,
-        disableToolbar, initialPagesPerRow, rowsPerPageOptions, fullRowSelect,
+        disableToolbar, initialRowsPerPage, rowsPerPageOptions, fullRowSelect,
     } = props;
     let keyVar;
-    if (!initialPagesPerRow) {
-        initialPagesPerRow = 50;
+    if (!initialRowsPerPage) {
+        initialRowsPerPage = 50;
     }
 
     // Column ordering
@@ -256,7 +256,7 @@ export default function GeneralTable (props) {
         setRowsPerPage = pagination.setRowsPerPage;
     } else if (pagination === true) {
         // Rows per page handled internally
-        [rowsPerPage, setRowsPerPage] = React.useState(initialPagesPerRow);
+        [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage);
     } else {
         rowsPerPage = [];
     }
@@ -415,6 +415,6 @@ GeneralTable.propTypes = {
     disableToolbar: PropTypes.bool,
     sorting: PropTypes.bool,
     rowsPerPageOptions: PropTypes.array,
-    initialPagesPerRow: PropTypes.number,
+    initialRowsPerPage: PropTypes.number,
     fullRowSelect: PropTypes.bool,
 };
