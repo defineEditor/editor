@@ -14,40 +14,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
 import GeneralTable from 'components/utils/generalTable.js';
 import Typography from '@material-ui/core/Typography';
-
-const styles = theme => ({
-    root: {
-        width: '100%',
-        overflowX: 'auto'
-    },
-    table: {
-        minWidth: 100
-    },
-    addButton: {
-        marginLeft: theme.spacing(2),
-        marginBottom: theme.spacing(2),
-    },
-    datasetSelector: {
-        minWidth: 100,
-        marginLeft: theme.spacing(2),
-        marginBottom: theme.spacing(2),
-    },
-    checkBoxes: {
-        marginLeft: theme.spacing(2),
-    },
-    searchField: {
-        width: 120,
-        marginRight: theme.spacing(2),
-        marginBottom: theme.spacing(2),
-    },
-    icon: {
-        transform: 'translate(0, -5%)',
-        marginLeft: theme.spacing(1)
-    },
-});
 
 const cdashAttributes = {
     definition: 'Definition',
@@ -151,7 +119,6 @@ class ItemTable extends React.Component {
     };
 
     render () {
-        const { classes } = this.props;
         const { items, itemGroup, searchString } = this.props;
 
         // Define layout depending on the dataset type
@@ -242,17 +209,15 @@ class ItemTable extends React.Component {
         }
 
         return (
-            <div className={classes.root}>
-                <GeneralTable
-                    data={data}
-                    header={header}
-                    sorting
-                    disableToolbar
-                    fullRowSelect
-                    pagination
-                    rowsPerPageOptions={[25, 50, 100, 250]}
-                />
-            </div>
+            <GeneralTable
+                data={data}
+                header={header}
+                sorting
+                disableToolbar
+                fullRowSelect
+                pagination
+                rowsPerPageOptions={[25, 50, 100, 250]}
+            />
         );
     }
 }
@@ -264,4 +229,4 @@ ItemTable.propTypes = {
     searchString: PropTypes.string.isRequired,
 };
 
-export default withStyles(styles)(ItemTable);
+export default ItemTable;

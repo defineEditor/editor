@@ -42,8 +42,11 @@ const styles = theme => ({
         paddingBottom: 0,
     },
     main: {
-        marginTop: theme.spacing(8),
-        marginLeft: theme.spacing(2),
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
+        outline: 'none'
+    },
+    addItem: {
         outline: 'none'
     },
     classPanel: {
@@ -235,8 +238,15 @@ class ConnectedProducts extends React.Component {
 
     render () {
         const { classes } = this.props;
+        let rootClass;
+        if (this.props.mountPoint === 'Main') {
+            rootClass = classes.main;
+        } else if (['Variables', 'Datasets'].includes(this.props.mountPoint)) {
+            rootClass = classes.addItem;
+        }
+
         return (
-            <Grid container spacing={1} justify='space-between' className={classes.main}>
+            <Grid container spacing={1} justify='space-between' className={rootClass}>
                 <Grid item xs={12}>
                     <CdiscLibraryBreadcrumbs
                         traffic={this.context.cdiscLibrary.getTrafficStats()}

@@ -120,7 +120,7 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
         return (
             <Grid container justify='space-between'>
                 <Grid item>
-                    <Grid container justify='flex-start' alignItems='flex-start'>
+                    <Grid container alignItems='baseline'>
                         <Grid item>
                             <Breadcrumbs className={classes.breadcrumbs}>
                                 <Button
@@ -220,9 +220,9 @@ ConnectedCdiscLibraryBreadcrumbs.propTypes = {
     traffic: PropTypes.string.isRequired,
     currentView: PropTypes.string.isRequired,
     searchString: PropTypes.string,
-    productId: PropTypes.string.isRequired,
-    productName: PropTypes.string.isRequired,
-    itemGroupId: PropTypes.string.isRequired,
+    productId: PropTypes.string,
+    productName: PropTypes.string,
+    itemGroupId: PropTypes.string,
     gridView: PropTypes.bool.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
     toggleCdiscLibraryItemGroupGridView: PropTypes.func.isRequired,
@@ -231,7 +231,7 @@ ConnectedCdiscLibraryBreadcrumbs.propTypes = {
     reloadProducts: PropTypes.func,
 };
 
-ConnectedCdiscLibraryBreadcrumbs.displayName = 'CdiscLibraryItemGroups';
+ConnectedCdiscLibraryBreadcrumbs.displayName = 'CdiscLibraryBreadCrumbs';
 
 const CdiscLibraryBreadcrumbs = connect(mapStateToProps, mapDispatchToProps)(ConnectedCdiscLibraryBreadcrumbs);
 export default withStyles(styles)(CdiscLibraryBreadcrumbs);

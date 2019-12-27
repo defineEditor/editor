@@ -42,6 +42,8 @@ const styles = theme => ({
     root: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
+        display: 'flex',
+        width: '100%',
     },
 });
 

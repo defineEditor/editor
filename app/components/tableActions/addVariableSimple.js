@@ -122,8 +122,8 @@ class AddVariableSimpleConnected extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={1} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
-                <Grid item xs={12}>
+            <Grid container spacing={1} justify='flex-start' alignItems='flex-start' direction='column' onKeyDown={this.onKeyDown} tabIndex='0'>
+                <Grid item>
                     <TextField
                         label='Name'
                         autoFocus
@@ -132,7 +132,7 @@ class AddVariableSimpleConnected extends React.Component {
                         className={classes.inputField}
                     />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item>
                     <TextField
                         label='Position'
                         type='number'

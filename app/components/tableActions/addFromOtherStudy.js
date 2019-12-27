@@ -28,6 +28,7 @@ const styles = theme => ({
     root: {
         width: '100%',
         overflowX: 'auto',
+        flex: 1,
     },
     studySelector: {
         marginLeft: theme.spacing(2),
@@ -35,6 +36,9 @@ const styles = theme => ({
     },
     mainTable: {
         marginTop: theme.spacing(1),
+        display: 'flex',
+        minHeight: 1,
+        width: '100%',
     },
     defineSelector: {
         minWidth: '100px',
@@ -114,28 +118,32 @@ class addFromOtherStudyConnected extends React.Component {
         const { classes } = this.props;
         const sourceExists = Object.keys(this.state.sourceOdm).length > 0;
         return (
-            <Grid container className={classes.root}>
+            <Grid container justify='flex-start' alignItems='flex-start' wrap='nowrap' direction='column' className={classes.root}>
                 <Grid item>
-                    <TextField
-                        label='Study'
-                        value={this.state.studyId}
-                        onChange={this.handleChange('study')}
-                        className={classes.studySelector}
-                        select
-                    >
-                        {getSelectionList(this.state.studyList)}
-                    </TextField>
-                </Grid>
-                <Grid item>
-                    <TextField
-                        label='Define'
-                        value={this.state.defineId}
-                        onChange={this.handleChange('define')}
-                        className={classes.defineSelector}
-                        select
-                    >
-                        {getSelectionList(this.state.defineList)}
-                    </TextField>
+                    <Grid container justify='flex-start' alignItems='center'>
+                        <Grid item>
+                            <TextField
+                                label='Study'
+                                value={this.state.studyId}
+                                onChange={this.handleChange('study')}
+                                className={classes.studySelector}
+                                select
+                            >
+                                {getSelectionList(this.state.studyList)}
+                            </TextField>
+                        </Grid>
+                        <Grid item>
+                            <TextField
+                                label='Define'
+                                value={this.state.defineId}
+                                onChange={this.handleChange('define')}
+                                className={classes.defineSelector}
+                                select
+                            >
+                                {getSelectionList(this.state.defineList)}
+                            </TextField>
+                        </Grid>
+                    </Grid>
                 </Grid>
                 { sourceExists && this.props.type === 'variable' &&
                         <Grid item xs={12} className={classes.mainTable}>

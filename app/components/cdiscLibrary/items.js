@@ -29,18 +29,19 @@ import {
 } from 'actions/index.js';
 
 const styles = theme => ({
-    heading: {
-        fontSize: theme.typography.pxToRem(15),
-        flexBasis: '33.33%',
-        flexShrink: 0,
-    },
-    button: {
-        height: 40,
-    },
     main: {
-        marginTop: theme.spacing(8),
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
+        outline: 'none',
+        minHeight: 1,
+        flex: 1,
+    },
+    tableItem: {
+        display: 'flex',
+        minHeight: 1,
+        flex: '1 1 99%',
+    },
+    addItem: {
         outline: 'none'
     },
     header: {
@@ -166,10 +167,16 @@ class ConnectedCdiscLibraryItems extends React.Component {
 
     render () {
         const { classes } = this.props;
+        let rootClass;
+        if (this.props.mountPoint === 'Main') {
+            rootClass = classes.main;
+        } else if (['Variables', 'Datasets'].includes(this.props.mountPoint)) {
+            rootClass = classes.addItem;
+        }
 
         return (
-            <Grid container justify='flex-start' className={classes.main}>
-                <Grid item xs={12}>
+            <Grid container justify='flex-start' alignItems='stretch' wrap='nowrap' direction='column' className={rootClass}>
+                <Grid item>
                     <CdiscLibraryBreadcrumbs
                         traffic={this.context.cdiscLibrary.getTrafficStats()}
                         searchString={this.state.searchString}
@@ -178,13 +185,13 @@ class ConnectedCdiscLibraryItems extends React.Component {
                     />
                 </Grid>
                 { this.state.items.length === 0 && (
-                    <Grid item xs={12}>
+                    <Grid item>
                         <Loading onRetry={this.getItems} />
                     </Grid>
                 )}
                 { this.state.items.length !== 0 && (
                     <React.Fragment>
-                        <Grid item xs={12}>
+                        <Grid item>
                             <Grid container justify='space-between' alignItems='flex-start' className={classes.header}>
                                 <Grid item>
                                     {this.getItemGroupDescription()}
@@ -217,7 +224,7 @@ class ConnectedCdiscLibraryItems extends React.Component {
                                 )}
                             </Grid>
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid item className={classes.tableItem}>
                             <CdiscLibraryItemTable
                                 items={this.state.items}
                                 itemGroup={this.state.itemGroup}

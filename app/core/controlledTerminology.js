@@ -12,50 +12,43 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
+import { makeStyles } from '@material-ui/core/styles';
 import Packages from 'components/controlledTerminology/packages.js';
 import CodeLists from 'components/controlledTerminology/codeLists.js';
 import CodedValues from 'components/controlledTerminology/codedValues.js';
 import NavigationBar from 'core/navigationBar.js';
 
-const styles = theme => ({
-    root: {
-        flexGrow: 1,
-    },
+const getStyles = makeStyles(theme => ({
     body: {
-        marginTop: theme.spacing(8),
+        paddingTop: theme.spacing(8),
+        height: '100%',
+        width: '100%',
+        position: 'absolute',
+        display: 'flex',
     },
-});
+}));
 
-const mapStateToProps = state => {
-    return {
-        currentView: state.present.ui.controlledTerminology.currentView,
-    };
-};
+const ControlledTerminology = (props) => {
+    let classes = getStyles();
+    let currentView = useSelector(state => state.present.ui.controlledTerminology.currentView);
 
-class ConnectedControlledTerminology extends React.Component {
-    render () {
-        const { currentView, classes } = this.props;
-        return (
-            <div className={classes.root}>
-                <NavigationBar />
-                <div className={classes.body}>
-                    { currentView === 'packages' && <Packages/>}
-                    { currentView === 'codeLists' && <CodeLists/>}
-                    { currentView === 'codedValues' && <CodedValues/>}
-                </div>
+    return (
+        <div>
+            <NavigationBar />
+            <div className={classes.body}>
+                { currentView === 'packages' && <Packages/>}
+                { currentView === 'codeLists' && <CodeLists/>}
+                { currentView === 'codedValues' && <CodedValues/>}
             </div>
-        );
-    }
-}
-
-ConnectedControlledTerminology.propTypes = {
-    currentView: PropTypes.string.isRequired,
+        </div>
+    );
 };
-ConnectedControlledTerminology.displayName = 'ControlledTerminology';
 
-const ControlledTerminology = connect(mapStateToProps)(ConnectedControlledTerminology);
-export default withStyles(styles)(ControlledTerminology);
+ControlledTerminology.propTypes = {
+    mountPoint: PropTypes.string.isRequired,
+};
+
+export default ControlledTerminology;

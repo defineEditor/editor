@@ -12,22 +12,38 @@
  * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
  ***********************************************************************************/
 
+import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
-import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import CdiscLibraryProducts from 'components/cdiscLibrary/products.js';
 import CdiscLibraryItemGroups from 'components/cdiscLibrary/itemGroups.js';
 import CdiscLibraryItems from 'components/cdiscLibrary/items.js';
 import NavigationBar from 'core/navigationBar.js';
 
-const getStyles = makeStyles(theme => ({
-    root: {
-        flexGrow: 1,
-    },
+const getStylesMain = makeStyles(theme => ({
     body: {
-        marginTop: theme.spacing(8),
+        paddingTop: theme.spacing(8),
+        height: '100%',
+        width: '100%',
+        position: 'absolute',
+        display: 'flex',
+        flexDirection: 'column',
     },
+    root: {
+        width: '100%',
+    }
+}));
+
+const getStylesVarDs = makeStyles(theme => ({
+    body: {
+        display: 'flex',
+        width: '100%',
+    },
+    root: {
+        display: 'flex',
+        width: '100%',
+    }
 }));
 
 const CdiscLibraryMain = (props) => {
@@ -35,10 +51,10 @@ const CdiscLibraryMain = (props) => {
     const settings = useSelector(state => state.present.settings.cdiscLibrary);
     let currentView, classes;
     if (mountPoint === 'Main') {
-        classes = getStyles();
+        classes = getStylesMain();
         currentView = useSelector(state => state.present.ui.cdiscLibrary.currentView);
     } else if (['Variables', 'Datasets'].includes(mountPoint)) {
-        classes = {};
+        classes = getStylesVarDs();
         currentView = useSelector(state => state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].cdiscLibrary.currentView);
     }
 

@@ -20,59 +20,59 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import IconButton from '@material-ui/core/IconButton';
 import ClearIcon from '@material-ui/icons/Clear';
+import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import CdiscLibraryMain from 'core/cdiscLibraryMain.js';
 import AddVariableSimple from 'components/tableActions/addVariableSimple.js';
 import AddVariableFromDefine from 'components/tableActions/addVariableFromDefine.js';
 import AddFromOtherStudy from 'components/tableActions/addFromOtherStudy.js';
+import { changeCdiscLibraryView } from 'actions/index.js';
 
 const styles = theme => ({
     dialog: {
         position: 'absolute',
-        top: '5%',
-        maxHeight: '90%',
-        width: '90%',
+        top: '2.5%',
+        height: '95%',
+        width: '95%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingLeft: theme.spacing(2),
-        paddingRight: theme.spacing(2),
-        paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'primary',
-    },
-    appBar: {
-        transform: 'translate(0%, calc(-20%+0.5px))',
+        display: 'flex',
     },
     title: {
         marginTop: theme.spacing(5),
         paddingBottom: 0,
     },
+    dialogContent: {
+        display: 'flex',
+        width: '100%'
+    },
 });
 
 // Redux functions
+const mapDispatchToProps = dispatch => {
+    return {
+        changeCdiscLibraryView: (updateObj, mountPoint) => dispatch(changeCdiscLibraryView(updateObj, mountPoint)),
+    };
+};
 const mapStateToProps = state => {
     return {
-        model: state.present.odm.study.metaDataVersion.model,
+        mdv: state.present.odm.study.metaDataVersion,
         defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
+        enableCdiscLibrary: state.present.settings.cdiscLibrary.enableCdiscLibrary,
+        classTypes: state.present.stdConstants.classTypes,
+        editorTab: state.present.ui.tabs.tabNames[state.present.ui.tabs.currentTab],
     };
 };
 
 const tabNames = ['New Variable', 'This Define', 'Another Define', 'CDISC Library'];
-
-function TabContainer (props) {
-    return (
-        <Typography component="div">
-            {props.children}
-        </Typography>
-    );
-}
 
 class AddVariableConnected extends React.Component {
     constructor (props) {
@@ -80,6 +80,73 @@ class AddVariableConnected extends React.Component {
         this.state = {
             currentTab: 1,
         };
+    }
+
+    static contextType = CdiscLibraryContext;
+
+    componentDidMount () {
+        // Change CDISC Library view to the required dataset
+        if (this.props.enableCdiscLibrary) {
+            this.getCdiscLibraryEntryPoint();
+        }
+    }
+
+    getCdiscLibraryEntryPoint = async () => {
+        const { mdv, classTypes } = this.props;
+        let cl = this.context.cdiscLibrary;
+        let standards = mdv.standards;
+        let defaultStandard = Object.values(standards).filter(std => std.isDefault).map(std => std.name + '-' + std.version.replace('.', '-'))[0];
+        // let allStandards =  Object.values(standards).map(std => std.name + '-' + std.version.replace('.','-'));
+        let product;
+        let itemGroup = mdv.itemGroups[this.props.itemGroupOid];
+        // In 2.1 this should be done using standards, in 2.0 it is done 'manually'
+        if (mdv.model === 'ADaM') {
+            if (itemGroup.datasetClass && itemGroup.datasetClass.name === 'OCCURRENCE DATA STRUCTURE') {
+                product = await cl.getFullProduct('adam-occds');
+            } else {
+                product = await cl.getFullProduct(defaultStandard);
+            }
+        } else {
+            product = await cl.getFullProduct(defaultStandard);
+        }
+
+        if (product === undefined) {
+            // Related standard not found in CDISC Library
+            return;
+        }
+        let productName = product.id.replace('-', ' ').replace(/\b(\S*)/g, (txt) => {
+            if (txt.startsWith('adam')) {
+                return 'ADaM' + txt.substring(4);
+            } else {
+                return txt.toUpperCase();
+            }
+        });
+
+        let cdiscItemGroup;
+        if (mdv.model === 'ADaM' &&
+            itemGroup.datasetClass &&
+            classTypes[mdv.model] &&
+            classTypes[mdv.model][itemGroup.datasetClass.name]
+        ) {
+            cdiscItemGroup = await product.getItemGroup(classTypes[mdv.model][itemGroup.datasetClass.name]);
+        } else if ((mdv.model === 'SDTM' || mdv.model === 'SEND') && itemGroup.domain) {
+            if (itemGroup.name.toUpperCase().startsWith('SUPP') || itemGroup.name.toUpperCase().startsWith('SUPP')) {
+                cdiscItemGroup = await product.getItemGroup('SUPPQUAL');
+            } else {
+                cdiscItemGroup = await product.getItemGroup(itemGroup.domain);
+            }
+        }
+        if (cdiscItemGroup) {
+            if (cdiscItemGroup) {
+                this.props.changeCdiscLibraryView({
+                    view: 'items',
+                    productId: product.id,
+                    productName,
+                    itemGroupId: cdiscItemGroup.name,
+                    type: 'itemGroup'
+                }, this.props.editorTab);
+            }
+        }
     }
 
     handleTabChange = (event, currentTab) => {
@@ -109,6 +176,21 @@ class AddVariableConnected extends React.Component {
                     tabIndex='0'
                 >
                     <DialogTitle className={classes.title}>
+                        <AppBar position='absolute' color='default'>
+                            <Tabs
+                                value={currentTab}
+                                onChange={this.handleTabChange}
+                                variant='fullWidth'
+                                centered
+                                indicatorColor='primary'
+                                textColor='primary'
+                            >
+                                { tabNames.map(tab => {
+                                    return <Tab key={tab} label={tab} disabled={ tab === 'CDISC Library' && !this.props.enableCdiscLibrary}/>;
+                                })
+                                }
+                            </Tabs>
+                        </AppBar>
                         <Grid container spacing={0} justify='space-between' alignItems='center'>
                             <Grid item>
                                 Add Variable
@@ -123,49 +205,32 @@ class AddVariableConnected extends React.Component {
                             </Grid>
                         </Grid>
                     </DialogTitle>
-                    <DialogContent>
-                        <AppBar position='absolute' color='default'>
-                            <Tabs
-                                value={currentTab}
-                                onChange={this.handleTabChange}
-                                variant='fullWidth'
-                                centered
-                                indicatorColor='primary'
-                                textColor='primary'
-                            >
-                                { tabNames.map(tab => {
-                                    return <Tab key={tab} label={tab} />;
-                                })
-                                }
-                            </Tabs>
-                        </AppBar>
-                        <TabContainer>
-                            {tabNames[currentTab] === 'New Variable' && (
-                                <AddVariableSimple
+                    <DialogContent className={classes.dialogContent}>
+                        {tabNames[currentTab] === 'New Variable' && (
+                            <AddVariableSimple
+                                itemGroupOid={this.props.itemGroupOid}
+                                position={this.props.position}
+                                onClose={this.props.onClose}
+                            />
+                        )}
+                        {tabNames[currentTab] === 'This Define' &&
+                                <AddVariableFromDefine
                                     itemGroupOid={this.props.itemGroupOid}
                                     position={this.props.position}
                                     onClose={this.props.onClose}
                                 />
-                            )}
-                            {tabNames[currentTab] === 'This Define' &&
-                                    <AddVariableFromDefine
-                                        itemGroupOid={this.props.itemGroupOid}
-                                        position={this.props.position}
-                                        onClose={this.props.onClose}
-                                    />
-                            }
-                            {tabNames[currentTab] === 'Another Define' &&
-                                    <AddFromOtherStudy
-                                        itemGroupOid={this.props.itemGroupOid}
-                                        position={this.props.position}
-                                        type='variable'
-                                        onClose={this.props.onClose}
-                                    />
-                            }
-                            {tabNames[currentTab] === 'CDISC Library' &&
-                                    <CdiscLibraryMain mountPoint='Variables'/>
-                            }
-                        </TabContainer>
+                        }
+                        {tabNames[currentTab] === 'Another Define' &&
+                                <AddFromOtherStudy
+                                    itemGroupOid={this.props.itemGroupOid}
+                                    position={this.props.position}
+                                    type='variable'
+                                    onClose={this.props.onClose}
+                                />
+                        }
+                        {tabNames[currentTab] === 'CDISC Library' &&
+                                <CdiscLibraryMain mountPoint='Variables'/>
+                        }
                     </DialogContent>
                 </Dialog>
             </React.Fragment>
@@ -175,12 +240,16 @@ class AddVariableConnected extends React.Component {
 
 AddVariableConnected.propTypes = {
     classes: PropTypes.object.isRequired,
-    model: PropTypes.string.isRequired,
+    mdv: PropTypes.object.isRequired,
+    classTypes: PropTypes.object.isRequired,
+    enableCdiscLibrary: PropTypes.bool.isRequired,
+    editorTab: PropTypes.string.isRequired,
     itemGroupOid: PropTypes.string.isRequired,
     defineVersion: PropTypes.string.isRequired,
     position: PropTypes.number,
     onClose: PropTypes.func.isRequired,
+    changeCdiscLibraryView: PropTypes.func.isRequired,
 };
 
-const AddVariable = connect(mapStateToProps)(AddVariableConnected);
+const AddVariable = connect(mapStateToProps, mapDispatchToProps)(AddVariableConnected);
 export default withStyles(styles)(AddVariable);

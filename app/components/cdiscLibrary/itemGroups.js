@@ -55,9 +55,11 @@ const styles = theme => ({
         marginLeft: theme.spacing(3),
     },
     main: {
-        marginTop: theme.spacing(8),
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
+        outline: 'none'
+    },
+    addItem: {
         outline: 'none'
     },
 });
@@ -237,7 +239,7 @@ class ConnectedItemGroups extends React.Component {
         }
 
         return gridData.map(dataClass => (
-            <Grid container justify='flex-start' direction='row' alignItems='flex-start' key={dataClass.name}>
+            <Grid container justify='flex-start' alignItems='flex-start' key={dataClass.name}>
                 <Grid item>
                     <Button
                         color='primary'
@@ -304,10 +306,16 @@ class ConnectedItemGroups extends React.Component {
 
     render () {
         const { classes } = this.props;
+        let rootClass;
+        if (this.props.mountPoint === 'Main') {
+            rootClass = classes.main;
+        } else if (['Variables', 'Datasets'].includes(this.props.mountPoint)) {
+            rootClass = classes.addItem;
+        }
 
         return (
-            <Grid container justify='space-between' className={classes.main}>
-                <Grid item xs={12}>
+            <Grid container justify='flex-start' direction='column' wrap='nowrap' className={rootClass}>
+                <Grid item>
                     <CdiscLibraryBreadcrumbs
                         traffic={this.context.cdiscLibrary.getTrafficStats()}
                         searchString={this.state.searchString}
@@ -315,7 +323,7 @@ class ConnectedItemGroups extends React.Component {
                         mountPoint={this.props.mountPoint}
                     />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item>
                     { this.state.product === null && <Loading onRetry={this.getItemGroups} /> }
                     { this.props.gridView ? this.showGrid() : this.showList()}
                 </Grid>

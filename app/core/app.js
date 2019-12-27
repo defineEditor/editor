@@ -230,7 +230,7 @@ class ConnectedApp extends Component {
                     {this.props.currentPage === 'studies' && <Studies />}
                     {this.props.currentPage === 'editor' && <Editor onToggleRedoUndo={this.toggleRedoUndo}/>}
                     {this.props.currentPage === 'controlledTerminology' && <ControlledTerminology />}
-                    {this.props.currentPage === 'cdiscLibrary' && <CdiscLibraryMain mountPoint='main'/>}
+                    {this.props.currentPage === 'cdiscLibrary' && <CdiscLibraryMain mountPoint='Main'/>}
                     {this.props.currentPage === 'settings' && <Settings />}
                     {this.props.currentPage === 'about' && <About />}
                     <ModalRoot />

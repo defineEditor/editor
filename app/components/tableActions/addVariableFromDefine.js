@@ -32,10 +32,6 @@ import { addVariables } from 'actions/index.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
-    root: {
-        width: '100%',
-        overflowX: 'auto'
-    },
     table: {
         minWidth: 100
     },
@@ -106,13 +102,16 @@ const getInitialValues = (props) => {
     });
     // Get initial data
     const sourceItemGroupOid = Object.keys(itemGroupList)[0];
-    let itemGroupData = getTableDataForImport({
-        source: props.sourceMdv.itemGroups[sourceItemGroupOid],
-        datasetOid: sourceItemGroupOid,
-        mdv: props.sourceMdv,
-        defineVersion: props.defineVersion,
-        vlmLevel: 0,
-    });
+    let itemGroupData = [];
+    if (sourceItemGroupOid !== undefined) {
+        itemGroupData = getTableDataForImport({
+            source: props.sourceMdv.itemGroups[sourceItemGroupOid],
+            datasetOid: sourceItemGroupOid,
+            mdv: props.sourceMdv,
+            defineVersion: props.defineVersion,
+            vlmLevel: 0,
+        });
+    }
 
     return { itemGroupList, sourceItemGroupOid, itemGroupData };
 };
@@ -399,29 +398,25 @@ class AddVariableFromDefineConnected extends React.Component {
         }
 
         return (
-            <div className={classes.root}>
-                <GeneralTable
-                    data={data}
-                    header={header}
-                    customToolbar={this.Toolbar}
-                    fullRowSelect
-                    pagination
-                    selection = {{ selected: this.state.selected, setSelected: this.handleSelectChange }}
-                    initialRowsPerPage= {25}
-                />
-            </div>
+            <GeneralTable
+                data={data}
+                header={header}
+                customToolbar={this.Toolbar}
+                fullRowSelect
+                pagination
+                selection = {{ selected: this.state.selected, setSelected: this.handleSelectChange }}
+                initialRowsPerPage= {25}
+            />
         );
     }
 
     render () {
         const { defineVersion, classes } = this.props;
         return (
-            <div className={classes.root}>
-                {this.getVariableTable(
-                    defineVersion,
-                    classes
-                )}
-            </div>
+            this.getVariableTable(
+                defineVersion,
+                classes
+            )
         );
     }
 }
