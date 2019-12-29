@@ -348,12 +348,12 @@ class AddVariableFromDefineConnected extends React.Component {
         );
     };
 
-    descriptionFormatter = (value, row) => {
+    descriptionFormatter = (props) => {
         return (
             <DescriptionFormatter
                 model={this.props.sourceMdv.model}
                 leafs={this.props.sourceMdv.leafs}
-                value={row.description}
+                value={props.row.description}
             />
         );
     }

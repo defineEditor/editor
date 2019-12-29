@@ -105,11 +105,11 @@ class ConnectedCodeLists extends React.Component {
         this.setState({ searchString: event.target.value });
     }
 
-    actions = (id, row) => {
+    actions = (props) => {
         return (
             <Tooltip title='Open Codelist' placement='bottom' enterDelay={500}>
                 <Fab
-                    onClick={this.openCodeList(id)}
+                    onClick={this.openCodeList(props.oid)}
                     color='default'
                     size='medium'
                 >
@@ -135,7 +135,7 @@ class ConnectedCodeLists extends React.Component {
                 <ControlledTerminologyBreadcrumbs
                     searchString={this.state.searchString}
                     onSearchUpdate={this.handleSearchUpdate}
-                    additionalActions={this.additionalActions(classes)}
+                    additionalActions={this.additionalActions()}
                 />
             </Toolbar>
         );
@@ -190,7 +190,8 @@ class ConnectedCodeLists extends React.Component {
         });
     }
 
-    additionalActions = (classes) => {
+    additionalActions = () => {
+        let classes = this.props.classes;
         let result = [];
         result.push(
             <TextField

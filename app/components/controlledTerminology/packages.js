@@ -272,11 +272,11 @@ class ConnectedPackages extends React.Component {
         this.props.updateControlledTerminology({ ctList: { [ctId]: updatedCt } });
     }
 
-    addByDefault = (value, row) => {
+    addByDefault = (props) => {
         return (
             <Switch
-                checked={value}
-                onChange={this.toggleDefault(row.id)}
+                checked={props.isDefault}
+                onChange={this.toggleDefault(props.row.id)}
                 color='primary'
             />
         );
@@ -286,7 +286,8 @@ class ConnectedPackages extends React.Component {
         this.setState({ searchString: event.target.value });
     }
 
-    actions = (id, row) => {
+    actions = (props) => {
+        const { id, row } = props;
         if (row.notLoaded === true) {
             return (
                 <Tooltip title='Download Controlled Terminology' placement='bottom' enterDelay={500}>
@@ -375,7 +376,8 @@ class ConnectedPackages extends React.Component {
         this.props.changeCtSettings({ view: 'packages', settings: { rowsPerPage } });
     }
 
-    additionalActions = (classes) => {
+    additionalActions = () => {
+        let classes = this.props.classes;
         let result = [];
         result.push(
             <Tooltip title='Add Controlled Terminology' placement='bottom' enterDelay={500}>
@@ -461,7 +463,7 @@ class ConnectedPackages extends React.Component {
                     <ControlledTerminologyBreadcrumbs
                         searchString={this.state.searchString}
                         onSearchUpdate={this.handleSearchUpdate}
-                        additionalActions={this.additionalActions(classes)}
+                        additionalActions={this.additionalActions()}
                     />
                 )}
             </Toolbar>

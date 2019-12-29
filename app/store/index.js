@@ -16,8 +16,8 @@ import { createStore } from 'redux';
 import rootReducer from 'reducers/rootReducer';
 import loadState from 'utils/loadState.js';
 import undoable from 'redux-undo';
-import { throttle } from 'throttle-debounce';
-import saveState from 'utils/saveState.js';
+// import { throttle } from 'throttle-debounce';
+// import saveState from 'utils/saveState.js';
 
 const filterActions = (action, currentState, previousHistory) => {
     return (
@@ -39,8 +39,9 @@ const store = createStore(
 );
 
 // Save state every 5 minutes as a backup
-store.subscribe(
+/* store.subscribe(
     throttle(300000, () => { saveState('backup'); })
 );
+*/
 
 export default store;

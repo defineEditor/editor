@@ -25,7 +25,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
-import CloudDownload from '@material-ui/icons/CloudDownload';
 import Refresh from '@material-ui/icons/Refresh';
 import {
     changeCdiscLibraryView,
@@ -116,7 +115,7 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
     }
 
     render () {
-        const { classes, currentView } = this.props;
+        const { classes, currentView, additionalActions } = this.props;
         return (
             <Grid container justify='space-between'>
                 <Grid item>
@@ -173,19 +172,23 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                 </Grid>
                 <Grid item>
                     <Grid container justify='flex-end'>
+                        { additionalActions && (
+                            additionalActions.map((action, index) => {
+                                return (
+                                    <Grid key={index} item>
+                                        {action}
+                                    </Grid>
+                                );
+                            })
+                        )}
                         { currentView === 'products' &&
-                                <Tooltip title='Reload the list of products' placement='bottom' enterDelay={500}>
-                                    <IconButton onClick={this.props.reloadProducts} className={classes.refreshButton}>
-                                        <Refresh/>
-                                    </IconButton>
-                                </Tooltip>
-                        }
-                        { currentView === 'currentlyDisabled' && !this.props.productName.toLowerCase().startsWith('cdash ') &&
-                            <Tooltip title='Load full product' placement='bottom' enterDelay={500}>
-                                <IconButton onClick={this.props.loadFullProduct}>
-                                    <CloudDownload/>
-                                </IconButton>
-                            </Tooltip>
+                                <Grid item>
+                                    <Tooltip title='Reload the list of products' placement='bottom' enterDelay={500}>
+                                        <IconButton onClick={this.props.reloadProducts} className={classes.refreshButton}>
+                                            <Refresh/>
+                                        </IconButton>
+                                    </Tooltip>
+                                </Grid>
                         }
                         { currentView !== 'products' &&
                                 <Grid item>

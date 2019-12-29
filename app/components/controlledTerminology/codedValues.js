@@ -83,6 +83,12 @@ const useToolbarStyles = makeStyles(theme => ({
     },
 }));
 
+const getButtonStyles = makeStyles(theme => ({
+    popper: {
+        zIndex: 1100,
+    },
+}));
+
 const options = {
     tab: 'As tab-delimited',
     sas: 'As SAS Format',
@@ -93,6 +99,7 @@ const options = {
 const CopyToBuffer = ({ selected }) => {
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef(null);
+    const classes = getButtonStyles();
     const [selectedIndex, setSelectedIndex] = React.useState('tab');
     const codeListSettings = useSelector(state => state.present.ui.controlledTerminology.codeLists);
     const codedValuesSettings = useSelector(state => state.present.ui.controlledTerminology.codedValues);
@@ -186,7 +193,7 @@ const CopyToBuffer = ({ selected }) => {
                         <ArrowDropDownIcon />
                     </Button>
                 </ButtonGroup>
-                <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+                <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal className={classes.popper}>
                     {({ TransitionProps, placement }) => (
                         <Grow
                             {...TransitionProps}
@@ -234,7 +241,8 @@ class ConnectedCodedValues extends React.Component {
         this.props.changeCtSettings({ view: 'packages', settings: { rowsPerPage } });
     }
 
-    additionalActions = (classes) => {
+    additionalActions = () => {
+        let classes = this.props.classes;
         let result = [];
         let numSelected = this.state.selected.length;
         if (numSelected) {
@@ -263,7 +271,7 @@ class ConnectedCodedValues extends React.Component {
                 <ControlledTerminologyBreadcrumbs
                     searchString={this.state.searchString}
                     onSearchUpdate={this.handleSearchUpdate}
-                    additionalActions={this.additionalActions(classes)}
+                    additionalActions={this.additionalActions()}
                 />
             </Toolbar>
         );

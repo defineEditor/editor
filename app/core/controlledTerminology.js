@@ -13,7 +13,6 @@
 ***********************************************************************************/
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Packages from 'components/controlledTerminology/packages.js';
@@ -31,7 +30,7 @@ const getStyles = makeStyles(theme => ({
     },
 }));
 
-const ControlledTerminology = (props) => {
+const ControlledTerminology = () => {
     let classes = getStyles();
     let currentView = useSelector(state => state.present.ui.controlledTerminology.currentView);
 
@@ -45,10 +44,6 @@ const ControlledTerminology = (props) => {
             </div>
         </div>
     );
-};
-
-ControlledTerminology.propTypes = {
-    mountPoint: PropTypes.string.isRequired,
 };
 
 export default ControlledTerminology;

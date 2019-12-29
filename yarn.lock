@@ -174,9 +174,9 @@
     global-tunnel-ng "^2.7.1"
 
 "@emotion/hash@^0.7.1":
-  version "0.7.3"
-  resolved "https://registry.yarnpkg.com/@emotion/hash/-/hash-0.7.3.tgz#a166882c81c0c6040975dd30df24fae8549bd96f"
-  integrity sha512-14ZVlsB9akwvydAdaEnVnvqu6J2P6ySv39hYyl/aoB6w/V+bXX0tay8cF6paqbgZsN2n5Xh15uF4pE+GvE+itw==
+  version "0.7.4"
+  resolved "https://registry.yarnpkg.com/@emotion/hash/-/hash-0.7.4.tgz#f14932887422c9056b15a8d222a9074a7dfa2831"
+  integrity sha512-fxfMSBMX3tlIbKUdtGKxqB1fyrH6gVrX39Gsv3y8lRYKUqlgDt3UMqQyGnR1bQMa2B8aGnhLZokZgg8vT0Le+A==
 
 "@hot-loader/react-dom@^16.8.6":
   version "16.11.0"
@@ -189,9 +189,9 @@
     scheduler "^0.17.0"
 
 "@material-ui/core@^4.6.1":
-  version "4.8.0"
-  resolved "https://registry.yarnpkg.com/@material-ui/core/-/core-4.8.0.tgz#8fb4f4df2b35e3e781b1eec17d4aaf388edf3099"
-  integrity sha512-ODyvWlDOP0D3tU32wVlYRNrdS+LeJxB3xJbXdDxq6gnG4JhKk79+ylP0cImjPBI2yEZw0hcYHWFZOGD+0R1X4g==
+  version "4.8.1"
+  resolved "https://registry.yarnpkg.com/@material-ui/core/-/core-4.8.1.tgz#a2451739e2b4a478f8f9f364a5a87b8896c76b97"
+  integrity sha512-fAIysk8JiV+TbqI7uWo/kunmwPROEz9JvE2gE4xmAgLikF7rfoodhFL6aV5clIzWelpdRbcOUYfGaq2yAnjOoA==
   dependencies:
     "@babel/runtime" "^7.4.4"
     "@material-ui/styles" "^4.7.1"
@@ -216,9 +216,9 @@
     "@babel/runtime" "^7.4.4"
 
 "@material-ui/lab@^4.0.0-alpha.32":
-  version "4.0.0-alpha.36"
-  resolved "https://registry.yarnpkg.com/@material-ui/lab/-/lab-4.0.0-alpha.36.tgz#85420c59c88a9620bd65fed530c288c04afee26a"
-  integrity sha512-T5dMW4RYmjH/VWjXui5uBPcqfMsKv5Ig/uX77UwTQts2CS6YeNF7619WtEm6yl9kV2O5CVpRsPw1ulrt2T2Hrg==
+  version "4.0.0-alpha.37"
+  resolved "https://registry.yarnpkg.com/@material-ui/lab/-/lab-4.0.0-alpha.37.tgz#194bab4ecf77d19a23514ea3ab71566c92a9b3a1"
+  integrity sha512-OebQZqKYDO44vER5ZDHDjXF9/rq0Hqq5IRfgKwM1JzlzAZINd6RPX0xrh78psZ1mOWsgAteCY6/zPSHRPXAkqw==
   dependencies:
     "@babel/runtime" "^7.4.4"
     "@material-ui/utils" "^4.7.1"
@@ -5009,6 +5009,11 @@ eslint-plugin-promise@^4.0.1:
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/eslint-plugin-promise/-/eslint-plugin-promise-4.2.1.tgz#845fd8b2260ad8f82564c1222fce44ad71d9418a"
   integrity sha512-VoM09vT7bfA7D+upt+FjeBO5eHIJQBUWki1aPvB+vbNiHS3+oGIJGIeyBtKQTME6UPXXy3vV07OL1tHd3ANuDw==
+
+eslint-plugin-react-hooks@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-react-hooks/-/eslint-plugin-react-hooks-2.3.0.tgz#53e073961f1f5ccf8dd19558036c1fac8c29d99a"
+  integrity sha512-gLKCa52G4ee7uXzdLiorca7JIQZPPXRAQDXV83J4bUEeUuc5pIEyZYAZ45Xnxe5IuupxEqHS+hUhSLIimK1EMw==
 
 eslint-plugin-react@^7.8.2:
   version "7.17.0"
@@ -11262,14 +11267,14 @@ redux-logger@^3.0.6:
     deep-diff "^0.3.5"
 
 redux-undo@^1.0.0-beta9-9-7:
-  version "1.0.0-beta9-9-7"
-  resolved "https://registry.yarnpkg.com/redux-undo/-/redux-undo-1.0.0-beta9-9-7.tgz#fe3baa1b271423d7ddbbfc3a82c71b029a2db8ba"
-  integrity sha1-/juqGycUI9fdu/w6gscbApotuLo=
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/redux-undo/-/redux-undo-1.0.0.tgz#7688f0ae3874e0da35077de4fb1753c5d2e66a7a"
+  integrity sha512-WhCbkQyzY3KgqR+3wF1wR/O9WhvTsYGxKhwX5H1nWLA0q9AHrtHWgj4WQhTIJr5HzUR5uJyHm/Dnu5fiSvqL7w==
 
 redux@^4.0.0:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/redux/-/redux-4.0.4.tgz#4ee1aeb164b63d6a1bcc57ae4aa0b6e6fa7a3796"
-  integrity sha512-vKv4WdiJxOWKxK0yRoaK3Y4pxxB0ilzVx6dszU2W8wLxlb2yikRph4iV/ymtdJ6ZxpBLFbyrxklnT5yBbQSl3Q==
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/redux/-/redux-4.0.5.tgz#4db5de5816e17891de8a80c424232d06f051d93f"
+  integrity sha512-VSz1uMAH24DM6MF72vcojpYPtrTUu3ByVWfPL1nPfVRb5mZVTve5GnNCUV53QM/BZ66xfWrm0CTWoM+Xlz8V1w==
   dependencies:
     loose-envify "^1.4.0"
     symbol-observable "^1.2.0"

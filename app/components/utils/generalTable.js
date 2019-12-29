@@ -198,6 +198,7 @@ const useStyles = makeStyles(theme => ({
     toolbarGridItem: {
         flex: '1 1 1%',
         minHeight: 70,
+        overflow: 'hidden',
     },
     paginationGridItem: {
         flex: '1 1 1%',
@@ -253,12 +254,13 @@ export default function GeneralTable (props) {
 
     let selected, setSelected;
     if (typeof selection === 'object') {
-        // Selection handled outside
+        // Selection handled externally
         selected = selection.selected;
         setSelected = selection.setSelected;
     } else if (selection === true) {
         // Selection handled internally
-        [selected, setSelected] = React.useState([]);
+        // It does not violate the rule of hooks, because constant when mounted
+        [selected, setSelected] = React.useState([]); // eslint-disable-line react-hooks/rules-of-hooks
     } else {
         selected = [];
     }
@@ -271,7 +273,8 @@ export default function GeneralTable (props) {
         setRowsPerPage = pagination.setRowsPerPage;
     } else if (pagination === true) {
         // Rows per page handled internally
-        [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage);
+        // It does not violate the rule of hooks, because constant when mounted
+        [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage); // eslint-disable-line react-hooks/rules-of-hooks
     } else {
         rowsPerPage = [];
     }
@@ -399,7 +402,7 @@ export default function GeneralTable (props) {
                                                             style={column.style}
                                                         >
                                                             { column.formatter ? (
-                                                                column.formatter(row[column.id], row)
+                                                                column.formatter({ [column.id]: row[column.id], row })
                                                             ) : (row[column.id])}
                                                         </StyledTableCell>
                                                     );
