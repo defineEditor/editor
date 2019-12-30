@@ -88,7 +88,7 @@ class ConnectedStudies extends React.Component {
     }
 
     addStudy = () => {
-        let id = getOid('Study', undefined, this.props.studies.allIds);
+        let id = getOid('Study', this.props.studies.allIds);
         let name = 'Study ' + (this.props.studies.allIds.length + 1).toString();
         let study = new Study({ id, name });
         this.props.addStudy({ study: { ...study } });

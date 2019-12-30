@@ -64,11 +64,11 @@ const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, par
     let currentWhereClauses = Object.keys(mdv.whereClauses).concat(existingOids.whereClauses);
     itemRefList.forEach(itemRefOid => {
         let itemRef = clone(sourceGroup.itemRefs[itemRefOid]);
-        let newItemRefOid = getOid('ItemRef', undefined, currentItemRefs);
-        let newItemDefOid = getOid('ItemDef', undefined, currentItemDefs);
+        let newItemRefOid = getOid('ItemRef', currentItemRefs);
+        let newItemDefOid = getOid('ItemDef', currentItemDefs);
         if (itemRef.whereClauseOid !== undefined) {
             let whereClause = clone(sourceMdv.whereClauses[itemRef.whereClauseOid]);
-            let newWhereClauseOid = getOid('WhereClause', undefined, currentWhereClauses);
+            let newWhereClauseOid = getOid('WhereClause', currentWhereClauses);
             currentWhereClauses.push(newWhereClauseOid);
             whereClauses[newWhereClauseOid] = { ...new WhereClause({
                 ...whereClause,
@@ -99,7 +99,7 @@ const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, par
         // Check if VLM is attached
         if (copyVlm === true && itemDefs[newItemDefOid].valueListOid !== undefined) {
             let valueList = clone(sourceMdv.valueLists[itemDefs[newItemDefOid].valueListOid]);
-            let newValueListOid = getOid('ValueList', undefined, currentValueLists);
+            let newValueListOid = getOid('ValueList', currentValueLists);
             itemDefs[newItemDefOid].valueListOid = newValueListOid;
             currentValueLists.push(newValueListOid);
             valueLists[newValueListOid] = { ...new ValueList({
@@ -155,7 +155,7 @@ const copyMethod = ({ sourceMethodOid, mdv, sourceMdv, searchForDuplicate, group
         });
     }
     if (!duplicateFound) {
-        newMethodOid = getOid('Method', undefined, methodOids);
+        newMethodOid = getOid('Method', methodOids);
         if (isVlm === true) {
             method.sources = { itemGroups: {}, valueLists: { [groupOid]: [itemRefOid] } };
         } else {
@@ -183,7 +183,7 @@ const copyComment = ({ sourceCommentOid, mdv, sourceMdv, searchForDuplicate, ite
         });
     }
     if (!duplicateFound) {
-        newCommentOid = getOid('Comment', undefined, commentOids);
+        newCommentOid = getOid('Comment', commentOids);
         comment.sources = {
             itemDefs: itemDefOid !== undefined ? [itemDefOid] : [],
             itemGroups: itemGroupOid !== undefined ? [itemGroupOid] : [],
@@ -267,7 +267,7 @@ const copyVariables = ({
                     }
                 });
                 if (newCodeListOid === undefined) {
-                    newCodeListOid = getOid('CodeList', undefined, codeListOids);
+                    newCodeListOid = getOid('CodeList', codeListOids);
                     codeListOids.push(newCodeListOid);
                     codeList.oid = newCodeListOid;
                     // Remove all associations with a standard codelist
@@ -415,7 +415,7 @@ const copyVariables = ({
                     return true;
                 } else if (sourceLeafId === leafId) {
                     // There is a leaf with the same ID, but with different contents
-                    leafOidsRenamed[sourceLeafId] = getOid('Leaf', undefined, Object.keys(leafs).concat(leafIds));
+                    leafOidsRenamed[sourceLeafId] = getOid('Leaf', Object.keys(leafs).concat(leafIds));
                     finalLeafIds.splice(finalLeafIds.indexOf(sourceLeafId), 1, leafOidsRenamed[sourceLeafId]);
                 }
             });
@@ -526,7 +526,7 @@ const copyItemGroups = ({
     let newCopiedItems = clone(copiedItems);
     itemGroupList.forEach(sourceItemGroupOid => {
         let sourceGroup = sourceMdv.itemGroups[sourceItemGroupOid];
-        let itemGroupOid = getOid('ItemGroup', undefined, currentGroupOids);
+        let itemGroupOid = getOid('ItemGroup', currentGroupOids);
         currentGroupOids.push(itemGroupOid);
         // If only a subset of itemRefs was requested
         let itemRefsToCopy = [];
@@ -628,8 +628,8 @@ const copyVariablesFromCdiscLibrary = ({ items, itemGroupOid, mdv, sourceCodeLis
     let currentItemDefs = Object.keys(mdv.itemDefs).concat(existingOids.itemDefs);
     let currentItemRefs = mdv.itemGroups[itemGroupOid].itemRefOrder.slice();
     items.forEach(item => {
-        let newItemRefOid = getOid('ItemRef', undefined, currentItemRefs);
-        let newItemDefOid = getOid('ItemDef', undefined, currentItemDefs);
+        let newItemRefOid = getOid('ItemRef', currentItemRefs);
+        let newItemDefOid = getOid('ItemDef', currentItemDefs);
         currentItemRefs.push(newItemRefOid);
         currentItemDefs.push(newItemDefOid);
         itemRefs[itemGroupOid][newItemRefOid] = { ...new ItemRef({ oid: newItemRefOid, itemOid: newItemDefOid }) };

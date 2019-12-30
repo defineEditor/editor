@@ -116,7 +116,7 @@ class ConnectedAddCodeListFromCT extends React.Component {
         let codeList = clone(this.props.stdCodeLists[this.state.standardOid].codeLists[this.state.codeListOid]);
         // Check if the OID is unique
         if (this.props.codeListOrder.includes(codeList.oid)) {
-            codeList.oid = getOid('CodeList', undefined, this.props.codeListOrder);
+            codeList.oid = getOid('CodeList', this.props.codeListOrder);
         }
 
         // Keep only selected codes;

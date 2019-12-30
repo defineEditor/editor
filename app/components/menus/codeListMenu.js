@@ -84,7 +84,7 @@ class ConnectedCodeListMenu extends React.Component {
     }
 
     insertRecord = (shift) => () => {
-        let codeListOid = getOid('CodeList', undefined, Object.keys(this.props.codeLists));
+        let codeListOid = getOid('CodeList', Object.keys(this.props.codeLists));
         let orderNumber = this.props.codeListOrder.indexOf(this.props.codeListMenuParams.codeListOid) + shift;
         this.props.addCodeList({ oid: codeListOid, name: '', codeListType: 'decoded' }, orderNumber);
         this.props.onClose();
@@ -113,7 +113,7 @@ class ConnectedCodeListMenu extends React.Component {
         // copy codelist from the buffer
         let codeList = { ...new CodeList({ ...clone(this.props.codeLists[buffer.codeListOid]), reviewCommentOids: undefined }) };
         // change codelist OID/name and remove sources/links to other codelists, if available
-        codeList.oid = getOid('CodeList', undefined, this.props.codeListOrder);
+        codeList.oid = getOid('CodeList', this.props.codeListOrder);
         codeList.name = codeList.name + ' (Copy)';
         codeList.linkedCodeListOid = undefined;
         codeList.sources = undefined;

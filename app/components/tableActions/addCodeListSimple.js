@@ -73,7 +73,7 @@ class AddVariableEditorConnected extends React.Component {
 
     handleSaveAndClose = (updateObj) => {
         let codeListOids = Object.keys(this.props.codeLists);
-        let codeListOid = getOid('CodeList', undefined, codeListOids);
+        let codeListOid = getOid('CodeList', codeListOids);
         // Get all possible IDs
         this.props.addCodeList({
             oid: codeListOid,

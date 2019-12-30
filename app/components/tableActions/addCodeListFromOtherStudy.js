@@ -160,7 +160,7 @@ class ConnectedAddCodeListFromOtherStudy extends React.Component {
         let codeList = clone(this.state.sourceOdm.study.metaDataVersion.codeLists[this.state.codeListOid]);
         // Check if the OID is unique
         if (this.props.codeListOrder.includes(codeList.oid)) {
-            codeList.oid = getOid('CodeList', undefined, this.props.codeListOrder);
+            codeList.oid = getOid('CodeList', this.props.codeListOrder);
         }
 
         // Keep only selected codes;

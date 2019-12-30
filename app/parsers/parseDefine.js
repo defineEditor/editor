@@ -483,7 +483,7 @@ function parseItemGroups (itemGroupsRaw, mdv) {
             if (!item) {
                 return;
             }
-            let oid = getOid('ItemRef', undefined, Object.keys(itemRefs));
+            let oid = getOid('ItemRef', Object.keys(itemRefs));
             itemRefs[oid] = parseItemRef(item, oid, mdv);
             if (item['$']['orderNumber']) {
                 itemRefs[oid].orderNumber = Number(item['$']['orderNumber']);
@@ -545,7 +545,7 @@ function parseValueLists (valueListsRaw, mdv) {
         // ItemRefs are stored as an object instead of an array
         let itemRefs = {};
         valueListRaw['itemRef'].forEach(function (item, index) {
-            let oid = getOid('ItemRef', undefined, Object.keys(itemRefs));
+            let oid = getOid('ItemRef', Object.keys(itemRefs));
             itemRefs[oid] = parseItemRef(item, oid, mdv);
             if (item['$']['orderNumber']) {
                 itemRefs[oid].orderNumber = Number(item['$']['orderNumber']);

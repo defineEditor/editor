@@ -87,7 +87,7 @@ const importStudyData = async (mainWindow, idObject, openDialogResult) => {
             let newDefineIds = [];
             studyData.study.defineIds.forEach(defineId => {
                 if (idObject.defineIds.includes(defineId)) {
-                    let newDefineId = getOid('Define', undefined, idObject.defineIds.concat(newDefineIds));
+                    let newDefineId = getOid('Define', idObject.defineIds.concat(newDefineIds));
                     newDefineIds.push(newDefineId);
                     // Rename many places where the ID is referenced
                     studyData.defines[defineId].id = newDefineId;

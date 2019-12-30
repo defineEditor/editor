@@ -328,7 +328,7 @@ class CodeList extends BasicFunctions {
     addEnumeratedItem (item) {
         let oid;
         if (this.enumeratedItems !== undefined) {
-            oid = getOid('CodeListItem', undefined, Object.keys(this.enumeratedItems));
+            oid = getOid('CodeListItem', Object.keys(this.enumeratedItems));
             this.enumeratedItems[oid] = item;
             this.itemOrder.push(oid);
         } else {
@@ -341,7 +341,7 @@ class CodeList extends BasicFunctions {
     addCodeListItem (item) {
         let oid;
         if (this.codeListItems !== undefined) {
-            oid = getOid('CodeListItem', undefined, Object.keys(this.codeListItems));
+            oid = getOid('CodeListItem', Object.keys(this.codeListItems));
             this.codeListItems[oid] = item;
             this.itemOrder.push(oid);
         } else {

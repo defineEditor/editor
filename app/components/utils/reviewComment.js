@@ -127,7 +127,7 @@ class ReviewCommentRaw extends React.Component {
     }
 
     handleAddComment = () => {
-        const oid = getOid('ReviewComment', undefined, Object.keys(this.props.reviewComments));
+        const oid = getOid('ReviewComment', Object.keys(this.props.reviewComments));
         let text = stateToHTML(this.state.editorState.getCurrentContent());
         this.setState({ editorState: EditorState.createEmpty() },
             () => this.props.onAdd({
@@ -139,7 +139,7 @@ class ReviewCommentRaw extends React.Component {
     }
 
     handleReply = () => {
-        const oid = getOid('ReviewComment', undefined, Object.keys(this.props.reviewComments));
+        const oid = getOid('ReviewComment', Object.keys(this.props.reviewComments));
         this.props.onReply({
             oid,
             sourceOid: this.props.oid,

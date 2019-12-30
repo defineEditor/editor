@@ -47,7 +47,7 @@ const copyAnalysisResults = ({
     let missingItemRefList = {};
     analysisResultOidList.forEach(analysisResultOid => {
         let analysisResult = clone(sourceAnalysisResults[analysisResultOid]);
-        let newAnalysisResultOid = getOid('AnalysisResult', undefined, currentAnalysisResults);
+        let newAnalysisResultOid = getOid('AnalysisResult', currentAnalysisResults);
         // Copy Analysis Datasets data
         let itemGroupExistingOids = [];
         let newAnalysisDatasets = {};
@@ -83,7 +83,7 @@ const copyAnalysisResults = ({
                 // In case it is the same Define there is no need to copy anything other than Where Clause
                 if (analysisDataset.whereClauseOid !== undefined && sourceMdv.itemGroups.hasOwnProperty(analysisDataset.itemGroupOid)) {
                     let whereClause = clone(sourceMdv.whereClauses[analysisDataset.whereClauseOid]);
-                    let newWhereClauseOid = getOid('WhereClause', undefined, currentWhereClauses);
+                    let newWhereClauseOid = getOid('WhereClause', currentWhereClauses);
                     currentWhereClauses.push(newWhereClauseOid);
                     whereClauses[newWhereClauseOid] = { ...new WhereClause({
                         ...whereClause,
@@ -190,7 +190,7 @@ const copyAnalysisResults = ({
                 let missingItemDefList = {};
                 if (analysisDataset.whereClauseOid !== undefined) {
                     let whereClause = clone(sourceMdv.whereClauses[analysisDataset.whereClauseOid]);
-                    let newWhereClauseOid = getOid('WhereClause', undefined, currentWhereClauses);
+                    let newWhereClauseOid = getOid('WhereClause', currentWhereClauses);
                     // Check if variables used in the Where clause are present in this define
                     whereClause.rangeChecks.forEach(rangeCheck => {
                         // Sanity check
@@ -360,7 +360,7 @@ const copyResultDisplays = ({
     let missingItemRefListByResultDisplay = {};
     resultDisplayOidList.forEach(resultDisplayOid => {
         let resultDisplay = clone(sourceResultDisplays[resultDisplayOid]);
-        let newResultDisplayOid = getOid('ResultDisplay', undefined, currentResultDisplays);
+        let newResultDisplayOid = getOid('ResultDisplay', currentResultDisplays);
         let copiedAnalysisResults = copyAnalysisResults({
             mdv,
             sourceMdv,
@@ -426,7 +426,7 @@ const copyResultDisplays = ({
                     return true;
                 } else if (sourceLeafId === leafId) {
                     // There is a leaf with the same ID, but with different contents
-                    leafOidsRenamed[sourceLeafId] = getOid('Leaf', undefined, Object.keys(leafs).concat(leafIds));
+                    leafOidsRenamed[sourceLeafId] = getOid('Leaf', Object.keys(leafs).concat(leafIds));
                     finalLeafIds.splice(finalLeafIds.indexOf(sourceLeafId), 1, leafOidsRenamed[sourceLeafId]);
                 }
             });

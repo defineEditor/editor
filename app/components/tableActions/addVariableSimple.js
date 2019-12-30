@@ -98,8 +98,8 @@ class AddVariableSimpleConnected extends React.Component {
         // Get all possible IDs
         let itemDefOids = Object.keys(this.props.itemDefs);
         let itemRefOids = Object.keys(this.props.itemGroups[this.props.itemGroupOid].itemRefs);
-        let itemDefOid = getOid('ItemDef', undefined, itemDefOids);
-        let itemRefOid = getOid('ItemRef', undefined, itemRefOids);
+        let itemDefOid = getOid('ItemDef', itemDefOids);
+        let itemRefOid = getOid('ItemRef', itemRefOids);
         let itemDef = { ...new ItemDef({
             oid: itemDefOid,
             name: this.state.name,
