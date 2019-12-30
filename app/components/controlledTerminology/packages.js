@@ -142,7 +142,7 @@ const useToolbarStyles = makeStyles(theme => ({
         marginLeft: theme.spacing(1),
     },
     toolbarFab: {
-        marginRight: theme.spacing(2),
+        marginRight: theme.spacing(1),
     },
     toolbarIcon: {
         height: 31,
@@ -222,7 +222,8 @@ class ConnectedPackages extends React.Component {
                     version: ct.version,
                 }),
                 notLoaded: true,
-                styleClass: { backgroundColor: '#E0E0E0' }
+                __styleClass: { backgroundColor: '#E0E0E0' },
+                __disableSelection: true
             });
         });
 
@@ -266,7 +267,8 @@ class ConnectedPackages extends React.Component {
         ipcRenderer.send('addControlledTerminology');
     }
 
-    toggleDefault = (ctId) => () => {
+    toggleDefault = (ctId) => (event) => {
+        event.stopPropagation();
         let currentCt = this.props.controlledTerminology.byId[ctId];
         let updatedCt = { ...currentCt, isDefault: !currentCt.isDefault };
         this.props.updateControlledTerminology({ ctList: { [ctId]: updatedCt } });
@@ -277,6 +279,7 @@ class ConnectedPackages extends React.Component {
             <Switch
                 checked={props.isDefault}
                 onChange={this.toggleDefault(props.row.id)}
+                onClick={(event) => { event.stopPropagation(); }}
                 color='primary'
             />
         );
@@ -292,7 +295,7 @@ class ConnectedPackages extends React.Component {
             return (
                 <Tooltip title='Download Controlled Terminology' placement='bottom' enterDelay={500}>
                     <Fab
-                        onClick={() => { this.loadCtFromCdiscLibrary(id); }}
+                        onClick={(event) => { event.stopPropagation(); this.loadCtFromCdiscLibrary(id); }}
                         color='default'
                         size='medium'
                     >
@@ -361,7 +364,8 @@ class ConnectedPackages extends React.Component {
         });
     };
 
-    openCt = (id) => () => {
+    openCt = (id) => (event) => {
+        event.stopPropagation();
         // Remove all CTs, which were previously loaded for review purposes
         let currentStdCodeListIds = Object.keys(this.props.stdCodeLists);
         let ctIdsToRemove = currentStdCodeListIds.filter(ctId => (ctId !== id && this.props.stdCodeLists[ctId].loadedForReview));
@@ -376,8 +380,7 @@ class ConnectedPackages extends React.Component {
         this.props.changeCtSettings({ view: 'packages', settings: { rowsPerPage } });
     }
 
-    additionalActions = () => {
-        let classes = this.props.classes;
+    additionalActions = (classes) => {
         let result = [];
         result.push(
             <Tooltip title='Add Controlled Terminology' placement='bottom' enterDelay={500}>
@@ -463,7 +466,7 @@ class ConnectedPackages extends React.Component {
                     <ControlledTerminologyBreadcrumbs
                         searchString={this.state.searchString}
                         onSearchUpdate={this.handleSearchUpdate}
-                        additionalActions={this.additionalActions()}
+                        additionalActions={this.additionalActions(classes)}
                     />
                 )}
             </Toolbar>

@@ -42,7 +42,7 @@ import LinkedCodeListEditor from 'editors/linkedCodeListEditor.js';
 import CodeListFormatNameEditor from 'editors/codeListFormatNameEditor.js';
 import CodeListStandardEditor from 'editors/codeListStandardEditor.js';
 import ExternalCodeListEditor from 'editors/externalCodeListEditor.js';
-import SelectColumns from 'utils/selectColumns.js';
+import SelectColumns from 'components/utils/selectColumns.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import CodeListMenu from 'components/menus/codeListMenu.js';
 import menuButton from 'components/menus/menuButton.js';

@@ -22,6 +22,9 @@ import Toolbar from '@material-ui/core/Toolbar';
 import GeneralTable from 'components/utils/generalTable.js';
 import CdiscLibraryDataTypeButton from 'components/utils/cdiscLibraryDataTypeButton.js';
 import CdiscLibraryCodeListButton from 'components/utils/cdiscLibraryCodeListButton.js';
+import CdiscLibraryVarAddOptions from 'components/utils/cdiscLibraryVarAddOptions.js';
+import { copyVariablesFromCdiscLibrary } from 'utils/copyUtils.js';
+import { addVariables } from 'actions/index.js';
 
 const getStyles = makeStyles(theme => ({
     root: {
@@ -34,18 +37,25 @@ const getStyles = makeStyles(theme => ({
         color: theme.palette.text.primary,
         backgroundColor: lighten(theme.palette.primary.light, 0.85),
     },
-    addButton: {
-        marginLeft: theme.spacing(3),
+    toolbarButton: {
+        marginRight: theme.spacing(2),
     },
 }));
 
 // Redux functions
+const mapDispatchToProps = dispatch => {
+    return {
+        addVariables: (updateObj) => dispatch(addVariables(updateObj))
+    };
+};
 const mapStateToProps = (state, props) => {
-    if (props.mountPoint === 'Main') {
+    if (props.mountPoint === 'Main' && state.present.odm.study) {
         return {
             mdv: state.present.odm.study.metaDataVersion,
             stdCodeLists: state.present.stdCodeLists,
         };
+    } else {
+        return {};
     }
 };
 
@@ -162,7 +172,7 @@ const getCodeListsData = (props) => {
     return codeLists;
 };
 
-const deriveAdditionalAttributes = (items, codeLists) => {
+const deriveAdditionalAttributes = (items, codeLists, existingNames) => {
     return items.map(item => {
         // Covert simpDatatype to Define-XML datatype
         let dataType;
@@ -180,14 +190,14 @@ const deriveAdditionalAttributes = (items, codeLists) => {
         // Get codelist data
         let codeListOptions = [];
         let codeListInfo = {};
-        if (item.codelist) {
+        if (item.codelist && codeLists !== undefined) {
             let cCode = item.codelist;
             // Search codelists in the study
             if (codeLists.study.studyCcodes && codeLists.study.studyCcodes.includes(cCode)) {
                 Object.values(codeLists.study.codeLists)
                     .filter(codeList => (codeList.alias && codeList.alias.name === cCode))
                     .forEach(codeList => {
-                        codeListOptions.push({ category: 'Study', categoryOid: 'study', oid: codeList.oid, name: codeList.name });
+                        codeListOptions.push({ category: 'This Define', categoryOid: 'thisdefine', oid: codeList.oid, name: codeList.name });
                     })
                 ;
             }
@@ -207,7 +217,12 @@ const deriveAdditionalAttributes = (items, codeLists) => {
             }
         }
 
-        return { ...item, dataType, codeListOptions, codeListInfo };
+        let __disableSelection = false;
+        if (existingNames.length > 0 && existingNames.includes(item.name)) {
+            __disableSelection = true;
+        }
+
+        return { ...item, dataType, codeListOptions, codeListInfo, __disableSelection };
     });
 };
 
@@ -215,14 +230,38 @@ class ConnectedItemTable extends React.Component {
     constructor (props) {
         super(props);
 
-        let codeLists = getCodeListsData(props);
-        let items = deriveAdditionalAttributes(props.items, codeLists);
+        let { mdv, itemGroupOid } = props;
+        // Debug -- remove
+        // TODO: REMOVE
+        itemGroupOid = 'IG.AE';
+        let codeLists;
+        let existingNames = [];
+        if (props.mountPoint === 'Main') {
+            // Get the current dataset and the list of current variables
+            if (mdv.itemGroups[itemGroupOid]) {
+                Object.values(mdv.itemGroups[itemGroupOid].itemRefs).forEach(itemRef => {
+                    if (mdv.itemDefs[itemRef.itemOid]) {
+                        existingNames.push(mdv.itemDefs[itemRef.itemOid].name);
+                    }
+                });
+            }
+            // Get all codelists available in this Define
+            codeLists = getCodeListsData(props);
+        }
+        let items = deriveAdditionalAttributes(props.items, codeLists, existingNames);
 
         this.state = {
             searchString: '',
             selected: [],
+            options: {
+                addExisting: true,
+                copyCodelist: true,
+                addOrigin: true,
+                saveNote: true,
+            },
             codeLists,
             items,
+            existingNames,
         };
     }
 
@@ -284,26 +323,74 @@ class ConnectedItemTable extends React.Component {
         }
     };
 
+    addValues = () => {
+        let { mdv, itemGroupOid, position } = this.props;
+        // Get selected values
+        let selectedItems = this.state.items.filter(item => this.state.selected.includes(item.ordinal));
+        let { itemDefs, itemRefs, codeLists } = copyVariablesFromCdiscLibrary({
+            items: selectedItems,
+            itemGroupOid,
+            mdv,
+            sourceCodeLists: this.state.codeLists,
+            options: this.state.options,
+        });
+
+        let positionUpd = position || (mdv.itemGroups[itemGroupOid].itemRefOrder.length + 1);
+
+        this.props.addVariables({
+            itemGroupOid,
+            position: positionUpd,
+            itemDefs,
+            itemRefs,
+            codeLists,
+            methods: {},
+            leafs: {},
+            comments: {},
+            valueLists: {},
+            whereClauses: {},
+        });
+    }
+
+    toggleOption = (option) => {
+        let options = { ...this.state.options };
+        options[option] = !options[option];
+        if (option === 'addExisting') {
+            let items = this.state.items.map(item => {
+                if (options[option]) {
+                    return { ...item, __disableSelection: false };
+                } else {
+                    let __disableSelection = false;
+                    if (this.state.existingNames.length > 0 && this.state.existingNames.includes(item.name)) {
+                        __disableSelection = true;
+                    }
+                    return { ...item, __disableSelection };
+                }
+            });
+            this.setState({ options, items });
+        } else {
+            this.setState({ options });
+        }
+    }
+
     customToolbar = props => {
         const classes = getStyles();
         let numSelected = this.state.selected.length;
 
         return (
             <Toolbar className={numSelected > 0 ? classes.highlight : classes.root}>
-                { numSelected > 0 ? (
-                    <Typography variant='subtitle1'>
-                        {numSelected} selected
-                        <Button
-                            size='medium'
-                            variant='contained'
-                            color='secondary'
-                            onClick={this.addValues}
-                            className={classes.addButton}
-                        >
-                            Add
-                        </Button>
-                    </Typography>
-                ) : (
+                { numSelected > 0 ? ([
+                    <Button
+                        size='medium'
+                        variant='contained'
+                        key='addButton'
+                        color='default'
+                        onClick={this.addValues}
+                        className={classes.toolbarButton}
+                    >
+                        Add {numSelected} variable{numSelected > 1 && 's'}
+                    </Button>,
+                    <CdiscLibraryVarAddOptions key='options' options={this.state.options} toggleOption={this.toggleOption}/>
+                ]) : (
                     this.props.title
                 )}
             </Toolbar>
@@ -444,5 +531,5 @@ ConnectedItemTable.propTypes = {
     stdCodeLists: PropTypes.object,
 };
 
-const ItemTable = connect(mapStateToProps)(ConnectedItemTable);
+const ItemTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedItemTable);
 export default ItemTable;

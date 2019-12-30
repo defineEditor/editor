@@ -241,8 +241,7 @@ class ConnectedCodedValues extends React.Component {
         this.props.changeCtSettings({ view: 'packages', settings: { rowsPerPage } });
     }
 
-    additionalActions = () => {
-        let classes = this.props.classes;
+    additionalActions = (classes) => {
         let result = [];
         let numSelected = this.state.selected.length;
         if (numSelected) {
@@ -271,7 +270,7 @@ class ConnectedCodedValues extends React.Component {
                 <ControlledTerminologyBreadcrumbs
                     searchString={this.state.searchString}
                     onSearchUpdate={this.handleSearchUpdate}
-                    additionalActions={this.additionalActions()}
+                    additionalActions={this.additionalActions(classes)}
                 />
             </Toolbar>
         );
@@ -357,7 +356,6 @@ class ConnectedCodedValues extends React.Component {
                             customToolbar={this.CtToolbar}
                             pagination={{ rowsPerPage: this.props.ctUiSettings.rowsPerPage, setRowsPerPage: this.setRowsPerPage }}
                             disableToolbar
-                            fullRowSelect
                             rowsPerPageOptions={[25, 50, 100, 250, 500]}
                         />
                     )}

@@ -41,7 +41,7 @@
   "browserslist": "electron 1.6",
   "lint-staged": {
     "*.js": [
-      "cross-env NODE_ENV=development eslint --quiet --cache --format=node_modules/eslint-formatter-pretty",
+      "cross-env NODE_ENV=development eslint --cache --format=node_modules/eslint-formatter-pretty",
       "git add"
     ]
   },

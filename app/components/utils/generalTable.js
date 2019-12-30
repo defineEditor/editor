@@ -228,7 +228,7 @@ const useStyles = makeStyles(theme => ({
 }));
 export default function GeneralTable (props) {
     let { data, header, selection, sorting, pagination, title, customToolbar,
-        disableToolbar, initialRowsPerPage, rowsPerPageOptions, fullRowSelect,
+        disableToolbar, initialRowsPerPage, rowsPerPageOptions,
     } = props;
     let keyVar;
     if (!initialRowsPerPage) {
@@ -286,8 +286,9 @@ export default function GeneralTable (props) {
     };
 
     const handleSelectAllClick = event => {
-        if (event.target.checked) {
-            const newSelected = data.map(n => n[keyVar]);
+        // Check if all values, which are allowed to be selected, are not selected
+        if (selected.length !== data.filter(n => !n.__disableSelection).length) {
+            const newSelected = data.filter(n => !n.__disableSelection).map(n => n[keyVar]);
             setSelected(newSelected);
             return;
         }
@@ -377,18 +378,18 @@ export default function GeneralTable (props) {
                                             hover={selection !== undefined}
                                             aria-checked={isItemSelected}
                                             tabIndex={-1}
-                                            role={fullRowSelect && 'checkbox'}
-                                            onClick={fullRowSelect && selection ? event => handleClick(event, row[keyVar]) : undefined}
+                                            role={'checkbox'}
+                                            onClick={!row.__disableSelection && selection ? event => handleClick(event, row[keyVar]) : undefined}
                                             key={row[keyVar]}
                                             selected={isItemSelected}
-                                            style={row.styleClass}
+                                            style={row.__styleClass}
                                         >
                                             {selection && (
                                                 <StyledTableCell padding='checkbox'>
                                                     <Checkbox
                                                         checked={isItemSelected}
-                                                        onClick={!fullRowSelect && selection ? event => handleClick(event, row[keyVar]) : undefined}
                                                         color='primary'
+                                                        disabled={row.__disableSelection}
                                                     />
                                                 </StyledTableCell>
                                             )}
@@ -442,5 +443,4 @@ GeneralTable.propTypes = {
     sorting: PropTypes.bool,
     rowsPerPageOptions: PropTypes.array,
     initialRowsPerPage: PropTypes.number,
-    fullRowSelect: PropTypes.bool,
 };

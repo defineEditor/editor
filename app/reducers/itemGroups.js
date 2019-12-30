@@ -61,7 +61,7 @@ const updateItemGroup = (state, action) => {
     if (updateObj.hasOwnProperty('name')) {
         // Update datasetName and leafId together with the name
         updateObj.datasetName = action.updateObj.name;
-        newLeafOid = getOid('Leaf', updateObj.name);
+        newLeafOid = getOid('Leaf', [], updateObj.name);
     }
 
     if (updateObj.hasOwnProperty('description')) {
@@ -97,7 +97,7 @@ const updateItemGroup = (state, action) => {
                 updateObj.leaf.id = newLeafOid;
                 updateObj.archiveLocationId = newLeafOid;
             } else {
-                updateObj.leaf.id = getOid('Leaf', state[action.oid].name);
+                updateObj.leaf.id = getOid('Leaf', [], state[action.oid].name);
                 updateObj.archiveLocationId = updateObj.leaf.id;
             }
         }

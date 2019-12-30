@@ -135,7 +135,7 @@ class ConnectedCodeLists extends React.Component {
                 <ControlledTerminologyBreadcrumbs
                     searchString={this.state.searchString}
                     onSearchUpdate={this.handleSearchUpdate}
-                    additionalActions={this.additionalActions()}
+                    additionalActions={this.additionalActions(classes)}
                 />
             </Toolbar>
         );
@@ -190,8 +190,7 @@ class ConnectedCodeLists extends React.Component {
         });
     }
 
-    additionalActions = () => {
-        let classes = this.props.classes;
+    additionalActions = (classes) => {
         let result = [];
         result.push(
             <TextField

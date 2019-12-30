@@ -41,7 +41,7 @@ import VariableTabUpdate from 'utils/variableTabUpdate.js';
 import getTableData from 'utils/getTableData.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
 import applyFilter from 'utils/applyFilter.js';
-import SelectColumns from 'utils/selectColumns.js';
+import SelectColumns from 'components/utils/selectColumns.js';
 import KeyOrderEditor from 'components/orderEditors/keyOrderEditor.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import AddVariable from 'components/tableActions/addVariable.js';

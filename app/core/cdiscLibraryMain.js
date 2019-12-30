@@ -52,10 +52,10 @@ const CdiscLibraryMain = (props) => {
     let currentView, classes;
     if (mountPoint === 'Main') {
         classes = getStylesMain();
-        currentView = useSelector(state => state.present.ui.cdiscLibrary.currentView);
+        currentView = useSelector(state => state.present.ui.cdiscLibrary.currentView); // eslint-disable-line react-hooks/rules-of-hooks
     } else if (['Variables', 'Datasets'].includes(mountPoint)) {
         classes = getStylesVarDs();
-        currentView = useSelector(state => state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].cdiscLibrary.currentView);
+        currentView = useSelector(state => state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].cdiscLibrary.currentView); // eslint-disable-line react-hooks/rules-of-hooks
     }
 
     return (
@@ -65,7 +65,7 @@ const CdiscLibraryMain = (props) => {
                 <div className={classes.body}>
                     { currentView === 'products' && <CdiscLibraryProducts mountPoint={mountPoint}/>}
                     { currentView === 'itemGroups' && <CdiscLibraryItemGroups mountPoint={mountPoint}/>}
-                    { currentView === 'items' && <CdiscLibraryItems mountPoint={mountPoint}/>}
+                    { currentView === 'items' && <CdiscLibraryItems mountPoint={mountPoint} itemGroupOid={props.itemGroupOid}/>}
                 </div>
             )}
         </div>
@@ -74,6 +74,7 @@ const CdiscLibraryMain = (props) => {
 
 CdiscLibraryMain.propTypes = {
     mountPoint: PropTypes.string.isRequired,
+    itemGroupOid: PropTypes.string,
 };
 
 export default CdiscLibraryMain;

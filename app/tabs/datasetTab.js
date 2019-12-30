@@ -40,7 +40,7 @@ import setScrollPosition from 'utils/setScrollPosition.js';
 import renderColumns from 'utils/renderColumns.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
-import SelectColumns from 'utils/selectColumns.js';
+import SelectColumns from 'components/utils/selectColumns.js';
 import ItemGroupMenu from 'components/menus/itemGroupMenu.js';
 import menuButton from 'components/menus/menuButton.js';
 import { getDescription } from 'utils/defineStructureUtils.js';

@@ -253,6 +253,7 @@ class ConnectedCdiscLibraryItems extends React.Component {
                             title={this.getItemGroupDescription(classes)}
                             mountPoint={this.props.mountPoint}
                             variableSet={this.state.currentVariableSet}
+                            itemGroupOid={this.props.itemGroupOid}
                         />
                     </Grid>
                 )}
@@ -266,6 +267,7 @@ ConnectedCdiscLibraryItems.propTypes = {
     items: PropTypes.object.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
     mountPoint: PropTypes.string.isRequired,
+    itemGroupOid: PropTypes.string,
 };
 ConnectedCdiscLibraryItems.displayName = 'CdiscLibraryItems';
 

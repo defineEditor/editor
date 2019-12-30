@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-function getOid (type, suffix, existingOids = []) {
+function getOid (type, existingOids = [], preDefinedOid) {
     let oid = '';
     let prefix = {
         MetaDataVersion: 'MDV.',
@@ -33,8 +33,12 @@ function getOid (type, suffix, existingOids = []) {
         AnalysisResult: 'AR.',
         ReviewComment: 'RC.',
     };
-    if (suffix !== undefined) {
-        oid = prefix[type] + suffix;
+    if (preDefinedOid !== undefined && !existingOids.includes(preDefinedOid)) {
+        if (preDefinedOid.startsWith(prefix[type])) {
+            oid = preDefinedOid;
+        } else {
+            oid = prefix[type] + preDefinedOid;
+        }
     } else {
     // get UUID
         var d = new Date().getTime();
@@ -46,11 +50,9 @@ function getOid (type, suffix, existingOids = []) {
           return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
       });
     }
-    // Check if the OID is not unique
-    if (existingOids.includes(oid) && suffix === undefined) {
-        return getOid(type, suffix, existingOids);
-    } else if (existingOids.includes(oid) && suffix !== undefined) {
-        throw new Error('getOid: OID already exists.');
+    // Check if the OID is not unique and regenerate it
+    if (existingOids.includes(oid)) {
+        return getOid(type, existingOids, preDefinedOid);
     } else {
         return oid;
     }

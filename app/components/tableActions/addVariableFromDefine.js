@@ -35,11 +35,6 @@ const styles = theme => ({
     table: {
         minWidth: 100
     },
-    searchField: {
-        width: 120,
-        marginRight: theme.spacing(2),
-        marginBottom: theme.spacing(2),
-    },
     icon: {
         transform: 'translate(0, -5%)',
         marginLeft: theme.spacing(1)
@@ -57,15 +52,17 @@ const useToolbarStyles = makeStyles(theme => ({
         color: theme.palette.text.primary,
         backgroundColor: lighten(theme.palette.primary.light, 0.85),
     },
-    addButton: {
-        marginLeft: theme.spacing(2),
-    },
     datasetSelector: {
         minWidth: 100,
-        marginBottom: theme.spacing(2),
     },
     checkBoxes: {
         marginLeft: theme.spacing(2),
+        marginTop: theme.spacing(1),
+    },
+    searchField: {
+        width: 120,
+        marginRight: theme.spacing(2),
+        marginBottom: theme.spacing(2),
     },
 }));
 
@@ -275,9 +272,8 @@ class AddVariableFromDefineConnected extends React.Component {
                                             onClick={this.handleAddVariables}
                                             color='default'
                                             variant='contained'
-                                            className={classes.addButton}
                                         >
-                                            Add {numSelected} variables
+                                            Add {numSelected} variable{numSelected > 1 && 's'}
                                         </Button>
                                     </Grid>
                                 ) : (
@@ -402,7 +398,6 @@ class AddVariableFromDefineConnected extends React.Component {
                 data={data}
                 header={header}
                 customToolbar={this.Toolbar}
-                fullRowSelect
                 pagination
                 selection = {{ selected: this.state.selected, setSelected: this.handleSelectChange }}
                 initialRowsPerPage= {25}

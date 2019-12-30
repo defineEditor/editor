@@ -29,7 +29,7 @@ import ResultDisplayOrderEditor from 'components/orderEditors/resultDisplayOrder
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
 import ArmDescriptionEditor from 'editors/armDescriptionEditor.js';
 import ArmDescriptionFormatter from 'formatters/armDescriptionFormatter.js';
-import SelectColumns from 'utils/selectColumns.js';
+import SelectColumns from 'components/utils/selectColumns.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import ResultDisplayMenu from 'components/menus/resultDisplayMenu.js';
 import menuButton from 'components/menus/menuButton.js';

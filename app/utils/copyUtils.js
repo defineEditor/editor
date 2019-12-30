@@ -19,7 +19,7 @@ import compareCodeLists from 'utils/compareCodeLists.js';
 import compareMethods from 'utils/compareMethods.js';
 import compareComments from 'utils/compareComments.js';
 import compareLeafs from 'utils/compareLeafs.js';
-import { ItemDef, ItemRef, ItemGroup, ValueList, WhereClause, CodeList, Leaf } from 'core/defineStructure.js';
+import { ItemDef, ItemRef, ItemGroup, ValueList, WhereClause, CodeList, Leaf, Origin, TranslatedText } from 'core/defineStructure.js';
 
 const defaultExistingOids = {
     itemGroups: [],
@@ -225,7 +225,7 @@ const copyVariables = ({
         copyVlm,
         existingOids,
     });
-    // If it is the same define, then there is no need to rebuild codeLists, other than update sources
+    // If it is the same define, then there is no need to rebuild codeLists, other than update sources, this is handled in codelist reducer
     let codeLists = {};
     let processedCodeLists = {};
     let codeListSources = {};
@@ -593,4 +593,69 @@ const copyItemGroups = ({
     return { itemGroups, itemGroupComments, existingOids: newExistingOids, copiedItems: newCopiedItems };
 };
 
-export default { copyVariables, copyComment, copyItemGroups, extractLeafIds, renameLeafIds };
+const copyVariablesFromCdiscLibrary = ({ items, itemGroupOid, mdv, sourceCodeLists, options, existingOids = {} } = {}) => {
+    // Copy codelists
+    let codeListsToCopy = {};
+    if (options.copyCodelist) {
+        let currentCodeLists = Object.keys(mdv.codeLists).concat(existingOids.codeLists);
+        // Select all unique codelists, which are referenced in the copied items
+        // In case codelist is linked from the same define (thisdefine value), no need to do anything
+        // as only sources need to be updated, which is done in the codelist reducer
+        items
+            .filter(item => item.codeListInfo.oid !== undefined)
+            .filter(item => item.codeListInfo.categoryOid !== 'thisdefine')
+            .forEach(item => {
+                let info = item.codeListInfo;
+                let id = info.categoryOid + '#' + info.oid;
+                if (!Object.key(codeListsToCopy).includes(id)) {
+                    let newCodeListOid = getOid('CodeList', currentCodeLists, info.oid);
+                    let sourceCodeList = sourceCodeLists[info.categoryOid].codeLists[info.oid];
+                    // Remove all items;
+                    codeListsToCopy[id] = { ...new CodeList({
+                        oid: newCodeListOid,
+                        ...sourceCodeList,
+                        standardOid: info.categoryOid,
+                        itemOrder: [],
+                        codeListItems: undefined,
+                    }) };
+                }
+            });
+    }
+    // Copy items
+    let itemDefs = {};
+    let itemRefs = { [itemGroupOid]: {} };
+    let codeLists = {};
+    let currentItemDefs = Object.keys(mdv.itemDefs).concat(existingOids.itemDefs);
+    let currentItemRefs = mdv.itemGroups[itemGroupOid].itemRefOrder.slice();
+    items.forEach(item => {
+        let newItemRefOid = getOid('ItemRef', undefined, currentItemRefs);
+        let newItemDefOid = getOid('ItemDef', undefined, currentItemDefs);
+        currentItemRefs.push(newItemRefOid);
+        currentItemDefs.push(newItemDefOid);
+        itemRefs[itemGroupOid][newItemRefOid] = { ...new ItemRef({ oid: newItemRefOid, itemOid: newItemDefOid }) };
+        let sources = { itemGroups: [itemGroupOid], valueLists: [] };
+        let itemDef = new ItemDef({
+            oid: newItemDefOid,
+            sources,
+            name: item.name,
+            dataType: item.dataType,
+        });
+        itemDef.addDescription({ ...new TranslatedText({ value: item.label }) });
+        if (options.saveNote && item.description) {
+            let purifiedDescription = item.description.replace('<', '&lt;').replace('>', '&gt;').replace('&', '&amp;');
+            item.note = '<p>' + purifiedDescription + '</p>';
+        }
+        if (options.addOrigin && item.description && /^[-A-Z]{2}\.[-A-Z]{1,8}/.test(item.description.trim())) {
+            // When description starts with something like DM.USUBJID or XX.--DUR
+            let origin = new Origin({ type: 'Predecessor' });
+            let originDescription = item.description.trim().replace(/^([-A-Z]{2,4}\.[-A-Z]{1,8}).*/, '$1');
+            itemDef.addDescription({ ...new TranslatedText({ value: originDescription }) });
+            item.addOrigin({ ...origin });
+        }
+        itemDefs[newItemDefOid] = { ...itemDef };
+    });
+
+    return { itemRefs, itemDefs, codeLists };
+};
+
+export default { copyVariables, copyComment, copyItemGroups, extractLeafIds, renameLeafIds, copyVariablesFromCdiscLibrary };
