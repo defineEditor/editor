@@ -596,6 +596,7 @@ const copyItemGroups = ({
 const copyVariablesFromCdiscLibrary = ({ items, itemGroupOid, mdv, sourceCodeLists, options, existingOids = {} } = {}) => {
     // Copy codelists
     let codeListsToCopy = {};
+    let codeLists = {};
     if (options.copyCodelist) {
         let currentCodeLists = Object.keys(mdv.codeLists).concat(existingOids.codeLists);
         // Select all unique codelists, which are referenced in the copied items
@@ -607,7 +608,7 @@ const copyVariablesFromCdiscLibrary = ({ items, itemGroupOid, mdv, sourceCodeLis
             .forEach(item => {
                 let info = item.codeListInfo;
                 let id = info.categoryOid + '#' + info.oid;
-                if (!Object.key(codeListsToCopy).includes(id)) {
+                if (!Object.keys(codeListsToCopy).includes(id)) {
                     let newCodeListOid = getOid('CodeList', currentCodeLists, info.oid);
                     let sourceCodeList = sourceCodeLists[info.categoryOid].codeLists[info.oid];
                     // Remove all items;
@@ -620,11 +621,15 @@ const copyVariablesFromCdiscLibrary = ({ items, itemGroupOid, mdv, sourceCodeLis
                     }) };
                 }
             });
+        // Convert id to the codelist.oid, as it is needed this way for the reducer
+        // Keep the generated id in codeListsToCopy as it is needed during itemDef processing
+        Object.values(codeListsToCopy).forEach(codeList => {
+            codeLists[codeList.oid] = codeList;
+        });
     }
     // Copy items
     let itemDefs = {};
     let itemRefs = { [itemGroupOid]: {} };
-    let codeLists = {};
     let currentItemDefs = Object.keys(mdv.itemDefs).concat(existingOids.itemDefs);
     let currentItemRefs = mdv.itemGroups[itemGroupOid].itemRefOrder.slice();
     items.forEach(item => {
@@ -632,7 +637,16 @@ const copyVariablesFromCdiscLibrary = ({ items, itemGroupOid, mdv, sourceCodeLis
         let newItemDefOid = getOid('ItemDef', currentItemDefs);
         currentItemRefs.push(newItemRefOid);
         currentItemDefs.push(newItemDefOid);
-        itemRefs[itemGroupOid][newItemRefOid] = { ...new ItemRef({ oid: newItemRefOid, itemOid: newItemDefOid }) };
+        let mandatory;
+        if (item.core === 'Req') {
+            mandatory = 'Yes';
+        } else if (['Exp', 'Perm'].includes(item.core)) {
+            mandatory = 'No';
+        }
+        itemRefs[itemGroupOid][newItemRefOid] = { ...new ItemRef({ oid: newItemRefOid, itemOid: newItemDefOid, mandatory }) };
+        if (options.addRole) {
+            itemRefs[itemGroupOid][newItemRefOid].role = item.role;
+        }
         let sources = { itemGroups: [itemGroupOid], valueLists: [] };
         let itemDef = new ItemDef({
             oid: newItemDefOid,
@@ -642,15 +656,30 @@ const copyVariablesFromCdiscLibrary = ({ items, itemGroupOid, mdv, sourceCodeLis
         });
         itemDef.addDescription({ ...new TranslatedText({ value: item.label }) });
         if (options.saveNote && item.description) {
-            let purifiedDescription = item.description.replace('<', '&lt;').replace('>', '&gt;').replace('&', '&amp;');
-            item.note = '<p>' + purifiedDescription + '</p>';
+            let text = item.description;
+            if (item.valueList !== undefined) {
+                text += '\nPossible values: ' + item.valueList.join(', ');
+            }
+            let purifiedDescription = text.replace('<', '&lt;').replace('>', '&gt;').replace('&', '&amp;').replace(/[\r\n]+/g, '<br/>');
+            itemDef.note = '<p>' + purifiedDescription + '</p>';
         }
         if (options.addOrigin && item.description && /^[-A-Z]{2}\.[-A-Z]{1,8}/.test(item.description.trim())) {
             // When description starts with something like DM.USUBJID or XX.--DUR
             let origin = new Origin({ type: 'Predecessor' });
-            let originDescription = item.description.trim().replace(/^([-A-Z]{2,4}\.[-A-Z]{1,8}).*/, '$1');
-            itemDef.addDescription({ ...new TranslatedText({ value: originDescription }) });
-            item.addOrigin({ ...origin });
+            let originDescription = item.description.trim().replace(/^([-A-Z]{2,4}\.[-A-Z]{1,8}).*/s, '$1');
+            origin.addDescription({ ...new TranslatedText({ value: originDescription }) });
+            itemDef.addOrigin({ ...origin });
+        }
+        // Add link to the new CodeList
+        if (options.copyCodelist) {
+            if (item.codeListInfo.categoryOid === 'thisdefine') {
+                itemDef.codeListOid = item.codeListInfo.oid;
+            } else if (item.codeListInfo.categoryOid !== undefined) {
+                let id = item.codeListInfo.categoryOid + '#' + item.codeListInfo.oid;
+                itemDef.codeListOid = codeListsToCopy[id].oid;
+                // Add the itemDef to sources
+                codeListsToCopy[id].sources.itemDefs.push(newItemDefOid);
+            }
         }
         itemDefs[newItemDefOid] = { ...itemDef };
     });

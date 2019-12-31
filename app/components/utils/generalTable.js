@@ -198,7 +198,6 @@ const useStyles = makeStyles(theme => ({
     toolbarGridItem: {
         flex: '1 1 1%',
         minHeight: 70,
-        overflow: 'hidden',
     },
     paginationGridItem: {
         flex: '1 1 1%',

@@ -68,7 +68,7 @@ const toggleRowSelect = (state, action) => {
     let currentTab = state.currentTab;
     let newSettings = state.settings.slice();
     let value;
-    if (state.settings[currentTab].rowSelect[action.source.oid]) {
+    if (Object.prototype.hasOwnProperty.call(state.settings[currentTab].rowSelect, action.source.oid)) {
         value = !state.settings[currentTab].rowSelect[action.source.oid];
     } else {
         value = true;
@@ -159,7 +159,9 @@ const loadTabs = (state, action) => {
             initialState.settings.some((setting, index) => {
                 let actualSetting = actualSettings[index];
                 // Check if any of the high-level setting properties changed
-                isDifferent = Object.keys(setting).some(settingProp => (!actualSetting[settingProp] && setting[settingProp] !== undefined));
+                isDifferent = Object.keys(setting).some(settingProp =>
+                    (!Object.prototype.hasOwnProperty.call(actualSetting, settingProp) && setting[settingProp] !== undefined)
+                );
                 if (isDifferent) {
                     return true;
                 }
@@ -198,7 +200,7 @@ const changeTablePageDetails = (state, action) => {
     let currentTab = state.currentTab;
     let newSettings = state.settings.slice();
     let paginationGroup;
-    if (state.settings[currentTab].pagination[action.updateObj.groupOid]) {
+    if (Object.prototype.hasOwnProperty.call(state.settings[currentTab].pagination, action.updateObj.groupOid)) {
         paginationGroup = { ...state.settings[currentTab].pagination[action.updateObj.groupOid], ...action.updateObj.details };
     } else {
         paginationGroup = { ...action.updateObj.details };

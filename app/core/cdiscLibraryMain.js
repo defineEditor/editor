@@ -65,7 +65,14 @@ const CdiscLibraryMain = (props) => {
                 <div className={classes.body}>
                     { currentView === 'products' && <CdiscLibraryProducts mountPoint={mountPoint}/>}
                     { currentView === 'itemGroups' && <CdiscLibraryItemGroups mountPoint={mountPoint}/>}
-                    { currentView === 'items' && <CdiscLibraryItems mountPoint={mountPoint} itemGroupOid={props.itemGroupOid}/>}
+                    { currentView === 'items' &&
+                        <CdiscLibraryItems
+                            mountPoint={mountPoint}
+                            itemGroupOid={props.itemGroupOid}
+                            onClose={props.onClose}
+                            position={props.position}
+                        />
+                    }
                 </div>
             )}
         </div>
@@ -75,6 +82,8 @@ const CdiscLibraryMain = (props) => {
 CdiscLibraryMain.propTypes = {
     mountPoint: PropTypes.string.isRequired,
     itemGroupOid: PropTypes.string,
+    onClose: PropTypes.func,
+    position: PropTypes.number,
 };
 
 export default CdiscLibraryMain;

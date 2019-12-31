@@ -81,7 +81,7 @@ const mapStateToProps = state => {
     let disableFindToggle = false;
     let currentPage = state.present.ui.main.currentPage;
     const tabs = state.present.ui.tabs;
-    if (currentPage === 'editor' && tabs['tabNames'] && tabs.tabNames[tabs.currentTab]) {
+    if (currentPage === 'editor' && tabs.tabNames && tabs.tabNames[tabs.currentTab] !== undefined) {
         disableFindToggle = ['Variables', 'Codelists', 'Coded Values', 'Review Comments'].includes(tabs.tabNames[tabs.currentTab]);
     } else if (currentPage === 'cdiscLibrary' || currentPage === 'controlledTerminology') {
         disableFindToggle = true;

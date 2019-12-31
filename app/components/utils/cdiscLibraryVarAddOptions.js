@@ -54,7 +54,7 @@ const getStyles = makeStyles(theme => ({
 const CdiscLibraryVarAddOptions = (props) => {
     const classes = getStyles();
     const [open, setOpen] = React.useState(false);
-    const { copyCodelist, addOrigin, saveNote, addExisting } = props.options;
+    const { copyCodelist, addOrigin, saveNote, addExisting, addRole } = props.options;
 
     const handleClick = (option) => (event) => {
         // Get the next dataType in the list
@@ -94,7 +94,7 @@ const CdiscLibraryVarAddOptions = (props) => {
                             <FormControl component="fieldset">
                                 <FormGroup>
                                     <FormControlLabel
-                                        key='codeList'
+                                        key='existing'
                                         control={
                                             <Switch
                                                 checked={addExisting}
@@ -140,6 +140,18 @@ const CdiscLibraryVarAddOptions = (props) => {
                                             />
                                         }
                                         label='Save CDISC description as programming note'
+                                    />
+                                    <FormControlLabel
+                                        key='role'
+                                        control={
+                                            <Switch
+                                                checked={addRole}
+                                                onChange={handleClick('addRole')}
+                                                value={addRole}
+                                                color='primary'
+                                            />
+                                        }
+                                        label='Add role attribute'
                                     />
                                 </FormGroup>
                             </FormControl>

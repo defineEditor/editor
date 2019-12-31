@@ -229,7 +229,12 @@ class AddVariableConnected extends React.Component {
                                 />
                         }
                         {tabNames[currentTab] === 'CDISC Library' &&
-                                <CdiscLibraryMain mountPoint='Variables' itemGroupOid={this.props.itemGroupOid}/>
+                                <CdiscLibraryMain
+                                    mountPoint='Variables'
+                                    onClose={this.props.onClose}
+                                    itemGroupOid={this.props.itemGroupOid}
+                                    position={this.props.position}
+                                />
                         }
                     </DialogContent>
                 </Dialog>

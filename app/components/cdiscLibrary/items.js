@@ -157,7 +157,7 @@ class ConnectedCdiscLibraryItems extends React.Component {
         return (
             <Grid container justify='flex-start' alignItems='baseline' wrap='nowrap' spacing={1}>
                 <Grid item>
-                    <Typography variant="h5" display='inline'>
+                    <Typography variant="h6" display='inline'>
                         {itemGroup.name}
                     </Typography>
                 </Grid>
@@ -254,6 +254,8 @@ class ConnectedCdiscLibraryItems extends React.Component {
                             mountPoint={this.props.mountPoint}
                             variableSet={this.state.currentVariableSet}
                             itemGroupOid={this.props.itemGroupOid}
+                            onClose={this.props.onClose}
+                            position={this.props.position}
                         />
                     </Grid>
                 )}
@@ -268,6 +270,8 @@ ConnectedCdiscLibraryItems.propTypes = {
     changeCdiscLibraryView: PropTypes.func.isRequired,
     mountPoint: PropTypes.string.isRequired,
     itemGroupOid: PropTypes.string,
+    onClose: PropTypes.func,
+    position: PropTypes.number,
 };
 ConnectedCdiscLibraryItems.displayName = 'CdiscLibraryItems';
 

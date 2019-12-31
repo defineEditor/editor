@@ -49,7 +49,7 @@ const mapDispatchToProps = dispatch => {
     };
 };
 const mapStateToProps = (state, props) => {
-    if (props.mountPoint === 'Main' && state.present.odm.study) {
+    if (props.mountPoint !== 'Main' && state.present.odm.study) {
         return {
             mdv: state.present.odm.study.metaDataVersion,
             stdCodeLists: state.present.stdCodeLists,
@@ -218,11 +218,13 @@ const deriveAdditionalAttributes = (items, codeLists, existingNames) => {
         }
 
         let __disableSelection = false;
+        let __styleClass;
         if (existingNames.length > 0 && existingNames.includes(item.name)) {
             __disableSelection = true;
+            __styleClass = { backgroundColor: '#E0E0E0' };
         }
 
-        return { ...item, dataType, codeListOptions, codeListInfo, __disableSelection };
+        return { ...item, dataType, codeListOptions, codeListInfo, __disableSelection, __styleClass };
     });
 };
 
@@ -231,12 +233,9 @@ class ConnectedItemTable extends React.Component {
         super(props);
 
         let { mdv, itemGroupOid } = props;
-        // Debug -- remove
-        // TODO: REMOVE
-        itemGroupOid = 'IG.AE';
         let codeLists;
         let existingNames = [];
-        if (props.mountPoint === 'Main') {
+        if (props.mountPoint !== 'Main') {
             // Get the current dataset and the list of current variables
             if (mdv.itemGroups[itemGroupOid]) {
                 Object.values(mdv.itemGroups[itemGroupOid].itemRefs).forEach(itemRef => {
@@ -254,10 +253,11 @@ class ConnectedItemTable extends React.Component {
             searchString: '',
             selected: [],
             options: {
-                addExisting: true,
+                addExisting: false,
                 copyCodelist: true,
                 addOrigin: true,
                 saveNote: true,
+                addRole: true,
             },
             codeLists,
             items,
@@ -313,9 +313,9 @@ class ConnectedItemTable extends React.Component {
         if (!props.codelist) {
             return null;
         } else {
-            if (this.props.mountPoint === 'Main' && props.row.codeListOptions.length > 1) {
+            if (this.props.mountPoint !== 'Main' && props.row.codeListOptions.length > 1) {
                 return (<CdiscLibraryCodeListButton setCodeListInfo={this.handleSetCodeListInfo} {...props}/>);
-            } else if (this.props.mountPoint === 'Main' && props.row.codeListOptions.length === 1) {
+            } else if (this.props.mountPoint !== 'Main' && props.row.codeListOptions.length === 1) {
                 return (<span>{props.row.codeListInfo.name}</span>);
             } else {
                 return (<span>{props.codelist}</span>);
@@ -323,7 +323,7 @@ class ConnectedItemTable extends React.Component {
         }
     };
 
-    addValues = () => {
+    addItems = () => {
         let { mdv, itemGroupOid, position } = this.props;
         // Get selected values
         let selectedItems = this.state.items.filter(item => this.state.selected.includes(item.ordinal));
@@ -349,6 +349,7 @@ class ConnectedItemTable extends React.Component {
             valueLists: {},
             whereClauses: {},
         });
+        this.props.onClose();
     }
 
     toggleOption = (option) => {
@@ -357,13 +358,15 @@ class ConnectedItemTable extends React.Component {
         if (option === 'addExisting') {
             let items = this.state.items.map(item => {
                 if (options[option]) {
-                    return { ...item, __disableSelection: false };
+                    return { ...item, __disableSelection: false, __styleClass: undefined };
                 } else {
                     let __disableSelection = false;
+                    let __styleClass;
                     if (this.state.existingNames.length > 0 && this.state.existingNames.includes(item.name)) {
                         __disableSelection = true;
+                        __styleClass = { backgroundColor: '#E0E0E0' };
                     }
-                    return { ...item, __disableSelection };
+                    return { ...item, __disableSelection, __styleClass };
                 }
             });
             this.setState({ options, items });
@@ -384,7 +387,7 @@ class ConnectedItemTable extends React.Component {
                         variant='contained'
                         key='addButton'
                         color='default'
-                        onClick={this.addValues}
+                        onClick={this.addItems}
                         className={classes.toolbarButton}
                     >
                         Add {numSelected} variable{numSelected > 1 && 's'}
@@ -421,13 +424,13 @@ class ConnectedItemTable extends React.Component {
             { id: 'ordinal', label: 'id', hidden: true, key: true },
             { id: 'name', label: 'Name', style: { wordBreak: 'break-all' } },
             { id: 'label', label: 'Label' },
-            { id: 'simpleDatatype', label: 'Datatype', formatter: mountPoint === 'Main' && this.dataTypeButton },
-            { id: 'codelist', label: 'Codelist', formatter: mountPoint === 'Main' && this.codeListButton },
+            { id: 'simpleDatatype', label: 'Datatype', formatter: mountPoint !== 'Main' && this.dataTypeButton },
+            { id: 'codelist', label: 'Codelist', formatter: mountPoint !== 'Main' && this.codeListButton },
             { id: 'description', label: 'Description', formatter: descriptionFormatter },
         ];
 
         // Additional columns shown only in the CDISC Library viewer mode
-        if (mountPoint !== 'Main') {
+        if (mountPoint === 'Main') {
             header.splice(4, 0, { id: 'core', label: 'Core' }, { id: 'role', label: 'Role', formatter: itemRole });
             // Drop columns for some of the layouts
             if (![1, 4].includes(layout)) {
@@ -443,7 +446,7 @@ class ConnectedItemTable extends React.Component {
 
         // Add width
         let colWidths;
-        if (mountPoint === 'Main') {
+        if (mountPoint !== 'Main') {
             colWidths = {
                 name: 120,
                 label: 230,
@@ -513,7 +516,7 @@ class ConnectedItemTable extends React.Component {
                 fullRowSelect
                 pagination
                 rowsPerPageOptions={[25, 50, 100, 250]}
-                selection = { mountPoint === 'Main' && { selected: this.state.selected, setSelected: this.handleSelectChange }}
+                selection = { mountPoint !== 'Main' && { selected: this.state.selected, setSelected: this.handleSelectChange }}
             />
         );
     }
@@ -529,6 +532,8 @@ ConnectedItemTable.propTypes = {
     variableSet: PropTypes.string,
     mdv: PropTypes.object,
     stdCodeLists: PropTypes.object,
+    onClose: PropTypes.func,
+    position: PropTypes.number,
 };
 
 const ItemTable = connect(mapStateToProps, mapDispatchToProps)(ConnectedItemTable);
