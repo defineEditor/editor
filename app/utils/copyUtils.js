@@ -652,6 +652,7 @@ const copyVariablesFromCdiscLibrary = ({ items, itemGroupOid, mdv, sourceCodeLis
             oid: newItemDefOid,
             sources,
             name: item.name,
+            fieldName: item.name.slice(0, 8),
             dataType: item.dataType,
         });
         itemDef.addDescription({ ...new TranslatedText({ value: item.label }) });

@@ -14,55 +14,63 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
-import ReactSelectEditor from 'editors/reactSelectEditor.js';
+// import ReactSelectEditor from 'editors/reactSelectEditor.js';
+import AutocompleteSelectEditor from 'editors/autocompleteSelectEditor.js';
 import getCodeListData from 'utils/getCodeListData.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
 
-const mapStateToProps = state => {
-    return {
-        enableSelectForStdCodedValues: state.present.settings.editor.enableSelectForStdCodedValues,
-        allowNonExtCodeListExtension: state.present.settings.editor.allowNonExtCodeListExtension,
-    };
+const CodedValueEditor = (props) => {
+    const enableSelectForStdCodedValues = useSelector(state => state.present.settings.editor.enableSelectForStdCodedValues);
+    const allowNonExtCodeListExtension = useSelector(state => state.present.settings.editor.allowNonExtCodeListExtension);
+    let stdCodeList = props.row.stdCodeList;
+    let codeList = props.row.codeList;
+    let defaultCodedValue;
+    if (props.defaultValue) {
+        defaultCodedValue = {
+            value: props.defaultValue,
+            label: props.defaultValue,
+        };
+    }
+    if (stdCodeList !== undefined && enableSelectForStdCodedValues) {
+        let stdCodeListData = getCodeListData(stdCodeList).codeListTable;
+        let existingValues = getCodedValuesAsArray(codeList);
+        let options = stdCodeListData
+            .filter(item => (!existingValues.includes(item.value) || item.value === props.defaultValue))
+            .map(item => ({
+                value: item.value,
+                label: item.value + ' (' + item.decode + ')',
+            }));
+        const handleUpdate = (event, option) => {
+            if (typeof option === 'object' && option !== null) {
+                // Value from the options
+                props.onUpdate(option.value);
+            } else if (typeof option === 'string') {
+                // New value
+                props.onUpdate(option);
+            }
+        };
+        return (
+            <AutocompleteSelectEditor
+                onChange={ handleUpdate }
+                defaultValue={defaultCodedValue}
+                options={options}
+                autoFocus={true}
+                freeSolo={stdCodeList.codeListExtensible === 'Yes' || allowNonExtCodeListExtension}
+                disableClearable
+            />
+        );
+    } else {
+        let options = {
+            checkForSpecialChars: { type: 'Error' },
+            lengthLimit: { type: 'Error', maxLength: 200 },
+        };
+        return (<SimpleInputEditor onUpdate={ props.onUpdate } {...props} options={options}/>);
+    }
 };
 
-class ConnectedCodedValueEditor extends React.Component {
-    render () {
-        let stdCodeList = this.props.row.stdCodeList;
-        let codeList = this.props.row.codeList;
-        if (stdCodeList !== undefined && this.props.enableSelectForStdCodedValues) {
-            let stdCodeListData = getCodeListData(stdCodeList).codeListTable;
-            let existingValues = getCodedValuesAsArray(codeList);
-            let options = stdCodeListData
-                .filter(item => (!existingValues.includes(item.value) || item.value === this.props.defaultValue))
-                .map(item => ({
-                    value: item.value,
-                    label: item.value + ' (' + item.decode + ')',
-                }));
-            // If current value is not from the standard codelist, still include it
-            if (!getCodedValuesAsArray(stdCodeList).includes(this.props.defaultValue)) {
-                options.push({ value: this.props.defaultValue, label: this.props.defaultValue });
-            }
-            return (
-                <ReactSelectEditor
-                    handleChange={ this.props.onUpdate }
-                    value={this.props.defaultValue}
-                    options={options}
-                    extensible={stdCodeList.codeListExtensible === 'Yes' || this.props.allowNonExtCodeListExtension}
-                />
-            );
-        } else {
-            let options = {
-                checkForSpecialChars: { type: 'Error' },
-                lengthLimit: { type: 'Error', maxLength: 200 },
-            };
-            return (<SimpleInputEditor onUpdate={ this.props.onUpdate } {...this.props} options={options}/>);
-        }
-    }
-}
-
-ConnectedCodedValueEditor.propTypes = {
+CodedValueEditor.propTypes = {
     defaultValue: PropTypes.string.isRequired,
     row: PropTypes.object.isRequired,
     enableSelectForStdCodedValues: PropTypes.bool,
@@ -70,5 +78,4 @@ ConnectedCodedValueEditor.propTypes = {
     onUpdate: PropTypes.func
 };
 
-const CodedValueEditor = connect(mapStateToProps)(ConnectedCodedValueEditor);
 export default CodedValueEditor;

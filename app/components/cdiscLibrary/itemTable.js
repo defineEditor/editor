@@ -289,12 +289,12 @@ class ConnectedItemTable extends React.Component {
     };
 
     dataTypeButton = (props) => {
-        if (props.simpleDatatype === 'Num' || props.row.describedValueDomain === 'ISO 8601') {
+        if (props.row.__disableSelection !== true && (props.simpleDatatype === 'Num' || props.row.describedValueDomain === 'ISO 8601')) {
             return (
                 <CdiscLibraryDataTypeButton setDataType={this.handleDataTypeChange} {...props} />
             );
-        } else if (props.simpleDatatype === 'Char') {
-            return 'text';
+        } else {
+            return props.row.dataType;
         }
     }
 
@@ -313,10 +313,15 @@ class ConnectedItemTable extends React.Component {
         if (!props.codelist) {
             return null;
         } else {
-            if (this.props.mountPoint !== 'Main' && props.row.codeListOptions.length > 1) {
-                return (<CdiscLibraryCodeListButton setCodeListInfo={this.handleSetCodeListInfo} {...props}/>);
-            } else if (this.props.mountPoint !== 'Main' && props.row.codeListOptions.length === 1) {
-                return (<span>{props.row.codeListInfo.name}</span>);
+            if (this.props.mountPoint !== 'Main') {
+                let numOptions = props.row.codeListOptions.length;
+                if (numOptions === 1 || (props.row.__disableSelection && numOptions > 0)) {
+                    return (<span>{props.row.codeListInfo.name}</span>);
+                } else if (numOptions > 1) {
+                    return (<CdiscLibraryCodeListButton setCodeListInfo={this.handleSetCodeListInfo} {...props}/>);
+                } else {
+                    return (<span>{props.codelist}</span>);
+                }
             } else {
                 return (<span>{props.codelist}</span>);
             }

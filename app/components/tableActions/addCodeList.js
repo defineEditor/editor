@@ -33,18 +33,16 @@ import AddCodeListFromOtherStudy from 'components/tableActions/addCodeListFromOt
 const styles = theme => ({
     dialog: {
         position: 'absolute',
-        top: '5%',
-        maxHeight: '90%',
+        top: '2.5%',
+        height: '95%',
         width: '90%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingLeft: theme.spacing(2),
-        paddingRight: theme.spacing(2),
-        paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'primary',
+        display: 'flex',
     },
     appBar: {
         transform: 'translate(0%, calc(-20%+0.5px))',
