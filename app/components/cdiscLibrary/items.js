@@ -66,9 +66,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = (state, props) => {
     let cdiscLibrary;
-    if (props.mountPoint === 'Main') {
+    if (props.mountPoint === 'main') {
         cdiscLibrary = state.present.ui.cdiscLibrary;
-    } else if (['Variables', 'Datasets'].includes(props.mountPoint)) {
+    } else if (['variables', 'datasets'].includes(props.mountPoint)) {
         cdiscLibrary = state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].cdiscLibrary;
     }
     if (cdiscLibrary) {
@@ -221,9 +221,9 @@ class ConnectedCdiscLibraryItems extends React.Component {
     render () {
         const { classes } = this.props;
         let rootClass;
-        if (this.props.mountPoint === 'Main') {
+        if (this.props.mountPoint === 'main') {
             rootClass = classes.main;
-        } else if (['Variables', 'Datasets'].includes(this.props.mountPoint)) {
+        } else if (['variables', 'datasets'].includes(this.props.mountPoint)) {
             rootClass = classes.addItem;
         }
 

@@ -26,7 +26,7 @@ import grey from '@material-ui/core/colors/grey';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import DescriptionEditor from 'editors/descriptionEditor.js';
 import InteractiveKeyOrderEditor from 'components/orderEditors/interactiveKeyOrderEditor.js';
-import AddDataset from 'components/tableActions/addDataset.js';
+import AddItem from 'components/tableActions/addItem.js';
 import DatasetOrderEditor from 'components/orderEditors/datasetOrderEditor.js';
 import LeafEditor from 'editors/leafEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
@@ -526,7 +526,7 @@ class ConnectedDatasetTable extends React.Component {
                 )
                 }
                 { this.state.showAddDataset && (
-                    <AddDataset
+                    <AddItem
                         position={this.state.insertPosition}
                         onClose={ () => { this.setState({ showAddDataset: false }); } }
                     />

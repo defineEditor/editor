@@ -147,7 +147,7 @@ class AddResultDisplayConnected extends React.Component {
                             {tabNames[currentTab] === 'Another Define' &&
                                 <AddFromOtherStudy
                                     position={this.props.position}
-                                    type='resultDisplay'
+                                    type='resultDisplays'
                                     onClose={this.props.onClose}
                                 />
                             }

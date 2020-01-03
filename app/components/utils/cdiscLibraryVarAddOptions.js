@@ -127,7 +127,7 @@ const CdiscLibraryVarAddOptions = (props) => {
                                                 color='primary'
                                             />
                                         }
-                                        label='Add predeccessor origin'
+                                        label='Add predeccessor origin where possible'
                                     />
                                     <FormControlLabel
                                         key='comment'

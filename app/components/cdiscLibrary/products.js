@@ -239,9 +239,9 @@ class ConnectedProducts extends React.Component {
     render () {
         const { classes } = this.props;
         let rootClass;
-        if (this.props.mountPoint === 'Main') {
+        if (this.props.mountPoint === 'main') {
             rootClass = classes.main;
-        } else if (['Variables', 'Datasets'].includes(this.props.mountPoint)) {
+        } else if (['variables', 'datasets'].includes(this.props.mountPoint)) {
             rootClass = classes.addItem;
         }
 

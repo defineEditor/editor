@@ -70,9 +70,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = (state, props) => {
     let cdiscLibrary;
-    if (props.mountPoint === 'Main') {
+    if (props.mountPoint === 'main') {
         cdiscLibrary = state.present.ui.cdiscLibrary;
-    } else if (['Variables', 'Datasets'].includes(props.mountPoint)) {
+    } else if (['variables', 'datasets'].includes(props.mountPoint)) {
         cdiscLibrary = state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].cdiscLibrary;
     }
     if (cdiscLibrary) {
@@ -153,7 +153,7 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                                 }
                             </Breadcrumbs>
                         </Grid>
-                        { currentView === 'itemGroups' &&
+                        { currentView === 'itemGroups' && this.props.mountPoint !== 'datasets' &&
                                 <Grid item>
                                     <FormControlLabel
                                         control={

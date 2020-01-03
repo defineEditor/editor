@@ -23,6 +23,8 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import CdiscLibraryBreadcrumbs from 'components/cdiscLibrary/breadcrumbs.js';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import Checkbox from '@material-ui/core/Checkbox';
 import Loading from 'components/utils/loading.js';
 import {
     changeCdiscLibraryView,
@@ -73,9 +75,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = (state, props) => {
     let cdiscLibrary;
-    if (props.mountPoint === 'Main') {
+    if (props.mountPoint === 'main') {
         cdiscLibrary = state.present.ui.cdiscLibrary;
-    } else if (['Variables', 'Datasets'].includes(props.mountPoint)) {
+    } else if (['variables', 'datasets'].includes(props.mountPoint)) {
         cdiscLibrary = state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].cdiscLibrary;
     }
     if (cdiscLibrary) {
@@ -96,6 +98,7 @@ class ConnectedItemGroups extends React.Component {
             product: null,
             type: null,
             searchString: '',
+            selectedItemGroups: [],
         };
     }
 
@@ -125,14 +128,14 @@ class ConnectedItemGroups extends React.Component {
                 .sort((dc1, dc2) => (dc1.ordinal > dc2.ordinal ? 1 : -1))
                 .forEach(dataClass => {
                     if (Object.keys(dataClass.getItems({ immediate: true })).length === 0) {
-                        itemGroups.push({ name: dataClass.name, label: dataClass.label, type: 'headerGroup' });
+                        itemGroups.push({ id: dataClass.id, name: dataClass.name, label: dataClass.label, model: product.model, type: 'headerGroup' });
                     } else {
-                        itemGroups.push({ name: dataClass.name, label: dataClass.label, type: 'parentGroup' });
+                        itemGroups.push({ id: dataClass.id, name: dataClass.name, label: dataClass.label, model: product.model, type: 'parentGroup' });
                     }
                     let classGroups = dataClass.getItemGroups();
                     let childGroups = Object.values(classGroups)
                         .sort((ig1, ig2) => (ig1.name > ig2.name ? 1 : -1))
-                        .map(group => ({ name: group.name, label: group.label, type: 'childGroup' }));
+                        .map(group => ({ id: group.id, name: group.name, label: group.label, model: product.model, type: 'childGroup' }));
                     if (childGroups.length > 0) {
                         itemGroups = itemGroups.concat(childGroups);
                     }
@@ -141,6 +144,7 @@ class ConnectedItemGroups extends React.Component {
         } else {
             let itemGroupsRaw = await product.getItemGroups({ type: 'short' });
             let itemGroups = Object.values(itemGroupsRaw).sort((ig1, ig2) => (ig1.name > ig2.name ? 1 : -1));
+            itemGroups = itemGroups.map(itemGroup => ({ ...itemGroup, id: itemGroup.name, model: product.model, type: 'parentGroup' }));
             this.setState({ itemGroups, product });
         }
     }
@@ -283,6 +287,53 @@ class ConnectedItemGroups extends React.Component {
 
         const classes = this.props.classes;
 
+        if (this.props.mountPoint !== 'datasets') {
+            return (
+                <List>
+                    {data.map(itemGroup => (
+                        <ListItem
+                            button
+                            key={itemGroup.name}
+                            className={classes.listItem}
+                            disabled={itemGroup.type === 'headerGroup'}
+                            onClick={this.selectItemGroup(itemGroup)}
+                        >
+                            <ListItemText
+                                primary={itemGroup.name}
+                                secondary={itemGroup.label}
+                                className={this.getListClassName(itemGroup, classes)}
+                            />
+                        </ListItem>
+                    ))}
+                </List>
+            );
+        } else {
+            return this.getListForDatasets(data, classes);
+        }
+    }
+
+    handleSelectItemGroup = (id) => (event) => {
+        let selected = this.state.selectedItemGroups;
+        const selectedIndex = selected.indexOf(id);
+        let newSelected = [];
+
+        if (selectedIndex === -1) {
+            newSelected = newSelected.concat(selected, id);
+        } else if (selectedIndex === 0) {
+            newSelected = newSelected.concat(selected.slice(1));
+        } else if (selectedIndex === selected.length - 1) {
+            newSelected = newSelected.concat(selected.slice(0, -1));
+        } else if (selectedIndex > 0) {
+            newSelected = newSelected.concat(
+                selected.slice(0, selectedIndex),
+                selected.slice(selectedIndex + 1),
+            );
+        }
+
+        this.setState({ selectedItemGroups: newSelected });
+    }
+
+    getListForDatasets = (data, classes) => {
         return (
             <List>
                 {data.map(itemGroup => (
@@ -290,9 +341,18 @@ class ConnectedItemGroups extends React.Component {
                         button
                         key={itemGroup.name}
                         className={classes.listItem}
-                        disabled={itemGroup.type === 'headerGroup'}
-                        onClick={this.selectItemGroup(itemGroup)}
+                        disabled={itemGroup.type === 'headerGroup' || (itemGroup.type === 'parentGroup' && itemGroup.model !== 'ADaM') }
+                        onClick={this.handleSelectItemGroup(itemGroup.id)}
                     >
+                        <ListItemIcon>
+                            <Checkbox
+                                edge="start"
+                                checked={this.state.selectedItemGroups.includes(itemGroup.id)}
+                                tabIndex={-1}
+                                disableRipple
+                                color='primary'
+                            />
+                        </ListItemIcon>
                         <ListItemText
                             primary={itemGroup.name}
                             secondary={itemGroup.label}
@@ -307,9 +367,9 @@ class ConnectedItemGroups extends React.Component {
     render () {
         const { classes } = this.props;
         let rootClass;
-        if (this.props.mountPoint === 'Main') {
+        if (this.props.mountPoint === 'main') {
             rootClass = classes.main;
-        } else if (['Variables', 'Datasets'].includes(this.props.mountPoint)) {
+        } else if (['variables', 'datasets'].includes(this.props.mountPoint)) {
             rootClass = classes.addItem;
         }
 

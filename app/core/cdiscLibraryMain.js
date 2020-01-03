@@ -50,17 +50,17 @@ const CdiscLibraryMain = (props) => {
     const mountPoint = props.mountPoint;
     const settings = useSelector(state => state.present.settings.cdiscLibrary);
     let currentView, classes;
-    if (mountPoint === 'Main') {
+    if (mountPoint === 'main') {
         classes = getStylesMain();
         currentView = useSelector(state => state.present.ui.cdiscLibrary.currentView); // eslint-disable-line react-hooks/rules-of-hooks
-    } else if (['Variables', 'Datasets'].includes(mountPoint)) {
+    } else if (['variables', 'datasets'].includes(mountPoint)) {
         classes = getStylesVarDs();
         currentView = useSelector(state => state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].cdiscLibrary.currentView); // eslint-disable-line react-hooks/rules-of-hooks
     }
 
     return (
         <div className={classes.root}>
-            { mountPoint === 'Main' && <NavigationBar /> }
+            { mountPoint === 'main' && <NavigationBar /> }
             { settings.enableCdiscLibrary === true && (
                 <div className={classes.body}>
                     { currentView === 'products' && <CdiscLibraryProducts mountPoint={mountPoint}/>}

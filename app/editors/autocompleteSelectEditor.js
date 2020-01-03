@@ -44,6 +44,7 @@ const AutocompleteSelectEditor = (props) => {
                     margin="normal"
                     autoFocus={props.autoFocus}
                     onKeyDown={handleKeyDown}
+                    multiline={props.multiline}
                     fullWidth
                 />
             )}

@@ -154,17 +154,17 @@ export const closeSnackbar = () => ({
 });
 
 export const changeCdiscLibraryView = (updateObj, mountPoint) => {
-    if (mountPoint === 'Main') {
+    if (mountPoint === 'main') {
         return {
             type: UI_CHANGECDISCLIBRARYVIEW,
             updateObj
         };
-    } else if (mountPoint === 'Variables') {
+    } else if (mountPoint === 'variables') {
         return {
             type: UI_VARCHANGECDISCLIBRARYVIEW,
             updateObj
         };
-    } else if (mountPoint === 'Datasets') {
+    } else if (mountPoint === 'datasets') {
         return {
             type: UI_ITEMGROUPCHANGECDISCLIBRARYVIEW,
             updateObj
@@ -173,11 +173,11 @@ export const changeCdiscLibraryView = (updateObj, mountPoint) => {
 };
 
 export const toggleCdiscLibraryItemGroupGridView = (mountPoint) => {
-    if (mountPoint === 'Main') {
+    if (mountPoint === 'main') {
         return {
             type: UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
         };
-    } else if (mountPoint === 'Variables') {
+    } else if (mountPoint === 'variables') {
         return {
             type: UI_VARTOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
         };

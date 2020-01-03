@@ -44,7 +44,7 @@ import applyFilter from 'utils/applyFilter.js';
 import SelectColumns from 'components/utils/selectColumns.js';
 import KeyOrderEditor from 'components/orderEditors/keyOrderEditor.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
-import AddVariable from 'components/tableActions/addVariable.js';
+import AddVariable from 'components/tableActions/addItem.js';
 import ItemDescriptionEditor from 'editors/itemDescriptionEditor.js';
 import VariableOrderEditor from 'components/orderEditors/variableOrderEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';

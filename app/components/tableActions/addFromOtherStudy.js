@@ -145,7 +145,7 @@ class addFromOtherStudyConnected extends React.Component {
                         </Grid>
                     </Grid>
                 </Grid>
-                { sourceExists && this.props.type === 'variable' &&
+                { sourceExists && this.props.type === 'variables' &&
                         <Grid item xs={12} className={classes.mainTable}>
                             <AddVariableFromDefine
                                 sourceMdv={this.state.sourceOdm.study.metaDataVersion}
@@ -156,7 +156,7 @@ class addFromOtherStudyConnected extends React.Component {
                             />
                         </Grid>
                 }
-                { sourceExists && this.props.type === 'dataset' &&
+                { sourceExists && this.props.type === 'datasets' &&
                         <Grid item xs={12} className={classes.mainTable}>
                             <AddDatasetFromDefine
                                 sourceMdv={this.state.sourceOdm.study.metaDataVersion}
@@ -166,7 +166,7 @@ class addFromOtherStudyConnected extends React.Component {
                             />
                         </Grid>
                 }
-                { sourceExists && this.props.type === 'resultDisplay' &&
+                { sourceExists && this.props.type === 'resultDisplays' &&
                         <Grid item xs={12} className={classes.mainTable}>
                             <AddResultDisplayFromDefine
                                 sourceMdv={this.state.sourceOdm.study.metaDataVersion}

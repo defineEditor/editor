@@ -43,7 +43,6 @@ const main = (() => {
 })();
 
 const tabs = (() => {
-    /* TODO: 'Methods', 'Comments', 'Where Conditions' */
     let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents', 'Result Displays', 'Analysis Results', 'Review Comments'];
     let tabObjectNames = ['standards', 'datasets', 'variables', 'codeLists', 'codedValues', 'documents', 'resultDisplays', 'analysisResults', 'reviewComments'];
 
@@ -65,7 +64,7 @@ const tabs = (() => {
             settings[i].panelStatus = {};
             settings[i].showResolved = true;
         }
-        if (tabNames[i] === 'Variables') {
+        if (['Variables', 'Datasets'].includes(tabNames[i])) {
             settings[i].cdiscLibrary = {
                 currentView: 'products',
                 products: {

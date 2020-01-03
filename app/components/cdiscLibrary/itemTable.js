@@ -49,7 +49,7 @@ const mapDispatchToProps = dispatch => {
     };
 };
 const mapStateToProps = (state, props) => {
-    if (props.mountPoint !== 'Main' && state.present.odm.study) {
+    if (props.mountPoint !== 'main' && state.present.odm.study) {
         return {
             mdv: state.present.odm.study.metaDataVersion,
             stdCodeLists: state.present.stdCodeLists,
@@ -235,7 +235,7 @@ class ConnectedItemTable extends React.Component {
         let { mdv, itemGroupOid } = props;
         let codeLists;
         let existingNames = [];
-        if (props.mountPoint !== 'Main') {
+        if (props.mountPoint !== 'main') {
             // Get the current dataset and the list of current variables
             if (mdv.itemGroups[itemGroupOid]) {
                 Object.values(mdv.itemGroups[itemGroupOid].itemRefs).forEach(itemRef => {
@@ -313,7 +313,7 @@ class ConnectedItemTable extends React.Component {
         if (!props.codelist) {
             return null;
         } else {
-            if (this.props.mountPoint !== 'Main') {
+            if (this.props.mountPoint !== 'main') {
                 let numOptions = props.row.codeListOptions.length;
                 if (numOptions === 1 || (props.row.__disableSelection && numOptions > 0)) {
                     return (<span>{props.row.codeListInfo.name}</span>);
@@ -429,13 +429,13 @@ class ConnectedItemTable extends React.Component {
             { id: 'ordinal', label: 'id', hidden: true, key: true },
             { id: 'name', label: 'Name', style: { wordBreak: 'break-all' } },
             { id: 'label', label: 'Label' },
-            { id: 'simpleDatatype', label: 'Datatype', formatter: mountPoint !== 'Main' && this.dataTypeButton },
-            { id: 'codelist', label: 'Codelist', formatter: mountPoint !== 'Main' && this.codeListButton },
+            { id: 'simpleDatatype', label: 'Datatype', formatter: mountPoint !== 'main' && this.dataTypeButton },
+            { id: 'codelist', label: 'Codelist', formatter: mountPoint !== 'main' && this.codeListButton },
             { id: 'description', label: 'Description', formatter: descriptionFormatter },
         ];
 
         // Additional columns shown only in the CDISC Library viewer mode
-        if (mountPoint === 'Main') {
+        if (mountPoint === 'main') {
             header.splice(4, 0, { id: 'core', label: 'Core' }, { id: 'role', label: 'Role', formatter: itemRole });
             // Drop columns for some of the layouts
             if (![1, 4].includes(layout)) {
@@ -451,7 +451,7 @@ class ConnectedItemTable extends React.Component {
 
         // Add width
         let colWidths;
-        if (mountPoint !== 'Main') {
+        if (mountPoint !== 'main') {
             colWidths = {
                 name: 120,
                 label: 230,
@@ -521,7 +521,7 @@ class ConnectedItemTable extends React.Component {
                 fullRowSelect
                 pagination
                 rowsPerPageOptions={[25, 50, 100, 250]}
-                selection = { mountPoint !== 'Main' && { selected: this.state.selected, setSelected: this.handleSelectChange }}
+                selection = { mountPoint !== 'main' && { selected: this.state.selected, setSelected: this.handleSelectChange }}
             />
         );
     }

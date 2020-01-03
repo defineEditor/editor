@@ -30,6 +30,8 @@ import CdiscLibraryMain from 'core/cdiscLibraryMain.js';
 import AddVariableSimple from 'components/tableActions/addVariableSimple.js';
 import AddVariableFromDefine from 'components/tableActions/addVariableFromDefine.js';
 import AddFromOtherStudy from 'components/tableActions/addFromOtherStudy.js';
+import AddDatasetSimple from 'components/tableActions/addDatasetSimple.js';
+import AddDatasetFromDefine from 'components/tableActions/addDatasetFromDefine.js';
 import { changeCdiscLibraryView } from 'actions/index.js';
 
 const styles = theme => ({
@@ -68,17 +70,23 @@ const mapStateToProps = state => {
         defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
         enableCdiscLibrary: state.present.settings.cdiscLibrary.enableCdiscLibrary,
         classTypes: state.present.stdConstants.classTypes,
-        editorTab: state.present.ui.tabs.tabNames[state.present.ui.tabs.currentTab],
+        editorTab: state.present.ui.tabs.tabObjectNames[state.present.ui.tabs.currentTab],
     };
 };
 
-const tabNames = ['New Variable', 'This Define', 'Another Define', 'CDISC Library'];
-
-class AddVariableConnected extends React.Component {
+class AddItemConnected extends React.Component {
     constructor (props) {
         super(props);
+        let tabNames = [];
+        if (props.editorTab === 'variables') {
+            tabNames = ['New Variable', 'This Define', 'Another Define', 'CDISC Library'];
+        }
+        if (props.editorTab === 'datasets') {
+            tabNames = ['New Dataset', 'This Define', 'Another Define', 'CDISC Library'];
+        }
         this.state = {
             currentTab: 1,
+            tabNames,
         };
     }
 
@@ -98,7 +106,10 @@ class AddVariableConnected extends React.Component {
         let defaultStandard = Object.values(standards).filter(std => std.isDefault).map(std => std.name + '-' + std.version.replace('.', '-'))[0];
         // let allStandards =  Object.values(standards).map(std => std.name + '-' + std.version.replace('.','-'));
         let product;
-        let itemGroup = mdv.itemGroups[this.props.itemGroupOid];
+        let itemGroup = {};
+        if (this.props.editorTab === 'variables') {
+            itemGroup = mdv.itemGroups[this.props.itemGroupOid];
+        }
         // In 2.1 this should be done using standards, in 2.0 it is done 'manually'
         if (mdv.model === 'ADaM') {
             if (itemGroup.datasetClass && itemGroup.datasetClass.name === 'OCCURRENCE DATA STRUCTURE') {
@@ -123,29 +134,37 @@ class AddVariableConnected extends React.Component {
         });
 
         let cdiscItemGroup;
-        if (mdv.model === 'ADaM' &&
-            itemGroup.datasetClass &&
-            classTypes[mdv.model] &&
-            classTypes[mdv.model][itemGroup.datasetClass.name]
-        ) {
-            cdiscItemGroup = await product.getItemGroup(classTypes[mdv.model][itemGroup.datasetClass.name]);
-        } else if ((mdv.model === 'SDTM' || mdv.model === 'SEND') && itemGroup.domain) {
-            if (itemGroup.name.toUpperCase().startsWith('SUPP') || itemGroup.name.toUpperCase().startsWith('SUPP')) {
-                cdiscItemGroup = await product.getItemGroup('SUPPQUAL');
-            } else {
-                cdiscItemGroup = await product.getItemGroup(itemGroup.domain);
+        if (this.props.editorTab === 'variables') {
+            if (mdv.model === 'ADaM' &&
+                itemGroup.datasetClass &&
+                classTypes[mdv.model] &&
+                classTypes[mdv.model][itemGroup.datasetClass.name]
+            ) {
+                cdiscItemGroup = await product.getItemGroup(classTypes[mdv.model][itemGroup.datasetClass.name]);
+            } else if ((mdv.model === 'SDTM' || mdv.model === 'SEND') && itemGroup.domain) {
+                if (itemGroup.name.toUpperCase().startsWith('SUPP') || itemGroup.name.toUpperCase().startsWith('SUPP')) {
+                    cdiscItemGroup = await product.getItemGroup('SUPPQUAL');
+                } else {
+                    cdiscItemGroup = await product.getItemGroup(itemGroup.domain);
+                }
             }
-        }
-        if (cdiscItemGroup) {
             if (cdiscItemGroup) {
-                this.props.changeCdiscLibraryView({
-                    view: 'items',
-                    productId: product.id,
-                    productName,
-                    itemGroupId: cdiscItemGroup.name,
-                    type: 'itemGroup'
-                }, this.props.editorTab);
+                if (cdiscItemGroup) {
+                    this.props.changeCdiscLibraryView({
+                        view: 'items',
+                        productId: product.id,
+                        productName,
+                        itemGroupId: cdiscItemGroup.name,
+                        type: 'itemGroup'
+                    }, this.props.editorTab);
+                }
             }
+        } else if (this.props.editorTab === 'datasets') {
+            this.props.changeCdiscLibraryView({
+                view: 'itemGroups',
+                productId: product.id,
+                productName,
+            }, this.props.editorTab);
         }
     }
 
@@ -160,7 +179,7 @@ class AddVariableConnected extends React.Component {
     }
 
     render () {
-        const { classes } = this.props;
+        const { classes, editorTab } = this.props;
         const { currentTab } = this.state;
 
         return (
@@ -185,7 +204,7 @@ class AddVariableConnected extends React.Component {
                                 indicatorColor='primary'
                                 textColor='primary'
                             >
-                                { tabNames.map(tab => {
+                                { this.state.tabNames.map(tab => {
                                     return <Tab key={tab} label={tab} disabled={ tab === 'CDISC Library' && !this.props.enableCdiscLibrary}/>;
                                 })
                                 }
@@ -193,7 +212,8 @@ class AddVariableConnected extends React.Component {
                         </AppBar>
                         <Grid container spacing={0} justify='space-between' alignItems='center'>
                             <Grid item>
-                                Add Variable
+                                { editorTab === 'variables' && 'Add Variable' }
+                                { editorTab === 'datasets' && 'Add Dataset' }
                             </Grid>
                             <Grid item>
                                 <IconButton
@@ -206,35 +226,54 @@ class AddVariableConnected extends React.Component {
                         </Grid>
                     </DialogTitle>
                     <DialogContent className={classes.dialogContent}>
-                        {tabNames[currentTab] === 'New Variable' && (
-                            <AddVariableSimple
-                                itemGroupOid={this.props.itemGroupOid}
+                        { editorTab === 'variables' && (
+                            <React.Fragment>
+                                {this.state.tabNames[currentTab] === 'New Variable' && (
+                                    <AddVariableSimple
+                                        itemGroupOid={this.props.itemGroupOid}
+                                        position={this.props.position}
+                                        onClose={this.props.onClose}
+                                    />
+                                )}
+                                {this.state.tabNames[currentTab] === 'This Define' &&
+                                        <AddVariableFromDefine
+                                            itemGroupOid={this.props.itemGroupOid}
+                                            position={this.props.position}
+                                            onClose={this.props.onClose}
+                                        />
+                                }
+                            </React.Fragment>
+                        )}
+                        { editorTab === 'datasets' && (
+                            <React.Fragment>
+                                {this.state.tabNames[currentTab] === 'New Dataset' && (
+                                    <AddDatasetSimple
+                                        position={this.props.position}
+                                        onClose={this.props.onClose}
+                                    />
+                                )}
+                                {this.state.tabNames[currentTab] === 'This Define' &&
+                                        <AddDatasetFromDefine
+                                            position={this.props.position}
+                                            onClose={this.props.onClose}
+                                        />
+                                }
+                            </React.Fragment>
+                        )}
+                        {this.state.tabNames[currentTab] === 'Another Define' &&
+                            <AddFromOtherStudy
                                 position={this.props.position}
+                                type={editorTab}
                                 onClose={this.props.onClose}
                             />
-                        )}
-                        {tabNames[currentTab] === 'This Define' &&
-                                <AddVariableFromDefine
-                                    itemGroupOid={this.props.itemGroupOid}
-                                    position={this.props.position}
-                                    onClose={this.props.onClose}
-                                />
                         }
-                        {tabNames[currentTab] === 'Another Define' &&
-                                <AddFromOtherStudy
-                                    itemGroupOid={this.props.itemGroupOid}
-                                    position={this.props.position}
-                                    type='variable'
-                                    onClose={this.props.onClose}
-                                />
-                        }
-                        {tabNames[currentTab] === 'CDISC Library' &&
-                                <CdiscLibraryMain
-                                    mountPoint='Variables'
-                                    onClose={this.props.onClose}
-                                    itemGroupOid={this.props.itemGroupOid}
-                                    position={this.props.position}
-                                />
+                        {this.state.tabNames[currentTab] === 'CDISC Library' &&
+                            <CdiscLibraryMain
+                                mountPoint={editorTab}
+                                onClose={this.props.onClose}
+                                itemGroupOid={this.props.itemGroupOid}
+                                position={this.props.position}
+                            />
                         }
                     </DialogContent>
                 </Dialog>
@@ -243,18 +282,18 @@ class AddVariableConnected extends React.Component {
     }
 }
 
-AddVariableConnected.propTypes = {
+AddItemConnected.propTypes = {
     classes: PropTypes.object.isRequired,
     mdv: PropTypes.object.isRequired,
     classTypes: PropTypes.object.isRequired,
     enableCdiscLibrary: PropTypes.bool.isRequired,
     editorTab: PropTypes.string.isRequired,
-    itemGroupOid: PropTypes.string.isRequired,
+    itemGroupOid: PropTypes.string,
     defineVersion: PropTypes.string.isRequired,
     position: PropTypes.number,
     onClose: PropTypes.func.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
 };
 
-const AddVariable = connect(mapStateToProps, mapDispatchToProps)(AddVariableConnected);
-export default withStyles(styles)(AddVariable);
+const AddItem = connect(mapStateToProps, mapDispatchToProps)(AddItemConnected);
+export default withStyles(styles)(AddItem);

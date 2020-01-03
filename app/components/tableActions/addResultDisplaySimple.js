@@ -45,7 +45,7 @@ const mapStateToProps = state => {
     };
 };
 
-class AddVariableSimpleConnected extends React.Component {
+class AddResultDisplaySimpleConnected extends React.Component {
     constructor (props) {
         super(props);
         const maxOrderNum = Object.keys(this.props.resultDisplays).length + 1;
@@ -138,7 +138,7 @@ class AddVariableSimpleConnected extends React.Component {
     }
 }
 
-AddVariableSimpleConnected.propTypes = {
+AddResultDisplaySimpleConnected.propTypes = {
     classes: PropTypes.object.isRequired,
     resultDisplays: PropTypes.object.isRequired,
     defineVersion: PropTypes.string.isRequired,
@@ -146,5 +146,5 @@ AddVariableSimpleConnected.propTypes = {
     onClose: PropTypes.func.isRequired,
 };
 
-const AddVariableSimple = connect(mapStateToProps, mapDispatchToProps)(AddVariableSimpleConnected);
-export default withStyles(styles)(AddVariableSimple);
+const AddResultDisplaySimple = connect(mapStateToProps, mapDispatchToProps)(AddResultDisplaySimpleConnected);
+export default withStyles(styles)(AddResultDisplaySimple);
