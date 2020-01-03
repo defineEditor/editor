@@ -13,8 +13,7 @@
 ***********************************************************************************/
 
 import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import ModalDeleteStudy from 'components/modal/modalDeleteStudy.js';
 import ModalDeleteDefine from 'components/modal/modalDeleteDefine.js';
 import ModalDeleteCodeLists from 'components/modal/modalDeleteCodeLists.js';
@@ -31,12 +30,7 @@ import ModalReviewComment from 'components/modal/modalReviewComment.js';
 import ModalConfirmChange from 'components/modal/modalConfirmChange.js';
 import ModalCleanCdiscLibraryCache from 'components/modal/modalCleanCdiscLibraryCache.js';
 import ModalUpdateApplication from 'components/modal/modalUpdateApplication.js';
-
-const mapStateToProps = state => {
-    return {
-        modal: state.present.ui.modal,
-    };
-};
+import ModalCodeListTable from 'components/modal/modalCodeListTable.js';
 
 const MODAL_COMPONENTS = {
     'DELETE_STUDY': ModalDeleteStudy,
@@ -55,21 +49,17 @@ const MODAL_COMPONENTS = {
     'CONFIRM_CHANGE': ModalConfirmChange,
     'CLEAN_CDISC_LIBRARY_CACHE': ModalCleanCdiscLibraryCache,
     'UPDATE_APPLICATION': ModalUpdateApplication,
+    'CODELIST_TABLE': ModalCodeListTable,
 };
 
-class ConnectedModalRoot extends React.Component {
-    render () {
-        if (!this.props.modal.type) {
-            return null;
-        }
-
-        const Modal = MODAL_COMPONENTS[this.props.modal.type];
-        return <Modal {...this.props.modal.props} />;
+const ModalRoot = () => {
+    let modal = useSelector(state => state.present.ui.modal);
+    if (!modal.type) {
+        return null;
     }
-}
 
-ConnectedModalRoot.propTypes = {
-    modal: PropTypes.object.isRequired,
+    const Modal = MODAL_COMPONENTS[modal.type];
+    return <Modal { ...modal.props } />;
 };
 
-export default connect(mapStateToProps)(ConnectedModalRoot);
+export default ModalRoot;

@@ -14,32 +14,45 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import Grid from '@material-ui/core/Grid';
-import VariableCodeListFormatter from 'formatters/variableCodeListFormatter.js';
+import { useDispatch } from 'react-redux';
+import { makeStyles } from '@material-ui/core/styles';
+import Link from '@material-ui/core/Link';
+import { openModal } from 'actions/index.js';
 
-const VariableCodeListFormatFormatter = (props) => {
-    const codeListOid = props.value.codeListOid;
-    const displayFormat = props.value.displayFormat;
-    const codeListLabel = props.value.codeListLabel;
+const getStyles = makeStyles(theme => ({
+    link: {
+        color: '#007BFF',
+    },
+}));
+
+const VariableCodeListFormatter = (props) => {
+    const dispatch = useDispatch();
+    let classes = getStyles();
+
+    const handleOpen = (event) => {
+        event.preventDefault();
+        dispatch(openModal({
+            type: 'CODELIST_TABLE',
+            props: {
+                codeListOid: props.codeListOid,
+            }
+        }));
+    };
 
     return (
-        <Grid container spacing={0}>
-            {codeListOid !== undefined &&
-                <Grid item xs={12}>
-                    <VariableCodeListFormatter codeListOid={codeListOid} codeListLabel={codeListLabel}/>
-                </Grid>
-            }
-            {displayFormat !== undefined &&
-                <Grid item xs={12}>
-                    <abbr title='Display Format'>DF</abbr>: {displayFormat}
-                </Grid>
-            }
-        </Grid>
+        <Link
+            variant='body2'
+            onClick={handleOpen}
+            className={classes.link}
+            href='blank'
+        >
+            {props.codeListLabel}
+        </Link>
     );
 };
 
-VariableCodeListFormatFormatter.propTypes = {
-    value: PropTypes.object,
+VariableCodeListFormatter.propTypes = {
+    codeListOid: PropTypes.string,
 };
 
-export default VariableCodeListFormatFormatter;
+export default VariableCodeListFormatter;

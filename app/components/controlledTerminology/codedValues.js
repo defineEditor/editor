@@ -19,7 +19,6 @@ import { connect, useSelector, useDispatch } from 'react-redux';
 import { clipboard } from 'electron';
 import Typography from '@material-ui/core/Typography';
 import withWidth from '@material-ui/core/withWidth';
-import GeneralTable from 'components/utils/generalTable.js';
 import Toolbar from '@material-ui/core/Toolbar';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -31,6 +30,7 @@ import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
+import GeneralTable from 'components/utils/generalTable.js';
 import ControlledTerminologyBreadcrumbs from 'components/controlledTerminology/breadcrumbs.js';
 import {
     changeCtView,
@@ -333,7 +333,7 @@ class ConnectedCodedValues extends React.Component {
         if (searchString !== '') {
             const caseSensitiveSearch = /[A-Z]/.test(searchString);
             data = data.filter(row => (Object.keys(row)
-                .filter(item => (!['oid'].includes(item.id)))
+                .filter(item => (!['oid'].includes(item)))
                 .some(item => {
                     if (caseSensitiveSearch) {
                         return typeof row[item] === 'string' && row[item].includes(searchString);
@@ -345,22 +345,19 @@ class ConnectedCodedValues extends React.Component {
         }
 
         return (
-            <React.Fragment>
-                <div className={classes.root}>
-                    { ctPackage !== null && (
-                        <GeneralTable
-                            data={data}
-                            header={header}
-                            sorting
-                            selection = {{ selected: this.state.selected, setSelected: this.handleSelectChange }}
-                            customToolbar={this.CtToolbar}
-                            pagination={{ rowsPerPage: this.props.ctUiSettings.rowsPerPage, setRowsPerPage: this.setRowsPerPage }}
-                            disableToolbar
-                            rowsPerPageOptions={[25, 50, 100, 250, 500]}
-                        />
-                    )}
-                </div>
-            </React.Fragment>
+            <div className={classes.root}>
+                { ctPackage !== null && (
+                    <GeneralTable
+                        data={data}
+                        header={header}
+                        sorting
+                        selection = {{ selected: this.state.selected, setSelected: this.handleSelectChange }}
+                        customToolbar={this.CtToolbar}
+                        pagination={{ rowsPerPage: this.props.ctUiSettings.rowsPerPage, setRowsPerPage: this.setRowsPerPage }}
+                        rowsPerPageOptions={[25, 50, 100, 250, 500]}
+                    />
+                )}
+            </div>
         );
     }
 }

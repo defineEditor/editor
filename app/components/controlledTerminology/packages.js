@@ -503,7 +503,7 @@ class ConnectedPackages extends React.Component {
         if (searchString !== '') {
             const caseSensitiveSearch = /[A-Z]/.test(searchString);
             data = data.filter(row => (Object.keys(row)
-                .filter(item => (!['id', 'isDefault'].includes(item.id)))
+                .filter(item => (!['id', 'isDefault'].includes(item)))
                 .some(item => {
                     if (caseSensitiveSearch) {
                         return typeof row[item] === 'string' && row[item].includes(searchString);
