@@ -774,10 +774,7 @@ class ItemGroup extends BasicFunctions {
     getOidByName (name, itemDefs) {
         let result;
         Object.keys(this.itemRefs).some(itemRefOid => {
-            if (
-                itemDefs[this.itemRefs[itemRefOid].itemOid].name.toLowerCase() ===
-        name.toLowerCase()
-            ) {
+            if (itemDefs[this.itemRefs[itemRefOid].itemOid].name.toLowerCase() === name.toLowerCase()) {
                 result = this.itemRefs[itemRefOid].itemOid;
                 return true;
             }

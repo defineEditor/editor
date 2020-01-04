@@ -105,8 +105,8 @@ class AddDatasetEditorConnected extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={1} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
-                <Grid item xs={12}>
+            <Grid container spacing={1} alignItems='flex-start' justify='flex-start' direction='column' onKeyDown={this.onKeyDown} tabIndex='0'>
+                <Grid item>
                     <TextField
                         label='Name'
                         autoFocus

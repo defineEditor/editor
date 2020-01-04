@@ -93,7 +93,6 @@ const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, par
             ...clone(sourceMdv.itemDefs[itemRef.itemOid]),
             oid: newItemDefOid,
             parentItemDefOid,
-            reviewCommentOids: [],
             sources })
         };
         // Check if VLM is attached
@@ -541,7 +540,6 @@ const copyItemGroups = ({
             ...sourceGroup,
             oid: itemGroupOid,
             purpose: purpose || sourceGroup.purpose,
-            reviewCommentOids: [],
         }) };
         // Copy itemGroup comment if it exists
         if (currentGroup.commentOid !== undefined) {
@@ -609,7 +607,13 @@ const copyVariablesFromCdiscLibrary = ({ items, itemGroupOid, mdv, sourceCodeLis
                 let info = item.codeListInfo;
                 let id = info.categoryOid + '#' + info.oid;
                 if (!Object.keys(codeListsToCopy).includes(id)) {
-                    let newCodeListOid = getOid('CodeList', currentCodeLists, info.oid);
+                    let defaultOid;
+                    if (info.oid.startsWith('CL.')) {
+                        defaultOid = info.oid;
+                    } else {
+                        defaultOid = 'CL.' + info.oid;
+                    }
+                    let newCodeListOid = getOid('CodeList', currentCodeLists, defaultOid);
                     let sourceCodeList = sourceCodeLists[info.categoryOid].codeLists[info.oid];
                     // Remove all items;
                     codeListsToCopy[id] = { ...new CodeList({

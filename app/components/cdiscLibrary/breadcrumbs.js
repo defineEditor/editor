@@ -232,6 +232,7 @@ ConnectedCdiscLibraryBreadcrumbs.propTypes = {
     loadFullProduct: PropTypes.func,
     onSearchUpdate: PropTypes.func,
     reloadProducts: PropTypes.func,
+    additionalActions: PropTypes.array,
 };
 
 ConnectedCdiscLibraryBreadcrumbs.displayName = 'CdiscLibraryBreadCrumbs';

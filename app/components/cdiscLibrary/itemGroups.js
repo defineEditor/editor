@@ -26,8 +26,11 @@ import CdiscLibraryBreadcrumbs from 'components/cdiscLibrary/breadcrumbs.js';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Checkbox from '@material-ui/core/Checkbox';
 import Loading from 'components/utils/loading.js';
+import getOid from 'utils/getOid.js';
+import { ItemGroup, Leaf, DatasetClass, TranslatedText } from 'core/defineStructure.js';
 import {
     changeCdiscLibraryView,
+    addItemGroups,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -48,7 +51,8 @@ const styles = theme => ({
         width: 260,
         fontWeight: 'bold',
     },
-    listItem: {
+    toolbarButton: {
+        marginRight: theme.spacing(2),
     },
     parentGroup: {
         fontWeight: 'bold',
@@ -70,21 +74,26 @@ const styles = theme => ({
 const mapDispatchToProps = dispatch => {
     return {
         changeCdiscLibraryView: (updateObj, mountPoint) => dispatch(changeCdiscLibraryView(updateObj, mountPoint)),
+        addItemGroups: (updateObj) => dispatch(addItemGroups(updateObj)),
     };
 };
 
 const mapStateToProps = (state, props) => {
-    let cdiscLibrary;
+    let cdiscLibrary, mdv, classTypes;
     if (props.mountPoint === 'main') {
         cdiscLibrary = state.present.ui.cdiscLibrary;
     } else if (['variables', 'datasets'].includes(props.mountPoint)) {
         cdiscLibrary = state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].cdiscLibrary;
+        mdv = state.present.odm.study.metaDataVersion;
+        classTypes = state.present.stdConstants.classTypes;
     }
     if (cdiscLibrary) {
         return {
             productId: cdiscLibrary.itemGroups.productId,
             productName: cdiscLibrary.itemGroups.productName,
             gridView: cdiscLibrary.itemGroups.gridView,
+            mdv,
+            classTypes,
         };
     }
 };
@@ -122,20 +131,53 @@ class ConnectedItemGroups extends React.Component {
     static contextType = CdiscLibraryContext;
 
     updateState = async (product) => {
+        let model;
+        if (this.props.mdv !== undefined) {
+            model = this.props.mdv.model;
+        }
         if (typeof product.dataClasses === 'object' && Object.keys(product.dataClasses).length > 0) {
             let itemGroups = [];
             Object.values(product.dataClasses)
                 .sort((dc1, dc2) => (dc1.ordinal > dc2.ordinal ? 1 : -1))
                 .forEach(dataClass => {
+                    let datasetClassName = this.props.mountPoint === 'datasets' ? this.getDataClassName(dataClass.name) : '';
+                    let classGroup = {
+                        id: dataClass.id,
+                        name: dataClass.name,
+                        label: dataClass.label,
+                        model: product.model,
+                        datasetClassName: datasetClassName,
+                    };
                     if (Object.keys(dataClass.getItems({ immediate: true })).length === 0) {
-                        itemGroups.push({ id: dataClass.id, name: dataClass.name, label: dataClass.label, model: product.model, type: 'headerGroup' });
+                        classGroup.type = 'headerGroup';
                     } else {
-                        itemGroups.push({ id: dataClass.id, name: dataClass.name, label: dataClass.label, model: product.model, type: 'parentGroup' });
+                        classGroup.type = 'parentGroup';
                     }
+                    itemGroups.push(classGroup);
                     let classGroups = dataClass.getItemGroups();
                     let childGroups = Object.values(classGroups)
                         .sort((ig1, ig2) => (ig1.name > ig2.name ? 1 : -1))
-                        .map(group => ({ id: group.id, name: group.name, label: group.label, model: product.model, type: 'childGroup' }));
+                        .map(group => {
+                            let isReferenceData, repeating;
+                            if (group.findMatchingItems('USUBJID').length > 0) {
+                                isReferenceData = 'No';
+                            } else {
+                                isReferenceData = 'Yes';
+                                repeating = 'No';
+                            }
+                            return (
+                                {
+                                    id: group.id,
+                                    name: group.name,
+                                    label: group.label,
+                                    model: product.model,
+                                    datasetClassName: datasetClassName,
+                                    type: 'childGroup',
+                                    isReferenceData,
+                                    repeating,
+                                }
+                            );
+                        });
                     if (childGroups.length > 0) {
                         itemGroups = itemGroups.concat(childGroups);
                     }
@@ -144,8 +186,45 @@ class ConnectedItemGroups extends React.Component {
         } else {
             let itemGroupsRaw = await product.getItemGroups({ type: 'short' });
             let itemGroups = Object.values(itemGroupsRaw).sort((ig1, ig2) => (ig1.name > ig2.name ? 1 : -1));
-            itemGroups = itemGroups.map(itemGroup => ({ ...itemGroup, id: itemGroup.name, model: product.model, type: 'parentGroup' }));
+            itemGroups = itemGroups.map(itemGroup => {
+                let datasetClassName = this.props.mountPoint === 'datasets' ? this.getDataClassName(itemGroup.name) : '';
+                let repeating;
+                if (model === 'ADaM' && itemGroup.name === 'ADSL') {
+                    repeating = 'No';
+                }
+                return (
+                    {
+                        ...itemGroup,
+                        id: itemGroup.name,
+                        model: product.model,
+                        datasetClassName: datasetClassName,
+                        type: 'parentGroup',
+                        repeating,
+                    }
+                );
+            });
             this.setState({ itemGroups, product });
+        }
+    }
+
+    getDataClassName = (name) => {
+        let classTypes = this.props.classTypes[this.props.mdv.model];
+        if (classTypes) {
+            let options = Object.keys(classTypes);
+            if (options.includes(name.replace(/[\W]+/g, ' ').toUpperCase())) {
+                return name.replace(/[\W]+/g, ' ').toUpperCase();
+            } else if (this.props.mdv.model === 'ADaM') {
+                let className;
+                options.some(option => {
+                    if (classTypes[option] === name) {
+                        className = option;
+                        return true;
+                    }
+                });
+                if (className !== undefined) {
+                    return className;
+                }
+            }
         }
     }
 
@@ -294,7 +373,6 @@ class ConnectedItemGroups extends React.Component {
                         <ListItem
                             button
                             key={itemGroup.name}
-                            className={classes.listItem}
                             disabled={itemGroup.type === 'headerGroup'}
                             onClick={this.selectItemGroup(itemGroup)}
                         >
@@ -340,7 +418,6 @@ class ConnectedItemGroups extends React.Component {
                     <ListItem
                         button
                         key={itemGroup.name}
-                        className={classes.listItem}
                         disabled={itemGroup.type === 'headerGroup' || (itemGroup.type === 'parentGroup' && itemGroup.model !== 'ADaM') }
                         onClick={this.handleSelectItemGroup(itemGroup.id)}
                     >
@@ -364,6 +441,85 @@ class ConnectedItemGroups extends React.Component {
         );
     }
 
+    addItemGroups = () => {
+        let { position, mdv } = this.props;
+        // Get selected values
+        let currentIGOids = Object.keys(mdv.itemGroups);
+        let itemGroups = {};
+        let purpose = mdv.model === 'ADaM' ? 'Analysis' : 'Tabulation';
+        this.state.itemGroups
+            .filter(igRaw => this.state.selectedItemGroups.includes(igRaw.id))
+            .forEach(igRaw => {
+                let oid = getOid('ItemGroup', currentIGOids);
+                let leaf, domain;
+                if (['SDTM', 'SEND'].includes(igRaw.model) && !igRaw.name.startsWith('SUPP')) {
+                    if (igRaw.name.length === 2) {
+                        domain = igRaw.name;
+                    }
+                    leaf = { ...new Leaf({
+                        id: 'LF' + igRaw.name,
+                        href: igRaw.name.toLowerCase() + '.xpt',
+                        title: igRaw.name.toLowerCase() + '.xpt',
+                    }) };
+                }
+                currentIGOids.push(oid);
+                let itemGroup = new ItemGroup({
+                    oid,
+                    name: igRaw.name,
+                    datasetName: igRaw.name,
+                    isReferenceData: igRaw.isReferenceData,
+                    repeating: igRaw.repeating,
+                    purpose,
+                    datasetClass: { ...new DatasetClass({ name: igRaw.datasetClassName }) },
+                    leaf,
+                    domain,
+                });
+                itemGroup.addDescription({ ...new TranslatedText({ value: igRaw.label }) });
+                itemGroups[oid] = {
+                    itemGroup: { ...itemGroup },
+                    itemDefs: {},
+                    itemRefs: {},
+                    codeLists: {},
+                    methods: {},
+                    leafs: {},
+                    comments: {},
+                    valueLists: {},
+                    whereClauses: {},
+                    processedItemRefs: {},
+                };
+            });
+
+        let positionUpd = Number.isInteger(position) ? position : mdv.order.itemGroupOrder.length;
+
+        this.props.addItemGroups({
+            position: positionUpd,
+            itemGroups,
+            itemGroupComments: {},
+        });
+        this.props.onClose();
+    }
+
+    additionalActions = () => {
+        let classes = this.props.classes;
+        let numSelected = this.state.selectedItemGroups.length;
+        let result = [];
+        if (numSelected > 0) {
+            result.push(
+                <Button
+                    size='medium'
+                    variant='contained'
+                    key='addButton'
+                    color='default'
+                    onClick={this.addItemGroups}
+                    className={classes.toolbarButton}
+                >
+                    Add {numSelected} dataset{numSelected > 1 && 's'}
+                </Button>
+            );
+        }
+        return result;
+    }
+
     render () {
         const { classes } = this.props;
         let rootClass;
@@ -380,6 +536,7 @@ class ConnectedItemGroups extends React.Component {
                         traffic={this.context.cdiscLibrary.getTrafficStats()}
                         searchString={this.state.searchString}
                         onSearchUpdate={this.handleSearchUpdate}
+                        additionalActions={this.additionalActions()}
                         mountPoint={this.props.mountPoint}
                     />
                 </Grid>
@@ -398,6 +555,9 @@ ConnectedItemGroups.propTypes = {
     gridView: PropTypes.bool.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
     mountPoint: PropTypes.string.isRequired,
+    mdv: PropTypes.object,
+    stdConstants: PropTypes.object,
+    onClose: PropTypes.func,
 };
 ConnectedItemGroups.displayName = 'ItemGroups';
 

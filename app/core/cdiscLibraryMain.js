@@ -64,7 +64,13 @@ const CdiscLibraryMain = (props) => {
             { settings.enableCdiscLibrary === true && (
                 <div className={classes.body}>
                     { currentView === 'products' && <CdiscLibraryProducts mountPoint={mountPoint}/>}
-                    { currentView === 'itemGroups' && <CdiscLibraryItemGroups mountPoint={mountPoint}/>}
+                    { currentView === 'itemGroups' &&
+                        <CdiscLibraryItemGroups
+                            mountPoint={mountPoint}
+                            onClose={props.onClose}
+                            position={props.position}
+                        />
+                    }
                     { currentView === 'items' &&
                         <CdiscLibraryItems
                             mountPoint={mountPoint}
