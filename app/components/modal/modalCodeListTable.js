@@ -104,7 +104,7 @@ const ModalCodeListTable = (props) => {
     }
 
     const onClose = () => {
-        dispatch(closeModal());
+        dispatch(closeModal({ type: props.type }));
     };
 
     const onKeyDown = (event) => {
@@ -160,6 +160,7 @@ const ModalCodeListTable = (props) => {
 
 ModalCodeListTable.propTypes = {
     codeListOid: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 export default ModalCodeListTable;

@@ -108,7 +108,7 @@ const tabs = (() => {
 })();
 
 const modal = {
-    type: null,
+    type: [],
     props: {},
 };
 

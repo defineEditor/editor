@@ -24,6 +24,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import CdiscLibraryBreadcrumbs from 'components/cdiscLibrary/breadcrumbs.js';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import Checkbox from '@material-ui/core/Checkbox';
 import Loading from 'components/utils/loading.js';
 import getOid from 'utils/getOid.js';
@@ -31,6 +32,7 @@ import { ItemGroup, Leaf, DatasetClass, TranslatedText } from 'core/defineStruct
 import {
     changeCdiscLibraryView,
     addItemGroups,
+    openModal,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -75,6 +77,7 @@ const mapDispatchToProps = dispatch => {
     return {
         changeCdiscLibraryView: (updateObj, mountPoint) => dispatch(changeCdiscLibraryView(updateObj, mountPoint)),
         addItemGroups: (updateObj) => dispatch(addItemGroups(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
@@ -499,11 +502,42 @@ class ConnectedItemGroups extends React.Component {
         this.props.onClose();
     }
 
+    showNotice = () => {
+        this.props.openModal({
+            type: 'GENERAL',
+            props: {
+                title: 'Derived Attributes',
+                message: `
+Some of the dataset attributes are not part of CDISC Library are derived by the application.
+* **Reference Data** flag is set to Yes for datasets without USUBJID variable.
+* **Repeating** flag is defaulted to Yes. In case **Reference Data** is derived as Yes, **Repeating** is set to No.
+* **Domain** is set to the dataset name when the length is 2 and the CDISC Library product is SDTM or SEND.
+
+Verify the correct values are used.
+`,
+                markdown: true,
+            }
+        });
+    }
+
     additionalActions = () => {
         let classes = this.props.classes;
         let numSelected = this.state.selectedItemGroups.length;
         let result = [];
         if (numSelected > 0) {
+            result.push(
+                <Button
+                    size='medium'
+                    variant='contained'
+                    key='notice'
+                    color='primary'
+                    onClick={this.showNotice}
+                    className={classes.toolbarButton}
+                >
+                    Notice&nbsp;
+                    <ErrorOutlineIcon />
+                </Button>
+            );
             result.push(
                 <Button
                     size='medium'

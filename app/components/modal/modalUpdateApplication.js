@@ -91,7 +91,7 @@ const ModalUpdateApplication = (props) => {
     const dispatch = useDispatch();
 
     const onClose = () => {
-        dispatch(closeModal());
+        dispatch(closeModal({ type: props.type }));
     };
 
     const onUpdate = () => {
@@ -145,6 +145,7 @@ const ModalUpdateApplication = (props) => {
 
 ModalUpdateApplication.propTypes = {
     releaseNotes: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 export default ModalUpdateApplication;

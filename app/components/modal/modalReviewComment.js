@@ -81,7 +81,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         addReviewComment: (updateObj) => dispatch(addReviewComment(updateObj)),
         addReplyComment: (updateObj) => dispatch(addReplyComment(updateObj)),
         deleteReviewComment: (updateObj) => dispatch(deleteReviewComment(updateObj)),
@@ -105,7 +105,7 @@ class ConnectedModalReviewComments extends React.Component {
         if (!this.state.confirmClose && typeof editors === 'object' && Object.keys(editors).length > 0) {
             this.setState({ confirmClose: true });
         } else {
-            this.props.closeModal();
+            this.props.closeModal({ type: this.props.type });
         }
     }
 
@@ -258,6 +258,7 @@ ConnectedModalReviewComments.propTypes = {
     mdv: PropTypes.object.isRequired,
     odm: PropTypes.object.isRequired,
     sources: PropTypes.object.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalReviewComments = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalReviewComments);

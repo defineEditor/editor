@@ -68,7 +68,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         changePage: updateObj => dispatch(changePage(updateObj)),
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
     };
 };
 
@@ -76,15 +76,15 @@ class ConnectedModalChangeDefine extends React.Component {
     onSave = () => {
         // Change must be called after the current Define-XML is saved
         saveState(undefined, () => { this.props.changePage({ page: 'editor', defineId: this.props.defineId, studyId: this.props.studyId }); });
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     onCancel = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     onDiscard = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         this.props.changePage({ page: 'editor', defineId: this.props.defineId, studyId: this.props.studyId });
     }
 
@@ -163,6 +163,7 @@ ConnectedModalChangeDefine.propTypes = {
     defines: PropTypes.object.isRequired,
     changePage: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalChangeDefine = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalChangeDefine);

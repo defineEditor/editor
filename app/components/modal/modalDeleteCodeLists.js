@@ -48,7 +48,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         updateSettings: updateObj => dispatch(updateSettings(updateObj)),
         deleteCodeLists: (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
     };
@@ -128,7 +128,7 @@ class ConnectedModalDeleteCodeLists extends React.Component {
                 },
             });
         }
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         this.props.deleteCodeLists(this.props.deleteObj);
     }
 
@@ -137,7 +137,7 @@ class ConnectedModalDeleteCodeLists extends React.Component {
         this.setState({
             warningShowAgain: true,
         });
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     render () {
@@ -217,6 +217,7 @@ ConnectedModalDeleteCodeLists.propTypes = {
     codeLists: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
     mdv: PropTypes.object.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalDeleteCodeLists = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalDeleteCodeLists);

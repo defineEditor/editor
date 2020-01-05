@@ -50,7 +50,7 @@ const styles = theme => ({
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         updateSettings: updateObj => dispatch(updateSettings(updateObj)),
     };
 };
@@ -84,12 +84,12 @@ class ConnectedModalCleanCdiscLibraryCache extends React.Component {
     }
 
     onDelete = async () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         await deleteDB('cdiscLibrary-store');
     }
 
     onCancel = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     onKeyDown = (event) => {
@@ -148,6 +148,7 @@ ConnectedModalCleanCdiscLibraryCache.propTypes = {
     classes: PropTypes.object.isRequired,
     updateSettings: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalCleanCdiscLibraryCache = connect(undefined, mapDispatchToProps)(ConnectedModalCleanCdiscLibraryCache);

@@ -46,7 +46,7 @@ function loadState () {
     state.stdConstants = stdConstants;
     if (state.hasOwnProperty('ui')) {
         // If there is any modal loaded in the current state, disable it
-        if (state.ui.hasOwnProperty('modal') && state.ui.modal.type !== '') {
+        if (state.ui.hasOwnProperty('modal') && (Array.isArray(state.ui.modal.type) !== true || state.ui.modal.type.length > 0)) {
             state.ui.modal = uiInitialValues.modal;
         }
         // If there is any snackbar loaded in the current state, disable it

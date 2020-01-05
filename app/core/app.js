@@ -86,7 +86,7 @@ const mapStateToProps = state => {
     } else if (currentPage === 'cdiscLibrary' || currentPage === 'controlledTerminology') {
         disableFindToggle = true;
     }
-    let bugModalOpened = state.present.ui && state.present.ui.modal && state.present.ui.modal.type === 'BUG_REPORT';
+    let bugModalOpened = state.present.ui && state.present.ui.modal && state.present.ui.modal.type.includes('BUG_REPORT');
     return {
         currentPage,
         showInitialMessage: state.present.settings.popUp.onStartUp,

@@ -21,6 +21,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import ReactMarkdown from 'react-markdown';
 import Button from '@material-ui/core/Button';
 import {
     closeModal,
@@ -54,7 +55,7 @@ const ModalGeneral = (props) => {
     let classes = getStyles();
 
     const onClose = () => {
-        dispatch(closeModal());
+        dispatch(closeModal({ type: props.type }));
     };
 
     const onKeyDown = (event) => {
@@ -67,19 +68,17 @@ const ModalGeneral = (props) => {
         <Dialog
             disableBackdropClick
             disableEscapeKeyDown
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
             open
             PaperProps={{ className: classes.dialog }}
             onKeyDown={onKeyDown}
             tabIndex='0'
         >
-            <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
+            <DialogTitle className={classes.title} disableTypography>
                 {props.title}
             </DialogTitle>
             <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                    {props.message}
+                <DialogContentText>
+                    {props.markdown === true ? <ReactMarkdown source={props.message} /> : props.message}
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -96,6 +95,7 @@ ModalGeneral.propTypes = {
     closeModal: PropTypes.func.isRequired,
     title: PropTypes.string.isRequired,
     message: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 export default ModalGeneral;

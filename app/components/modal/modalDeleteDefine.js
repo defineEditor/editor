@@ -54,13 +54,13 @@ const styles = theme => ({
 const mapDispatchToProps = dispatch => {
     return {
         deleteDefine: deleteObj => dispatch(deleteDefine(deleteObj)),
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
     };
 };
 
 class ConnectedModalDeleteStudy extends React.Component {
     onDelete = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         this.props.deleteDefine({
             defineId: this.props.defineId,
             studyId: this.props.studyId,
@@ -70,7 +70,7 @@ class ConnectedModalDeleteStudy extends React.Component {
     }
 
     onCancel = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     onKeyDown = (event) => {
@@ -120,6 +120,7 @@ ConnectedModalDeleteStudy.propTypes = {
     classes: PropTypes.object.isRequired,
     studyId: PropTypes.string.isRequired,
     defineId: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalDeleteStudy = connect(undefined, mapDispatchToProps)(ConnectedModalDeleteStudy);

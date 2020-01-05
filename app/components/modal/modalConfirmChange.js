@@ -58,7 +58,7 @@ const styles = theme => ({
 const mapDispatchToProps = dispatch => {
     return {
         changeTab: updateObj => dispatch(changeTab(updateObj)),
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
     };
 };
@@ -75,7 +75,7 @@ class ConnectedModalConfirmChange extends React.Component {
     }
 
     onCancel = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     onKeyDown = (event) => {
@@ -135,6 +135,7 @@ ConnectedModalConfirmChange.propTypes = {
     changeTab: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
     selectGroup: PropTypes.func.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalConfirmChange = connect(undefined, mapDispatchToProps)(ConnectedModalConfirmChange);

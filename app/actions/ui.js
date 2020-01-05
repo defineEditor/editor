@@ -117,8 +117,9 @@ export const openModal = updateObj => ({
     updateObj
 });
 
-export const closeModal = () => ({
+export const closeModal = (updateObj) => ({
     type: UI_CLOSEMODAL,
+    updateObj
 });
 
 export const updateMainUi = updateObj => ({

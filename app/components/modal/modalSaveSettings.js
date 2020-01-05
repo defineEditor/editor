@@ -51,7 +51,7 @@ const styles = theme => ({
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         updateSettings: updateObj => dispatch(updateSettings(updateObj)),
     };
 };
@@ -66,7 +66,7 @@ class ConnectedModalQuitApplication extends React.Component {
     static contextType = CdiscLibraryContext;
 
     onSave = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         let diff = this.props.updatedSettings;
         if (diff.cdiscLibrary) {
             // If password was changed, it is encrypted by the updateCdiscLibrarySettings
@@ -76,7 +76,7 @@ class ConnectedModalQuitApplication extends React.Component {
     }
 
     onDiscard = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     onKeyDown = (event) => {
@@ -128,6 +128,7 @@ ConnectedModalQuitApplication.propTypes = {
     closeModal: PropTypes.func.isRequired,
     updatedSettings: PropTypes.object.isRequired,
     settings: PropTypes.object.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalQuitApplication = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalQuitApplication);

@@ -54,12 +54,16 @@ const MODAL_COMPONENTS = {
 
 const ModalRoot = () => {
     let modal = useSelector(state => state.present.ui.modal);
-    if (!modal.type) {
+    if (modal.type.length === 0) {
         return null;
     }
 
-    const Modal = MODAL_COMPONENTS[modal.type];
-    return <Modal { ...modal.props } />;
+    let result = [];
+    modal.type.forEach(modalType => {
+        const Modal = MODAL_COMPONENTS[modalType];
+        result.push(<Modal key={modalType} type={modalType} { ...modal.props[modalType] } />);
+    });
+    return result;
 };
 
 export default ModalRoot;

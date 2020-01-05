@@ -46,7 +46,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         updateSettings: updateObj => dispatch(updateSettings(updateObj)),
         updateCodeList: (oid, updateObj) => dispatch(updateCodeList(oid, updateObj)),
     };
@@ -127,7 +127,7 @@ class ConnectedModalLinkCodeList extends React.Component {
                 },
             });
         }
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         this.props.updateCodeList(this.props.codeListOid, {
             linkedCodeListOid: this.props.linkedCodeListOid,
             standardCodeList: this.props.standardCodeListOid ? this.props.stdCodeLists[this.props.standardOid].codeLists[this.props.standardCodeListOid] : undefined,
@@ -139,7 +139,7 @@ class ConnectedModalLinkCodeList extends React.Component {
         this.setState({
             warningShowAgain: true,
         });
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     render () {
@@ -251,6 +251,7 @@ ConnectedModalLinkCodeList.propTypes = {
     classes: PropTypes.object.isRequired,
     codeLists: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalLinkCodeList = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalLinkCodeList);
