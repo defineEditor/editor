@@ -38,6 +38,8 @@ const styles = theme => ({
     root: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
+        display: 'flex',
+        width: '100%',
     },
     progress: {
         margin: theme.spacing(2)
@@ -103,11 +105,11 @@ class ConnectedCodeLists extends React.Component {
         this.setState({ searchString: event.target.value });
     }
 
-    actions = (id, row) => {
+    actions = (props) => {
         return (
             <Tooltip title='Open Codelist' placement='bottom' enterDelay={500}>
                 <Fab
-                    onClick={this.openCodeList(id)}
+                    onClick={this.openCodeList(props.oid)}
                     color='default'
                     size='medium'
                 >
@@ -217,7 +219,8 @@ class ConnectedCodeLists extends React.Component {
             { id: 'cdiscSubmissionValue', label: 'Submission Value' },
             { id: 'preferredTerm', label: 'Preferred Term' },
             { id: 'synonyms', label: 'Synonyms' },
-            { id: 'cCode', label: 'C-Code' },
+            { id: 'extensible', label: 'Ext.' },
+            { id: 'cCode', label: 'Code' },
             { id: 'oid', label: '', formatter: this.actions, noSort: true },
         ];
 
@@ -246,6 +249,7 @@ class ConnectedCodeLists extends React.Component {
                     preferredTerm: codeList.preferredTerm,
                     synonyms: codeList.synonyms.join(', '),
                     cCode: codeList.alias ? codeList.alias.name : '',
+                    extensible: codeList.codeListExtensible,
                 };
             });
         }
@@ -255,7 +259,7 @@ class ConnectedCodeLists extends React.Component {
         if (searchString !== '') {
             const caseSensitiveSearch = /[A-Z]/.test(searchString);
             data = data.filter(row => (Object.keys(row)
-                .filter(item => (!['oid'].includes(item.id)))
+                .filter(item => (!['oid'].includes(item)))
                 .some(item => {
                     if (caseSensitiveSearch) {
                         return typeof row[item] === 'string' && row[item].includes(searchString);

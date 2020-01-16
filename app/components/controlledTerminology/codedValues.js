@@ -19,7 +19,6 @@ import { connect, useSelector, useDispatch } from 'react-redux';
 import { clipboard } from 'electron';
 import Typography from '@material-ui/core/Typography';
 import withWidth from '@material-ui/core/withWidth';
-import GeneralTable from 'components/utils/generalTable.js';
 import Toolbar from '@material-ui/core/Toolbar';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -31,6 +30,7 @@ import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
+import GeneralTable from 'components/utils/generalTable.js';
 import ControlledTerminologyBreadcrumbs from 'components/controlledTerminology/breadcrumbs.js';
 import {
     changeCtView,
@@ -42,6 +42,8 @@ const styles = theme => ({
     root: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
+        display: 'flex',
+        width: '100%',
     },
 });
 
@@ -81,6 +83,12 @@ const useToolbarStyles = makeStyles(theme => ({
     },
 }));
 
+const getButtonStyles = makeStyles(theme => ({
+    popper: {
+        zIndex: 1100,
+    },
+}));
+
 const options = {
     tab: 'As tab-delimited',
     sas: 'As SAS Format',
@@ -91,6 +99,7 @@ const options = {
 const CopyToBuffer = ({ selected }) => {
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef(null);
+    const classes = getButtonStyles();
     const [selectedIndex, setSelectedIndex] = React.useState('tab');
     const codeListSettings = useSelector(state => state.present.ui.controlledTerminology.codeLists);
     const codedValuesSettings = useSelector(state => state.present.ui.controlledTerminology.codedValues);
@@ -141,7 +150,7 @@ const CopyToBuffer = ({ selected }) => {
         }
         dispatch(openSnackbar({
             type: 'success',
-            message: `${codeNum} value${codeNum === 1 ? 's' : ''} were copied to buffer ${options[option][0].toLowerCase() + options[option].slice(1)}.`,
+            message: `${codeNum} value${codeNum === 1 ? 's' : ''} were copied to clipboard ${options[option][0].toLowerCase() + options[option].slice(1)}.`,
         }));
     };
 
@@ -171,7 +180,7 @@ const CopyToBuffer = ({ selected }) => {
         <Grid container direction='column' alignItems='center'>
             <Grid item xs={12}>
                 <ButtonGroup variant='contained' color='default' ref={anchorRef} aria-label='split button'>
-                    <Button onClick={handleClick} color='default'>Copy to Buffer</Button>
+                    <Button onClick={handleClick} color='default'>Copy to Clipboard</Button>
                     <Button
                         color='default'
                         size='small'
@@ -184,7 +193,7 @@ const CopyToBuffer = ({ selected }) => {
                         <ArrowDropDownIcon />
                     </Button>
                 </ButtonGroup>
-                <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+                <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal className={classes.popper}>
                     {({ TransitionProps, placement }) => (
                         <Grow
                             {...TransitionProps}
@@ -282,11 +291,11 @@ class ConnectedCodedValues extends React.Component {
 
         let header = [
             { id: 'oid', label: 'oid', hidden: true, key: true },
-            { id: 'codedValue', label: 'Coded Value' },
-            { id: 'decode', label: 'Decode' },
+            { id: 'codedValue', label: 'Submission Value' },
+            { id: 'decode', label: 'Preferred Term' },
             { id: 'definition', label: 'Definition' },
             { id: 'synonyms', label: 'Synonyms' },
-            { id: 'cCode', label: 'C-Code' },
+            { id: 'cCode', label: 'Code' },
         ];
 
         // Add width
@@ -306,7 +315,7 @@ class ConnectedCodedValues extends React.Component {
         let data = [];
 
         if (codeList) {
-            data = Object.keys(codeList.codeListItems).map(oid => {
+            data = codeList.itemOrder.map(oid => {
                 let value = codeList.codeListItems[oid];
                 return {
                     oid,
@@ -324,7 +333,7 @@ class ConnectedCodedValues extends React.Component {
         if (searchString !== '') {
             const caseSensitiveSearch = /[A-Z]/.test(searchString);
             data = data.filter(row => (Object.keys(row)
-                .filter(item => (!['oid'].includes(item.id)))
+                .filter(item => (!['oid'].includes(item)))
                 .some(item => {
                     if (caseSensitiveSearch) {
                         return typeof row[item] === 'string' && row[item].includes(searchString);
@@ -336,23 +345,19 @@ class ConnectedCodedValues extends React.Component {
         }
 
         return (
-            <React.Fragment>
-                <div className={classes.root}>
-                    { ctPackage !== null && (
-                        <GeneralTable
-                            data={data}
-                            header={header}
-                            sorting
-                            selection = {{ selected: this.state.selected, setSelected: this.handleSelectChange }}
-                            customToolbar={this.CtToolbar}
-                            pagination={{ rowsPerPage: this.props.ctUiSettings.rowsPerPage, setRowsPerPage: this.setRowsPerPage }}
-                            disableToolbar
-                            fullRowSelect
-                            rowsPerPageOptions={[25, 50, 100, 250, 500]}
-                        />
-                    )}
-                </div>
-            </React.Fragment>
+            <div className={classes.root}>
+                { ctPackage !== null && (
+                    <GeneralTable
+                        data={data}
+                        header={header}
+                        sorting
+                        selection = {{ selected: this.state.selected, setSelected: this.handleSelectChange }}
+                        customToolbar={this.CtToolbar}
+                        pagination={{ rowsPerPage: this.props.ctUiSettings.rowsPerPage, setRowsPerPage: this.setRowsPerPage }}
+                        rowsPerPageOptions={[25, 50, 100, 250, 500]}
+                    />
+                )}
+            </div>
         );
     }
 }

@@ -25,7 +25,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
-import CloudDownload from '@material-ui/icons/CloudDownload';
 import Refresh from '@material-ui/icons/Refresh';
 import {
     changeCdiscLibraryView,
@@ -64,19 +63,27 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        toggleCdiscLibraryItemGroupGridView: (updateObj) => dispatch(toggleCdiscLibraryItemGroupGridView(updateObj)),
-        changeCdiscLibraryView: (updateObj) => dispatch(changeCdiscLibraryView(updateObj)),
+        toggleCdiscLibraryItemGroupGridView: (mountPoint) => dispatch(toggleCdiscLibraryItemGroupGridView(mountPoint)),
+        changeCdiscLibraryView: (updateObj, mountPoint) => dispatch(changeCdiscLibraryView(updateObj, mountPoint)),
     };
 };
 
-const mapStateToProps = state => {
-    return {
-        currentView: state.present.ui.cdiscLibrary.currentView,
-        productId: state.present.ui.cdiscLibrary.itemGroups.productId,
-        productName: state.present.ui.cdiscLibrary.itemGroups.productName,
-        itemGroupId: state.present.ui.cdiscLibrary.items.itemGroupId,
-        gridView: state.present.ui.cdiscLibrary.itemGroups.gridView,
-    };
+const mapStateToProps = (state, props) => {
+    let cdiscLibrary;
+    if (props.mountPoint === 'main') {
+        cdiscLibrary = state.present.ui.cdiscLibrary;
+    } else if (['variables', 'datasets'].includes(props.mountPoint)) {
+        cdiscLibrary = state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].cdiscLibrary;
+    }
+    if (cdiscLibrary) {
+        return {
+            currentView: cdiscLibrary.currentView,
+            productId: cdiscLibrary.itemGroups.productId,
+            productName: cdiscLibrary.itemGroups.productName,
+            itemGroupId: cdiscLibrary.items.itemGroupId,
+            gridView: cdiscLibrary.itemGroups.gridView,
+        };
+    }
 };
 
 class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
@@ -108,16 +115,16 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
     }
 
     render () {
-        const { classes, currentView } = this.props;
+        const { classes, currentView, additionalActions } = this.props;
         return (
             <Grid container justify='space-between'>
                 <Grid item>
-                    <Grid container justify='flex-start' alignItems='flex-start'>
+                    <Grid container alignItems='baseline'>
                         <Grid item>
                             <Breadcrumbs className={classes.breadcrumbs}>
                                 <Button
                                     color={currentView === 'products' ? 'default' : 'primary'}
-                                    onClick={() => { this.props.changeCdiscLibraryView({ view: 'products' }); }}
+                                    onClick={() => { this.props.changeCdiscLibraryView({ view: 'products' }, this.props.mountPoint); }}
                                     disabled={currentView === 'products'}
                                 >
                                     Products
@@ -125,7 +132,13 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                                 { (currentView === 'itemGroups' || currentView === 'items') &&
                                         <Button
                                             color={currentView === 'itemGroups' ? 'default' : 'primary'}
-                                            onClick={() => { this.props.changeCdiscLibraryView({ view: 'itemGroups', itemGroupId: this.props.itemGroupId }); }}
+                                            onClick={() => {
+                                                this.props.changeCdiscLibraryView(
+                                                    {
+                                                        view: 'itemGroups',
+                                                        itemGroupId: this.props.itemGroupId
+                                                    }, this.props.mountPoint);
+                                            }}
                                             disabled={currentView === 'products'}
                                         >
                                             {this.props.productName}
@@ -140,13 +153,13 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                                 }
                             </Breadcrumbs>
                         </Grid>
-                        { currentView === 'itemGroups' &&
+                        { currentView === 'itemGroups' && this.props.mountPoint !== 'datasets' &&
                                 <Grid item>
                                     <FormControlLabel
                                         control={
                                             <Switch
                                                 checked={this.props.gridView}
-                                                onChange={this.props.toggleCdiscLibraryItemGroupGridView}
+                                                onChange={() => (this.props.toggleCdiscLibraryItemGroupGridView(this.props.mountPoint))}
                                                 color='primary'
                                                 className={classes.switch}
                                             />
@@ -159,19 +172,23 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                 </Grid>
                 <Grid item>
                     <Grid container justify='flex-end'>
+                        { additionalActions && (
+                            additionalActions.map((action, index) => {
+                                return (
+                                    <Grid key={index} item>
+                                        {action}
+                                    </Grid>
+                                );
+                            })
+                        )}
                         { currentView === 'products' &&
-                                <Tooltip title='Reload the list of products' placement='bottom' enterDelay={500}>
-                                    <IconButton onClick={this.props.reloadProducts} className={classes.refreshButton}>
-                                        <Refresh/>
-                                    </IconButton>
-                                </Tooltip>
-                        }
-                        { currentView === 'currentlyDisabled' && !this.props.productName.toLowerCase().startsWith('cdash ') &&
-                            <Tooltip title='Load full product' placement='bottom' enterDelay={500}>
-                                <IconButton onClick={this.props.loadFullProduct}>
-                                    <CloudDownload/>
-                                </IconButton>
-                            </Tooltip>
+                                <Grid item>
+                                    <Tooltip title='Reload the list of products' placement='bottom' enterDelay={500}>
+                                        <IconButton onClick={this.props.reloadProducts} className={classes.refreshButton}>
+                                            <Refresh/>
+                                        </IconButton>
+                                    </Tooltip>
+                                </Grid>
                         }
                         { currentView !== 'products' &&
                                 <Grid item>
@@ -206,18 +223,19 @@ ConnectedCdiscLibraryBreadcrumbs.propTypes = {
     traffic: PropTypes.string.isRequired,
     currentView: PropTypes.string.isRequired,
     searchString: PropTypes.string,
-    productId: PropTypes.string.isRequired,
-    productName: PropTypes.string.isRequired,
-    itemGroupId: PropTypes.string.isRequired,
+    productId: PropTypes.string,
+    productName: PropTypes.string,
+    itemGroupId: PropTypes.string,
     gridView: PropTypes.bool.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
     toggleCdiscLibraryItemGroupGridView: PropTypes.func.isRequired,
     loadFullProduct: PropTypes.func,
     onSearchUpdate: PropTypes.func,
     reloadProducts: PropTypes.func,
+    additionalActions: PropTypes.array,
 };
 
-ConnectedCdiscLibraryBreadcrumbs.displayName = 'CdiscLibraryItemGroups';
+ConnectedCdiscLibraryBreadcrumbs.displayName = 'CdiscLibraryBreadCrumbs';
 
 const CdiscLibraryBreadcrumbs = connect(mapStateToProps, mapDispatchToProps)(ConnectedCdiscLibraryBreadcrumbs);
 export default withStyles(styles)(CdiscLibraryBreadcrumbs);

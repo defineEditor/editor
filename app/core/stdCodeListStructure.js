@@ -100,7 +100,7 @@ class StdCodeList extends BasicFunctions {
     addCodeListItem (item) {
         let oid;
         if (this.codeListItems !== undefined) {
-            oid = getOid('CodeListItem', undefined, Object.keys(this.codeListItems));
+            oid = getOid('CodeListItem', Object.keys(this.codeListItems));
             this.codeListItems[oid] = item;
             this.itemOrder.push(oid);
         } else {

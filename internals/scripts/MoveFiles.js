@@ -49,6 +49,9 @@ const moveFiles = async () => {
         if ((new RegExp(`DefineEditor(\\.Setup)?[\\. ]${appVersion}.exe$`).test(fileName))) {
             await rename(path.join(releaseRoot, fileName), path.join(destFolder, fileName));
         }
+        if ((new RegExp(`DefineEditor(\\.Setup)?[\\. ]${appVersion}.exe.blockmap$`).test(fileName))) {
+            await rename(path.join(releaseRoot, fileName), path.join(destFolder, fileName));
+        }
         if ((new RegExp(`DefineEditor\\.${appVersion}.AppImage$`).test(fileName))) {
             await rename(path.join(releaseRoot, fileName), path.join(destFolder, fileName));
         }

@@ -124,7 +124,7 @@ class DocumentTableEditor extends React.Component {
     handleChange = (name, oid) => (event) => {
         if (name === 'addDoc') {
             let newLeafs = { ...this.state.leafs };
-            let newOid = getOid('Leaf', undefined, Object.keys(this.state.leafs));
+            let newOid = getOid('Leaf', Object.keys(this.state.leafs));
             let newLeafOrder = this.state.leafOrder.slice();
             let isPdf = 'false';
             newLeafOrder.push(newOid);
@@ -148,7 +148,7 @@ class DocumentTableEditor extends React.Component {
             this.setState({ leafs: newLeafs });
         } else if (name === 'copyDoc') {
             let newLeafs = { ...this.state.leafs };
-            let newOid = getOid('Leaf', undefined, Object.keys(this.state.leafs));
+            let newOid = getOid('Leaf', Object.keys(this.state.leafs));
             newLeafs[newOid] = { ...new Leaf({ ...this.state.leafs[oid], id: newOid }) };
             let newLeafOrder = this.state.leafOrder.slice();
             newLeafOrder.splice(newLeafOrder.indexOf(oid) + 1, 0, newOid);

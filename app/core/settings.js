@@ -109,7 +109,7 @@ class ConnectedSettings extends React.Component {
             this.state.originalPassword = this.state.settings.cdiscLibrary.password;
         }
         // Check if default System is used
-        if (this.state.settings.define && this.state.settings.define.sourceSystem === remote.app.getName()) {
+        if (this.state.settings.define && this.state.settings.define.sourceSystem === remote.app.name) {
             this.state.defaultSource = true;
         } else {
             this.state.defaultSource = false;
@@ -151,15 +151,15 @@ class ConnectedSettings extends React.Component {
 
     handleChange = (category, name) => (event, checked) => {
         if (category === 'defaultSource') {
-            if (this.state.defaultSource === false && this.state.settings.define && this.state.settings.define.sourceSystem !== remote.app.getName()) {
+            if (this.state.defaultSource === false && this.state.settings.define && this.state.settings.define.sourceSystem !== remote.app.name) {
                 this.setState({
                     defaultSource: !this.state.defaultSource,
                     settings: { ...this.state.settings,
-                        define: { ...this.state.settings.define, sourceSystem: remote.app.getName(), sourceSystemVersion: remote.app.getVersion() }
+                        define: { ...this.state.settings.define, sourceSystem: remote.app.name, sourceSystemVersion: remote.app.getVersion() }
                     },
                 });
             } else {
-                if (this.state.settings.define && this.state.settings.define.sourceSystem === remote.app.getName()) {
+                if (this.state.settings.define && this.state.settings.define.sourceSystem === remote.app.name) {
                     this.setState({
                         defaultSource: !this.state.defaultSource,
                         settings: { ...this.state.settings,
@@ -204,7 +204,7 @@ class ConnectedSettings extends React.Component {
             });
         } else if (['sourceSystemVersion'].includes(name)) {
             // Version can be changed only when sourceSystem is modified
-            if (this.state.settings.define && this.state.settings.define.sourceSystem !== remote.app.getName()) {
+            if (this.state.settings.define && this.state.settings.define.sourceSystem !== remote.app.name) {
                 this.setState({
                     settings: { ...this.state.settings,
                         [category]: { ...this.state.settings[category], [name]: event.target.value }
@@ -712,7 +712,7 @@ class ConnectedSettings extends React.Component {
                                 <TextField
                                     label="Source System"
                                     disabled={this.state.defaultSource}
-                                    value={(this.state.defaultSource && remote.app.getName()) || this.state.settings.define.sourceSystem}
+                                    value={(this.state.defaultSource && remote.app.name) || this.state.settings.define.sourceSystem}
                                     onChange={this.handleChange('define', 'sourceSystem')}
                                     className={classes.sourceSystem}
                                 />

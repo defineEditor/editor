@@ -49,7 +49,7 @@ const mapStateToProps = state => {
     };
 };
 
-class AddVariableEditorConnected extends React.Component {
+class AddCodeListSimpleConnected extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
@@ -73,7 +73,7 @@ class AddVariableEditorConnected extends React.Component {
 
     handleSaveAndClose = (updateObj) => {
         let codeListOids = Object.keys(this.props.codeLists);
-        let codeListOid = getOid('CodeList', undefined, codeListOids);
+        let codeListOid = getOid('CodeList', codeListOids);
         // Get all possible IDs
         this.props.addCodeList({
             oid: codeListOid,
@@ -140,7 +140,7 @@ class AddVariableEditorConnected extends React.Component {
     }
 }
 
-AddVariableEditorConnected.propTypes = {
+AddCodeListSimpleConnected.propTypes = {
     classes: PropTypes.object.isRequired,
     codeLists: PropTypes.object.isRequired,
     codeListTypes: PropTypes.array.isRequired,
@@ -149,5 +149,5 @@ AddVariableEditorConnected.propTypes = {
     disabled: PropTypes.bool,
 };
 
-const AddVariableEditor = connect(mapStateToProps, mapDispatchToProps)(AddVariableEditorConnected);
-export default withStyles(styles)(AddVariableEditor);
+const AddCodeListSimple = connect(mapStateToProps, mapDispatchToProps)(AddCodeListSimpleConnected);
+export default withStyles(styles)(AddCodeListSimple);

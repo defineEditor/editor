@@ -128,9 +128,9 @@ class BasicFunctions {
         // In case there is a description without language, use it as default;
         if (
             updatedFlag === false &&
-      this.descriptions.length === 1 &&
-      this.descriptions[0].lang === undefined &&
-      language === 'en'
+            this.descriptions.length === 1 &&
+            this.descriptions[0].lang === undefined &&
+            language === 'en'
         ) {
             this.descriptions[0] = new TranslatedText({ value: value });
         }
@@ -328,11 +328,7 @@ class CodeList extends BasicFunctions {
     addEnumeratedItem (item) {
         let oid;
         if (this.enumeratedItems !== undefined) {
-            oid = getOid(
-                'CodeListItem',
-                undefined,
-                Object.keys(this.enumeratedItems)
-            );
+            oid = getOid('CodeListItem', Object.keys(this.enumeratedItems));
             this.enumeratedItems[oid] = item;
             this.itemOrder.push(oid);
         } else {
@@ -345,7 +341,7 @@ class CodeList extends BasicFunctions {
     addCodeListItem (item) {
         let oid;
         if (this.codeListItems !== undefined) {
-            oid = getOid('CodeListItem', undefined, Object.keys(this.codeListItems));
+            oid = getOid('CodeListItem', Object.keys(this.codeListItems));
             this.codeListItems[oid] = item;
             this.itemOrder.push(oid);
         } else {
@@ -778,10 +774,7 @@ class ItemGroup extends BasicFunctions {
     getOidByName (name, itemDefs) {
         let result;
         Object.keys(this.itemRefs).some(itemRefOid => {
-            if (
-                itemDefs[this.itemRefs[itemRefOid].itemOid].name.toLowerCase() ===
-        name.toLowerCase()
-            ) {
+            if (itemDefs[this.itemRefs[itemRefOid].itemOid].name.toLowerCase() === name.toLowerCase()) {
                 result = this.itemRefs[itemRefOid].itemOid;
                 return true;
             }

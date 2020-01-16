@@ -81,12 +81,12 @@ const mapStateToProps = state => {
     let disableFindToggle = false;
     let currentPage = state.present.ui.main.currentPage;
     const tabs = state.present.ui.tabs;
-    if (currentPage === 'editor' && tabs.hasOwnProperty('tabNames') && tabs.tabNames.hasOwnProperty(tabs.currentTab)) {
+    if (currentPage === 'editor' && tabs.tabNames && tabs.tabNames[tabs.currentTab] !== undefined) {
         disableFindToggle = ['Variables', 'Codelists', 'Coded Values', 'Review Comments'].includes(tabs.tabNames[tabs.currentTab]);
     } else if (currentPage === 'cdiscLibrary' || currentPage === 'controlledTerminology') {
         disableFindToggle = true;
     }
-    let bugModalOpened = state.present.ui && state.present.ui.modal && state.present.ui.modal.type === 'BUG_REPORT';
+    let bugModalOpened = state.present.ui && state.present.ui.modal && state.present.ui.modal.type.includes('BUG_REPORT');
     return {
         currentPage,
         showInitialMessage: state.present.settings.popUp.onStartUp,
@@ -171,7 +171,6 @@ class ConnectedApp extends Component {
     };
 
     handleUpdateInformation = (event, updateAvailable, data) => {
-        console.log('was here');
         if (updateAvailable) {
             this.props.updateMainUi({ updateInfo: { releaseNotes: data.updateInfo.releaseNotes, version: data.updateInfo.version } });
         }
@@ -230,7 +229,7 @@ class ConnectedApp extends Component {
                     {this.props.currentPage === 'studies' && <Studies />}
                     {this.props.currentPage === 'editor' && <Editor onToggleRedoUndo={this.toggleRedoUndo}/>}
                     {this.props.currentPage === 'controlledTerminology' && <ControlledTerminology />}
-                    {this.props.currentPage === 'cdiscLibrary' && <CdiscLibraryMain />}
+                    {this.props.currentPage === 'cdiscLibrary' && <CdiscLibraryMain mountPoint='main'/>}
                     {this.props.currentPage === 'settings' && <Settings />}
                     {this.props.currentPage === 'about' && <About />}
                     <ModalRoot />

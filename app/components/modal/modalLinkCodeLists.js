@@ -74,7 +74,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         updateLinkCodeLists: (updateObj) => dispatch(updateLinkCodeLists(updateObj)),
         openSnackbar: (updateObj) => dispatch(openSnackbar(updateObj)),
     };
@@ -166,7 +166,7 @@ class ConnectedModalLinkCodeLists extends React.Component {
                 });
                 return object;
             }, {});
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         if (Object.keys(linkedCodeLists).length !== 0) {
             // perform an action only if there are codelists to link
             this.props.updateLinkCodeLists(linkedCodeLists);
@@ -183,7 +183,7 @@ class ConnectedModalLinkCodeLists extends React.Component {
     }
 
     onCancel = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     render () {
@@ -318,6 +318,7 @@ ConnectedModalLinkCodeLists.propTypes = {
     codeLists: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
     openSnackbar: PropTypes.func.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalLinkCodeLists = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalLinkCodeLists);

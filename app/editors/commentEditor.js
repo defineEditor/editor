@@ -97,7 +97,7 @@ class ConnectedCommentEditor extends React.Component {
         let newComment;
         let comment = this.props.comment;
         if (name === 'addComment') {
-            let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
+            let commentOid = getOid('Comment', Object.keys(this.props.comments));
             newComment = { ...new Comment({ oid: commentOid, descriptions: [ { ...new TranslatedText({ lang: this.props.lang, value: '' }) } ] }) };
         } else if (name === 'deleteComment') {
             newComment = undefined;
@@ -119,11 +119,11 @@ class ConnectedCommentEditor extends React.Component {
             newComment = updateObj;
             this.setState({ selectCommentOpened: false });
         } else if (name === 'copyComment') {
-            let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
+            let commentOid = getOid('Comment', Object.keys(this.props.comments));
             newComment = { ...new Comment({ ...clone(updateObj), oid: commentOid, sources: undefined }) };
             this.setState({ selectCommentOpened: false });
         } else if (name === 'detachComment') {
-            let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
+            let commentOid = getOid('Comment', Object.keys(this.props.comments));
             newComment = { ...new Comment({ ...clone(this.props.comment), oid: commentOid, sources: undefined }) };
         }
 

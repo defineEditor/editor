@@ -18,6 +18,7 @@ import {
     UPD_LOADACTUALDATA,
     STUDY_DEL,
     DEFINE_DEL,
+    DEFINE_ADD,
     UPD_ARMSTATUS,
     ADD_REVIEWCOMMENT,
     DEL_REVIEWCOMMENT,
@@ -36,6 +37,15 @@ const updateArmStatus = (state, action) => {
         return { ...state, arm: undefined };
     } else if (action.updateObj.armStatus === true) {
         return { ...state, arm: 'http://www.cdisc.org/ns/arm/v1.0' };
+    }
+};
+
+const handleDefineAdd = (state, action) => {
+    // If Define-XML is replaced, then reset the odm
+    if (action.updateObj.define && action.updateObj.define.id === state.defineId) {
+        return { ...initialState };
+    } else {
+        return state;
     }
 };
 
@@ -102,6 +112,8 @@ const odm = (state = initialState, action) => {
             return loadActualData({ ...state, study: study(state.study, action) }, action);
         case UPD_ARMSTATUS:
             return updateArmStatus({ ...state, study: study(state.study, action) }, action);
+        case DEFINE_ADD:
+            return handleDefineAdd(state, action);
         case DEFINE_DEL:
             return handleDefineDelete(state, action);
         case STUDY_DEL:

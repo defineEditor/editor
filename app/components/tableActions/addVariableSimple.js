@@ -98,8 +98,8 @@ class AddVariableSimpleConnected extends React.Component {
         // Get all possible IDs
         let itemDefOids = Object.keys(this.props.itemDefs);
         let itemRefOids = Object.keys(this.props.itemGroups[this.props.itemGroupOid].itemRefs);
-        let itemDefOid = getOid('ItemDef', undefined, itemDefOids);
-        let itemRefOid = getOid('ItemRef', undefined, itemRefOids);
+        let itemDefOid = getOid('ItemDef', itemDefOids);
+        let itemRefOid = getOid('ItemRef', itemRefOids);
         let itemDef = { ...new ItemDef({
             oid: itemDefOid,
             name: this.state.name,
@@ -122,8 +122,8 @@ class AddVariableSimpleConnected extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={1} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
-                <Grid item xs={12}>
+            <Grid container spacing={1} justify='flex-start' alignItems='flex-start' direction='column' onKeyDown={this.onKeyDown} tabIndex='0'>
+                <Grid item>
                     <TextField
                         label='Name'
                         autoFocus
@@ -132,7 +132,7 @@ class AddVariableSimpleConnected extends React.Component {
                         className={classes.inputField}
                     />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item>
                     <TextField
                         label='Position'
                         type='number'

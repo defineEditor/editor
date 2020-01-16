@@ -35,7 +35,10 @@ import {
     UI_OPENSNACKBAR,
     UI_CLOSESNACKBAR,
     UI_CHANGECDISCLIBRARYVIEW,
+    UI_VARCHANGECDISCLIBRARYVIEW,
+    UI_ITEMGROUPCHANGECDISCLIBRARYVIEW,
     UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
+    UI_VARTOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
     UI_SAVECDISCLIBRARYINFO,
     UI_CHANGECTVIEW,
     UI_CHANGECTSETTINGS,
@@ -114,8 +117,9 @@ export const openModal = updateObj => ({
     updateObj
 });
 
-export const closeModal = () => ({
+export const closeModal = (updateObj) => ({
     type: UI_CLOSEMODAL,
+    updateObj
 });
 
 export const updateMainUi = updateObj => ({
@@ -150,14 +154,36 @@ export const closeSnackbar = () => ({
     type: UI_CLOSESNACKBAR,
 });
 
-export const changeCdiscLibraryView = updateObj => ({
-    type: UI_CHANGECDISCLIBRARYVIEW,
-    updateObj
-});
+export const changeCdiscLibraryView = (updateObj, mountPoint) => {
+    if (mountPoint === 'main') {
+        return {
+            type: UI_CHANGECDISCLIBRARYVIEW,
+            updateObj
+        };
+    } else if (mountPoint === 'variables') {
+        return {
+            type: UI_VARCHANGECDISCLIBRARYVIEW,
+            updateObj
+        };
+    } else if (mountPoint === 'datasets') {
+        return {
+            type: UI_ITEMGROUPCHANGECDISCLIBRARYVIEW,
+            updateObj
+        };
+    }
+};
 
-export const toggleCdiscLibraryItemGroupGridView = () => ({
-    type: UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
-});
+export const toggleCdiscLibraryItemGroupGridView = (mountPoint) => {
+    if (mountPoint === 'main') {
+        return {
+            type: UI_TOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
+        };
+    } else if (mountPoint === 'variables') {
+        return {
+            type: UI_VARTOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
+        };
+    }
+};
 
 export const saveCdiscLibraryInfo = (updateObj) => ({
     type: UI_SAVECDISCLIBRARYINFO,

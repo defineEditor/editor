@@ -56,8 +56,8 @@ const updateResultDisplay = (state, action) => {
 };
 
 const addResultDisplay = (state, action) => {
-    let newResultDisplayOid = getOid('ResultDisplay', undefined, state.resultDisplayOrder);
-    let newAnalysisResultOid = getOid('AnalysisResult', undefined, Object.keys(state.analysisResults));
+    let newResultDisplayOid = getOid('ResultDisplay', state.resultDisplayOrder);
+    let newAnalysisResultOid = getOid('AnalysisResult', Object.keys(state.analysisResults));
     let newResultDisplayOrder;
     const { orderNumber } = action.updateObj;
     if (orderNumber - 1 <= state.resultDisplayOrder.length) {
@@ -125,7 +125,7 @@ const updateAnalysisResultOrder = (state, action) => {
 };
 
 const addAnalysisResult = (state, action) => {
-    let newAnalysisResultOid = getOid('AnalysisResult', undefined, Object.keys(state.analysisResults));
+    let newAnalysisResultOid = getOid('AnalysisResult', Object.keys(state.analysisResults));
 
     let newAnalysisResults = {
         ...state.analysisResults,

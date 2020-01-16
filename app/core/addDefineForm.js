@@ -184,7 +184,7 @@ class ConnectedAddDefineForm extends React.Component {
                 });
             }
         } else if (activeStep === 3) {
-            let defineId = this.props.createdDefineId ? this.props.createdDefineId : getOid('Define', undefined, this.props.defines.allIds);
+            let defineId = this.props.createdDefineId ? this.props.createdDefineId : getOid('Define', this.props.defines.allIds);
             let defineData = this.state.defineData;
             defineData.defineId = defineId;
             defineData.defineName = data;

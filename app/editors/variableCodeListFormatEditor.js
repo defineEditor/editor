@@ -18,7 +18,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import SaveCancel from 'editors/saveCancel.js';
 import TextField from '@material-ui/core/TextField';
-import getSelectionList from 'utils/getSelectionList.js';
+import AutocompleteSelectEditor from 'editors/autocompleteSelectEditor.js';
 import sortIdList from 'utils/sortIdList.js';
 import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 
@@ -26,9 +26,16 @@ const styles = theme => ({
     textField: {
         minWidth: '100px',
     },
+    popper: {
+        minWidth: '300px',
+    },
     value: {
         whiteSpace: 'normal',
         overflowWrap: 'break-word',
+    },
+    inputRoot: {
+        paddingRight: 22,
+        flexWrap: 'wrap',
     },
     root: {
         outline: 'none',
@@ -41,18 +48,59 @@ const styles = theme => ({
 class VariableCodeListFormatEditor extends React.Component {
     constructor (props) {
         super(props);
-        this.state = { ...this.props.defaultValue };
+        const { defaultValue, codeLists } = props;
+        let { displayFormat, codeListOid, dataType } = defaultValue;
+
+        if (displayFormat == null) {
+            displayFormat = '';
+        }
+
+        // Get list of codeLists
+        let sortedCodeListIds = sortIdList(codeLists);
+        let options = sortedCodeListIds
+            .filter(codeListOid => (dataType === undefined || dataType === codeLists[codeListOid].dataType))
+            .map(codeListOid => ({ value: codeListOid, label: this.props.codeLists[codeListOid].name }))
+        ;
+        // Add blank option;
+        options.unshift({ value: '', label: 'No Codelist' });
+
+        let defaultOption;
+        if (codeListOid == null) {
+            if (options.length > 1) {
+                codeListOid = options[1].value;
+                defaultOption = options[1];
+            } else {
+                codeListOid = '';
+                defaultOption = { value: '', label: '' };
+            }
+        } else {
+            options.some(option => {
+                if (option.value === codeListOid) {
+                    defaultOption = option;
+                    return true;
+                }
+            });
+        }
+
+        this.state = {
+            displayFormat,
+            codeListOid,
+            options,
+            defaultOption,
+        };
     }
 
-    handleChange = name => event => {
+    handleChange = name => (event, option) => {
         // For items with the text datatype always prefix the value with $ or is blank
         if (this.props.row.dataType === 'text' && name === 'displayFormat' && event.target.value.match(/^\$|^$/) === null) {
             this.setState({ [name]: '$' + event.target.value });
         } else if (name === 'codeListOid') {
-            if (event.target.value !== '') {
-                this.setState({ codeListOid: event.target.value });
-            } else {
-                this.setState({ codeListOid: undefined });
+            if (option !== null) {
+                if (option.value !== '') {
+                    this.setState({ codeListOid: option.value });
+                } else {
+                    this.setState({ codeListOid: undefined });
+                }
             }
         } else {
             this.setState({ [name]: event.target.value });
@@ -82,21 +130,7 @@ class VariableCodeListFormatEditor extends React.Component {
 
     render () {
         const { classes } = this.props;
-        const displayFormat = this.state.displayFormat || '';
-        const codeListOid = this.state.codeListOid || '';
-        // Get list of codeLists
-        let sortedCodeListIds = sortIdList(this.props.codeLists);
-        let codeLists = sortedCodeListIds.map(codeListOid => {
-            let result = {};
-            if (this.props.defaultValue.dataType === undefined || this.props.defaultValue.dataType === this.props.codeLists[codeListOid].dataType) {
-                result[codeListOid] = this.props.codeLists[codeListOid].name;
-            }
-            return result;
-        });
-        // Remove blank codelists
-        codeLists = codeLists.filter(codeList => {
-            return Object.keys(codeList).length !== 0;
-        });
+        const { displayFormat, options, defaultOption } = this.state;
 
         let issue = false;
         let helperText = '';
@@ -121,19 +155,20 @@ class VariableCodeListFormatEditor extends React.Component {
             >
                 <Grid container spacing={0}>
                     <Grid item xs={12}>
-                        <TextField
-                            label='CodeList'
-                            autoFocus
-                            fullWidth
-                            select
-                            multiline
-                            value={codeListOid}
+                        <AutocompleteSelectEditor
+                            label='Codelist'
                             onChange={this.handleChange('codeListOid')}
+                            defaultValue={defaultOption}
+                            options={options}
                             className={classes.textField}
-                            InputProps={{ classes: { input: classes.value } }}
-                        >
-                            {getSelectionList(codeLists, true)}
-                        </TextField>
+                            disableOpenOnFocus
+                            disableClearable
+                            autoFocus
+                            classes={{
+                                popper: classes.popper,
+                                inputRoot: classes.inputRoot
+                            }}
+                        />
                     </Grid>
                     <Grid item xs={12}>
                         <TextField

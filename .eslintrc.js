@@ -21,7 +21,7 @@ module.exports = {
     // If this isn't set, any propTypes wrapped in
     // a function will be skipped.
   },
-  plugins: ['react', 'standard'],
+  plugins: ['react', 'standard', 'react-hooks'],
   rules: {
     // enable additional rules
     indent: ['error', 4, { SwitchCase: 1 }],
@@ -30,6 +30,9 @@ module.exports = {
     'react/no-string-refs': 0,
     'react/prop-types': 0,
     'comma-dangle': 0,
-    'no-console': 0
+    'no-console': 0,
+    'no-prototype-builtins': 0,
+    'react-hooks/rules-of-hooks': 'error', // Checks rules of Hooks
+    'react-hooks/exhaustive-deps': 'warn' // Checks effect dependencies
   }
 };

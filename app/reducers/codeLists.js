@@ -436,9 +436,9 @@ const addCodedValue = (state, action, skipLinkedCodeListUpdate) => {
         newOid = action.updateObj.oid;
     } else {
         if (codeList.codeListType === 'decoded') {
-            newOid = getOid('CodeListItem', undefined, Object.keys(codeList.codeListItems));
+            newOid = getOid('CodeListItem', Object.keys(codeList.codeListItems));
         } else if (codeList.codeListType === 'enumerated') {
-            newOid = getOid('CodeListItem', undefined, Object.keys(codeList.enumeratedItems));
+            newOid = getOid('CodeListItem', Object.keys(codeList.enumeratedItems));
         }
     }
     // Update itemOrder
@@ -494,10 +494,10 @@ const addCodedValues = (state, action, skipLinkedCodeListUpdate) => {
     } else {
         action.updateObj.items.forEach(item => {
             if (codeList.codeListType === 'decoded') {
-                let newOid = getOid('CodeListItem', undefined, Object.keys(codeList.codeListItems));
+                let newOid = getOid('CodeListItem', Object.keys(codeList.codeListItems));
                 itemsObject[newOid] = item;
             } else if (codeList.codeListType === 'enumerated') {
-                let newOid = getOid('CodeListItem', undefined, Object.keys(codeList.enumeratedItems));
+                let newOid = getOid('CodeListItem', Object.keys(codeList.enumeratedItems));
                 itemsObject[newOid] = item;
             }
         });

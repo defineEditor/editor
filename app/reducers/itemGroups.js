@@ -61,7 +61,7 @@ const updateItemGroup = (state, action) => {
     if (updateObj.hasOwnProperty('name')) {
         // Update datasetName and leafId together with the name
         updateObj.datasetName = action.updateObj.name;
-        newLeafOid = getOid('Leaf', updateObj.name);
+        newLeafOid = getOid('Leaf', [], updateObj.name);
     }
 
     if (updateObj.hasOwnProperty('description')) {
@@ -97,7 +97,7 @@ const updateItemGroup = (state, action) => {
                 updateObj.leaf.id = newLeafOid;
                 updateObj.archiveLocationId = newLeafOid;
             } else {
-                updateObj.leaf.id = getOid('Leaf', state[action.oid].name);
+                updateObj.leaf.id = getOid('Leaf', [], state[action.oid].name);
                 updateObj.archiveLocationId = updateObj.leaf.id;
             }
         }
@@ -317,7 +317,7 @@ const updateKeyOrder = (state, action) => {
 };
 
 const insertVariable = (state, action) => {
-    let itemRefOid = getOid('ItemRef', undefined, state[action.itemGroupOid].itemRefOrder);
+    let itemRefOid = getOid('ItemRef', state[action.itemGroupOid].itemRefOrder);
     let itemRef = { ...new ItemRef({ oid: itemRefOid, itemOid: action.itemDefOid, mandatory: 'No' }) };
     let itemRefs = { ...state[action.itemGroupOid].itemRefs, [itemRefOid]: itemRef };
     let itemRefOrder = state[action.itemGroupOid].itemRefOrder.slice();

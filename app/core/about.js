@@ -97,7 +97,7 @@ const About = () => {
         return function cleanup () {
             ipcRenderer.removeListener('updateInformation', handleUpdate);
         };
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const classes = useAboutStyles();
     // Get release notes link

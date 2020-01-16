@@ -111,11 +111,11 @@ function AddVlmFromCodeList (props) {
         // and all other attributes
         let updateObj = selectedCodes.reduce((object, value, key) => {
             object.names.push(codeLists[codeListOid][codeListItemsProperty][value].codedValue);
-            object.itemDefOids.push(getOid('ItemDef', undefined, Object.keys(itemDefs).concat(object['itemDefOids'])));
-            object.whereClauseOids.push(getOid('WhereClause', undefined, Object.keys(whereClauses).concat(object['whereClauseOids'])));
+            object.itemDefOids.push(getOid('ItemDef', Object.keys(itemDefs).concat(object['itemDefOids'])));
+            object.whereClauseOids.push(getOid('WhereClause', Object.keys(whereClauses).concat(object['whereClauseOids'])));
             return object;
         }, { ...updateObjLabels, sourceOid: undefined, valueListOid: undefined, itemDefOids: [], whereClauseOids: [], names: [] });
-        updateObj.valueListOid = getOid('ValueList', undefined, Object.keys(valueLists));
+        updateObj.valueListOid = getOid('ValueList', Object.keys(valueLists));
         updateObj.sourceOid = props.currentItemOid;
         updateObj.sourceGroupOid = props.currentGroupOid;
         updateObj.selectedOid = itemDefOid;

@@ -62,7 +62,7 @@ function getCodeListData (codeList, defineVersion) {
 
     let codeListTitle;
     let description = [];
-    if (getDescription(codeList) !== '') {
+    if (getDescription(codeList) !== '' && defineVersion === '2.1.0') {
         description.push(getDescription(codeList));
     } else if (codeList.alias !== undefined) {
         description.push(codeList.alias.name);

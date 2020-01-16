@@ -35,7 +35,8 @@ const checkForUpdates = async (mainWindow, eventLabel = 'updateInformation') => 
     let result = await autoUpdater.checkForUpdates();
 
     if (typeof result === 'object' && result.updateInfo) {
-        if (result.updateInfo.version > appVersion) {
+        // Do not switch from current to stable, as stable always has current equivalent
+        if (result.updateInfo.version > appVersion && !(appVersion.includes('current') && !result.updateInfo.version.includes('current'))) {
             mainWindow.webContents.send(eventLabel, true, result);
         } else {
             mainWindow.webContents.send(eventLabel, false);

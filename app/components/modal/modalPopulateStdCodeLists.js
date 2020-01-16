@@ -81,7 +81,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         updateCodeListsStandard: (updateObj) => dispatch(updateCodeListsStandard(updateObj)),
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         openSnackbar: (updateObj) => dispatch(openSnackbar(updateObj)),
     };
 };
@@ -247,7 +247,7 @@ class ConnectedModalAttachStdCodelists extends React.Component {
         } else if (this.state.matchByValue) {
             // TODO
         }
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         if (Object.keys(updatedCodeListData).length > 0) {
             this.props.updateCodeListsStandard(updatedCodeListData);
             this.props.openSnackbar({
@@ -263,7 +263,7 @@ class ConnectedModalAttachStdCodelists extends React.Component {
     }
 
     onCancel = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     attachStandardCodeList = () => {
@@ -459,6 +459,7 @@ ConnectedModalAttachStdCodelists.propTypes = {
     updateCodeListsStandard: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
     openSnackbar: PropTypes.func.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalAttachStdCodelists = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalAttachStdCodelists);

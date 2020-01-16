@@ -64,7 +64,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         appQuit: () => dispatch(appQuit()),
         appSave: (updateObj) => dispatch(appSave(updateObj)),
     };
@@ -73,7 +73,7 @@ const mapDispatchToProps = dispatch => {
 class ConnectedModalQuitApplication extends React.Component {
     onSave = () => {
         this.props.appQuit();
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         this.props.appSave({ defineId: this.props.defineId, lastSaveHistoryIndex: 0 });
         saveState('noWrite');
         ipcRenderer.once('writeDefineObjectFinished', () => { ipcRenderer.send('quitConfirmed'); window.close(); });
@@ -86,14 +86,14 @@ class ConnectedModalQuitApplication extends React.Component {
 
     onDiscard = () => {
         this.props.appQuit();
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         saveState('noWrite');
         ipcRenderer.send('quitConfirmed');
         window.close();
     }
 
     onCancel = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     onKeyDown = (event) => {
@@ -168,6 +168,7 @@ ConnectedModalQuitApplication.propTypes = {
     defineId: PropTypes.string.isRequired,
     odm: PropTypes.object.isRequired,
     tabs: PropTypes.object.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalQuitApplication = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalQuitApplication);

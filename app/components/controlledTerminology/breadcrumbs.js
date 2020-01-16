@@ -128,7 +128,7 @@ class ConnectedControlledTerminologyBreadcrumbs extends React.Component {
                     </Breadcrumbs>
                 </Grid>
                 <Grid item>
-                    <Grid container justify='flex-end' alignItems='center'>
+                    <Grid container justify='flex-end' alignItems='center' spacing={1}>
                         { this.props.additionalActions && (
                             this.props.additionalActions.map((action, index) => {
                                 return (

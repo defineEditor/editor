@@ -95,9 +95,7 @@ VariableNameLabelEditor.propTypes = {
     handleChange: PropTypes.func.isRequired,
     name: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
-    autoLabel: PropTypes.bool,
     vlm: PropTypes.bool,
-    blueprint: PropTypes.object,
 };
 
 export default withStyles(styles)(VariableNameLabelEditor);

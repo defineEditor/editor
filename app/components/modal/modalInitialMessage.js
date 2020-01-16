@@ -56,7 +56,7 @@ const styles = theme => ({
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         updateSettings: (updateObj) => dispatch(updateSettings(updateObj)),
     };
 };
@@ -70,7 +70,7 @@ class ConnectedModalInitialMessage extends React.Component {
     }
 
     onClose = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         if (this.state.doNotShowAgain) {
             // if so, update the corresponding setting
             this.props.updateSettings({
@@ -144,6 +144,7 @@ class ConnectedModalInitialMessage extends React.Component {
 ConnectedModalInitialMessage.propTypes = {
     classes: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalInitialMessage = connect(undefined, mapDispatchToProps)(ConnectedModalInitialMessage);

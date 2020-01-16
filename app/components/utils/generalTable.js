@@ -1,7 +1,7 @@
 /***********************************************************************************
  * This file is part of Visual Define-XML Editor. A program which allows to review  *
  * and edit XML files created using the CDISC Define-XML standard.                  *
- * Copyright (C) 2018 Dmitry Kolosov                                                *
+ * Copyright (C) 2019 Dmitry Kolosov                                                *
  *                                                                                  *
  * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
  * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -15,6 +15,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
+import TableContainer from '@material-ui/core/TableContainer';
+import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -45,7 +47,7 @@ import Paper from '@material-ui/core/Paper';
     @property {string} header.align - Align column: right, left, ...
     @property {string} header.defaultOrder - Use that column as an order column, possible values: asc, desc
     @property {object} header.style - Style applied to the column
-*/
+    */
 
 const StyledTableCell = withStyles(theme => ({
     head: {
@@ -184,15 +186,29 @@ GeneralTableToolbar.propTypes = {
 };
 
 const useStyles = makeStyles(theme => ({
-    root: {
-        width: '100%',
-    },
     paper: {
         width: '100%',
         marginBottom: theme.spacing(2),
+        display: 'flex',
+    },
+    minHeight: {
+        minHeight: 1,
+        flex: 1,
+    },
+    toolbarGridItem: {
+        flex: '1 1 1%',
+        minHeight: 70,
+    },
+    paginationGridItem: {
+        flex: '1 1 1%',
+    },
+    tableGridItem: {
+        display: 'flex',
+        minHeight: 1,
+        flex: '1 1 99%',
     },
     tableWrapper: {
-        overflowX: 'auto',
+        overflow: 'auto',
     },
     sortHeader: {
         color: '#FFFFFF',
@@ -209,14 +225,13 @@ const useStyles = makeStyles(theme => ({
         width: 1,
     },
 }));
-
 export default function GeneralTable (props) {
     let { data, header, selection, sorting, pagination, title, customToolbar,
-        disableToolbar, initialPagesPerRow, rowsPerPageOptions, fullRowSelect,
+        disableToolbar, initialRowsPerPage, rowsPerPageOptions,
     } = props;
     let keyVar;
-    if (!initialPagesPerRow) {
-        initialPagesPerRow = 50;
+    if (!initialRowsPerPage) {
+        initialRowsPerPage = 50;
     }
 
     // Column ordering
@@ -238,12 +253,13 @@ export default function GeneralTable (props) {
 
     let selected, setSelected;
     if (typeof selection === 'object') {
-        // Selection handled outside
+        // Selection handled externally
         selected = selection.selected;
         setSelected = selection.setSelected;
     } else if (selection === true) {
         // Selection handled internally
-        [selected, setSelected] = React.useState([]);
+        // It does not violate the rule of hooks, because constant when mounted
+        [selected, setSelected] = React.useState([]); // eslint-disable-line react-hooks/rules-of-hooks
     } else {
         selected = [];
     }
@@ -256,7 +272,8 @@ export default function GeneralTable (props) {
         setRowsPerPage = pagination.setRowsPerPage;
     } else if (pagination === true) {
         // Rows per page handled internally
-        [rowsPerPage, setRowsPerPage] = React.useState(initialPagesPerRow);
+        // It does not violate the rule of hooks, because constant when mounted
+        [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage); // eslint-disable-line react-hooks/rules-of-hooks
     } else {
         rowsPerPage = [];
     }
@@ -268,8 +285,9 @@ export default function GeneralTable (props) {
     };
 
     const handleSelectAllClick = event => {
-        if (event.target.checked) {
-            const newSelected = data.map(n => n[keyVar]);
+        // Check if all values, which are allowed to be selected, are not selected
+        if (selected.length !== data.filter(n => !n.__disableSelection).length) {
+            const newSelected = data.filter(n => !n.__disableSelection).map(n => n[keyVar]);
             setSelected(newSelected);
             return;
         }
@@ -318,92 +336,100 @@ export default function GeneralTable (props) {
     }
 
     return (
-        <div className={classes.root}>
-            <Paper className={classes.paper}>
+        <Paper className={classes.paper}>
+            <Grid container justify='flex-start' direction='column' wrap='nowrap' className={classes.minHeight}>
                 { customToolbar && (
-                    customToolbar()
+                    <Grid item className={classes.toolbarGridItem}>
+                        {customToolbar()}
+                    </Grid>
                 )}
                 { (!disableToolbar || selected.length > 0) && !customToolbar && (
-                    <GeneralTableToolbar numSelected={selected.length} title={title} />
+                    <Grid item className={classes.toolbarGridItem}>
+                        <GeneralTableToolbar numSelected={selected.length} title={title} />
+                    </Grid>
                 )}
-                <div className={classes.tableWrapper}>
-                    <Table
-                        className={classes.table}
-                        aria-labelledby='tableTitle'
-                        size='medium'
-                        aria-label='enhanced table'
-                    >
-                        <GeneralTableHead
-                            classes={classes}
-                            numSelected={selected.length}
-                            order={order}
-                            orderBy={orderBy}
-                            onSelectAllClick={handleSelectAllClick}
-                            onRequestSort={handleRequestSort}
-                            rowCount={data.length}
-                            header={header}
-                            sorting={sorting}
-                            selection={selection}
-                        />
-                        <TableBody>
-                            {tableData.map((row, index) => {
-                                const isItemSelected = isSelected(row[keyVar]);
+                <Grid item className={classes.tableGridItem}>
+                    <TableContainer className={classes.tableWrapper}>
+                        <Table
+                            aria-labelledby='tableTitle'
+                            size='medium'
+                            stickyHeader
+                            aria-label='enhanced table'
+                        >
+                            <GeneralTableHead
+                                classes={classes}
+                                numSelected={selected.length}
+                                order={order}
+                                orderBy={orderBy}
+                                onSelectAllClick={handleSelectAllClick}
+                                onRequestSort={handleRequestSort}
+                                rowCount={data.length}
+                                header={header}
+                                sorting={sorting}
+                                selection={selection}
+                            />
+                            <TableBody>
+                                {tableData.map((row, index) => {
+                                    const isItemSelected = isSelected(row[keyVar]);
 
-                                return (
-                                    <TableRow
-                                        hover={selection !== undefined}
-                                        aria-checked={isItemSelected}
-                                        tabIndex={-1}
-                                        role={fullRowSelect && 'checkbox'}
-                                        onClick={fullRowSelect && selection ? event => handleClick(event, row[keyVar]) : undefined}
-                                        key={row[keyVar]}
-                                        selected={isItemSelected}
-                                        style={row.styleClass}
-                                    >
-                                        {selection && (
-                                            <StyledTableCell padding='checkbox'>
-                                                <Checkbox
-                                                    checked={isItemSelected}
-                                                    onClick={!fullRowSelect && selection ? event => handleClick(event, row[keyVar]) : undefined}
-                                                    color='primary'
-                                                />
-                                            </StyledTableCell>
-                                        )}
-                                        { header
-                                            .filter(headerCell => (!headerCell.hidden))
-                                            .map(column => {
-                                                return (
-                                                    <StyledTableCell
-                                                        key={column.id}
-                                                        align={column.align ? column.align : 'left'}
-                                                        style={column.style}
-                                                    >
-                                                        { column.formatter ? (
-                                                            column.formatter(row[column.id], row)
-                                                        ) : (row[column.id])}
-                                                    </StyledTableCell>
-                                                );
-                                            })
-                                        }
-                                    </TableRow>
-                                );
-                            })}
-                        </TableBody>
-                    </Table>
-                </div>
+                                    return (
+                                        <TableRow
+                                            hover={selection !== undefined}
+                                            aria-checked={isItemSelected}
+                                            tabIndex={-1}
+                                            role={'checkbox'}
+                                            onClick={!row.__disableSelection && selection ? event => handleClick(event, row[keyVar]) : undefined}
+                                            key={row[keyVar]}
+                                            selected={isItemSelected}
+                                            style={row.__styleClass}
+                                        >
+                                            {selection && (
+                                                <StyledTableCell padding='checkbox'>
+                                                    <Checkbox
+                                                        checked={isItemSelected}
+                                                        color='primary'
+                                                        disabled={row.__disableSelection}
+                                                    />
+                                                </StyledTableCell>
+                                            )}
+                                            { header
+                                                .filter(headerCell => (!headerCell.hidden))
+                                                .map(column => {
+                                                    return (
+                                                        <StyledTableCell
+                                                            key={column.id}
+                                                            align={column.align ? column.align : 'left'}
+                                                            style={column.style}
+                                                        >
+                                                            { column.formatter ? (
+                                                                column.formatter({ [column.id]: row[column.id], row })
+                                                            ) : (row[column.id])}
+                                                        </StyledTableCell>
+                                                    );
+                                                })
+                                            }
+                                        </TableRow>
+                                    );
+                                })}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Grid>
                 { pagination && (
-                    <TablePagination
-                        rowsPerPageOptions={rowsPerPageOptions || [25, 50, 100]}
-                        component='div'
-                        count={data.length}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        onChangePage={handleChangePage}
-                        onChangeRowsPerPage={handleChangeRowsPerPage}
-                    />
+                    <Grid item className={classes.paginationGridItem}>
+                        <TablePagination
+                            rowsPerPageOptions={rowsPerPageOptions || [25, 50, 100]}
+                            component='div'
+                            count={data.length}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            onChangePage={handleChangePage}
+                            onChangeRowsPerPage={handleChangeRowsPerPage}
+                        />
+                    </Grid>
                 )}
-            </Paper>
-        </div>
+            </Grid>
+        </Paper>
     );
 }
 
@@ -415,6 +441,5 @@ GeneralTable.propTypes = {
     disableToolbar: PropTypes.bool,
     sorting: PropTypes.bool,
     rowsPerPageOptions: PropTypes.array,
-    initialPagesPerRow: PropTypes.number,
-    fullRowSelect: PropTypes.bool,
+    initialRowsPerPage: PropTypes.number,
 };

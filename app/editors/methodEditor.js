@@ -109,7 +109,7 @@ class ConnectedMethodEditor extends React.Component {
         let newMethod;
         let method = this.props.stateless === true ? this.props.method : this.state.method;
         if (name === 'addMethod') {
-            let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
+            let methodOid = getOid('Method', Object.keys(this.props.methods));
             let name;
             let autoMethodName;
             if (this.props.fullName !== undefined) {
@@ -166,11 +166,11 @@ class ConnectedMethodEditor extends React.Component {
             newMethod = updateObj;
             this.setState({ selectMethodOpened: false });
         } else if (name === 'copyMethod') {
-            let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
+            let methodOid = getOid('Method', Object.keys(this.props.methods));
             newMethod = { ...new Method({ ...clone(updateObj), oid: methodOid, sources: undefined }) };
             this.setState({ selectMethodOpened: false });
         } else if (name === 'detachMethod') {
-            let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
+            let methodOid = getOid('Method', Object.keys(this.props.methods));
             newMethod = { ...new Method({ ...clone(this.props.stateless ? this.props.method : this.state.method), oid: methodOid, sources: undefined }) };
         }
 

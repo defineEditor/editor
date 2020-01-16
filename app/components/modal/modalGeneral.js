@@ -14,19 +14,20 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import { connect } from 'react-redux';
+import { makeStyles } from '@material-ui/core/styles';
+import { useDispatch } from 'react-redux';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import ReactMarkdown from 'react-markdown';
 import Button from '@material-ui/core/Button';
 import {
     closeModal,
 } from 'actions/index.js';
 
-const styles = theme => ({
+const getStyles = makeStyles(theme => ({
     dialog: {
         paddingBottom: theme.spacing(1),
         position: 'absolute',
@@ -47,63 +48,53 @@ const styles = theme => ({
         lineHeight: '1.6',
         letterSpacing: '0.0075em',
     },
-});
+}));
 
-const mapDispatchToProps = dispatch => {
-    return {
-        closeModal: () => dispatch(closeModal()),
+const ModalGeneral = (props) => {
+    const dispatch = useDispatch();
+    let classes = getStyles();
+
+    const onClose = () => {
+        dispatch(closeModal({ type: props.type }));
     };
+
+    const onKeyDown = (event) => {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            onClose();
+        }
+    };
+
+    return (
+        <Dialog
+            disableBackdropClick
+            disableEscapeKeyDown
+            open
+            PaperProps={{ className: classes.dialog }}
+            onKeyDown={onKeyDown}
+            tabIndex='0'
+        >
+            <DialogTitle className={classes.title} disableTypography>
+                {props.title}
+            </DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                    {props.markdown === true ? <ReactMarkdown source={props.message} /> : props.message}
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={onClose} color="primary">
+                    Close
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
 };
 
-class ConnectedModalGeneral extends React.Component {
-    onClose = () => {
-        this.props.closeModal();
-    }
-
-    onKeyDown = (event) => {
-        if (event.key === 'Escape' || event.keyCode === 27) {
-            this.onClose();
-        }
-    }
-
-    render () {
-        const { classes } = this.props;
-
-        return (
-            <Dialog
-                disableBackdropClick
-                disableEscapeKeyDown
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-                open
-                PaperProps={{ className: classes.dialog }}
-                onKeyDown={this.onKeyDown}
-                tabIndex='0'
-            >
-                <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
-                    {this.props.title}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        {this.props.message}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={this.onClose} color="primary">
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        );
-    }
-}
-
-ConnectedModalGeneral.propTypes = {
-    classes: PropTypes.object.isRequired,
+ModalGeneral.propTypes = {
     closeModal: PropTypes.func.isRequired,
     title: PropTypes.string.isRequired,
     message: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
-const ModalGeneral = connect(undefined, mapDispatchToProps)(ConnectedModalGeneral);
-export default withStyles(styles)(ModalGeneral);
+export default ModalGeneral;

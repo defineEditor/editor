@@ -12,37 +12,47 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { createStore } from 'redux';
-import rootReducer from 'reducers/rootReducer';
-import loadState from 'utils/loadState.js';
-import undoable from 'redux-undo';
-// import { throttle } from 'throttle-debounce';
-// import saveState from 'utils/saveState.js';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
+import { makeStyles } from '@material-ui/core/styles';
+import Link from '@material-ui/core/Link';
+import { openModal } from 'actions/index.js';
 
-const filterActions = (action, currentState, previousHistory) => {
+const getStyles = makeStyles(theme => ({
+    link: {
+        color: '#007BFF',
+    },
+}));
+
+const VariableCodeListFormatter = (props) => {
+    const dispatch = useDispatch();
+    let classes = getStyles();
+
+    const handleOpen = (event) => {
+        event.preventDefault();
+        dispatch(openModal({
+            type: 'CODELIST_TABLE',
+            props: {
+                codeListOid: props.codeListOid,
+            }
+        }));
+    };
+
     return (
-        !action.type.startsWith('UI_') &&
-        !action.type.startsWith('CT_') &&
-        !action.type.startsWith('@@') &&
-        !(action.noHistory === true) &&
-        !['STDCDL_LOAD', 'APP_SAVE', 'STG_UPDATESETTINGS'].includes(action.type)
+        <Link
+            variant='body2'
+            onClick={handleOpen}
+            className={classes.link}
+            href='blank'
+        >
+            {props.codeListLabel}
+        </Link>
     );
 };
 
-const actionSanitizer = (action) => (
-    ['STDCDL_LOAD', 'ADD_ODM'].includes(action.type) && action.updateObj ? { ...action, updateObj: { ...action.updateObj, ctList: {} } } : action
-);
+VariableCodeListFormatter.propTypes = {
+    codeListOid: PropTypes.string,
+};
 
-const store = createStore(
-    undoable(rootReducer, { filter: filterActions }),
-    loadState(),
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__({ actionSanitizer }),
-);
-
-// Save state every 5 minutes as a backup
-/* store.subscribe(
-    throttle(300000, () => { saveState('backup'); })
-);
-*/
-
-export default store;
+export default VariableCodeListFormatter;

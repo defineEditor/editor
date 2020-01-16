@@ -54,9 +54,14 @@ const styles = theme => ({
     root: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
+        display: 'flex',
+        width: '100%',
     },
     scanning: {
         marginTop: theme.spacing(10),
+    },
+    scanBox: {
+        flex: '1 1 auto',
     },
     progress: {
         marginTop: theme.spacing(10),
@@ -140,7 +145,7 @@ const useToolbarStyles = makeStyles(theme => ({
         marginLeft: theme.spacing(1),
     },
     toolbarFab: {
-        marginRight: theme.spacing(2),
+        marginRight: theme.spacing(1),
     },
     toolbarIcon: {
         height: 31,
@@ -148,7 +153,7 @@ const useToolbarStyles = makeStyles(theme => ({
     },
 }));
 
-const ctTypes = ['All', 'SDTM', 'ADaM', 'SEND', 'CDASH', 'COA', 'QS-FT', 'Protocol'];
+const ctTypes = ['All', 'SDTM', 'ADaM', 'SEND', 'CDASH', 'COA', 'QS-FT', 'Protocol', 'Def-XML'];
 
 class ConnectedPackages extends React.Component {
     constructor (props) {
@@ -218,7 +223,8 @@ class ConnectedPackages extends React.Component {
                     version: ct.version,
                 }),
                 notLoaded: true,
-                styleClass: { backgroundColor: '#E0E0E0' }
+                __styleClass: { backgroundColor: '#E0E0E0' },
+                __disableSelection: true
             });
         });
 
@@ -262,17 +268,19 @@ class ConnectedPackages extends React.Component {
         ipcRenderer.send('addControlledTerminology');
     }
 
-    toggleDefault = (ctId) => () => {
+    toggleDefault = (ctId) => (event) => {
+        event.stopPropagation();
         let currentCt = this.props.controlledTerminology.byId[ctId];
         let updatedCt = { ...currentCt, isDefault: !currentCt.isDefault };
         this.props.updateControlledTerminology({ ctList: { [ctId]: updatedCt } });
     }
 
-    addByDefault = (value, row) => {
+    addByDefault = (props) => {
         return (
             <Switch
-                checked={value}
-                onChange={this.toggleDefault(row.id)}
+                checked={props.isDefault}
+                onChange={this.toggleDefault(props.row.id)}
+                onClick={(event) => { event.stopPropagation(); }}
                 color='primary'
             />
         );
@@ -282,12 +290,13 @@ class ConnectedPackages extends React.Component {
         this.setState({ searchString: event.target.value });
     }
 
-    actions = (id, row) => {
+    actions = (props) => {
+        const { id, row } = props;
         if (row.notLoaded === true) {
             return (
                 <Tooltip title='Download Controlled Terminology' placement='bottom' enterDelay={500}>
                     <Fab
-                        onClick={() => { this.loadCtFromCdiscLibrary(id); }}
+                        onClick={(event) => { event.stopPropagation(); this.loadCtFromCdiscLibrary(id); }}
                         color='default'
                         size='medium'
                     >
@@ -356,7 +365,8 @@ class ConnectedPackages extends React.Component {
         });
     };
 
-    openCt = (id) => () => {
+    openCt = (id) => (event) => {
+        event.stopPropagation();
         // Remove all CTs, which were previously loaded for review purposes
         let currentStdCodeListIds = Object.keys(this.props.stdCodeLists);
         let ctIdsToRemove = currentStdCodeListIds.filter(ctId => (ctId !== id && this.props.stdCodeLists[ctId].loadedForReview));
@@ -494,7 +504,7 @@ class ConnectedPackages extends React.Component {
         if (searchString !== '') {
             const caseSensitiveSearch = /[A-Z]/.test(searchString);
             data = data.filter(row => (Object.keys(row)
-                .filter(item => (!['id', 'isDefault'].includes(item.id)))
+                .filter(item => (!['id', 'isDefault'].includes(item)))
                 .some(item => {
                     if (caseSensitiveSearch) {
                         return typeof row[item] === 'string' && row[item].includes(searchString);
@@ -519,7 +529,7 @@ class ConnectedPackages extends React.Component {
                         />
                     )}
                     { this.state.scanning === true && (
-                        <Box textAlign='center'>
+                        <Box textAlign='center' className={classes.scanBox}>
                             <Typography variant='h4' color='textSecondary' className={classes.scanning}>
                                 Scanning Controlled Terminology
                             </Typography>

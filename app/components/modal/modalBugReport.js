@@ -68,7 +68,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         changePage: (updateObj) => dispatch(changePage(updateObj)),
         undo: () => { dispatch(ActionCreators.undo()); },
         reset: () => { dispatch(ActionCreators.undo()); dispatch(ActionCreators.redo()); },
@@ -84,7 +84,7 @@ class ConnectedModalBugReport extends React.Component {
     }
 
     onClose = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         this.props.reset();
     }
 
@@ -185,6 +185,7 @@ ConnectedModalBugReport.propTypes = {
     undo: PropTypes.func.isRequired,
     reset: PropTypes.func.isRequired,
     actionHistory: PropTypes.array.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalBugReport = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalBugReport);

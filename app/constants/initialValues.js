@@ -43,7 +43,6 @@ const main = (() => {
 })();
 
 const tabs = (() => {
-    /* TODO: 'Methods', 'Comments', 'Where Conditions' */
     let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents', 'Result Displays', 'Analysis Results', 'Review Comments'];
     let tabObjectNames = ['standards', 'datasets', 'variables', 'codeLists', 'codedValues', 'documents', 'resultDisplays', 'analysisResults', 'reviewComments'];
 
@@ -64,6 +63,20 @@ const tabs = (() => {
         if (tabNames[i] === 'Review Comments') {
             settings[i].panelStatus = {};
             settings[i].showResolved = true;
+        }
+        if (['Variables', 'Datasets'].includes(tabNames[i])) {
+            settings[i].cdiscLibrary = {
+                currentView: 'products',
+                products: {
+                },
+                itemGroups: {
+                    gridView: false,
+                },
+                items: {
+                },
+                info: {
+                },
+            };
         }
         // When tab has multiple tables
         if (['Variables', 'Coded Values', 'Analysis Results'].includes(tabNames[i])) {
@@ -95,7 +108,7 @@ const tabs = (() => {
 })();
 
 const modal = {
-    type: null,
+    type: [],
     props: {},
 };
 

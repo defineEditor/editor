@@ -23,6 +23,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import DeleteIcon from '@material-ui/icons/Delete';
 import LowPriority from '@material-ui/icons/LowPriority';
 import { FaFileExport, FaFileImport } from 'react-icons/fa';
+import EditIcon from '@material-ui/icons/Edit';
+import AddIcon from '@material-ui/icons/Add';
 import Divider from '@material-ui/core/Divider';
 import { Study, Define } from 'core/mainStructure.js';
 import DefineOrderEditor from 'components/orderEditors/defineOrderEditor.js';
@@ -112,6 +114,16 @@ class ConnectedStudyMenu extends React.Component {
         }
     }
 
+    toggleEditMode = () => {
+        this.props.toggleEditMode();
+        this.props.onClose();
+    }
+
+    toggleAddDefineForm = () => {
+        this.props.toggleAddDefineForm();
+        this.props.onClose();
+    }
+
     render () {
         return (
             <React.Fragment>
@@ -126,6 +138,19 @@ class ConnectedStudyMenu extends React.Component {
                         },
                     }}
                 >
+                    <MenuItem key='Edit' onClick={this.toggleEditMode}>
+                        <ListItemIcon>
+                            <EditIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Edit" />
+                    </MenuItem>
+                    <MenuItem key='Add' onClick={this.toggleAddDefineForm}>
+                        <ListItemIcon>
+                            <AddIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Add" />
+                    </MenuItem>
+                    <Divider/>
                     <MenuItem key='Export' onClick={this.export} disabled={this.props.study.defineIds && this.props.study.defineIds.length === 0}>
                         <ListItemIcon>
                             <FaFileExport />
@@ -168,6 +193,8 @@ ConnectedStudyMenu.propTypes = {
     defines: PropTypes.object.isRequired,
     anchorEl: PropTypes.object.isRequired,
     openModal: PropTypes.func.isRequired,
+    toggleAddDefineForm: PropTypes.func.isRequired,
+    toggleEditMode: PropTypes.func.isRequired,
     study: PropTypes.object.isRequired,
 };
 

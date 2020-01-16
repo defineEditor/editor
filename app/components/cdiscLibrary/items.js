@@ -29,18 +29,19 @@ import {
 } from 'actions/index.js';
 
 const styles = theme => ({
-    heading: {
-        fontSize: theme.typography.pxToRem(15),
-        flexBasis: '33.33%',
-        flexShrink: 0,
-    },
-    button: {
-        height: 40,
-    },
     main: {
-        marginTop: theme.spacing(8),
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
+        outline: 'none',
+        minHeight: 1,
+        flex: 1,
+    },
+    tableItem: {
+        display: 'flex',
+        minHeight: 1,
+        flex: '1 1 99%',
+    },
+    addItem: {
         outline: 'none'
     },
     header: {
@@ -51,6 +52,9 @@ const styles = theme => ({
         marginRight: theme.spacing(6),
         minWidth: 200,
     },
+    dsDescriptionText: {
+        overflowY: 'hidden',
+    },
 });
 
 // Redux functions
@@ -60,11 +64,19 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-const mapStateToProps = state => {
-    return {
-        productId: state.present.ui.cdiscLibrary.itemGroups.productId,
-        items: state.present.ui.cdiscLibrary.items,
-    };
+const mapStateToProps = (state, props) => {
+    let cdiscLibrary;
+    if (props.mountPoint === 'main') {
+        cdiscLibrary = state.present.ui.cdiscLibrary;
+    } else if (['variables', 'datasets'].includes(props.mountPoint)) {
+        cdiscLibrary = state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].cdiscLibrary;
+    }
+    if (cdiscLibrary) {
+        return {
+            productId: cdiscLibrary.itemGroups.productId,
+            items: cdiscLibrary.items,
+        };
+    }
 };
 
 class ConnectedCdiscLibraryItems extends React.Component {
@@ -99,19 +111,37 @@ class ConnectedCdiscLibraryItems extends React.Component {
             itemGroup = await product.getItemGroup(this.props.items.itemGroupId);
             if (product.model === 'ADaM') {
                 let variableSets = itemGroup.getVariableSetList({ descriptions: true });
+                // Make variable set an additional category
+                let items = [];
+                Object.keys(variableSets).forEach((set, index) => {
+                    let setItems = Object.values(itemGroup.analysisVariableSets[set].getItems())
+                        .map(item => ({ ...item, ordinal: index + '.' + item.ordinal, variableSet: set }));
+                    items = items.concat(setItems);
+                });
                 // Add variable set all to show all values;
-                variableSets = { all: 'All', ...variableSets };
-                this.setState({ itemGroup, items: Object.values(itemGroup.getItems()), product, variableSets, currentVariableSet: 'all' });
+                variableSets = { __all: 'All', ...variableSets };
+                this.setState({ itemGroup, items, product, variableSets, currentVariableSet: '__all' });
             } else if (product.model === 'CDASH' && itemGroup.scenarios) {
                 let variableSets = {};
                 Object.keys(itemGroup.scenarios).forEach(id => {
                     variableSets[id] = itemGroup.scenarios[id].scenario;
                 });
+                let items = [];
+                // Make variable set an additional category
+                Object.keys(variableSets).forEach((set, index) => {
+                    let setItems = Object.values(itemGroup.scenarios[set].getItems())
+                        .map(item => ({ ...item, ordinal: index + '.' + item.ordinal, variableSet: set }));
+                    items = items.concat(setItems);
+                });
+                // Add default category (itemGroup.fields, non-scenario)
                 if (itemGroup.fields && Object.keys(itemGroup.fields).length > 0) {
                     // Add variable set all to show default fields;
-                    variableSets = { default: 'Default', ...variableSets };
+                    variableSets = { __default: 'Default', ...variableSets };
+                    items = items.concat(Object.values(itemGroup.getItems())
+                        .map(item => ({ ...item, ordinal: 'def.' + item.ordinal, variableSet: '__default' }))
+                    );
                 }
-                this.setState({ itemGroup, items: Object.values(itemGroup.getItems()), product, variableSets, currentVariableSet: Object.keys(variableSets)[0] });
+                this.setState({ itemGroup, items, product, variableSets, currentVariableSet: Object.keys(variableSets)[0] });
             } else {
                 this.setState({ itemGroup, items: Object.values(itemGroup.getItems()), product });
             }
@@ -122,101 +152,112 @@ class ConnectedCdiscLibraryItems extends React.Component {
         }
     }
 
-    getItemGroupDescription = () => {
+    getItemGroupDescription = (classes) => {
         let itemGroup = this.state.itemGroup;
         return (
-            <React.Fragment>
-                <Typography variant="h5" display='inline'>
-                    {itemGroup.name}
-                </Typography>
-                <Typography variant="h5" color='textSecondary' display='inline'>
-                    &nbsp; {itemGroup.label}
-                </Typography>
-                {itemGroup.description !== undefined && (
-                    <Typography variant="body2">
-                        {itemGroup.description}
+            <Grid container justify='flex-start' alignItems='baseline' wrap='nowrap' spacing={1}>
+                <Grid item>
+                    <Typography variant="h6" display='inline'>
+                        {itemGroup.name}
                     </Typography>
+                </Grid>
+                <Grid item>
+                    <Typography variant="body2" color='textSecondary' display='inline'>
+                        {itemGroup.label}
+                    </Typography>
+                </Grid>
+                {itemGroup.description !== undefined && (
+                    <Grid item>
+                        <Typography variant="body2" display='inline' className={classes.dsDescriptionText}>
+                            {itemGroup.description}
+                        </Typography>
+                    </Grid>
                 )}
-            </React.Fragment>
+            </Grid>
         );
     }
 
     handleVariableSetChange = event => {
         let currentVariableSet = event.target.value;
-        let items = [];
-        if (currentVariableSet === 'all' || currentVariableSet === 'default') {
-            items = Object.values(this.state.itemGroup.getItems());
-        } else {
-            if (this.state.itemGroup.analysisVariableSets) {
-                items = Object.values(this.state.itemGroup.analysisVariableSets[currentVariableSet].getItems());
-            } else if (this.state.itemGroup.scenarios) {
-                items = Object.values(this.state.itemGroup.scenarios[currentVariableSet].getItems());
-            }
-        }
-        this.setState({ currentVariableSet, items });
+        this.setState({ currentVariableSet });
     };
+
+    additionalActions = () => {
+        let classes = this.props.classes;
+        let result = [];
+        if (this.state.product && this.state.product.model === 'ADaM') {
+            result.push(
+                <Grid item>
+                    <TextField
+                        label='Analysis Variable Set'
+                        select
+                        className={classes.varSetSelection}
+                        value={this.state.currentVariableSet}
+                        onChange={this.handleVariableSetChange}
+                    >
+                        {getSelectionList(this.state.variableSets)}
+                    </TextField>
+                </Grid>
+            );
+        }
+        if (this.state.product && this.state.product.model === 'CDASH' && this.state.itemGroup.scenarios) {
+            result.push(
+                <Grid item>
+                    <TextField
+                        label='Scenario'
+                        select
+                        className={classes.varSetSelection}
+                        value={this.state.currentVariableSet}
+                        onChange={this.handleVariableSetChange}
+                    >
+                        {getSelectionList(this.state.variableSets)}
+                    </TextField>
+                </Grid>
+            );
+        }
+        return result;
+    }
 
     render () {
         const { classes } = this.props;
+        let rootClass;
+        if (this.props.mountPoint === 'main') {
+            rootClass = classes.main;
+        } else if (['variables', 'datasets'].includes(this.props.mountPoint)) {
+            rootClass = classes.addItem;
+        }
 
         return (
-            <Grid container justify='flex-start' className={classes.main}>
-                <Grid item xs={12}>
+            <Grid container justify='flex-start' alignItems='stretch' wrap='nowrap' direction='column' className={rootClass}>
+                <Grid item>
                     <CdiscLibraryBreadcrumbs
                         traffic={this.context.cdiscLibrary.getTrafficStats()}
                         searchString={this.state.searchString}
                         onSearchUpdate={this.handleSearchUpdate}
+                        additionalActions={this.additionalActions()}
+                        mountPoint={this.props.mountPoint}
                     />
                 </Grid>
                 { this.state.items.length === 0 && (
-                    <Grid item xs={12}>
+                    <Grid item>
                         <Loading onRetry={this.getItems} />
                     </Grid>
                 )}
                 { this.state.items.length !== 0 && (
-                    <React.Fragment>
-                        <Grid item xs={12}>
-                            <Grid container justify='space-between' alignItems='flex-start' className={classes.header}>
-                                <Grid item>
-                                    {this.getItemGroupDescription()}
-                                </Grid>
-                                { this.state.product.model === 'ADaM' && (
-                                    <Grid item>
-                                        <TextField
-                                            label='Analysis Variable Set'
-                                            select
-                                            className={classes.varSetSelection}
-                                            value={this.state.currentVariableSet}
-                                            onChange={this.handleVariableSetChange}
-                                        >
-                                            {getSelectionList(this.state.variableSets)}
-                                        </TextField>
-                                    </Grid>
-                                )}
-                                { this.state.product.model === 'CDASH' && this.state.itemGroup.scenarios && (
-                                    <Grid item>
-                                        <TextField
-                                            label='Scenario'
-                                            select
-                                            className={classes.varSetSelection}
-                                            value={this.state.currentVariableSet}
-                                            onChange={this.handleVariableSetChange}
-                                        >
-                                            {getSelectionList(this.state.variableSets)}
-                                        </TextField>
-                                    </Grid>
-                                )}
-                            </Grid>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <CdiscLibraryItemTable
-                                items={this.state.items}
-                                itemGroup={this.state.itemGroup}
-                                searchString={this.state.searchString}
-                                product={this.state.product}
-                            />
-                        </Grid>
-                    </React.Fragment>
+                    <Grid item className={classes.tableItem}>
+                        <CdiscLibraryItemTable
+                            items={this.state.items}
+                            itemGroup={this.state.itemGroup}
+                            searchString={this.state.searchString}
+                            product={this.state.product}
+                            title={this.getItemGroupDescription(classes)}
+                            mountPoint={this.props.mountPoint}
+                            variableSet={this.state.currentVariableSet}
+                            itemGroupOid={this.props.itemGroupOid}
+                            onClose={this.props.onClose}
+                            position={this.props.position}
+                        />
+                    </Grid>
                 )}
             </Grid>
         );
@@ -227,6 +268,10 @@ ConnectedCdiscLibraryItems.propTypes = {
     productId: PropTypes.string.isRequired,
     items: PropTypes.object.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
+    mountPoint: PropTypes.string.isRequired,
+    itemGroupOid: PropTypes.string,
+    onClose: PropTypes.func,
+    position: PropTypes.number,
 };
 ConnectedCdiscLibraryItems.displayName = 'CdiscLibraryItems';
 

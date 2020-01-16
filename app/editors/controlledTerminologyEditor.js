@@ -61,7 +61,7 @@ class ControlledTerminologyEditor extends React.Component {
     handleChange = (name, oid) => (event) => {
         if (name === 'addCt') {
             let newStandards = { ...this.state.standards };
-            let newOid = getOid('Standard', undefined, Object.keys(this.state.standards));
+            let newOid = getOid('Standard', Object.keys(this.state.standards));
             newStandards[newOid] = new Standard({ oid: newOid, name: 'CDISC/NCI', type: 'CT' });
             let newStandardOrder = this.state.standardOrder.slice().concat(newOid);
             this.setState({ standards: newStandards, standardOrder: newStandardOrder });
