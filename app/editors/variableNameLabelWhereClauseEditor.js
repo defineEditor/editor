@@ -33,7 +33,6 @@ const styles = theme => ({
 const mapStateToProps = state => {
     return {
         mdv: state.present.odm.study.metaDataVersion,
-        blueprint: state.present.odm.study.metaDataVersion,
         lang: state.present.odm.study.metaDataVersion.lang,
         getNameLabelFromWhereClause: state.present.settings.editor.getNameLabelFromWhereClause,
     };
@@ -42,14 +41,6 @@ const mapStateToProps = state => {
 class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
     constructor (props) {
         super(props);
-        let autoLabel;
-        if ((this.props.defaultValue.descriptions.length === 0 || this.props.defaultValue.descriptions[0].value) &&
-            this.props.blueprint !== undefined
-        ) {
-            autoLabel = true;
-        } else {
-            autoLabel = false;
-        }
 
         let wcComment;
         if (this.props.defaultValue.whereClause !== undefined && this.props.defaultValue.whereClause.commentOid !== undefined) {
@@ -63,7 +54,6 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
             descriptions: this.props.defaultValue.descriptions,
             whereClause: this.props.defaultValue.whereClause,
             wcComment: wcComment,
-            autoLabel: autoLabel,
             wcEditingMode: 'interactive',
             dataset: this.props.mdv.itemGroups[this.props.row.datasetOid]
         };
@@ -123,8 +113,6 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
                     wcComment: updateObj,
                 });
             }
-        } else if (name === 'autoLabel') {
-            this.setState({ [name]: !this.state.autoLabel });
         } else if (name === 'label') {
             // Create a new description;
             let lang = this.props.lang;
@@ -137,15 +125,6 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
         } else {
             this.setState({ [name]: updateObj.target.value });
         }
-    }
-
-    setAutoLabel = () => {
-        let bpItemDefs = this.props.blueprint.itemDefs;
-        Object.keys(bpItemDefs).forEach(itemDefOid => {
-            if (bpItemDefs[itemDefOid].name === this.state.name) {
-                this.setState({ descriptions: bpItemDefs[itemDefOid].descriptions });
-            }
-        });
     }
 
     save = () => {
@@ -190,8 +169,6 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
                             handleChange={this.handleChange}
                             label={label}
                             name={this.state.name}
-                            blueprint={this.props.blueprint}
-                            autoLabel={this.state.autoLabel}
                             vlm={true}
                         />
                     </Grid>
@@ -229,7 +206,6 @@ ConnectedVariableNameLabelWhereClauseEditor.propTypes = {
     classes: PropTypes.object.isRequired,
     defaultValue: PropTypes.object.isRequired,
     onUpdate: PropTypes.func.isRequired,
-    blueprint: PropTypes.object,
     getNameLabelFromWhereClause: PropTypes.bool,
     mdv: PropTypes.object,
     row: PropTypes.object.isRequired,

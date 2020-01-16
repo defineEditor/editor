@@ -513,7 +513,7 @@ Some of the dataset attributes are not part of CDISC Library are derived by the 
 * **Repeating** flag is defaulted to Yes. In case **Reference Data** is derived as Yes, **Repeating** is set to No.
 * **Domain** is set to the dataset name when the length is 2 and the CDISC Library product is SDTM or SEND.
 
-Verify the correct values are used.
+Verify that the correct values are used.
 `,
                 markdown: true,
             }

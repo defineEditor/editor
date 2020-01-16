@@ -60,6 +60,9 @@ const styles = theme => ({
     scanning: {
         marginTop: theme.spacing(10),
     },
+    scanBox: {
+        flex: '1 1 auto',
+    },
     progress: {
         marginTop: theme.spacing(10),
         marginLeft: theme.spacing(4),
@@ -150,7 +153,7 @@ const useToolbarStyles = makeStyles(theme => ({
     },
 }));
 
-const ctTypes = ['All', 'SDTM', 'ADaM', 'SEND', 'CDASH', 'COA', 'QS-FT', 'Protocol', 'Define-XML'];
+const ctTypes = ['All', 'SDTM', 'ADaM', 'SEND', 'CDASH', 'COA', 'QS-FT', 'Protocol', 'Def-XML'];
 
 class ConnectedPackages extends React.Component {
     constructor (props) {
@@ -211,8 +214,6 @@ class ConnectedPackages extends React.Component {
             let terminologyType = ct.label.replace(/^\s*(\S+).*/, '$1');
             if (terminologyType === 'PROTOCOL') {
                 terminologyType = 'Protocol';
-            } else if (terminologyType === 'Def-XML') {
-                terminologyType = 'Define-XML';
             }
             return ({
                 ...new ControlledTerminology({
@@ -528,7 +529,7 @@ class ConnectedPackages extends React.Component {
                         />
                     )}
                     { this.state.scanning === true && (
-                        <Box textAlign='center'>
+                        <Box textAlign='center' className={classes.scanBox}>
                             <Typography variant='h4' color='textSecondary' className={classes.scanning}>
                                 Scanning Controlled Terminology
                             </Typography>

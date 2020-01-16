@@ -91,7 +91,6 @@ const ModalGeneral = (props) => {
 };
 
 ModalGeneral.propTypes = {
-    classes: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
     title: PropTypes.string.isRequired,
     message: PropTypes.string.isRequired,

@@ -16,6 +16,7 @@ import {
     UI_TOGGLEMAINMENU,
     UI_CHANGEPAGE,
     STUDY_DEL,
+    DEFINE_ADD,
     DEFINE_DEL,
     APP_QUIT,
     APP_SAVE,
@@ -55,6 +56,21 @@ const changePage = (state, action) => {
             mainMenuOpened: false,
             currentPage: action.updateObj.page
         };
+    }
+};
+
+const handleDefineAdd = (state, action) => {
+    // If Define-XML is replaced, then reset the current Define/Study settings
+    if (action.updateObj.define && action.updateObj.define.id === state.currentDefineId) {
+        return {
+            ...state,
+            currentDefineId: '',
+            currentStudyId: '',
+            isCurrentDefineSaved: true,
+            lastSaveHistoryIndex: 0,
+        };
+    } else {
+        return state;
     }
 };
 
@@ -147,6 +163,8 @@ const main = (state = initialState, action) => {
             return toggleMainMenu(newState, action);
         case UI_CHANGEPAGE:
             return changePage(newState, action);
+        case DEFINE_ADD:
+            return handleDefineAdd(newState, action);
         case DEFINE_DEL:
             return handleDefineDelete(newState, action);
         case STUDY_DEL:

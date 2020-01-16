@@ -32,6 +32,7 @@ function getOid (type, existingOids = [], preDefinedOid) {
         ResultDisplay: 'RD.',
         AnalysisResult: 'AR.',
         ReviewComment: 'RC.',
+        File: 'FL.',
     };
     if (preDefinedOid !== undefined && !existingOids.includes(preDefinedOid)) {
         if (preDefinedOid.startsWith(prefix[type])) {

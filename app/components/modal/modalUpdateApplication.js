@@ -99,6 +99,10 @@ const ModalUpdateApplication = (props) => {
         ipcRenderer.send('downloadUpdate');
     };
 
+    const onOpenLink = () => {
+        shell.openExternal('http://defineeditor.com/downloads');
+    };
+
     const onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
             onClose();
@@ -128,13 +132,21 @@ const ModalUpdateApplication = (props) => {
                     </a>
                 </div>
                 <div className='htmlContent' dangerouslySetInnerHTML={{ __html: releaseNotes }}/>
+                <div>
+                    Save all changes to your Define-XML before performing the update.
+                </div>
                 {downloadPct <= 1 && downloadPct !== null && <UpdatedLinearProgress/>}
                 {downloadPct > 1 && <UpdatedLinearProgress variant='determinate' value={downloadPct} />}
             </DialogContent>
             <DialogActions>
-                <Button onClick={onUpdate} color="primary" disabled={downloadPct !== null}>
-                    Update
+                <Button onClick={onOpenLink} color="primary">
+                    Open Downloads
                 </Button>
+                { process && process.platform === 'linux' && (
+                    <Button onClick={onUpdate} color="primary" disabled={downloadPct !== null}>
+                        Update
+                    </Button>
+                )}
                 <Button onClick={onClose} color="primary">
                     Close
                 </Button>

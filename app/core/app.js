@@ -171,7 +171,6 @@ class ConnectedApp extends Component {
     };
 
     handleUpdateInformation = (event, updateAvailable, data) => {
-        console.log('was here');
         if (updateAvailable) {
             this.props.updateMainUi({ updateInfo: { releaseNotes: data.updateInfo.releaseNotes, version: data.updateInfo.version } });
         }

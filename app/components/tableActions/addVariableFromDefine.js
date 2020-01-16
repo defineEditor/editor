@@ -122,6 +122,11 @@ const searchDescription = (description, searchString) => {
             let text = getDescription(description[field]);
             if (field === 'method') {
                 text += ' ' + description[field].name + ' ' + description[field].type;
+                if (description[field].formalExpressions !== undefined && Array.isArray(description[field].formalExpressions)) {
+                    description[field].formalExpressions.forEach(exp => {
+                        text += ' ' + exp.context + ' ' + exp.value;
+                    });
+                }
             }
             if (/[A-Z]/.test(searchString)) {
                 return text.includes(searchString);

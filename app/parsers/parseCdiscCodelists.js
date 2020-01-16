@@ -42,7 +42,7 @@ function parseCodeLists (codeListsRaw) {
         codeList = new stdCL.StdCodeList(args);
 
         let itemOrder = [];
-        // Parse enumerated items
+        // Parse items
         if (Array.isArray(codeListRaw.terms)) {
             codeListRaw.terms.forEach(term => {
                 let itemArgs = {

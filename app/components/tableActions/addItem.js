@@ -103,8 +103,14 @@ class AddItemConnected extends React.Component {
         const { mdv, classTypes } = this.props;
         let cl = this.context.cdiscLibrary;
         let standards = mdv.standards;
-        let defaultStandard = Object.values(standards).filter(std => std.isDefault).map(std => std.name + '-' + std.version.replace('.', '-'))[0];
-        // let allStandards =  Object.values(standards).map(std => std.name + '-' + std.version.replace('.','-'));
+        let defaultStandard = Object.values(standards).filter(std => std.isDefault)[0];
+        let defaultStandardName;
+        if (defaultStandard !== undefined && Boolean(defaultStandard.name) === true && Boolean(defaultStandard.version) === true) {
+            defaultStandardName = defaultStandard.name + '-' + defaultStandard.version.replace('.', '-');
+        }
+        if (defaultStandardName === undefined) {
+            return;
+        }
         let product;
         let itemGroup = {};
         if (this.props.editorTab === 'variables') {
@@ -115,10 +121,10 @@ class AddItemConnected extends React.Component {
             if (itemGroup.datasetClass && itemGroup.datasetClass.name === 'OCCURRENCE DATA STRUCTURE') {
                 product = await cl.getFullProduct('adam-occds');
             } else {
-                product = await cl.getFullProduct(defaultStandard);
+                product = await cl.getFullProduct(defaultStandardName);
             }
         } else {
-            product = await cl.getFullProduct(defaultStandard);
+            product = await cl.getFullProduct(defaultStandardName);
         }
 
         if (product === undefined) {
@@ -174,7 +180,9 @@ class AddItemConnected extends React.Component {
 
     onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
-            this.props.onClose();
+            if (this.state.tabNames[this.state.currentTab] !== 'CDISC Library') {
+                this.props.onClose();
+            }
         }
     }
 

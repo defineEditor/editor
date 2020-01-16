@@ -150,7 +150,7 @@ const CopyToBuffer = ({ selected }) => {
         }
         dispatch(openSnackbar({
             type: 'success',
-            message: `${codeNum} value${codeNum === 1 ? 's' : ''} were copied to buffer ${options[option][0].toLowerCase() + options[option].slice(1)}.`,
+            message: `${codeNum} value${codeNum === 1 ? 's' : ''} were copied to clipboard ${options[option][0].toLowerCase() + options[option].slice(1)}.`,
         }));
     };
 
@@ -180,7 +180,7 @@ const CopyToBuffer = ({ selected }) => {
         <Grid container direction='column' alignItems='center'>
             <Grid item xs={12}>
                 <ButtonGroup variant='contained' color='default' ref={anchorRef} aria-label='split button'>
-                    <Button onClick={handleClick} color='default'>Copy to Buffer</Button>
+                    <Button onClick={handleClick} color='default'>Copy to Clipboard</Button>
                     <Button
                         color='default'
                         size='small'
@@ -291,11 +291,11 @@ class ConnectedCodedValues extends React.Component {
 
         let header = [
             { id: 'oid', label: 'oid', hidden: true, key: true },
-            { id: 'codedValue', label: 'Coded Value' },
-            { id: 'decode', label: 'Decode' },
+            { id: 'codedValue', label: 'Submission Value' },
+            { id: 'decode', label: 'Preferred Term' },
             { id: 'definition', label: 'Definition' },
             { id: 'synonyms', label: 'Synonyms' },
-            { id: 'cCode', label: 'C-Code' },
+            { id: 'cCode', label: 'Code' },
         ];
 
         // Add width
@@ -315,7 +315,7 @@ class ConnectedCodedValues extends React.Component {
         let data = [];
 
         if (codeList) {
-            data = Object.keys(codeList.codeListItems).map(oid => {
+            data = codeList.itemOrder.map(oid => {
                 let value = codeList.codeListItems[oid];
                 return {
                     oid,

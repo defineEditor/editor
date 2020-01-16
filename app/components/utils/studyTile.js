@@ -416,6 +416,8 @@ class ConnectedStudyTile extends React.Component {
                             onClose={this.handleStudyMenuClose}
                             study={this.props.study}
                             anchorEl={this.state.anchorStudyEl}
+                            toggleEditMode={this.toggleEditMode}
+                            toggleAddDefineForm={this.toggleAddDefineForm}
                         />
                 }
             </div>

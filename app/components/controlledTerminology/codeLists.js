@@ -219,7 +219,8 @@ class ConnectedCodeLists extends React.Component {
             { id: 'cdiscSubmissionValue', label: 'Submission Value' },
             { id: 'preferredTerm', label: 'Preferred Term' },
             { id: 'synonyms', label: 'Synonyms' },
-            { id: 'cCode', label: 'C-Code' },
+            { id: 'extensible', label: 'Ext.' },
+            { id: 'cCode', label: 'Code' },
             { id: 'oid', label: '', formatter: this.actions, noSort: true },
         ];
 
@@ -248,6 +249,7 @@ class ConnectedCodeLists extends React.Component {
                     preferredTerm: codeList.preferredTerm,
                     synonyms: codeList.synonyms.join(', '),
                     cCode: codeList.alias ? codeList.alias.name : '',
+                    extensible: codeList.codeListExtensible,
                 };
             });
         }
