@@ -39,9 +39,9 @@ import {
 
 const styles = theme => ({
     dialog: {
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         top: '10%',
@@ -53,11 +53,11 @@ const styles = theme => ({
         overflowY: 'auto'
     },
     backButton: {
-        marginRight: theme.spacing.unit
+        marginRight: theme.spacing(1)
     },
     instructions: {
-        marginTop: theme.spacing.unit,
-        marginBottom: theme.spacing.unit
+        marginTop: theme.spacing(1),
+        marginBottom: theme.spacing(1)
     }
 });
 
@@ -73,6 +73,7 @@ const mapStateToProps = state => {
     return {
         study,
         defineForm: state.present.ui.studies.defineForm,
+        createdDefineId: state.present.ui.studies.createdDefineId,
         studies: state.present.studies,
         defines: state.present.defines,
         standardNames: state.present.stdConstants.standardNames,
@@ -108,6 +109,18 @@ class ConnectedAddDefineForm extends React.Component {
             pathToDefineXml: '',
             name: null,
         };
+    }
+
+    static getDerivedStateFromProps (nextProps, prevState) {
+        if (prevState.activeStep === 1 && nextProps.defineForm === true) {
+            if (nextProps.createdDefineId && nextProps.defines.byId[nextProps.createdDefineId]) {
+                return ({ name: nextProps.defines.byId[nextProps.createdDefineId].name });
+            } else {
+                return ({ name: null });
+            }
+        } else {
+            return null;
+        }
     }
 
     saveDefineAsObject = (defineId, defineData, pathToDefineXml) => {
@@ -161,17 +174,17 @@ class ConnectedAddDefineForm extends React.Component {
             if (this.state.defineCreationMethod === 'new') {
                 this.setState({
                     activeStep: 3,
-                    defineData: data.defineData
+                    defineData: data.defineData,
                 });
             } else if (this.state.defineCreationMethod === 'copy') {
                 this.setState({
                     activeStep: 3,
                     defineData: data.defineData,
-                    name: data.name,
+                    name: this.props.createdDefineId ? this.state.name : data.name,
                 });
             }
         } else if (activeStep === 3) {
-            let defineId = getOid('Define', undefined, this.props.defines.allIds);
+            let defineId = this.props.createdDefineId ? this.props.createdDefineId : getOid('Define', this.props.defines.allIds);
             let defineData = this.state.defineData;
             defineData.defineId = defineId;
             defineData.defineName = data;
@@ -230,7 +243,7 @@ class ConnectedAddDefineForm extends React.Component {
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >
-                <DialogTitle>Add Define-XML</DialogTitle>
+                <DialogTitle>{this.props.createdDefineId ? 'Replace' : 'Add'} Define-XML</DialogTitle>
                 <DialogContent>
                     <Stepper activeStep={activeStep - 1}>
                         {steps.map((label, index) => {
@@ -300,6 +313,7 @@ ConnectedAddDefineForm.propTypes = {
     removeTrailingSpaces: PropTypes.bool,
     pathToLastFile: PropTypes.string,
     updateMainUi: PropTypes.func.isRequired,
+    createdDefineId: PropTypes.string,
 };
 
 const AddDefineForm = connect(mapStateToProps, mapDispatchToProps)(

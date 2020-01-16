@@ -48,7 +48,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         updateSettings: updateObj => dispatch(updateSettings(updateObj)),
         deleteCodeLists: (deleteObj) => dispatch(deleteCodeLists(deleteObj)),
     };
@@ -74,9 +74,7 @@ const styles = theme => ({
         width: '70%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
@@ -84,7 +82,17 @@ const styles = theme => ({
     },
     paper: {
         width: '100%',
-        marginTop: theme.spacing.unit * 1,
+        marginTop: theme.spacing(1),
+    },
+    title: {
+        marginBottom: theme.spacing(2),
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
     },
 });
 
@@ -120,7 +128,7 @@ class ConnectedModalDeleteCodeLists extends React.Component {
                 },
             });
         }
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         this.props.deleteCodeLists(this.props.deleteObj);
     }
 
@@ -129,7 +137,7 @@ class ConnectedModalDeleteCodeLists extends React.Component {
         this.setState({
             warningShowAgain: true,
         });
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     render () {
@@ -146,7 +154,9 @@ class ConnectedModalDeleteCodeLists extends React.Component {
                 PaperProps={{ className: classes.dialog }}
                 onKeyDown={this.onKeyDown}
             >
-                <DialogTitle id="alert-dialog-title">Deleting {deleteTitle}</DialogTitle>
+                <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
+                    Deleting {deleteTitle}
+                </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
                         Some variables reference the {deleteTitle} being deleted:
@@ -207,6 +217,7 @@ ConnectedModalDeleteCodeLists.propTypes = {
     codeLists: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
     mdv: PropTypes.object.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalDeleteCodeLists = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalDeleteCodeLists);

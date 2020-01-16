@@ -42,17 +42,17 @@ import getOid from 'utils/getOid.js';
 const styles = theme => ({
     mainPart: {
         padding: 16,
-        marginTop: theme.spacing.unit,
+        marginTop: theme.spacing(1),
         backgroundColor: '#F5F5F5',
     },
     table: {
         backgroundColor: '#FFFFFF',
     },
     button: {
-        marginBottom: theme.spacing.unit,
+        marginBottom: theme.spacing(1),
     },
     icon: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     actionColumn: {
         width: '100px',
@@ -124,7 +124,7 @@ class DocumentTableEditor extends React.Component {
     handleChange = (name, oid) => (event) => {
         if (name === 'addDoc') {
             let newLeafs = { ...this.state.leafs };
-            let newOid = getOid('Leaf', undefined, Object.keys(this.state.leafs));
+            let newOid = getOid('Leaf', Object.keys(this.state.leafs));
             let newLeafOrder = this.state.leafOrder.slice();
             let isPdf = 'false';
             newLeafOrder.push(newOid);
@@ -148,10 +148,10 @@ class DocumentTableEditor extends React.Component {
             this.setState({ leafs: newLeafs });
         } else if (name === 'copyDoc') {
             let newLeafs = { ...this.state.leafs };
-            let newOid = getOid('Leaf', undefined, Object.keys(this.state.leafs));
+            let newOid = getOid('Leaf', Object.keys(this.state.leafs));
             newLeafs[newOid] = { ...new Leaf({ ...this.state.leafs[oid], id: newOid }) };
             let newLeafOrder = this.state.leafOrder.slice();
-            newLeafOrder.splice(newLeafOrder.indexOf(oid), 0, newOid);
+            newLeafOrder.splice(newLeafOrder.indexOf(oid) + 1, 0, newOid);
             this.setState({ leafs: newLeafs, leafOrder: newLeafOrder });
         } else if (name === 'deleteDoc') {
             let newLeafs = { ...this.state.leafs };

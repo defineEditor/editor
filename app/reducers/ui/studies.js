@@ -32,6 +32,7 @@ const toggleAddDefineForm = (state, action) => {
         ...state,
         defineForm: !state.defineForm,
         currentStudyId: action.updateObj.studyId,
+        createdDefineId: state.defineForm === false ? action.updateObj.defineId : undefined,
     });
 };
 

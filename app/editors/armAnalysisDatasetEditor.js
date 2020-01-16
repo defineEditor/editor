@@ -60,7 +60,7 @@ class ArmDatasetEditor extends React.Component {
         }
 
         return (
-            <Grid container spacing={8}>
+            <Grid container spacing={1}>
                 <Grid item xs={12}>
                     <TextField
                         label='Dataset'

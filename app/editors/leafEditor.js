@@ -61,7 +61,7 @@ class LeafEditor extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={16} onKeyDown={this.onKeyDown} tabIndex='0'>
+            <Grid container spacing={2} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Grid item>
                     <TextField
                         label='Title'

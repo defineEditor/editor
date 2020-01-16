@@ -52,7 +52,6 @@ class StudyOrderEditorConnected extends React.Component {
 StudyOrderEditorConnected.propTypes = {
     studies: PropTypes.object.isRequired,
     iconClass: PropTypes.string,
-    reviewMode: PropTypes.bool,
 };
 
 const StudyOrderEditor = connect(mapStateToProps, mapDispatchToProps)(StudyOrderEditorConnected);

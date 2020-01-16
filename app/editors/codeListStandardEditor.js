@@ -19,7 +19,7 @@ import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import SaveCancel from 'editors/saveCancel.js';
-import ReactSelectEditor from 'editors/reactSelectEditor.js';
+import AutocompleteSelectEditor from 'editors/autocompleteSelectEditor.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import deepEqual from 'fast-deep-equal';
 
@@ -85,7 +85,7 @@ class ConnectedCodeListStandardEditor extends React.Component {
         return result;
     }
 
-    handleChange = (name) => (updateObj) => {
+    handleChange = (name) => (updateObj, option) => {
         if (name === 'standard') {
             if (updateObj.target.value !== '') {
                 let standard = this.props.stdCodeLists[updateObj.target.value];
@@ -93,6 +93,8 @@ class ConnectedCodeListStandardEditor extends React.Component {
                 let standardCodeListOid;
                 if (this.props.defaultValue.alias !== undefined && standard.nciCodeOids.hasOwnProperty(this.props.defaultValue.alias.name)) {
                     standardCodeListOid = standard.nciCodeOids[this.props.defaultValue.alias.name];
+                } else {
+                    standardCodeListOid = Object.keys(standard.codeLists)[0];
                 }
                 this.setState({ standard, codeListList, standardCodeListOid });
             } else {
@@ -104,7 +106,7 @@ class ConnectedCodeListStandardEditor extends React.Component {
                 });
             }
         } else if (name === 'codeList') {
-            this.setState({ standardCodeListOid: updateObj });
+            this.setState({ standardCodeListOid: option.value });
         }
     }
 
@@ -151,13 +153,20 @@ class ConnectedCodeListStandardEditor extends React.Component {
         if (this.state.standard !== undefined) {
             standardOid = this.state.standard.oid;
         }
+        let defaultCodeList;
+        if (standardOid !== '' && this.state.standardCodeListOid !== undefined && this.state.standard.codeLists[this.state.standardCodeListOid]) {
+            defaultCodeList = {
+                value: this.state.standardCodeListOid,
+                label: this.props.stdCodeLists[standardOid].codeLists[this.state.standardCodeListOid].name,
+            };
+        }
 
         return (
             <div onKeyDown={this.onKeyDown} tabIndex='0'>
                 {(this.state.standardList.length === 0) ? (
                     <div>There are no Controlled Terminologies assigned to this study.</div>
                 ) : (
-                    <Grid container spacing={8}>
+                    <Grid container spacing={1}>
                         <Grid item xs={12}>
                             <TextField
                                 label='Standard'
@@ -176,9 +185,10 @@ class ConnectedCodeListStandardEditor extends React.Component {
                                     {(this.state.codeListList.length === 0) ? (
                                         <div>The standard does not have any codelits.</div>
                                     ) : (
-                                        <ReactSelectEditor
+                                        <AutocompleteSelectEditor
+                                            key={standardOid}
                                             handleChange={this.handleChange('codeList')}
-                                            value={this.state.standardCodeListOid}
+                                            defaultValue={defaultCodeList}
                                             options={this.state.codeListList}
                                             extensible={false}
                                         />

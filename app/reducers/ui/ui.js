@@ -18,6 +18,8 @@ import main from 'reducers/ui/main.js';
 import studies from 'reducers/ui/studies.js';
 import modal from 'reducers/ui/modal.js';
 import snackbar from 'reducers/ui/snackbar.js';
+import cdiscLibrary from 'reducers/ui/cdiscLibrary.js';
+import controlledTerminology from 'reducers/ui/controlledTerminology.js';
 
 export default combineReducers({
     tabs,
@@ -25,4 +27,6 @@ export default combineReducers({
     studies,
     modal,
     snackbar,
+    cdiscLibrary,
+    controlledTerminology,
 });

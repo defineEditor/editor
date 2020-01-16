@@ -81,7 +81,7 @@ class manageKeysEditor extends React.Component {
         });
 
         return (
-            <Grid container spacing={8} justify='space-around'>
+            <Grid container spacing={1} justify='space-around'>
                 <Grid item xs={6}>
                     <IconButton
                         aria-label="Add Key"

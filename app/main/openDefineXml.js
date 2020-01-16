@@ -28,29 +28,32 @@ function sendErrorToRender (mainWindow) {
     };
 }
 
-const readDefineXml = (mainWindow) => (pathToDefineXml) => {
-    if (pathToDefineXml !== undefined && pathToDefineXml.length > 0) {
-        if (pathToDefineXml[0].endsWith('nogz')) {
-            loadDefineObject(mainWindow, undefined, '', pathToDefineXml[0]);
+const readDefineXml = (mainWindow, openDialogResult) => {
+    const { filePaths, canceled } = openDialogResult;
+    if (!canceled && filePaths !== undefined && filePaths.length > 0) {
+        if (filePaths[0].endsWith('nogz')) {
+            loadDefineObject(mainWindow, undefined, '', filePaths[0]);
         } else {
-            let xml = Promise.resolve(readXml(pathToDefineXml[0]));
+            let xml = Promise.resolve(readXml(filePaths[0]));
             xml
-                .then(sendToRender(mainWindow, pathToDefineXml[0]))
+                .then(sendToRender(mainWindow, filePaths[0]))
                 .catch(sendErrorToRender(mainWindow));
         }
     }
 };
 
-function openDefineXml (mainWindow, pathToLastFile) {
-    electron.dialog.showOpenDialog(
+const openDefineXml = async (mainWindow, pathToLastFile) => {
+    let defaultPath = typeof pathToLastFile === 'string' ? pathToLastFile : undefined;
+    let result = await electron.dialog.showOpenDialog(
         mainWindow,
         {
             title: 'Open Define-XML',
             filters: [{ name: 'XML, NOGZ files', extensions: ['xml', 'nogz'] }],
             properties: ['openFile'],
-            defaultPath: pathToLastFile,
-        },
-        readDefineXml(mainWindow));
-}
+            defaultPath,
+        }
+    );
+    readDefineXml(mainWindow, result);
+};
 
 module.exports = openDefineXml;

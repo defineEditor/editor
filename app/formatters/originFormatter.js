@@ -32,7 +32,7 @@ class OriginFormatter extends React.Component {
 
         return (
             <div key='originDescription'>
-                <Typography variant="caption" className={this.props.classes.originName}>
+                <Typography variant="caption" className={this.props.classes.originName} display='block'>
                     {origin.type}
                 </Typography>
                 { originText !== '' && <div key='originText'>{originText}</div> }

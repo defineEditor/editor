@@ -37,11 +37,12 @@ const main = (() => {
             codedValuesTab: 100,
         },
         pathToLastFile: undefined,
+        appVersion: remote.app.getVersion(),
+        updateInfo: {},
     };
 })();
 
 const tabs = (() => {
-    /* TODO: 'Methods', 'Comments', 'Where Conditions' */
     let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents', 'Result Displays', 'Analysis Results', 'Review Comments'];
     let tabObjectNames = ['standards', 'datasets', 'variables', 'codeLists', 'codedValues', 'documents', 'resultDisplays', 'analysisResults', 'reviewComments'];
 
@@ -62,6 +63,20 @@ const tabs = (() => {
         if (tabNames[i] === 'Review Comments') {
             settings[i].panelStatus = {};
             settings[i].showResolved = true;
+        }
+        if (['Variables', 'Datasets'].includes(tabNames[i])) {
+            settings[i].cdiscLibrary = {
+                currentView: 'products',
+                products: {
+                },
+                itemGroups: {
+                    gridView: false,
+                },
+                items: {
+                },
+                info: {
+                },
+            };
         }
         // When tab has multiple tables
         if (['Variables', 'Coded Values', 'Analysis Results'].includes(tabNames[i])) {
@@ -93,7 +108,7 @@ const tabs = (() => {
 })();
 
 const modal = {
-    type: null,
+    type: [],
     props: {},
 };
 
@@ -109,12 +124,42 @@ const studiesUi = {
     currentStudyId: '',
 };
 
+const cdiscLibraryUi = {
+    currentView: 'products',
+    products: {
+    },
+    itemGroups: {
+        gridView: false,
+    },
+    items: {
+    },
+    info: {
+    },
+};
+
+const controlledTerminology = {
+    currentView: 'packages',
+    useCdiscLibrary: false,
+    packages: {
+        packageType: 'All',
+        rowsPerPage: 25,
+    },
+    codeLists: {
+        rowsPerPage: 50,
+    },
+    codedValues: {
+        rowsPerPage: 100,
+    },
+};
+
 const ui = {
     main,
     tabs,
     modal,
     snackbar,
     studies: studiesUi,
+    cdiscLibrary: cdiscLibraryUi,
+    controlledTerminology,
 };
 
 // Settings
@@ -124,6 +169,7 @@ const general = {
     alwaysSaveDefineXml: true,
     addStylesheet: true,
     disableAnimations: false,
+    checkForUpdates: true,
 };
 
 const popUp = {
@@ -150,10 +196,17 @@ const editor = {
     showVlmWithParent: false,
 };
 
+const cdiscLibrary = {
+    enableCdiscLibrary: false,
+    username: '',
+    password: '',
+    baseUrl: 'https://library.cdisc.org/api',
+};
+
 const define = {
     schemaLocation200: 'http://www.cdisc.org/ns/def/v2.0/define2-0-0.xsd',
     schemaLocation210: 'http://www.cdisc.org/ns/def/v2.1/define2-1-0.xsd',
-    sourceSystem: remote.app.getName(),
+    sourceSystem: remote.app.name,
     sourceSystemVersion: remote.app.getVersion(),
     stylesheetLocation: './stylesheet/define2-0-0.xsl'
 };
@@ -162,6 +215,7 @@ const settings = {
     general,
     editor,
     define,
+    cdiscLibrary,
     popUp,
 };
 

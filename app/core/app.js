@@ -23,6 +23,7 @@ import MainMenu from 'core/mainMenu.js';
 import KeyboardShortcuts from 'components/utils/keyboardShortcuts.js';
 import Editor from 'core/editor.js';
 import ControlledTerminology from 'core/controlledTerminology.js';
+import CdiscLibraryMain from 'core/cdiscLibraryMain.js';
 import Settings from 'core/settings.js';
 import Studies from 'core/studies.js';
 import About from 'core/about.js';
@@ -31,9 +32,13 @@ import FindInPage from 'components/utils/findInPage.js';
 import saveState from 'utils/saveState.js';
 import sendDefineObject from 'utils/sendDefineObject.js';
 import changeAppTitle from 'utils/changeAppTitle.js';
+import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
+import { initCdiscLibrary } from 'utils/cdiscLibraryUtils.js';
+import quitApplication from 'utils/quitApplication.js';
 import {
     openModal,
     updateMainUi,
+    saveCdiscLibraryInfo
 } from 'actions/index.js';
 
 const baseThemeObj = {
@@ -51,9 +56,6 @@ const baseThemeObj = {
             contrastText: '#000'
         }
     },
-    typography: {
-        useNextVariants: true,
-    }
 };
 
 const disabledAnimationThemeObj = {
@@ -79,14 +81,17 @@ const mapStateToProps = state => {
     let disableFindToggle = false;
     let currentPage = state.present.ui.main.currentPage;
     const tabs = state.present.ui.tabs;
-    if (currentPage === 'editor' && tabs.hasOwnProperty('tabNames') && tabs.tabNames.hasOwnProperty(tabs.currentTab)) {
+    if (currentPage === 'editor' && tabs.tabNames && tabs.tabNames[tabs.currentTab] !== undefined) {
         disableFindToggle = ['Variables', 'Codelists', 'Coded Values', 'Review Comments'].includes(tabs.tabNames[tabs.currentTab]);
+    } else if (currentPage === 'cdiscLibrary' || currentPage === 'controlledTerminology') {
+        disableFindToggle = true;
     }
-    let bugModalOpened = state.present.ui && state.present.ui.modal && state.present.ui.modal.type === 'BUG_REPORT';
+    let bugModalOpened = state.present.ui && state.present.ui.modal && state.present.ui.modal.type.includes('BUG_REPORT');
     return {
         currentPage,
         showInitialMessage: state.present.settings.popUp.onStartUp,
         disableAnimations: state.present.settings.general.disableAnimations,
+        checkForUpdates: state.present.settings.general.checkForUpdates,
         disableFindToggle,
         sampleStudyCopied: state.present.ui.main.sampleStudyCopied,
         currentDefineId: state.present.ui.main.currentDefineId,
@@ -99,6 +104,7 @@ const mapDispatchToProps = dispatch => {
     return {
         openModal: updateObj => dispatch(openModal(updateObj)),
         updateMainUi: (updateObj) => dispatch(updateMainUi(updateObj)),
+        saveCdiscLibraryInfo: (updateObj) => dispatch(saveCdiscLibraryInfo(updateObj)),
     };
 };
 
@@ -109,10 +115,17 @@ class ConnectedApp extends Component {
             showRedoUndo: false,
             showFindInPage: false,
             showShortcuts: false,
+            cdiscLibraryKit: { cdiscLibrary: initCdiscLibrary(), updateCdiscLibrary: this.updateCdiscLibrary },
         };
     }
 
     componentDidMount () {
+        // Comparing to other event listeners which are defined in index.js, this one needs to be here, so that CDISC Library object can be used
+        ipcRenderer.on('quit', this.handleQuitApplication);
+        ipcRenderer.once('updateInformationStartup', this.handleUpdateInformation);
+        if (this.props.checkForUpdates) {
+            ipcRenderer.send('checkForUpdates', 'updateInformationStartup');
+        }
         window.addEventListener('keydown', this.onKeyDown);
         if (this.props.showInitialMessage) {
             this.props.openModal({
@@ -134,6 +147,8 @@ class ConnectedApp extends Component {
 
     componentWillUnmount () {
         window.removeEventListener('keydown', this.onKeyDown);
+        ipcRenderer.remove('updateInformationStartup', this.handleUpdateInformation);
+        ipcRenderer.remove('quit', this.handleQuitApplication);
     }
 
     componentDidCatch (error, info) {
@@ -142,6 +157,24 @@ class ConnectedApp extends Component {
             props: { error, info }
         });
     }
+
+    updateCdiscLibrary = (value) => {
+        this.setState({ cdiscLibraryKit: { cdiscLibrary: value, updateCdiscLibrary: this.state.cdiscLibraryKit.updateCdiscLibrary } });
+    };
+
+    handleQuitApplication = () => {
+        let cdiscLibrary = this.state.cdiscLibraryKit.cdiscLibrary;
+        if (typeof cdiscLibrary === 'object' && cdiscLibrary.coreObject && cdiscLibrary.coreObject.traffic) {
+            this.props.saveCdiscLibraryInfo({ traffic: cdiscLibrary.coreObject.traffic });
+        }
+        quitApplication();
+    };
+
+    handleUpdateInformation = (event, updateAvailable, data) => {
+        if (updateAvailable) {
+            this.props.updateMainUi({ updateInfo: { releaseNotes: data.updateInfo.releaseNotes, version: data.updateInfo.version } });
+        }
+    };
 
     onKeyDown = (event) => {
         if (event.ctrlKey && event.keyCode === 72 && this.props.currentPage === 'editor') {
@@ -185,23 +218,26 @@ class ConnectedApp extends Component {
             );
         }
         return (
-            <MuiThemeProvider theme={this.props.disableAnimations ? disabledAnimationTheme : baseTheme}>
-                <MainMenu
-                    onToggleRedoUndo={this.toggleRedoUndo}
-                    onToggleFindInPage={this.toggleFindInPage}
-                    onToggleShortcuts={this.toggleShortcuts}
-                />
-                <KeyboardShortcuts open={this.state.showShortcuts} onToggleShortcuts={this.toggleShortcuts}/>
-                {this.props.currentPage === 'studies' && <Studies />}
-                {this.props.currentPage === 'editor' && <Editor onToggleRedoUndo={this.toggleRedoUndo}/>}
-                {this.props.currentPage === 'controlledTerminology' && <ControlledTerminology />}
-                {this.props.currentPage === 'settings' && <Settings />}
-                {this.props.currentPage === 'about' && <About />}
-                <ModalRoot />
-                <SnackbarRoot />
-                { this.state.showRedoUndo && <RedoUndo onToggleRedoUndo={this.toggleRedoUndo}/> }
-                { this.state.showFindInPage && <FindInPage onToggleFindInPage={this.toggleFindInPage}/> }
-            </MuiThemeProvider>
+            <CdiscLibraryContext.Provider value={this.state.cdiscLibraryKit}>
+                <MuiThemeProvider theme={this.props.disableAnimations ? disabledAnimationTheme : baseTheme}>
+                    <MainMenu
+                        onToggleRedoUndo={this.toggleRedoUndo}
+                        onToggleFindInPage={this.toggleFindInPage}
+                        onToggleShortcuts={this.toggleShortcuts}
+                    />
+                    <KeyboardShortcuts open={this.state.showShortcuts} onToggleShortcuts={this.toggleShortcuts}/>
+                    {this.props.currentPage === 'studies' && <Studies />}
+                    {this.props.currentPage === 'editor' && <Editor onToggleRedoUndo={this.toggleRedoUndo}/>}
+                    {this.props.currentPage === 'controlledTerminology' && <ControlledTerminology />}
+                    {this.props.currentPage === 'cdiscLibrary' && <CdiscLibraryMain mountPoint='main'/>}
+                    {this.props.currentPage === 'settings' && <Settings />}
+                    {this.props.currentPage === 'about' && <About />}
+                    <ModalRoot />
+                    <SnackbarRoot />
+                    { this.state.showRedoUndo && <RedoUndo onToggleRedoUndo={this.toggleRedoUndo}/> }
+                    { this.state.showFindInPage && <FindInPage onToggleFindInPage={this.toggleFindInPage}/> }
+                </MuiThemeProvider>
+            </CdiscLibraryContext.Provider>
         );
     }
 }
@@ -213,7 +249,11 @@ ConnectedApp.propTypes = {
     showInitialMessage: PropTypes.bool.isRequired,
     disableFindToggle: PropTypes.bool.isRequired,
     disableAnimations: PropTypes.bool.isRequired,
+    checkForUpdates: PropTypes.bool.isRequired,
     bugModalOpened: PropTypes.bool,
+    openModal: PropTypes.func,
+    updateMainUi: PropTypes.func,
+    saveCdiscLibraryInfo: PropTypes.func,
 };
 
 const App = connect(mapStateToProps, mapDispatchToProps)(ConnectedApp);

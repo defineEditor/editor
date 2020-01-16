@@ -13,6 +13,7 @@
 ***********************************************************************************/
 
 import EStore from 'electron-store';
+import { remote } from 'electron';
 import stdConstants from 'constants/stdConstants.js';
 import {
     ui as uiInitialValues,
@@ -45,7 +46,7 @@ function loadState () {
     state.stdConstants = stdConstants;
     if (state.hasOwnProperty('ui')) {
         // If there is any modal loaded in the current state, disable it
-        if (state.ui.hasOwnProperty('modal') && state.ui.modal.type !== '') {
+        if (state.ui.hasOwnProperty('modal') && (Array.isArray(state.ui.modal.type) !== true || state.ui.modal.type.length > 0)) {
             state.ui.modal = uiInitialValues.modal;
         }
         // If there is any snackbar loaded in the current state, disable it
@@ -53,14 +54,25 @@ function loadState () {
             state.ui.snackbar = uiInitialValues.snackbar;
         }
     }
-    // If the comment/method table is shown, disable it
     if (state.hasOwnProperty('ui') && state.ui.hasOwnProperty('main')) {
+        // If the comment/method table is shown, disable it
         if (state.ui.main.showCommentMethodTable === true) {
             state.ui.main.showCommentMethodTable = false;
+        }
+        // If the application was updated/downgraded, start from studies page
+        if (state.ui.main.appVersion !== remote.app.getVersion()) {
+            state.ui.main.currentPage = 'studies';
+        }
+        // If codelist or codedvalues are opened for the CT, reset view to packages
+        if (state.ui.controlledTerminology &&
+            state.ui.controlledTerminology.currentView !== 'packages'
+        ) {
+            state.ui.controlledTerminology.currentView = 'packages';
         }
         state.ui.main.lastSaveHistoryIndex = 0;
         state.ui.main.actionHistory = [];
         state.ui.main.isCurrentDefineSaved = true;
+        state.ui.main.updateInfo = {};
     }
     // Update UI structure with initial values, this is required when schema changed and old UI does not have required properties
     Object.keys(uiInitialValues).forEach(uiType => {

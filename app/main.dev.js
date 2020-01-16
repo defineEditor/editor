@@ -26,11 +26,15 @@ import copySampleStudy from './main/copySampleStudy.js';
 import loadControlledTerminology from './main/loadControlledTerminology.js';
 import deleteDefineObject from './main/deleteDefineObject.js';
 import scanControlledTerminologyFolder from './main/scanControlledTerminologyFolder.js';
+import addControlledTerminology from './main/addControlledTerminology.js';
+import saveCtFromCdiscLibrary from './main/saveCtFromCdiscLibrary.js';
 import openDocument from './main/openDocument.js';
 import openWithStylesheet from './main/openWithStylesheet.js';
+import deleteFiles from './main/deleteFiles.js';
 import openFileInExternalApp from './main/openFileInExternalApp.js';
 import createMenu from './menu/menu.js';
 import exportReviewComments from './main/exportReviewComments.js';
+import { checkForUpdates, downloadUpdate } from './main/appUpdate.js';
 
 let mainWindow = null;
 
@@ -131,9 +135,21 @@ ipcMain.on('loadDefineObject', (event, defineId, id) => {
 ipcMain.on('scanControlledTerminologyFolder', (event, controlledTerminologyLocation) => {
     scanControlledTerminologyFolder(mainWindow, controlledTerminologyLocation);
 });
+// Add a controlled terminology
+ipcMain.on('addControlledTerminology', (event) => {
+    addControlledTerminology(mainWindow);
+});
+// Save CT loaded from the CDISC Library
+ipcMain.on('saveCtFromCdiscLibrary', (event, controlledTerminology) => {
+    saveCtFromCdiscLibrary(mainWindow, controlledTerminology);
+});
 // Load requested CT
 ipcMain.on('loadControlledTerminology', (event, ctToLoad) => {
     loadControlledTerminology(mainWindow, ctToLoad);
+});
+// Delete files
+ipcMain.on('deleteFiles', (event, filesToDelete) => {
+    deleteFiles(filesToDelete);
 });
 // Open Document file
 ipcMain.on('openDocument', (event, defineLocation, pdfLink) => {
@@ -167,7 +183,15 @@ ipcMain.on('exportReviewComments', (event, exportData) => {
 ipcMain.on('setTitle', (event, title) => {
     mainWindow.setTitle(title);
 });
-
+// Check for updates
+ipcMain.on('checkForUpdates', (event, customLabel) => {
+    checkForUpdates(mainWindow, customLabel);
+});
+// Download the update
+ipcMain.on('downloadUpdate', (event) => {
+    downloadUpdate(mainWindow);
+});
+// Close the main window
 ipcMain.on('quitConfirmed', (event) => {
     mainWindow = null;
 });

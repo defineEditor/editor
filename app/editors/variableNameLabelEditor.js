@@ -28,8 +28,8 @@ const styles = theme => ({
     },
     nameTextField: {
         width: '90px',
-        marginRight: theme.spacing.unit,
-        marginBottom: theme.spacing.unit,
+        marginRight: theme.spacing(1),
+        marginBottom: theme.spacing(1),
     },
     helperText: {
         whiteSpace: 'pre-wrap',
@@ -95,9 +95,7 @@ VariableNameLabelEditor.propTypes = {
     handleChange: PropTypes.func.isRequired,
     name: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
-    autoLabel: PropTypes.bool,
     vlm: PropTypes.bool,
-    blueprint: PropTypes.object,
 };
 
 export default withStyles(styles)(VariableNameLabelEditor);

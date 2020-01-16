@@ -45,9 +45,7 @@ const styles = theme => ({
         width: '50%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
@@ -55,10 +53,20 @@ const styles = theme => ({
     },
     ignorePattern: {
         width: '40%',
-        marginLeft: theme.spacing.unit * 4,
+        marginLeft: theme.spacing(4),
     },
     checkBox: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
+    },
+    title: {
+        marginBottom: theme.spacing(2),
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
     },
 });
 
@@ -73,7 +81,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         updateCodeListsStandard: (updateObj) => dispatch(updateCodeListsStandard(updateObj)),
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         openSnackbar: (updateObj) => dispatch(openSnackbar(updateObj)),
     };
 };
@@ -239,7 +247,7 @@ class ConnectedModalAttachStdCodelists extends React.Component {
         } else if (this.state.matchByValue) {
             // TODO
         }
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         if (Object.keys(updatedCodeListData).length > 0) {
             this.props.updateCodeListsStandard(updatedCodeListData);
             this.props.openSnackbar({
@@ -255,7 +263,7 @@ class ConnectedModalAttachStdCodelists extends React.Component {
     }
 
     onCancel = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     attachStandardCodeList = () => {
@@ -294,14 +302,14 @@ class ConnectedModalAttachStdCodelists extends React.Component {
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >
-                <DialogTitle id="alert-dialog-title">
+                <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
                     Populate Standard Codelists
                     <InternalHelp data={CODELIST_POPULATESTD} />
                 </DialogTitle>
                 <DialogContent>
                     <Grid
                         container
-                        spacing={16}
+                        spacing={2}
                     >
                         <Grid item xs={12}>
                             <Typography variant="h5" gutterBottom align="left">
@@ -451,6 +459,7 @@ ConnectedModalAttachStdCodelists.propTypes = {
     updateCodeListsStandard: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
     openSnackbar: PropTypes.func.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalAttachStdCodelists = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalAttachStdCodelists);

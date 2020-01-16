@@ -13,14 +13,12 @@
 ***********************************************************************************/
 
 import fs from 'fs';
-import xml2js from 'xml2js';
+import Jszip from 'jszip';
 import { promisify } from 'util';
-import parseStdCodeLists from '../parsers/parseStdCodeLists.js';
 
 const readFile = promisify(fs.readFile);
-const parseString = promisify(xml2js.parseString);
 
-async function loadControlledTerminology (mainWindow, ctToLoad) {
+const loadControlledTerminology = async (mainWindow, ctToLoad) => {
     let files = {};
     Object.keys(ctToLoad).forEach(ctId => {
         files[ctId] = ctToLoad[ctId].pathToFile;
@@ -32,18 +30,25 @@ async function loadControlledTerminology (mainWindow, ctToLoad) {
         let stdCodeListOdm;
         let file = files[ctId];
         try {
-            let xmlData = await readFile(file);
-            let parsedXml = await parseString(xmlData);
-            stdCodeListOdm = parseStdCodeLists(parsedXml);
+            let zip = new Jszip();
+            let data = await readFile(file);
+            await zip.loadAsync(data);
+            if (Object.keys(zip.files).includes('ct.json')) {
+                stdCodeListOdm = JSON.parse(await zip.file('ct.json').async('string'));
+            }
         } catch (error) {
             stdCodeLists[ctId] = 'Error while reading the file. ' + error;
             return;
+        }
+
+        if (ctToLoad[ctId].loadedForReview === true) {
+            stdCodeListOdm.loadedForReview = true;
         }
 
         stdCodeLists[ctId] = stdCodeListOdm;
     }));
 
     mainWindow.send('loadControlledTerminologyToRender', stdCodeLists);
-}
+};
 
 export default loadControlledTerminology;

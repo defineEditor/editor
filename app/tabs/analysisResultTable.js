@@ -22,7 +22,7 @@ import CommentIcon from '@material-ui/icons/Comment';
 import Fab from '@material-ui/core/Fab';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
-import OpenDrawer from '@material-ui/icons/ArrowUpward';
+import OpenDrawer from '@material-ui/icons/VerticalSplit';
 import AnalysisResultOrderEditor from 'components/orderEditors/analysisResultOrderEditor.js';
 import AnalysisResultTile from 'components/utils/analysisResultTile.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
@@ -33,17 +33,17 @@ import {
 
 const styles = theme => ({
     buttonGroup: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     button: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
     },
     chip: {
         verticalAlign: 'top',
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     drawerButton: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     commentIcon: {
         transform: 'translate(0, -5%)',
@@ -136,7 +136,7 @@ class ConnectedAnalysisResultTable extends React.Component {
 
         return (
             <React.Fragment>
-                <Grid container spacing={8}>
+                <Grid container spacing={1}>
                     <Grid item xs={12}>
                         <Grid container alignItems='center' justify='flex-start' wrap='nowrap'>
                             <Grid>
@@ -157,7 +157,7 @@ class ConnectedAnalysisResultTable extends React.Component {
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
-                        <Grid container spacing={16} alignItems='center'>
+                        <Grid container spacing={2} alignItems='center'>
                             <Grid item>
                                 <Button
                                     color='default'

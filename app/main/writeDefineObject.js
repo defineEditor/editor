@@ -43,10 +43,14 @@ function writeDefineObject (mainWindow, defineObject, backupFlag, pathToFile, on
         appVersion: app.getVersion(),
         defineVersion: defineObject.odm.study.metaDataVersion.defineVersion,
         defineId: defineObject.defineId,
+        defineName: defineObject.defineName,
         studyId: defineObject.studyId,
+        studyName: defineObject.studyName,
     };
     if (defineObject.hasOwnProperty('userName')) {
         info.userName = defineObject.userName;
+    } else if (process && process.env) {
+        info.userName = process.env.USERNAME || process.env.USER || process.env.user || process.env.username;
     }
     zip.file('info.json', JSON.stringify(info));
 

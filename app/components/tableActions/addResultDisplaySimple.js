@@ -26,8 +26,8 @@ const styles = theme => ({
         width: '200px',
     },
     addButton: {
-        marginLeft: theme.spacing.unit * 2,
-        marginTop: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
+        marginTop: theme.spacing(2),
     },
 });
 
@@ -45,7 +45,7 @@ const mapStateToProps = state => {
     };
 };
 
-class AddVariableSimpleConnected extends React.Component {
+class AddResultDisplaySimpleConnected extends React.Component {
     constructor (props) {
         super(props);
         const maxOrderNum = Object.keys(this.props.resultDisplays).length + 1;
@@ -103,7 +103,7 @@ class AddVariableSimpleConnected extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={8} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
+            <Grid container spacing={1} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Grid item xs={12}>
                     <TextField
                         label='Name'
@@ -127,7 +127,6 @@ class AddVariableSimpleConnected extends React.Component {
                     <Button
                         onClick={this.handleSaveAndClose}
                         color="default"
-                        mini
                         variant="contained"
                         className={classes.addButton}
                     >
@@ -139,7 +138,7 @@ class AddVariableSimpleConnected extends React.Component {
     }
 }
 
-AddVariableSimpleConnected.propTypes = {
+AddResultDisplaySimpleConnected.propTypes = {
     classes: PropTypes.object.isRequired,
     resultDisplays: PropTypes.object.isRequired,
     defineVersion: PropTypes.string.isRequired,
@@ -147,5 +146,5 @@ AddVariableSimpleConnected.propTypes = {
     onClose: PropTypes.func.isRequired,
 };
 
-const AddVariableSimple = connect(mapStateToProps, mapDispatchToProps)(AddVariableSimpleConnected);
-export default withStyles(styles)(AddVariableSimple);
+const AddResultDisplaySimple = connect(mapStateToProps, mapDispatchToProps)(AddResultDisplaySimpleConnected);
+export default withStyles(styles)(AddResultDisplaySimple);

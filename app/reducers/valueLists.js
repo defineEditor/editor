@@ -271,7 +271,7 @@ const updateItemRefWhereClause = (state, action) => {
 };
 
 const insertValueLevel = (state, action) => {
-    let itemRefOid = getOid('ItemRef', undefined, state[action.valueListOid].itemRefOrder);
+    let itemRefOid = getOid('ItemRef', state[action.valueListOid].itemRefOrder);
     const itemRefAttrs = action.itemRefAttrs || {};
     let itemRef = { ...new ItemRef({ oid: itemRefOid, itemOid: action.itemDefOid, whereClauseOid: action.whereClauseOid, mandatory: 'No', ...itemRefAttrs }) };
     let itemRefs = { ...state[action.valueListOid].itemRefs, [itemRefOid]: itemRef };

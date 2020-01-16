@@ -21,7 +21,6 @@ import {
     UPD_CODELISTEXT,
     DEL_CODELISTS,
     UPD_CODELISTORDER,
-    UPD_CODELISTSTDOIDS,
     UPD_CODEDVALUE,
     ADD_CODEDVALUE,
     ADD_CODEDVALUES,
@@ -81,13 +80,6 @@ export const updateCodeListOrder = (codeListOrder) => (
     {
         type: UPD_CODELISTORDER,
         codeListOrder,
-    }
-);
-
-export const updateCodeListStandardOids = (updateObj) => (
-    {
-        type: UPD_CODELISTSTDOIDS,
-        updateObj,
     }
 );
 

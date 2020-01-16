@@ -38,6 +38,8 @@ const loadStdCodeLists = (state, action) => {
                 version: ct.sourceSystemVersion,
                 oid: ct.fileOid,
                 publishingSet,
+                loadedForReview: ct.loadedForReview,
+                type: ct.type,
             };
             newState = { ...newState, [controlledTerminology.oid]: controlledTerminology };
         }

@@ -22,7 +22,7 @@ import clone from 'clone';
 
 const styles = theme => ({
     context: {
-        marginBottom: theme.spacing.unit
+        marginBottom: theme.spacing(1)
     },
     value: {
         fontFamily: 'Courier'
@@ -42,7 +42,7 @@ class FormalExpressionEditor extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={8} alignItems='center'>
+            <Grid container spacing={1} alignItems='center'>
                 <Grid xs={12} item>
                     <TextField
                         label='Expression Context'

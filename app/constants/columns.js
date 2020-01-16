@@ -29,7 +29,7 @@ const datasets = {
     },
     description: {
         text: 'Description',
-        width: '15%',
+        width: '13%',
         tdStyle: { whiteSpace: 'pre-wrap' },
         thStyle: { whiteSpace: 'normal' }
     },
@@ -41,13 +41,13 @@ const datasets = {
     },
     domainAttrs: {
         text: 'Domain',
-        width: '115px',
+        width: '125px',
         tdStyle: { whiteSpace: 'pre-wrap', overflowWrap: 'break-word' },
         thStyle: { whiteSpace: 'normal' },
     },
     flags: {
         text: 'Flags',
-        width: '115px',
+        width: '125px',
         tdStyle: { whiteSpace: 'normal' },
         thStyle: { whiteSpace: 'normal' },
     },
@@ -59,13 +59,13 @@ const datasets = {
     },
     keys: {
         text: 'Keys',
-        width: '7%',
+        width: '8%',
         tdStyle: { whiteSpace: 'normal', overflowWrap: 'break-word' },
         thStyle: { whiteSpace: 'normal' },
     },
     comment: {
         text: 'Comment',
-        width: '30%',
+        width: '25%',
         tdStyle: { whiteSpace: 'pre-wrap' },
         thStyle: { whiteSpace: 'normal' },
     },

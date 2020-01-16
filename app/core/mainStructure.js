@@ -50,7 +50,7 @@ class Define {
 
 class ControlledTerminology {
     constructor ({
-        id, name, version, codeListCount, pathToFile, isDefault, sources, isCdiscNci, publishingSet
+        id, name, version, codeListCount, pathToFile, isDefault, sources, isCdiscNci, publishingSet, type
     } = {}) {
         this.id = id;
         this.name = name;
@@ -60,6 +60,7 @@ class ControlledTerminology {
         this.isDefault = isDefault || false;
         this.isCdiscNci = isCdiscNci;
         this.publishingSet = publishingSet;
+        this.type = type;
         if (sources === undefined) {
             this.sources = {
                 defineIds: [],

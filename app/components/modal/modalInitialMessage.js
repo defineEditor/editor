@@ -33,9 +33,7 @@ import {
 
 const styles = theme => ({
     dialog: {
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         top: '40%',
@@ -44,11 +42,21 @@ const styles = theme => ({
         maxHeight: '85%',
         overflowY: 'auto',
     },
+    title: {
+        marginBottom: theme.spacing(2),
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
+    },
 });
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         updateSettings: (updateObj) => dispatch(updateSettings(updateObj)),
     };
 };
@@ -62,7 +70,7 @@ class ConnectedModalInitialMessage extends React.Component {
     }
 
     onClose = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         if (this.state.doNotShowAgain) {
             // if so, update the corresponding setting
             this.props.updateSettings({
@@ -93,7 +101,7 @@ class ConnectedModalInitialMessage extends React.Component {
                 open
                 PaperProps={{ className: classes.dialog }}
             >
-                <DialogTitle id="alert-dialog-title">
+                <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
                     Visual Define-XML Editor
                 </DialogTitle>
                 <DialogContent>
@@ -136,6 +144,7 @@ class ConnectedModalInitialMessage extends React.Component {
 ConnectedModalInitialMessage.propTypes = {
     classes: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalInitialMessage = connect(undefined, mapDispatchToProps)(ConnectedModalInitialMessage);

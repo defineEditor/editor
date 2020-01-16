@@ -30,9 +30,7 @@ import {
 
 const styles = theme => ({
     dialog: {
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         top: '40%',
@@ -41,18 +39,28 @@ const styles = theme => ({
         maxHeight: '85%',
         overflowY: 'auto',
     },
+    title: {
+        marginBottom: theme.spacing(2),
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
+    },
 });
 
 const mapDispatchToProps = dispatch => {
     return {
         deleteStudy: deleteObj => dispatch(deleteStudy(deleteObj)),
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
     };
 };
 
 class ConnectedModalDeleteStudy extends React.Component {
     onDelete = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         this.props.deleteStudy({
             studyId: this.props.studyId,
             defineIds: this.props.defineIds,
@@ -63,7 +71,7 @@ class ConnectedModalDeleteStudy extends React.Component {
     }
 
     onCancel = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     onKeyDown = (event) => {
@@ -88,7 +96,7 @@ class ConnectedModalDeleteStudy extends React.Component {
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >
-                <DialogTitle id="alert-dialog-title">
+                <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
                     Delete Study
                 </DialogTitle>
                 <DialogContent>
@@ -113,6 +121,7 @@ ConnectedModalDeleteStudy.propTypes = {
     classes: PropTypes.object.isRequired,
     studyId: PropTypes.string.isRequired,
     defineIds: PropTypes.array.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalDeleteStudy = connect(undefined, mapDispatchToProps)(ConnectedModalDeleteStudy);

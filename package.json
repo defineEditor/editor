@@ -1,7 +1,7 @@
 {
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
-  "version": "1.0.0",
+  "version": "1.1.5-current",
   "license": "AGPL-3.0-only",
   "private": "true",
   "description": "Visual Define-XML Editor",
@@ -18,18 +18,21 @@
     "lint-fix": "npm run --silent lint -- --fix; exit 0",
     "lint-styles": "stylelint app/*.css app/components/*.css app/css/*.css --syntax scss",
     "lint-styles-fix": "stylefmt -r app/*.css app/components/*.css app/css/*.css",
-    "package": "npm run build && build --publish never",
-    "package-all": "npm run build && build -mwl",
-    "package-linux": "npm run build && build --linux",
-    "package-mac": "npm run build && build --mac",
-    "package-win": "npm run build && build --win --x64",
-    "package-win32": "npm run build && build --win --ia32",
+    "moveReleaseFiles": "node --trace-warnings -r babel-register ./internals/scripts/MoveFiles.js",
+    "cleanReleaseFolder": "node --trace-warnings -r babel-register ./internals/scripts/CleanReleaseFolder.js",
+    "package": "npm run build && electron-builder --publish never",
+    "package-debug": "DEBUG_PROD=true npm run build && electron-builder --publish never",
+    "package-linux": "npm run build && electron-builder --linux && npm run moveReleaseFiles",
+    "package-mac": "npm run build && electron-builder --mac && npm run moveReleaseFiles",
+    "package-win": "npm run build && electron-builder --win --x64 && npm run moveReleaseFiles",
+    "package-win32": "npm run build && electron-builder --win --ia32",
+    "package-all": "npm run cleanReleaseFolder && npm run package-linux && npm run package-win",
     "postinstall": "node -r babel-register internals/scripts/CheckNativeDep.js && npm run flow-typed && npm run build-dll && electron-builder install-app-deps && node node_modules/fbjs-scripts/node/check-dev-engines.js package.json",
     "postlint-fix": "prettier --ignore-path .eslintignore --single-quote --write '**/*.js'",
     "precommit": "lint-staged",
     "prestart": "npm run build",
     "start": "cross-env NODE_ENV=production electron ./app/",
-    "start-main-dev": "cross-env HOT=1 NODE_ENV=development electron -r babel-register --inspect=5858 ./app/main.dev.js",
+    "start-main-dev": "cross-env HOT=1 NODE_ENV=development APPIMAGE=/tmp/ electron -r babel-register --inspect=5858 ./app/main.dev.js",
     "start-renderer-dev": "cross-env NODE_ENV=development node --trace-warnings -r babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server --hot --config webpack.config.renderer.dev.js",
     "test": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 node --trace-warnings -r babel-register ./internals/scripts/RunTests.js",
     "test-all": "npm run lint && npm run flow && npm run build && npm run test && npm run test-e2e",
@@ -79,12 +82,18 @@
       ]
     },
     "nsis": {
-      "artifactName": "${productName} Setup ${version} ${arch}.${ext}"
+      "artifactName": "${productName}.Setup.${version}.${ext}"
+    },
+    "appImage": {
+      "artifactName": "${productName}.${version}.${ext}"
     },
     "win": {
       "target": [
         "nsis",
         "portable"
+      ],
+      "publish": [
+        "github"
       ]
     },
     "mac": {
@@ -98,7 +107,10 @@
         "deb",
         "AppImage"
       ],
-      "category": "Development"
+      "category": "Development",
+      "publish": [
+        "github"
+      ]
     },
     "directories": {
       "buildResources": "resources",
@@ -107,7 +119,7 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/defineEditor/editor.git"
   },
   "author": {
     "name": "Dmitry Kolosov",
@@ -152,7 +164,7 @@
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
-    "babel-eslint": "^8.2.3",
+    "babel-eslint": "^10.0.3",
     "babel-jest": "^23.0.0",
     "babel-loader": "^7.1.4",
     "babel-plugin-add-module-exports": "^0.2.1",
@@ -171,25 +183,25 @@
     "cross-spawn": "^6.0.5",
     "css-loader": "^0.28.11",
     "detect-port": "^1.2.3",
-    "electron": "^5.0.1",
-    "electron-builder": "^20.39.0",
+    "electron": "^7.1.1",
+    "electron-builder": "^21.2.0",
     "electron-devtools-installer": "^2.2.4",
     "electron-rebuild": "^1.8.4",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "enzyme-to-json": "^3.3.4",
-    "eslint": "^5.14.0",
-    "eslint-config-airbnb": "^17.1.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb": "^18.0.1",
     "eslint-config-prettier": "^4.0.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-formatter-pretty": "^2.1.1",
     "eslint-import-resolver-webpack": "^0.11.0",
-    "eslint-plugin-compat": "^2.7.0",
+    "eslint-plugin-compat": "^3.3.0",
     "eslint-plugin-flowtype": "^3.4.2",
     "eslint-plugin-import": "^2.12.0",
     "eslint-plugin-jest": "^22.3.0",
-    "eslint-plugin-jsx-a11y": "6.2.1",
-    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-jsx-a11y": "6.2.3",
+    "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-react": "^7.8.2",
     "eslint-plugin-standard": "^4.0.0",
@@ -227,11 +239,12 @@
   },
   "dependencies": {
     "@hot-loader/react-dom": "^16.8.6",
-    "@material-ui/core": "^3.1.2",
-    "@material-ui/icons": "^3.0.1",
-    "@material-ui/lab": "^3.0.0-alpha.18",
+    "@material-ui/core": "^4.6.1",
+    "@material-ui/icons": "^4.5.1",
+    "@material-ui/lab": "^4.0.0-alpha.32",
     "babel-plugin-prismjs": "^1.0.2",
     "bootstrap": "^4.1.1",
+    "cla-wrapper": "^0.2.0",
     "clone": "^2.1.2",
     "csvtojson": "^2.0.8",
     "devtron": "^1.4.0",
@@ -242,7 +255,10 @@
     "electron-debug": "^2.0.0",
     "electron-store": "^2.0.0",
     "electron-unhandled": "^1.1.0",
+    "electron-updater": "^4.2.0",
+    "eslint-plugin-react-hooks": "^2.3.0",
     "fast-deep-equal": "^1.1.0",
+    "idb": "^4.0.5",
     "jquery": "^3.3.1",
     "jszip": "^3.1.5",
     "prismjs": "^1.15.0",
@@ -254,7 +270,6 @@
     "react-icons": "^3.4.0",
     "react-markdown": "^4.0.6",
     "react-redux": "^7.0.0",
-    "react-select": "^1.2.1",
     "react-sortable-hoc": "^1.6.1",
     "redux": "^4.0.0",
     "redux-undo": "^1.0.0-beta9-9-7",

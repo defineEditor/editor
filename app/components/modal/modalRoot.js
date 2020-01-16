@@ -13,8 +13,7 @@
 ***********************************************************************************/
 
 import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import ModalDeleteStudy from 'components/modal/modalDeleteStudy.js';
 import ModalDeleteDefine from 'components/modal/modalDeleteDefine.js';
 import ModalDeleteCodeLists from 'components/modal/modalDeleteCodeLists.js';
@@ -29,12 +28,9 @@ import ModalSaveSettings from 'components/modal/modalSaveSettings.js';
 import ModalGeneral from 'components/modal/modalGeneral.js';
 import ModalReviewComment from 'components/modal/modalReviewComment.js';
 import ModalConfirmChange from 'components/modal/modalConfirmChange.js';
-
-const mapStateToProps = state => {
-    return {
-        modal: state.present.ui.modal,
-    };
-};
+import ModalCleanCdiscLibraryCache from 'components/modal/modalCleanCdiscLibraryCache.js';
+import ModalUpdateApplication from 'components/modal/modalUpdateApplication.js';
+import ModalCodeListTable from 'components/modal/modalCodeListTable.js';
 
 const MODAL_COMPONENTS = {
     'DELETE_STUDY': ModalDeleteStudy,
@@ -51,21 +47,23 @@ const MODAL_COMPONENTS = {
     'QUIT': ModalQuitApplication,
     'GENERAL': ModalGeneral,
     'CONFIRM_CHANGE': ModalConfirmChange,
+    'CLEAN_CDISC_LIBRARY_CACHE': ModalCleanCdiscLibraryCache,
+    'UPDATE_APPLICATION': ModalUpdateApplication,
+    'CODELIST_TABLE': ModalCodeListTable,
 };
 
-class ConnectedModalRoot extends React.Component {
-    render () {
-        if (!this.props.modal.type) {
-            return null;
-        }
-
-        const Modal = MODAL_COMPONENTS[this.props.modal.type];
-        return <Modal {...this.props.modal.props} />;
+const ModalRoot = () => {
+    let modal = useSelector(state => state.present.ui.modal);
+    if (modal.type.length === 0) {
+        return null;
     }
-}
 
-ConnectedModalRoot.propTypes = {
-    modal: PropTypes.object.isRequired,
+    let result = [];
+    modal.type.forEach(modalType => {
+        const Modal = MODAL_COMPONENTS[modalType];
+        result.push(<Modal key={modalType} type={modalType} { ...modal.props[modalType] } />);
+    });
+    return result;
 };
 
-export default connect(mapStateToProps)(ConnectedModalRoot);
+export default ModalRoot;

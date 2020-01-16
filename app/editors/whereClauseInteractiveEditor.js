@@ -32,6 +32,9 @@ import { comparators } from 'constants/stdConstants.js';
 import { WhereClause, RangeCheck } from 'core/defineStructure.js';
 
 const styles = theme => ({
+    root: {
+        outline: 'none',
+    },
     textField: {
         whiteSpace: 'normal',
         minWidth: '120px',
@@ -43,32 +46,32 @@ const styles = theme => ({
     textFieldValues: {
         whiteSpace: 'normal',
         minWidth: '100px',
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     valuesGridItem: {
         maxWidth: '60%',
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     buttonLine: {
-        marginTop: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginTop: theme.spacing(2),
+        marginBottom: theme.spacing(2),
     },
     andLine: {
-        marginLeft: theme.spacing.unit * 8,
-        marginTop: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(8),
+        marginTop: theme.spacing(2),
     },
     button: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     saveCancelButtons: {
-        marginTop: theme.spacing.unit * 4,
+        marginTop: theme.spacing(4),
     },
     chips: {
         display: 'flex',
         flexWrap: 'wrap',
     },
     chip: {
-        margin: theme.spacing.unit / 4,
+        margin: theme.spacing(0.25),
     },
 });
 
@@ -365,7 +368,7 @@ class WhereClauseEditorInteractive extends React.Component {
         const { classes } = this.props;
 
         let result = [(
-            <Grid container spacing={8} key='buttonLine' alignItems='flex-end'>
+            <Grid container spacing={1} key='buttonLine' alignItems='flex-end'>
                 <Grid item xs={12} className={classes.buttonLine}>
                     <Button
                         color='default'
@@ -392,7 +395,7 @@ class WhereClauseEditorInteractive extends React.Component {
             }
 
             result.push(
-                <Grid container spacing={8} key={index} alignItems='flex-end'>
+                <Grid container spacing={1} key={index} alignItems='flex-end'>
                     {index !== 0 &&
                             <Grid item xs={12} className={classes.andLine}>
                                 <Typography variant="subtitle1" >
@@ -501,7 +504,14 @@ class WhereClauseEditorInteractive extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={16} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
+            <Grid
+                container
+                spacing={2}
+                alignItems='flex-end'
+                onKeyDown={this.onKeyDown}
+                className={classes.root}
+                tabIndex='0'
+            >
                 { this.props.onChangeEditingMode !== undefined && (
                     <Grid item xs={12}>
                         <FormControlLabel
@@ -520,7 +530,7 @@ class WhereClauseEditorInteractive extends React.Component {
                 )}
                 {this.getRangeChecks()}
                 <Grid item xs={12} className={classes.saveCancelButtons}>
-                    <Grid container spacing={16} justify='flex-start'>
+                    <Grid container spacing={2} justify='flex-start'>
                         <Grid item>
                             <SaveCancel
                                 save={this.save} cancel={this.cancel}

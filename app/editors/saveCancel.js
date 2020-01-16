@@ -26,10 +26,10 @@ const styles = theme => ({
         margin: 'none',
     },
     button: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
     },
     icon: {
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
     }
 });
 

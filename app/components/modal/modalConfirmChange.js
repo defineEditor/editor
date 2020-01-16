@@ -36,13 +36,21 @@ const styles = theme => ({
         width: '40%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'primary',
+    },
+    title: {
+        marginBottom: theme.spacing(2),
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
     },
 });
 
@@ -50,7 +58,7 @@ const styles = theme => ({
 const mapDispatchToProps = dispatch => {
     return {
         changeTab: updateObj => dispatch(changeTab(updateObj)),
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
     };
 };
@@ -67,7 +75,7 @@ class ConnectedModalConfirmChange extends React.Component {
     }
 
     onCancel = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     onKeyDown = (event) => {
@@ -101,7 +109,7 @@ class ConnectedModalConfirmChange extends React.Component {
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >
-                <DialogTitle id="alert-dialog-title">
+                <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
                     {title}
                 </DialogTitle>
                 <DialogContent>
@@ -127,6 +135,7 @@ ConnectedModalConfirmChange.propTypes = {
     changeTab: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
     selectGroup: PropTypes.func.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalConfirmChange = connect(undefined, mapDispatchToProps)(ConnectedModalConfirmChange);

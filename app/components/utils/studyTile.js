@@ -34,6 +34,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import StudyMenu from 'components/menus/studyMenu.js';
+import StudyDefineMenu from 'components/menus/studyDefineMenu.js';
 import {
     updateStudy,
     deleteDefine,
@@ -65,10 +66,13 @@ const styles = theme => ({
         width: 'fit-content',
     },
     defineTitle: {
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
+    },
+    studyDefineMenu: {
+        right: 1,
     },
     currentDefineTitle: {
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
         color: '#3F51B5',
         fontWeight: 'bold',
     },
@@ -127,8 +131,8 @@ class ConnectedStudyTile extends React.Component {
 
     static getDerivedStateFromProps (nextProps, prevState) {
         // Check if defineIds changed
-        let allPresent = prevState.study.defineIds.every(defineId =>
-            nextProps.study.defineIds.includes(defineId)
+        let allPresent = prevState.study.defineIds.every((defineId, index) =>
+            nextProps.study.defineIds[index] === defineId
         );
         if (
             nextProps.study.defineIds.length !== prevState.study.defineIds.length ||
@@ -207,7 +211,7 @@ class ConnectedStudyTile extends React.Component {
         this.setState({ anchorStudyEl: null });
     }
 
-    getDefines = classes => {
+    getDefines = (classes, onClose) => {
         return this.state.study.defineIds.map(defineId => {
             const isCurrent = this.props.currentDefineId === defineId;
             return (
@@ -225,14 +229,12 @@ class ConnectedStudyTile extends React.Component {
                             this.props.defines.byId[defineId].name
                         )}
                         className={classes.defineTitle}/>
-                    <ListItemSecondaryAction>
-                        <IconButton
-                            color="secondary"
-                            onClick={() => this.deleteDefine(defineId)}
-                            className={classes.icon}
-                        >
-                            <ClearIcon />
-                        </IconButton>
+                    <ListItemSecondaryAction className={classes.studyDefineMenu}>
+                        <StudyDefineMenu
+                            studyId={this.state.study.id}
+                            defineId={defineId}
+                            onClose={onClose}
+                        />
                     </ListItemSecondaryAction>
                 </MenuItem>
             );
@@ -407,13 +409,15 @@ class ConnectedStudyTile extends React.Component {
                     }}
                     getContentAnchorEl={null}
                 >
-                    {this.getDefines(classes)}
+                    {this.getDefines(classes, this.handleDefineMenuClose)}
                 </Menu>
                 { this.state.anchorStudyEl !== null &&
                         <StudyMenu
                             onClose={this.handleStudyMenuClose}
                             study={this.props.study}
                             anchorEl={this.state.anchorStudyEl}
+                            toggleEditMode={this.toggleEditMode}
+                            toggleAddDefineForm={this.toggleAddDefineForm}
                         />
                 }
             </div>

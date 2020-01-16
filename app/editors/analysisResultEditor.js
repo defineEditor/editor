@@ -390,7 +390,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
                 tabIndex='0'
                 ref={this.rootRef}
             >
-                <Grid container spacing={8}>
+                <Grid container spacing={1}>
                     <Grid item xs={12}>
                         <TextField
                             label='Description'
@@ -402,7 +402,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <Grid container justify='space-between' spacing={8}>
+                        <Grid container justify='space-between' spacing={1}>
                             <Grid item xs={this.state.analysisReasonManual && 4}>
                                 <TextField
                                     label='Analysis Reason'

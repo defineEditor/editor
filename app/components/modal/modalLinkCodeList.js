@@ -46,7 +46,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         updateSettings: updateObj => dispatch(updateSettings(updateObj)),
         updateCodeList: (oid, updateObj) => dispatch(updateCodeList(oid, updateObj)),
     };
@@ -72,9 +72,7 @@ const styles = theme => ({
         width: '50%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
@@ -82,8 +80,18 @@ const styles = theme => ({
     },
     paper: {
         width: '100%',
-        marginTop: theme.spacing.unit * 1,
-        marginBottom: theme.spacing.unit * 2,
+        marginTop: theme.spacing(1),
+        marginBottom: theme.spacing(2),
+    },
+    title: {
+        marginBottom: theme.spacing(2),
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
     },
 });
 
@@ -119,7 +127,7 @@ class ConnectedModalLinkCodeList extends React.Component {
                 },
             });
         }
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         this.props.updateCodeList(this.props.codeListOid, {
             linkedCodeListOid: this.props.linkedCodeListOid,
             standardCodeList: this.props.standardCodeListOid ? this.props.stdCodeLists[this.props.standardOid].codeLists[this.props.standardCodeListOid] : undefined,
@@ -131,7 +139,7 @@ class ConnectedModalLinkCodeList extends React.Component {
         this.setState({
             warningShowAgain: true,
         });
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     render () {
@@ -154,7 +162,9 @@ class ConnectedModalLinkCodeList extends React.Component {
                 fullWidth
                 maxWidth={false}
             >
-                <DialogTitle id="alert-dialog-title">Linking Codelists</DialogTitle>
+                <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
+                    Linking Codelists
+                </DialogTitle>
                 <DialogContent>
                     {elementsPop.length > 0 &&
                         <div>
@@ -241,6 +251,7 @@ ConnectedModalLinkCodeList.propTypes = {
     classes: PropTypes.object.isRequired,
     codeLists: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalLinkCodeList = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalLinkCodeList);

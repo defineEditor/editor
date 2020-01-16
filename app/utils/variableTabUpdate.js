@@ -52,13 +52,21 @@ const styles = theme => ({
         maxHeight: '80%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'primary',
+    },
+    title: {
+        marginBottom: theme.spacing(2),
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
     },
     textField: {
         whiteSpace: 'normal',
@@ -71,33 +79,33 @@ const styles = theme => ({
     textFieldValues: {
         whiteSpace: 'normal',
         minWidth: '100px',
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     valuesGridItem: {
         maxWidth: '60%',
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     buttonLine: {
-        marginTop: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginTop: theme.spacing(2),
+        marginBottom: theme.spacing(2),
     },
     connector: {
-        marginLeft: theme.spacing.unit * 7,
-        marginTop: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(7),
+        marginTop: theme.spacing(2),
     },
     firstRangeCheck: {
-        marginLeft: theme.spacing.unit * 8,
-        marginTop: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(8),
+        marginTop: theme.spacing(2),
     },
     button: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     controlButtons: {
-        marginTop: theme.spacing.unit * 4,
-        marginLeft: theme.spacing.unit,
+        marginTop: theme.spacing(4),
+        marginLeft: theme.spacing(1),
     },
     paper: {
-        padding: theme.spacing.unit,
+        padding: theme.spacing(1),
         minWidth: '400px',
     },
     filteredItemsCount: {
@@ -591,12 +599,12 @@ class ConnectedVariableTabUpdate extends React.Component {
                 fullWidth
                 PaperProps={{ className: classes.dialog }}
             >
-                <DialogTitle>
+                <DialogTitle className={classes.title} disableTypography>
                     Variable Update
                     <InternalHelp data={VARIABLE_UPDATE} />
                 </DialogTitle>
                 <DialogContent>
-                    <Grid container spacing={16} alignItems='flex-end'>
+                    <Grid container spacing={2} alignItems='flex-end'>
                         <Grid item xs={12}>
                             <Typography>
                                 <Fab
@@ -625,7 +633,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                             {this.getUpdateFields()}
                         </Grid>
                         <Grid item xs={12} className={classes.controlButtons}>
-                            <Grid container spacing={16} justify='flex-start'>
+                            <Grid container spacing={2} justify='flex-start'>
                                 <Grid item>
                                     <Button
                                         color='primary'

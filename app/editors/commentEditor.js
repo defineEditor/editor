@@ -97,7 +97,7 @@ class ConnectedCommentEditor extends React.Component {
         let newComment;
         let comment = this.props.comment;
         if (name === 'addComment') {
-            let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
+            let commentOid = getOid('Comment', Object.keys(this.props.comments));
             newComment = { ...new Comment({ oid: commentOid, descriptions: [ { ...new TranslatedText({ lang: this.props.lang, value: '' }) } ] }) };
         } else if (name === 'deleteComment') {
             newComment = undefined;
@@ -119,11 +119,11 @@ class ConnectedCommentEditor extends React.Component {
             newComment = updateObj;
             this.setState({ selectCommentOpened: false });
         } else if (name === 'copyComment') {
-            let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
+            let commentOid = getOid('Comment', Object.keys(this.props.comments));
             newComment = { ...new Comment({ ...clone(updateObj), oid: commentOid, sources: undefined }) };
             this.setState({ selectCommentOpened: false });
         } else if (name === 'detachComment') {
-            let commentOid = getOid('Comment', undefined, Object.keys(this.props.comments));
+            let commentOid = getOid('Comment', Object.keys(this.props.comments));
             newComment = { ...new Comment({ ...clone(this.props.comment), oid: commentOid, sources: undefined }) };
         }
 
@@ -172,7 +172,7 @@ class ConnectedCommentEditor extends React.Component {
                     <Grid item xs={12}>
                         <Typography variant="subtitle1">
                             { this.props.title || 'Comment' }
-                            <Tooltip title={comment === undefined ? 'Add Comment' : 'Remove Comment'} placement='bottom' enterDelay={1000}>
+                            <Tooltip title={comment === undefined ? 'Add Comment' : 'Remove Comment'} placement='bottom' enterDelay={500}>
                                 <span>
                                     <IconButton
                                         onClick={comment === undefined ? this.handleChange('addComment') : this.handleChange('deleteComment')}
@@ -183,7 +183,7 @@ class ConnectedCommentEditor extends React.Component {
                                     </IconButton>
                                 </span>
                             </Tooltip>
-                            <Tooltip title='Add Link to Document' placement='bottom' enterDelay={1000}>
+                            <Tooltip title='Add Link to Document' placement='bottom' enterDelay={500}>
                                 <span>
                                     <IconButton
                                         onClick={this.handleChange('addDocument')}
@@ -195,7 +195,7 @@ class ConnectedCommentEditor extends React.Component {
                                     </IconButton>
                                 </span>
                             </Tooltip>
-                            <Tooltip title='Select Comment' placement='bottom' enterDelay={1000}>
+                            <Tooltip title='Select Comment' placement='bottom' enterDelay={500}>
                                 <span>
                                     <IconButton
                                         onClick={this.handleSelectDialog('openSelectComment')}
@@ -208,7 +208,7 @@ class ConnectedCommentEditor extends React.Component {
                                 </span>
                             </Tooltip>
                             {(sourceLabels.count > 1) &&
-                                    <Tooltip title='Detach Comment' placement='bottom' enterDelay={1000}>
+                                    <Tooltip title='Detach Comment' placement='bottom' enterDelay={500}>
                                         <IconButton
                                             onClick={this.handleChange('detachComment')}
                                             className={classes.iconButton}

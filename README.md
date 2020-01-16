@@ -37,10 +37,14 @@ yarn install
 Compile the application using one of the following methods:
 ```
 yarn package-win
-yarn package-win32
 yarn package-linux
 yarn package-mac
 ```
+or compile all of them using
+```
+yarn package-all
+```
+The compiled files will be stored in releases/Release-x.x.x
 
 ## Running in development mode
 

@@ -28,8 +28,8 @@ const styles = theme => ({
         width: '200px',
     },
     addButton: {
-        marginLeft: theme.spacing.unit * 2,
-        marginTop: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
+        marginTop: theme.spacing(2),
     },
 });
 
@@ -49,7 +49,7 @@ const mapStateToProps = state => {
     };
 };
 
-class AddVariableEditorConnected extends React.Component {
+class AddCodeListSimpleConnected extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
@@ -73,7 +73,7 @@ class AddVariableEditorConnected extends React.Component {
 
     handleSaveAndClose = (updateObj) => {
         let codeListOids = Object.keys(this.props.codeLists);
-        let codeListOid = getOid('CodeList', undefined, codeListOids);
+        let codeListOid = getOid('CodeList', codeListOids);
         // Get all possible IDs
         this.props.addCodeList({
             oid: codeListOid,
@@ -93,7 +93,7 @@ class AddVariableEditorConnected extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={8} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
+            <Grid container spacing={1} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Grid item xs={12}>
                     <TextField
                         label='Name'
@@ -129,7 +129,6 @@ class AddVariableEditorConnected extends React.Component {
                     <Button
                         onClick={this.handleSaveAndClose}
                         color="default"
-                        mini
                         variant="contained"
                         className={classes.addButton}
                     >
@@ -141,7 +140,7 @@ class AddVariableEditorConnected extends React.Component {
     }
 }
 
-AddVariableEditorConnected.propTypes = {
+AddCodeListSimpleConnected.propTypes = {
     classes: PropTypes.object.isRequired,
     codeLists: PropTypes.object.isRequired,
     codeListTypes: PropTypes.array.isRequired,
@@ -150,5 +149,5 @@ AddVariableEditorConnected.propTypes = {
     disabled: PropTypes.bool,
 };
 
-const AddVariableEditor = connect(mapStateToProps, mapDispatchToProps)(AddVariableEditorConnected);
-export default withStyles(styles)(AddVariableEditor);
+const AddCodeListSimple = connect(mapStateToProps, mapDispatchToProps)(AddCodeListSimpleConnected);
+export default withStyles(styles)(AddCodeListSimple);

@@ -33,12 +33,6 @@ import {
 } from 'actions/index.js';
 
 const styles = theme => ({
-    button: {
-        margin: theme.spacing.unit,
-    },
-    iconButton: {
-        marginBottom: '8px',
-    },
     gridItem: {
         margin: 'none',
     },
@@ -151,7 +145,7 @@ class ConnectedDescriptionEditor extends React.Component {
                 ref={this.rootRef}
                 className={classes.root}
             >
-                <Grid container spacing={8} alignItems='center'>
+                <Grid container spacing={1} alignItems='center'>
                     <Grid item xs={12} className={classes.gridItem}>
                         <CommentEditor comment={this.state.comment} onUpdate={this.handleChange('comment')} autoFocus={true}/>
                     </Grid>

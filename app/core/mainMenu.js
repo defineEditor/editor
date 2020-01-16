@@ -30,6 +30,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Settings from '@material-ui/icons/Settings';
 import Save from '@material-ui/icons/Save';
 import SaveAlt from '@material-ui/icons/SaveAlt';
+import SystemUpdate from '@material-ui/icons/SystemUpdate';
 import History from '@material-ui/icons/History';
 import Info from '@material-ui/icons/Info';
 import Keyboard from '@material-ui/icons/Keyboard';
@@ -37,6 +38,7 @@ import Print from '@material-ui/icons/Print';
 import Search from '@material-ui/icons/Search';
 import Review from '@material-ui/icons/RemoveRedEye';
 import Archive from '@material-ui/icons/Archive';
+import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import Description from '@material-ui/icons/Description';
 import OpenInBrowser from '@material-ui/icons/OpenInBrowser';
 import Close from '@material-ui/icons/Close';
@@ -51,6 +53,7 @@ import {
     changePage,
     updateMainUi,
     toggleReviewMode,
+    openModal,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -67,6 +70,12 @@ const styles = theme => ({
     reviewModeSwitch: {
         margin: 'none',
     },
+    update: {
+        backgroundColor: '#42A5F5',
+        '&:hover': {
+            backgroundColor: '#BBDEFB',
+        }
+    },
 });
 
 // Redux functions
@@ -80,10 +89,12 @@ const mapStateToProps = state => {
     }
     return {
         mainMenuOpened: state.present.ui.main.mainMenuOpened,
+        updateInfo: state.present.ui.main.updateInfo,
         currentPage,
         pathToDefine,
         currentDefineId: state.present.ui.main.currentDefineId,
         reviewMode: state.present.ui.main.reviewMode,
+        enableCdiscLibrary: state.present.settings.cdiscLibrary.enableCdiscLibrary,
         actionsDone: state.index,
     };
 };
@@ -94,6 +105,7 @@ const mapDispatchToProps = dispatch => {
         changePage: (updateObj) => dispatch(changePage(updateObj)),
         updateMainUi: (updateObj) => dispatch(updateMainUi(updateObj)),
         toggleReviewMode: (updateObj) => dispatch(toggleReviewMode(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
@@ -119,6 +131,8 @@ class ConnectedMainMenu extends React.Component {
                 this.openSettings();
             } else if (event.keyCode === 67) {
                 this.openControlledTerminology();
+            } else if (event.keyCode === 76 && this.props.enableCdiscLibrary) {
+                this.openCdiscLibrary();
             } else if (event.keyCode === 80) {
                 this.print();
             }
@@ -155,8 +169,19 @@ class ConnectedMainMenu extends React.Component {
         this.props.changePage({ page: 'controlledTerminology' });
     }
 
+    openCdiscLibrary = () => {
+        this.props.changePage({ page: 'cdiscLibrary' });
+    }
+
     openSettings = () => {
         this.props.changePage({ page: 'settings' });
+    }
+
+    onUpdate = () => {
+        this.props.openModal({
+            type: 'UPDATE_APPLICATION',
+            props: { releaseNotes: this.props.updateInfo.releaseNotes, version: this.props.updateInfo.version }
+        });
     }
 
     openWithStylesheet = (event) => {
@@ -188,25 +213,31 @@ class ConnectedMainMenu extends React.Component {
                                 <ListItemIcon>
                                     <Assignment/>
                                 </ListItemIcon>
-                                <ListItemText primary='Studies'/>
+                                <ListItemText primary={<span><u>S</u>tudies</span>}/>
                             </ListItem>
                             <ListItem button key='editor' onClick={this.openEditor} disabled={this.props.currentDefineId === ''}>
                                 <ListItemIcon>
                                     <Edit/>
                                 </ListItemIcon>
-                                <ListItemText primary='Editor'/>
+                                <ListItemText primary={<span><u>E</u>ditor</span>}/>
                             </ListItem>
                             <ListItem button key='controlledTerminology' onClick={this.openControlledTerminology}>
                                 <ListItemIcon>
                                     <Public/>
                                 </ListItemIcon>
-                                <ListItemText primary='Controlled Teminology'/>
+                                <ListItemText primary={<span><u>C</u>ontrolled Teminology</span>}/>
+                            </ListItem>
+                            <ListItem button key='cdiscLibrary' onClick={this.openCdiscLibrary} disabled={!this.props.enableCdiscLibrary}>
+                                <ListItemIcon>
+                                    <LocalLibrary/>
+                                </ListItemIcon>
+                                <ListItemText primary={<span>CDISC <u>L</u>ibrary</span>}/>
                             </ListItem>
                             <ListItem button key='settings' onClick={this.openSettings}>
                                 <ListItemIcon>
                                     <Settings/>
                                 </ListItemIcon>
-                                <ListItemText primary='Settings'/>
+                                <ListItemText primary={<span>Se<u>t</u>tings</span>}/>
                             </ListItem>
                             <ListItem button key='about' onClick={() => this.props.changePage({ page: 'about' })}>
                                 <ListItemIcon>
@@ -220,6 +251,14 @@ class ConnectedMainMenu extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary='Keyboard Shortcuts'/>
                             </ListItem>
+                            { this.props.updateInfo && this.props.updateInfo.version &&
+                                <ListItem button key='update' onClick={this.onUpdate} className={classes.update}>
+                                    <ListItemIcon>
+                                        <SystemUpdate/>
+                                    </ListItemIcon>
+                                    <ListItemText primary='Update'/>
+                                </ListItem>
+                            }
                             <Divider/>
                             <ListItem button key='search' onClick={() => { this.props.toggleMainMenu(); this.props.onToggleFindInPage(300); }}>
                                 <ListItemIcon>
@@ -318,6 +357,7 @@ class ConnectedMainMenu extends React.Component {
 ConnectedMainMenu.propTypes = {
     classes: PropTypes.object.isRequired,
     mainMenuOpened: PropTypes.bool.isRequired,
+    updateInfo: PropTypes.object.isRequired,
     currentPage: PropTypes.string.isRequired,
     pathToDefine: PropTypes.string,
     currentDefineId: PropTypes.string.isRequired,
@@ -330,6 +370,7 @@ ConnectedMainMenu.propTypes = {
     toggleReviewMode: PropTypes.func.isRequired,
     updateMainUi: PropTypes.func.isRequired,
     actionsDone: PropTypes.number.isRequired,
+    enableCdiscLibrary: PropTypes.bool,
 };
 
 const MainMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedMainMenu);

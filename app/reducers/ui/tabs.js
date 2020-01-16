@@ -23,6 +23,9 @@ import {
     UI_CHANGETABLEPAGEDETAILS,
     UI_TOGGLEREVIEWCOMMENTPANELS,
     UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED,
+    UI_VARTOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
+    UI_VARCHANGECDISCLIBRARYVIEW,
+    UI_ITEMGROUPCHANGECDISCLIBRARYVIEW,
 } from 'constants/action-types';
 import { ui } from 'constants/initialValues.js';
 
@@ -65,7 +68,7 @@ const toggleRowSelect = (state, action) => {
     let currentTab = state.currentTab;
     let newSettings = state.settings.slice();
     let value;
-    if (state.settings[currentTab].rowSelect.hasOwnProperty(action.source.oid)) {
+    if (Object.prototype.hasOwnProperty.call(state.settings[currentTab].rowSelect, action.source.oid)) {
         value = !state.settings[currentTab].rowSelect[action.source.oid];
     } else {
         value = true;
@@ -156,11 +159,13 @@ const loadTabs = (state, action) => {
             initialState.settings.some((setting, index) => {
                 let actualSetting = actualSettings[index];
                 // Check if any of the high-level setting properties changed
-                isDifferent = Object.keys(setting).some(settingProp => (!actualSetting.hasOwnProperty(settingProp) && setting[settingProp] !== undefined));
+                isDifferent = Object.keys(setting).some(settingProp =>
+                    (!Object.prototype.hasOwnProperty.call(actualSetting, settingProp) && setting[settingProp] !== undefined)
+                );
                 if (isDifferent) {
                     return true;
                 }
-                if (setting.hasOwnProperty('columns') && actualSetting.hasOwnProperty('columns')) {
+                if (setting['columns'] && actualSetting['columns']) {
                     let actualColumnsNames = Object.keys(actualSetting.columns);
                     let initialColumnsNames = Object.keys(setting.columns);
                     // New columns
@@ -175,7 +180,7 @@ const loadTabs = (state, action) => {
                         isDifferent = true;
                         return true;
                     }
-                } else if (setting.hasOwnProperty('columns') !== actualSetting.hasOwnProperty('columns')) {
+                } else if (setting['columns'] !== actualSetting['columns']) {
                     isDifferent = true;
                     return true;
                 }
@@ -195,7 +200,7 @@ const changeTablePageDetails = (state, action) => {
     let currentTab = state.currentTab;
     let newSettings = state.settings.slice();
     let paginationGroup;
-    if (state.settings[currentTab].pagination.hasOwnProperty(action.updateObj.groupOid)) {
+    if (Object.prototype.hasOwnProperty.call(state.settings[currentTab].pagination, action.updateObj.groupOid)) {
         paginationGroup = { ...state.settings[currentTab].pagination[action.updateObj.groupOid], ...action.updateObj.details };
     } else {
         paginationGroup = { ...action.updateObj.details };
@@ -253,6 +258,65 @@ const toggleReviewCommentShowResolved = (state, action) => {
     };
 };
 
+const changeCdiscLibraryView = (state, action) => {
+    let currentTab = state.currentTab;
+    let newCdiscLibrary = {
+        ...state.settings[currentTab].cdiscLibrary,
+        currentView: action.updateObj.view,
+    };
+
+    if (action.updateObj.productId !== undefined) {
+        newCdiscLibrary = {
+            ...newCdiscLibrary,
+            itemGroups: { ...newCdiscLibrary.itemGroups, productId: action.updateObj.productId, productName: action.updateObj.productName }
+        };
+    }
+
+    if (action.updateObj.itemGroupId !== undefined) {
+        newCdiscLibrary = {
+            ...newCdiscLibrary,
+            items: { ...newCdiscLibrary.items, itemGroupId: action.updateObj.itemGroupId, type: action.updateObj.type }
+        };
+    }
+
+    let newSetting = {
+        ...state.settings[currentTab],
+        cdiscLibrary: newCdiscLibrary,
+    };
+
+    let newSettings = state.settings.slice();
+    newSettings.splice(currentTab, 1, newSetting);
+
+    return {
+        ...state,
+        settings: newSettings,
+    };
+};
+
+const toggleCdiscLibraryItemGroupGridView = (state, action) => {
+    let currentTab = state.currentTab;
+    let newCdiscLibrary = {
+        ...state.settings[currentTab].cdiscLibrary,
+        itemGroups: {
+            ...state.settings[currentTab].cdiscLibrary.itemGroups,
+            gridView: !state.settings[currentTab].cdiscLibrary.itemGroups.gridView
+        }
+    };
+
+    let newSetting = {
+        ...state.settings[currentTab],
+        cdiscLibrary: newCdiscLibrary,
+    };
+
+    let newSettings = state.settings.slice();
+    newSettings.splice(currentTab, 1, newSetting);
+
+    return {
+        ...state,
+        settings: newSettings,
+    };
+};
+
 const tabs = (state = initialState, action) => {
     switch (action.type) {
         case UI_CHANGETAB:
@@ -275,6 +339,12 @@ const tabs = (state = initialState, action) => {
             return toggleReviewCommentPanels(state, action);
         case UI_TOGGLEREVIEWCOMMENTSHOWRESOLVED:
             return toggleReviewCommentShowResolved(state, action);
+        case UI_VARCHANGECDISCLIBRARYVIEW:
+            return changeCdiscLibraryView(state, action);
+        case UI_VARTOGGLECDISCLIBRARYITEMGROUPGRIDVIEW:
+            return toggleCdiscLibraryItemGroupGridView(state, action);
+        case UI_ITEMGROUPCHANGECDISCLIBRARYVIEW:
+            return changeCdiscLibraryView(state, action);
         default:
             return state;
     }

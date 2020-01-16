@@ -43,7 +43,7 @@ import { addDocument, getDescription, setDescription } from 'utils/defineStructu
 
 const styles = theme => ({
     button: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
     },
     iconButton: {
         marginLeft: '0px',
@@ -109,7 +109,7 @@ class ConnectedMethodEditor extends React.Component {
         let newMethod;
         let method = this.props.stateless === true ? this.props.method : this.state.method;
         if (name === 'addMethod') {
-            let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
+            let methodOid = getOid('Method', Object.keys(this.props.methods));
             let name;
             let autoMethodName;
             if (this.props.fullName !== undefined) {
@@ -166,11 +166,11 @@ class ConnectedMethodEditor extends React.Component {
             newMethod = updateObj;
             this.setState({ selectMethodOpened: false });
         } else if (name === 'copyMethod') {
-            let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
+            let methodOid = getOid('Method', Object.keys(this.props.methods));
             newMethod = { ...new Method({ ...clone(updateObj), oid: methodOid, sources: undefined }) };
             this.setState({ selectMethodOpened: false });
         } else if (name === 'detachMethod') {
-            let methodOid = getOid('Method', undefined, Object.keys(this.props.methods));
+            let methodOid = getOid('Method', Object.keys(this.props.methods));
             newMethod = { ...new Method({ ...clone(this.props.stateless ? this.props.method : this.state.method), oid: methodOid, sources: undefined }) };
         }
 
@@ -262,7 +262,7 @@ class ConnectedMethodEditor extends React.Component {
         }
 
         return (
-            <Grid container spacing={8}>
+            <Grid container spacing={1}>
                 <Grid item xs={12}>
                     <Grid container spacing={0} justify='flex-start' alignItems='center' className={classes.titleLine}>
                         <Grid item className={classes.editorHeading}>
@@ -357,9 +357,9 @@ class ConnectedMethodEditor extends React.Component {
                             />
                     }
                     {method !== undefined &&
-                            <Grid container spacing={8}>
+                            <Grid container spacing={1}>
                                 <Grid item xs={12}>
-                                    <Grid container spacing={16} justify='flex-start'>
+                                    <Grid container spacing={2} justify='flex-start'>
                                         <Grid item>
                                             <TextField
                                                 label='Method Type'

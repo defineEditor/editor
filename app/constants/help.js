@@ -89,11 +89,16 @@ This is how regular expressions work, SAS programmers can try it by executing **
 };
 
 export const CT_LOCATION = {
-    title: 'Controlled Terminology Location',
+    title: 'Loading Controlled Terminology',
     content: `
 #### About
-To load a controlled terminology in studies it is required to specify a folder containing it and then scan this folder from the Controlled Terminology page (this page can be selected in the Main Menu).
-There is no need to put all files in the same folder, as folder is scanned including all subfolders.
+Visual Define-XML Editor allows to browse and utilize CDISC/NCI Controlled Terminology when create a Define-XML document.
+#### Loading from a Local File
+To load a controlled terminology in studies you need to specify in Settings a folder containing files with the controlled terminology. Once specified this folder can be scanned from the Controlled Terminology page (this page can be selected in the Main Menu).
+
+There is no need to put all files in the same folder, as the folder is scanned including all subfolders.
+#### Loading from CDISC Library
+Controlled Terminology can be downloaded from the CDISC Library. See CDISC Library settings for more details.
 #### Format
 It is expected that Controlled Terminology files are downloaded in XML format from the NCI site (\`https://evs.nci.nih.gov/ftp1/CDISC/\`).
 #### Custom Controlled Terminology
@@ -111,5 +116,25 @@ Based on the selection, a number of VLM records will be added with the following
 * **Name** - Names are populated from the *Coded Value* codelist column.
 * **Label** - Labels are populated from the *Decode* column of a decoded codelist. In case a variable with enumerated codelist is selected as a source, this attribute is left blank.
 * **Where Clause** - Where Clauses are populated according to pattern *<Source Variable> EQ <Coded Value>*.
+`
+};
+
+export const CDISC_LIBRARY = {
+    title: 'CDISC Library',
+    content: `
+#### About
+CDISC Library is the single, trusted, authoritative source of CDISC standards metadata. It contains information about CDISC Standards as well as CDISC Terminology.
+Visual Define-XML Editor allows to browse CDISC Library and use it for the development of the Define-XML documents.
+#### Credentials
+CDISC Library requires credentials in order to access it. These are not the CDISC account credentials and you need to obtain separate credentials for the CDISC Library usage.
+See \`https://www.cdisc.org/cdisc-library\` to find more information about it.
+#### Storage of Credentials
+The credentials are stored on your computer in an encrypted format. If you update your computer or change your user name and the CDISC Library functionality does not work anymore, you need to enter the credentials once again.
+#### Traffic Statistics
+CDISC Library does not provide information on the amounth of traffic used. This statistics is calculated by the application based on the size of the packages sent and received from the CDISC Library API and shall not be relied on. To get the exact traffic usage statistics, consult the CDISC Library support.
+#### CDISC Relay
+If you would like users to avoid the need to specify credentials, consider using CLA Relay \`https://github.com/defineEditor/cla-relay\`. In this case **baseURL** shall contain the URL of the server where CLA-Relay is installed (e.g., \`http://my.server.int:4600/api\`).
+#### Disclaimer
+Visual Define-XML Editor does not instruct how CDISC Library shall be used, nor represents CDISC in any way. Check your CDISC Library account EULA for the details on how CDISC Library can be used. If you have any questions regarding the contents of CDISC Library, please write to the CDISC Library support.
 `
 };

@@ -24,7 +24,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import csv from 'csvtojson';
-import TableWithPagination from 'components/utils/tableWithPagination.js';
+import GeneralTable from 'components/utils/generalTable.js';
 import getOidByName from 'utils/getOidByName.js';
 import {
     loadActualData,
@@ -33,9 +33,9 @@ import {
 
 const styles = theme => ({
     dialog: {
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         border: '2px solid',
@@ -48,7 +48,7 @@ const styles = theme => ({
         overflowY: 'auto'
     },
     textFieldInput: {
-        padding: theme.spacing.unit,
+        padding: theme.spacing(1),
         borderRadius: 4,
         border: '1px solid',
     },
@@ -56,10 +56,10 @@ const styles = theme => ({
         padding: 0,
     },
     button: {
-        marginRight: theme.spacing.unit * 2,
+        marginRight: theme.spacing(2),
     },
     notImported: {
-        marginTop: theme.spacing.unit,
+        marginTop: theme.spacing(1),
     },
 });
 
@@ -120,6 +120,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                     parsedData[itemGroupOid] = { [itemOid]: { ...row } };
                 }
             } else {
+                row.id = row.dataset + '.' + row.variable;
                 nonParsedData.push(row);
             }
         });
@@ -141,7 +142,12 @@ class ConnectedVariableTabUpdate extends React.Component {
 
     getDataTable = () => {
         let data = [];
-        let labels = { dataset: 'Dataset', variable: 'Variable', length: 'Length' };
+        let header = [
+            { id: 'id', label: 'id', hidden: true, key: true },
+            { id: 'dataset', label: 'Dataset' },
+            { id: 'variable', label: 'Variable' },
+            { id: 'length', label: 'Length' },
+        ];
         if (this.state.showNonParsed) {
             data = this.state.nonParsedData;
         } else {
@@ -150,6 +156,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                 Object.keys(parsedData[itemGroupOid]).forEach(itemDefOid => {
                     let item = parsedData[itemGroupOid][itemDefOid];
                     data.push({
+                        id: item.dataset + '.' + item.variable,
                         dataset: item.dataset,
                         variable: item.variable,
                         length: item.length,
@@ -158,10 +165,11 @@ class ConnectedVariableTabUpdate extends React.Component {
             });
         }
         return (
-            <TableWithPagination
+            <GeneralTable
                 data={data}
-                labels={labels}
+                header={header}
                 title={this.state.showNonParsed ? 'Not Imported Data' : 'Imported Data'}
+                pagination
             />
         );
     }
@@ -189,13 +197,12 @@ class ConnectedVariableTabUpdate extends React.Component {
             >
                 <DialogTitle>Import Actual Data Attributes</DialogTitle>
                 <DialogContent>
-                    <Grid container spacing={16} alignItems='flex-end'>
+                    <Grid container spacing={2} alignItems='flex-end'>
                         <Grid item xs={12}>
                             { dataLoaded && this.state.nonParsedData.length > 0 && (
                                 <Typography variant="body1" gutterBottom className={classes.notImported} color='primary'>
                                     <Button
                                         variant='contained'
-                                        mini
                                         onClick={() => { this.setState({ showNonParsed: !this.state.showNonParsed }); }}
                                         className={classes.button}
                                     >
@@ -228,7 +235,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                             </Grid>
                         )}
                         <Grid item xs={12}>
-                            <Grid container spacing={16} justify='flex-start'>
+                            <Grid container spacing={2} justify='flex-start'>
                                 <Grid item>
                                     <Button
                                         color='primary'

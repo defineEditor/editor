@@ -35,7 +35,7 @@ const styles = theme => ({
         margin: 'none',
     },
     select: {
-        marginTop: theme.spacing.unit * 2,
+        marginTop: theme.spacing(2),
     },
     textField: {
         minWidth: '100px',
@@ -51,7 +51,7 @@ const styles = theme => ({
     },
     textFieldLast: {
         width: '80px',
-        marginLeft: theme.spacing.unit
+        marginLeft: theme.spacing(1)
     },
     rangeSwitch: {
         alignItems: 'flex-end',
@@ -174,7 +174,7 @@ class PdfPageEditor extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={8} alignItems='center' justify='flex-start'>
+            <Grid container spacing={1} alignItems='center' justify='flex-start'>
                 <Grid item>
                     <Tooltip title='Remove PDF Page Reference' placement='bottom-end' enterDelay={700}>
                         <IconButton

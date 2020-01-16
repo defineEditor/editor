@@ -21,8 +21,8 @@ import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
 const styles = theme => ({
     textField: {
         width: '90px',
-        marginRight: theme.spacing.unit,
-        marginBottom: theme.spacing.unit,
+        marginRight: theme.spacing(1),
+        marginBottom: theme.spacing(1),
     },
 });
 

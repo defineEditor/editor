@@ -20,7 +20,6 @@ import deepEqual from 'fast-deep-equal';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItem from '@material-ui/core/ListItem';
@@ -28,16 +27,13 @@ import List from '@material-ui/core/List';
 import LowPriority from '@material-ui/icons/LowPriority';
 import { FaSortAlphaUp, FaSortAlphaDown, FaBook } from 'react-icons/fa';
 import Fab from '@material-ui/core/Fab';
-import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
 import SaveCancel from 'editors/saveCancel.js';
 import classNames from 'classnames';
 
 const styles = theme => ({
     dialog: {
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         border: '2px solid',
@@ -71,6 +67,17 @@ const styles = theme => ({
     },
     icon: {
         transform: 'translate(0, -5%)',
+        marginLeft: theme.spacing(1),
+    },
+    title: {
+        marginBottom: theme.spacing(2),
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
     },
 });
 
@@ -232,35 +239,33 @@ class GeneralOrderEditor extends React.Component {
                     onKeyDown={this.onKeyDown}
                     tabIndex='0'
                 >
-                    <DialogTitle>
+                    <DialogTitle className={classes.title} disableTypography>
                         <Grid container spacing={0} alignItems='center' justify='space-between'>
                             <Grid item>
-                                <Typography variant="h6">
-                                    {this.props.title}
-                                </Typography>
+                                {this.props.title}
                             </Grid>
                             <Grid item>
                                 <Grid container spacing={0} alignItems='center' justify='flex-end'>
                                     <Grid item>
                                         { this.props.classTypes !== undefined && (
                                             <Tooltip title='Sort per Define-XML Specification' placement='bottom' enterDelay={700}>
-                                                <IconButton color='default' onClick={this.sortPerSpecification} className={classes.icon}>
+                                                <Fab size='small' color='default' onClick={this.sortPerSpecification} className={classes.icon}>
                                                     <FaBook />
-                                                </IconButton>
+                                                </Fab>
                                             </Tooltip>
                                         )}
                                     </Grid>
                                     <Tooltip title={ this.state.sortAscending ? 'Sort Ascending' : 'Sort Descending' } placement='bottom' enterDelay={700}>
-                                        <IconButton color='default' onClick={this.sortAlphabetically} className={classes.icon}>
+                                        <Fab size='small' color='default' onClick={this.sortAlphabetically} className={classes.icon}>
                                             { this.state.sortAscending ? <FaSortAlphaDown /> : <FaSortAlphaUp /> }
-                                        </IconButton>
+                                        </Fab>
                                     </Tooltip>
                                 </Grid>
                             </Grid>
                         </Grid>
                     </DialogTitle>
                     <DialogContent>
-                        <Grid container spacing={8} alignItems='flex-end' className={classes.noSelect}>
+                        <Grid container spacing={1} alignItems='flex-end' className={classes.noSelect}>
                             <Grid item xs={12}>
                                 <SortableList
                                     items={this.state.items}

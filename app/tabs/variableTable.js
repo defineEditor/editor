@@ -29,7 +29,7 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import CommentIcon from '@material-ui/icons/Comment';
-import OpenDrawer from '@material-ui/icons/ArrowUpward';
+import OpenDrawer from '@material-ui/icons/VerticalSplit';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import TablePagination from '@material-ui/core/TablePagination';
 import renderColumns from 'utils/renderColumns.js';
@@ -41,10 +41,10 @@ import VariableTabUpdate from 'utils/variableTabUpdate.js';
 import getTableData from 'utils/getTableData.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
 import applyFilter from 'utils/applyFilter.js';
-import SelectColumns from 'utils/selectColumns.js';
+import SelectColumns from 'components/utils/selectColumns.js';
 import KeyOrderEditor from 'components/orderEditors/keyOrderEditor.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
-import AddVariable from 'components/tableActions/addVariable.js';
+import AddVariable from 'components/tableActions/addItem.js';
 import ItemDescriptionEditor from 'editors/itemDescriptionEditor.js';
 import VariableOrderEditor from 'components/orderEditors/variableOrderEditor.js';
 import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
@@ -68,21 +68,21 @@ import {
 
 const styles = theme => ({
     button: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
     },
     buttonGroup: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     drawerButton: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
         transform: 'translate(0%, -6%)',
     },
     commentIcon: {
         transform: 'translate(0, -5%)',
     },
     tableTitle: {
-        marginTop: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 2,
+        marginTop: theme.spacing(2),
+        marginBottom: theme.spacing(2),
         color: grey[600]
     },
     searchField: {
@@ -94,6 +94,11 @@ const styles = theme => ({
     },
     searchLabel: {
         transform: 'translate(10px, 10px)',
+    },
+    tableHeader: {
+        backgroundColor: indigo[500],
+        color: grey[200],
+        fontSize: '16px',
     },
 });
 
@@ -193,7 +198,7 @@ function variableLengthFormatter (cell, row) {
 
 function keyOrderFormatter (cell, row) {
     return (
-        <Grid container spacing={16}>
+        <Grid container spacing={2}>
             <Grid item>
                 {cell.orderNumber}
             </Grid>
@@ -744,7 +749,7 @@ class ConnectedVariableTable extends React.Component {
 
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
-                <Grid container spacing={16}>
+                <Grid container spacing={2}>
                     <Grid item>
                         <ToggleRowSelect oid='overall' disabled={this.props.reviewMode} cleanSelection={this.cleanSelection}/>
                     </Grid>
@@ -771,7 +776,6 @@ class ConnectedVariableTable extends React.Component {
                     <Grid item>
                         <Button
                             color='secondary'
-                            mini
                             onClick={this.deleteRows}
                             disabled={!this.props.showRowSelect || this.props.reviewMode}
                             variant='contained'
@@ -813,12 +817,12 @@ class ConnectedVariableTable extends React.Component {
         });
 
         return (
-            <Grid container spacing={16} justify='space-between'>
+            <Grid container spacing={2} justify='space-between'>
                 <Grid item style={{ paddingLeft: '8px' }}>
                     { props.components.btnGroup }
                 </Grid>
                 <Grid item style={{ paddingRight: '25px' }}>
-                    <Grid container spacing={16} justify='flex-end'>
+                    <Grid container spacing={2} justify='flex-end'>
                         <Grid item>
                             <TextField
                                 variant='outlined'
@@ -1059,7 +1063,7 @@ class ConnectedVariableTable extends React.Component {
                     keyBoardNav={this.props.showRowSelect ? false : { enterToEdit: true }}
                     version='4'
                     cellEdit={this.props.reviewMode || this.props.showRowSelect ? undefined : cellEditProp}
-                    headerStyle={{ backgroundColor: indigo[500], color: grey[200], fontSize: '16px' }}
+                    tableHeaderClass={this.props.classes.tableHeader}
                     selectRow={selectRowProp}
                     trClassName={this.highLightRows}
                 >

@@ -37,9 +37,9 @@ const styles = theme => ({
         width: '90%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
@@ -49,7 +49,7 @@ const styles = theme => ({
         transform: 'translate(0%, calc(-20%+0.5px))',
     },
     title: {
-        marginTop: theme.spacing.unit * 5,
+        marginTop: theme.spacing(5),
         paddingBottom: 0,
     },
 });
@@ -147,7 +147,7 @@ class AddResultDisplayConnected extends React.Component {
                             {tabNames[currentTab] === 'Another Define' &&
                                 <AddFromOtherStudy
                                     position={this.props.position}
-                                    type='resultDisplay'
+                                    type='resultDisplays'
                                     onClose={this.props.onClose}
                                 />
                             }

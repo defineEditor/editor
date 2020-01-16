@@ -34,9 +34,7 @@ import {
 
 const styles = theme => ({
     dialog: {
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         top: '5%',
@@ -48,9 +46,7 @@ const styles = theme => ({
         overflowY: 'auto',
     },
     dialogConfirm: {
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         top: '35%',
@@ -59,8 +55,18 @@ const styles = theme => ({
         width: '40%',
     },
     content: {
-        marginTop: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 1,
+        marginTop: theme.spacing(2),
+        marginBottom: theme.spacing(1),
+    },
+    title: {
+        marginBottom: theme.spacing(2),
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
     },
 });
 
@@ -75,7 +81,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         addReviewComment: (updateObj) => dispatch(addReviewComment(updateObj)),
         addReplyComment: (updateObj) => dispatch(addReplyComment(updateObj)),
         deleteReviewComment: (updateObj) => dispatch(deleteReviewComment(updateObj)),
@@ -99,7 +105,7 @@ class ConnectedModalReviewComments extends React.Component {
         if (!this.state.confirmClose && typeof editors === 'object' && Object.keys(editors).length > 0) {
             this.setState({ confirmClose: true });
         } else {
-            this.props.closeModal();
+            this.props.closeModal({ type: this.props.type });
         }
     }
 
@@ -184,11 +190,11 @@ class ConnectedModalReviewComments extends React.Component {
                     onKeyDown={this.onKeyDown}
                     tabIndex='0'
                 >
-                    <DialogTitle>
+                    <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
                         Review Comments
                     </DialogTitle>
                     <DialogContent>
-                        <Grid container spacing={16} justify='flex-start' className={classes.content}>
+                        <Grid container spacing={2} justify='flex-start' className={classes.content}>
                             <Grid item xs={12}>
                                 {this.getComments(sources, reviewComments)}
                             </Grid>
@@ -252,6 +258,7 @@ ConnectedModalReviewComments.propTypes = {
     mdv: PropTypes.object.isRequired,
     odm: PropTypes.object.isRequired,
     sources: PropTypes.object.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalReviewComments = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalReviewComments);

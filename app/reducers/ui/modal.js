@@ -21,13 +21,30 @@ import { ui } from 'constants/initialValues.js';
 const initialState = ui.modal;
 
 const closeModal = (state, action) => {
-    return initialState;
+    if (action.updateObj !== undefined && action.updateObj.type !== undefined) {
+        let newState = { ...state };
+        if (newState.props[action.updateObj.type] !== undefined) {
+            let newProps = { ...newState.props };
+            delete newProps[action.updateObj.type];
+            newState = { ...newState, props: newProps };
+        }
+        if (newState.type.includes(action.updateObj.type)) {
+            let newType = newState.type.slice();
+            newType.splice(newType.indexOf(action.updateObj.type), 1);
+            newState = { ...newState, type: newType };
+        }
+        return newState;
+    } else {
+        return initialState;
+    }
 };
 
 const openModal = (state, action) => {
+    let newType = state.type.slice();
+    newType.push(action.updateObj.type);
     return {
-        type: action.updateObj.type,
-        props: action.updateObj.props,
+        type: newType,
+        props: { ...state.props, [action.updateObj.type]: action.updateObj.props },
     };
 };
 

@@ -26,7 +26,7 @@ import grey from '@material-ui/core/colors/grey';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import DescriptionEditor from 'editors/descriptionEditor.js';
 import InteractiveKeyOrderEditor from 'components/orderEditors/interactiveKeyOrderEditor.js';
-import AddDataset from 'components/tableActions/addDataset.js';
+import AddItem from 'components/tableActions/addItem.js';
 import DatasetOrderEditor from 'components/orderEditors/datasetOrderEditor.js';
 import LeafEditor from 'editors/leafEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
@@ -40,7 +40,7 @@ import setScrollPosition from 'utils/setScrollPosition.js';
 import renderColumns from 'utils/renderColumns.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import ToggleRowSelect from 'utils/toggleRowSelect.js';
-import SelectColumns from 'utils/selectColumns.js';
+import SelectColumns from 'components/utils/selectColumns.js';
 import ItemGroupMenu from 'components/menus/itemGroupMenu.js';
 import menuButton from 'components/menus/menuButton.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
@@ -58,7 +58,7 @@ const styles = theme => ({
         fontSize: '16px',
     },
     buttonGroup: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
 });
 
@@ -321,7 +321,7 @@ class ConnectedDatasetTable extends React.Component {
     createCustomButtonGroup = props => {
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
-                <Grid container spacing={16}>
+                <Grid container spacing={2}>
                     <Grid item>
                         <ToggleRowSelect oid='overall' disabled={this.props.reviewMode} cleanSelection={this.cleanSelection}/>
                     </Grid>
@@ -338,7 +338,6 @@ class ConnectedDatasetTable extends React.Component {
                     <Grid item>
                         <Button
                             color='secondary'
-                            mini
                             onClick={this.deleteRows}
                             disabled={!this.props.showRowSelect || this.props.reviewMode}
                             variant='contained'
@@ -356,12 +355,12 @@ class ConnectedDatasetTable extends React.Component {
 
     createCustomToolBar = props => {
         return (
-            <Grid container spacing={16} justify='space-between'>
+            <Grid container spacing={2} justify='space-between'>
                 <Grid item style={{ paddingLeft: '8px' }}>
                     { props.components.btnGroup }
                 </Grid>
                 <Grid item style={{ paddingRight: '25px' }}>
-                    <Grid container spacing={16} justify='flex-end'>
+                    <Grid container spacing={2} justify='flex-end'>
                         <Grid item>
                             <Button variant="contained" color="default" onClick={ () => { this.setState({ showSelectColumn: true }); } }>
                                 Columns
@@ -527,7 +526,7 @@ class ConnectedDatasetTable extends React.Component {
                 )
                 }
                 { this.state.showAddDataset && (
-                    <AddDataset
+                    <AddItem
                         position={this.state.insertPosition}
                         onClose={ () => { this.setState({ showAddDataset: false }); } }
                     />

@@ -23,46 +23,48 @@ import {
 } from 'actions/index.js';
 
 function sendDefineObject (event, data) {
-    const { odm, originalOdm, state } = getUpdatedDefineBeforeSave();
-    let pathToLastFile = state.ui.main && state.ui.main.pathToLastFile;
-    let addStylesheet = state.settings.general && state.settings.general.addStylesheet;
+    try {
+        const { odm, originalOdm, state } = getUpdatedDefineBeforeSave();
+        let pathToLastFile = state.ui.main && state.ui.main.pathToLastFile;
+        let addStylesheet = state.settings.general && state.settings.general.addStylesheet;
 
-    if (odm.defineId &&
-        state.defines.byId.hasOwnProperty(odm.defineId) &&
-        !state.defines.byId[odm.defineId].pathToFile
-    ) {
-        // If define does not have pathToFile, use the save file as location of the Define-XML
-        ipcRenderer.once('fileSavedAs', (event, savePath) => {
-            if (savePath !== '_cancelled_' && !savePath.endsWith('html')) {
-                store.dispatch(updateDefine({ defineId: odm.defineId, properties: { pathToFile: savePath } }));
-                store.dispatch(updateMainUi({ pathToLastFile: path.dirname(savePath) }));
-                store.dispatch(openSnackbar({ type: 'success', message: `File saved to ${savePath}` }));
-            } else if (savePath.endsWith('html')) {
-                store.dispatch(openSnackbar({ type: 'success', message: `File saved to ${savePath}` }));
-            }
-        });
-    } else {
-        // Otherwise update only the last path
-        ipcRenderer.once('fileSavedAs', (event, savePath) => {
-            if (savePath !== '_cancelled_') {
-                store.dispatch(updateMainUi({ pathToLastFile: path.dirname(savePath) }));
-                store.dispatch(openSnackbar({ type: 'success', message: `File saved to ${savePath}` }));
-            }
-        });
+        if (odm.defineId &&
+            state.defines.byId.hasOwnProperty(odm.defineId) &&
+            !state.defines.byId[odm.defineId].pathToFile
+        ) {
+            // If define does not have pathToFile, use the save file as location of the Define-XML
+            ipcRenderer.once('fileSavedAs', (event, savePath) => {
+                if (savePath !== '_cancelled_' && !savePath.endsWith('html')) {
+                    store.dispatch(updateDefine({ defineId: odm.defineId, properties: { pathToFile: savePath } }));
+                    store.dispatch(updateMainUi({ pathToLastFile: path.dirname(savePath) }));
+                    store.dispatch(openSnackbar({ type: 'success', message: `File saved to ${savePath}` }));
+                } else if (savePath.endsWith('html')) {
+                    store.dispatch(openSnackbar({ type: 'success', message: `File saved to ${savePath}` }));
+                }
+            });
+        } else {
+            // Otherwise update only the last path
+            ipcRenderer.once('fileSavedAs', (event, savePath) => {
+                if (savePath !== '_cancelled_') {
+                    store.dispatch(updateMainUi({ pathToLastFile: path.dirname(savePath) }));
+                    store.dispatch(openSnackbar({ type: 'success', message: `File saved to ${savePath}` }));
+                }
+            });
+        }
+
+        let defineInfo = {
+            defineId: odm.defineId,
+            defineName: state.defines.byId[odm.defineId].name,
+            studyId: state.ui.main.currentStudyId,
+            studyName: state.studies.byId[state.ui.main.currentStudyId].name,
+            userName: state.settings.general.userName,
+        };
+
+        // 2 versions are send, the updated and the original, the reason for that is the first one used for XML, the other one for NOGZ
+        ipcRenderer.send('saveAs', { odm: odm, ...defineInfo }, { odm: originalOdm, ...defineInfo }, { pathToLastFile, addStylesheet });
+    } catch (error) {
+        store.dispatch(openSnackbar({ type: 'error', message: `Failed to save the file. ${error.name} ${error.message}` }));
     }
-
-    // 2 versions are send, the updated and the original, the reason for that is the first one used for XML, the other one for NOGZ
-    ipcRenderer.send('saveAs', {
-        defineId: odm.defineId,
-        odm: odm,
-        userName: state.settings.general.userName,
-        studyId: state.ui.main.currentStudyId,
-    }, {
-        defineId: odm.defineId,
-        odm: originalOdm,
-        userName: state.settings.general.userName,
-        studyId: state.ui.main.currentStudyId,
-    }, { pathToLastFile, addStylesheet });
 }
 
 export default sendDefineObject;

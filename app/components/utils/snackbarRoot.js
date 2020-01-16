@@ -33,7 +33,7 @@ const styles = theme => ({
         alignItems: 'center',
     },
     snackbar: {
-        marginBottom: theme.spacing.unit * 2,
+        marginBottom: theme.spacing(2),
     },
     success: {
         backgroundColor: green[600],
@@ -49,7 +49,7 @@ const styles = theme => ({
     },
     icon: {
         fontSize: 20,
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
     },
 });
 
@@ -92,9 +92,6 @@ class ConnectedSnackbarRoot extends React.Component {
                     className={classes.snackbar}
                 >
                     <SnackbarContent
-                        ContentProps={{
-                            'aria-describedby': 'message-id',
-                        }}
                         message={
                             <span id="client-snackbar" className={classes.message}>
                                 <Icon className={classes.icon} />

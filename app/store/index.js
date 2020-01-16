@@ -16,12 +16,13 @@ import { createStore } from 'redux';
 import rootReducer from 'reducers/rootReducer';
 import loadState from 'utils/loadState.js';
 import undoable from 'redux-undo';
-import { throttle } from 'throttle-debounce';
-import saveState from 'utils/saveState.js';
+// import { throttle } from 'throttle-debounce';
+// import saveState from 'utils/saveState.js';
 
 const filterActions = (action, currentState, previousHistory) => {
     return (
         !action.type.startsWith('UI_') &&
+        !action.type.startsWith('CT_') &&
         !action.type.startsWith('@@') &&
         !(action.noHistory === true) &&
         !['STDCDL_LOAD', 'APP_SAVE', 'STG_UPDATESETTINGS'].includes(action.type)
@@ -39,8 +40,9 @@ const store = createStore(
 );
 
 // Save state every 5 minutes as a backup
-store.subscribe(
+/* store.subscribe(
     throttle(300000, () => { saveState('backup'); })
 );
+*/
 
 export default store;

@@ -19,7 +19,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import clone from 'clone';
 import TextField from '@material-ui/core/TextField';
-import ReactSelectEditor from 'editors/reactSelectEditor.js';
+import AutocompleteSelectEditor from 'editors/autocompleteSelectEditor.js';
 import { addCodeList } from 'actions/index.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import CodedValueSelectorTable from 'components/utils/codedValueSelectorTable.js';
@@ -35,11 +35,11 @@ const styles = theme => ({
     },
     standardSelection: {
         minWidth: 100,
-        marginRight: theme.spacing.unit * 6,
+        marginRight: theme.spacing(6),
     },
     codeListSelection: {
         minWidth: 150,
-        marginTop: theme.spacing.unit * 2,
+        maxWidth: 450,
     },
 });
 
@@ -101,14 +101,14 @@ class ConnectedAddCodeListFromCT extends React.Component {
         };
     }
 
-    handleChange = (name) => (updateObj) => {
+    handleChange = (name) => (updateObj, option) => {
         if (name === 'standard') {
             let standardOid = updateObj.target.value;
-            let standard = this.props.stdCodeLists[updateObj.target.value];
+            let standard = this.props.stdCodeLists[standardOid];
             let codeListList = getCodeListList(standard);
             this.setState({ standardOid, codeListList, codeListOid: null });
-        } else if (name === 'codeList') {
-            this.setState({ codeListOid: updateObj });
+        } else if (name === 'codeList' && option !== null) {
+            this.setState({ codeListOid: option.value });
         }
     }
 
@@ -116,7 +116,7 @@ class ConnectedAddCodeListFromCT extends React.Component {
         let codeList = clone(this.props.stdCodeLists[this.state.standardOid].codeLists[this.state.codeListOid]);
         // Check if the OID is unique
         if (this.props.codeListOrder.includes(codeList.oid)) {
-            codeList.oid = getOid('CodeList', undefined, this.props.codeListOrder);
+            codeList.oid = getOid('CodeList', this.props.codeListOrder);
         }
 
         // Keep only selected codes;
@@ -151,8 +151,10 @@ class ConnectedAddCodeListFromCT extends React.Component {
             codeList = standard.codeLists[this.state.codeListOid];
         }
 
+        let defaultCodeList = { name: '', label: '' };
+
         return (
-            <Grid container spacing={8} justify='flex-start' className={classes.root}>
+            <Grid container spacing={1} justify='flex-start' className={classes.root}>
                 <Grid item>
                     <TextField
                         label='Standard'
@@ -168,11 +170,11 @@ class ConnectedAddCodeListFromCT extends React.Component {
                     {(this.state.codeListList.length === 0) ? (
                         <div>The standard does not have any codelits.</div>
                     ) : (
-                        <ReactSelectEditor
-                            handleChange={this.handleChange('codeList')}
-                            value={this.state.codeListOid || ''}
+                        <AutocompleteSelectEditor
+                            key={this.state.standardOid}
+                            onChange={this.handleChange('codeList')}
+                            defaultValue={defaultCodeList}
                             options={this.state.codeListList}
-                            extensible={false}
                             className={classes.codeListSelection}
                         />
                     )}

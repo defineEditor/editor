@@ -32,7 +32,7 @@ function getEmptyDefineXml ({ standard, defineVersion, study, settings, controll
         xmlns: 'http://www.cdisc.org/ns/odm/v1.3',
         odmVersion: '1.3.2',
         fileType: 'Snapshot',
-        fileOid: '',
+        fileOid: getOid('File'),
         creationDateTime: new Date().toISOString().replace(/(.*)\..*/, '$1'),
         originator: '',
         stylesheetLocation: settings.stylesheetLocation,
@@ -51,7 +51,7 @@ function getEmptyDefineXml ({ standard, defineVersion, study, settings, controll
         defaultOdmAttrs.sourceSystem = settings.sourceSystem;
         defaultOdmAttrs.sourceSystemVersion = settings.sourceSystemVersion;
     } else {
-        defaultOdmAttrs.sourceSystem = remote.app.getName();
+        defaultOdmAttrs.sourceSystem = remote.app.name;
         defaultOdmAttrs.sourceSystemVersion = remote.app.getVersion();
     }
 

@@ -27,6 +27,7 @@ import Button from '@material-ui/core/Button';
 import { actionLabels } from 'constants/action-types';
 import {
     closeModal,
+    changePage,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -37,9 +38,7 @@ const styles = theme => ({
         width: '70%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
         border: '2px solid',
@@ -48,6 +47,16 @@ const styles = theme => ({
     checkbox: {
         position: 'relative',
         float: 'right',
+    },
+    title: {
+        marginBottom: theme.spacing(2),
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
     },
 });
 
@@ -59,7 +68,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
+        changePage: (updateObj) => dispatch(changePage(updateObj)),
         undo: () => { dispatch(ActionCreators.undo()); },
         reset: () => { dispatch(ActionCreators.undo()); dispatch(ActionCreators.redo()); },
     };
@@ -74,13 +84,18 @@ class ConnectedModalBugReport extends React.Component {
     }
 
     onClose = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
         this.props.reset();
     }
 
     openLink = (event) => {
         event.preventDefault();
         shell.openExternal(event.target.href);
+    }
+
+    openStudies = () => {
+        this.props.closeModal();
+        this.props.changePage({ page: 'studies' });
     }
 
     render () {
@@ -94,17 +109,13 @@ class ConnectedModalBugReport extends React.Component {
             '%0D%0AApplication Version: ' + encodeURIComponent(remote.app.getVersion())
         ;
         const emails = [
-            'black.hole@defineeditor.com',
-            'moc.rotideenifed@defineeditor.com',
-            'no.more.bugs@defineedifor.com',
-            'too.many.bugs@defineeditor.com',
+            'rescue.rangers@defineeditor.com',
+            'chip.n.dale@defineeditor.com',
+            'darkwing@defineeditor.com',
+            'gyro.gearloose@defineeditor.com',
             'santa.claus@defineeditor.com',
             'nights.watch@defineeditor.com',
-            'it.really.does.not.matter.what.is.here@defineeditor.com',
-            'senior.vice.president.of.support.emails@defineeditor.com',
-            'senior.principal.support.specialist.3@defineeditor.com',
-            'associate.director.support.specialist@defineeditor.com',
-            'chief.executive.janitor@defineeditor.com',
+            'support@defineeditor.com',
         ];
         const mailLink = 'mailto:' + emails[Math.floor(Math.random() * emails.length)] + '?subject=' + mailSubject + '&body=' + mailBody;
 
@@ -127,7 +138,7 @@ class ConnectedModalBugReport extends React.Component {
                 maxWidth={false}
                 PaperProps={{ className: classes.dialog }}
             >
-                <DialogTitle id="alert-dialog-title">
+                <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
                     Bug Report
                 </DialogTitle>
                 <DialogContent>
@@ -153,6 +164,9 @@ class ConnectedModalBugReport extends React.Component {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
+                    <Button onClick={this.openStudies} color="primary">
+                        Go to Studies
+                    </Button>
                     <Button onClick={this.props.undo} color="primary">
                         Undo last change
                     </Button>
@@ -171,6 +185,7 @@ ConnectedModalBugReport.propTypes = {
     undo: PropTypes.func.isRequired,
     reset: PropTypes.func.isRequired,
     actionHistory: PropTypes.array.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 const ModalBugReport = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalBugReport);

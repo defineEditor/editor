@@ -209,7 +209,7 @@ function parseArm (dataRaw) {
         Object.values(resultDisplay.analysisResults).forEach(analysisResult => {
             // Check OID for uniqueness
             if (Object.keys(analysisResults).includes(analysisResult.oid)) {
-                let newOid = getOid('AnalysisResult', undefined, Object.keys(analysisResults));
+                let newOid = getOid('AnalysisResult', Object.keys(analysisResults));
                 resultDisplay.analysisResultOrder.splice(resultDisplay.analysisResultOrder.indexOf(analysisResult.oid), 1, newOid);
                 analysisResult.oid = newOid;
                 analysisResults[newOid] = analysisResult;

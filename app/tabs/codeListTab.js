@@ -20,8 +20,6 @@ import { shell } from 'electron';
 import { BootstrapTable, ButtonGroup } from 'react-bootstrap-table';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
-import renderColumns from 'utils/renderColumns.js';
-import AddCodeList from 'components/tableActions/addCodeList.js';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -31,6 +29,10 @@ import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import TablePagination from '@material-ui/core/TablePagination';
+import Public from '@material-ui/icons/Public';
+import CallMerge from '@material-ui/icons/CallMerge';
+import AddCodeList from 'components/tableActions/addCodeList.js';
+import renderColumns from 'utils/renderColumns.js';
 import getCodeListsDataAsText from 'utils/getCodeListsDataAsText.js';
 import CodeListOrderEditor from 'components/orderEditors/codeListOrderEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
@@ -40,9 +42,7 @@ import LinkedCodeListEditor from 'editors/linkedCodeListEditor.js';
 import CodeListFormatNameEditor from 'editors/codeListFormatNameEditor.js';
 import CodeListStandardEditor from 'editors/codeListStandardEditor.js';
 import ExternalCodeListEditor from 'editors/externalCodeListEditor.js';
-import Public from '@material-ui/icons/Public';
-import CallMerge from '@material-ui/icons/CallMerge';
-import SelectColumns from 'utils/selectColumns.js';
+import SelectColumns from 'components/utils/selectColumns.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import CodeListMenu from 'components/menus/codeListMenu.js';
 import menuButton from 'components/menus/menuButton.js';
@@ -62,7 +62,7 @@ import {
 
 const styles = theme => ({
     buttonGroup: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     fab: {
         transform: 'translate(0%, -6%)',
@@ -76,6 +76,11 @@ const styles = theme => ({
     },
     searchLabel: {
         transform: 'translate(10px, 10px)',
+    },
+    tableHeader: {
+        backgroundColor: indigo[500],
+        color: grey[200],
+        fontSize: '16px',
     },
 });
 
@@ -346,7 +351,7 @@ class ConnectedCodeListTable extends React.Component {
     createCustomButtonGroup = props => {
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
-                <Grid container spacing={16}>
+                <Grid container spacing={2}>
                     <Grid item>
                         <ToggleRowSelect oid='overall' disabled={this.props.reviewMode} cleanSelection={this.cleanSelection}/>
                     </Grid>
@@ -363,7 +368,6 @@ class ConnectedCodeListTable extends React.Component {
                     <Grid item>
                         <Button
                             color='secondary'
-                            mini
                             onClick={this.deleteRows}
                             disabled={!this.props.showRowSelect || this.props.reviewMode}
                             variant='contained'
@@ -407,12 +411,12 @@ class ConnectedCodeListTable extends React.Component {
 
     createCustomToolBar = props => {
         return (
-            <Grid container spacing={16} justify='space-between'>
+            <Grid container spacing={2} justify='space-between'>
                 <Grid item style={{ paddingLeft: '8px' }}>
                     { props.components.btnGroup }
                 </Grid>
                 <Grid item style={{ paddingRight: '25px' }}>
-                    <Grid container spacing={16} justify='flex-end'>
+                    <Grid container spacing={2} justify='flex-end'>
                         <Grid item>
                             <TextField
                                 variant='outlined'
@@ -672,7 +676,7 @@ class ConnectedCodeListTable extends React.Component {
                     version='4'
                     cellEdit={this.props.reviewMode || this.props.showRowSelect ? undefined : cellEditProp}
                     keyBoardNav={this.props.showRowSelect ? false : { enterToEdit: true }}
-                    headerStyle={{ backgroundColor: indigo[500], color: grey[200], fontSize: '16px' }}
+                    tableHeaderClass={this.props.classes.tableHeader}
                     selectRow={selectRowProp}
                 >
                     {renderColumns(this.state.columns)}

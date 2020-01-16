@@ -31,15 +31,15 @@ import {
 const styles = theme => ({
     root: {
         flexGrow: 1,
-        marginTop: theme.spacing.unit * 3,
+        marginTop: theme.spacing(3),
         backgroundColor: theme.palette.background.paper
     },
     progress: {
-        margin: theme.spacing.unit * 2
+        margin: theme.spacing(2)
     },
     noDefineMessage: {
         position: 'absolute',
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
         top: '47%',
         transform: 'translate(0%, -47%)',
     },
@@ -102,7 +102,9 @@ class ConnectedEditor extends React.Component {
                 )}
                 {this.props.currentDefineId && !this.props.odmLoaded && (
                     <div className={classes.loading}>
-                        Loading Define-XML.
+                        <Typography variant="h5">
+                            Loading Define-XML.
+                        </Typography>
                         <Typography variant="caption" gutterBottom color='textSecondary'>
                             Taking too long? Use Ctrl+M to open the menu.
                         </Typography>

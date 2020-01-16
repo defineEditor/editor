@@ -34,18 +34,18 @@ import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
 const styles = theme => ({
     root: {
         width: '100%',
-        marginTop: theme.spacing.unit * 3,
+        marginTop: theme.spacing(3),
         overflowX: 'auto'
     },
     codeListTable: {
-        marginTop: theme.spacing.unit
+        marginTop: theme.spacing(1)
     },
     table: {
         minWidth: 100
     },
     icon: {
         transform: 'translate(0, -5%)',
-        marginLeft: theme.spacing.unit
+        marginLeft: theme.spacing(1)
     },
     iconButton: {
         marginLeft: '0px',
@@ -172,7 +172,6 @@ class CodedValueSelectorTable extends React.Component {
                                 <Button
                                     onClick={this.handleAddCodedValues}
                                     color="default"
-                                    mini
                                     variant="contained"
                                 >
                                     { this.props.addLabel || `Add ${numSelected} items`}

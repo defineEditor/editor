@@ -101,13 +101,13 @@ class ConnectedItemMenu extends React.Component {
     }
 
     insertRecord = (shift) => () => {
-        let itemDefOid = getOid('ItemDef', undefined, Object.keys(this.props.itemDefs));
+        let itemDefOid = getOid('ItemDef', Object.keys(this.props.itemDefs));
         let params = this.props.itemMenuParams;
         if (this.props.itemMenuParams.vlmLevel === 0) {
             let orderNumber = this.props.mdv.itemGroups[params.itemGroupVLOid].itemRefOrder.indexOf(params.itemRefOid) + shift;
             this.props.insertVariable(this.props.itemMenuParams.itemGroupVLOid, itemDefOid, orderNumber);
         } else {
-            let whereClauseOid = getOid('WhereClause', undefined, Object.keys(this.props.whereClauses));
+            let whereClauseOid = getOid('WhereClause', Object.keys(this.props.whereClauses));
             let parentItemDefOid = this.props.mdv.itemDefs[params.oid].parentItemDefOid;
             let orderNumber = this.props.mdv.valueLists[params.itemGroupVLOid].itemRefOrder.indexOf(params.itemRefOid) + shift;
             this.props.insertValueLevel(this.props.itemMenuParams.itemGroupVLOid, itemDefOid, parentItemDefOid, whereClauseOid, orderNumber);
@@ -125,9 +125,9 @@ class ConnectedItemMenu extends React.Component {
     }
 
     addVlm = () => {
-        let valueListOid = getOid('ValueList', undefined, Object.keys(this.props.valueLists));
-        let itemDefOid = getOid('ItemDef', undefined, Object.keys(this.props.itemDefs));
-        let whereClauseOid = getOid('WhereClause', undefined, Object.keys(this.props.whereClauses));
+        let valueListOid = getOid('ValueList', Object.keys(this.props.valueLists));
+        let itemDefOid = getOid('ItemDef', Object.keys(this.props.itemDefs));
+        let whereClauseOid = getOid('WhereClause', Object.keys(this.props.whereClauses));
         let source = {
             oid: this.props.itemMenuParams.oid,
         };
@@ -382,7 +382,7 @@ class ConnectedItemMenu extends React.Component {
                         onSave={this.orderVlm}
                         onCancel={this.closeVlmOrder}
                         disabled={this.props.reviewMode}
-                        noButton={true}
+                        noButton
                         width='700px'
                     />
                 )}

@@ -22,13 +22,13 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
+import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
+import { updateCdiscLibrarySettings } from 'utils/cdiscLibraryUtils.js';
 import { updateSettings, closeModal } from 'actions/index.js';
 
 const styles = theme => ({
     dialog: {
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 1,
+        paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
         top: '40%',
@@ -37,23 +37,46 @@ const styles = theme => ({
         maxHeight: '85%',
         overflowY: 'auto',
     },
+    title: {
+        marginBottom: theme.spacing(2),
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
+    },
 });
 
 const mapDispatchToProps = dispatch => {
     return {
-        closeModal: () => dispatch(closeModal()),
+        closeModal: (updateObj) => dispatch(closeModal(updateObj)),
         updateSettings: updateObj => dispatch(updateSettings(updateObj)),
     };
 };
 
+const mapStateToProps = state => {
+    return {
+        settings: state.present.settings
+    };
+};
+
 class ConnectedModalQuitApplication extends React.Component {
+    static contextType = CdiscLibraryContext;
+
     onSave = () => {
-        this.props.closeModal();
-        this.props.updateSettings(this.props.updatedSettings);
+        this.props.closeModal({ type: this.props.type });
+        let diff = this.props.updatedSettings;
+        if (diff.cdiscLibrary) {
+            // If password was changed, it is encrypted by the updateCdiscLibrarySettings
+            diff.cdiscLibrary = updateCdiscLibrarySettings(diff.cdiscLibrary, this.props.settings.cdiscLibrary, this.context);
+        }
+        this.props.updateSettings(diff);
     }
 
     onDiscard = () => {
-        this.props.closeModal();
+        this.props.closeModal({ type: this.props.type });
     }
 
     onKeyDown = (event) => {
@@ -78,7 +101,7 @@ class ConnectedModalQuitApplication extends React.Component {
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
             >
-                <DialogTitle id="alert-dialog-title">
+                <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
                     Save Changed Settings
                 </DialogTitle>
                 <DialogContent>
@@ -104,7 +127,9 @@ ConnectedModalQuitApplication.propTypes = {
     updateSettings: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
     updatedSettings: PropTypes.object.isRequired,
+    settings: PropTypes.object.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
-const ModalQuitApplication = connect(undefined, mapDispatchToProps)(ConnectedModalQuitApplication);
+const ModalQuitApplication = connect(mapStateToProps, mapDispatchToProps)(ConnectedModalQuitApplication);
 export default withStyles(styles)(ModalQuitApplication);

@@ -39,16 +39,16 @@ import {
 const styles = theme => ({
     root: {
         flexGrow: 1,
-        marginTop: theme.spacing.unit * 3,
+        marginTop: theme.spacing(3),
         backgroundColor: theme.palette.background.paper,
     },
     menuToggle: {
         marginTop: '-23px',
         position: 'fixed',
-        zIndex: '9000',
+        zIndex: '1190',
     },
     tabs: {
-        marginLeft: theme.spacing.unit * 4,
+        marginLeft: theme.spacing(6),
     },
     tab: {
         flexGrow: 1,

@@ -17,6 +17,7 @@ import {
     STUDY_DEL,
     STUDY_UPD,
     STUDY_UPDORDER,
+    STUDY_UPDDEFINEORDER,
     STUDY_IMPORT,
 } from 'constants/action-types';
 import changeAppTitle from 'utils/changeAppTitle.js';
@@ -48,6 +49,13 @@ export const updateStudy = (updateObj) => (
 export const updateStudyOrder = (updateObj) => (
     {
         type: STUDY_UPDORDER,
+        updateObj,
+    }
+);
+
+export const updateDefineOrder = (updateObj) => (
+    {
+        type: STUDY_UPDDEFINEORDER,
         updateObj,
     }
 );
