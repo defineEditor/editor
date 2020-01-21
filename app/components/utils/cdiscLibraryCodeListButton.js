@@ -44,13 +44,13 @@ const CdiscLibraryCodeListButton = (props) => {
         categories[clOpt.categoryOid] = clOpt.category;
     });
 
-    const handleMenuItemClick = (event, categoryOid, oid) => {
+    const handleMenuItemClick = (event, catOid, clOid) => {
         event.stopPropagation();
         setCodeListInfo(row.ordinal, {
-            categoryOid,
-            category: categories[categoryOid],
-            oid,
-            name: options[categoryOid][oid],
+            catOid,
+            category: categories[catOid],
+            clOid,
+            name: options[catOid][clOid],
         });
         handleClose();
     };

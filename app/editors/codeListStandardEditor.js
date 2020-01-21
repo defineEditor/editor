@@ -187,7 +187,7 @@ class ConnectedCodeListStandardEditor extends React.Component {
                                     ) : (
                                         <AutocompleteSelectEditor
                                             key={standardOid}
-                                            handleChange={this.handleChange('codeList')}
+                                            onChange={this.handleChange('codeList')}
                                             defaultValue={defaultCodeList}
                                             options={this.state.codeListList}
                                             extensible={false}

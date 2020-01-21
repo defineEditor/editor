@@ -271,6 +271,7 @@ class AddItemConnected extends React.Component {
                         {this.state.tabNames[currentTab] === 'Another Define' &&
                             <AddFromOtherStudy
                                 position={this.props.position}
+                                itemGroupOid={this.props.itemGroupOid}
                                 type={editorTab}
                                 onClose={this.props.onClose}
                             />
