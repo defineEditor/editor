@@ -62,7 +62,7 @@ const LoadFromXptStep3 = (props) => {
     };
 
     const updateCountLabels = {
-        length: 'Variable with length updated',
+        length: 'Variables with length updated',
         label: 'Variables with label updated',
         newVars: 'New variables',
         newDatasets: 'New datasets',
@@ -117,6 +117,7 @@ const LoadFromXptStep3 = (props) => {
                     dataType: item.dataType,
                     displayFormat: item.displayFormat,
                     fractionDigits: item.fractionDigits,
+                    codeListOid: item.codeListOid,
                 };
             });
         });
@@ -139,7 +140,7 @@ const LoadFromXptStep3 = (props) => {
                             variable: itemName,
                         };
                         // Update length
-                        if (!['float', 'integer'].includes(currentVar.dataType)) {
+                        if (currentVar.dataType === 'text') {
                             if (options.updateActualLengthOnly === true && currentVar.lengthAsData === true) {
                                 updatedVar.length = xptVar.length;
                             } else if (options.updateActualLengthOnly !== true && currentVar.length !== xptVar.length) {
@@ -150,14 +151,19 @@ const LoadFromXptStep3 = (props) => {
                         if (options.updateLabel === true && currentVar.label !== xptVar.label) {
                             updatedVar.label = xptVar.label;
                         }
+                        // Update display Format
+                        if (options.updateDisplayFormat === true && currentVar.displayFormat !== xptVar.format) {
+                            updatedVar.displayFormat = xptVar.format;
+                        }
                         updatedData[dsName][itemName] = updatedVar;
                     } else if (options.addNewVariables) {
+                        const dataType = getItemType(xptVar);
                         updatedData[dsName][itemName] = {
                             dataset: dsName,
                             variable: itemName,
-                            length: xptVar.length,
+                            length: dataType === 'datetime' ? undefined : xptVar.lenght,
                             label: xptVar.label,
-                            dataType: getItemType(xptVar),
+                            dataType,
                             displayFormat: xptVar.format,
                             newVar: true,
                         };
@@ -169,12 +175,13 @@ const LoadFromXptStep3 = (props) => {
                 updatedData[dsName] = {};
                 xptVarNames.forEach(itemName => {
                     const xptVar = xptVarObj[itemName];
+                    const dataType = getItemType(xptVar);
                     updatedData[dsName][itemName] = {
                         dataset: dsName,
                         variable: itemName,
-                        length: xptVar.length,
+                        length: dataType === 'datetime' ? undefined : xptVar.lenght,
                         label: xptVar.label,
-                        dataType: getItemType(xptVar),
+                        dataType,
                         displayFormat: xptVar.format,
                         newVar: true,
                     };
@@ -184,13 +191,72 @@ const LoadFromXptStep3 = (props) => {
         setData(updatedData);
         setNewDatasets(xptNewDatasets);
         if (options.deriveNumericType || options.addCodedValues) {
-            ipcRenderer.on('derivedXptMetadata', (event, data) => { setXptData({ ...xptData, ...data }); });
-            ipcRenderer.on('xptMetadataParsed', (event, success) => { setAllDataLoaded(success); });
-            ipcRenderer.send('deriveXptMetadata', props.options);
-            return function cleanup () {
-                ipcRenderer.removeAllListeners('deriveXptMetadata');
-                ipcRenderer.removeAllListeners('xptMetadataParsed');
-            };
+            // Get variables with a codelists
+            let codeListVariables = {};
+            if (options.addCodedValues === true) {
+                Object.keys(currentData)
+                    .filter(dsName => xptDatasetNames.includes(dsName))
+                    .forEach(dsName => {
+                        const xptDs = props.metadata[dsName];
+                        const xptVarNames = xptDs.varMetadata.map(xptVar => xptVar.name);
+                        codeListVariables[dsName] = [];
+                        Object.keys(currentData[dsName])
+                            .filter(itemName => xptVarNames.includes(itemName))
+                            .forEach(itemName => {
+                                if (currentData[dsName][itemName].codeListOid !== undefined) {
+                                    codeListVariables[dsName].push(itemName);
+                                }
+                            });
+                    });
+            }
+            // Get numeric variables
+            let numericVariables = {};
+            if (options.deriveNumericType === true) {
+                Object.keys(updatedData)
+                    .forEach(dsName => {
+                        numericVariables[dsName] = [];
+                        // Some of numeric variables will be coming from XPT and other from the current specs
+                        Object.keys(updatedData[dsName]).forEach(itemName => {
+                            if (['integer', 'float'].includes(updatedData[dsName][itemName].dataType)) {
+                                numericVariables[dsName].push(itemName);
+                            } else if (currentData[dsName] !== undefined &&
+                                currentData[dsName][itemName] !== undefined &&
+                                ['integer', 'float'].includes(currentData[dsName][itemName].dataType)
+                            ) {
+                                numericVariables[dsName].push(itemName);
+                            }
+                        });
+                    });
+            }
+            // Get path to each dataset;
+            // Get all datasets which are going to be analysed
+            let filePaths = {};
+            let datasetsToAnalyse = Object.keys(codeListVariables);
+            Object.keys(numericVariables).forEach(dsName => {
+                if (!datasetsToAnalyse.includes(dsName)) {
+                    datasetsToAnalyse.push(dsName);
+                }
+            });
+            datasetsToAnalyse.forEach(dsName => {
+                filePaths[dsName] = props.metadata[dsName].filePath;
+            });
+
+            if (datasetsToAnalyse.length > 0) {
+                ipcRenderer.on('derivedXptMetadata', (event, data) => { setXptData({ ...xptData, ...data }); });
+                ipcRenderer.on('xptMetadataParsed', (event, success) => { setAllDataLoaded(success); });
+                ipcRenderer.send('deriveXptMetadata', {
+                    options: props.options,
+                    numericVariables,
+                    codeListVariables,
+                    filePaths,
+                });
+                return function cleanup () {
+                    ipcRenderer.removeAllListeners('deriveXptMetadata');
+                    ipcRenderer.removeAllListeners('xptMetadataParsed');
+                };
+            } else {
+                setAllDataLoaded(true);
+            }
         } else {
             setAllDataLoaded(true);
         }
@@ -210,7 +276,7 @@ const LoadFromXptStep3 = (props) => {
                                         secondary={updateCount[attr]}
                                     />
                                 </ListItem>
-                                <Divider variant="inset" component="li" />
+                                <Divider component="li" />
                             </React.Fragment>
                         );
                     })}

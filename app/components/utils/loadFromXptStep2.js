@@ -16,6 +16,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -30,6 +31,14 @@ const getStyles = makeStyles(theme => ({
     formControl: {
         margin: theme.spacing(3),
     },
+    maxNumFractionDigits: {
+        width: 230,
+        margin: theme.spacing(1)
+    },
+    minNumLength: {
+        width: 230,
+        margin: theme.spacing(1)
+    },
 }));
 
 const LoadFromXptStep2 = (props) => {
@@ -38,13 +47,27 @@ const LoadFromXptStep2 = (props) => {
 
     const handleChange = (option) => (event) => {
         // Get the next dataType in the list
-        setOptions({ ...options, [option]: !options[option] });
+        if (['minNumLength', 'maxNumFractionDigits'].includes(option)) {
+            setOptions({ ...options, [option]: event.target.value });
+        } else {
+            setOptions({ ...options, [option]: !options[option] });
+        }
     };
 
     const handleNext = () => {
         props.handleOptions(options);
         props.onNext();
     };
+
+    let invalidMinNumLength = false;
+    if (options.deriveNumericType === true && !(options.minNumLength > 0 && options.minNumLength <= 32)) {
+        invalidMinNumLength = true;
+    }
+
+    let invalidMaxNumFractionDigits = false;
+    if (options.deriveNumericType === true && !(options.maxNumFractionDigits > 0 && options.maxNumFractionDigits <= 32)) {
+        invalidMaxNumFractionDigits = true;
+    }
 
     return (
         <Grid container direction='column' spacing={1}>
@@ -64,7 +87,7 @@ const LoadFromXptStep2 = (props) => {
                                     color='primary'
                                 />
                             }
-                            label='Update only lengths marked as Actual Length'
+                            label='Update only text variable lengths marked as Actual Length'
                         />
                         <FormControlLabel
                             key='addNewVariables'
@@ -76,7 +99,7 @@ const LoadFromXptStep2 = (props) => {
                                     color='primary'
                                 />
                             }
-                            label='Add non-existent variables and datasets'
+                            label='Add new variables and datasets'
                         />
                         <FormControlLabel
                             key='updateLabel'
@@ -88,19 +111,19 @@ const LoadFromXptStep2 = (props) => {
                                     color='primary'
                                 />
                             }
-                            label='Use data label when different'
+                            label='Use XPT variable label when different from the specification'
                         />
                         <FormControlLabel
-                            key='useXptSort'
+                            key='updateDisplayFormat'
                             control={
                                 <Switch
-                                    checked={options.useXptSort}
-                                    onChange={handleChange('useXptSort')}
-                                    value={options.useXptSort}
+                                    checked={options.updateDisplayFormat}
+                                    onChange={handleChange('updateDisplayFormat')}
+                                    value={options.updateDisplayFormat}
                                     color='primary'
                                 />
                             }
-                            label='Use sorting order from the data'
+                            label='Use XPT variable display format when different from the specification'
                         />
                     </FormGroup>
                     <Typography variant="h5" gutterBottom align="left" color='textSecondary'>
@@ -117,7 +140,7 @@ const LoadFromXptStep2 = (props) => {
                                     color='primary'
                                 />
                             }
-                            label='Add coded values to variables with codelists'
+                            label='Get coded values for variables with codelists'
                         />
                         <FormControlLabel
                             key='deriveNumericType'
@@ -131,6 +154,30 @@ const LoadFromXptStep2 = (props) => {
                             }
                             label='Derive Numeric Type and Length'
                         />
+                        <Grid container>
+                            <Grid item>
+                                <TextField
+                                    label="Minimal Length"
+                                    disabled={!options.deriveNumericType}
+                                    value={options.minNumLength}
+                                    error={invalidMinNumLength}
+                                    helperText={invalidMinNumLength && 'Must be a number between 1 and 32'}
+                                    onChange={handleChange('minNumLength')}
+                                    className={classes.minNumLength}
+                                />
+                            </Grid>
+                            <Grid item>
+                                <TextField
+                                    label="Max Number of Decimal Places"
+                                    disabled={!options.deriveNumericType}
+                                    value={options.maxNumFractionDigits}
+                                    error={invalidMaxNumFractionDigits}
+                                    helperText={invalidMaxNumFractionDigits && 'Must be a number between 1 and 32'}
+                                    onChange={handleChange('maxNumFractionDigits')}
+                                    className={classes.maxNumFractionDigits}
+                                />
+                            </Grid>
+                        </Grid>
                     </FormGroup>
                 </FormControl>
             </Grid>
@@ -156,6 +203,7 @@ const LoadFromXptStep2 = (props) => {
                             variant="contained"
                             color="primary"
                             onClick={handleNext}
+                            disabled={invalidMinNumLength || invalidMaxNumFractionDigits}
                             className={classes.button}
                         >
                             Next

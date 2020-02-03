@@ -58,9 +58,11 @@ const LoadFromXpt = (props) => {
         updateActualLengthOnly: true,
         addNewVariables: false,
         updateLabel: false,
-        useXptSort: false,
+        updateDisplayFormat: false,
         addCodedValues: false,
         deriveNumericType: false,
+        minNumLength: 8,
+        maxNumFractionDigits: 4,
     });
     let classes = getStyles();
 

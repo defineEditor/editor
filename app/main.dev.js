@@ -28,6 +28,7 @@ import deleteDefineObject from './main/deleteDefineObject.js';
 import scanControlledTerminologyFolder from './main/scanControlledTerminologyFolder.js';
 import addControlledTerminology from './main/addControlledTerminology.js';
 import loadXptMetadata from './main/loadXptMetadata.js';
+import deriveXptMetadata from './main/deriveXptMetadata.js';
 import saveCtFromCdiscLibrary from './main/saveCtFromCdiscLibrary.js';
 import openDocument from './main/openDocument.js';
 import openWithStylesheet from './main/openWithStylesheet.js';
@@ -195,6 +196,10 @@ ipcMain.on('downloadUpdate', (event) => {
 // Load metadata from XPT files
 ipcMain.on('loadXptMetadata', (event) => {
     loadXptMetadata(mainWindow);
+});
+// Derive metadata from XPT files
+ipcMain.on('deriveXptMetadata', (event, data) => {
+    deriveXptMetadata(mainWindow, data);
 });
 // Close the main window
 ipcMain.on('quitConfirmed', (event) => {
