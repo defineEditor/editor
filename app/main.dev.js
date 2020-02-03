@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
 * and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
+* Copyright (C) 2018-2020 Dmitry Kolosov                                           *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -27,6 +27,7 @@ import loadControlledTerminology from './main/loadControlledTerminology.js';
 import deleteDefineObject from './main/deleteDefineObject.js';
 import scanControlledTerminologyFolder from './main/scanControlledTerminologyFolder.js';
 import addControlledTerminology from './main/addControlledTerminology.js';
+import loadXptMetadata from './main/loadXptMetadata.js';
 import saveCtFromCdiscLibrary from './main/saveCtFromCdiscLibrary.js';
 import openDocument from './main/openDocument.js';
 import openWithStylesheet from './main/openWithStylesheet.js';
@@ -190,6 +191,10 @@ ipcMain.on('checkForUpdates', (event, customLabel) => {
 // Download the update
 ipcMain.on('downloadUpdate', (event) => {
     downloadUpdate(mainWindow);
+});
+// Load metadata from XPT files
+ipcMain.on('loadXptMetadata', (event) => {
+    loadXptMetadata(mainWindow);
 });
 // Close the main window
 ipcMain.on('quitConfirmed', (event) => {

@@ -21,7 +21,6 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import EditorTabs from 'tabs/editorTabs.js';
-import DataInput from 'components/utils/dataInput.js';
 import CommentMethodTable from 'components/utils/commentMethodTable.js';
 import {
     changePage,
@@ -71,7 +70,6 @@ const mapStateToProps = state => {
         loadedDefineId,
         currentDefineId,
         codeLists: odmLoaded ? state.present.odm.study.metaDataVersion.codeLists : undefined,
-        showDataInput: state.present.ui.main.showDataInput,
         showCommentMethodTable: state.present.ui.main.showCommentMethodTable,
     };
 };
@@ -115,9 +113,6 @@ class ConnectedEditor extends React.Component {
                 {this.props.odmLoaded && (
                     <EditorTabs />
                 )}
-                {this.props.showDataInput && this.props.odmLoaded && (
-                    <DataInput />
-                )}
                 { this.props.showCommentMethodTable &&
                         <CommentMethodTable
                             type='Comment'
@@ -136,7 +131,6 @@ ConnectedEditor.propTypes = {
     currentDefineId: PropTypes.string.isRequired,
     changePage: PropTypes.func.isRequired,
     codeLists: PropTypes.object,
-    showDataInput: PropTypes.bool
 };
 
 const Editor = connect(mapStateToProps, mapDispatchToProps)(ConnectedEditor);

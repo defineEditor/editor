@@ -29,6 +29,7 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import CommentIcon from '@material-ui/icons/Comment';
+import ArchiveIcon from '@material-ui/icons/Archive';
 import OpenDrawer from '@material-ui/icons/VerticalSplit';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import TablePagination from '@material-ui/core/TablePagination';
@@ -77,7 +78,7 @@ const styles = theme => ({
         marginLeft: theme.spacing(1),
         transform: 'translate(0%, -6%)',
     },
-    commentIcon: {
+    fabIcon: {
         transform: 'translate(0, -5%)',
     },
     tableTitle: {
@@ -744,6 +745,12 @@ class ConnectedVariableTable extends React.Component {
             });
         };
 
+        const openImportMetadata = () => {
+            this.props.openModal({
+                type: 'IMPORT_METADATA',
+            });
+        };
+
         const itemGroup = this.props.mdv.itemGroups[this.props.itemGroupOid];
         let commentPresent = itemGroup.reviewCommentOids !== undefined && itemGroup.reviewCommentOids.length > 0;
 
@@ -791,9 +798,19 @@ class ConnectedVariableTable extends React.Component {
                             size='small'
                             color={ commentPresent ? 'primary' : 'default' }
                             onClick={openComments}
-                            className={this.props.classes.commentIcon}
+                            className={this.props.classes.fabIcon}
                         >
                             <CommentIcon/>
+                        </Fab>
+                    </Grid>
+                    <Grid item>
+                        <Fab
+                            size='small'
+                            color='default'
+                            onClick={openImportMetadata}
+                            className={this.props.classes.fabIcon}
+                        >
+                            <ArchiveIcon/>
                         </Fab>
                     </Grid>
                 </Grid>

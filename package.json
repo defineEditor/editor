@@ -279,7 +279,8 @@
     "typeface-roboto-mono": "^0.0.54",
     "xlsx-populate": "^1.19.1",
     "xml2js": "^0.4.19",
-    "xmlbuilder": "^10.1.1"
+    "xmlbuilder": "^10.1.1",
+    "xport-js": "^0.1.0"
   },
   "devEngines": {
     "node": ">=7.x",
