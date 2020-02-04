@@ -68,7 +68,16 @@ const LoadFromXptStep1 = (props) => {
     };
 
     const handleNext = () => {
-        props.handleData(metadata);
+        // Remove datasets which failed to load
+        let updatedMetadata = { ...metadata };
+        Object.keys(updatedMetadata).forEach(name => {
+            let ds = updatedMetadata[name];
+            if (ds.loadFailed) {
+                delete updatedMetadata[name];
+            }
+        });
+
+        props.handleData(updatedMetadata);
         props.onNext();
     };
 

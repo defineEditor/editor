@@ -15,7 +15,7 @@
 import Xport from 'xport-js';
 
 const getNumAttrs = (number, maxDecimals) => {
-    if (number.isInteger()) {
+    if (Number.isInteger(number)) {
         return ({ length: Math.abs(number).toString().length, fractionDigits: 0 });
     } else {
         let formatted = Math.abs(number).toFixed(maxDecimals).replace(/0*$/, '');
@@ -31,49 +31,50 @@ const deriveXptMetadata = async (mainWindow, data) => {
     const minLength = options.minNumLength;
     let uniqueValues = {};
     let numAttrs = {};
-    Object.keys(filePaths).forEach(dsName => {
+    let numRecords = 0;
+    for (let i = 0; i <= Object.keys(filePaths).length - 1; i++) {
+        let dsName = Object.keys(filePaths)[i];
         uniqueValues[dsName] = {};
         numAttrs[dsName] = {};
         // Get list of variables to keep
-        let currentNumVars = numericVariables[dsName];
-        let currentCodeListVars = codeListVariables[dsName];
+        let currentNumVars = numericVariables[dsName] || [];
+        let currentCodeListVars = codeListVariables[dsName] || [];
         let keepVars = currentNumVars.concat(currentCodeListVars);
         const file = filePaths[dsName];
         let xport = new Xport(file);
-        for await (let obs of xport.read({ rowFormat: 'object', keep: keepVars })) {
-        /*
-        xport.forEach(obs => {
-        */
+        for await (let obs of xport.read({ rowFormat: 'object', keep: keepVars, skipHeader: true })) {
+            numRecords += 1;
             if (deriveNumericType) {
                 currentNumVars.forEach(varName => {
-                    let currentNumAttrs = numAttrs[dsName][varName];
-                    if (currentNumAttrs === undefined) {
-                        currentNumAttrs = { length: minLength, fractionDigits: 0 };
+                    if (numAttrs[dsName][varName] === undefined) {
+                        numAttrs[dsName][varName] = { length: minLength, fractionDigits: 0 };
                     }
+                    let currentNumAttrs = numAttrs[dsName][varName];
                     if (obs[varName] !== undefined) {
                         const { length, fractionDigits } = getNumAttrs(obs[varName], maxDecimals);
                         if (length > currentNumAttrs.length) {
                             currentNumAttrs.length = length;
                         }
                         if (fractionDigits > currentNumAttrs.fractionDigits) {
-                            fractionDigits.length = fractionDigits;
+                            currentNumAttrs.fractionDigits = fractionDigits;
                         }
                     }
                 });
             }
             if (addCodedValues) {
                 currentCodeListVars.forEach(varName => {
-                    let currentUniqueValues = uniqueValues[dsName][varName];
-                    if (currentUniqueValues === undefined) {
-                        currentUniqueValues = [];
+                    if (uniqueValues[dsName][varName] === undefined) {
+                        uniqueValues[dsName][varName] = [];
                     }
+                    let currentUniqueValues = uniqueValues[dsName][varName];
                     if (obs[varName] !== '' && obs[varName] !== undefined && !currentUniqueValues.includes(obs[varName])) {
                         currentUniqueValues.push(obs[varName]);
                     }
                 });
             }
-        });
-    });
+        }
+        mainWindow.webContents.send('derivedXptMetadataFinishedDataset', dsName, numRecords);
+    }
 
     mainWindow.webContents.send('derivedXptMetadata', { uniqueValues, numAttrs });
 };

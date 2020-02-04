@@ -62,7 +62,7 @@ const LoadFromXpt = (props) => {
         addCodedValues: false,
         deriveNumericType: false,
         minNumLength: 8,
-        maxNumFractionDigits: 4,
+        maxNumFractionDigits: 3,
     });
     let classes = getStyles();
 
@@ -78,7 +78,8 @@ const LoadFromXpt = (props) => {
         props.onClose();
     };
 
-    const handleFinish = (data, newDatasets, updateCount) => {
+    const handleFinish = (data) => {
+        const { newData, newDatasets, newCodedValues, updateCount } = data;
         let varAttrNames = ['dataset', 'variable'];
         let varData;
         // Select which attributes are going to be updated
@@ -97,7 +98,7 @@ const LoadFromXpt = (props) => {
             varData = '';
         } else {
             let varAttrs = [varAttrNames.join(',')];
-            Object.values(data).forEach(ds => {
+            Object.values(newData).forEach(ds => {
                 Object.values(ds).forEach(item => {
                     let lineAttrs = [];
                     varAttrNames.forEach((attr, index) => {
@@ -115,8 +116,9 @@ const LoadFromXpt = (props) => {
             });
             varData = varAttrs.join('\n');
         }
-        let datasetData = '';
-        props.onFinish(varData, datasetData);
+        let datasetData = newDatasets;
+        let codedValueData = newCodedValues;
+        props.onFinish(varData, datasetData, codedValueData);
     };
 
     return (

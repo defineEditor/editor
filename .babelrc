@@ -9,18 +9,22 @@
   ],
   "plugins": [
       "add-module-exports",
-      "react-hot-loader/babel",
+      "syntax-async-generators",
       ["prismjs", {
           "languages": ["sas", "r", "python"],
           "plugins": ["line-numbers"],
           "theme": "default",
           "css": true
-      }]
+      }],
+      "react-hot-loader/babel"
   ],
   "env": {
     "production": {
       "presets": ["react-optimize"],
-      "plugins": ["dev-expression"]
+      "plugins": [
+          "syntax-async-generators",
+          "dev-expression"
+      ]
     },
     "development": {
       "plugins": [
