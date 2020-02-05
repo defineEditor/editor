@@ -285,7 +285,7 @@ const LoadFromXptStep3 = (props) => {
                         };
                     }
                 });
-            } else {
+            } else if (options.addNewVariables) {
                 // A new dataset
                 xptNewDatasets.push({ name: dsName, label: xptDs.dsMetadata.label });
                 updatedData[dsName] = {};
@@ -346,12 +346,14 @@ const LoadFromXptStep3 = (props) => {
             // Get path to each dataset;
             // Get all datasets which are going to be analysed
             let filePaths = {};
-            let datasetsToAnalyse = Object.keys(codeListVariables);
-            Object.keys(numericVariables).forEach(dsName => {
-                if (!datasetsToAnalyse.includes(dsName)) {
-                    datasetsToAnalyse.push(dsName);
-                }
-            });
+            let datasetsToAnalyse = Object.keys(codeListVariables).filter(dsName => codeListVariables[dsName].length > 0);
+            Object.keys(numericVariables)
+                .filter(dsName => numericVariables[dsName].length > 0)
+                .forEach(dsName => {
+                    if (!datasetsToAnalyse.includes(dsName)) {
+                        datasetsToAnalyse.push(dsName);
+                    }
+                });
             datasetsToAnalyse.forEach(dsName => {
                 filePaths[dsName] = props.metadata[dsName].filePath;
             });
