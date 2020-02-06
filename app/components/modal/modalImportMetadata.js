@@ -15,6 +15,7 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch } from 'react-redux';
+import { clipboard } from 'electron';
 import csv2json from 'csvtojson';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -23,13 +24,17 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import AppBar from '@material-ui/core/AppBar';
 import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
 import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
+import { FaRegCopy as CopyIcon, FaRegClipboard as PasteIcon } from 'react-icons/fa';
 import LoadFromXpt from 'components/utils/loadFromXpt.js';
 import {
     closeModal,
+    openSnackbar,
 } from 'actions/index.js';
 
 const getStyles = makeStyles(theme => ({
@@ -56,11 +61,46 @@ const getStyles = makeStyles(theme => ({
         lineHeight: '1.6',
         letterSpacing: '0.0075em',
     },
+    formatLabel: {
+        display: 'none',
+        marginLeft: theme.spacing(1),
+        [theme.breakpoints.up('sm')]: {
+            display: 'block',
+        },
+    },
+    loadLabel: {
+        display: 'none',
+        marginLeft: theme.spacing(4),
+        [theme.breakpoints.up('sm')]: {
+            display: 'block',
+        },
+    },
     content: {
         padding: 0,
     },
     mainContent: {
         padding: '8px 24px',
+    },
+    layoutSelect: {
+        marginLeft: theme.spacing(1),
+        width: 80,
+    },
+    button: {
+        marginLeft: theme.spacing(1),
+    },
+    clipboardIcon: {
+        color: '#E0E0E0',
+        marginLeft: theme.spacing(1),
+    },
+    grow: {
+        flexGrow: 1,
+    },
+    color: {
+        color: '#E0E0E0',
+    },
+    select: {
+        marginTop: 2,
+        fontSize: 20,
     },
 }));
 
@@ -84,15 +124,22 @@ const json2csv = (json, delimiter) => {
 };
 
 const convertLayout = async (data, layout, newLayout) => {
-    if (['comma', 'tab'].includes(layout)) {
-        const delimiter = layout === 'comma' ? ',' : '\t';
-        const jsonData = await csv2json({ delimiter }).fromString(data);
-        if (newLayout === 'table') {
-            return jsonData;
-        } else {
-            const newDelimiter = newLayout === 'comma' ? ',' : '\t';
-            return json2csv(jsonData, newDelimiter);
+    try {
+        if (['csv', 'excel'].includes(layout)) {
+            const delimiter = layout === 'csv' ? ',' : '\t';
+            const jsonData = await csv2json({ delimiter }).fromString(data);
+            if (newLayout === 'table') {
+                return jsonData;
+            } else {
+                const newDelimiter = newLayout === 'csv' ? ',' : '\t';
+                return json2csv(jsonData, newDelimiter);
+            }
+        } else if (layout === 'table') {
+            const newDelimiter = newLayout === 'csv' ? ',' : '\t';
+            return json2csv(data, newDelimiter);
         }
+    } catch (error) {
+        return false;
     }
 };
 
@@ -100,7 +147,9 @@ const ModalImportMetadata = (props) => {
     const dispatch = useDispatch();
     let classes = getStyles();
 
-    const [data, setData] = useState([]);
+    const [varData, setVarData] = useState('');
+    const [dsData, setDsData] = useState('');
+    const [codedValueData, setCodedValueData] = useState('');
     const [showXptLoad, setShowXptLoad] = useState(false);
 
     const handleClose = () => {
@@ -108,7 +157,7 @@ const ModalImportMetadata = (props) => {
     };
 
     const handleChange = (event) => {
-        setData(event.target.value);
+        setVarData(event.target.value);
     };
 
     const onKeyDown = (event) => {
@@ -121,17 +170,88 @@ const ModalImportMetadata = (props) => {
         dispatch(closeModal({ type: props.type }));
     };
 
-    const handleXptFinish = (varData, datasetData) => {
-        setData(varData);
+    const handleXptFinish = async (varData, dsData, codedValueData) => {
         setShowXptLoad(false);
+        if (layout !== 'csv') {
+            setVarData(await convertLayout(varData, 'csv', layout));
+            setDsData(await convertLayout(dsData, 'csv', layout));
+            setCodedValueData(await convertLayout(codedValueData, 'csv', layout));
+        } else {
+            setVarData(varData);
+            setDsData(dsData);
+            setCodedValueData(codedValueData);
+        }
     };
 
-    const [layout, setLayout] = useState('tab');
-    const handleLayout = async (event) => {
-        let newLayout = event.target.value;
-        setLayout(newLayout);
-        setData(await convertLayout(data, layout, newLayout));
+    const copyToClipboard = () => {
+        if (layout === 'table') {
+            clipboard.writeText(JSON.toString(varData));
+        } else {
+            clipboard.writeText(varData);
+        }
     };
+
+    const pasteFromClipboard = () => {
+        // Remove all blank lines
+        if (layout !== 'table') {
+            let data = clipboard.readText();
+            let delimiter = layout === 'csv' ? ',' : '\t';
+            // Get number of attributes
+            let attNum = (data.slice(0, data.indexOf('\n')).match(new RegExp(delimiter, 'g')) || []).length;
+            data = data.replace(new RegExp(`^${delimiter}{${attNum}}$`, 'gm'), '');
+            // Remove newlines at the end
+            data = data.replace(/\n*$/, '');
+            setVarData(data);
+        } else {
+            setVarData(clipboard.readText());
+        }
+    };
+
+    const [layout, setLayout] = useState('excel');
+    const handleLayout = async (event) => {
+        let data = [dsData, varData, codedValueData];
+        let convertedData = [];
+        let conversionFailed = false;
+        let newLayout = event.target.value;
+        for (let index = 0; index < data.length; index++) {
+            let currentData = data[index];
+            if (
+                (typeof currentData === 'string' && currentData.length > 0) ||
+                (typeof currentData === 'object' && Object.keys(currentData).length > 0)
+            ) {
+                // Data is not blank
+                let newData = await convertLayout(varData, layout, newLayout);
+                if (newData === false) {
+                    conversionFailed = true;
+                } else {
+                    convertedData.push(newData);
+                }
+            } else {
+                // Data is blank
+                convertedData.push(newLayout === 'table' ? [] : '');
+            }
+        }
+        // Check if any of the data tabs failed during conversion
+        if (conversionFailed) {
+            dispatch(
+                openSnackbar({
+                    type: 'error',
+                    message: 'Invalid data',
+                })
+            );
+        } else {
+            let setters = [setDsData, setVarData, setCodedValueData];
+            convertedData.forEach((convData, index) => {
+                setters[index](convData);
+            });
+            setLayout(newLayout);
+        }
+    };
+
+    let placeholder = 'dataset,variable,length,...\nADSL,AVAL,20,...\nADSL,AVAL.AST,8,...';
+    if (layout !== 'csv') {
+        placeholder = placeholder.replace(/,/g, '\t');
+    }
 
     return (
         <React.Fragment>
@@ -149,21 +269,67 @@ const ModalImportMetadata = (props) => {
                 <DialogContent className={classes.content}>
                     <AppBar position="static">
                         <Toolbar variant="dense">
+                            <Typography className={classes.formatLabel} variant="h6" noWrap>
+                                Format:
+                            </Typography>
+                            <TextField
+                                value={layout}
+                                onChange={handleLayout}
+                                className={classes.layoutSelect}
+                                select
+                                margin='dense'
+                                InputProps={{
+                                    disableUnderline: true,
+                                }}
+                                SelectProps={{
+                                    className: classes.select,
+                                    classes: {
+                                        icon: classes.color,
+                                        select: classes.color,
+                                        root: classes.color,
+                                    },
+                                }}
+                            >
+                                <MenuItem key='csv' value={'csv'}>CSV</MenuItem>
+                                <MenuItem key='excel' value={'excel'}>Excel</MenuItem>
+                                <MenuItem key='table' value={'table'}>Table</MenuItem>
+                            </TextField>
+                            <Typography className={classes.loadLabel} variant="h6" noWrap>
+                                Load From:
+                            </Typography>
                             <Button
                                 variant='contained'
                                 onClick={() => { setShowXptLoad(true); }}
                                 color='default'
+                                className={classes.button}
                             >
-                                Load from XPT
+                                XPT
                             </Button>
-                            <Select
-                                value={layout}
-                                onChange={handleLayout}
+                            <div className={classes.grow} />
+                            <Tooltip
+                                title='Copy to clipboard'
+                                placement='bottom'
+                                enterDelay={700}
                             >
-                                <MenuItem value={'comma'}>Comma</MenuItem>
-                                <MenuItem value={'tab'}>Tab</MenuItem>
-                                <MenuItem value={'table'}>Table</MenuItem>
-                            </Select>
+                                <IconButton
+                                    onClick={copyToClipboard}
+                                    className={classes.clipboardIcon}
+                                >
+                                    <CopyIcon/>
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip
+                                title='Paste from clipboard'
+                                placement='bottom'
+                                enterDelay={700}
+                            >
+                                <IconButton
+                                    onClick={pasteFromClipboard}
+                                    className={classes.clipboardIcon}
+                                >
+                                    <PasteIcon/>
+                                </IconButton>
+                            </Tooltip>
                         </Toolbar>
                     </AppBar>
                     <Grid container alignItems='flex-start' className={classes.mainContent}>
@@ -171,8 +337,8 @@ const ModalImportMetadata = (props) => {
                             <TextField
                                 multiline
                                 fullWidth
-                                value={data}
-                                placeholder={'dataset,variable,length,...\nADSL,AVAL,20,...\nADSL,AVAL.AST,8,...'}
+                                value={varData}
+                                placeholder={placeholder}
                                 onChange={handleChange}
                                 InputProps={{
                                     disableUnderline: true,
@@ -186,7 +352,7 @@ const ModalImportMetadata = (props) => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={importMetadata} color="primary" disabled={data.length <= 1}>
+                    <Button onClick={importMetadata} color="primary">
                         Import
                     </Button>
                     <Button onClick={handleClose} color="primary">

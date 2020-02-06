@@ -51,6 +51,14 @@ const getStyles = makeStyles(theme => ({
 
 const steps = ['Select Source', 'Configure Load Options', 'Finish'];
 
+const escapeValue = (value) => {
+    if (typeof value === 'string' && value.includes(',')) {
+        value = '"' + value.replace('"', '""') + '"';
+    } else {
+        return value;
+    }
+};
+
 const LoadFromXpt = (props) => {
     const [activeStep, setActiveStep] = useState(1);
     const [metadata, setMetadata] = useState({});
@@ -80,6 +88,7 @@ const LoadFromXpt = (props) => {
 
     const handleFinish = (data) => {
         const { newData, newDatasets, newCodedValues, updateCount } = data;
+        // Variables tab
         let varAttrNames = ['dataset', 'variable'];
         let varData;
         // Select which attributes are going to be updated
@@ -110,14 +119,33 @@ const LoadFromXpt = (props) => {
                     });
                     // Check if any attribute has changed, first two - dataset and variable names
                     if (lineAttrs.filter(value => value !== '').length > 2) {
-                        varAttrs.push(lineAttrs.join(','));
+                        // Escape values with delimiters
+                        varAttrs.push(lineAttrs
+                            .map(value => escapeValue(value))
+                            .join(','));
                     }
                 });
             });
             varData = varAttrs.join('\n');
         }
-        let datasetData = newDatasets;
-        let codedValueData = newCodedValues;
+        // Dataset data
+        let datasetData = '';
+        if (newDatasets.length > 0) {
+            let dsAttrs = ['name,label'];
+            Object.values(newDatasets).forEach(ds => {
+                dsAttrs.push(escapeValue(ds.name) + ',' + escapeValue(ds.label));
+            });
+            datasetData = dsAttrs.join('\n');
+        }
+        // Coded Value data
+        let codedValueData = '';
+        if (newCodedValues.length > 0) {
+            let cvAttrs = ['codelist,value'];
+            Object.values(newCodedValues).forEach(item => {
+                cvAttrs.push(escapeValue(item.codeList) + ',' + escapeValue(item.value));
+            });
+            codedValueData = cvAttrs.join('\n');
+        }
         props.onFinish(varData, datasetData, codedValueData);
     };
 
