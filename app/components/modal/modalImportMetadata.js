@@ -21,6 +21,8 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 import Button from '@material-ui/core/Button';
 import AppBar from '@material-ui/core/AppBar';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -31,7 +33,10 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import { FaRegCopy as CopyIcon, FaRegClipboard as PasteIcon } from 'react-icons/fa';
+import InternalHelp from 'components/utils/internalHelp.js';
 import LoadFromXpt from 'components/utils/loadFromXpt.js';
+import MetadataImportTableView from 'components/utils/metadataImportTableView.js';
+import { IMPORT_METADATA } from 'constants/help.js';
 import {
     closeModal,
     openSnackbar,
@@ -60,17 +65,32 @@ const getStyles = makeStyles(theme => ({
         fontSize: '1.25rem',
         lineHeight: '1.6',
         letterSpacing: '0.0075em',
+        padding: 0,
+    },
+    firstAppBar: {
+        paddingTop: theme.spacing(1),
+        paddingBottom: theme.spacing(1),
+    },
+    helpIcon: {
+        marginLeft: theme.spacing(1),
+        boxShadow: 'none',
+    },
+    titleLabel: {
+        display: 'none',
+        [theme.breakpoints.up('sm')]: {
+            display: 'block',
+        },
     },
     formatLabel: {
         display: 'none',
-        marginLeft: theme.spacing(1),
+        marginLeft: theme.spacing(2),
         [theme.breakpoints.up('sm')]: {
             display: 'block',
         },
     },
     loadLabel: {
         display: 'none',
-        marginLeft: theme.spacing(4),
+        marginLeft: theme.spacing(3),
         [theme.breakpoints.up('sm')]: {
             display: 'block',
         },
@@ -143,21 +163,21 @@ const convertLayout = async (data, layout, newLayout) => {
     }
 };
 
+const tabNames = ['datasets', 'variables', 'codeLists', 'codedValues'];
+const tabLabels = ['Datasets', 'Variables', 'Codelists', 'Coded Values'];
+
 const ModalImportMetadata = (props) => {
     const dispatch = useDispatch();
     let classes = getStyles();
 
     const [varData, setVarData] = useState('');
     const [dsData, setDsData] = useState('');
+    const [codeListData, setCodeListData] = useState('');
     const [codedValueData, setCodedValueData] = useState('');
     const [showXptLoad, setShowXptLoad] = useState(false);
 
     const handleClose = () => {
         dispatch(closeModal({ type: props.type }));
-    };
-
-    const handleChange = (event) => {
-        setVarData(event.target.value);
     };
 
     const onKeyDown = (event) => {
@@ -209,7 +229,7 @@ const ModalImportMetadata = (props) => {
 
     const [layout, setLayout] = useState('excel');
     const handleLayout = async (event) => {
-        let data = [dsData, varData, codedValueData];
+        let data = [dsData, varData, codeListData, codedValueData];
         let convertedData = [];
         let conversionFailed = false;
         let newLayout = event.target.value;
@@ -240,12 +260,23 @@ const ModalImportMetadata = (props) => {
                 })
             );
         } else {
-            let setters = [setDsData, setVarData, setCodedValueData];
+            let setters = [setDsData, setVarData, setCodeListData, setCodedValueData];
             convertedData.forEach((convData, index) => {
                 setters[index](convData);
             });
             setLayout(newLayout);
         }
+    };
+
+    const [currentTab, setCurrentTab] = useState('variables');
+    const handleTabChange = (event, newTab) => {
+        setCurrentTab(newTab);
+    };
+
+    let currentData = [dsData, varData, codeListData, codedValueData][tabNames.indexOf(currentTab)];
+    const handleChange = (event) => {
+        let currentSetter = [setDsData, setVarData, setCodeListData, setCodedValueData][tabNames.indexOf(currentTab)];
+        currentSetter(event.target.value);
     };
 
     let placeholder = 'dataset,variable,length,...\nADSL,AVAL,20,...\nADSL,AVAL.AST,8,...';
@@ -264,11 +295,12 @@ const ModalImportMetadata = (props) => {
                 tabIndex='0'
             >
                 <DialogTitle className={classes.title} disableTypography>
-                    Import Metadata
-                </DialogTitle>
-                <DialogContent className={classes.content}>
-                    <AppBar position="static">
+                    <AppBar position="relative" className={classes.firstAppBar}>
                         <Toolbar variant="dense">
+                            <Typography className={classes.titleLabel} variant="h6" noWrap>
+                                Import Metadata
+                                <InternalHelp data={IMPORT_METADATA} buttonClass={classes.helpIcon} />
+                            </Typography>
                             <Typography className={classes.formatLabel} variant="h6" noWrap>
                                 Format:
                             </Typography>
@@ -303,7 +335,23 @@ const ModalImportMetadata = (props) => {
                                 color='default'
                                 className={classes.button}
                             >
+                                Define
+                            </Button>
+                            <Button
+                                variant='contained'
+                                onClick={() => { setShowXptLoad(true); }}
+                                color='default'
+                                className={classes.button}
+                            >
                                 XPT
+                            </Button>
+                            <Button
+                                variant='contained'
+                                onClick={() => { setShowXptLoad(true); }}
+                                color='default'
+                                className={classes.button}
+                            >
+                                CDISC Library
                             </Button>
                             <div className={classes.grow} />
                             <Tooltip
@@ -332,22 +380,44 @@ const ModalImportMetadata = (props) => {
                             </Tooltip>
                         </Toolbar>
                     </AppBar>
+                    <AppBar position='static' color='default'>
+                        <Tabs
+                            value={currentTab}
+                            onChange={handleTabChange}
+                            variant='fullWidth'
+                            centered
+                            indicatorColor='primary'
+                            textColor='primary'
+                        >
+                            { tabNames.map((tab, index) => {
+                                return <Tab value={tab} key={tab} label={tabLabels[index]}/>;
+                            })
+                            }
+                        </Tabs>
+                    </AppBar>
+                </DialogTitle>
+                <DialogContent className={classes.content}>
                     <Grid container alignItems='flex-start' className={classes.mainContent}>
                         <Grid item xs={12}>
-                            <TextField
-                                multiline
-                                fullWidth
-                                value={varData}
-                                placeholder={placeholder}
-                                onChange={handleChange}
-                                InputProps={{
-                                    disableUnderline: true,
-                                    classes: {
-                                        root: classes.textFieldRoot,
-                                        input: classes.textFieldInput,
-                                    },
-                                }}
-                            />
+                            { layout === 'table' ? (
+                                <MetadataImportTableView data={currentData} />
+                            ) : (
+                                <TextField
+                                    multiline
+                                    fullWidth
+                                    value={currentData}
+                                    placeholder={placeholder}
+                                    onChange={handleChange}
+                                    InputProps={{
+                                        disableUnderline: true,
+                                        classes: {
+                                            root: classes.textFieldRoot,
+                                            input: classes.textFieldInput,
+                                        },
+                                    }}
+                                />
+                            )
+                            }
                         </Grid>
                     </Grid>
                 </DialogContent>

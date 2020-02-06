@@ -16,11 +16,13 @@ import Xport from 'xport-js';
 
 const getNumAttrs = (number, maxDecimals) => {
     if (Number.isInteger(number)) {
-        return ({ length: Math.abs(number).toString().length, fractionDigits: 0 });
+        return ({ integerPart: Math.abs(number).toString().length, fractionDigits: 0 });
     } else {
         let formatted = Math.abs(number).toFixed(maxDecimals).replace(/0*$/, '');
         // 1 - for dot
-        return ({ length: formatted.length - 1, fractionDigits: formatted.slice(formatted.indexOf('.') + 1).length });
+        let fractionDigits = formatted.slice(formatted.indexOf('.') + 1).length;
+        let integerPart = formatted.length - 1 - fractionDigits;
+        return ({ integerPart, fractionDigits });
     }
 };
 
@@ -47,13 +49,13 @@ const deriveXptMetadata = async (mainWindow, data) => {
             if (deriveNumericType) {
                 currentNumVars.forEach(varName => {
                     if (numAttrs[dsName][varName] === undefined) {
-                        numAttrs[dsName][varName] = { length: minLength, fractionDigits: 0 };
+                        numAttrs[dsName][varName] = { integerPart: 1, fractionDigits: 0 };
                     }
                     let currentNumAttrs = numAttrs[dsName][varName];
                     if (obs[varName] !== undefined) {
-                        const { length, fractionDigits } = getNumAttrs(obs[varName], maxDecimals);
-                        if (length > currentNumAttrs.length) {
-                            currentNumAttrs.length = length;
+                        const { integerPart, fractionDigits } = getNumAttrs(obs[varName], maxDecimals);
+                        if (integerPart > currentNumAttrs.integerPart) {
+                            currentNumAttrs.integerPart = integerPart;
                         }
                         if (fractionDigits > currentNumAttrs.fractionDigits) {
                             currentNumAttrs.fractionDigits = fractionDigits;
@@ -75,6 +77,14 @@ const deriveXptMetadata = async (mainWindow, data) => {
         }
         mainWindow.webContents.send('derivedXptMetadataFinishedDataset', dsName, numRecords);
     }
+
+    // Calculate the length based on the maximum integer and fractional parts;
+    Object.keys(numAttrs).forEach(dsName => {
+        Object.keys(numAttrs[dsName]).forEach(itemName => {
+            let item = numAttrs[dsName][itemName];
+            item.length = Math.max(minLength, item.integerPart + item.fractionDigits);
+        });
+    });
 
     mainWindow.webContents.send('derivedXptMetadata', { uniqueValues, numAttrs });
 };

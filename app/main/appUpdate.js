@@ -32,7 +32,10 @@ class AppUpdater {
 const autoUpdaterInstance = new AppUpdater(); // eslint-disable-line
 
 const checkForUpdates = async (mainWindow, eventLabel = 'updateInformation') => {
-    let result = await autoUpdater.checkForUpdates();
+    let result;
+    if (process.env.NODE_ENV !== 'development') {
+        result = await autoUpdater.checkForUpdates();
+    }
 
     if (typeof result === 'object' && result.updateInfo) {
         // Do not switch from current to stable, as stable always has current equivalent
@@ -41,6 +44,8 @@ const checkForUpdates = async (mainWindow, eventLabel = 'updateInformation') => 
         } else {
             mainWindow.webContents.send(eventLabel, false);
         }
+    } else {
+        mainWindow.webContents.send(eventLabel, false);
     }
 };
 

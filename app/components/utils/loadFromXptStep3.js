@@ -41,7 +41,7 @@ const getItemType = (variable) => {
         return 'integer';
     } else if (variable.type === 'Char') {
         if (variable.name.toUpperCase().endsWith('DTC')) {
-            return 'datatime';
+            return 'datetime';
         } else {
             return 'text';
         }
@@ -175,19 +175,21 @@ const LoadFromXptStep3 = (props) => {
                     Object.keys(deriveXptMetadata.numAttrs[dsName]).length > 0
                 ) {
                     let attrs = deriveXptMetadata.numAttrs[dsName];
-                    Object.keys(updatedData[dsName]).forEach(itemName => {
-                        if (Object.keys(attrs).includes(itemName)) {
-                            let updatedItem = updatedData[dsName][itemName];
-                            let derivedItem = attrs[itemName];
-                            if (derivedItem.fractionDigits > 0) {
-                                updatedItem.dataType = 'float';
-                                updatedItem.fractionDigits = derivedItem.fractionDigits;
-                                updatedItem.length = derivedItem.length;
-                            } else {
-                                updatedItem.length = derivedItem.length;
+                    Object.keys(updatedData[dsName])
+                        .filter(itemName => ['float', 'integer'].includes(updatedData[dsName][itemName].dataType))
+                        .forEach(itemName => {
+                            if (Object.keys(attrs).includes(itemName)) {
+                                let updatedItem = updatedData[dsName][itemName];
+                                let derivedItem = attrs[itemName];
+                                if (derivedItem.fractionDigits > 0) {
+                                    updatedItem.dataType = 'float';
+                                    updatedItem.fractionDigits = derivedItem.fractionDigits;
+                                    updatedItem.length = derivedItem.length;
+                                } else {
+                                    updatedItem.length = derivedItem.length;
+                                }
                             }
-                        }
-                    });
+                        });
                 }
                 if (options.addCodedValues &&
                     deriveXptMetadata.uniqueValues[dsName] !== undefined &&
@@ -277,7 +279,7 @@ const LoadFromXptStep3 = (props) => {
                         updatedData[dsName][itemName] = {
                             dataset: dsName,
                             variable: itemName,
-                            length: dataType === 'datetime' ? undefined : xptVar.lenght,
+                            length: dataType === 'datetime' ? undefined : xptVar.length,
                             label: xptVar.label,
                             dataType,
                             displayFormat: xptVar.format,
@@ -295,7 +297,7 @@ const LoadFromXptStep3 = (props) => {
                     updatedData[dsName][itemName] = {
                         dataset: dsName,
                         variable: itemName,
-                        length: dataType === 'datetime' ? undefined : xptVar.lenght,
+                        length: dataType === 'datetime' ? undefined : xptVar.length,
                         label: xptVar.label,
                         dataType,
                         displayFormat: xptVar.format,

@@ -172,7 +172,11 @@ const LoadFromXptStep2 = (props) => {
                                     disabled={!options.deriveNumericType}
                                     value={options.maxNumFractionDigits}
                                     error={invalidMaxNumFractionDigits}
-                                    helperText={invalidMaxNumFractionDigits && 'Must be a number between 1 and 32'}
+                                    helperText={
+                                        (invalidMaxNumFractionDigits && 'Must be a number between 1 and 32') ||
+                                            (options.maxNumFractionDigits > 12 && 'Values above 12 are likely to result in erros, due to machine precision')
+
+                                    }
                                     onChange={handleChange('maxNumFractionDigits')}
                                     className={classes.maxNumFractionDigits}
                                 />

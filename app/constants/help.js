@@ -138,3 +138,10 @@ If you would like users to avoid the need to specify credentials, consider using
 Visual Define-XML Editor does not instruct how CDISC Library shall be used, nor represents CDISC in any way. Check your CDISC Library account EULA for the details on how CDISC Library can be used. If you have any questions regarding the contents of CDISC Library, please write to the CDISC Library support.
 `
 };
+
+export const IMPORT_METADATA = {
+    title: 'Import Metadata',
+    content: `
+##### About
+`
+};

@@ -93,7 +93,7 @@ const LoadFromXpt = (props) => {
         let varData;
         // Select which attributes are going to be updated
         if (options.addNewVariables === true && updateCount.newVars > 0) {
-            varAttrNames = varAttrNames.concat(['label', 'length', 'dataType', 'displayFormat']);
+            varAttrNames = varAttrNames.concat(['label', 'dataType', 'length', 'fractionDigits', 'displayFormat']);
         } else {
             if (options.updateLabel === true && updateCount.label > 0) {
                 varAttrNames.push('label');
