@@ -30,7 +30,6 @@ import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import { FaRegCopy as CopyIcon, FaRegClipboard as PasteIcon } from 'react-icons/fa';
 import InternalHelp from 'components/utils/internalHelp.js';
@@ -97,6 +96,7 @@ const getStyles = makeStyles(theme => ({
     },
     content: {
         padding: 0,
+        display: 'flex',
     },
     mainContent: {
         padding: '8px 24px',
@@ -145,9 +145,15 @@ const json2csv = (json, delimiter) => {
 
 const convertLayout = async (data, layout, newLayout) => {
     try {
-        if (['csv', 'excel'].includes(layout)) {
+        if (data === '' || (typeof data === 'object' && Object.keys(data).length === 0)) {
+            return newLayout === 'table' ? [] : '';
+        } else if (['csv', 'excel'].includes(layout)) {
             const delimiter = layout === 'csv' ? ',' : '\t';
             const jsonData = await csv2json({ delimiter }).fromString(data);
+            if (jsonData.length === 0) {
+                // Did not convert
+                throw new Error('Failed to convert');
+            }
             if (newLayout === 'table') {
                 return jsonData;
             } else {
@@ -165,6 +171,12 @@ const convertLayout = async (data, layout, newLayout) => {
 
 const tabNames = ['datasets', 'variables', 'codeLists', 'codedValues'];
 const tabLabels = ['Datasets', 'Variables', 'Codelists', 'Coded Values'];
+let placeholders = {
+    datasets: 'dataset,label,class, ...\nADSL,Subject Level Analysis Dataset,ADSL,...\nADLB,Laboratory Analysis Laboratory Dataset,BDS,...',
+    variables: 'dataset,variable,length,...\nADSL,AVAL,20,...\nADSL,AVAL.AST,8,...',
+    codeLists: 'codelist,type,dataType,...\nNo Yes Response,decoded,text,...\nRace,decoded,text,...',
+    codedValues: 'codelist,value,decode,...\nNo Yes Response,Y,Yes,...\nNo Yes Response,N,No,...',
+};
 
 const ModalImportMetadata = (props) => {
     const dispatch = useDispatch();
@@ -175,6 +187,17 @@ const ModalImportMetadata = (props) => {
     const [codeListData, setCodeListData] = useState('');
     const [codedValueData, setCodedValueData] = useState('');
     const [showXptLoad, setShowXptLoad] = useState(false);
+
+    const [currentTab, setCurrentTab] = useState('variables');
+    const handleTabChange = (event, newTab) => {
+        setCurrentTab(newTab);
+    };
+
+    let currentData = [dsData, varData, codeListData, codedValueData][tabNames.indexOf(currentTab)];
+    const handleChange = (event) => {
+        let currentSetter = [setDsData, setVarData, setCodeListData, setCodedValueData][tabNames.indexOf(currentTab)];
+        currentSetter(event.target.value);
+    };
 
     const handleClose = () => {
         dispatch(closeModal({ type: props.type }));
@@ -205,9 +228,9 @@ const ModalImportMetadata = (props) => {
 
     const copyToClipboard = () => {
         if (layout === 'table') {
-            clipboard.writeText(JSON.toString(varData));
+            clipboard.writeText(JSON.toString(currentData));
         } else {
-            clipboard.writeText(varData);
+            clipboard.writeText(currentData);
         }
     };
 
@@ -234,13 +257,13 @@ const ModalImportMetadata = (props) => {
         let conversionFailed = false;
         let newLayout = event.target.value;
         for (let index = 0; index < data.length; index++) {
-            let currentData = data[index];
+            let sourceData = data[index];
             if (
-                (typeof currentData === 'string' && currentData.length > 0) ||
-                (typeof currentData === 'object' && Object.keys(currentData).length > 0)
+                (typeof sourceData === 'string' && sourceData.length > 0) ||
+                (typeof sourceData === 'object' && Object.keys(sourceData).length > 0)
             ) {
                 // Data is not blank
-                let newData = await convertLayout(varData, layout, newLayout);
+                let newData = await convertLayout(sourceData, layout, newLayout);
                 if (newData === false) {
                     conversionFailed = true;
                 } else {
@@ -268,18 +291,7 @@ const ModalImportMetadata = (props) => {
         }
     };
 
-    const [currentTab, setCurrentTab] = useState('variables');
-    const handleTabChange = (event, newTab) => {
-        setCurrentTab(newTab);
-    };
-
-    let currentData = [dsData, varData, codeListData, codedValueData][tabNames.indexOf(currentTab)];
-    const handleChange = (event) => {
-        let currentSetter = [setDsData, setVarData, setCodeListData, setCodedValueData][tabNames.indexOf(currentTab)];
-        currentSetter(event.target.value);
-    };
-
-    let placeholder = 'dataset,variable,length,...\nADSL,AVAL,20,...\nADSL,AVAL.AST,8,...';
+    let placeholder = placeholders[currentTab];
     if (layout !== 'csv') {
         placeholder = placeholder.replace(/,/g, '\t');
     }
@@ -397,29 +409,26 @@ const ModalImportMetadata = (props) => {
                     </AppBar>
                 </DialogTitle>
                 <DialogContent className={classes.content}>
-                    <Grid container alignItems='flex-start' className={classes.mainContent}>
-                        <Grid item xs={12}>
-                            { layout === 'table' ? (
-                                <MetadataImportTableView data={currentData} />
-                            ) : (
-                                <TextField
-                                    multiline
-                                    fullWidth
-                                    value={currentData}
-                                    placeholder={placeholder}
-                                    onChange={handleChange}
-                                    InputProps={{
-                                        disableUnderline: true,
-                                        classes: {
-                                            root: classes.textFieldRoot,
-                                            input: classes.textFieldInput,
-                                        },
-                                    }}
-                                />
-                            )
-                            }
-                        </Grid>
-                    </Grid>
+                    { layout === 'table' && typeof currentData === 'object' ? (
+                        <MetadataImportTableView data={currentData} />
+                    ) : (
+                        <TextField
+                            multiline
+                            fullWidth
+                            value={currentData}
+                            className={classes.mainContent}
+                            placeholder={placeholder}
+                            onChange={handleChange}
+                            InputProps={{
+                                disableUnderline: true,
+                                classes: {
+                                    root: classes.textFieldRoot,
+                                    input: classes.textFieldInput,
+                                },
+                            }}
+                        />
+                    )
+                    }
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={importMetadata} color="primary">

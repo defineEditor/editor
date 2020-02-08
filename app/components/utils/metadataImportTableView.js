@@ -34,6 +34,9 @@ const MetadataImportTableView = (props) => {
             data={tableData}
             header={header}
             disableToolbar
+            pagination
+            rowsPerPageOptions={[100, 250, 1000]}
+            initialRowsPerPage={100}
         />
     );
 };
