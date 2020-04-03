@@ -73,7 +73,9 @@ function createWindow () {
         center: true,
         show: false,
         icon: path.join(__dirname, '/static/images/misc/mainIcon64x64.png'),
-        webPreferences: { nodeIntegration: true },
+        webPreferences: {
+            nodeIntegration: true,
+        },
     });
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);
@@ -82,7 +84,9 @@ function createWindow () {
         if (!mainWindow) {
             throw new Error('"mainWindow" is not defined');
         }
-        mainWindow.show();
+        if (process.env.NODE_ENV !== 'development') {
+            mainWindow.show();
+        }
         mainWindow.maximize();
     });
     // Set the menu

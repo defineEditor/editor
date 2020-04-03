@@ -34,11 +34,13 @@ import TextField from '@material-ui/core/TextField';
 import { FaRegCopy as CopyIcon, FaRegClipboard as PasteIcon } from 'react-icons/fa';
 import InternalHelp from 'components/utils/internalHelp.js';
 import LoadFromXpt from 'components/utils/loadFromXpt.js';
+import convertImportMetadata from 'utils/convertImportMetadata.js';
 import MetadataImportTableView from 'components/utils/metadataImportTableView.js';
 import { IMPORT_METADATA } from 'constants/help.js';
 import {
     closeModal,
     openSnackbar,
+    addImportMetadata,
 } from 'actions/index.js';
 
 const getStyles = makeStyles(theme => ({
@@ -209,8 +211,16 @@ const ModalImportMetadata = (props) => {
         }
     };
 
-    const importMetadata = () => {
-        dispatch(closeModal({ type: props.type }));
+    const handleImportMetadata = async () => {
+        let metadata = {
+            dsData: await convertLayout(dsData, layout, 'table'),
+            varDat: await convertLayout(varData, layout, 'table'),
+            codeListData: await convertLayout(codeListData, layout, 'table'),
+            codedValueDat: await convertLayout(codedValueData, layout, 'table')
+        };
+        let convertedMetadata = convertImportMetadata(metadata);
+        dispatch(addImportMetadata(convertedMetadata));
+        // dispatch(closeModal({ type: props.type }));
     };
 
     const handleXptFinish = async (varData, dsData, codedValueData) => {
@@ -347,23 +357,7 @@ const ModalImportMetadata = (props) => {
                                 color='default'
                                 className={classes.button}
                             >
-                                Define
-                            </Button>
-                            <Button
-                                variant='contained'
-                                onClick={() => { setShowXptLoad(true); }}
-                                color='default'
-                                className={classes.button}
-                            >
                                 XPT
-                            </Button>
-                            <Button
-                                variant='contained'
-                                onClick={() => { setShowXptLoad(true); }}
-                                color='default'
-                                className={classes.button}
-                            >
-                                CDISC Library
                             </Button>
                             <div className={classes.grow} />
                             <Tooltip
@@ -431,7 +425,7 @@ const ModalImportMetadata = (props) => {
                     }
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={importMetadata} color="primary">
+                    <Button onClick={handleImportMetadata} color="primary">
                         Import
                     </Button>
                     <Button onClick={handleClose} color="primary">

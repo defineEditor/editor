@@ -33,6 +33,7 @@ import {
     INSERT_VAR,
     ADD_REVIEWCOMMENT,
     DEL_REVIEWCOMMENT,
+    ADD_IMPORTMETADATA,
 } from 'constants/action-types';
 import { ItemGroup, TranslatedText, DatasetClass, Leaf, ItemRef } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
@@ -70,8 +71,8 @@ const updateItemGroup = (state, action) => {
             updateObj.descriptions = [];
             delete updateObj.description;
         } else {
-            // Otherwise update the description and set language to standard;
-            let newDescription = { ...new TranslatedText({ value: updateObj.description, lang: 'en' }) };
+            // Otherwise update the description;
+            let newDescription = { ...new TranslatedText({ value: updateObj.description }) };
             updateObj.descriptions = [newDescription];
         }
     }
@@ -440,6 +441,29 @@ const deleteReviewComment = (state, action) => {
     }
 };
 
+const addImportMetadata = (state, action) => {
+    let { newItemGroups, updatedItemGroups } = action.updateObj.dsResult;
+    if (newItemGroups || updatedItemGroups) {
+        let newState = { ...state };
+        if (newItemGroups) {
+            newState = { ...newState, ...newItemGroups };
+        }
+        if (updatedItemGroups) {
+            Object.keys(updatedItemGroups).forEach(oid => {
+                let newDescription = { ...new TranslatedText({ value: updatedItemGroups[oid].label }) };
+                let updatedItemGroup = { ...new ItemGroup({
+                    ...newState[oid],
+                    descriptions: [newDescription]
+                }) };
+                newState = { ...newState, [oid]: updatedItemGroup };
+            });
+        }
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const itemGroups = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMGROUP:
@@ -482,6 +506,8 @@ const itemGroups = (state = {}, action) => {
             return addReviewComment(state, action);
         case DEL_REVIEWCOMMENT:
             return deleteReviewComment(state, action);
+        case ADD_IMPORTMETADATA:
+            return addImportMetadata(state, action);
         default:
             return state;
     }

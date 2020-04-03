@@ -28,7 +28,7 @@ const readContents = async (mainWindow, openDialogResult) => {
                 if (xport.members && xport.members.length === 1) {
                     let ds = xport.members[0];
                     metadata[ds.name] = {
-                        dsMetadata: { name: ds.name, label: ds.label },
+                        dsMetadata: { name: ds.name, label: ds.label, fileName: path.basename(file) },
                         varMetadata,
                         filePath: file,
                     };

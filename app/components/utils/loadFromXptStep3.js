@@ -289,7 +289,7 @@ const LoadFromXptStep3 = (props) => {
                 });
             } else if (options.addNewVariables) {
                 // A new dataset
-                xptNewDatasets.push({ name: dsName, label: xptDs.dsMetadata.label });
+                xptNewDatasets.push({ name: dsName, label: xptDs.dsMetadata.label, fileName: xptDs.dsMetadata.fileName });
                 updatedData[dsName] = {};
                 xptVarNames.forEach(itemName => {
                     const xptVar = xptVarObj[itemName];

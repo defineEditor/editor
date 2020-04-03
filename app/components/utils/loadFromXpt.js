@@ -131,9 +131,9 @@ const LoadFromXpt = (props) => {
         // Dataset data
         let datasetData = '';
         if (newDatasets.length > 0) {
-            let dsAttrs = ['dataset,label'];
+            let dsAttrs = ['dataset,label,fileName'];
             Object.values(newDatasets).forEach(ds => {
-                dsAttrs.push(escapeValue(ds.name) + ',' + escapeValue(ds.label));
+                dsAttrs.push(escapeValue(ds.name) + ',' + escapeValue(ds.label) + ',' + escapeValue(ds.fileName));
             });
             datasetData = dsAttrs.join('\n');
         }
