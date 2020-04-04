@@ -38,6 +38,7 @@ import convertImportMetadata from 'utils/convertImportMetadata.js';
 import MetadataImportTableView from 'components/utils/metadataImportTableView.js';
 import { IMPORT_METADATA } from 'constants/help.js';
 import {
+    openModal,
     closeModal,
     openSnackbar,
     addImportMetadata,
@@ -212,15 +213,50 @@ const ModalImportMetadata = (props) => {
     };
 
     const handleImportMetadata = async () => {
+        let updatedDsData = await convertLayout(dsData, layout, 'table');
+        let updatedVarData = await convertLayout(varData, layout, 'table');
+        let updatedCodeListData = await convertLayout(codeListData, layout, 'table');
+        // Upcase all variable/dataset names;
+        updatedDsData.forEach(ds => {
+            if (ds.dataset) {
+                ds.dataset = ds.dataset.toUpperCase();
+            }
+        });
+        updatedVarData.forEach(item => {
+            if (item.dataset) {
+                item.dataset = item.dataset.toUpperCase();
+            }
+            if (item.variable) {
+                item.variable = item.variable.toUpperCase();
+            }
+        });
+        updatedCodeListData.forEach(cl => {
+            if (cl.codelist) {
+                cl.name = cl.codelist;
+                delete cl.codelist;
+            }
+            if (cl.type) {
+                cl.codeListType = cl.type.toLowerCase();
+                delete cl.type;
+            }
+        });
         let metadata = {
-            dsData: await convertLayout(dsData, layout, 'table'),
-            varDat: await convertLayout(varData, layout, 'table'),
-            codeListData: await convertLayout(codeListData, layout, 'table'),
+            dsData: updatedDsData,
+            varData: updatedVarData,
+            codeListData: updatedCodeListData,
             codedValueDat: await convertLayout(codedValueData, layout, 'table')
         };
-        let convertedMetadata = convertImportMetadata(metadata);
-        dispatch(addImportMetadata(convertedMetadata));
-        // dispatch(closeModal({ type: props.type }));
+        let convertedMetadata;
+        try {
+            convertedMetadata = convertImportMetadata(metadata);
+            dispatch(addImportMetadata(convertedMetadata));
+        } catch (error) {
+            dispatch(openModal({
+                type: 'GENERAL',
+                props: { title: 'Failed Import', message: error.message }
+            }));
+        }
+        dispatch(closeModal({ type: props.type }));
     };
 
     const handleXptFinish = async (varData, dsData, codedValueData) => {

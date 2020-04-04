@@ -20,10 +20,12 @@ import { BootstrapTable, ButtonGroup } from 'react-bootstrap-table';
 import clone from 'clone';
 import deepEqual from 'fast-deep-equal';
 import Grid from '@material-ui/core/Grid';
+import Fab from '@material-ui/core/Fab';
 import Button from '@material-ui/core/Button';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
+import ArchiveIcon from '@material-ui/icons/Archive';
 import DescriptionEditor from 'editors/descriptionEditor.js';
 import InteractiveKeyOrderEditor from 'components/orderEditors/interactiveKeyOrderEditor.js';
 import AddItem from 'components/tableActions/addItem.js';
@@ -49,6 +51,7 @@ import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
 import {
     updateItemGroup,
     deleteItemGroups,
+    openModal,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -60,6 +63,9 @@ const styles = theme => ({
     buttonGroup: {
         marginLeft: theme.spacing(2),
     },
+    fabIcon: {
+        transform: 'translate(0, -5%)',
+    },
 });
 
 // Redux functions
@@ -67,6 +73,7 @@ const mapDispatchToProps = dispatch => {
     return {
         updateItemGroup: (oid, updateObj) => dispatch(updateItemGroup(oid, updateObj)),
         deleteItemGroups: (deleteObj) => dispatch(deleteItemGroups(deleteObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
@@ -319,6 +326,12 @@ class ConnectedDatasetTable extends React.Component {
     }
 
     createCustomButtonGroup = props => {
+        const openImportMetadata = () => {
+            this.props.openModal({
+                type: 'IMPORT_METADATA',
+            });
+        };
+
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={2}>
@@ -347,6 +360,16 @@ class ConnectedDatasetTable extends React.Component {
                     </Grid>
                     <Grid item>
                         <DatasetOrderEditor/>
+                    </Grid>
+                    <Grid item>
+                        <Fab
+                            size='small'
+                            color='default'
+                            onClick={openImportMetadata}
+                            className={this.props.classes.fabIcon}
+                        >
+                            <ArchiveIcon/>
+                        </Fab>
                     </Grid>
                 </Grid>
             </ButtonGroup>
@@ -549,6 +572,7 @@ ConnectedDatasetTable.propTypes = {
     reviewComments: PropTypes.object.isRequired,
     reviewMode: PropTypes.bool,
     showRowSelect: PropTypes.bool,
+    openModal: PropTypes.func.isRequired,
 };
 ConnectedDatasetTable.displayName = 'datasetTable';
 

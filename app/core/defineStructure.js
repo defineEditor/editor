@@ -716,7 +716,7 @@ class Odm {
 class ItemGroup extends BasicFunctions {
     constructor ({
         oid,
-        name,
+        name = '',
         domain,
         datasetName,
         repeating,

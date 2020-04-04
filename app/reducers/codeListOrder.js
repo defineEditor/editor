@@ -18,6 +18,7 @@ import {
     UPD_CODELISTORDER,
     ADD_VARS,
     ADD_ITEMGROUPS,
+    ADD_IMPORTMETADATA,
 } from 'constants/action-types';
 
 const addCodeList = (state, action) => {
@@ -67,6 +68,15 @@ const handleAddItemGroups = (state, action) => {
     return state.concat(allCodeListOids);
 };
 
+const addImportMetadata = (state, action) => {
+    let { newCodeLists } = action.updateObj.codeListResult;
+    if (newCodeLists) {
+        return state.concat(Object.keys(newCodeLists));
+    } else {
+        return state;
+    }
+};
+
 const codeListOrder = (state = {}, action) => {
     switch (action.type) {
         case ADD_CODELIST:
@@ -79,6 +89,8 @@ const codeListOrder = (state = {}, action) => {
             return handleAddVariables(state, action);
         case ADD_ITEMGROUPS:
             return handleAddItemGroups(state, action);
+        case ADD_IMPORTMETADATA:
+            return addImportMetadata(state, action);
         default:
             return state;
     }

@@ -442,9 +442,11 @@ const deleteReviewComment = (state, action) => {
 };
 
 const addImportMetadata = (state, action) => {
+    let newState;
     let { newItemGroups, updatedItemGroups } = action.updateObj.dsResult;
+    // Add ItemGroups
     if (newItemGroups || updatedItemGroups) {
-        let newState = { ...state };
+        newState = { ...state };
         if (newItemGroups) {
             newState = { ...newState, ...newItemGroups };
         }
@@ -458,10 +460,25 @@ const addImportMetadata = (state, action) => {
                 newState = { ...newState, [oid]: updatedItemGroup };
             });
         }
-        return newState;
     } else {
-        return state;
+        newState = state;
     }
+    // Add ItemRefs
+    Object.keys(action.updateObj.varResult).forEach(itemGroupOid => {
+        let { newItemRefs, updatedItemRefs } = action.updateObj.varResult[itemGroupOid];
+        if (newItemRefs) {
+            let itemGroup = { ...newState[itemGroupOid] };
+            itemGroup.itemRefs = { ...itemGroup.itemRefs, ...newItemRefs };
+            itemGroup.itemRefOrder = itemGroup.itemRefOrder.concat(Object.keys(newItemRefs));
+            newState = { ...newState, [itemGroupOid]: itemGroup };
+        }
+        if (updatedItemRefs) {
+            let itemGroup = { ...newState[itemGroupOid] };
+            itemGroup.itemRefs = { ...itemGroup.itemRefs, ...updatedItemRefs };
+            newState = { ...newState, [itemGroupOid]: itemGroup };
+        }
+    });
+    return newState;
 };
 
 const itemGroups = (state = {}, action) => {

@@ -64,7 +64,7 @@ const LoadFromXpt = (props) => {
     const [metadata, setMetadata] = useState({});
     const [options, setOptions] = useState({
         updateActualLengthOnly: true,
-        addNewVariables: false,
+        addNewVariables: true,
         updateLabel: false,
         updateDisplayFormat: false,
         addCodedValues: false,
