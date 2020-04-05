@@ -22,6 +22,7 @@ import clone from 'clone';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import Tooltip from '@material-ui/core/Tooltip';
 import Fab from '@material-ui/core/Fab';
 import grey from '@material-ui/core/colors/grey';
 import indigo from '@material-ui/core/colors/indigo';
@@ -804,14 +805,16 @@ class ConnectedVariableTable extends React.Component {
                         </Fab>
                     </Grid>
                     <Grid item>
-                        <Fab
-                            size='small'
-                            color='default'
-                            onClick={openImportMetadata}
-                            className={this.props.classes.fabIcon}
-                        >
-                            <ArchiveIcon/>
-                        </Fab>
+                        <Tooltip title={'Import Metadata'} placement='bottom' enterDelay={700}>
+                            <Fab
+                                size='small'
+                                color='default'
+                                onClick={openImportMetadata}
+                                className={this.props.classes.fabIcon}
+                            >
+                                <ArchiveIcon/>
+                            </Fab>
+                        </Tooltip>
                     </Grid>
                 </Grid>
             </ButtonGroup>

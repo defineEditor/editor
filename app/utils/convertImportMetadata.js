@@ -12,10 +12,9 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-// import { ItemDef, ItemRef, ItemGroup, ValueList, WhereClause, CodeList, Leaf, Origin, TranslatedText } from 'core/defineStructure.js';
 import store from 'store/index.js';
 import clone from 'clone';
-import { ItemGroup, ItemDef, ItemRef, TranslatedText, Leaf, CodeList } from 'core/defineStructure.js';
+import { ItemGroup, ItemDef, ItemRef, TranslatedText, EnumeratedItem, CodeListItem, Leaf, CodeList } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 import deepEqual from 'fast-deep-equal';
 import getOidByName from 'utils/getOidByName.js';
@@ -84,13 +83,13 @@ const convertImportMetadata = (metadata) => {
         // Get the list of datasets
         let currentItemDefOids = Object.keys(mdv.itemDefs);
         let itemGroupOids = {};
-        let allItemsGroups = { ...mdv.itemGroups };
+        let allItemGroups = { ...mdv.itemGroups };
         if (dsResult.newItemGroups) {
-            allItemsGroups = { ...allItemsGroups, ...dsResult.newItemGroups };
+            allItemGroups = { ...allItemGroups, ...dsResult.newItemGroups };
         }
         varData.forEach(item => {
             if (!Object.keys(itemGroupOids).includes(item.dataset)) {
-                let dsFound = Object.values(allItemsGroups).some(itemGroup => {
+                let dsFound = Object.values(allItemGroups).some(itemGroup => {
                     if (itemGroup.name === item.dataset) {
                         itemGroupOids[item.dataset] = itemGroup.oid;
                         return true;
@@ -107,7 +106,7 @@ const convertImportMetadata = (metadata) => {
             let itemGroupOid = itemGroupOids[dsName];
             let currentVars = varData.filter(item => dsName === item.dataset);
             let existingDataset = Object.keys(mdv.itemGroups).includes(itemGroupOid);
-            let currentItemRefOids = allItemsGroups[itemGroupOid].itemRefOrder;
+            let currentItemRefOids = allItemGroups[itemGroupOid].itemRefOrder;
             let newItemDefs = {};
             let updatedItemDefs = {};
             let newItemRefs = {};
@@ -122,7 +121,7 @@ const convertImportMetadata = (metadata) => {
                     let isNewItem = false;
                     if (itemDefOid !== undefined) {
                         // Existing variable
-                        Object.values(allItemsGroups[itemGroupOid].itemRefs).some(existingItemRef => {
+                        Object.values(allItemGroups[itemGroupOid].itemRefs).some(existingItemRef => {
                             if (existingItemRef.itemOid === itemDefOid) {
                                 itemRef = new ItemRef({ ...existingItemRef, ...item });
                             }
@@ -208,6 +207,11 @@ const convertImportMetadata = (metadata) => {
             } else {
                 isNewCodeList = true;
                 codeList = new CodeList({ ...currentCodeList, oid: codeListOid });
+                if (!['external', 'decoded', 'enumerated'].includes(codeList.codeListType)) {
+                    throw new Error(
+                        `All new codelists must have a valid type specified (external, decoded, enumerated). Value '${codeList.codeListType}' is invalid.`
+                    );
+                }
             }
             if (isNewCodeList) {
                 newCodeLists[codeListOid] = { ...codeList };
@@ -217,7 +221,124 @@ const convertImportMetadata = (metadata) => {
         });
         codeListResult = { newCodeLists, updatedCodeLists };
     }
-    return { dsResult, varResult, codeListResult, codedValueData };
+    // Coded values
+    if (codedValueData && codedValueData.length > 0) {
+        let codeListOids = {};
+        let allCodeLists = { ...mdv.codeLists };
+        if (codeListResult.newCodeLists) {
+            allCodeLists = { ...allCodeLists, ...codeListResult.newCodeLists };
+        }
+        codedValueData.forEach(codedValue => {
+            if (!Object.keys(codeListOids).includes(codedValue.codelist)) {
+                let clFound = Object.values(allCodeLists).some(codeList => {
+                    if (codeList.name === codedValue.codelist) {
+                        codeListOids[codedValue.codelist] = codeList.oid;
+                        return true;
+                    }
+                });
+                if (!clFound) {
+                    throw new Error(`Codelist ${codedValue.codelist} is not defined.`);
+                }
+            }
+        });
+
+        Object.keys(codeListOids).forEach(clName => {
+            let clOid = codeListOids[clName];
+            let cl = clone(allCodeLists[clOid]);
+            let currentCodedValues = codedValueData.filter(codedValue => codedValue.codelist === clName);
+            let stdCodeLists = currentState.stdCodeLists;
+
+            let newOids = [];
+            currentCodedValues.forEach(item => {
+                let cvOid;
+                let clItemType;
+                if (cl.codeListType === 'decoded') {
+                    clItemType = 'codeListItems';
+                } else {
+                    clItemType = 'enumeratedItems';
+                }
+
+                // Check if it is a new coded value or an existing
+                Object.keys(cl[clItemType]).some(existingItemOid => {
+                    let existingItem = cl[clItemType][existingItemOid];
+                    if (item.codedValue === existingItem.codedValue) {
+                        cvOid = existingItemOid;
+                        return true;
+                    }
+                });
+
+                if (cvOid !== undefined) {
+                    // Existing
+                    let newCodedValue;
+                    if (cl.codeListType === 'decoded') {
+                        newCodedValue = new CodeListItem({ ...cl[clItemType][cvOid], ...item });
+                    } else {
+                        newCodedValue = new EnumeratedItem({ ...cl[clItemType][cvOid], ...item });
+                    }
+                    if (item.decode !== undefined) {
+                        let newDecode = { ...new TranslatedText({ value: item.decode }) };
+                        newCodedValue.setDecode(newDecode);
+                    }
+                    cl[clItemType] = {
+                        ...cl[clItemType],
+                        [cvOid]: { ...newCodedValue },
+                    };
+                } else {
+                    // New
+                    cvOid = getOid('CodeListItem', Object.keys(cl[clItemType]));
+                    newOids.push(cvOid);
+                    let newCodedValue = new CodeListItem(item);
+                    // Add decode
+                    if (item.decode !== undefined) {
+                        let newDecode = { ...new TranslatedText({ value: item.decode }) };
+                        newCodedValue.setDecode(newDecode);
+                    } else {
+                        let newDecode = { ...new TranslatedText({ value: '' }) };
+                        newCodedValue.setDecode(newDecode);
+                    }
+                    // Check for Alias in Standard Controlled Terminology
+                    if (cl.alias !== undefined &&
+                        cl.standardOid !== undefined &&
+                        cl.alias.context === 'nci:ExtCodeID' &&
+                        stdCodeLists.hasOwnProperty(cl.standardOid)
+                    ) {
+                        let standard = stdCodeLists[cl.standardOid];
+                        let stdCodeList = standard.codeLists[standard.nciCodeOids[cl.alias.name]];
+                        // Search for the value in the standard codelist items
+                        let itemFound = Object.keys(stdCodeList.codeListItems).some(itemOid => {
+                            if (stdCodeList.codeListItems[itemOid].codedValue === newCodedValue.codedValue) {
+                                newCodedValue.alias = clone(stdCodeList.codeListItems[itemOid].alias);
+                                return true;
+                            }
+                        });
+                        // If it is a non-extensible codelist and the value is not from the standard codelist
+                        if (stdCodeList.codeListExtensible === 'No' && !itemFound) {
+                            throw new Error(`Codelist ${cl.name} is not extensible and value '${newCodedValue.codedValue}' is not in the codelist.`);
+                        } else if (!itemFound) {
+                            newCodedValue.extendedValue = undefined;
+                        }
+                    }
+                    // Update the codelist with the new coded value
+                    cl[clItemType] = {
+                        ...cl[clItemType],
+                        [cvOid]: { ...newCodedValue },
+                    };
+                }
+            });
+            if (newOids.length > 0) {
+                cl.itemOrder = cl.itemOrder.concat(newOids);
+            }
+
+            if (codeListResult.newCodeLists && Object.keys(codeListResult.newCodeLists).includes(clOid)) {
+                codeListResult.newCodeLists[clOid] = cl;
+            } else if (codeListResult.updatedCodeLists) {
+                codeListResult.updatedCodeLists[clOid] = cl;
+            } else {
+                codeListResult.updatedCodeLists = { [clOid]: cl };
+            }
+        });
+    }
+    return { dsResult, varResult, codeListResult };
 };
 
 export default convertImportMetadata;

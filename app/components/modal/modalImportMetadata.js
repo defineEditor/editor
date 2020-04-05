@@ -178,7 +178,7 @@ let placeholders = {
     datasets: 'dataset,label,class, ...\nADSL,Subject Level Analysis Dataset,ADSL,...\nADLB,Laboratory Analysis Laboratory Dataset,BDS,...',
     variables: 'dataset,variable,length,...\nADSL,AVAL,20,...\nADSL,AVAL.AST,8,...',
     codeLists: 'codelist,type,dataType,...\nNo Yes Response,decoded,text,...\nRace,decoded,text,...',
-    codedValues: 'codelist,value,decode,...\nNo Yes Response,Y,Yes,...\nNo Yes Response,N,No,...',
+    codedValues: 'codelist,codedValue,decode,...\nNo Yes Response,Y,Yes,...\nNo Yes Response,N,No,...',
 };
 
 const ModalImportMetadata = (props) => {
@@ -191,7 +191,7 @@ const ModalImportMetadata = (props) => {
     const [codedValueData, setCodedValueData] = useState('');
     const [showXptLoad, setShowXptLoad] = useState(false);
 
-    const [currentTab, setCurrentTab] = useState('variables');
+    const [currentTab, setCurrentTab] = useState(props.tab || 'variables');
     const handleTabChange = (event, newTab) => {
         setCurrentTab(newTab);
     };
@@ -244,19 +244,22 @@ const ModalImportMetadata = (props) => {
             dsData: updatedDsData,
             varData: updatedVarData,
             codeListData: updatedCodeListData,
-            codedValueDat: await convertLayout(codedValueData, layout, 'table')
+            codedValueData: await convertLayout(codedValueData, layout, 'table')
         };
         let convertedMetadata;
         try {
             convertedMetadata = convertImportMetadata(metadata);
             dispatch(addImportMetadata(convertedMetadata));
+            dispatch(closeModal({ type: props.type }));
         } catch (error) {
             dispatch(openModal({
                 type: 'GENERAL',
-                props: { title: 'Failed Import', message: error.message }
+                props: {
+                    title: 'Failed Import',
+                    message: 'Check your are using a correct Format value and the metadata is properly structured. Error message was: ' + error.message
+                }
             }));
         }
-        dispatch(closeModal({ type: props.type }));
     };
 
     const handleXptFinish = async (varData, dsData, codedValueData) => {

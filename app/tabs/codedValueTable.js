@@ -20,6 +20,7 @@ import clone from 'clone';
 import deepEqual from 'fast-deep-equal';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import Tooltip from '@material-ui/core/Tooltip';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Fab from '@material-ui/core/Fab';
@@ -31,6 +32,7 @@ import { withStyles } from '@material-ui/core/styles';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import CommentIcon from '@material-ui/icons/Comment';
+import ArchiveIcon from '@material-ui/icons/Archive';
 import OpenDrawer from '@material-ui/icons/VerticalSplit';
 import Typography from '@material-ui/core/Typography';
 import TablePagination from '@material-ui/core/TablePagination';
@@ -461,6 +463,13 @@ class ConnectedCodedValueTable extends React.Component {
             });
         };
 
+        const openImportMetadata = () => {
+            this.props.openModal({
+                type: 'IMPORT_METADATA',
+                props: { tab: 'codedValues' }
+            });
+        };
+
         let commentPresent = codeList.reviewCommentOids !== undefined && codeList.reviewCommentOids.length > 0;
 
         return (
@@ -503,14 +512,28 @@ class ConnectedCodedValueTable extends React.Component {
                         <CodedValueOrderEditor codeListOid={this.props.codeListOid}/>
                     </Grid>
                     <Grid item>
-                        <Fab
-                            size='small'
-                            color={ commentPresent ? 'primary' : 'default' }
-                            onClick={openComments}
-                            className={this.props.classes.commentIcon}
-                        >
-                            <CommentIcon/>
-                        </Fab>
+                        <Tooltip title={'Review Comment'} placement='bottom' enterDelay={700}>
+                            <Fab
+                                size='small'
+                                color={ commentPresent ? 'primary' : 'default' }
+                                onClick={openComments}
+                                className={this.props.classes.commentIcon}
+                            >
+                                <CommentIcon/>
+                            </Fab>
+                        </Tooltip>
+                    </Grid>
+                    <Grid item>
+                        <Tooltip title={'Import Metadata'} placement='bottom' enterDelay={700}>
+                            <Fab
+                                size='small'
+                                color='default'
+                                onClick={openImportMetadata}
+                                className={this.props.classes.fabIcon}
+                            >
+                                <ArchiveIcon/>
+                            </Fab>
+                        </Tooltip>
                     </Grid>
                 </Grid>
             </ButtonGroup>

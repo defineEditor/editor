@@ -22,6 +22,7 @@ import deepEqual from 'fast-deep-equal';
 import Grid from '@material-ui/core/Grid';
 import Fab from '@material-ui/core/Fab';
 import Button from '@material-ui/core/Button';
+import Tooltip from '@material-ui/core/Tooltip';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
@@ -329,6 +330,7 @@ class ConnectedDatasetTable extends React.Component {
         const openImportMetadata = () => {
             this.props.openModal({
                 type: 'IMPORT_METADATA',
+                props: { tab: 'datasets' }
             });
         };
 
@@ -362,14 +364,16 @@ class ConnectedDatasetTable extends React.Component {
                         <DatasetOrderEditor/>
                     </Grid>
                     <Grid item>
-                        <Fab
-                            size='small'
-                            color='default'
-                            onClick={openImportMetadata}
-                            className={this.props.classes.fabIcon}
-                        >
-                            <ArchiveIcon/>
-                        </Fab>
+                        <Tooltip title={'Import Metadata'} placement='bottom' enterDelay={700}>
+                            <Fab
+                                size='small'
+                                color='default'
+                                onClick={openImportMetadata}
+                                className={this.props.classes.fabIcon}
+                            >
+                                <ArchiveIcon/>
+                            </Fab>
+                        </Tooltip>
                     </Grid>
                 </Grid>
             </ButtonGroup>

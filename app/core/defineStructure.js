@@ -409,6 +409,9 @@ class CodeListItem extends EnumeratedItem {
         });
         this.decodes = decodes;
     }
+    setDecode (decode) {
+        this.decodes = [decode];
+    }
     addDecode (decode) {
         this.decodes.push(decode);
     }
