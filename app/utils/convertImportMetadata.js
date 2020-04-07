@@ -14,7 +14,7 @@
 
 import store from 'store/index.js';
 import clone from 'clone';
-import { ItemGroup, ItemDef, ItemRef, TranslatedText, EnumeratedItem, CodeListItem, Leaf, CodeList } from 'core/defineStructure.js';
+import { ItemGroup, ItemDef, ItemRef, TranslatedText, EnumeratedItem, CodeListItem, Origin, Leaf, CodeList } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 import deepEqual from 'fast-deep-equal';
 import getOidByName from 'utils/getOidByName.js';
@@ -30,10 +30,49 @@ const removeBlankAttributes = (obj) => {
     return result;
 };
 
+const updateItemDef = (item, itemDef, stdConstants, model) => {
+    // Label
+    if (item.label) {
+        let newDescription = { ...new TranslatedText({ value: item.label }) };
+        itemDef.setDescription(newDescription);
+    }
+    // Origin
+    if (item.originType || item.originDescription) {
+        let newOrigin;
+
+        if (itemDef.origins.length > 0) {
+            newOrigin = new Origin({ ...clone(itemDef.origins[0]) });
+        } else {
+            newOrigin = new Origin();
+        }
+
+        if (item.originType) {
+            if (stdConstants && stdConstants.originTypes && stdConstants.originTypes[model]) {
+                let validOrigins = stdConstants.originTypes[model];
+                if (!validOrigins.includes(item.originType)) {
+                    throw new Error(`Invalid origin type value "${item.originType}", must be one of the following values: ${validOrigins.join(', ')}`);
+                }
+            }
+            newOrigin.type = item.originType;
+        }
+        if (item.originSource) {
+            newOrigin.source = item.originSource;
+        }
+        if (item.originDescription) {
+            let newDescription = { ...new TranslatedText({ value: item.originDescription }) };
+            newOrigin.setDescription(newDescription);
+        }
+
+        itemDef.origins[0] = { ...newOrigin };
+    }
+};
+
 const convertImportMetadata = (metadata) => {
     const { dsData, varData, codeListData, codedValueData } = metadata;
     let currentState = store.getState().present;
     let mdv = currentState.odm.study.metaDataVersion;
+    let stdConstants = currentState.stdConstants;
+    let model = mdv.model;
     if (mdv === false) {
         return;
     }
@@ -58,7 +97,7 @@ const convertImportMetadata = (metadata) => {
                 // Create a new dataset
                 let itemGroupOid = getOid('ItemGroup', currentGroupOids);
                 currentGroupOids.push(itemGroupOid);
-                let purpose = mdv.model === 'ADaM' ? 'Analysis' : 'Tabulation';
+                let purpose = model === 'ADaM' ? 'Analysis' : 'Tabulation';
                 let newLeafOid = getOid('Leaf', [], ds.dataset);
                 let leaf = { ...new Leaf({ id: newLeafOid, href: ds.fileName, title: ds.fileName }) };
                 let newItemGroup = new ItemGroup({
@@ -106,7 +145,7 @@ const convertImportMetadata = (metadata) => {
             let itemGroupOid = itemGroupOids[dsName];
             let currentVars = varData.filter(item => dsName === item.dataset);
             let existingDataset = Object.keys(mdv.itemGroups).includes(itemGroupOid);
-            let currentItemRefOids = allItemGroups[itemGroupOid].itemRefOrder;
+            let currentItemRefOids = allItemGroups[itemGroupOid].itemRefOrder.slice();
             let newItemDefs = {};
             let updatedItemDefs = {};
             let newItemRefs = {};
@@ -132,16 +171,13 @@ const convertImportMetadata = (metadata) => {
                         isNewItem = true;
                         itemDefOid = getOid('ItemDef', currentItemDefOids);
                         currentItemDefOids.push(itemDefOid);
-                        let itemDef = new ItemDef({ ...item, name: item.variable });
+                        itemDef = new ItemDef({ ...item, name: item.variable, oid: itemDefOid });
                         itemDef.sources.itemGroups = [itemGroupOid];
                         let itemRefOid = getOid('ItemRef', currentItemRefOids);
                         currentItemRefOids.push(itemRefOid);
                         itemRef = new ItemRef({ ...item, itemOid: itemDefOid, oid: itemRefOid });
                     }
-                    if (item.label) {
-                        let newDescription = { ...new TranslatedText({ value: item.label }) };
-                        itemDef.addDescription(newDescription);
-                    }
+                    updateItemDef(item, itemDef, stdConstants, model);
                     if (isNewItem) {
                         newItemDefs[itemDefOid] = { ...itemDef };
                         newItemRefs[itemRef.oid] = { ...itemRef };
@@ -162,10 +198,7 @@ const convertImportMetadata = (metadata) => {
                     let itemDefOid = getOid('ItemDef', currentItemDefOids);
                     currentItemDefOids.push(itemDefOid);
                     let itemDef = new ItemDef({ ...item, name: item.variable });
-                    if (item.label) {
-                        let newDescription = { ...new TranslatedText({ value: item.label }) };
-                        itemDef.addDescription(newDescription);
-                    }
+                    updateItemDef(item, itemDef, stdConstants, model);
                     itemDef.sources.itemGroups = [itemGroupOid];
                     let itemRefOid = getOid('ItemRef', currentItemRefOids);
                     currentItemRefOids.push(itemRefOid);

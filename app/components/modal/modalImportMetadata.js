@@ -256,7 +256,7 @@ const ModalImportMetadata = (props) => {
                 type: 'GENERAL',
                 props: {
                     title: 'Failed Import',
-                    message: 'Check your are using a correct Format value and the metadata is properly structured. Error message was: ' + error.message
+                    message: 'Check your are using a correct Format value and the metadata is properly structured. Error message: ' + error.message
                 }
             }));
         }
