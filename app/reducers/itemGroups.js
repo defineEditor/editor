@@ -451,14 +451,7 @@ const addImportMetadata = (state, action) => {
             newState = { ...newState, ...newItemGroups };
         }
         if (updatedItemGroups) {
-            Object.keys(updatedItemGroups).forEach(oid => {
-                let newDescription = { ...new TranslatedText({ value: updatedItemGroups[oid].label }) };
-                let updatedItemGroup = { ...new ItemGroup({
-                    ...newState[oid],
-                    descriptions: [newDescription]
-                }) };
-                newState = { ...newState, [oid]: updatedItemGroup };
-            });
+            newState = { ...newState, ...updatedItemGroups };
         }
     } else {
         newState = state;

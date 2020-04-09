@@ -729,7 +729,7 @@ class ItemGroup extends BasicFunctions {
         datasetClass = {},
         archiveLocationId,
         commentOid,
-        isNotStandard,
+        isNonStandard,
         hasNoData,
         standardOid,
         alias,
@@ -753,7 +753,7 @@ class ItemGroup extends BasicFunctions {
         this.datasetClass = datasetClass;
         this.archiveLocationId = archiveLocationId;
         this.commentOid = commentOid;
-        this.isNotStandard = isNotStandard;
+        this.isNonStandard = isNonStandard;
         this.hasNoData = hasNoData;
         this.standardOid = standardOid;
         this.descriptions = descriptions;

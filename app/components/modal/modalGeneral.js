@@ -32,10 +32,10 @@ const getStyles = makeStyles(theme => ({
         paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
-        top: '40%',
+        top: '20%',
         transform: 'translate(0%, calc(-50%+0.5px))',
         overflowX: 'auto',
-        maxHeight: '85%',
+        maxHeight: '70%',
         overflowY: 'auto',
     },
     title: {

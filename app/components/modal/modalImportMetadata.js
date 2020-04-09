@@ -213,37 +213,10 @@ const ModalImportMetadata = (props) => {
     };
 
     const handleImportMetadata = async () => {
-        let updatedDsData = await convertLayout(dsData, layout, 'table');
-        let updatedVarData = await convertLayout(varData, layout, 'table');
-        let updatedCodeListData = await convertLayout(codeListData, layout, 'table');
-        // Upcase all variable/dataset names;
-        updatedDsData.forEach(ds => {
-            if (ds.dataset) {
-                ds.dataset = ds.dataset.toUpperCase();
-            }
-        });
-        updatedVarData.forEach(item => {
-            if (item.dataset) {
-                item.dataset = item.dataset.toUpperCase();
-            }
-            if (item.variable) {
-                item.variable = item.variable.toUpperCase();
-            }
-        });
-        updatedCodeListData.forEach(cl => {
-            if (cl.codelist) {
-                cl.name = cl.codelist;
-                delete cl.codelist;
-            }
-            if (cl.type) {
-                cl.codeListType = cl.type.toLowerCase();
-                delete cl.type;
-            }
-        });
         let metadata = {
-            dsData: updatedDsData,
-            varData: updatedVarData,
-            codeListData: updatedCodeListData,
+            dsData: await convertLayout(dsData, layout, 'table'),
+            varData: await convertLayout(varData, layout, 'table'),
+            codeListData: await convertLayout(codeListData, layout, 'table'),
             codedValueData: await convertLayout(codedValueData, layout, 'table')
         };
         let convertedMetadata;
@@ -256,7 +229,8 @@ const ModalImportMetadata = (props) => {
                 type: 'GENERAL',
                 props: {
                     title: 'Failed Import',
-                    message: 'Check your are using a correct Format value and the metadata is properly structured. Error message: ' + error.message
+                    markdown: true,
+                    message: 'Check your are using a correct **Format** option and the metadata is properly structured.\n\nError message(s):\n\n' + error.message
                 }
             }));
         }

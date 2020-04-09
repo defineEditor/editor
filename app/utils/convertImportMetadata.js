@@ -18,6 +18,9 @@ import { ItemGroup, ItemDef, ItemRef, TranslatedText, EnumeratedItem, CodeListIt
 import getOid from 'utils/getOid.js';
 import deepEqual from 'fast-deep-equal';
 import getOidByName from 'utils/getOidByName.js';
+import validateItemDef from 'validators/validateItemDef.js';
+import validateItemRef from 'validators/validateItemRef.js';
+import validateItemGroupDef from 'validators/validateItemGroupDef.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
 const removeBlankAttributes = (obj) => {
@@ -27,6 +30,24 @@ const removeBlankAttributes = (obj) => {
             delete result[attr];
         }
     });
+    return result;
+};
+
+const cast2Type = (value, type) => {
+    let result;
+    if (value) {
+        if (type === 'boolean') {
+            if (value === 'true') {
+                result = true;
+            } else if (value === 'false') {
+                result = false;
+            } else {
+                result = value;
+            }
+        } else if (type === 'number') {
+            result = Number(value);
+        }
+    }
     return result;
 };
 
@@ -69,6 +90,37 @@ const updateItemDef = (item, itemDef, stdConstants, model) => {
 
 const convertImportMetadata = (metadata) => {
     const { dsData, varData, codeListData, codedValueData } = metadata;
+    // Upcase all variable/dataset names, rename some fields;
+    dsData.forEach(ds => {
+        if (ds.dataset) {
+            ds.dataset = ds.dataset.toUpperCase();
+        }
+        if (ds.class) {
+            ds.datasetClass = { name: ds.class };
+            delete ds.class;
+        }
+    });
+    varData.forEach(item => {
+        if (item.dataset) {
+            item.dataset = item.dataset.toUpperCase();
+        }
+        if (item.variable) {
+            item.variable = item.variable.toUpperCase();
+        }
+        item.lengthAsData = cast2Type(item.lengthAsData, 'boolean');
+        item.lengthAsCodeList = cast2Type(item.lengthAsCodeList, 'boolean');
+    });
+    codeListData.forEach(cl => {
+        if (cl.codelist) {
+            cl.name = cl.codelist;
+            delete cl.codelist;
+        }
+        if (cl.type) {
+            cl.codeListType = cl.type.toLowerCase();
+            delete cl.type;
+        }
+    });
+    // Get Define and Standard data
     let currentState = store.getState().present;
     let mdv = currentState.odm.study.metaDataVersion;
     let stdConstants = currentState.stdConstants;
@@ -76,6 +128,7 @@ const convertImportMetadata = (metadata) => {
     if (mdv === false) {
         return;
     }
+    let errors = [];
     // Datasets
     let dsResult = {};
     if (dsData && dsData.length > 0) {
@@ -83,12 +136,25 @@ const convertImportMetadata = (metadata) => {
         let updatedItemGroups = {};
         let currentGroupOids = Object.keys(mdv.itemGroups);
         dsData.forEach(ds => {
+            errors = errors.concat(validateItemGroupDef(ds, stdConstants, model));
             let dsFound = Object.values(mdv.itemGroups).some(itemGroup => {
                 let name = itemGroup.name;
-                let label = getDescription(itemGroup);
                 if (ds.dataset === name) {
+                    let newItemGroup = new ItemGroup({
+                        ...ds,
+                        ...itemGroup,
+                    });
+                    let label = getDescription(itemGroup);
                     if (ds.label && ds.label !== label) {
-                        updatedItemGroups[itemGroup.oid] = { label: ds.label };
+                        let newDescription = { ...new TranslatedText({ value: ds.label }) };
+                        newItemGroup.setDescription(newDescription);
+                    }
+                    if (ds.datasetClass && ds.datasetClass.name !== itemGroup.datasetClass.name) {
+                        newItemGroup.datasetClass.name = ds.datasetClass.name;
+                    }
+                    newItemGroup = { ...newItemGroup };
+                    if (!deepEqual(itemGroup, newItemGroup)) {
+                        updatedItemGroups[itemGroup.oid] = { ...newItemGroup };
                     }
                     return true;
                 }
@@ -97,7 +163,12 @@ const convertImportMetadata = (metadata) => {
                 // Create a new dataset
                 let itemGroupOid = getOid('ItemGroup', currentGroupOids);
                 currentGroupOids.push(itemGroupOid);
-                let purpose = model === 'ADaM' ? 'Analysis' : 'Tabulation';
+                let purpose;
+                if (ds.purpose) {
+                    purpose = ds.purpose;
+                } else {
+                    purpose = model === 'ADaM' ? 'Analysis' : 'Tabulation';
+                }
                 let newLeafOid = getOid('Leaf', [], ds.dataset);
                 let leaf = { ...new Leaf({ id: newLeafOid, href: ds.fileName, title: ds.fileName }) };
                 let newItemGroup = new ItemGroup({
@@ -110,6 +181,11 @@ const convertImportMetadata = (metadata) => {
                 if (ds.label) {
                     let newDescription = { ...new TranslatedText({ value: ds.label }) };
                     newItemGroup.addDescription(newDescription);
+                }
+                if (ds.datasetClass) {
+                    newItemGroup.datasetClass = {
+                        name: ds.datasetClass
+                    };
                 }
                 newItemGroups[itemGroupOid] = { ...newItemGroup };
             }
@@ -153,6 +229,8 @@ const convertImportMetadata = (metadata) => {
             if (existingDataset) {
                 currentVars.forEach(item => {
                     item = removeBlankAttributes(item);
+                    errors = errors.concat(validateItemDef(item, stdConstants, model));
+                    errors = errors.concat(validateItemRef(item, stdConstants, model));
                     // Check if variable exists
                     let itemDefOid = getOidByName(mdv, 'ItemRefs', item.variable, itemGroupOid);
                     let itemDef;
@@ -370,6 +448,9 @@ const convertImportMetadata = (metadata) => {
                 codeListResult.updatedCodeLists = { [clOid]: cl };
             }
         });
+    }
+    if (errors.length > 0) {
+        throw new Error(errors.map(error => error.message).join(' \n\n'));
     }
     return { dsResult, varResult, codeListResult };
 };
