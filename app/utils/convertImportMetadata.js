@@ -21,6 +21,8 @@ import getOidByName from 'utils/getOidByName.js';
 import validateItemDef from 'validators/validateItemDef.js';
 import validateItemRef from 'validators/validateItemRef.js';
 import validateItemGroupDef from 'validators/validateItemGroupDef.js';
+import validateCodeList from 'validators/validateCodeList.js';
+import validateCodeListItem from 'validators/validateCodeListItem.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
 const removeBlankAttributes = (obj) => {
@@ -51,7 +53,7 @@ const cast2Type = (value, type) => {
     return result;
 };
 
-const updateItemDef = (item, itemDef, stdConstants, model) => {
+const updateItemDef = (item, itemDef, stdConstants, model, errors) => {
     // Label
     if (item.label) {
         let newDescription = { ...new TranslatedText({ value: item.label }) };
@@ -71,7 +73,10 @@ const updateItemDef = (item, itemDef, stdConstants, model) => {
             if (stdConstants && stdConstants.originTypes && stdConstants.originTypes[model]) {
                 let validOrigins = stdConstants.originTypes[model];
                 if (!validOrigins.includes(item.originType)) {
-                    throw new Error(`Invalid origin type value "${item.originType}", must be one of the following values: ${validOrigins.join(', ')}`);
+                    errors.push({
+                        id: 'additional',
+                        message: `Invalid origin type value "${item.originType}", must be one of the following values: ${validOrigins.join(', ')}`
+                    });
                 }
             }
             newOrigin.type = item.originType;
@@ -255,7 +260,7 @@ const convertImportMetadata = (metadata) => {
                         currentItemRefOids.push(itemRefOid);
                         itemRef = new ItemRef({ ...item, itemOid: itemDefOid, oid: itemRefOid });
                     }
-                    updateItemDef(item, itemDef, stdConstants, model);
+                    updateItemDef(item, itemDef, stdConstants, model, errors);
                     if (isNewItem) {
                         newItemDefs[itemDefOid] = { ...itemDef };
                         newItemRefs[itemRef.oid] = { ...itemRef };
@@ -276,7 +281,7 @@ const convertImportMetadata = (metadata) => {
                     let itemDefOid = getOid('ItemDef', currentItemDefOids);
                     currentItemDefOids.push(itemDefOid);
                     let itemDef = new ItemDef({ ...item, name: item.variable });
-                    updateItemDef(item, itemDef, stdConstants, model);
+                    updateItemDef(item, itemDef, stdConstants, model, errors);
                     itemDef.sources.itemGroups = [itemGroupOid];
                     let itemRefOid = getOid('ItemRef', currentItemRefOids);
                     currentItemRefOids.push(itemRefOid);
@@ -297,6 +302,7 @@ const convertImportMetadata = (metadata) => {
         let currentCodeListOids = Object.keys(mdv.codeLists);
         // Get the list of current codelists
         codeListData.forEach(codeList => {
+            errors = errors.concat(validateCodeList(codeList));
             let codeListOid = getOidByName(mdv, 'codeLists', codeList.name);
             if (codeListOid === undefined) {
                 codeListOid = getOid('CodeList', currentCodeListOids);
@@ -318,10 +324,11 @@ const convertImportMetadata = (metadata) => {
             } else {
                 isNewCodeList = true;
                 codeList = new CodeList({ ...currentCodeList, oid: codeListOid });
-                if (!['external', 'decoded', 'enumerated'].includes(codeList.codeListType)) {
-                    throw new Error(
-                        `All new codelists must have a valid type specified (external, decoded, enumerated). Value '${codeList.codeListType}' is invalid.`
-                    );
+                if (!codeList.codeListType) {
+                    errors.push({
+                        id: 'additional',
+                        message: `Type must be provided for codelist ${codeList.name}.`
+                    });
                 }
             }
             if (isNewCodeList) {
@@ -340,6 +347,7 @@ const convertImportMetadata = (metadata) => {
             allCodeLists = { ...allCodeLists, ...codeListResult.newCodeLists };
         }
         codedValueData.forEach(codedValue => {
+            errors = errors.concat(validateCodeListItem(codedValue));
             if (!Object.keys(codeListOids).includes(codedValue.codelist)) {
                 let clFound = Object.values(allCodeLists).some(codeList => {
                     if (codeList.name === codedValue.codelist) {

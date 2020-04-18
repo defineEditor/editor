@@ -34,6 +34,7 @@ import TextField from '@material-ui/core/TextField';
 import { FaRegCopy as CopyIcon, FaRegClipboard as PasteIcon } from 'react-icons/fa';
 import InternalHelp from 'components/utils/internalHelp.js';
 import LoadFromXpt from 'components/utils/loadFromXpt.js';
+import LoadFromDefine from 'components/utils/loadFromDefine.js';
 import convertImportMetadata from 'utils/convertImportMetadata.js';
 import MetadataImportTableView from 'components/utils/metadataImportTableView.js';
 import { IMPORT_METADATA } from 'constants/help.js';
@@ -190,6 +191,7 @@ const ModalImportMetadata = (props) => {
     const [codeListData, setCodeListData] = useState('');
     const [codedValueData, setCodedValueData] = useState('');
     const [showXptLoad, setShowXptLoad] = useState(false);
+    const [showDefineLoad, setShowDefineLoad] = useState(false);
 
     const [currentTab, setCurrentTab] = useState(props.tab || 'variables');
     const handleTabChange = (event, newTab) => {
@@ -245,6 +247,21 @@ const ModalImportMetadata = (props) => {
         } else {
             setVarData(varData);
             setDsData(dsData);
+            setCodedValueData(codedValueData);
+        }
+    };
+
+    const handleDefineFinish = async (varData, dsData, codeListData, codedValueData) => {
+        setShowDefineLoad(false);
+        if (layout !== 'csv') {
+            setVarData(await convertLayout(varData, 'csv', layout));
+            setDsData(await convertLayout(dsData, 'csv', layout));
+            setCodeListData(await convertLayout(codeListData, 'csv', layout));
+            setCodedValueData(await convertLayout(codedValueData, 'csv', layout));
+        } else {
+            setVarData(varData);
+            setDsData(dsData);
+            setCodeListData(codeListData);
             setCodedValueData(codedValueData);
         }
     };
@@ -372,6 +389,14 @@ const ModalImportMetadata = (props) => {
                             >
                                 XPT
                             </Button>
+                            <Button
+                                variant='contained'
+                                onClick={() => { setShowDefineLoad(true); }}
+                                color='default'
+                                className={classes.button}
+                            >
+                                Define
+                            </Button>
                             <div className={classes.grow} />
                             <Tooltip
                                 title='Copy to clipboard'
@@ -448,6 +473,9 @@ const ModalImportMetadata = (props) => {
             </Dialog>
             { showXptLoad &&
                     <LoadFromXpt onClose={() => { setShowXptLoad(false); }} onFinish={handleXptFinish}/>
+            }
+            { showDefineLoad &&
+                    <LoadFromDefine onClose={() => { setShowDefineLoad(false); }} onFinish={handleDefineFinish}/>
             }
         </React.Fragment>
     );

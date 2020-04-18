@@ -190,7 +190,6 @@ class ConnectedCodeListStandardEditor extends React.Component {
                                             onChange={this.handleChange('codeList')}
                                             defaultValue={defaultCodeList}
                                             options={this.state.codeListList}
-                                            extensible={false}
                                         />
                                     )
                                     }

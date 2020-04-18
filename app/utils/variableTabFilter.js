@@ -33,6 +33,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import getSelectionList from 'utils/getSelectionList.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
 import clone from 'clone';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import InternalHelp from 'components/utils/internalHelp.js';
 import { VARIABLE_FILTER } from 'constants/help.js';
 import {
@@ -112,7 +113,6 @@ const mapStateToProps = state => {
     return {
         mdv: state.present.odm.study.metaDataVersion,
         defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
-        tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
     };
 };
 
@@ -171,7 +171,7 @@ class ConnectedVariableTabFilter extends React.Component {
         conditions.forEach(condition => {
             if (['IN', 'NOTIN', 'EQ', 'NE'].includes(condition.comparator)) {
                 condition.selectedValues.forEach(selectedValue => {
-                    if (!values[condition.field].includes(selectedValue)) {
+                    if (selectedValue !== undefined && !values[condition.field].includes(selectedValue)) {
                         values[condition.field].push(selectedValue);
                     }
                 });
@@ -186,7 +186,7 @@ class ConnectedVariableTabFilter extends React.Component {
         };
     }
 
-    handleChange = (name, index, connector) => (updateObj) => {
+    handleChange = (name, index, connector) => (updateObj, options) => {
         let result = [ ...this.state.conditions ];
         result[index] = { ...this.state.conditions[index] };
         if (name === 'field') {
@@ -260,7 +260,11 @@ class ConnectedVariableTabFilter extends React.Component {
                 // Select All does nothing when there is no codelist
                 return;
             } else {
-                if (typeof updateObj.target.value === 'object') {
+                if (Array.isArray(options)) {
+                    result[index].selectedValues = options;
+                } else if (typeof options !== 'object' && options !== undefined) {
+                    result[index].selectedValues = [options];
+                } else if (typeof updateObj.target.value === 'object') {
                     // Fix an issue when a blank values appreas when keyboard is used
                     // TODO: Investigate issue, see https://trello.com/c/GVhBqI4W/65
                     result[index].selectedValues = updateObj.target.value.filter(value => value !== '');
@@ -308,7 +312,7 @@ class ConnectedVariableTabFilter extends React.Component {
             // Reset all other values
             result[newIndex].field = 'name';
             result[newIndex].comparator = 'IN';
-            result[newIndex].selectedValues = [''];
+            result[newIndex].selectedValues = [];
             result[newIndex].regexIsValid = true;
             this.setState({
                 conditions: result,
@@ -408,7 +412,7 @@ class ConnectedVariableTabFilter extends React.Component {
                 let allValues = data.map(row => row[field]);
                 values[field] = [];
                 allValues.forEach(value => {
-                    if (!values[field].includes(value)) {
+                    if (value !== undefined && !values[field].includes(value)) {
                         values[field].push(value);
                     }
                 });
@@ -534,18 +538,23 @@ class ConnectedVariableTabFilter extends React.Component {
                     ) : (
                         valueSelect ? (
                             <Grid item className={classes.valuesGridItem}>
-                                <TextField
-                                    label='Values'
-                                    select
-                                    fullWidth
-                                    multiline
-                                    value={value}
-                                    SelectProps={{ multiple: multipleValuesSelect }}
+                                <Autocomplete
+                                    clearOnEscape={false}
+                                    multiple={multipleValuesSelect}
                                     onChange={this.handleChange('selectedValues', index)}
-                                    className={classes.textFieldValues}
-                                >
-                                    {getSelectionList(this.state.values[condition.field], this.state.values[condition.field].length === 0)}
-                                </TextField>
+                                    value={value}
+                                    disableCloseOnSelect
+                                    filterSelectedOptions
+                                    options={this.state.values[condition.field]}
+                                    renderInput={params => (
+                                        <TextField
+                                            {...params}
+                                            label='Values'
+                                            fullWidth
+                                            className={classes.textFieldValues}
+                                        />
+                                    )}
+                                />
                             </Grid>
                         ) : (
                             <Grid item>
@@ -697,7 +706,6 @@ ConnectedVariableTabFilter.propTypes = {
     mdv: PropTypes.object.isRequired,
     itemGroupOid: PropTypes.string,
     defineVersion: PropTypes.string.isRequired,
-    tabSettings: PropTypes.object.isRequired,
     filter: PropTypes.object.isRequired,
     updateFilter: PropTypes.func.isRequired,
     onUpdate: PropTypes.func,
