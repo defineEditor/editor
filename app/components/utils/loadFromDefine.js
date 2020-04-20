@@ -13,6 +13,7 @@
 ***********************************************************************************/
 
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -23,11 +24,10 @@ import TextField from '@material-ui/core/TextField';
 import ItemFilter from 'components/utils/itemFilter.js';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import getItemsFromFilter from 'utils/getItemsFromFilter.js';
 
 const getStyles = makeStyles(theme => ({
     dialog: {
-        paddingLeft: theme.spacing(2),
-        paddingRight: theme.spacing(2),
         paddingBottom: theme.spacing(1),
         position: 'absolute',
         borderRadius: '10px',
@@ -38,6 +38,16 @@ const getStyles = makeStyles(theme => ({
         maxWidth: '90%',
         width: 800,
         overflowY: 'auto'
+    },
+    title: {
+        marginBottom: theme.spacing(2),
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
     },
 }));
 
@@ -66,6 +76,8 @@ const clDefault = {
 
 const LoadFromDefine = (props) => {
     let classes = getStyles();
+    const mdv = useSelector(state => state.present.odm.study.metaDataVersion);
+    const defineVersion = mdv.defineVersion;
 
     const [filters, setFilters] = useState({
         dataset: varDefault,
@@ -83,6 +95,20 @@ const LoadFromDefine = (props) => {
         codedValue: [],
     });
 
+    const [selectedItems, setSelectedItems] = useState({
+        dataset: [],
+        variable: [],
+        codeList: [],
+        codedValue: [],
+    });
+
+    const [selectedItemNum, setSelectedItemNum] = useState({
+        dataset: 0,
+        variable: 0,
+        codeList: 0,
+        codedValue: 0,
+    });
+
     const handleClose = () => {
         props.onClose();
     };
@@ -98,6 +124,19 @@ const LoadFromDefine = (props) => {
 
     const onFilterUpdate = (filter) => {
         setFilters({ ...filters, [filter.type]: filter });
+        let items = getItemsFromFilter(filter, mdv, defineVersion);
+        if (filter.type === 'codedValue') {
+            let codedValueNum = Object.values(mdv.codeLists)
+                .filter(codeList => items.includes(codeList.oid) && codeList.itemOrder)
+                .map(codeList => codeList.itemOrder.length)
+                .reduce((i, j) => (i + j), 0)
+            ;
+            codedValueNum = codedValueNum || 0;
+            setSelectedItemNum({ ...selectedItemNum, [filter.type]: codedValueNum });
+        } else {
+            setSelectedItemNum({ ...selectedItemNum, [filter.type]: items.length });
+        }
+        setSelectedItems({ ...selectedItems, [filter.type]: items });
         setShowFilter(false);
     };
 
@@ -117,7 +156,7 @@ const LoadFromDefine = (props) => {
                 onKeyDown={onKeyDown}
                 tabIndex='0'
             >
-                <DialogTitle>
+                <DialogTitle className={classes.title} disableTypography>
                     Choose items and attributes
                 </DialogTitle>
                 <DialogContent className={classes.content}>
@@ -127,12 +166,12 @@ const LoadFromDefine = (props) => {
                                 <Grid container wrap='nowrap' justify='space-between'>
                                     <Grid item>
                                         <Button
-                                            color='default'
+                                            color={selectedItemNum[curType] > 0 ? 'primary' : 'default'}
                                             variant='contained'
                                             onClick={() => openFilter(curType)}
                                             className={classes.button}
                                         >
-                                            0 {typeLabels[types.indexOf(curType)]}
+                                            {`${selectedItemNum[curType]} ${typeLabels[types.indexOf(curType)]}`}
                                         </Button>
                                     </Grid>
                                     <Grid item>

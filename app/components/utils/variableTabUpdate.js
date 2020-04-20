@@ -35,7 +35,7 @@ import Typography from '@material-ui/core/Typography';
 import getSelectionList from 'utils/getSelectionList.js';
 import VariableTabUpdateField from 'components/utils/variableTabUpdateField.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
-import applyFilter from 'utils/applyFilter.js';
+import getItemsFromFilter from 'utils/getItemsFromFilter.js';
 import sortIdList from 'utils/sortIdList.js';
 import getTableData from 'utils/getTableData.js';
 import InternalHelp from 'components/utils/internalHelp.js';
@@ -302,85 +302,9 @@ class ConnectedVariableTabUpdate extends React.Component {
 
     onFilterUpdate = (filter) => {
         // In case the filter is used to select itemOids, build the list of OIDs
-        let selectedItems = [];
         const mdv = this.props.mdv;
         const defineVersion = this.props.defineVersion;
-        // Get itemGroupOids from name
-        let itemGroupOids = [];
-        Object.keys(mdv.itemGroups).forEach(itemGroupOid => {
-            if (
-                (filter.conditions[0].comparator === 'IN' &&
-                    filter.conditions[0].selectedValues.includes(mdv.itemGroups[itemGroupOid].name)
-                ) ||
-                (filter.conditions[0].comparator === 'NOTIN' &&
-                    !filter.conditions[0].selectedValues.includes(mdv.itemGroups[itemGroupOid].name)
-                )
-            ) {
-                itemGroupOids.push(itemGroupOid);
-            }
-        });
-        // Delete the first condition, as it contains only the list of datasets and cannot be used for filtering
-        let updatedFilter = { ...filter };
-        updatedFilter.conditions = filter.conditions.slice();
-        updatedFilter.conditions.splice(0, 1);
-        if (updatedFilter.connectors.length > 0) {
-            updatedFilter.connectors = filter.connectors.slice();
-            updatedFilter.connectors.splice(0, 1);
-        }
-
-        itemGroupOids.forEach(itemGroupOid => {
-            const dataset = mdv.itemGroups[itemGroupOid];
-            // If only datasets were selected, collect all OIDs
-            if (updatedFilter.conditions.length === 0) {
-                Object.keys(dataset.itemRefs).forEach(itemRefOid => {
-                    selectedItems.push({ itemGroupOid: itemGroupOid, itemDefOid: dataset.itemRefs[itemRefOid].itemOid });
-                    if (updatedFilter.applyToVlm) {
-                        if (mdv.itemDefs[dataset.itemRefs[itemRefOid].itemOid].valueListOid !== undefined) {
-                            let valueList = mdv.valueLists[mdv.itemDefs[dataset.itemRefs[itemRefOid].itemOid].valueListOid];
-                            Object.keys(valueList.itemRefs).forEach(itemRefOid => {
-                                selectedItems.push({ itemGroupOid: itemGroupOid, valueListOid: valueList.oid, itemDefOid: valueList.itemRefs[itemRefOid].itemOid });
-                            });
-                        }
-                    }
-                });
-            } else {
-                let data = getTableDataAsText({
-                    source: dataset,
-                    datasetName: dataset.name,
-                    datasetOid: dataset.oid,
-                    itemDefs: mdv.itemDefs,
-                    codeLists: mdv.codeLists,
-                    mdv: mdv,
-                    defineVersion,
-                    vlmLevel: 0,
-                });
-                let filteredOids = applyFilter(data, updatedFilter);
-                filteredOids.forEach(itemOid => {
-                    selectedItems.push({ itemGroupOid: itemGroupOid, itemDefOid: itemOid });
-                });
-                if (updatedFilter.applyToVlm) {
-                    // Search in VLM
-                    data
-                        .filter(item => (item.valueListOid !== undefined))
-                        .forEach(item => {
-                            let vlmData = getTableDataAsText({
-                                source: mdv.valueLists[item.valueListOid],
-                                datasetName: dataset.name,
-                                datasetOid: dataset.oid,
-                                itemDefs: mdv.itemDefs,
-                                codeLists: mdv.codeLists,
-                                mdv: mdv,
-                                defineVersion,
-                                vlmLevel: 1,
-                            });
-                            let vlmFilteredOids = applyFilter(vlmData, updatedFilter);
-                            vlmFilteredOids.forEach(itemOid => {
-                                selectedItems.push({ itemGroupOid: itemGroupOid, valueListOid: item.valueListOid, itemDefOid: itemOid });
-                            });
-                        });
-                }
-            }
-        });
+        let selectedItems = getItemsFromFilter(filter, mdv, defineVersion);
         this.setState({ filter, selectedItems, changedAfterUpdated: true });
     }
 
@@ -415,19 +339,19 @@ class ConnectedVariableTabUpdate extends React.Component {
     getSelectedRecords = () => {
         const mdv = this.props.mdv;
         let result = [];
-        this.state.selectedItems.forEach(item => {
+        this.state.selectedItems.forEach((item, index) => {
             let name = mdv.itemDefs[item.itemDefOid].name;
             let dsName = mdv.itemGroups[item.itemGroupOid].name;
             if (item.valueListOid) {
                 let parentItemName = mdv.itemDefs[mdv.itemDefs[item.itemDefOid].parentItemDefOid].name;
                 result.push(
-                    <ListItem key={dsName + '.' + parentItemName + '.' + name}>
+                    <ListItem key={index}>
                         <ListItemText primary={dsName + '.' + parentItemName + '.' + name}/>
                     </ListItem>
                 );
             } else {
                 result.push(
-                    <ListItem key={dsName + '.' + name}>
+                    <ListItem key={index}>
                         <ListItemText primary={dsName + '.' + name}/>
                     </ListItem>
                 );

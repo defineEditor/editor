@@ -13,9 +13,10 @@
 ***********************************************************************************/
 
 import React from 'react';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import clone from 'clone';
+import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -30,11 +31,10 @@ import Button from '@material-ui/core/Button';
 import DoneAll from '@material-ui/icons/DoneAll';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import { getDescription } from 'utils/defineStructureUtils.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
-import { getDescription } from 'utils/defineStructureUtils.js';
-import clone from 'clone';
-import Autocomplete from '@material-ui/lab/Autocomplete';
 import InternalHelp from 'components/utils/internalHelp.js';
 import { VARIABLE_FILTER } from 'constants/help.js';
 import {
@@ -523,7 +523,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                         color='default'
                                         size='small'
                                         variant='contained'
-                                        disabled={index === 1 && this.props.itemGroupOid === undefined}
+                                        disabled={index === 1 && this.props.itemGroupOid === undefined && type === 'variable'}
                                         onClick={this.handleChange('switchConnector', index)}
                                         className={classes.button}
                                     >
@@ -648,7 +648,9 @@ class ConnectedVariableTabFilter extends React.Component {
                         color='primary'
                         size='small'
                         variant='contained'
-                        disabled={this.props.itemGroupOid === undefined && this.state.conditions.length === 1}
+                        disabled={
+                            this.props.itemGroupOid === undefined && this.state.conditions.length === 1 && type === 'variable'
+                        }
                         onClick={this.handleChange('addRangeCheck', 0, 'OR')}
                         className={classes.button}
                     >
