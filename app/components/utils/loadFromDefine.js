@@ -20,7 +20,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
-import VariableTabFilter from 'utils/variableTabFilter.js';
+import ItemFilter from 'components/utils/itemFilter.js';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 
@@ -41,13 +41,13 @@ const getStyles = makeStyles(theme => ({
     },
 }));
 
-const types = ['datasets', 'variables', 'codeLists', 'codedValues'];
+const types = ['dataset', 'variable', 'codeList', 'codedValue'];
 const typeLabels = ['datasets', 'variables', 'codelists', 'coded values'];
 const attributes = {
-    datasets: ['name', 'label'],
-    variables: ['dataset', 'name', 'label'],
-    codeLists: ['name', 'type'],
-    codedValues: ['codelist', 'codedValue'],
+    dataset: ['dataset', 'label', 'class'],
+    variable: ['dataset', 'name', 'label'],
+    codeList: ['name', 'type'],
+    codedValue: ['codelist', 'codedValue'],
 };
 
 const varDefault = {
@@ -60,7 +60,7 @@ const varDefault = {
 const clDefault = {
     isEnabled: false,
     applyToVlm: true,
-    conditions: [{ field: 'codelist', comparator: 'IN', selectedValues: [], regexIsValid: true }],
+    conditions: [{ field: 'codeList', comparator: 'IN', selectedValues: [], regexIsValid: true }],
     connectors: [],
 };
 
@@ -68,19 +68,19 @@ const LoadFromDefine = (props) => {
     let classes = getStyles();
 
     const [filters, setFilters] = useState({
-        datasets: varDefault,
-        variables: varDefault,
-        codeLists: clDefault,
-        codedValues: clDefault,
+        dataset: varDefault,
+        variable: varDefault,
+        codeList: clDefault,
+        codedValue: clDefault,
     });
 
-    const [type, setType] = useState('datasets');
+    const [type, setType] = useState('dataset');
     const [showFilter, setShowFilter] = useState(false);
     const [selectedAttributes, setSelectedAttributes] = useState({
-        datasets: [],
-        variables: [],
-        codeLists: [],
-        codedValues: [],
+        dataset: [],
+        variable: [],
+        codeList: [],
+        codedValue: [],
     });
 
     const handleClose = () => {
@@ -97,7 +97,7 @@ const LoadFromDefine = (props) => {
     };
 
     const onFilterUpdate = (filter) => {
-        setFilters({ ...filters, [type]: filter });
+        setFilters({ ...filters, [filter.type]: filter });
         setShowFilter(false);
     };
 
@@ -168,7 +168,8 @@ const LoadFromDefine = (props) => {
                 </DialogActions>
             </Dialog>
             { showFilter &&
-                <VariableTabFilter
+                <ItemFilter
+                    type={type}
                     filter={filters[type]}
                     onClose={ () => { setShowFilter(false); } }
                     onUpdate={onFilterUpdate}

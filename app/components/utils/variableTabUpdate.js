@@ -24,7 +24,7 @@ import Popover from '@material-ui/core/Popover';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import VariableTabFilter from 'utils/variableTabFilter.js';
+import ItemFilter from 'components/utils/itemFilter.js';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -33,7 +33,7 @@ import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 import Typography from '@material-ui/core/Typography';
 import getSelectionList from 'utils/getSelectionList.js';
-import VariableTabUpdateField from 'utils/variableTabUpdateField.js';
+import VariableTabUpdateField from 'components/utils/variableTabUpdateField.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
 import applyFilter from 'utils/applyFilter.js';
 import sortIdList from 'utils/sortIdList.js';
@@ -304,15 +304,16 @@ class ConnectedVariableTabUpdate extends React.Component {
         // In case the filter is used to select itemOids, build the list of OIDs
         let selectedItems = [];
         const mdv = this.props.mdv;
+        const defineVersion = this.props.defineVersion;
         // Get itemGroupOids from name
         let itemGroupOids = [];
         Object.keys(mdv.itemGroups).forEach(itemGroupOid => {
             if (
                 (filter.conditions[0].comparator === 'IN' &&
-                    filter.conditions[0].selectedValues.includes(this.props.mdv.itemGroups[itemGroupOid].name)
+                    filter.conditions[0].selectedValues.includes(mdv.itemGroups[itemGroupOid].name)
                 ) ||
                 (filter.conditions[0].comparator === 'NOTIN' &&
-                    !filter.conditions[0].selectedValues.includes(this.props.mdv.itemGroups[itemGroupOid].name)
+                    !filter.conditions[0].selectedValues.includes(mdv.itemGroups[itemGroupOid].name)
                 )
             ) {
                 itemGroupOids.push(itemGroupOid);
@@ -350,7 +351,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                     itemDefs: mdv.itemDefs,
                     codeLists: mdv.codeLists,
                     mdv: mdv,
-                    defineVersion: this.props.defineVersion,
+                    defineVersion,
                     vlmLevel: 0,
                 });
                 let filteredOids = applyFilter(data, updatedFilter);
@@ -369,7 +370,7 @@ class ConnectedVariableTabUpdate extends React.Component {
                                 itemDefs: mdv.itemDefs,
                                 codeLists: mdv.codeLists,
                                 mdv: mdv,
-                                defineVersion: this.props.defineVersion,
+                                defineVersion,
                                 vlmLevel: 1,
                             });
                             let vlmFilteredOids = applyFilter(vlmData, updatedFilter);
@@ -680,7 +681,8 @@ class ConnectedVariableTabUpdate extends React.Component {
                         <Typography>{this.getSelectedRecords()}</Typography>
                     </Popover>
                     { this.state.showFilter &&
-                            <VariableTabFilter
+                            <ItemFilter
+                                type='variable'
                                 filter={this.state.filter}
                                 onUpdate={this.onFilterUpdate}
                                 onClose={ () => { this.setState({ showFilter: false }); } }

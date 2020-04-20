@@ -38,8 +38,8 @@ import renderColumns from 'utils/renderColumns.js';
 import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import ItemMenu from 'components/menus/itemMenu.js';
-import VariableTabFilter from 'utils/variableTabFilter.js';
-import VariableTabUpdate from 'utils/variableTabUpdate.js';
+import ItemFilter from 'components/utils/itemFilter.js';
+import VariableTabUpdate from 'components/utils/variableTabUpdate.js';
 import getTableData from 'utils/getTableData.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
 import applyFilter from 'utils/applyFilter.js';
@@ -1115,7 +1115,8 @@ class ConnectedVariableTable extends React.Component {
                         />
                 }
                 { this.state.showFilter &&
-                        <VariableTabFilter
+                        <ItemFilter
+                            type='variable'
                             itemGroupOid={this.props.itemGroupOid}
                             filter={this.props.filter}
                             onClose={ () => { this.setState({ showFilter: false }); } }

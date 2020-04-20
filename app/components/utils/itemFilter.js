@@ -32,6 +32,7 @@ import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import getSelectionList from 'utils/getSelectionList.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
+import { getDescription } from 'utils/defineStructureUtils.js';
 import clone from 'clone';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import InternalHelp from 'components/utils/internalHelp.js';
@@ -75,6 +76,11 @@ const styles = theme => ({
     textFieldValues: {
         whiteSpace: 'normal',
         minWidth: '100px',
+        marginLeft: theme.spacing(1),
+    },
+    autocompleteField: {
+        whiteSpace: 'normal',
+        minWidth: '250px',
         marginLeft: theme.spacing(1),
     },
     valuesGridItem: {
@@ -122,32 +128,49 @@ const comparators = {
     flag: ['EQ', 'NE', 'IN', 'NOTIN'],
 };
 
-const filterFields = {
-    'name': { label: 'Name', type: 'string' },
-    'label': { label: 'Label', type: 'string' },
-    'dataType': { label: 'Data Type', type: 'string' },
-    'codeList': { label: 'Codelist', type: 'string' },
-    'origin': { label: 'Origin', type: 'string' },
-    'length': { label: 'Length', type: 'number' },
-    'method': { label: 'Method', type: 'string' },
-    'comment': { label: 'Comment', type: 'string' },
-    'hasDocument': { label: 'Has Document', type: 'flag' },
-    'mandatory': { label: 'Mandatory', type: 'flag' },
-    'displayFormat': { label: 'Display Format', type: 'string' },
-    'role': { label: 'Role', type: 'flag' },
-    'isVlm': { label: 'Is VLM', type: 'flag' },
-    'whereClause': { label: 'Where Clause', type: 'string' },
-    'parentItemDef': { label: 'Parent Variable', type: 'string' },
-    'hasVlm': { label: 'Has VLM', type: 'flag' },
-    'dataset': { label: 'Dataset', type: 'flag' },
-    'hasReviewComment': { label: 'Has Review Comment', type: 'flag' },
+const filterFieldsByType = {
+    dataset: {
+        'dataset': { label: 'Dataset', type: 'string' },
+        'label': { label: 'Label', type: 'string' },
+        'datasetClass': { label: 'Class', type: 'string' },
+    },
+    variable: {
+        'name': { label: 'Name', type: 'string' },
+        'label': { label: 'Label', type: 'string' },
+        'dataType': { label: 'Data Type', type: 'string' },
+        'codeList': { label: 'Codelist', type: 'string' },
+        'origin': { label: 'Origin', type: 'string' },
+        'length': { label: 'Length', type: 'number' },
+        'method': { label: 'Method', type: 'string' },
+        'comment': { label: 'Comment', type: 'string' },
+        'hasDocument': { label: 'Has Document', type: 'flag' },
+        'mandatory': { label: 'Mandatory', type: 'flag' },
+        'displayFormat': { label: 'Display Format', type: 'string' },
+        'role': { label: 'Role', type: 'flag' },
+        'isVlm': { label: 'Is VLM', type: 'flag' },
+        'whereClause': { label: 'Where Clause', type: 'string' },
+        'parentItemDef': { label: 'Parent Variable', type: 'string' },
+        'hasVlm': { label: 'Has VLM', type: 'flag' },
+        'dataset': { label: 'Dataset', type: 'flag' },
+        'hasReviewComment': { label: 'Has Review Comment', type: 'flag' },
+    },
+    codeList: {
+        'codeList': { label: 'Name', type: 'string' },
+        'codeListType': { label: 'Type', type: 'string' },
+    },
+    codedValue: {
+        'codeList': { label: 'Name', type: 'string' },
+        'codeListType': { label: 'Type', type: 'string' },
+    }
 };
 
 class ConnectedVariableTabFilter extends React.Component {
     constructor (props) {
         super(props);
+        const type = props.type;
         let conditions;
         let connectors;
+        const filterFields = filterFieldsByType[props.type];
         if (this.props.filter.conditions.length !== 0) {
             conditions = clone(this.props.filter.conditions);
             connectors = clone(this.props.filter.connectors);
@@ -158,13 +181,17 @@ class ConnectedVariableTabFilter extends React.Component {
         // Get the whole table
         // If itemGroupId is provided as a property, use only it
         let values = {};
-        if (this.props.itemGroupOid) {
-            values = this.getValues(this.props.itemGroupOid);
-        } else {
-            values = this.getValuesForItemGroups(conditions[0].selectedValues);
-            let itemGroups = this.props.mdv.itemGroups;
-            // Get the list of all datasets
-            values.dataset = Object.keys(itemGroups).map(itemGroupOid => (itemGroups[itemGroupOid].name));
+        if (type === 'variable') {
+            if (this.props.itemGroupOid) {
+                values = this.getValues(type, this.props.itemGroupOid);
+            } else {
+                values = this.getValuesForItemGroups(conditions[0].selectedValues);
+                let itemGroups = this.props.mdv.itemGroups;
+                // Get the list of all datasets
+                values.dataset = Object.keys(itemGroups).map(itemGroupOid => (itemGroups[itemGroupOid].name));
+            }
+        } else if (['dataset', 'codeList', 'codedValue'].includes(type)) {
+            values = this.getValues(type);
         }
         // As filters are cross-dataset, it is possible that some of the values are not in the new dataset
         // add all values which are already in the IN, NOTIN, EQ, NE filters
@@ -188,6 +215,8 @@ class ConnectedVariableTabFilter extends React.Component {
 
     handleChange = (name, index, connector) => (updateObj, options) => {
         let result = [ ...this.state.conditions ];
+        const type = this.props.type;
+        const filterFields = filterFieldsByType[type];
         result[index] = { ...this.state.conditions[index] };
         if (name === 'field') {
             // Do nothing if name did not change
@@ -282,7 +311,7 @@ class ConnectedVariableTabFilter extends React.Component {
                 }
             }
             // If dataset is selected, update possible values
-            if (result[index].field === 'dataset') {
+            if (type === 'variable' && result[index].field === 'dataset') {
                 let newValues = this.getValuesForItemGroups(result[index].selectedValues);
                 newValues.dataset = this.state.values.dataset;
                 // Add values from existing conditions
@@ -310,7 +339,13 @@ class ConnectedVariableTabFilter extends React.Component {
             connectors.push(connector);
             result[newIndex] = {};
             // Reset all other values
-            result[newIndex].field = 'name';
+            if (type === 'variable') {
+                result[newIndex].field = 'name';
+            } else if (type === 'dataset') {
+                result[newIndex].field = 'dataset';
+            } else if (type === 'codeList' || type === 'codedValue') {
+                result[newIndex].field = 'codeList';
+            }
             result[newIndex].comparator = 'IN';
             result[newIndex].selectedValues = [];
             result[newIndex].regexIsValid = true;
@@ -340,6 +375,7 @@ class ConnectedVariableTabFilter extends React.Component {
     getValuesForItemGroups = itemGroupNames => {
         // Get itemGroupOids from name
         let itemGroupOids = [];
+        const filterFields = filterFieldsByType['variable'];
         Object.keys(this.props.mdv.itemGroups).forEach(itemGroupOid => {
             if (itemGroupNames.includes(this.props.mdv.itemGroups[itemGroupOid].name)) {
                 itemGroupOids.push(itemGroupOid);
@@ -352,7 +388,7 @@ class ConnectedVariableTabFilter extends React.Component {
         });
         // Extract values for each dataset
         itemGroupOids.forEach(itemGroupOid => {
-            let itemGroupValues = this.getValues(itemGroupOid);
+            let itemGroupValues = this.getValues('variable', itemGroupOid);
             Object.keys(itemGroupValues).forEach(field => {
                 if (values.hasOwnProperty(field)) {
                     itemGroupValues[field].forEach(value => {
@@ -403,20 +439,36 @@ class ConnectedVariableTabFilter extends React.Component {
         return variables;
     }
 
-    getValues = (itemGroupOid) => {
-        let data = this.getData(itemGroupOid);
+    getValues = (type, itemGroupOid) => {
         let values = {};
-        Object.keys(filterFields)
-            .filter(field => (field !== 'dataset'))
-            .forEach(field => {
-                let allValues = data.map(row => row[field]);
-                values[field] = [];
-                allValues.forEach(value => {
-                    if (value !== undefined && !values[field].includes(value)) {
-                        values[field].push(value);
-                    }
+        if (type === 'variable') {
+            let data = this.getData(itemGroupOid);
+            const filterFields = filterFieldsByType[this.props.type];
+            Object.keys(filterFields)
+                .filter(field => (field !== 'dataset'))
+                .forEach(field => {
+                    let allValues = data.map(row => row[field]);
+                    values[field] = [];
+                    allValues.forEach(value => {
+                        if (value !== undefined && !values[field].includes(value)) {
+                            values[field].push(value);
+                        }
+                    });
                 });
-            });
+        } else if (type === 'dataset') {
+            let itemGroups = this.props.mdv.itemGroups;
+            values.dataset = Object.values(itemGroups).map(itemGroup => (itemGroup.name));
+            values.label = Object.values(itemGroups).map(itemGroup => (getDescription(itemGroup))).filter(item => (item !== undefined));
+            let datasetClass = Object.values(itemGroups).map(itemGroup => (itemGroup.datasetClass && itemGroup.datasetClass.name));
+            // Remove duplicates and undefined
+            values.datasetClass = datasetClass.filter((dsClass, index) => (datasetClass.indexOf(dsClass) === index)).filter(item => (item !== undefined));
+        } else if (type === 'codeList' || type === 'codedValue') {
+            let codeLists = this.props.mdv.codeLists;
+            values.codeList = Object.values(codeLists).map(codeList => (codeList.name));
+            let type = Object.values(codeLists).map(codeList => (codeList.codeListType));
+            // Remove duplicates and undefined
+            values.codeListType = type.filter((item, index) => (type.indexOf(item) === index)).filter(item => (item !== undefined));
+        }
         return values;
     }
 
@@ -431,7 +483,13 @@ class ConnectedVariableTabFilter extends React.Component {
     }
 
     save = () => {
-        this.props.onUpdate({ isEnabled: true, conditions: this.state.conditions, connectors: this.state.connectors, applyToVlm: this.state.applyToVlm });
+        this.props.onUpdate({
+            isEnabled: true,
+            conditions: this.state.conditions,
+            connectors: this.state.connectors,
+            applyToVlm: this.state.applyToVlm,
+            type: this.props.type,
+        });
         this.props.onClose();
     }
 
@@ -439,7 +497,8 @@ class ConnectedVariableTabFilter extends React.Component {
         this.props.onClose();
     }
 
-    getRangeChecks = () => {
+    getRangeChecks = (type) => {
+        const filterFields = filterFieldsByType[type];
         const { classes } = this.props;
 
         let result = [];
@@ -488,7 +547,7 @@ class ConnectedVariableTabFilter extends React.Component {
                             fullWidth
                             autoFocus
                             select={true}
-                            disabled={condition.field === 'dataset'}
+                            disabled={condition.field === 'dataset' && type === 'variable'}
                             value={condition.field}
                             onChange={this.handleChange('field', index)}
                             className={classes.textField}
@@ -551,7 +610,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                             {...params}
                                             label='Values'
                                             fullWidth
-                                            className={classes.textFieldValues}
+                                            className={classes.autocompleteField}
                                         />
                                     )}
                                 />
@@ -602,7 +661,7 @@ class ConnectedVariableTabFilter extends React.Component {
     }
 
     render () {
-        const { classes } = this.props;
+        const { classes, type } = this.props;
         // Check if any of the conditions has an invalid regex
         const hasInvalidRegex = this.state.conditions.some(condition => (!condition.regexIsValid));
 
@@ -621,23 +680,25 @@ class ConnectedVariableTabFilter extends React.Component {
                 </DialogTitle>
                 <DialogContent>
                     <Grid container spacing={2} alignItems='flex-end'>
-                        {this.getRangeChecks()}
-                        <Grid item xs={12}>
-                            <FormControl component="fieldset">
-                                <FormGroup>
-                                    <FormControlLabel
-                                        control={
-                                            <Switch
-                                                checked={this.state.applyToVlm}
-                                                onChange={() => { this.setState({ applyToVlm: !this.state.applyToVlm }); }}
-                                                color='primary'
-                                            />
-                                        }
-                                        label='Apply Filter to VLM'
-                                    />
-                                </FormGroup>
-                            </FormControl>
-                        </Grid>
+                        {this.getRangeChecks(type)}
+                        { type === 'variable' && !this.props.disableVlm && (
+                            <Grid item xs={12}>
+                                <FormControl component="fieldset">
+                                    <FormGroup>
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={this.state.applyToVlm}
+                                                    onChange={() => { this.setState({ applyToVlm: !this.state.applyToVlm }); }}
+                                                    color='primary'
+                                                />
+                                            }
+                                            label='Apply Filter to VLM'
+                                        />
+                                    </FormGroup>
+                                </FormControl>
+                            </Grid>
+                        )}
                         <Grid item xs={12} className={classes.controlButtons}>
                             <Grid container spacing={2} justify='flex-start'>
                                 { this.props.onUpdate === undefined ? (
@@ -706,8 +767,10 @@ ConnectedVariableTabFilter.propTypes = {
     mdv: PropTypes.object.isRequired,
     itemGroupOid: PropTypes.string,
     defineVersion: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
     filter: PropTypes.object.isRequired,
     updateFilter: PropTypes.func.isRequired,
+    disableVlm: PropTypes.bool,
     onUpdate: PropTypes.func,
 };
 
