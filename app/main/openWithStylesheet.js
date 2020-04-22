@@ -36,8 +36,24 @@ const openWithStylesheet = async (mainWindow, odm) => {
     Menu.setApplicationMenu(null);
     let pdfWindow = new BrowserWindow({
         webPreferences: { webSecurity: false },
+        show: false,
     });
-    pdfWindow.maximize();
+    let loadingWindow = new BrowserWindow({
+        webPreferences: { webSecurity: false },
+        width: 300,
+        height: 300,
+        show: true,
+        frame: false,
+        transparent: true,
+    });
+    loadingWindow.loadFile('static/stylesheets/loadingCat.html');
+
+    pdfWindow.webContents.on('did-finish-load', () => {
+        pdfWindow.show();
+        pdfWindow.maximize();
+        loadingWindow.close();
+        loadingWindow = null;
+    });
     pdfWindow.setMenu(null);
     pdfWindow.loadURL('file://' + tempDefine);
 

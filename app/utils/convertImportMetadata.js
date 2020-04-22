@@ -14,7 +14,7 @@
 
 import store from 'store/index.js';
 import clone from 'clone';
-import { ItemGroup, ItemDef, ItemRef, TranslatedText, EnumeratedItem, CodeListItem, Origin, Leaf, CodeList } from 'core/defineStructure.js';
+import { ItemGroup, ItemDef, ItemRef, TranslatedText, EnumeratedItem, CodeListItem, Origin, Alias, Leaf, CodeList } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 import deepEqual from 'fast-deep-equal';
 import getOidByName from 'utils/getOidByName.js';
@@ -104,6 +104,10 @@ const convertImportMetadata = (metadata) => {
             ds.datasetClass = { name: ds.class };
             delete ds.class;
         }
+        if (ds.alias) {
+            ds.domainDescription = ds.alias;
+            delete ds.alias;
+        }
     });
     varData.forEach(item => {
         if (item.dataset) {
@@ -157,6 +161,27 @@ const convertImportMetadata = (metadata) => {
                     if (ds.datasetClass && ds.datasetClass.name !== itemGroup.datasetClass.name) {
                         newItemGroup.datasetClass.name = ds.datasetClass.name;
                     }
+                    if (ds.domainDescription) {
+                        newItemGroup.alias = { ...new Alias({ context: 'DomainDescription', name: ds.domainDescription }) };
+                    }
+                    if (ds.fileName || ds.fileTitle) {
+                        if (newItemGroup.leaf !== undefined) {
+                            let updates = {};
+                            if (ds.fileName) {
+                                updates = { href: ds.fileName };
+                            }
+                            if (ds.fileTitle) {
+                                updates = { ...updates, title: ds.fileTitle };
+                            }
+                            let leaf = { ...new Leaf({ ...newItemGroup.leaf, ...updates }) };
+                            newItemGroup.leaf = leaf;
+                        } else {
+                            let newLeafOid = getOid('Leaf', [], ds.dataset);
+                            let leaf = { ...new Leaf({ id: newLeafOid, href: ds.fileName, title: ds.fileTitle }) };
+                            newItemGroup.leaf = leaf;
+                            newItemGroup.archiveLocationId = newLeafOid;
+                        }
+                    }
                     newItemGroup = { ...newItemGroup };
                     if (!deepEqual(itemGroup, newItemGroup)) {
                         updatedItemGroups[itemGroup.oid] = { ...newItemGroup };
@@ -175,17 +200,21 @@ const convertImportMetadata = (metadata) => {
                     purpose = model === 'ADaM' ? 'Analysis' : 'Tabulation';
                 }
                 let newLeafOid = getOid('Leaf', [], ds.dataset);
-                let leaf = { ...new Leaf({ id: newLeafOid, href: ds.fileName, title: ds.fileName }) };
+                let leaf = { ...new Leaf({ id: newLeafOid, href: ds.fileName, title: ds.fileTitle }) };
                 let newItemGroup = new ItemGroup({
                     oid: itemGroupOid,
                     name: ds.dataset,
                     datasetName: ds.dataset,
                     purpose: purpose,
+                    archiveLocationId: newLeafOid,
                     leaf,
                 });
                 if (ds.label) {
                     let newDescription = { ...new TranslatedText({ value: ds.label }) };
                     newItemGroup.addDescription(newDescription);
+                }
+                if (ds.domainDescription) {
+                    newItemGroup.alias = { ...new Alias({ context: 'DomainDescription', name: ds.domainDescription }) };
                 }
                 if (ds.datasetClass) {
                     newItemGroup.datasetClass = {

@@ -19,12 +19,16 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import ItemFilter from 'components/utils/itemFilter.js';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import DoneAll from '@material-ui/icons/DoneAll';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import getItemsFromFilter from 'utils/getItemsFromFilter.js';
+import getSelectionList from 'utils/getSelectionList.js';
+import getCodeListData from 'utils/getCodeListData.js';
 
 const getStyles = makeStyles(theme => ({
     dialog: {
@@ -49,15 +53,29 @@ const getStyles = makeStyles(theme => ({
         lineHeight: '1.6',
         letterSpacing: '0.0075em',
     },
+    attributeField: {
+        marginRight: theme.spacing(4),
+        marginLeft: theme.spacing(1),
+        minWidth: 300,
+        maxWidth: 500,
+    },
 }));
+
+const escapeValue = (value) => {
+    if (typeof value === 'string' && value.includes(',')) {
+        value = '"' + value.replace('"', '""') + '"';
+    } else {
+        return value;
+    }
+};
 
 const types = ['dataset', 'variable', 'codeList', 'codedValue'];
 const typeLabels = ['datasets', 'variables', 'codelists', 'coded values'];
 const attributes = {
-    dataset: ['dataset', 'label', 'class'],
-    variable: ['dataset', 'name', 'label'],
-    codeList: ['name', 'type'],
-    codedValue: ['codelist', 'codedValue'],
+    dataset: ['label', 'class', 'fileName', 'domain', 'datasetName', 'repeating', 'isReferenceData', 'purpose', 'structure', 'alias'],
+    variable: ['label', 'dataType', 'length', 'fractionDigits', 'fieldName', 'displayFormat', 'note', 'lengthAsData', 'lengthAsCodeList', 'origin'],
+    codeList: ['type', 'dataType', 'formatName'],
+    codedValue: ['decode', 'rank'],
 };
 
 const varDefault = {
@@ -113,13 +131,56 @@ const LoadFromDefine = (props) => {
         props.onClose();
     };
 
-    const handleAttributeChange = (type) => (event, options) => {
-        setSelectedAttributes({ ...selectedAttributes, [type]: options });
+    const handleAttributeChange = (type) => (event) => {
+        setSelectedAttributes({ ...selectedAttributes, [type]: event.target.value });
+    };
+
+    const handleSelectAllClick = (type) => (event) => {
+        if (selectedAttributes[type].length !== attributes[type].length) {
+            setSelectedAttributes({ ...selectedAttributes, [type]: attributes[type] });
+        } else {
+            setSelectedAttributes({ ...selectedAttributes, [type]: [] });
+        }
     };
 
     const openFilter = (type) => {
         setType(type);
         setShowFilter(true);
+    };
+
+    const handleLoad = () => {
+        let varData, dsData, codeListData, codedValueData;
+        // Coded Values
+        let rawCodedValues = [];
+        mdv.order.codeListOrder
+            .filter(codeListOid => selectedItems['codedValue'].includes(codeListOid))
+            .forEach(codeListOid => {
+                let codeList = mdv.codeLists[codeListOid];
+                let data = getCodeListData(codeList, defineVersion);
+                if (data !== undefined && data.codeListTable) {
+                    data.codeListTable.forEach(row => {
+                        let item = {};
+                        item.codeList = codeList.name;
+                        item.codedValue = row.value;
+                        Object.keys(row).forEach(rowAttr => {
+                            if (selectedAttributes['codedValue'].includes(rowAttr)) {
+                                item[rowAttr] = row[rowAttr];
+                            }
+                        });
+                        rawCodedValues.push(item);
+                    });
+                }
+            });
+        let codedValueAttrs = [];
+        rawCodedValues.forEach(item => {
+            codedValueAttrs.push(Object.values(item).map(item => escapeValue(item)).join(','));
+        });
+        if (codedValueAttrs.length > 0) {
+            codedValueAttrs.unshift(Object.keys(rawCodedValues[0]).join(','));
+            codedValueData = codedValueAttrs.join('\n');
+        }
+        props.onFinish(varData, dsData, codeListData, codedValueData);
+        handleClose();
     };
 
     const onFilterUpdate = (filter) => {
@@ -175,22 +236,29 @@ const LoadFromDefine = (props) => {
                                         </Button>
                                     </Grid>
                                     <Grid item>
-                                        <Autocomplete
-                                            clearOnEscape={false}
-                                            multiple
-                                            onChange={handleAttributeChange(curType)}
+                                        <TextField
+                                            label='Attributes'
                                             value={selectedAttributes[curType]}
-                                            disableCloseOnSelect
-                                            filterSelectedOptions
-                                            options={attributes[curType]}
-                                            renderInput={params => (
-                                                <TextField
-                                                    {...params}
-                                                    label='Attributes'
-                                                    fullWidth
-                                                />
-                                            )}
-                                        />
+                                            multiline
+                                            select
+                                            SelectProps={{ multiple: true }}
+                                            onChange={handleAttributeChange(curType)}
+                                            className={classes.attributeField}
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <IconButton
+                                                            color={selectedAttributes.length > 0 ? 'primary' : 'default'}
+                                                            onClick={handleSelectAllClick(curType)}
+                                                        >
+                                                            <DoneAll />
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                        >
+                                            {getSelectionList(attributes[curType])}
+                                        </TextField>
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -198,7 +266,7 @@ const LoadFromDefine = (props) => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={props.onClose} color="primary">
+                    <Button onClick={handleLoad} color="primary">
                         Load
                     </Button>
                     <Button onClick={props.onClose} color="primary">
