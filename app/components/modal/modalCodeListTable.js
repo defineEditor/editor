@@ -25,6 +25,8 @@ import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import getCodeListData from 'utils/getCodeListData.js';
 import Loading from 'components/utils/loading.js';
 import GeneralTable from 'components/utils/generalTable.js';
+import { dummyRequest } from 'utils/cdiscLibraryUtils.js';
+import { getDecode } from 'utils/defineStructureUtils.js';
 import {
     closeModal,
     selectGroup,
@@ -34,7 +36,7 @@ const getStyles = makeStyles(theme => ({
     dialog: {
         position: 'absolute',
         top: '5%',
-        maxWidth: 1200,
+        maxWidth: 1500,
         height: '90%',
         width: '95%',
         overflowX: 'auto',
@@ -52,7 +54,7 @@ const getStyles = makeStyles(theme => ({
         fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
         fontSize: '1.25rem',
         lineHeight: '1.6',
-        paddingLeft: theme.spacing(1),
+        paddingLeft: theme.spacing(2),
         letterSpacing: '0.0075em',
     },
     content: {
@@ -60,6 +62,56 @@ const getStyles = makeStyles(theme => ({
         display: 'flex',
     }
 }));
+
+const loadFromStdCodeList = (codeLists, codeListOid) => {
+    let codeList = codeLists[codeListOid];
+    let codeListType = codeList.codeListType;
+    let data = [];
+    let header = [];
+
+    let codeListTitle;
+    if (codeList.alias !== undefined) {
+        codeListTitle = codeList.name + ' (' + codeList.alias.name + ')';
+    } else {
+        codeListTitle = codeList.name;
+    }
+
+    if (codeList) {
+        header = [
+            { id: 'conceptId', label: 'oid', hidden: true, key: true },
+            { id: 'submissionValue', label: 'Coded Value' },
+            { id: 'preferredTerm', label: 'Preferred Term' },
+            { id: 'definition', label: 'Definition', style: { maxWidth: 500 } },
+            { id: 'joinedSynonyms', label: 'Synonyms' },
+            { id: 'conceptId', label: 'C-Code', style: { minWidth: 90 } },
+        ];
+        data = codeList.itemOrder.map((itemOid, index) => {
+            let item = codeList.codeListItems[itemOid];
+            let conceptId;
+            if (item.alias.name !== undefined) {
+                conceptId = item.alias.name;
+            }
+            let joinedSynonyms;
+            if (item.synonyms && Array.isArray(item.synonyms)) {
+                joinedSynonyms = item.synonyms.join(', ');
+            }
+            return ({
+                submissionValue: item.codedValue,
+                definition: item.definition,
+                preferredTerm: getDecode(item),
+                joinedSynonyms,
+                conceptId,
+            });
+        });
+    }
+
+    return {
+        codeListTitle,
+        codeListType,
+        data,
+        header,
+    };
+};
 
 const loadFromCodeLists = (codeLists, codeListOid, defineVersion) => {
     let codeList = codeLists[codeListOid];
@@ -122,20 +174,36 @@ const ModalCodeListTable = (props) => {
         let product = await cl.getFullProduct(itemInfo.productId);
         let itemGroup = await product.getItemGroup(itemInfo.itemGroupName);
         let item = itemGroup.findMatchingItems(itemInfo.itemName)[0];
+        // As bug workaround, send a dummy request in 1 seconds if the object did not load
+        if (process.platform === 'linux') {
+            setTimeout(() => {
+                if (Object.keys(tableData).length === 0) {
+                    dummyRequest(cl);
+                }
+            }, 2000);
+        }
         let codeList = await item.getCodeList();
 
         header = [
             { id: 'conceptId', label: 'oid', hidden: true, key: true },
             { id: 'submissionValue', label: 'Coded Value' },
             { id: 'preferredTerm', label: 'Preferred Term' },
-            { id: 'definition', label: 'Definition' },
-            { id: 'conceptId', label: 'C-Code' },
+            { id: 'definition', label: 'Definition', style: { maxWidth: 500 } },
+            { id: 'joinedSynonyms', label: 'Synonyms' },
+            { id: 'conceptId', label: 'C-Code', style: { minWidth: 90 } },
         ];
 
         let packageId = codeList.href.replace(/\/mdr\/ct\/packages\/(.*?)\/.*/, '$1');
         let ctInfo = await cl.getFullProduct(packageId, true);
 
         data = codeList.getFormattedTerms();
+        data = data.map(row => {
+            if (row.synonyms && Array.isArray(row.synonyms)) {
+                return { ...row, joinedSynonyms: row.synonyms.join(', ') };
+            } else {
+                return row;
+            }
+        });
 
         codeListTitle = `${codeList.name} (${codeList.conceptId}) ${ctInfo.model} ${ctInfo.version}`;
 
@@ -147,7 +215,6 @@ const ModalCodeListTable = (props) => {
         });
     };
 
-    let stdCodeList;
     if (Object.keys(tableData).length === 0) {
         if (props.itemInfo) {
             // Need to load codelist from the CDISC Library
@@ -155,19 +222,21 @@ const ModalCodeListTable = (props) => {
         } else {
             let codeLists;
             if (props.stdCodeListOid) {
-                stdCodeList = stdCodeLists[props.stdCodeListOid];
+                let stdCodeList = stdCodeLists[props.stdCodeListOid];
                 codeLists = stdCodeList.codeLists;
+                setTableData(loadFromStdCodeList(codeLists, props.codeListOid));
             } else {
                 codeLists = odm.study.metaDataVersion.codeLists;
+                let defineVersion = odm.study.metaDataVersion.defineVersion;
+                setTableData(loadFromCodeLists(codeLists, props.codeListOid, defineVersion));
             }
-            let defineVersion = odm.study.metaDataVersion.defineVersion;
-            setTableData(loadFromCodeLists(codeLists, props.codeListOid, defineVersion));
         }
     }
 
     let { codeListTitle, codeListType, data, header } = tableData;
 
     if (props.stdCodeListOid) {
+        let stdCodeList = stdCodeLists[props.stdCodeListOid];
         codeListTitle += ` ${stdCodeList.type} ${stdCodeList.version}`;
     }
 
@@ -232,7 +301,7 @@ const ModalCodeListTable = (props) => {
 };
 
 ModalCodeListTable.propTypes = {
-    codeListOid: PropTypes.string.isRequired,
+    codeListOid: PropTypes.string,
     type: PropTypes.string.isRequired,
     stdCodeListOid: PropTypes.string,
 };

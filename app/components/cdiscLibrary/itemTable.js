@@ -319,12 +319,12 @@ class ConnectedItemTable extends React.Component {
         if (stdCodeLists) {
             Object.keys(stdCodeLists).some(stdCodeListOid => {
                 let ct = stdCodeLists[stdCodeListOid];
-                if (Object.keys(ct.nciCodeOids).includes(props.nciCode)) {
+                if (Object.keys(ct.nciCodeOids).includes(props.codelist)) {
                     this.props.openModal({
                         type: 'CODELIST_TABLE',
                         props: {
                             stdCodeListOid,
-                            codeListOid: ct.nciCodeOids[props.nciCode],
+                            codeListOid: ct.nciCodeOids[props.codelist],
                         }
                     });
                     clFound = true;

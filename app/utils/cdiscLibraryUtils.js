@@ -160,4 +160,15 @@ const updateCdiscLibrarySettings = (settingsDiff, originalSettings, cdiscLibrary
     return diff;
 };
 
-export default { initCdiscLibrary, updateCdiscLibrarySettings };
+const dummyRequest = async (cl) => {
+    // There is a glitch in linux, which causes the response not to come back in some cases
+    // https://github.com/electron/electron/issues/10570
+    // It is currently fixed by sending a dummy request in 1 second if the main response did not come back
+    try {
+        await cl.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
+    } catch (error) {
+        // It is expected to fail, so do nothing
+    }
+};
+
+export default { initCdiscLibrary, updateCdiscLibrarySettings, dummyRequest };
