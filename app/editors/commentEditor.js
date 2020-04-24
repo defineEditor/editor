@@ -243,6 +243,7 @@ class ConnectedCommentEditor extends React.Component {
                                     fullWidth
                                     rowsMax="10"
                                     autoFocus={this.props.autoFocus}
+                                    inputProps={{ spellCheck: 'true' }}
                                     key={comment.oid}
                                     helperText={issue && helperText}
                                     FormHelperTextProps={{ className: classes.helperText }}

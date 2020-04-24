@@ -207,7 +207,8 @@ class ConnectedDatasetTable extends React.Component {
                     {
                         checkForSpecialChars: { type: 'Error' },
                         lengthLimit: { type: 'Error', maxLength: 40 }
-                    }
+                    },
+                    spellCheck: true,
                     } },
             },
             domainAttrs: {
@@ -227,7 +228,8 @@ class ConnectedDatasetTable extends React.Component {
                     customEditorParameters: { options:
                     {
                         checkForSpecialChars: { type: 'Note' },
-                    }
+                    },
+                    spellCheck: true,
                     } },
             },
             keys: {

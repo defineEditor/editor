@@ -284,7 +284,11 @@ class ConnectedVariableTabFilter extends React.Component {
             }
         } else if (name === 'selectedValues' || name === 'selectAllValues') {
             if (name === 'selectAllValues' && this.state.values.hasOwnProperty(result[index].field)) {
-                result[index].selectedValues = this.state.values[result[index].field];
+                if (result[index].selectedValues.length === this.state.values[result[index].field].length) {
+                    result[index].selectedValues = [];
+                } else {
+                    result[index].selectedValues = this.state.values[result[index].field];
+                }
             } else if (name === 'selectAllValues') {
                 // Select All does nothing when there is no codelist
                 return;
@@ -505,7 +509,7 @@ class ConnectedVariableTabFilter extends React.Component {
         this.state.conditions.forEach((condition, index) => {
             const multipleValuesSelect = (['IN', 'NOTIN'].indexOf(condition.comparator) >= 0);
             const valueSelect = ['IN', 'NOTIN', 'EQ', 'NE'].indexOf(condition.comparator) >= 0;
-            const value = multipleValuesSelect && valueSelect ? condition.selectedValues : condition.selectedValues[0];
+            const value = multipleValuesSelect && valueSelect ? condition.selectedValues : condition.selectedValues[0] || '';
             // In case itemGroupOid is provided, exclude dataset from the list of fields
             // Allow dataset only for the first field
             const fields = {};
@@ -578,7 +582,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                 SelectProps={{ multiple: multipleValuesSelect }}
                                 onChange={this.handleChange('selectedValues', index)}
                                 className={classes.textFieldValues}
-                                InputProps={{
+                                InputProps={ multipleValuesSelect ? {
                                     startAdornment: (
                                         <InputAdornment position="start">
                                             <IconButton
@@ -589,7 +593,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                             </IconButton>
                                         </InputAdornment>
                                     )
-                                }}
+                                } : undefined}
                             >
                                 {getSelectionList(this.state.values[condition.field], this.state.values[condition.field].length === 0)}
                             </TextField>
@@ -602,6 +606,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                     multiple={multipleValuesSelect}
                                     onChange={this.handleChange('selectedValues', index)}
                                     value={value}
+                                    key={condition.comparator}
                                     disableCloseOnSelect
                                     filterSelectedOptions
                                     options={this.state.values[condition.field]}
@@ -622,7 +627,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                     fullWidth
                                     multiline
                                     error={!condition.regexIsValid}
-                                    defaultValue={value}
+                                    value={value}
                                     onChange={this.handleChange('selectedValues', index)}
                                     className={classes.textFieldValues}
                                 />

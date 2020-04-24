@@ -120,6 +120,7 @@ class ConnectedArmDocumentationView extends React.Component {
                                 fullWidth
                                 rowsMax="10"
                                 helperText={issue && helperText}
+                                inputProps={{ spellCheck: 'true' }}
                                 FormHelperTextProps={{ className: classes.helperText }}
                                 value={descriptionText}
                                 className={classes.resultDisplayInput}

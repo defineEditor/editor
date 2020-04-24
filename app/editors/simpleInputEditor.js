@@ -100,8 +100,8 @@ class SimpleInputEditor extends React.Component {
                 autoFocus
                 multiline
                 error={error}
+                inputProps={this.props.spellCheck ? { spellCheck: 'true', onKeyDown: this.props.onKeyDown } : { onKeyDown: this.props.onKeyDown }}
                 helperText={(issue || error) && helperText}
-                inputProps={{ onKeyDown: this.props.onKeyDown }}
                 FormHelperTextProps={{ className: error ? classes.helperTextError : classes.helperTextNote }}
                 value={this.state.value}
                 onChange={this.handleChange}
@@ -118,6 +118,7 @@ SimpleInputEditor.propTypes = {
     defaultValue: PropTypes.string.isRequired,
     onUpdate: PropTypes.func.isRequired,
     label: PropTypes.string,
+    spellCheck: PropTypes.bool,
 };
 
 export default withStyles(styles)(SimpleInputEditor);

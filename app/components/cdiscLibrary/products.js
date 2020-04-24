@@ -229,6 +229,14 @@ class ConnectedProducts extends React.Component {
         });
 
         await db.delete('cdiscLibrary', 'products');
+        // Delete all root keys as they can be also updated
+        let allKeys = await db.getAllKeys('cdiscLibrary');
+        for (let i = 0; i < allKeys.length; i++) {
+            let key = allKeys[i];
+            if (key.startsWith('r/')) {
+                await db.delete('cdiscLibrary', key);
+            }
+        }
 
         // Reset the library contents
         this.context.cdiscLibrary.reset();

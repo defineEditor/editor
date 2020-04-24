@@ -397,6 +397,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
                             value={this.state.descriptionText}
                             autoFocus
                             fullWidth
+                            inputProps={{ spellCheck: 'true' }}
                             onChange={this.handleChange('main')('descriptionText')}
                             className={classes.inputField}
                         />

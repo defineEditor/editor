@@ -248,6 +248,7 @@ class ConnectedCdiscLibraryItems extends React.Component {
                         <CdiscLibraryItemTable
                             items={this.state.items}
                             itemGroup={this.state.itemGroup}
+                            productId={this.props.productId}
                             searchString={this.state.searchString}
                             product={this.state.product}
                             title={this.getItemGroupDescription(classes)}

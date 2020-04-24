@@ -296,6 +296,7 @@ class ReviewCommentRaw extends React.Component {
                                 editorState={this.state.editorState}
                                 onChange={this.onChange}
                                 readOnly={!this.state.editMode}
+                                spellCheck={true}
                             />
                         </div>
                         { (this.state.confirmDelete || this.state.editMode) && this.props.author !== author && (

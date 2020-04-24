@@ -28,7 +28,6 @@ const getRequestId = async (request) => {
         .replace('/send/', '/se/')
         .replace('/sendig/', '/sei/')
         .replace('/adam/', '/a/')
-        .replace('/root/', '/r/')
         .replace('/datasets/', '/d/')
         .replace('/domains/', '/dm/')
         .replace('/datastructures/', '/ds/')
@@ -42,11 +41,11 @@ const getRequestId = async (request) => {
         .replace('/scenarios/', '/s/')
         .replace(/.*?\/mdr\//, '')
     ;
-    let requestOptions = JSON.stringify({ ...request, url: undefined });
+    let requestOptions = JSON.stringify({ ...request.headers });
     let hash = await window.crypto.subtle.digest('SHA-1', new TextEncoder().encode(requestOptions));
     const hashArray = Array.from(new Uint8Array(hash));
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    if (hashHex === '31d7e57308b4e168b3b56ede916422c25269d04c') {
+    if (request && request.headers && request.headers.Accept === 'application/json') {
         // These are standard request options, no need to add a hash code
         return shortenedUrl;
     } else {

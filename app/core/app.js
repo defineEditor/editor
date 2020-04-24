@@ -56,6 +56,11 @@ const baseThemeObj = {
             contrastText: '#000'
         }
     },
+    props: {
+        MuiInput: {
+            inputProps: { spellCheck: 'false' }
+        }
+    }
 };
 
 const disabledAnimationThemeObj = {
@@ -65,6 +70,7 @@ const disabledAnimationThemeObj = {
         create: () => 'none',
     },
     props: {
+        ...baseThemeObj.props,
         MuiButtonBase: {
             // The properties to apply
             disableRipple: true, // No more ripple, on the whole application 💣!

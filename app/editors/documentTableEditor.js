@@ -214,6 +214,7 @@ class DocumentTableEditor extends React.Component {
                             label='Title'
                             value={leafs[leafId].title}
                             fullWidth
+                            inputProps={{ spellCheck: 'true' }}
                             onChange={this.handleChange('title', leafId)}
                             className={this.props.classes.inputField}
                         />

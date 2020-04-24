@@ -14,6 +14,7 @@
 
 import { app, BrowserWindow, ipcMain, Menu } from 'electron';
 import path from 'path';
+import contextMenu from 'electron-context-menu';
 import saveAs from './main/saveAs.js';
 import saveDefine from './main/saveDefine.js';
 import openDefineXml from './main/openDefineXml.js';
@@ -66,6 +67,12 @@ const installExtensions = async () => {
     ).catch(console.log);
 };
 
+contextMenu({
+    append: (defaultActions, params, browserWindow) => [],
+    showLookUpSelection: false,
+    showSearchWithGoogle: false,
+});
+
 function createWindow () {
     mainWindow = new BrowserWindow({
         width: 768,
@@ -75,10 +82,11 @@ function createWindow () {
         icon: path.join(__dirname, '/static/images/misc/mainIcon64x64.png'),
         webPreferences: {
             nodeIntegration: true,
+            spellcheck: true,
         },
     });
 
-    mainWindow.loadURL(`file://${__dirname}/index.html`);
+    mainWindow.loadFile('index.html');
 
     mainWindow.webContents.on('did-finish-load', () => {
         if (!mainWindow) {

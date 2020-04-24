@@ -56,8 +56,7 @@ const cast2Type = (value, type) => {
 const updateItemDef = (item, itemDef, stdConstants, model, errors) => {
     // Label
     if (item.label) {
-        let newDescription = { ...new TranslatedText({ value: item.label }) };
-        itemDef.setDescription(newDescription);
+        itemDef.setDescription(item.label);
     }
     // Origin
     if (item.originType || item.originDescription) {
@@ -85,8 +84,7 @@ const updateItemDef = (item, itemDef, stdConstants, model, errors) => {
             newOrigin.source = item.originSource;
         }
         if (item.originDescription) {
-            let newDescription = { ...new TranslatedText({ value: item.originDescription }) };
-            newOrigin.setDescription(newDescription);
+            newOrigin.setDescription(item.originDescription);
         }
 
         itemDef.origins[0] = { ...newOrigin };
@@ -104,9 +102,8 @@ const convertImportMetadata = (metadata) => {
             ds.datasetClass = { name: ds.class };
             delete ds.class;
         }
-        if (ds.alias) {
-            ds.domainDescription = ds.alias;
-            delete ds.alias;
+        if (ds.sasDatasetName) {
+            ds.datasetName = ds.sasDatasetName.toUpperCase();
         }
     });
     varData.forEach(item => {
@@ -120,10 +117,6 @@ const convertImportMetadata = (metadata) => {
         item.lengthAsCodeList = cast2Type(item.lengthAsCodeList, 'boolean');
     });
     codeListData.forEach(cl => {
-        if (cl.codelist) {
-            cl.name = cl.codelist;
-            delete cl.codelist;
-        }
         if (cl.type) {
             cl.codeListType = cl.type.toLowerCase();
             delete cl.type;
@@ -150,13 +143,12 @@ const convertImportMetadata = (metadata) => {
                 let name = itemGroup.name;
                 if (ds.dataset === name) {
                     let newItemGroup = new ItemGroup({
-                        ...ds,
                         ...itemGroup,
+                        ...ds,
                     });
                     let label = getDescription(itemGroup);
                     if (ds.label && ds.label !== label) {
-                        let newDescription = { ...new TranslatedText({ value: ds.label }) };
-                        newItemGroup.setDescription(newDescription);
+                        newItemGroup.setDescription(ds.label);
                     }
                     if (ds.datasetClass && ds.datasetClass.name !== itemGroup.datasetClass.name) {
                         newItemGroup.datasetClass.name = ds.datasetClass.name;
@@ -193,33 +185,26 @@ const convertImportMetadata = (metadata) => {
                 // Create a new dataset
                 let itemGroupOid = getOid('ItemGroup', currentGroupOids);
                 currentGroupOids.push(itemGroupOid);
-                let purpose;
-                if (ds.purpose) {
-                    purpose = ds.purpose;
-                } else {
-                    purpose = model === 'ADaM' ? 'Analysis' : 'Tabulation';
+                let attrs = { ...ds };
+                if (!ds.purpose) {
+                    attrs.purpose = model === 'ADaM' ? 'Analysis' : 'Tabulation';
                 }
-                let newLeafOid = getOid('Leaf', [], ds.dataset);
-                let leaf = { ...new Leaf({ id: newLeafOid, href: ds.fileName, title: ds.fileTitle }) };
+                if (ds.fileName !== undefined || ds.fileTitle !== undefined) {
+                    let newLeafOid = getOid('Leaf', [], ds.dataset);
+                    attrs.leaf = { ...new Leaf({ id: newLeafOid, href: ds.fileName, title: ds.fileTitle }) };
+                    attrs.archiveLocationId = newLeafOid;
+                }
+                if (ds.domainDescription) {
+                    attrs.alias = { ...new Alias({ context: 'DomainDescription', name: ds.domainDescription }) };
+                }
                 let newItemGroup = new ItemGroup({
+                    ...attrs,
                     oid: itemGroupOid,
                     name: ds.dataset,
-                    datasetName: ds.dataset,
-                    purpose: purpose,
-                    archiveLocationId: newLeafOid,
-                    leaf,
                 });
                 if (ds.label) {
                     let newDescription = { ...new TranslatedText({ value: ds.label }) };
                     newItemGroup.addDescription(newDescription);
-                }
-                if (ds.domainDescription) {
-                    newItemGroup.alias = { ...new Alias({ context: 'DomainDescription', name: ds.domainDescription }) };
-                }
-                if (ds.datasetClass) {
-                    newItemGroup.datasetClass = {
-                        name: ds.datasetClass
-                    };
                 }
                 newItemGroups[itemGroupOid] = { ...newItemGroup };
             }
@@ -332,24 +317,31 @@ const convertImportMetadata = (metadata) => {
         // Get the list of current codelists
         codeListData.forEach(codeList => {
             errors = errors.concat(validateCodeList(codeList));
-            let codeListOid = getOidByName(mdv, 'codeLists', codeList.name);
+            let codeListOid = getOidByName(mdv, 'codeLists', codeList.codeList);
             if (codeListOid === undefined) {
                 codeListOid = getOid('CodeList', currentCodeListOids);
                 currentCodeListOids.push(codeListOid);
-                codeListOids[codeList.name] = codeListOid;
+                codeListOids[codeList.codeList] = codeListOid;
             } else {
-                codeListOids[codeList.name] = codeListOid;
+                codeListOids[codeList.codeList] = codeListOid;
             }
         });
         // Create new or updated codelists
         Object.keys(codeListOids).forEach(codeListName => {
             let codeListOid = codeListOids[codeListName];
-            let currentCodeList = codeListData.filter(cl => cl.name === codeListName)[0];
+            let currentCodeList = codeListData.filter(cl => cl.codeList === codeListName)[0];
             currentCodeList = removeBlankAttributes(currentCodeList);
             let codeList;
             let isNewCodeList = false;
             if (Object.keys(mdv.codeLists).includes(codeListOid)) {
                 codeList = new CodeList({ ...mdv.codeLists[codeListOid], ...currentCodeList });
+                // Codelist types should not be changed in import metadata, because it is a complex operation
+                if (mdv.codeLists[codeListOid].codeListType !== codeList.codeListType) {
+                    errors.push({
+                        id: 'additional',
+                        message: `Codelist type was changed for existing codelist **${codeList.name}**. Codelist types for existing codelists cannot be changed in import metadata and need to be changed in the Codelist tab due to complexity of this operation.`
+                    });
+                }
             } else {
                 isNewCodeList = true;
                 codeList = new CodeList({ ...currentCodeList, oid: codeListOid });

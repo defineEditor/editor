@@ -149,15 +149,31 @@ const json2csv = (json, delimiter) => {
 
 const convertLayout = async (data, layout, newLayout) => {
     try {
-        if (data === '' || (typeof data === 'object' && Object.keys(data).length === 0)) {
+        if (layout === newLayout) {
+            return data;
+        } else if (data === '' || (typeof data === 'object' && Object.keys(data).length === 0)) {
             return newLayout === 'table' ? [] : '';
         } else if (['csv', 'excel'].includes(layout)) {
             const delimiter = layout === 'csv' ? ',' : '\t';
-            const jsonData = await csv2json({ delimiter }).fromString(data);
+            let jsonData = await csv2json({ delimiter }).fromString(data);
             if (jsonData.length === 0) {
                 // Did not convert
                 throw new Error('Failed to convert');
             }
+            // If column name is blank, it will be named field\d+, remove such attributes
+            jsonData = jsonData.map(row => {
+                if (Object.keys(row).filter(attr => /^filed\d+$/.test(attr))) {
+                    let updatedRow = { ...row };
+                    Object.keys(updatedRow).forEach(attr => {
+                        if (/^field\d+$/.test(attr)) {
+                            delete updatedRow[attr];
+                        }
+                    });
+                    return updatedRow;
+                } else {
+                    return row;
+                }
+            });
             if (newLayout === 'table') {
                 return jsonData;
             } else {
@@ -199,8 +215,8 @@ const ModalImportMetadata = (props) => {
     };
 
     let currentData = [dsData, varData, codeListData, codedValueData][tabNames.indexOf(currentTab)];
+    let currentSetter = [setDsData, setVarData, setCodeListData, setCodedValueData][tabNames.indexOf(currentTab)];
     const handleChange = (event) => {
-        let currentSetter = [setDsData, setVarData, setCodeListData, setCodedValueData][tabNames.indexOf(currentTab)];
         currentSetter(event.target.value);
     };
 
@@ -268,7 +284,7 @@ const ModalImportMetadata = (props) => {
 
     const copyToClipboard = () => {
         if (layout === 'table') {
-            clipboard.writeText(JSON.toString(currentData));
+            clipboard.writeText(JSON.stringify(currentData));
         } else {
             clipboard.writeText(currentData);
         }
@@ -281,12 +297,21 @@ const ModalImportMetadata = (props) => {
             let delimiter = layout === 'csv' ? ',' : '\t';
             // Get number of attributes
             let attNum = (data.slice(0, data.indexOf('\n')).match(new RegExp(delimiter, 'g')) || []).length;
+            // Remove fully blank lines and newlines at the end
             data = data.replace(new RegExp(`^${delimiter}{${attNum}}$`, 'gm'), '');
-            // Remove newlines at the end
             data = data.replace(/\n*$/, '');
-            setVarData(data);
+            currentSetter(data);
         } else {
-            setVarData(clipboard.readText());
+            try {
+                currentSetter(JSON.parse(clipboard.readText()));
+            } catch (error) {
+                dispatch(
+                    openSnackbar({
+                        type: 'error',
+                        message: 'Invalid JSON data',
+                    })
+                );
+            }
         }
     };
 

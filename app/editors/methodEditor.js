@@ -392,6 +392,7 @@ class ConnectedMethodEditor extends React.Component {
                                                 multiline
                                                 disabled={autoMethodName}
                                                 value={methodName}
+                                                inputProps={{ spellCheck: 'true' }}
                                                 onChange={this.handleChange('nameUpdate')}
                                                 className={classes.methodName}
                                             />
@@ -407,6 +408,7 @@ class ConnectedMethodEditor extends React.Component {
                                         key={method.oid}
                                         defaultValue={methodText}
                                         helperText={issue && helperText}
+                                        inputProps={{ spellCheck: 'true' }}
                                         FormHelperTextProps={{ className: classes.helperText }}
                                         onBlur={!this.props.textInstantProcessing ? this.handleChange('textUpdate') : undefined}
                                         onChange={this.props.textInstantProcessing ? this.handleChange('textUpdate') : undefined}

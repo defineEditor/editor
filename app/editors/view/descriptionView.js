@@ -101,6 +101,7 @@ class ConnectedDescriptionView extends React.Component {
                         rowsMax="10"
                         autoFocus
                         helperText={issue && helperText}
+                        inputProps={{ spellCheck: 'true' }}
                         FormHelperTextProps={{ className: classes.helperText }}
                         value={descriptionText}
                         className={classes.resultDisplayInput}

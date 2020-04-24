@@ -21,7 +21,7 @@ const validateItemGroupDef = (itemGroupDef, stdConstants, model) => {
     validateList(itemGroupDef.isReferenceData, 'isReferenceData', ['Yes', 'No'], errors);
     validateList(itemGroupDef.isNonStandard, 'isNonStandard', ['Yes'], errors);
     validateList(itemGroupDef.hasNoData, 'hasNoData', ['Yes'], errors);
-    if (itemGroupDef.datasetClass.name && stdConstants && stdConstants.classTypes && stdConstants.classTypes[model]) {
+    if (itemGroupDef.datasetClass && itemGroupDef.datasetClass.name && stdConstants && stdConstants.classTypes && stdConstants.classTypes[model]) {
         validateList(itemGroupDef.datasetClass.name, 'class', Object.keys(stdConstants.classTypes[model]), errors);
     }
     return errors;

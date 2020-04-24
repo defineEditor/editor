@@ -133,7 +133,6 @@ class ControlledTerminologyEditor extends React.Component {
                             defaultValue={defaultOption}
                             options={options}
                             className={this.props.classes.inputField}
-                            disableOpenOnFocus
                             disableClearable
                             autoFocus
                         />
