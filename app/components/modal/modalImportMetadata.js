@@ -128,6 +128,20 @@ const getStyles = makeStyles(theme => ({
     },
 }));
 
+const varDefault = {
+    isEnabled: false,
+    applyToVlm: false,
+    conditions: [{ field: 'dataset', comparator: 'IN', selectedValues: [], regexIsValid: true }],
+    connectors: [],
+};
+
+const clDefault = {
+    isEnabled: false,
+    applyToVlm: false,
+    conditions: [{ field: 'codeList', comparator: 'IN', selectedValues: [], regexIsValid: true }],
+    connectors: [],
+};
+
 const json2csv = (json, delimiter) => {
     let attrs = Object.keys(json[0]);
     let result = [attrs.join(delimiter)];
@@ -135,8 +149,8 @@ const json2csv = (json, delimiter) => {
         // Escape values with delimiters
         result.push(Object.values(obs)
             .map(value => {
-                if (value.includes(delimiter)) {
-                    return '"' + value.replace('"', '""') + '"';
+                if (value.includes(delimiter) || value.includes('\n')) {
+                    return '"' + value.replace(/"/g, '""') + '"';
                 } else {
                     return value;
                 }
@@ -162,7 +176,7 @@ const convertLayout = async (data, layout, newLayout) => {
             }
             // If column name is blank, it will be named field\d+, remove such attributes
             jsonData = jsonData.map(row => {
-                if (Object.keys(row).filter(attr => /^filed\d+$/.test(attr))) {
+                if (Object.keys(row).filter(attr => /^field\d+$/.test(attr))) {
                     let updatedRow = { ...row };
                     Object.keys(updatedRow).forEach(attr => {
                         if (/^field\d+$/.test(attr)) {
@@ -194,8 +208,8 @@ const tabLabels = ['Datasets', 'Variables', 'Codelists', 'Coded Values'];
 let placeholders = {
     datasets: 'dataset,label,class, ...\nADSL,Subject Level Analysis Dataset,ADSL,...\nADLB,Laboratory Analysis Laboratory Dataset,BDS,...',
     variables: 'dataset,variable,length,...\nADSL,AVAL,20,...\nADSL,AVAL.AST,8,...',
-    codeLists: 'codelist,type,dataType,...\nNo Yes Response,decoded,text,...\nRace,decoded,text,...',
-    codedValues: 'codelist,codedValue,decode,...\nNo Yes Response,Y,Yes,...\nNo Yes Response,N,No,...',
+    codeLists: 'codeList,codeListType,dataType,...\nNo Yes Response,decoded,text,...\nRace,decoded,text,...',
+    codedValues: 'codeList,codedValue,decode,...\nNo Yes Response,Y,Yes,...\nNo Yes Response,N,No,...',
 };
 
 const ModalImportMetadata = (props) => {
@@ -229,6 +243,34 @@ const ModalImportMetadata = (props) => {
             handleClose();
         }
     };
+
+    const [filters, setFilters] = useState({
+        dataset: varDefault,
+        variable: varDefault,
+        codeList: clDefault,
+        codedValue: clDefault,
+    });
+
+    const [selectedAttributes, setSelectedAttributes] = useState({
+        dataset: [],
+        variable: [],
+        codeList: [],
+        codedValue: [],
+    });
+
+    const [selectedItems, setSelectedItems] = useState({
+        dataset: [],
+        variable: [],
+        codeList: [],
+        codedValue: [],
+    });
+
+    const [selectedItemNum, setSelectedItemNum] = useState({
+        dataset: 0,
+        variable: 0,
+        codeList: 0,
+        codedValue: 0,
+    });
 
     const handleImportMetadata = async () => {
         let metadata = {
@@ -500,7 +542,20 @@ const ModalImportMetadata = (props) => {
                     <LoadFromXpt onClose={() => { setShowXptLoad(false); }} onFinish={handleXptFinish}/>
             }
             { showDefineLoad &&
-                    <LoadFromDefine onClose={() => { setShowDefineLoad(false); }} onFinish={handleDefineFinish}/>
+                    <LoadFromDefine
+                        onClose={() => { setShowDefineLoad(false); }}
+                        onFinish={handleDefineFinish}
+                        selection={{
+                            filters,
+                            setFilters,
+                            selectedAttributes,
+                            setSelectedAttributes,
+                            selectedItems,
+                            setSelectedItems,
+                            selectedItemNum,
+                            setSelectedItemNum,
+                        }}
+                    />
             }
         </React.Fragment>
     );

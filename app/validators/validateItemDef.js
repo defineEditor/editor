@@ -18,8 +18,8 @@ const validateItemDef = (itemDef, stdConstants, model) => {
     let errors = [];
     validateType(itemDef.length, 'isNumber', 'length', errors);
     validateType(itemDef.fractionDigits, 'isNumber', 'fractionDigits', errors);
-    validateType(itemDef.lengthAsData, 'boolean', 'fractionDigits', errors);
-    validateType(itemDef.lengthAsCodeList, 'boolean', 'fractionDigits', errors);
+    validateType(itemDef.lengthAsData, 'boolean', 'lengthAsData', errors);
+    validateType(itemDef.lengthAsCodeList, 'boolean', 'lengthAsCodeList', errors);
     if (itemDef.dataType) {
         if (stdConstants && stdConstants.dataTypes) {
             let validTypes = stdConstants.dataTypes;

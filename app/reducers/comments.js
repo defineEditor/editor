@@ -31,6 +31,7 @@ import {
     ADD_ANALYSISRESULTS,
     ADD_RESULTDISPLAYS,
     UPD_ARMSTATUS,
+    ADD_IMPORTMETADATA,
 } from 'constants/action-types';
 import { Comment, TranslatedText } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
@@ -544,6 +545,16 @@ const handleUpdatedLeafs = (state, action) => {
     }
 };
 
+const addImportMetadata = (state, action) => {
+    let newComments = action.updateObj.commentResult;
+    // Add ItemGroups
+    if (Object.keys(newComments).length > 0) {
+        return { ...state, ...newComments };
+    } else {
+        return state;
+    }
+};
+
 const comments = (state = {}, action) => {
     switch (action.type) {
         case ADD_ITEMGROUPCOMMENT:
@@ -582,6 +593,8 @@ const comments = (state = {}, action) => {
             return handleUpdatedLeafs(state, action);
         case UPD_ARMSTATUS:
             return handleUpdateArmStatus(state, action);
+        case ADD_IMPORTMETADATA:
+            return addImportMetadata(state, action);
         default:
             return state;
     }

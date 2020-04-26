@@ -42,7 +42,11 @@ class codeListFormatNameEditor extends React.Component {
     }
 
     save = () => {
-        this.props.onUpdate(this.state.formatName);
+        if (this.state.formatName === '') {
+            this.props.onUpdate();
+        } else {
+            this.props.onUpdate(this.state.formatName);
+        }
     }
 
     cancel = () => {

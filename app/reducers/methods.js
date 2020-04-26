@@ -20,6 +20,7 @@ import {
     ADD_VARS,
     ADD_ITEMGROUPS,
     UPD_LEAFS,
+    ADD_IMPORTMETADATA,
 } from 'constants/action-types';
 import { Method, TranslatedText } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
@@ -472,6 +473,16 @@ const handleUpdatedLeafs = (state, action) => {
     }
 };
 
+const addImportMetadata = (state, action) => {
+    let newMethods = action.updateObj.methodResult;
+    // Add ItemGroups
+    if (Object.keys(newMethods).length > 0) {
+        return { ...state, ...newMethods };
+    } else {
+        return state;
+    }
+};
+
 const methods = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMDESCRIPTION:
@@ -488,6 +499,8 @@ const methods = (state = {}, action) => {
             return handleAddItemGroups(state, action);
         case UPD_LEAFS:
             return handleUpdatedLeafs(state, action);
+        case ADD_IMPORTMETADATA:
+            return addImportMetadata(state, action);
         default:
             return state;
     }

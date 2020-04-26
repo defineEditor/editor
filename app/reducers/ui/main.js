@@ -152,6 +152,8 @@ const main = (state = initialState, action) => {
     // Save action in the history
     if (!action.type.startsWith('UI_') &&
         !action.type.startsWith('@@') &&
+        !action.type.startsWith('CT_') &&
+        !(action.noHistory === true) &&
         !['STDCDL_LOAD', 'APP_SAVE', 'STG_UPDATESETTINGS', 'DUMMY_ACTION'].includes(action.type)
     ) {
         newState = { ...state, actionHistory: state.actionHistory.concat([action.type]) };

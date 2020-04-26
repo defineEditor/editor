@@ -13,7 +13,7 @@
 ***********************************************************************************/
 
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -30,6 +30,7 @@ import getItemsFromFilter from 'utils/getItemsFromFilter.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getCodeListData from 'utils/getCodeListData.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
+import { openSnackbar } from 'actions/index.js';
 
 const getStyles = makeStyles(theme => ({
     dialog: {
@@ -63,8 +64,8 @@ const getStyles = makeStyles(theme => ({
 }));
 
 const escapeValue = (value) => {
-    if (typeof value === 'string' && value.includes(',')) {
-        value = '"' + value.replace('"', '""') + '"';
+    if (typeof value === 'string' && (value.includes(',') || value.includes('\n'))) {
+        return '"' + value.replace(/"/g, '""') + '"';
     } else {
         return value;
     }
@@ -73,60 +74,28 @@ const escapeValue = (value) => {
 const types = ['dataset', 'variable', 'codeList', 'codedValue'];
 const typeLabels = ['datasets', 'variables', 'codelists', 'coded values'];
 const attributes = {
-    dataset: ['label', 'class', 'domain', 'domainDescription', 'sasDatasetName', 'repeating', 'isReferenceData', 'purpose', 'structure', 'fileName', 'fileTitle'],
-    variable: ['label', 'dataType', 'length', 'fractionDigits', 'sasFieldName', 'displayFormat', 'role', 'mandatory', 'note', 'lengthAsData', 'lengthAsCodeList', 'originType', 'originDescription'],
+    dataset: ['label', 'class', 'domain', 'domainDescription', 'sasDatasetName',
+        'repeating', 'isReferenceData', 'purpose', 'structure', 'comment', 'fileName', 'fileTitle'
+    ],
+    variable: ['label', 'dataType', 'length', 'fractionDigits', 'sasFieldName',
+        'displayFormat', 'role', 'mandatory', 'comment', 'method', 'methodName', 'note', 'lengthAsData', 'lengthAsCodeList', 'originType', 'originDescription', 'crfPages'
+    ],
     codeList: ['type', 'dataType', 'formatName'],
     codedValue: ['decode', 'rank'],
 };
 
-const varDefault = {
-    isEnabled: false,
-    applyToVlm: false,
-    conditions: [{ field: 'dataset', comparator: 'IN', selectedValues: [], regexIsValid: true }],
-    connectors: [],
-};
-
-const clDefault = {
-    isEnabled: false,
-    applyToVlm: false,
-    conditions: [{ field: 'codeList', comparator: 'IN', selectedValues: [], regexIsValid: true }],
-    connectors: [],
-};
-
 const LoadFromDefine = (props) => {
     let classes = getStyles();
+    const dispatch = useDispatch();
     const mdv = useSelector(state => state.present.odm.study.metaDataVersion);
     const defineVersion = mdv.defineVersion;
 
-    const [filters, setFilters] = useState({
-        dataset: varDefault,
-        variable: varDefault,
-        codeList: clDefault,
-        codedValue: clDefault,
-    });
+    const { filters, setFilters, selectedAttributes, setSelectedAttributes,
+        selectedItems, setSelectedItems, selectedItemNum, setSelectedItemNum
+    } = props.selection;
 
     const [type, setType] = useState('dataset');
     const [showFilter, setShowFilter] = useState(false);
-    const [selectedAttributes, setSelectedAttributes] = useState({
-        dataset: [],
-        variable: [],
-        codeList: [],
-        codedValue: [],
-    });
-
-    const [selectedItems, setSelectedItems] = useState({
-        dataset: [],
-        variable: [],
-        codeList: [],
-        codedValue: [],
-    });
-
-    const [selectedItemNum, setSelectedItemNum] = useState({
-        dataset: 0,
-        variable: 0,
-        codeList: 0,
-        codedValue: 0,
-    });
 
     const handleClose = () => {
         props.onClose();
@@ -150,119 +119,56 @@ const LoadFromDefine = (props) => {
     };
 
     const handleLoad = () => {
-        let varData = '';
-        let dsData = '';
-        let codeListData = '';
-        let codedValueData = '';
-        // Datasets
-        if (selectedItems['dataset'].length > 0) {
-            let rawValues = [];
-            // Rename some of the attributes
-            let selectedAttrs = selectedAttributes['dataset'].map(attr => {
-                if (attr === 'sasDatasetName') {
-                    return 'datasetName';
-                } else {
-                    return attr;
-                }
-            });
-            let allAttrs = ['dataset'].concat(selectedAttributes['dataset']);
-            mdv.order.itemGroupOrder
-                .filter(igOid => selectedItems['dataset'].includes(igOid))
-                .forEach(igOid => {
-                    let dataset = mdv.itemGroups[igOid];
-                    let item = {};
-                    item.dataset = dataset.name;
-                    Object.keys(dataset).forEach(rowAttr => {
-                        if (selectedAttrs.includes(rowAttr)) {
-                            if (rowAttr === 'datasetName') {
-                                item.sasDatasetName = dataset.datasetName;
-                            } else {
-                                item[rowAttr] = dataset[rowAttr];
-                            }
-                        }
-                    });
-                    if (selectedAttrs.includes('domainDescription') && dataset.alias !== undefined) {
-                        item.domainDescription = dataset.alias.name;
+        try {
+            let varData = '';
+            let dsData = '';
+            let codeListData = '';
+            let codedValueData = '';
+            // Datasets
+            if (selectedItems['dataset'].length > 0) {
+                let rawValues = [];
+                // Rename some of the attributes
+                let selectedAttrs = selectedAttributes['dataset'].map(attr => {
+                    if (attr === 'sasDatasetName') {
+                        return 'datasetName';
+                    } else {
+                        return attr;
                     }
-                    if (selectedAttrs.includes('label')) {
-                        item.label = getDescription(dataset);
-                    }
-                    if (selectedAttrs.includes('class') && dataset.datasetClass !== undefined) {
-                        item.class = dataset.datasetClass.name;
-                    }
-                    if (selectedAttrs.includes('fileName') && dataset.leaf !== undefined) {
-                        item.fileName = dataset.leaf.href;
-                    }
-                    if (selectedAttrs.includes('fileTitle') && dataset.leaf !== undefined) {
-                        item.fileTitle = dataset.leaf.title;
-                    }
-                    let finalItem = {};
-                    allAttrs.forEach(attr => {
-                        finalItem[attr] = item[attr];
-                    });
-                    rawValues.push(finalItem);
                 });
-            let attrs = [];
-            rawValues.forEach(item => {
-                attrs.push(Object.values(item).map(item => escapeValue(item)).join(','));
-            });
-            if (attrs.length > 0) {
-                attrs.unshift(Object.keys(rawValues[0]).join(','));
-                dsData = attrs.join('\n');
-            }
-        }
-        // Variables
-        if (selectedItems['variable'].length > 0) {
-            let rawValues = [];
-            // Rename some of the attributes
-            let selectedAttrs = selectedAttributes['variable'].map(attr => {
-                if (attr === 'sasFieldName') {
-                    return 'fieldName';
-                } else {
-                    return attr;
-                }
-            });
-            let allAttrs = ['dataset', 'variable'].concat(selectedAttributes['variable']);
-            // Get all datasets
-            let allSelectedItemGroups = selectedItems['variable'].map(item => item.itemGroupOid);
-            allSelectedItemGroups.filter((igOid, index) => allSelectedItemGroups.indexOf(igOid) === index);
-            mdv.order.itemGroupOrder
-                .filter(igOid => allSelectedItemGroups.includes(igOid))
-                .forEach(igOid => {
-                    let dataset = mdv.itemGroups[igOid];
-                    let itemDefOids = selectedItems['variable'].filter(item => (item.itemGroupOid === igOid)).map(item => item.itemDefOid);
-                    itemDefOids.forEach(itemDefOid => {
-                        let itemDef = mdv.itemDefs[itemDefOid];
-                        let itemRef = Object.values(dataset.itemRefs).filter(itemRef => itemRef.itemOid === itemDefOid)[0];
-                        if (itemRef === undefined) {
-                            console.log();
-                        }
+                let allAttrs = ['dataset'].concat(selectedAttributes['dataset']);
+                mdv.order.itemGroupOrder
+                    .filter(igOid => selectedItems['dataset'].includes(igOid))
+                    .forEach(igOid => {
+                        let dataset = mdv.itemGroups[igOid];
                         let item = {};
                         item.dataset = dataset.name;
-                        item.variable = itemDef.name;
-                        Object.keys(itemDef).forEach(rowAttr => {
+                        Object.keys(dataset).forEach(rowAttr => {
                             if (selectedAttrs.includes(rowAttr)) {
-                                if (rowAttr === 'fieldName') {
-                                    item.sasFieldName = itemDef.fieldName;
+                                if (rowAttr === 'datasetName') {
+                                    item.sasDatasetName = dataset.datasetName;
                                 } else {
-                                    item[rowAttr] = itemDef[rowAttr];
+                                    item[rowAttr] = dataset[rowAttr];
                                 }
                             }
                         });
+                        if (selectedAttrs.includes('domainDescription') && dataset.alias !== undefined) {
+                            item.domainDescription = dataset.alias.name;
+                        }
                         if (selectedAttrs.includes('label')) {
-                            item.label = getDescription(itemDef);
+                            item.label = getDescription(dataset);
                         }
-                        if (selectedAttrs.includes('mandatory')) {
-                            item.mandatory = itemRef.mandatory;
+                        if (selectedAttrs.includes('class') && dataset.datasetClass !== undefined) {
+                            item.class = dataset.datasetClass.name;
                         }
-                        if (selectedAttrs.includes('role')) {
-                            item.role = itemRef.role;
+                        if (selectedAttrs.includes('fileName') && dataset.leaf !== undefined) {
+                            item.fileName = dataset.leaf.href;
                         }
-                        if (selectedAttrs.includes('originType') && itemDef.origins.length > 0) {
-                            item.originType = itemDef.origins[0].type;
+                        if (selectedAttrs.includes('fileTitle') && dataset.leaf !== undefined) {
+                            item.fileTitle = dataset.leaf.title;
                         }
-                        if (selectedAttrs.includes('originDescription') && itemDef.origins.length > 0) {
-                            item.originDescription = getDescription(itemDef.origins[0]);
+                        if (selectedAttrs.includes('comment') && dataset.commentOid !== undefined && mdv.comments[dataset.commentOid] !== undefined) {
+                            let comment = mdv.comments[dataset.commentOid];
+                            item.comment = getDescription(comment);
                         }
                         let finalItem = {};
                         allAttrs.forEach(attr => {
@@ -270,97 +176,207 @@ const LoadFromDefine = (props) => {
                         });
                         rawValues.push(finalItem);
                     });
+                let attrs = [];
+                rawValues.forEach(item => {
+                    attrs.push(Object.values(item).map(item => escapeValue(item)).join(','));
                 });
-            let attrs = [];
-            rawValues.forEach(item => {
-                attrs.push(Object.values(item).map(item => escapeValue(item)).join(','));
-            });
-            if (attrs.length > 0) {
-                attrs.unshift(Object.keys(rawValues[0]).join(','));
-                varData = attrs.join('\n');
-            }
-        }
-        // Codelist
-        if (selectedItems['codeList'].length > 0) {
-            let rawValues = [];
-            // Rename some of the attributes
-            let selectedAttrs = selectedAttributes['codeList'].map(attr => {
-                if (attr === 'type') {
-                    return 'codeListType';
-                } else {
-                    return attr;
+                if (attrs.length > 0) {
+                    attrs.unshift(Object.keys(rawValues[0]).join(','));
+                    dsData = attrs.join('\n');
                 }
-            });
-            let allAttrs = ['codeList'].concat(selectedAttrs);
-            mdv.order.codeListOrder
-                .filter(codeListOid => selectedItems['codeList'].includes(codeListOid))
-                .forEach(codeListOid => {
-                    let codeList = mdv.codeLists[codeListOid];
-                    let item = {};
-                    item.codeList = codeList.name;
-                    Object.keys(codeList).forEach(rowAttr => {
-                        if (selectedAttrs.includes(rowAttr)) {
-                            if (rowAttr === 'codeListType') {
-                                item.type = codeList[rowAttr];
-                            } else {
-                                item[rowAttr] = codeList[rowAttr];
-                            }
-                        }
-                    });
-                    let finalItem = {};
-                    allAttrs.forEach(attr => {
-                        finalItem[attr] = item[attr];
-                    });
-                    rawValues.push(finalItem);
-                });
-            let attrs = [];
-            rawValues.forEach(item => {
-                attrs.push(Object.values(item).map(item => escapeValue(item)).join(','));
-            });
-            if (attrs.length > 0) {
-                attrs.unshift(Object.keys(rawValues[0]).join(','));
-                codeListData = attrs.join('\n');
             }
-        }
-        // Coded Values
-        if (selectedItems['codedValue'].length > 0) {
-            let rawValues = [];
-            let selectedAttrs = selectedAttributes['codedValue'];
-            let allAttrs = ['codeList', 'codedValue'].concat(selectedAttributes['codedValue']);
-            mdv.order.codeListOrder
-                .filter(codeListOid => selectedItems['codedValue'].includes(codeListOid))
-                .forEach(codeListOid => {
-                    let codeList = mdv.codeLists[codeListOid];
-                    let data = getCodeListData(codeList, defineVersion);
-                    if (data !== undefined && data.codeListTable) {
-                        data.codeListTable.forEach(row => {
+            // Variables
+            if (selectedItems['variable'].length > 0) {
+                let rawValues = [];
+                // Rename some of the attributes
+                let selectedAttrs = selectedAttributes['variable'].map(attr => {
+                    if (attr === 'sasFieldName') {
+                        return 'fieldName';
+                    } else {
+                        return attr;
+                    }
+                });
+                let allAttrs = ['dataset', 'variable'].concat(selectedAttributes['variable']);
+                // Get all datasets
+                let allSelectedItemGroups = selectedItems['variable'].map(item => item.itemGroupOid);
+                allSelectedItemGroups.filter((igOid, index) => allSelectedItemGroups.indexOf(igOid) === index);
+                mdv.order.itemGroupOrder
+                    .filter(igOid => allSelectedItemGroups.includes(igOid))
+                    .forEach(igOid => {
+                        let dataset = mdv.itemGroups[igOid];
+                        let itemDefOids = selectedItems['variable'].filter(item => (item.itemGroupOid === igOid)).map(item => item.itemDefOid);
+                        itemDefOids.forEach(itemDefOid => {
+                            let itemDef = mdv.itemDefs[itemDefOid];
+                            let itemRef = Object.values(dataset.itemRefs).filter(itemRef => itemRef.itemOid === itemDefOid)[0];
+                            if (itemRef === undefined) {
+                                console.log();
+                            }
                             let item = {};
-                            item.codeList = codeList.name;
-                            item.codedValue = row.value;
-                            Object.keys(row).forEach(rowAttr => {
+                            item.dataset = dataset.name;
+                            item.variable = itemDef.name;
+                            Object.keys(itemDef).forEach(rowAttr => {
                                 if (selectedAttrs.includes(rowAttr)) {
-                                    item[rowAttr] = row[rowAttr];
+                                    if (rowAttr === 'fieldName') {
+                                        item.sasFieldName = itemDef.fieldName;
+                                    } else {
+                                        item[rowAttr] = itemDef[rowAttr];
+                                    }
                                 }
                             });
+                            if (selectedAttrs.includes('label')) {
+                                item.label = getDescription(itemDef);
+                            }
+                            if (selectedAttrs.includes('mandatory')) {
+                                item.mandatory = itemRef.mandatory;
+                            }
+                            if (selectedAttrs.includes('role')) {
+                                item.role = itemRef.role;
+                            }
+                            if (selectedAttrs.includes('originType') && itemDef.origins.length > 0) {
+                                item.originType = itemDef.origins[0].type;
+                            }
+                            if (selectedAttrs.includes('originDescription') && itemDef.origins.length > 0) {
+                                item.originDescription = getDescription(itemDef.origins[0]);
+                            }
+                            if (selectedAttrs.includes('crfPages') &&
+                                itemDef.origins.length > 0 &&
+                                itemDef.origins[0].documents &&
+                                itemDef.origins[0].documents.length > 0
+                            ) {
+                                let document = itemDef.origins[0].documents[0];
+                                // Check if the leaf is AnnotatedCRF
+                                if (mdv.leafs[document.leafId] && mdv.leafs[document.leafId].type === 'annotatedCrf') {
+                                    if (document.pdfPageRefs.length > 0) {
+                                        let pdfPageRef = document.pdfPageRefs[0];
+                                        if (pdfPageRef.pageRefs !== undefined) {
+                                            item.crfPages = pdfPageRef.pageRefs;
+                                        } else if (pdfPageRef.firstPage !== undefined && pdfPageRef.lastPage !== undefined) {
+                                            item.crfPages = `${pdfPageRef.firstPage}-${pdfPageRef.lastPage}`;
+                                        }
+                                    }
+                                }
+                            }
+                            if (selectedAttrs.includes('comment') && itemDef.commentOid !== undefined && mdv.comments[itemDef.commentOid] !== undefined) {
+                                let comment = mdv.comments[itemDef.commentOid];
+                                item.comment = getDescription(comment);
+                            }
+                            if (
+                                (selectedAttrs.includes('method') || selectedAttrs.includes('methodName')) &&
+                                itemRef.methodOid !== undefined && mdv.methods[itemRef.methodOid] !== undefined
+                            ) {
+                                let method = mdv.methods[itemRef.methodOid];
+                                if (selectedAttrs.includes('method')) {
+                                    item.method = getDescription(method);
+                                }
+                                if (selectedAttrs.includes('methodName')) {
+                                    item.methodName = method.name;
+                                }
+                            }
                             let finalItem = {};
                             allAttrs.forEach(attr => {
                                 finalItem[attr] = item[attr];
                             });
                             rawValues.push(finalItem);
                         });
+                    });
+                let attrs = [];
+                rawValues.forEach(item => {
+                    attrs.push(Object.values(item).map(item => escapeValue(item)).join(','));
+                });
+                if (attrs.length > 0) {
+                    attrs.unshift(Object.keys(rawValues[0]).join(','));
+                    varData = attrs.join('\n');
+                }
+            }
+            // Codelist
+            if (selectedItems['codeList'].length > 0) {
+                let rawValues = [];
+                // Rename some of the attributes
+                let selectedAttrs = selectedAttributes['codeList'].map(attr => {
+                    if (attr === 'type') {
+                        return 'codeListType';
+                    } else {
+                        return attr;
                     }
                 });
-            let attrs = [];
-            rawValues.forEach(item => {
-                attrs.push(Object.values(item).map(item => escapeValue(item)).join(','));
-            });
-            if (attrs.length > 0) {
-                attrs.unshift(Object.keys(rawValues[0]).join(','));
-                codedValueData = attrs.join('\n');
+                let allAttrs = ['codeList'].concat(selectedAttributes['codeList']);
+                mdv.order.codeListOrder
+                    .filter(codeListOid => selectedItems['codeList'].includes(codeListOid))
+                    .forEach(codeListOid => {
+                        let codeList = mdv.codeLists[codeListOid];
+                        let item = {};
+                        item.codeList = codeList.name;
+                        Object.keys(codeList).forEach(rowAttr => {
+                            if (selectedAttrs.includes(rowAttr)) {
+                                if (rowAttr === 'codeListType') {
+                                    item.type = codeList[rowAttr];
+                                } else {
+                                    item[rowAttr] = codeList[rowAttr];
+                                }
+                            }
+                        });
+                        let finalItem = {};
+                        allAttrs.forEach(attr => {
+                            finalItem[attr] = item[attr];
+                        });
+                        rawValues.push(finalItem);
+                    });
+                let attrs = [];
+                rawValues.forEach(item => {
+                    attrs.push(Object.values(item).map(item => escapeValue(item)).join(','));
+                });
+                if (attrs.length > 0) {
+                    attrs.unshift(Object.keys(rawValues[0]).join(','));
+                    codeListData = attrs.join('\n');
+                }
             }
+            // Coded Values
+            if (selectedItems['codedValue'].length > 0) {
+                let rawValues = [];
+                let selectedAttrs = selectedAttributes['codedValue'];
+                let allAttrs = ['codeList', 'codedValue'].concat(selectedAttributes['codedValue']);
+                mdv.order.codeListOrder
+                    .filter(codeListOid => selectedItems['codedValue'].includes(codeListOid))
+                    .forEach(codeListOid => {
+                        let codeList = mdv.codeLists[codeListOid];
+                        let data = getCodeListData(codeList, defineVersion);
+                        if (data !== undefined && data.codeListTable) {
+                            data.codeListTable.forEach(row => {
+                                let item = {};
+                                item.codeList = codeList.name;
+                                item.codedValue = row.value;
+                                Object.keys(row).forEach(rowAttr => {
+                                    if (selectedAttrs.includes(rowAttr)) {
+                                        item[rowAttr] = row[rowAttr];
+                                    }
+                                });
+                                let finalItem = {};
+                                allAttrs.forEach(attr => {
+                                    finalItem[attr] = item[attr];
+                                });
+                                rawValues.push(finalItem);
+                            });
+                        }
+                    });
+                let attrs = [];
+                rawValues.forEach(item => {
+                    attrs.push(Object.values(item).map(item => escapeValue(item)).join(','));
+                });
+                if (attrs.length > 0) {
+                    attrs.unshift(Object.keys(rawValues[0]).join(','));
+                    codedValueData = attrs.join('\n');
+                }
+            }
+            props.onFinish(varData, dsData, codeListData, codedValueData);
+            handleClose();
+        } catch (error) {
+            dispatch(
+                openSnackbar({
+                    type: 'error',
+                    message: 'Error loading the data',
+                })
+            );
         }
-        props.onFinish(varData, dsData, codeListData, codedValueData);
-        handleClose();
     };
 
     const onFilterUpdate = (filter) => {

@@ -53,7 +53,7 @@ const steps = ['Select Source', 'Configure Load Options', 'Finish'];
 
 const escapeValue = (value) => {
     if (typeof value === 'string' && value.includes(',')) {
-        value = '"' + value.replace('"', '""') + '"';
+        return '"' + value.replace(/"/g, '""') + '"';
     } else {
         return value;
     }

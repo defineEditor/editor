@@ -33,7 +33,7 @@ function compareCodeLists (codeList1, codeList2) {
                 !['ref'].includes(prop)
             );
         });
-    } else if (codeList1.codeListType === 'enumerated' || codeList1.codeListType === 'decode') {
+    } else if (codeList1.codeListType === 'enumerated' || codeList1.codeListType === 'decoded') {
         if (codeList1.itemOrder.length !== codeList2.itemOrder.length) {
             differenceInCodeListItems = true;
         } else {
