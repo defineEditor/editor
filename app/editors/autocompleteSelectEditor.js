@@ -45,6 +45,7 @@ const AutocompleteSelectEditor = (props) => {
                     autoFocus={props.autoFocus}
                     onKeyDown={handleKeyDown}
                     multiline={props.multiline}
+                    className={props.textFieldClassName}
                     fullWidth
                 />
             )}

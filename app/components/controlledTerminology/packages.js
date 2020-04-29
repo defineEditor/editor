@@ -373,7 +373,13 @@ class ConnectedPackages extends React.Component {
         if (ctIdsToRemove.length > 0) {
             this.props.deleteStdCodeLists({ ctIds: ctIdsToRemove });
         }
-        ipcRenderer.send('loadControlledTerminology', { [id]: { ...this.props.controlledTerminology.byId[id], loadedForReview: true } });
+        // If was loaded for study purposes, do not mark it as loaded for review
+        let loadedForReview;
+        if (!(currentStdCodeListIds.includes(id) && this.props.stdCodeLists[id].loadedForReview !== true)) {
+            loadedForReview = true;
+        }
+
+        ipcRenderer.send('loadControlledTerminology', { [id]: { ...this.props.controlledTerminology.byId[id], loadedForReview } });
         this.props.changeCtView({ view: 'codeLists', packageId: id });
     };
 

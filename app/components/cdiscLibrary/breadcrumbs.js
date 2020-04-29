@@ -70,6 +70,10 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = (state, props) => {
     let cdiscLibrary;
+    let cdiscLibraryVersion = '';
+    if (state.present.ui.cdiscLibrary && state.present.ui.cdiscLibrary.info) {
+        cdiscLibraryVersion = state.present.ui.cdiscLibrary.info.cdiscLibraryVersion;
+    }
     if (props.mountPoint === 'main') {
         cdiscLibrary = state.present.ui.cdiscLibrary;
     } else if (['variables', 'datasets'].includes(props.mountPoint)) {
@@ -82,6 +86,7 @@ const mapStateToProps = (state, props) => {
             productName: cdiscLibrary.itemGroups.productName,
             itemGroupId: cdiscLibrary.items.itemGroupId,
             gridView: cdiscLibrary.itemGroups.gridView,
+            cdiscLibraryVersion,
         };
     }
 };
@@ -208,6 +213,7 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                         }
                         <Grid item>
                             <Typography variant="body2" color='textSecondary' className={classes.traffic}>
+                                {currentView === 'products' && `Version: ${this.props.cdiscLibraryVersion}  `}
                                 {`Traffic used: ${this.props.traffic}`}
                             </Typography>
                         </Grid>
@@ -226,6 +232,7 @@ ConnectedCdiscLibraryBreadcrumbs.propTypes = {
     productId: PropTypes.string,
     productName: PropTypes.string,
     itemGroupId: PropTypes.string,
+    cdiscLibraryVersion: PropTypes.string,
     gridView: PropTypes.bool.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
     toggleCdiscLibraryItemGroupGridView: PropTypes.func.isRequired,

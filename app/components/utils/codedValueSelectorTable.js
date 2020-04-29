@@ -165,7 +165,7 @@ class CodedValueSelectorTable extends React.Component {
                         container
                         spacing={0}
                         justify="space-between"
-                        alignItems="center"
+                        alignItems="flex-end"
                     >
                         {numSelected > 0 ? (
                             <Grid item>
@@ -186,6 +186,7 @@ class CodedValueSelectorTable extends React.Component {
                                     <TextField
                                         onChange={this.handleChangeSearchString}
                                         value={this.state.searchString}
+                                        margin='dense'
                                         label='Search'
                                     />
                                 </Grid>
