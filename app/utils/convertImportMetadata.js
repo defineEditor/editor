@@ -30,6 +30,12 @@ import validateCodeList from 'validators/validateCodeList.js';
 import validateCodeListItem from 'validators/validateCodeListItem.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
+const handleBlankAttributes = (obj, ignoreBlanks, recursive) => {
+    if (ignoreBlanks !== true) {
+        return removeBlankAttributes(obj, recursive);
+    }
+};
+
 const removeBlankAttributes = (obj, recursive) => {
     let result = { ...obj };
     Object.keys(result).forEach(attr => {
@@ -200,6 +206,8 @@ const convertImportMetadata = (metadata) => {
     // Get Define and Standard data
     let currentState = store.getState().present;
     let mdv = currentState.odm.study.metaDataVersion;
+    let options = currentState.ui.main.metadataImportOptions;
+    const { removeMissingCodedValues, ignoreBlanks } = options;
     let stdConstants = currentState.stdConstants;
     let model = mdv.model;
     if (mdv === false) {
@@ -224,7 +232,7 @@ const convertImportMetadata = (metadata) => {
         }
         dsData.forEach(ds => {
             errors = errors.concat(validateItemGroupDef(ds, stdConstants, model));
-            ds = removeBlankAttributes(ds);
+            ds = handleBlankAttributes(ds, ignoreBlanks);
             let dsFound = Object.values(mdv.itemGroups).some(itemGroup => {
                 let name = itemGroup.name;
                 if (ds.dataset === name) {
@@ -293,8 +301,8 @@ const convertImportMetadata = (metadata) => {
                         }
                     }
                     newItemGroup = { ...newItemGroup };
-                    let original = removeBlankAttributes(itemGroup);
-                    let updated = removeBlankAttributes(newItemGroup);
+                    let original = handleBlankAttributes(itemGroup, false);
+                    let updated = handleBlankAttributes(newItemGroup, false);
                     if (!deepEqual(original, updated)) {
                         updatedItemGroups[itemGroup.oid] = { ...newItemGroup };
                     }
@@ -384,7 +392,7 @@ const convertImportMetadata = (metadata) => {
             let updatedItemRefs = {};
             if (existingDataset) {
                 currentVars.forEach(item => {
-                    item = removeBlankAttributes(item);
+                    item = handleBlankAttributes(item, ignoreBlanks);
                     errors = errors.concat(validateItemDef(item, stdConstants, model));
                     errors = errors.concat(validateItemRef(item, stdConstants, model));
                     // Check if variable exists
@@ -491,14 +499,14 @@ const convertImportMetadata = (metadata) => {
                         newItemRefs[itemRef.oid] = { ...itemRef };
                     } else {
                         itemDef = { ...itemDef };
-                        let originalItemDef = removeBlankAttributes(itemDef, true);
-                        let updatedItemDef = removeBlankAttributes(mdv.itemDefs[itemDefOid], true);
+                        let originalItemDef = handleBlankAttributes(itemDef, false, true);
+                        let updatedItemDef = handleBlankAttributes(mdv.itemDefs[itemDefOid], false, true);
                         if (!deepEqual(originalItemDef, updatedItemDef)) {
                             updatedItemDefs[itemDefOid] = { ...itemDef };
                         }
                         itemRef = { ...itemRef };
-                        let originalItemRef = removeBlankAttributes(itemRef, true);
-                        let updatedItemRef = removeBlankAttributes(mdv.itemGroups[itemGroupOid].itemRefs[itemRef.oid], true);
+                        let originalItemRef = handleBlankAttributes(itemRef, false, true);
+                        let updatedItemRef = handleBlankAttributes(mdv.itemGroups[itemGroupOid].itemRefs[itemRef.oid], false, true);
                         if (!deepEqual(originalItemRef, updatedItemRef)) {
                             updatedItemRefs[itemRef.oid] = { ...itemRef };
                         }
@@ -506,7 +514,7 @@ const convertImportMetadata = (metadata) => {
                 });
             } else {
                 currentVars.forEach(item => {
-                    item = removeBlankAttributes(item);
+                    item = handleBlankAttributes(item, ignoreBlanks);
                     let itemDefOid = getOid('ItemDef', currentItemDefOids);
                     currentItemDefOids.push(itemDefOid);
                     let itemDef = new ItemDef({ ...item, name: item.variable });
@@ -553,7 +561,7 @@ const convertImportMetadata = (metadata) => {
         Object.keys(codeListOids).forEach(codeListName => {
             let codeListOid = codeListOids[codeListName];
             let currentCodeList = codeListData.filter(cl => cl.codeList === codeListName)[0];
-            currentCodeList = removeBlankAttributes(currentCodeList);
+            currentCodeList = handleBlankAttributes(currentCodeList, ignoreBlanks);
             let codeList;
             let isNewCodeList = false;
             if (Object.keys(mdv.codeLists).includes(codeListOid)) {
@@ -617,24 +625,35 @@ const convertImportMetadata = (metadata) => {
             }
         });
 
-        // Update coded values iterating by codelists
+        // Update the coded values
         Object.keys(codeListOids).forEach(clName => {
             let clOid = codeListOids[clName];
             let cl = clone(allCodeLists[clOid]);
             let currentCodedValues = codedValueData.filter(codedValue => codedValue.codeList === clName);
+            let clItemType;
+            if (cl.codeListType === 'decoded') {
+                clItemType = 'codeListItems';
+            } else {
+                clItemType = 'enumeratedItems';
+            }
+            if (removeMissingCodedValues === true) {
+                // Keep only coded values from the import
+                let importedItems = codedValueData.map(item => item.codedValue);
+                Object.keys(cl[clItemType]).forEach(existingItemOid => {
+                    let existingItem = cl[clItemType][existingItemOid];
+                    if (!importedItems.includes(existingItem.codedValue)) {
+                        delete cl[clItemType][existingItemOid];
+                    }
+                });
+                // The itemOrder will be updated later case once all values are added
+                cl.itemOrder = Object.keys(cl[clItemType]);
+            }
             let stdCodeLists = currentState.stdCodeLists;
 
             let newOids = [];
             currentCodedValues.forEach(item => {
-                item = removeBlankAttributes(item);
+                item = handleBlankAttributes(item, ignoreBlanks);
                 let cvOid;
-                let clItemType;
-                if (cl.codeListType === 'decoded') {
-                    clItemType = 'codeListItems';
-                } else {
-                    clItemType = 'enumeratedItems';
-                }
-
                 // Check if it is a new coded value or an existing
                 Object.keys(cl[clItemType]).some(existingItemOid => {
                     let existingItem = cl[clItemType][existingItemOid];
@@ -702,7 +721,13 @@ const convertImportMetadata = (metadata) => {
                     };
                 }
             });
-            if (newOids.length > 0) {
+            // Update ItemOrder
+            if (removeMissingCodedValues === true) {
+                // Use order from the imported data
+                let codedValueOids = {};
+                Object.keys(cl[clItemType]).forEach(oid => { codedValueOids[cl[clItemType][oid].codedValue] = oid; });
+                cl.itemOrder = codedValueData.map(item => codedValueOids[item.codedValue]);
+            } else if (newOids.length > 0) {
                 cl.itemOrder = cl.itemOrder.concat(newOids);
             }
 

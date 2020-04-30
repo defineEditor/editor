@@ -96,10 +96,11 @@ const options = {
     python: 'As Python dictionary',
 };
 
-const CopyToBuffer = ({ selected }) => {
+const CopyToBuffer = (props) => {
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef(null);
     const classes = getButtonStyles();
+    const { selected, disabled } = props;
     const [selectedIndex, setSelectedIndex] = React.useState('tab');
     const codeListSettings = useSelector(state => state.present.ui.controlledTerminology.codeLists);
     const codedValuesSettings = useSelector(state => state.present.ui.controlledTerminology.codedValues);
@@ -179,7 +180,7 @@ const CopyToBuffer = ({ selected }) => {
     return (
         <Grid container direction='column' alignItems='center'>
             <Grid item xs={12}>
-                <ButtonGroup variant='contained' color='default' ref={anchorRef} aria-label='split button'>
+                <ButtonGroup variant='contained' color='default' ref={anchorRef} aria-label='split button' disabled={disabled}>
                     <Button onClick={handleClick} color='default'>Copy to Clipboard</Button>
                     <Button
                         color='default'
@@ -256,6 +257,12 @@ class ConnectedCodedValues extends React.Component {
                         <CopyToBuffer selected={this.state.selected}/>
                     </Grid>
                 </Grid>
+            );
+        } else {
+            result.push(
+                <div className={classes.copyToBuffer}>
+                    <CopyToBuffer selected={[]} disabled={true}/>
+                </div>
             );
         }
         return result;

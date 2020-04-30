@@ -182,8 +182,8 @@ Import and export metadata to different sources. When pasting metadata from Exce
 * originType - Type of origin. See valid values in Define-XML terminology.
 * originDescription - Origin description. Usually used for Predecessors
 * crfPages - CRF pages. If specified, an AnnotatedCRF document will be assigned to origin. Possible values:
-  ** Page numbers separated by space: 11 12 14
-  ** Range of pages: 11-14
+  * Page numbers separated by space: 11 12 14
+  * Range of pages: 11-14
 #### Codelist Attributes
 * codeList - **key** Codelist name.
 * type - Codelist type. \\[enumerated, decoded, external\\]

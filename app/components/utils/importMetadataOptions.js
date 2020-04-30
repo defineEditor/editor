@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
 * and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2019 Dmitry Kolosov                                                *
+* Copyright (C) 2020 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -14,16 +14,21 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import TuneIcon from '@material-ui/icons/Tune';
 import Switch from '@material-ui/core/Switch';
-import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
+import {
+    updateMainUi,
+} from 'actions/index.js';
 
 const getStyles = makeStyles(theme => ({
     dialog: {
@@ -37,7 +42,7 @@ const getStyles = makeStyles(theme => ({
         overflowX: 'auto',
         maxHeight: '85%',
         overflowY: 'auto',
-        width: '400px',
+        width: '500px',
     },
     title: {
         marginBottom: theme.spacing(2),
@@ -49,15 +54,26 @@ const getStyles = makeStyles(theme => ({
         lineHeight: '1.6',
         letterSpacing: '0.0075em',
     },
+    clipboardIcon: {
+        color: '#E0E0E0',
+        marginLeft: theme.spacing(1),
+    },
 }));
 
-const CdiscLibraryVarAddOptions = (props) => {
+const ImportMetadataOptions = (props) => {
+    const dispatch = useDispatch();
     const classes = getStyles();
     const [open, setOpen] = React.useState(false);
-    const { copyCodelist, addOrigin, saveNote, addExisting, addRole } = props.options;
+    const options = useSelector(state => state.present.ui.main.metadataImportOptions);
+    const { ignoreBlanks, removeMissingCodedValues } = options;
 
-    const handleClick = (option) => (event) => {
-        props.toggleOption(option);
+    const toggleOption = (option) => (event) => {
+        dispatch(updateMainUi({
+            metadataImportOptions: {
+                ...options,
+                [option]: !options[option]
+            }
+        }));
     };
 
     const handleOpen = event => {
@@ -70,22 +86,19 @@ const CdiscLibraryVarAddOptions = (props) => {
 
     return (
         <React.Fragment>
-            <Button
-                size='medium'
-                variant='contained'
-                key='optButton'
-                color='default'
+            <IconButton
                 onClick={handleOpen}
+                className={classes.clipboardIcon}
             >
-                Options
-            </Button>
+                <TuneIcon/>
+            </IconButton>
             <Dialog
                 open={open}
                 PaperProps={{ className: classes.dialog }}
                 onClose={handleClose}
             >
                 <DialogTitle className={classes.title} disableTypography>
-                    Options
+                    Metadata Import Options
                 </DialogTitle>
                 <DialogContent>
                     <Grid container spacing={0}>
@@ -96,61 +109,25 @@ const CdiscLibraryVarAddOptions = (props) => {
                                         key='existing'
                                         control={
                                             <Switch
-                                                checked={addExisting}
-                                                onChange={handleClick('addExisting')}
-                                                value={addExisting}
+                                                checked={ignoreBlanks}
+                                                onChange={toggleOption('ignoreBlanks')}
+                                                value={ignoreBlanks}
                                                 color='primary'
                                             />
                                         }
-                                        label='Allow to add existing variables'
+                                        label='Ignore Blank Values'
                                     />
                                     <FormControlLabel
                                         key='codeList'
                                         control={
                                             <Switch
-                                                checked={copyCodelist}
-                                                onChange={handleClick('copyCodelist')}
-                                                value={copyCodelist}
+                                                checked={removeMissingCodedValues}
+                                                onChange={toggleOption('removeMissingCodedValues')}
+                                                value={removeMissingCodedValues}
                                                 color='primary'
                                             />
                                         }
-                                        label='Add codelists'
-                                    />
-                                    <FormControlLabel
-                                        key='origin'
-                                        control={
-                                            <Switch
-                                                checked={addOrigin}
-                                                onChange={handleClick('addOrigin')}
-                                                value={addOrigin}
-                                                color='primary'
-                                            />
-                                        }
-                                        label='Add predeccessor origin where possible'
-                                    />
-                                    <FormControlLabel
-                                        key='comment'
-                                        control={
-                                            <Switch
-                                                checked={saveNote}
-                                                onChange={handleClick('saveNote')}
-                                                value={saveNote}
-                                                color='primary'
-                                            />
-                                        }
-                                        label='Save CDISC description as programming note'
-                                    />
-                                    <FormControlLabel
-                                        key='role'
-                                        control={
-                                            <Switch
-                                                checked={addRole}
-                                                onChange={handleClick('addRole')}
-                                                value={addRole}
-                                                color='primary'
-                                            />
-                                        }
-                                        label='Add role attribute'
+                                        label='Remove code values not in listed in the import'
                                     />
                                 </FormGroup>
                             </FormControl>
@@ -162,9 +139,9 @@ const CdiscLibraryVarAddOptions = (props) => {
     );
 };
 
-CdiscLibraryVarAddOptions.propTypes = {
+ImportMetadataOptions.propTypes = {
     options: PropTypes.object.isRequired,
     toggleOption: PropTypes.func.isRequired,
 };
 
-export default CdiscLibraryVarAddOptions;
+export default ImportMetadataOptions;

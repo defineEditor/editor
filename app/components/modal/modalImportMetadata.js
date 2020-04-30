@@ -37,6 +37,7 @@ import LoadFromXpt from 'components/utils/loadFromXpt.js';
 import LoadFromDefine from 'components/utils/loadFromDefine.js';
 import convertImportMetadata from 'utils/convertImportMetadata.js';
 import MetadataImportTableView from 'components/utils/metadataImportTableView.js';
+import ImportMetadataOptions from 'components/utils/importMetadataOptions.js';
 import { IMPORT_METADATA } from 'constants/help.js';
 import {
     openModal,
@@ -465,6 +466,13 @@ const ModalImportMetadata = (props) => {
                                 Define
                             </Button>
                             <div className={classes.grow} />
+                            <Tooltip
+                                title='Import options'
+                                placement='bottom'
+                                enterDelay={700}
+                            >
+                                <ImportMetadataOptions/>
+                            </Tooltip>
                             <Tooltip
                                 title='Copy to clipboard'
                                 placement='bottom'

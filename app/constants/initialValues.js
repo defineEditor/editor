@@ -36,6 +36,10 @@ const main = (() => {
             codeListTab: 100,
             codedValuesTab: 100,
         },
+        metadataImportOptions: {
+            ignoreBlanks: false,
+            removeMissingCodedValues: false,
+        },
         pathToLastFile: undefined,
         appVersion: remote.app.getVersion(),
         updateInfo: {},
