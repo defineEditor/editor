@@ -14,7 +14,7 @@
 
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { clipboard } from 'electron';
 import csv2json from 'csvtojson';
 import Dialog from '@material-ui/core/Dialog';
@@ -216,6 +216,8 @@ let placeholders = {
 const ModalImportMetadata = (props) => {
     const dispatch = useDispatch();
     let classes = getStyles();
+    const reviewMode = useSelector(state => state.present.ui.main.reviewMode);
+    const onlyArmEdit = useSelector(state => state.present.settings.editor.onlyArmEdit);
 
     const [varData, setVarData] = useState('');
     const [dsData, setDsData] = useState('');
@@ -538,7 +540,11 @@ const ModalImportMetadata = (props) => {
                     }
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleImportMetadata} color="primary">
+                    <Button
+                        onClick={handleImportMetadata}
+                        color="primary"
+                        disabled={reviewMode || onlyArmEdit || (varData === '' && dsData === '' && codedValueData === '' && codeListData === '')}
+                    >
                         Import
                     </Button>
                     <Button onClick={handleClose} color="primary">

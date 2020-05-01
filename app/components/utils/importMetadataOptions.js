@@ -13,7 +13,6 @@
 ***********************************************************************************/
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
@@ -137,11 +136,6 @@ const ImportMetadataOptions = (props) => {
             </Dialog>
         </React.Fragment>
     );
-};
-
-ImportMetadataOptions.propTypes = {
-    options: PropTypes.object.isRequired,
-    toggleOption: PropTypes.func.isRequired,
 };
 
 export default ImportMetadataOptions;

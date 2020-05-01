@@ -476,7 +476,8 @@ const LoadFromDefine = (props) => {
                     filter={filters[type]}
                     onClose={ () => { setShowFilter(false); } }
                     onUpdate={onFilterUpdate}
-                    disableVlm={true}
+                    allowReset
+                    disableVlm
                 />
             }
         </React.Fragment>

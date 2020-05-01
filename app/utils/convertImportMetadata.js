@@ -31,8 +31,36 @@ import validateCodeListItem from 'validators/validateCodeListItem.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
 const handleBlankAttributes = (obj, ignoreBlanks, recursive) => {
-    if (ignoreBlanks !== true) {
+    if (ignoreBlanks === true) {
         return removeBlankAttributes(obj, recursive);
+    } else {
+        let result = { ...obj };
+        Object.keys(result).forEach(attr => {
+            if (result[attr] === '') {
+                // Dataset attributes
+                if ([
+                    'domainDescription', 'domain', 'fileName', 'fileTitle', 'purpose', 'structure',
+                    'isReferenceData', 'isNonStandard', 'hasNoData', 'class', 'comment', 'sasDatasetName', 'repeating'
+                ].includes(attr)
+                ) {
+                    result[attr] = undefined;
+                } else if (['dataset', 'label'].includes(attr)) {
+                    result[attr] = '';
+                }
+                // Variable attributes
+                if ([
+                    'dataType', 'length', 'fractionDigits', 'sasFieldName',
+                    'displayFormat', 'role', 'mandatory', 'comment', 'method', 'methodName', 'note', 'lengthAsData',
+                    'lengthAsCodeList', 'originType', 'originDescription', 'crfPages'
+                ].includes(attr)
+                ) {
+                    result[attr] = undefined;
+                } else if (['variable', 'label'].includes(attr)) {
+                    result[attr] = '';
+                }
+            }
+        });
+        return result;
     }
 };
 
@@ -95,7 +123,7 @@ const checkDuplicateKeys = (data, keys) => {
     return hasDuplicateKeys;
 };
 
-const updateItemDef = (item, itemDef, stdConstants, model, mdv, errors) => {
+const updateItemDef = (item, itemDef, stdConstants, model, mdv, options, errors) => {
     let defineVersion = mdv.defineVersion;
     // Label
     if (item.label) {
@@ -103,72 +131,85 @@ const updateItemDef = (item, itemDef, stdConstants, model, mdv, errors) => {
         itemDef.descriptions = toSimpleObject(itemDef.descriptions);
     }
     // Origin
-    if (item.originType || item.originDescription || item.originSource || item.crfPages) {
-        let newOrigin;
-
-        if (itemDef.origins.length > 0) {
-            newOrigin = new Origin({ ...clone(itemDef.origins[0]) });
+    if (item.hasOwnProperty('originType') || item.hasOwnProperty('originDescription') ||
+        item.hasOwnProperty('originSource') || item.hasOwnProperty('crfPages')
+    ) {
+        if (item.hasOwnProperty('originType') && item.originType === undefined) {
+            itemDef.origins = [];
         } else {
-            newOrigin = new Origin();
-        }
+            let newOrigin;
 
-        if (item.originType) {
-            if (stdConstants && stdConstants.originTypes && stdConstants.originTypes[model]) {
-                let validOrigins = stdConstants.originTypes[model];
-                if (!validOrigins.includes(item.originType)) {
-                    errors.push({
-                        id: 'additional',
-                        message: `Invalid origin type value "${item.originType}", must be one of the following values: ${validOrigins.join(', ')}`
-                    });
-                }
-            }
-            newOrigin.type = item.originType;
-        }
-        if (item.originSource && defineVersion === '2.1.0') {
-            newOrigin.source = item.originSource;
-        }
-        if (item.originDescription) {
-            newOrigin.setDescription(item.originDescription);
-            newOrigin.descriptions = toSimpleObject(newOrigin.descriptions);
-        }
-        if (item.crfPages) {
-            let crfPages = item.crfPages;
-            if (
-                newOrigin.documents && newOrigin.documents.length > 0 &&
-                mdv.leafs[newOrigin.documents[0].leafId] && mdv.leafs[newOrigin.documents[0].leafId].type === 'annotatedCrf'
-            ) {
-                let doc = newOrigin.documents[0];
-                // Check if the leaf is AnnotatedCRF
-                if (doc.pdfPageRefs.length === 0) {
-                    doc.pdfPageRefs = [{ ...new PdfPageRef({ type: 'PhysicalRef' }) }];
-                }
-                if (/^\s*\d+\s*-\s*\d+\s*$/.test(crfPages)) {
-                    doc.pdfPageRefs[0].pageRefs = undefined;
-                    doc.pdfPageRefs[0].firstPage = crfPages.replace(/^\s*(\d+)\s*-\s*(\d+)\s*$/, '$1');
-                    doc.pdfPageRefs[0].lastPage = crfPages.replace(/^\s*(\d+)\s*-\s*(\d+)\s*$/, '$2');
-                } else {
-                    doc.pdfPageRefs[0].firstPage = undefined;
-                    doc.pdfPageRefs[0].lastPage = undefined;
-                    doc.pdfPageRefs[0].pageRefs = crfPages;
-                }
-                newOrigin.documents = [doc];
+            if (itemDef.origins.length > 0) {
+                newOrigin = new Origin({ ...clone(itemDef.origins[0]) });
             } else {
-                let crfLeaf = Object.values(mdv.leafs).filter(leaf => leaf.type === 'annotatedCrf')[0];
-                if (crfLeaf !== undefined) {
-                    let doc = { ...new Document({ leafId: crfLeaf.id }) };
-                    doc.pdfPageRefs = [{ ...new PdfPageRef({ type: 'PhysicalRef' }) }];
+                newOrigin = new Origin();
+            }
+
+            if (item.hasOwnProperty('originType')) {
+                if (stdConstants && stdConstants.originTypes && stdConstants.originTypes[model]) {
+                    let validOrigins = stdConstants.originTypes[model];
+                    if (item.originType !== undefined && !validOrigins.includes(item.originType)) {
+                        errors.push({
+                            id: 'additional',
+                            message: `Invalid origin type value "${item.originType}", must be one of the following values: ${validOrigins.join(', ')}`
+                        });
+                    }
+                }
+                newOrigin.type = item.originType;
+            }
+            if (item.originSource && defineVersion === '2.1.0') {
+                newOrigin.source = item.originSource;
+            }
+            if (item.originDescription !== undefined) {
+                newOrigin.setDescription(item.originDescription);
+                newOrigin.descriptions = toSimpleObject(newOrigin.descriptions);
+            } else if (item.hasOwnProperty('originDescription')) {
+                newOrigin.descriptions = [];
+            }
+            if (item.crfPages !== undefined) {
+                let crfPages = item.crfPages;
+                if (
+                    newOrigin.documents && newOrigin.documents.length > 0 &&
+                    mdv.leafs[newOrigin.documents[0].leafId] && mdv.leafs[newOrigin.documents[0].leafId].type === 'annotatedCrf'
+                ) {
+                    let doc = newOrigin.documents[0];
+                    // Check if the leaf is AnnotatedCRF
+                    if (doc.pdfPageRefs.length === 0) {
+                        doc.pdfPageRefs = [{ ...new PdfPageRef({ type: 'PhysicalRef' }) }];
+                    }
                     if (/^\s*\d+\s*-\s*\d+\s*$/.test(crfPages)) {
+                        doc.pdfPageRefs[0].pageRefs = undefined;
                         doc.pdfPageRefs[0].firstPage = crfPages.replace(/^\s*(\d+)\s*-\s*(\d+)\s*$/, '$1');
                         doc.pdfPageRefs[0].lastPage = crfPages.replace(/^\s*(\d+)\s*-\s*(\d+)\s*$/, '$2');
                     } else {
+                        doc.pdfPageRefs[0].firstPage = undefined;
+                        doc.pdfPageRefs[0].lastPage = undefined;
                         doc.pdfPageRefs[0].pageRefs = crfPages;
                     }
                     newOrigin.documents = [doc];
+                } else {
+                    let crfLeaf = Object.values(mdv.leafs).filter(leaf => leaf.type === 'annotatedCrf')[0];
+                    if (crfLeaf !== undefined) {
+                        let doc = { ...new Document({ leafId: crfLeaf.id }) };
+                        doc.pdfPageRefs = [{ ...new PdfPageRef({ type: 'PhysicalRef' }) }];
+                        if (/^\s*\d+\s*-\s*\d+\s*$/.test(crfPages)) {
+                            doc.pdfPageRefs[0].firstPage = crfPages.replace(/^\s*(\d+)\s*-\s*(\d+)\s*$/, '$1');
+                            doc.pdfPageRefs[0].lastPage = crfPages.replace(/^\s*(\d+)\s*-\s*(\d+)\s*$/, '$2');
+                        } else {
+                            doc.pdfPageRefs[0].pageRefs = crfPages;
+                        }
+                        newOrigin.documents = [doc];
+                    }
                 }
+            } else if (item.hasOwnProperty('crfPages') && newOrigin.documents && newOrigin.documents.length > 0 &&
+                mdv.leafs[newOrigin.documents[0].leafId] && mdv.leafs[newOrigin.documents[0].leafId].type === 'annotatedCrf'
+            ) {
+                // Remove document only in case it is a aCRF
+                newOrigin.documents = [];
             }
-        }
 
-        itemDef.origins[0] = { ...newOrigin };
+            itemDef.origins[0] = { ...newOrigin };
+        }
     }
 };
 
@@ -420,7 +461,7 @@ const convertImportMetadata = (metadata) => {
                         itemRef = new ItemRef({ ...item, itemOid: itemDefOid, oid: itemRefOid });
                     }
                     // Update main attributes
-                    updateItemDef(item, itemDef, stdConstants, model, mdv, errors);
+                    updateItemDef(item, itemDef, stdConstants, model, mdv, options, errors);
                     // Comment
                     if (item.comment !== undefined) {
                         if (itemDef.commentOid === undefined) {
@@ -518,7 +559,7 @@ const convertImportMetadata = (metadata) => {
                     let itemDefOid = getOid('ItemDef', currentItemDefOids);
                     currentItemDefOids.push(itemDefOid);
                     let itemDef = new ItemDef({ ...item, name: item.variable });
-                    updateItemDef(item, itemDef, stdConstants, model, mdv, errors);
+                    updateItemDef(item, itemDef, stdConstants, model, mdv, options, errors);
                     itemDef.sources.itemGroups = [itemGroupOid];
                     let itemRefOid = getOid('ItemRef', currentItemRefOids);
                     currentItemRefOids.push(itemRefOid);
