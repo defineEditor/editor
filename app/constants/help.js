@@ -160,6 +160,7 @@ Import and export metadata to different sources. When pasting metadata from Exce
 * purpose - Purpose of the dataset \\[Analysis, Tabulation\\]
 * structure - Description of the dataset structure
 * comment - Comment to a dataset
+* note - Programming note
 * fileName - Name of the file containing the dataset
 * fileTitle - Title used in Define-XML for the file
 #### Variable Attributes

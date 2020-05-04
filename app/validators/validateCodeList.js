@@ -17,8 +17,8 @@ import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 
 const validateCodeList = (codeList) => {
     let errors = [];
-    validateList(codeList.codeListType, 'type', ['decoded', 'enumerated', 'external'], errors);
-    validateList(codeList.dataType, 'dataType', ['text', 'integer', 'float'], errors);
+    validateList(codeList.codeListType, 'type', ['decoded', 'enumerated', 'external'], false, errors);
+    validateList(codeList.dataType, 'dataType', ['text', 'integer', 'float'], false, errors);
     if (codeList.formatName) {
         let issues = [];
         issues = checkForSpecialChars(codeList.formatName, new RegExp(/[^$A-Z_0-9]/, 'gi'), 'Invalid character');

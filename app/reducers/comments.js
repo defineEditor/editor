@@ -547,9 +547,30 @@ const handleUpdatedLeafs = (state, action) => {
 
 const addImportMetadata = (state, action) => {
     let newComments = action.updateObj.commentResult;
+    let removedCommentSources = action.updateObj.removedSources.comments;
     // Add ItemGroups
-    if (Object.keys(newComments).length > 0) {
-        return { ...state, ...newComments };
+    if (Object.keys(newComments).length > 0 || Object.keys(removedCommentSources).length > 0) {
+        let newState = { ...state };
+        // Add new comments
+        if (Object.keys(newComments).length > 0) {
+            newState = { ...state, ...newComments };
+        }
+        // Delete a comment or a source reference
+        if (Object.keys(removedCommentSources).length > 0) {
+            Object.keys(removedCommentSources).forEach(commentOid => {
+                Object.keys(removedCommentSources[commentOid]).forEach(sourceType => {
+                    let sourceOids = removedCommentSources[commentOid][sourceType];
+                    sourceOids.forEach(sourceOid => {
+                        let comment = newState[commentOid];
+                        let subAction = {};
+                        subAction.comment = comment;
+                        subAction.source = { type: sourceType, oid: sourceOid };
+                        newState = deleteComment(newState, subAction);
+                    });
+                });
+            });
+        }
+        return newState;
     } else {
         return state;
     }

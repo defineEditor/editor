@@ -20,13 +20,13 @@ const validateItemDef = (itemDef, stdConstants, model) => {
     validateType(itemDef.fractionDigits, 'isNumber', 'fractionDigits', errors);
     validateType(itemDef.lengthAsData, 'boolean', 'lengthAsData', errors);
     validateType(itemDef.lengthAsCodeList, 'boolean', 'lengthAsCodeList', errors);
-    if (itemDef.dataType) {
+    if (itemDef.dataType !== undefined) {
         if (stdConstants && stdConstants.dataTypes) {
             let validTypes = stdConstants.dataTypes;
             if (!validTypes.includes(itemDef.dataType)) {
                 errors.push({
                     id: '',
-                    message: `Invalid data type value "${itemDef.dataType}", must be one of the following values: ${validTypes.join(', ')}`,
+                    message: `Invalid **dataType** value "${itemDef.dataType}", must be one of the following values: ${validTypes.join(', ')}`,
                 });
             }
         }
@@ -36,7 +36,7 @@ const validateItemDef = (itemDef, stdConstants, model) => {
         if (!validOrigins.includes(itemDef.originType)) {
             errors.push({
                 id: '',
-                message: `Invalid origin type value "${itemDef.originType}", must be one of the following values: ${validOrigins.join(', ')}`,
+                message: `Invalid **originType** value "${itemDef.originType}", must be one of the following values: ${validOrigins.join(', ')}`,
             });
         }
     }

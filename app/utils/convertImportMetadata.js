@@ -37,25 +37,40 @@ const handleBlankAttributes = (obj, ignoreBlanks, recursive) => {
         let result = { ...obj };
         Object.keys(result).forEach(attr => {
             if (result[attr] === '') {
-                // Dataset attributes
+                // Dataset (and some variable) attributes
                 if ([
-                    'domainDescription', 'domain', 'fileName', 'fileTitle', 'purpose', 'structure',
-                    'isReferenceData', 'isNonStandard', 'hasNoData', 'class', 'comment', 'sasDatasetName', 'repeating'
+                    'domain', 'comment', 'isReferenceData', 'isNonStandard', 'hasNoData', 'comment', 'note', 'datasetName'
                 ].includes(attr)
                 ) {
                     result[attr] = undefined;
-                } else if (['dataset', 'label'].includes(attr)) {
+                } else if (['dataset', 'label', 'domainDescription', 'purpose',
+                    'repeating', 'structure', 'fileName', 'fileTitle'].includes(attr)
+                ) {
                     result[attr] = '';
+                } else if (attr === 'datasetClass') {
+                    result[attr] = { ...new DatasetClass({ name: '' }) };
                 }
                 // Variable attributes
                 if ([
-                    'dataType', 'length', 'fractionDigits', 'sasFieldName',
-                    'displayFormat', 'role', 'mandatory', 'comment', 'method', 'methodName', 'note', 'lengthAsData',
+                    'length', 'fractionDigits',
+                    'displayFormat', 'role', 'method', 'methodName', 'lengthAsData',
                     'lengthAsCodeList', 'originType', 'originDescription', 'crfPages'
                 ].includes(attr)
                 ) {
                     result[attr] = undefined;
-                } else if (['variable', 'label'].includes(attr)) {
+                } else if (['variable', 'label', 'fieldName', 'dataType', 'mandatory'].includes(attr)) {
+                    result[attr] = '';
+                }
+                // Codelist attributes
+                if (['formatName'].includes(attr)) {
+                    result[attr] = undefined;
+                } else if (['codeList', 'codeListType', 'dataType'].includes(attr)) {
+                    result[attr] = '';
+                }
+                // Coded value attributes
+                if (['rank'].includes(attr)) {
+                    result[attr] = undefined;
+                } else if (['decode', 'codedValue'].includes(attr)) {
                     result[attr] = '';
                 }
             }
@@ -125,6 +140,10 @@ const checkDuplicateKeys = (data, keys) => {
 
 const updateItemDef = (item, itemDef, stdConstants, model, mdv, options, errors) => {
     let defineVersion = mdv.defineVersion;
+    // SAS Field name
+    if (item.fieldName === undefined) {
+        itemDef.fieldName = itemDef.name.slice(0, 8);
+    }
     // Label
     if (item.label) {
         itemDef.setDescription(item.label);
@@ -220,12 +239,13 @@ const convertImportMetadata = (metadata) => {
         if (ds.dataset) {
             ds.dataset = ds.dataset.toUpperCase();
         }
-        if (ds.class) {
+        if (ds.hasOwnProperty('class')) {
             ds.datasetClass = { ...new DatasetClass({ name: ds.class }) };
             delete ds.class;
         }
-        if (ds.sasDatasetName) {
-            ds.datasetName = ds.sasDatasetName.toUpperCase();
+        if (ds.hasOwnProperty('sasDatasetName')) {
+            ds.datasetName = ds.sasDatasetName;
+            delete ds.sasDatasetName;
         }
     });
     varData.forEach(item => {
@@ -235,12 +255,20 @@ const convertImportMetadata = (metadata) => {
         if (item.variable) {
             item.variable = item.variable.toUpperCase();
         }
+        if (item.hasOwnProperty('sasFieldName')) {
+            item.fieldName = item.sasFieldName;
+            delete item.sasFieldName;
+        }
         item.lengthAsData = cast2Type(item.lengthAsData, 'boolean');
         item.lengthAsCodeList = cast2Type(item.lengthAsCodeList, 'boolean');
     });
     codeListData.forEach(cl => {
-        if (cl.type) {
-            cl.codeListType = cl.type.toLowerCase();
+        if (cl.hasOwnProperty('type')) {
+            if (cl.type !== undefined) {
+                cl.codeListType = cl.type.toLowerCase();
+            } else {
+                cl.codeListType = undefined;
+            }
             delete cl.type;
         }
     });
@@ -256,6 +284,10 @@ const convertImportMetadata = (metadata) => {
     }
     let errors = [];
     let commentResult = {};
+    let removedSources = {
+        comments: {},
+        methods: {},
+    };
     let methodResult = {};
     let currentMethodOids = Object.keys(mdv.methods);
     let currentCommentOids = Object.keys(mdv.comments);
@@ -272,8 +304,8 @@ const convertImportMetadata = (metadata) => {
             });
         }
         dsData.forEach(ds => {
-            errors = errors.concat(validateItemGroupDef(ds, stdConstants, model));
             ds = handleBlankAttributes(ds, ignoreBlanks);
+            errors = errors.concat(validateItemGroupDef(ds, stdConstants, model));
             let dsFound = Object.values(mdv.itemGroups).some(itemGroup => {
                 let name = itemGroup.name;
                 if (ds.dataset === name) {
@@ -281,8 +313,11 @@ const convertImportMetadata = (metadata) => {
                         ...itemGroup,
                         ...ds,
                     });
+                    if (ds.datasetName === undefined) {
+                        newItemGroup.datasetName = name.slice(0, 8);
+                    }
                     let label = getDescription(itemGroup);
-                    if (ds.label && ds.label !== label) {
+                    if (ds.label !== undefined && ds.label !== label) {
                         newItemGroup.setDescription(ds.label);
                         newItemGroup.descriptions = toSimpleObject(newItemGroup.descriptions);
                     }
@@ -291,14 +326,16 @@ const convertImportMetadata = (metadata) => {
                     }
                     if (ds.domainDescription) {
                         newItemGroup.alias = { ...new Alias({ context: 'DomainDescription', name: ds.domainDescription }) };
+                    } else if (ds.domainDescription === '' && newItemGroup.alias !== undefined) {
+                        newItemGroup.alias = undefined;
                     }
-                    if (ds.fileName || ds.fileTitle) {
+                    if (ds.fileName !== undefined || ds.fileTitle !== undefined) {
                         if (newItemGroup.leaf !== undefined) {
                             let updates = {};
-                            if (ds.fileName) {
+                            if (ds.fileName !== undefined) {
                                 updates = { href: ds.fileName };
                             }
-                            if (ds.fileTitle) {
+                            if (ds.fileTitle !== undefined) {
                                 updates = { ...updates, title: ds.fileTitle };
                             }
                             let leaf = { ...new Leaf({ ...newItemGroup.leaf, ...updates }) };
@@ -340,6 +377,18 @@ const convertImportMetadata = (metadata) => {
                                 commentResult[commentOid] = { ...comment };
                             }
                         }
+                    } else if (ds.hasOwnProperty('comment') && ds.comment === undefined && itemGroup.commentOid !== undefined) {
+                        // Remove comment
+                        newItemGroup.commentOid = undefined;
+                        let commentOid = itemGroup.commentOid;
+                        if (removedSources.comments[commentOid] === undefined) {
+                            removedSources.comments[commentOid] = {};
+                        }
+                        if (removedSources.comments[commentOid].itemGroups === undefined) {
+                            removedSources.comments[commentOid].itemGroups = [newItemGroup.oid];
+                        } else {
+                            removedSources.comments[commentOid].itemGroups.push(newItemGroup.oid);
+                        }
                     }
                     newItemGroup = { ...newItemGroup };
                     let original = handleBlankAttributes(itemGroup, false);
@@ -358,6 +407,9 @@ const convertImportMetadata = (metadata) => {
                 if (!ds.purpose) {
                     attrs.purpose = model === 'ADaM' ? 'Analysis' : 'Tabulation';
                 }
+                if (ds.datasetName === undefined) {
+                    attrs.datasetName = ds.dataset;
+                }
                 if (ds.fileName !== undefined || ds.fileTitle !== undefined) {
                     let newLeafOid = getOid('Leaf', [], ds.dataset);
                     attrs.leaf = { ...new Leaf({ id: newLeafOid, href: ds.fileName, title: ds.fileTitle }) };
@@ -365,13 +417,15 @@ const convertImportMetadata = (metadata) => {
                 }
                 if (ds.domainDescription) {
                     attrs.alias = { ...new Alias({ context: 'DomainDescription', name: ds.domainDescription }) };
+                } else if (ds.domainDescription === '') {
+                    attrs.alias = undefined;
                 }
                 let newItemGroup = new ItemGroup({
                     ...attrs,
                     oid: itemGroupOid,
                     name: ds.dataset,
                 });
-                if (ds.label) {
+                if (ds.label !== undefined) {
                     let newDescription = { ...new TranslatedText({ value: ds.label }) };
                     newItemGroup.addDescription(newDescription);
                 }
@@ -492,6 +546,18 @@ const convertImportMetadata = (metadata) => {
                                 commentResult[commentOid] = { ...comment };
                             }
                         }
+                    } else if (item.hasOwnProperty('comment') && item.comment === undefined && itemDef.commentOid !== undefined) {
+                        // Remove comment
+                        let commentOid = itemDef.commentOid;
+                        if (removedSources.comments[commentOid] === undefined) {
+                            removedSources.comments[commentOid] = {};
+                        }
+                        if (removedSources.comments[commentOid].itemDefs === undefined) {
+                            removedSources.comments[commentOid].itemDefs = [itemDef.oid];
+                        } else {
+                            removedSources.comments[commentOid].itemDefs.push(itemDef.oid);
+                        }
+                        itemDef.commentOid = undefined;
                     }
                     // Method
                     if (item.method !== undefined || item.methodName !== undefined) {
@@ -533,6 +599,20 @@ const convertImportMetadata = (metadata) => {
                                 methodResult[methodOid] = { ...method };
                             }
                         }
+                    } else if (item.hasOwnProperty('method') && item.method === undefined && itemRef.methodOid !== undefined) {
+                        // Remove method
+                        let methodOid = itemRef.methodOid;
+                        if (removedSources.methods[methodOid] === undefined) {
+                            removedSources.methods[methodOid] = {};
+                        }
+                        if (removedSources.methods[methodOid].itemGroups === undefined) {
+                            removedSources.methods[methodOid].itemGroups = { [itemGroupOid]: [itemRef.oid] };
+                        } else if (removedSources.methods[methodOid].itemGroups[itemGroupOid] === undefined) {
+                            removedSources.methods[methodOid].itemGroups[itemGroupOid] = [itemRef.oid];
+                        } else {
+                            removedSources.methods[methodOid].itemGroups[itemGroupOid].push(itemRef.oid);
+                        }
+                        itemRef.methodOid = undefined;
                     }
                     // Write results
                     if (isNewItem) {
@@ -588,7 +668,6 @@ const convertImportMetadata = (metadata) => {
         }
         // Get the list of current codelists
         codeListData.forEach(codeList => {
-            errors = errors.concat(validateCodeList(codeList));
             let codeListOid = getOidByName(mdv, 'codeLists', codeList.codeList);
             if (codeListOid === undefined) {
                 codeListOid = getOid('CodeList', currentCodeListOids);
@@ -603,6 +682,7 @@ const convertImportMetadata = (metadata) => {
             let codeListOid = codeListOids[codeListName];
             let currentCodeList = codeListData.filter(cl => cl.codeList === codeListName)[0];
             currentCodeList = handleBlankAttributes(currentCodeList, ignoreBlanks);
+            errors = errors.concat(validateCodeList(currentCodeList));
             let codeList;
             let isNewCodeList = false;
             if (Object.keys(mdv.codeLists).includes(codeListOid)) {
@@ -796,7 +876,7 @@ const convertImportMetadata = (metadata) => {
     if (errors.length > 0) {
         throw new Error(errors.map(error => error.message).join(' \n\n'));
     }
-    return { dsResult, varResult, codeListResult, commentResult, methodResult };
+    return { dsResult, varResult, codeListResult, commentResult, methodResult, removedSources };
 };
 
 export default convertImportMetadata;

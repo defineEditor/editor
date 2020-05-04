@@ -24,6 +24,8 @@ import IconButton from '@material-ui/core/IconButton';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogActions from '@material-ui/core/DialogActions';
+import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import {
     updateMainUi,
@@ -133,6 +135,11 @@ const ImportMetadataOptions = (props) => {
                         </Grid>
                     </Grid>
                 </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">
+                        OK
+                    </Button>
+                </DialogActions>
             </Dialog>
         </React.Fragment>
     );

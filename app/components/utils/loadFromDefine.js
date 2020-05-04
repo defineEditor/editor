@@ -75,7 +75,7 @@ const types = ['dataset', 'variable', 'codeList', 'codedValue'];
 const typeLabels = ['datasets', 'variables', 'codelists', 'coded values'];
 const attributes = {
     dataset: ['label', 'class', 'domain', 'domainDescription', 'sasDatasetName',
-        'repeating', 'isReferenceData', 'hasNoData', 'purpose', 'structure', 'comment', 'fileName', 'fileTitle'
+        'repeating', 'isReferenceData', 'hasNoData', 'purpose', 'structure', 'comment', 'note', 'fileName', 'fileTitle'
     ],
     variable: ['label', 'dataType', 'length', 'fractionDigits', 'sasFieldName',
         'displayFormat', 'role', 'mandatory', 'comment', 'method', 'methodName', 'note', 'lengthAsData', 'lengthAsCodeList', 'originType', 'originDescription', 'crfPages'

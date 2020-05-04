@@ -16,13 +16,13 @@ import { validateList } from 'validators/validationUtils.js';
 
 const validateItemGroupDef = (itemGroupDef, stdConstants, model) => {
     let errors = [];
-    validateList(itemGroupDef.purpose, 'purpose', ['Analysis', 'Tabulation'], errors);
-    validateList(itemGroupDef.repeating, 'repeating', ['Yes', 'No'], errors);
-    validateList(itemGroupDef.isReferenceData, 'isReferenceData', ['Yes', 'No'], errors);
-    validateList(itemGroupDef.isNonStandard, 'isNonStandard', ['Yes'], errors);
-    validateList(itemGroupDef.hasNoData, 'hasNoData', ['Yes'], errors);
-    if (itemGroupDef.datasetClass && itemGroupDef.datasetClass.name && stdConstants && stdConstants.classTypes && stdConstants.classTypes[model]) {
-        validateList(itemGroupDef.datasetClass.name, 'class', Object.keys(stdConstants.classTypes[model]), errors);
+    validateList(itemGroupDef.purpose, 'purpose', ['Analysis', 'Tabulation'], false, errors);
+    validateList(itemGroupDef.repeating, 'repeating', ['Yes', 'No'], false, errors);
+    validateList(itemGroupDef.isReferenceData, 'isReferenceData', ['Yes', 'No'], true, errors);
+    validateList(itemGroupDef.isNonStandard, 'isNonStandard', ['Yes'], true, errors);
+    validateList(itemGroupDef.hasNoData, 'hasNoData', ['Yes'], true, errors);
+    if (itemGroupDef.datasetClass && itemGroupDef.datasetClass.name !== undefined && stdConstants && stdConstants.classTypes && stdConstants.classTypes[model]) {
+        validateList(itemGroupDef.datasetClass.name, 'class', Object.keys(stdConstants.classTypes[model]), false, errors);
     }
     return errors;
 };

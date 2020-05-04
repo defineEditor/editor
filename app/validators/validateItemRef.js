@@ -16,11 +16,11 @@ import { validateList } from 'validators/validationUtils.js';
 
 const validateItemRef = (itemRef, stdConstants, model) => {
     let errors = [];
-    validateList(itemRef.mandatory, 'mandatory', ['Yes', 'No'], errors);
-    validateList(itemRef.isNonStandard, 'isNonStandard', ['Yes'], errors);
-    validateList(itemRef.hasNoData, 'hasNoData', ['Yes'], errors);
+    validateList(itemRef.mandatory, 'mandatory', ['Yes', 'No'], false, errors);
+    validateList(itemRef.isNonStandard, 'isNonStandard', ['Yes'], true, errors);
+    validateList(itemRef.hasNoData, 'hasNoData', ['Yes'], true, errors);
     if (stdConstants && stdConstants.variableRoles) {
-        validateList(itemRef.role, 'role', stdConstants.variableRoles, errors);
+        validateList(itemRef.role, 'role', stdConstants.variableRoles, true, errors);
     }
     return errors;
 };

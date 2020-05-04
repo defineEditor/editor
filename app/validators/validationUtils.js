@@ -26,8 +26,8 @@ export const validateType = (value, type, attribName, errors) => {
     }
 };
 
-export const validateList = (value, attribName, list, errors) => {
-    if (value && !list.includes(value)) {
+export const validateList = (value, attribName, list, optional, errors) => {
+    if (((value !== undefined && optional) || !optional) && !list.includes(value)) {
         errors.push({
             id: 'notInTheList',
             message: `Invalid value of attribute **${attribName}**: "${value}", must be one of the following values: ${list.join(', ')}.`,
