@@ -736,6 +736,9 @@ const convertImportMetadata = (metadata) => {
             if (!Object.keys(codeListOids).includes(codedValue.codeList)) {
                 let clFound = Object.values(allCodeLists).some(codeList => {
                     if (codeList.name === codedValue.codeList) {
+                        if (codeList.codeListType === 'external') {
+                            throw new Error(`External codelist ${codedValue.codeList} cannot have coded values.`);
+                        }
                         codeListOids[codedValue.codeList] = codeList.oid;
                         return true;
                     }

@@ -211,7 +211,7 @@ const LoadFromXptStep3 = (props) => {
                         }
                         // Get existing codelist values
                         let codeList;
-                        if (Object.keys(mdv.codeLists).includes(codeListOid)) {
+                        if (Object.keys(mdv.codeLists).includes(codeListOid) && mdv.codeLists[codeListOid].codeListType !== 'external') {
                             codeList = mdv.codeLists[codeListOid];
                         } else {
                             // Codelist not in the metadata
