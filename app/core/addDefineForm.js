@@ -94,9 +94,7 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-function getSteps () {
-    return ['Select Source', 'Configure Define-XML', 'Finish'];
-}
+const steps = ['Select Source', 'Configure Define-XML', 'Finish'];
 
 class ConnectedAddDefineForm extends React.Component {
     constructor (props) {
@@ -231,7 +229,6 @@ class ConnectedAddDefineForm extends React.Component {
 
     render () {
         const { classes } = this.props;
-        const steps = getSteps();
         const { activeStep } = this.state;
 
         return (

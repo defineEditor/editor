@@ -17,6 +17,7 @@ import {
     ADD_ITEMGROUPS,
     DEL_ITEMGROUPS,
     UPD_ITEMGROUPORDER,
+    ADD_IMPORTMETADATA,
 } from 'constants/action-types';
 
 const addItemGroup = (state, action) => {
@@ -52,6 +53,15 @@ const addItemGroups = (state, action) => {
     return state.slice(0, position).concat(Object.keys(itemGroups)).concat(state.slice(position));
 };
 
+const addImportMetadata = (state, action) => {
+    let { newItemGroups } = action.updateObj.dsResult;
+    if (newItemGroups) {
+        return state.concat(Object.keys(newItemGroups));
+    } else {
+        return state;
+    }
+};
+
 const itemGroupOrder = (state = {}, action) => {
     switch (action.type) {
         case ADD_ITEMGROUP:
@@ -62,6 +72,8 @@ const itemGroupOrder = (state = {}, action) => {
             return deleteItemGroups(state, action);
         case UPD_ITEMGROUPORDER:
             return updateItemGroupOrder(state, action);
+        case ADD_IMPORTMETADATA:
+            return addImportMetadata(state, action);
         default:
             return state;
     }

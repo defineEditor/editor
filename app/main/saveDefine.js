@@ -15,15 +15,27 @@
 import fs from 'fs';
 import createDefine from '../core/createDefine.js';
 import copyStylesheet from '../main/copyStylesheet.js';
+import path from 'path';
 import writeDefineObject from '../main/writeDefineObject.js';
+import { promisify } from 'util';
+const mkdir = promisify(fs.mkdir);
 
 const onSaveCallback = (mainWindow, defineId) => () => {
     mainWindow.webContents.send('defineSaved', defineId);
 };
 
 // Save Define-XML
-function saveDefine (mainWindow, data, options) {
+const saveDefine = async (mainWindow, data, options) => {
     if (options.pathToFile !== undefined) {
+        // Create folder for the stylesheet if needed
+        let defineDir = path.dirname(options.pathToFile);
+        if (!fs.existsSync(defineDir)) {
+            try {
+                await mkdir(defineDir, { recursive: true });
+            } catch (err) {
+                console.log(err);
+            }
+        }
         if (options.pathToFile.endsWith('nogz')) {
             writeDefineObject(mainWindow, data, false, options.pathToFile, onSaveCallback(mainWindow, data.defineId));
         } else {
@@ -41,6 +53,6 @@ function saveDefine (mainWindow, data, options) {
             });
         }
     }
-}
+};
 
 module.exports = saveDefine;

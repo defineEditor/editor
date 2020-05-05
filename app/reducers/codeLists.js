@@ -36,6 +36,7 @@ import {
     ADD_REVIEWCOMMENT,
     DEL_REVIEWCOMMENT,
     ADD_VALUELISTFROMCODELIST,
+    ADD_IMPORTMETADATA,
 } from 'constants/action-types';
 import { CodeList, CodeListItem, ExternalCodeList, EnumeratedItem, Alias } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
@@ -850,6 +851,23 @@ const handleAddValueListFromCodeList = (state, action) => {
         return state;
     }
 };
+
+const addImportMetadata = (state, action) => {
+    let { newCodeLists, updatedCodeLists } = action.updateObj.codeListResult;
+    if (newCodeLists || updatedCodeLists) {
+        let newState = { ...state };
+        if (newCodeLists) {
+            newState = { ...newState, ...newCodeLists };
+        }
+        if (updatedCodeLists) {
+            newState = { ...newState, ...updatedCodeLists };
+        }
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const codeLists = (state = {}, action) => {
     switch (action.type) {
         case ADD_CODELIST:
@@ -896,6 +914,8 @@ const codeLists = (state = {}, action) => {
             return deleteReviewComment(state, action);
         case ADD_VALUELISTFROMCODELIST:
             return handleAddValueListFromCodeList(state, action);
+        case ADD_IMPORTMETADATA:
+            return addImportMetadata(state, action);
         default:
             return state;
     }

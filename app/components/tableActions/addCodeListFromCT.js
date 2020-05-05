@@ -38,6 +38,7 @@ const styles = theme => ({
         marginRight: theme.spacing(6),
     },
     codeListSelection: {
+        marginTop: 0,
         minWidth: 150,
         maxWidth: 450,
     },
@@ -174,8 +175,9 @@ class ConnectedAddCodeListFromCT extends React.Component {
                             key={this.state.standardOid}
                             onChange={this.handleChange('codeList')}
                             defaultValue={defaultCodeList}
+                            label='Add Codelist'
                             options={this.state.codeListList}
-                            className={classes.codeListSelection}
+                            textFieldClassName={classes.codeListSelection}
                         />
                     )}
                 </Grid>

@@ -31,6 +31,7 @@ import {
     ADD_ANALYSISRESULTS,
     ADD_RESULTDISPLAYS,
     UPD_ARMSTATUS,
+    ADD_IMPORTMETADATA,
 } from 'constants/action-types';
 import { Comment, TranslatedText } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
@@ -544,6 +545,37 @@ const handleUpdatedLeafs = (state, action) => {
     }
 };
 
+const addImportMetadata = (state, action) => {
+    let newComments = action.updateObj.commentResult;
+    let removedCommentSources = action.updateObj.removedSources.comments;
+    // Add ItemGroups
+    if (Object.keys(newComments).length > 0 || Object.keys(removedCommentSources).length > 0) {
+        let newState = { ...state };
+        // Add new comments
+        if (Object.keys(newComments).length > 0) {
+            newState = { ...state, ...newComments };
+        }
+        // Delete a comment or a source reference
+        if (Object.keys(removedCommentSources).length > 0) {
+            Object.keys(removedCommentSources).forEach(commentOid => {
+                Object.keys(removedCommentSources[commentOid]).forEach(sourceType => {
+                    let sourceOids = removedCommentSources[commentOid][sourceType];
+                    sourceOids.forEach(sourceOid => {
+                        let comment = newState[commentOid];
+                        let subAction = {};
+                        subAction.comment = comment;
+                        subAction.source = { type: sourceType, oid: sourceOid };
+                        newState = deleteComment(newState, subAction);
+                    });
+                });
+            });
+        }
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const comments = (state = {}, action) => {
     switch (action.type) {
         case ADD_ITEMGROUPCOMMENT:
@@ -582,6 +614,8 @@ const comments = (state = {}, action) => {
             return handleUpdatedLeafs(state, action);
         case UPD_ARMSTATUS:
             return handleUpdateArmStatus(state, action);
+        case ADD_IMPORTMETADATA:
+            return addImportMetadata(state, action);
         default:
             return state;
     }

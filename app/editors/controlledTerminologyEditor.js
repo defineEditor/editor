@@ -19,14 +19,13 @@ import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import TextField from '@material-ui/core/TextField';
 import EditingControlIcons from 'editors/editingControlIcons.js';
+import AutocompleteSelectEditor from 'editors/autocompleteSelectEditor.js';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Standard } from 'core/defineStructure.js';
-import getSelectionList from 'utils/getSelectionList.js';
 import getOid from 'utils/getOid.js';
 
 const styles = theme => ({
@@ -58,7 +57,7 @@ class ControlledTerminologyEditor extends React.Component {
         this.state = { standards: standardsCopy, standardOrder: this.props.standardOrder.slice() };
     }
 
-    handleChange = (name, oid) => (event) => {
+    handleChange = (name, oid) => (event, option) => {
         if (name === 'addCt') {
             let newStandards = { ...this.state.standards };
             let newOid = getOid('Standard', Object.keys(this.state.standards));
@@ -66,7 +65,7 @@ class ControlledTerminologyEditor extends React.Component {
             let newStandardOrder = this.state.standardOrder.slice().concat(newOid);
             this.setState({ standards: newStandards, standardOrder: newStandardOrder });
         } else if (name === 'updateCt') {
-            let newOid = event.target.value;
+            let newOid = option.value;
             if (oid !== newOid) {
                 let newStandards = { ...this.state.standards };
                 let newStandardOrder = this.state.standardOrder.slice();
@@ -96,14 +95,27 @@ class ControlledTerminologyEditor extends React.Component {
 
     getControlledTerminologies = () => {
         let standards = this.state.standards;
-        let ctList = this.props.controlledTerminology.allIds.map(ctOid => {
-            return { [ctOid]: this.props.controlledTerminology.byId[ctOid].name + ' ' + this.props.controlledTerminology.byId[ctOid].version };
-        });
+        // Add blank option;
         let studyCtList = this.state.standardOrder
             .filter(standardOid => {
                 return (standards[standardOid].name === 'CDISC/NCI' && standards[standardOid].type === 'CT');
             })
             .map(standardOid => {
+                // Keep in options only those CT standards which were not selected yet or the selected standard
+                let options = this.props.controlledTerminology.allIds
+                    .filter(ctOid => (!this.state.standardOrder.includes(ctOid) || ctOid === standardOid))
+                    .map(ctOid => ({
+                        value: ctOid,
+                        label: this.props.controlledTerminology.byId[ctOid].name + ' ' + this.props.controlledTerminology.byId[ctOid].version
+                    })
+                    );
+                let defaultOption;
+                options.some(option => {
+                    if (option.value === standardOid) {
+                        defaultOption = option;
+                        return true;
+                    }
+                });
                 return (
                     <ListItem dense key={standardOid} disableGutters>
                         <Tooltip title="Remove Controlled Terminology" placement="bottom-end">
@@ -115,16 +127,15 @@ class ControlledTerminologyEditor extends React.Component {
                                 <RemoveIcon />
                             </IconButton>
                         </Tooltip>
-                        <TextField
+                        <AutocompleteSelectEditor
                             label='Controlled Terminology'
-                            value={standardOid}
-                            select
-                            autoFocus
                             onChange={this.handleChange('updateCt', standardOid)}
+                            defaultValue={defaultOption}
+                            options={options}
                             className={this.props.classes.inputField}
-                        >
-                            { Object.keys(ctList).length > 0 && getSelectionList(ctList, false, this.state.standardOrder)}
-                        </TextField>
+                            disableClearable
+                            autoFocus
+                        />
                     </ListItem>
                 );
             });

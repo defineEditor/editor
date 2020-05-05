@@ -34,7 +34,7 @@ const AutocompleteSelectEditor = (props) => {
     return (
         <Autocomplete
             { ...props }
-            defaultValue={props.multiSelect ? [props.defaultValue] : props.defaultValue}
+            defaultValue={props.defaultValue && props.multiSelect ? [props.defaultValue] : props.defaultValue}
             clearOnEscape={false}
             getOptionLabel={getOptionLabel}
             renderInput={params => (
@@ -45,6 +45,7 @@ const AutocompleteSelectEditor = (props) => {
                     autoFocus={props.autoFocus}
                     onKeyDown={handleKeyDown}
                     multiline={props.multiline}
+                    className={props.textFieldClassName}
                     fullWidth
                 />
             )}

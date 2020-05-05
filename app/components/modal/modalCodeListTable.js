@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import React from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector, useDispatch } from 'react-redux';
@@ -21,8 +21,12 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
+import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import getCodeListData from 'utils/getCodeListData.js';
+import Loading from 'components/utils/loading.js';
 import GeneralTable from 'components/utils/generalTable.js';
+import { dummyRequest } from 'utils/cdiscLibraryUtils.js';
+import { getDecode } from 'utils/defineStructureUtils.js';
 import {
     closeModal,
     selectGroup,
@@ -32,7 +36,7 @@ const getStyles = makeStyles(theme => ({
     dialog: {
         position: 'absolute',
         top: '5%',
-        maxWidth: 1200,
+        maxWidth: 1500,
         height: '90%',
         width: '95%',
         overflowX: 'auto',
@@ -50,6 +54,7 @@ const getStyles = makeStyles(theme => ({
         fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
         fontSize: '1.25rem',
         lineHeight: '1.6',
+        paddingLeft: theme.spacing(2),
         letterSpacing: '0.0075em',
     },
     content: {
@@ -58,14 +63,59 @@ const getStyles = makeStyles(theme => ({
     }
 }));
 
-const ModalCodeListTable = (props) => {
-    const dispatch = useDispatch();
-    let classes = getStyles();
-    let codeLists = useSelector(state => state.present.odm.study.metaDataVersion.codeLists);
-    let defineVersion = useSelector(state => state.present.odm.study.metaDataVersion.defineVersion);
-    let codedValuesTabIndex = useSelector(state => state.present.ui.tabs.tabNames.indexOf('Coded Values'));
-    let codeList = codeLists[props.codeListOid];
+const loadFromStdCodeList = (codeLists, codeListOid) => {
+    let codeList = codeLists[codeListOid];
+    let codeListType = codeList.codeListType;
+    let data = [];
+    let header = [];
 
+    let codeListTitle;
+    if (codeList.alias !== undefined) {
+        codeListTitle = codeList.name + ' (' + codeList.alias.name + ')';
+    } else {
+        codeListTitle = codeList.name;
+    }
+
+    if (codeList) {
+        header = [
+            { id: 'conceptId', label: 'oid', hidden: true, key: true },
+            { id: 'submissionValue', label: 'Coded Value' },
+            { id: 'preferredTerm', label: 'Preferred Term' },
+            { id: 'definition', label: 'Definition', style: { maxWidth: 500 } },
+            { id: 'joinedSynonyms', label: 'Synonyms' },
+            { id: 'conceptId', label: 'C-Code', style: { minWidth: 90 } },
+        ];
+        data = codeList.itemOrder.map((itemOid, index) => {
+            let item = codeList.codeListItems[itemOid];
+            let conceptId;
+            if (item.alias.name !== undefined) {
+                conceptId = item.alias.name;
+            }
+            let joinedSynonyms;
+            if (item.synonyms && Array.isArray(item.synonyms)) {
+                joinedSynonyms = item.synonyms.join(', ');
+            }
+            return ({
+                submissionValue: item.codedValue,
+                definition: item.definition,
+                preferredTerm: getDecode(item),
+                joinedSynonyms,
+                conceptId,
+            });
+        });
+    }
+
+    return {
+        codeListTitle,
+        codeListType,
+        data,
+        header,
+    };
+};
+
+const loadFromCodeLists = (codeLists, codeListOid, defineVersion) => {
+    let codeList = codeLists[codeListOid];
+    let codeListType = codeList.codeListType;
     let data = [];
     let header = [];
 
@@ -102,6 +152,93 @@ const ModalCodeListTable = (props) => {
             }
         }
     }
+    return {
+        codeListTitle,
+        codeListType,
+        data,
+        header,
+    };
+};
+
+const ModalCodeListTable = (props) => {
+    const dispatch = useDispatch();
+    let classes = getStyles();
+    let odm = useSelector(state => state.present.odm);
+    let stdCodeLists = useSelector(state => state.present.stdCodeLists);
+    const [tableData, setTableData] = useState({});
+
+    let cl = useContext(CdiscLibraryContext).cdiscLibrary;
+
+    const loadFromCdiscLibrary = async (itemInfo) => {
+        let data, header, codeListTitle;
+        let product = await cl.getFullProduct(itemInfo.productId);
+        let itemGroup = await product.getItemGroup(itemInfo.itemGroupName);
+        let item = itemGroup.findMatchingItems(itemInfo.itemName)[0];
+        // As bug workaround, send a dummy request in 1 seconds if the object did not load
+        if (process.platform === 'linux') {
+            setTimeout(() => {
+                if (Object.keys(tableData).length === 0) {
+                    dummyRequest(cl);
+                }
+            }, 2000);
+        }
+        let codeList = await item.getCodeList();
+
+        header = [
+            { id: 'conceptId', label: 'oid', hidden: true, key: true },
+            { id: 'submissionValue', label: 'Coded Value' },
+            { id: 'preferredTerm', label: 'Preferred Term' },
+            { id: 'definition', label: 'Definition', style: { maxWidth: 500 } },
+            { id: 'joinedSynonyms', label: 'Synonyms' },
+            { id: 'conceptId', label: 'C-Code', style: { minWidth: 90 } },
+        ];
+
+        let packageId = codeList.href.replace(/\/mdr\/ct\/packages\/(.*?)\/.*/, '$1');
+        let ctInfo = await cl.getFullProduct(packageId, true);
+
+        data = codeList.getFormattedTerms();
+        data = data.map(row => {
+            if (row.synonyms && Array.isArray(row.synonyms)) {
+                return { ...row, joinedSynonyms: row.synonyms.join(', ') };
+            } else {
+                return row;
+            }
+        });
+
+        codeListTitle = `${codeList.name} (${codeList.conceptId}) ${ctInfo.model} ${ctInfo.version}`;
+
+        setTableData({
+            codeListTitle,
+            codeListType,
+            data,
+            header,
+        });
+    };
+
+    if (Object.keys(tableData).length === 0) {
+        if (props.itemInfo) {
+            // Need to load codelist from the CDISC Library
+            loadFromCdiscLibrary(props.itemInfo);
+        } else {
+            let codeLists;
+            if (props.stdCodeListOid) {
+                let stdCodeList = stdCodeLists[props.stdCodeListOid];
+                codeLists = stdCodeList.codeLists;
+                setTableData(loadFromStdCodeList(codeLists, props.codeListOid));
+            } else {
+                codeLists = odm.study.metaDataVersion.codeLists;
+                let defineVersion = odm.study.metaDataVersion.defineVersion;
+                setTableData(loadFromCodeLists(codeLists, props.codeListOid, defineVersion));
+            }
+        }
+    }
+
+    let { codeListTitle, codeListType, data, header } = tableData;
+
+    if (props.stdCodeListOid) {
+        let stdCodeList = stdCodeLists[props.stdCodeListOid];
+        codeListTitle += ` ${stdCodeList.type} ${stdCodeList.version}`;
+    }
 
     const onClose = () => {
         dispatch(closeModal({ type: props.type }));
@@ -113,6 +250,7 @@ const ModalCodeListTable = (props) => {
         }
     };
 
+    let codedValuesTabIndex = useSelector(state => state.present.ui.tabs.tabNames.indexOf('Coded Values'));
     const goToCodeList = () => {
         let updateObj = {
             tabIndex: codedValuesTabIndex,
@@ -136,16 +274,20 @@ const ModalCodeListTable = (props) => {
                 {codeListTitle}
             </DialogTitle>
             <DialogContent className={classes.content}>
-                <GeneralTable
-                    data={data}
-                    header={header}
-                    pagination
-                    disableToolbar
-                    rowsPerPageOptions={[25, 50, 100]}
-                />
+                { data !== undefined ? (
+                    <GeneralTable
+                        data={data}
+                        header={header}
+                        pagination
+                        disableToolbar
+                        rowsPerPageOptions={[25, 50, 100]}
+                    />
+                ) : (
+                    props.itemInfo !== undefined && <Loading onRetry={() => { loadFromCdiscLibrary(props.itemInfo); }} />
+                )}
             </DialogContent>
             <DialogActions>
-                { codeList.codeListType !== 'external' && (
+                { codeListType !== 'external' && props.stdCodeListOid === undefined && (
                     <Button onClick={goToCodeList} color="primary">
                         Go To Codelist
                     </Button>
@@ -159,8 +301,9 @@ const ModalCodeListTable = (props) => {
 };
 
 ModalCodeListTable.propTypes = {
-    codeListOid: PropTypes.string.isRequired,
+    codeListOid: PropTypes.string,
     type: PropTypes.string.isRequired,
+    stdCodeListOid: PropTypes.string,
 };
 
 export default ModalCodeListTable;

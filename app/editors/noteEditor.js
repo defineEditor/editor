@@ -67,6 +67,7 @@ class ProgrammingNoteRaw extends React.Component {
                         <Editor
                             editorState={this.props.noteState}
                             onChange={this.props.onUpdate}
+                            spellCheck={true}
                         />
                     </Grid>
                 )}

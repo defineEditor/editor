@@ -41,6 +41,7 @@ import Paper from '@material-ui/core/Paper';
     @property {object} header Array with header settings
     @property {string} header.id Property containing column value
     @property {string} header.label  Column label
+    @property {string} header.hidden  Column is hidden
     @property {boolean} header.key - True for the id variable, required in case of selection
     @property {function} header.formatter - Custom formatter for the column
     @property {boolean} header.noSort - Disable sorting for the column
@@ -188,7 +189,7 @@ GeneralTableToolbar.propTypes = {
 const useStyles = makeStyles(theme => ({
     paper: {
         width: '100%',
-        marginBottom: theme.spacing(2),
+        marginBottom: theme.spacing(1),
         display: 'flex',
     },
     minHeight: {

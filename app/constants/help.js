@@ -49,13 +49,6 @@ export const VARIABLE_FILTER = {
     content: `
 #### About
 Filter functionality allows to select which records are shown or updated.
-#### Field
-Object to which the filter is applied. Most fields correspond to attributes shown in the table.
-* **Is VLM** - Flag which indicates whether the variable is Value Level Metadata
-* **Has VLM** - Flag which indicates whether the variable has Value Level Metadata
-* **Has Document** - Flag which shows whether there is a document attached to Comment/Method/Origin
-* **Parent Variable** - Allows to filter VLM records which are attached to a specific variable
-* **Where Clause** - String corresponding to a where clause (ADLB.PARAMCD EQ "ALT")
 #### Comparator
 Defines how the field is compared with the specified value.
 * **STARTS** - Field starts with a value.
@@ -63,6 +56,13 @@ Defines how the field is compared with the specified value.
 * **CONTAINS** - Field contains a value.
 * **REGEX** - Field matches a regular expression.
 * **REGEXI** - Field matches a regular expression with a /i flag (case-insensitive).
+#### Variable-specific Fields
+Object to which the filter is applied. Most fields correspond to attributes shown in the table.
+* **Is VLM** - Flag which indicates whether the variable is Value Level Metadata
+* **Has VLM** - Flag which indicates whether the variable has Value Level Metadata
+* **Has Document** - Flag which shows whether there is a document attached to Comment/Method/Origin
+* **Parent Variable** - Allows to filter VLM records which are attached to a specific variable
+* **Where Clause** - String corresponding to a where clause (ADLB.PARAMCD EQ "ALT")
 `
 };
 
@@ -136,5 +136,64 @@ CDISC Library does not provide information on the amounth of traffic used. This 
 If you would like users to avoid the need to specify credentials, consider using CLA Relay \`https://github.com/defineEditor/cla-relay\`. In this case **baseURL** shall contain the URL of the server where CLA-Relay is installed (e.g., \`http://my.server.int:4600/api\`).
 #### Disclaimer
 Visual Define-XML Editor does not instruct how CDISC Library shall be used, nor represents CDISC in any way. Check your CDISC Library account EULA for the details on how CDISC Library can be used. If you have any questions regarding the contents of CDISC Library, please write to the CDISC Library support.
+`
+};
+
+export const IMPORT_METADATA = {
+    title: 'Import Metadata',
+    content: `
+#### About
+Import and export metadata to different sources. When pasting metadata from Excel, use the Paste icon in order to remove extra blank lines.
+* Attribute names are case sensitive
+* All keys must be present
+* Key combinations must be unique
+#### Dataset Attributes
+* dataset - **key** Dataset name. Automatically upcased.
+* label - Dataset label.
+* class - Dataset class. See valid values in Define-XML terminology.
+* domain - Domain name.
+* domainDescription - Domain description of the parent domain. Used for split datasets or in case of SUPP datasets.
+* sasDatasetName - SAS Dataset Name.
+* repeating - Repeating flag \\[Yes,No\\]
+* isReferenceData Reference data flag \\[Yes, No\\]
+* hasNoData Has no data flag \\[Yes\\]
+* purpose - Purpose of the dataset \\[Analysis, Tabulation\\]
+* structure - Description of the dataset structure
+* comment - Comment to a dataset
+* note - Programming note
+* fileName - Name of the file containing the dataset
+* fileTitle - Title used in Define-XML for the file
+#### Variable Attributes
+* dataset - **key** Dataset name. Must be present either in Define-XML or in the imported Dataset tab.
+* variable - **key** Variable name. Automatically upcased.
+* label - Variable label.
+* dataType - Type of the variable. See Define-XML specification for the list of valid types.
+* length - Variable length \\[***number***\\]
+* fractionDigits - Number of possible digits after the dot for float data type (SignificantDigits in Define-XML spec). \\[***number***\\]
+* sasFieldName - SAS variable name
+* displayFormat - Format (usually SAS format)
+* role - Variable role. See SDTM IG for the list of possible roles.
+* mandatory - Mandatory flag \\[Yes, No\\]
+* comment - Comment
+* method - Method text
+* methodName - Method name
+* note - Programming note
+* lengthAsData - Length as data flag \\[true, false\\]
+* lengthAsCodeList - Length as maximum codelist value flag \\[true, false\\]
+* originType - Type of origin. See valid values in Define-XML terminology.
+* originDescription - Origin description. Usually used for Predecessors
+* crfPages - CRF pages. If specified, an AnnotatedCRF document will be assigned to origin. Possible values:
+  * Page numbers separated by space: 11 12 14
+  * Range of pages: 11-14
+#### Codelist Attributes
+* codeList - **key** Codelist name.
+* type - Codelist type. \\[enumerated, decoded, external\\]
+* dataTypeCodelist Codelist data type, see variable dataType attribute possible values.
+* formatName - Name of the format if needed.
+#### Coded value Attributes
+* codeList - **key** Codelist name. Must be present either in the Define-XML or in the imported Codelist tab.
+* codedValue - **key** Codelist type. \\[enumerated, decoded, external\\]
+* decode - Decode value. Must be used only for codelists, which have type decoded.
+* rank - Rank value
 `
 };

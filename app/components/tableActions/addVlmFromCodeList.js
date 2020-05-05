@@ -68,8 +68,14 @@ const styles = theme => ({
         borderColor: 'primary',
     },
     title: {
-        marginTop: theme.spacing(1),
-        paddingBottom: 0,
+        marginBottom: theme.spacing(2),
+        backgroundColor: theme.palette.primary.main,
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        fontSize: '1.25rem',
+        lineHeight: '1.6',
+        letterSpacing: '0.0075em',
     },
 });
 

@@ -409,6 +409,9 @@ class CodeListItem extends EnumeratedItem {
         });
         this.decodes = decodes;
     }
+    setDecode (decode) {
+        this.decodes = [decode];
+    }
     addDecode (decode) {
         this.decodes.push(decode);
     }
@@ -716,7 +719,7 @@ class Odm {
 class ItemGroup extends BasicFunctions {
     constructor ({
         oid,
-        name,
+        name = '',
         domain,
         datasetName,
         repeating,
@@ -726,7 +729,7 @@ class ItemGroup extends BasicFunctions {
         datasetClass = {},
         archiveLocationId,
         commentOid,
-        isNotStandard,
+        isNonStandard,
         hasNoData,
         standardOid,
         alias,
@@ -750,7 +753,7 @@ class ItemGroup extends BasicFunctions {
         this.datasetClass = datasetClass;
         this.archiveLocationId = archiveLocationId;
         this.commentOid = commentOid;
-        this.isNotStandard = isNotStandard;
+        this.isNonStandard = isNonStandard;
         this.hasNoData = hasNoData;
         this.standardOid = standardOid;
         this.descriptions = descriptions;

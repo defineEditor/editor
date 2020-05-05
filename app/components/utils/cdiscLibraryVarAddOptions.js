@@ -57,7 +57,6 @@ const CdiscLibraryVarAddOptions = (props) => {
     const { copyCodelist, addOrigin, saveNote, addExisting, addRole } = props.options;
 
     const handleClick = (option) => (event) => {
-        // Get the next dataType in the list
         props.toggleOption(option);
     };
 

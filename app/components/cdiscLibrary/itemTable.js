@@ -24,7 +24,7 @@ import CdiscLibraryDataTypeButton from 'components/utils/cdiscLibraryDataTypeBut
 import CdiscLibraryCodeListButton from 'components/utils/cdiscLibraryCodeListButton.js';
 import CdiscLibraryVarAddOptions from 'components/utils/cdiscLibraryVarAddOptions.js';
 import { copyVariablesFromCdiscLibrary } from 'utils/copyUtils.js';
-import { addVariables } from 'actions/index.js';
+import { addVariables, openModal } from 'actions/index.js';
 
 const getStyles = makeStyles(theme => ({
     root: {
@@ -45,7 +45,8 @@ const getStyles = makeStyles(theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        addVariables: (updateObj) => dispatch(addVariables(updateObj))
+        addVariables: (updateObj) => dispatch(addVariables(updateObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 const mapStateToProps = (state, props) => {
@@ -55,7 +56,9 @@ const mapStateToProps = (state, props) => {
             stdCodeLists: state.present.stdCodeLists,
         };
     } else {
-        return {};
+        return {
+            stdCodeLists: state.present.stdCodeLists,
+        };
     }
 };
 
@@ -309,6 +312,40 @@ class ConnectedItemTable extends React.Component {
         this.setState({ items });
     };
 
+    openCodeList = async (props) => {
+        // Search for the codelist in the loaded standard codelists
+        const stdCodeLists = this.props.stdCodeLists;
+        let clFound = false;
+        if (stdCodeLists) {
+            Object.keys(stdCodeLists).some(stdCodeListOid => {
+                let ct = stdCodeLists[stdCodeListOid];
+                if (Object.keys(ct.nciCodeOids).includes(props.codelist)) {
+                    this.props.openModal({
+                        type: 'CODELIST_TABLE',
+                        props: {
+                            stdCodeListOid,
+                            codeListOid: ct.nciCodeOids[props.codelist],
+                        }
+                    });
+                    clFound = true;
+                    return true;
+                }
+            });
+        }
+        if (!clFound) {
+            this.props.openModal({
+                type: 'CODELIST_TABLE',
+                props: {
+                    itemInfo: {
+                        productId: this.props.productId,
+                        itemGroupName: this.props.itemGroup.name,
+                        itemName: props.row.name
+                    },
+                }
+            });
+        }
+    }
+
     codeListButton = (props) => {
         if (!props.codelist) {
             return null;
@@ -323,7 +360,16 @@ class ConnectedItemTable extends React.Component {
                     return (<span>{props.codelist}</span>);
                 }
             } else {
-                return (<span>{props.codelist}</span>);
+                return (
+                    <Button
+                        size='medium'
+                        variant='contained'
+                        color='default'
+                        onClick={() => { this.openCodeList(props); }}
+                    >
+                        {props.codelist}
+                    </Button>
+                );
             }
         }
     };
@@ -430,7 +476,7 @@ class ConnectedItemTable extends React.Component {
             { id: 'name', label: 'Name', style: { wordBreak: 'break-all' } },
             { id: 'label', label: 'Label' },
             { id: 'simpleDatatype', label: 'Datatype', formatter: mountPoint !== 'main' && this.dataTypeButton },
-            { id: 'codelist', label: 'Codelist', formatter: mountPoint !== 'main' && this.codeListButton },
+            { id: 'codelist', label: 'Codelist', formatter: this.codeListButton },
             { id: 'description', label: 'Description', formatter: descriptionFormatter },
         ];
 

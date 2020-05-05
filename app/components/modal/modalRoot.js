@@ -31,6 +31,7 @@ import ModalConfirmChange from 'components/modal/modalConfirmChange.js';
 import ModalCleanCdiscLibraryCache from 'components/modal/modalCleanCdiscLibraryCache.js';
 import ModalUpdateApplication from 'components/modal/modalUpdateApplication.js';
 import ModalCodeListTable from 'components/modal/modalCodeListTable.js';
+import ModalImportMetadata from 'components/modal/modalImportMetadata.js';
 
 const MODAL_COMPONENTS = {
     'DELETE_STUDY': ModalDeleteStudy,
@@ -50,6 +51,7 @@ const MODAL_COMPONENTS = {
     'CLEAN_CDISC_LIBRARY_CACHE': ModalCleanCdiscLibraryCache,
     'UPDATE_APPLICATION': ModalUpdateApplication,
     'CODELIST_TABLE': ModalCodeListTable,
+    'IMPORT_METADATA': ModalImportMetadata,
 };
 
 const ModalRoot = () => {

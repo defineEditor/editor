@@ -15,6 +15,9 @@
 import { getDescription, getDecode } from 'utils/defineStructureUtils.js';
 
 function getCodeListData (codeList, defineVersion) {
+    if (!['decoded', 'enumerated'].includes(codeList.codeListType)) {
+        return;
+    }
     const isDecoded = (codeList.codeListType === 'decoded');
 
     let codeListTable;

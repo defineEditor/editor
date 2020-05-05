@@ -44,7 +44,7 @@ class ControlledTerminologyFormatter extends React.Component {
                 return (
                     <TableRow key={standardOid}>
                         <TableCell>
-                            {standards[standardOid].publishingSet}
+                            {standards[standardOid].publishingSet || standards[standardOid].name}
                         </TableCell>
                         <TableCell>
                             {standards[standardOid].version}

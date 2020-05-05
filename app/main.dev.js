@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
 * and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
+* Copyright (C) 2018-2020 Dmitry Kolosov                                           *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -14,6 +14,7 @@
 
 import { app, BrowserWindow, ipcMain, Menu } from 'electron';
 import path from 'path';
+import contextMenu from 'electron-context-menu';
 import saveAs from './main/saveAs.js';
 import saveDefine from './main/saveDefine.js';
 import openDefineXml from './main/openDefineXml.js';
@@ -27,6 +28,8 @@ import loadControlledTerminology from './main/loadControlledTerminology.js';
 import deleteDefineObject from './main/deleteDefineObject.js';
 import scanControlledTerminologyFolder from './main/scanControlledTerminologyFolder.js';
 import addControlledTerminology from './main/addControlledTerminology.js';
+import loadXptMetadata from './main/loadXptMetadata.js';
+import deriveXptMetadata from './main/deriveXptMetadata.js';
 import saveCtFromCdiscLibrary from './main/saveCtFromCdiscLibrary.js';
 import openDocument from './main/openDocument.js';
 import openWithStylesheet from './main/openWithStylesheet.js';
@@ -64,6 +67,12 @@ const installExtensions = async () => {
     ).catch(console.log);
 };
 
+contextMenu({
+    append: (defaultActions, params, browserWindow) => [],
+    showLookUpSelection: false,
+    showSearchWithGoogle: false,
+});
+
 function createWindow () {
     mainWindow = new BrowserWindow({
         width: 768,
@@ -71,16 +80,21 @@ function createWindow () {
         center: true,
         show: false,
         icon: path.join(__dirname, '/static/images/misc/mainIcon64x64.png'),
-        webPreferences: { nodeIntegration: true },
+        webPreferences: {
+            nodeIntegration: true,
+            spellcheck: true,
+        },
     });
 
-    mainWindow.loadURL(`file://${__dirname}/index.html`);
+    mainWindow.loadFile('index.html');
 
     mainWindow.webContents.on('did-finish-load', () => {
         if (!mainWindow) {
             throw new Error('"mainWindow" is not defined');
         }
-        mainWindow.show();
+        if (process.env.NODE_ENV !== 'development') {
+            mainWindow.show();
+        }
         mainWindow.maximize();
     });
     // Set the menu
@@ -190,6 +204,14 @@ ipcMain.on('checkForUpdates', (event, customLabel) => {
 // Download the update
 ipcMain.on('downloadUpdate', (event) => {
     downloadUpdate(mainWindow);
+});
+// Load metadata from XPT files
+ipcMain.on('loadXptMetadata', (event) => {
+    loadXptMetadata(mainWindow);
+});
+// Derive metadata from XPT files
+ipcMain.on('deriveXptMetadata', (event, data) => {
+    deriveXptMetadata(mainWindow, data);
 });
 // Close the main window
 ipcMain.on('quitConfirmed', (event) => {

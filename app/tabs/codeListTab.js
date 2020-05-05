@@ -30,6 +30,7 @@ import grey from '@material-ui/core/colors/grey';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import TablePagination from '@material-ui/core/TablePagination';
 import Public from '@material-ui/icons/Public';
+import ArchiveIcon from '@material-ui/icons/Archive';
 import CallMerge from '@material-ui/icons/CallMerge';
 import AddCodeList from 'components/tableActions/addCodeList.js';
 import renderColumns from 'utils/renderColumns.js';
@@ -349,6 +350,13 @@ class ConnectedCodeListTable extends React.Component {
     }
 
     createCustomButtonGroup = props => {
+        const openImportMetadata = () => {
+            this.props.openModal({
+                type: 'IMPORT_METADATA',
+                props: { tab: 'codeLists' }
+            });
+        };
+
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={2}>
@@ -376,7 +384,7 @@ class ConnectedCodeListTable extends React.Component {
                         </Button>
                     </Grid>
                     <Grid item>
-                        <Tooltip title={'Populate Standard Codelists'} placement='bottom' enterDelay={1000}>
+                        <Tooltip title={'Populate Standard Codelists'} placement='bottom' enterDelay={700}>
                             <Fab
                                 color='default'
                                 size='small'
@@ -389,7 +397,7 @@ class ConnectedCodeListTable extends React.Component {
                         </Tooltip>
                     </Grid>
                     <Grid item>
-                        <Tooltip title={'Link Decoded and Enumerated Codelists'} placement='bottom' enterDelay={1000}>
+                        <Tooltip title={'Link Decoded and Enumerated Codelists'} placement='bottom' enterDelay={700}>
                             <Fab
                                 color='default'
                                 size='small'
@@ -403,6 +411,18 @@ class ConnectedCodeListTable extends React.Component {
                     </Grid>
                     <Grid item>
                         <CodeListOrderEditor/>
+                    </Grid>
+                    <Grid item>
+                        <Tooltip title={'Import Metadata'} placement='bottom' enterDelay={700}>
+                            <Fab
+                                size='small'
+                                color='default'
+                                onClick={openImportMetadata}
+                                className={this.props.classes.fabIcon}
+                            >
+                                <ArchiveIcon/>
+                            </Fab>
+                        </Tooltip>
                     </Grid>
                 </Grid>
             </ButtonGroup>
@@ -726,6 +746,7 @@ ConnectedCodeListTable.propTypes = {
     defineVersion: PropTypes.string.isRequired,
     reviewMode: PropTypes.bool,
     updateMainUi: PropTypes.func.isRequired,
+    openModal: PropTypes.func.isRequired,
     changeTablePageDetails: PropTypes.func.isRequired,
     reviewComments: PropTypes.object.isRequired,
     rowsPerPage: PropTypes.oneOfType([

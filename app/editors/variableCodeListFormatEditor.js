@@ -161,7 +161,6 @@ class VariableCodeListFormatEditor extends React.Component {
                             defaultValue={defaultOption}
                             options={options}
                             className={classes.textField}
-                            disableOpenOnFocus
                             disableClearable
                             autoFocus
                             classes={{

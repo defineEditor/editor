@@ -36,6 +36,10 @@ const main = (() => {
             codeListTab: 100,
             codedValuesTab: 100,
         },
+        metadataImportOptions: {
+            ignoreBlanks: false,
+            removeMissingCodedValues: false,
+        },
         pathToLastFile: undefined,
         appVersion: remote.app.getVersion(),
         updateInfo: {},
@@ -134,6 +138,8 @@ const cdiscLibraryUi = {
     items: {
     },
     info: {
+        cdiscLibraryVersion: '',
+        cdiscLibraryLastChecked: '',
     },
 };
 
@@ -198,6 +204,7 @@ const editor = {
 
 const cdiscLibrary = {
     enableCdiscLibrary: false,
+    checkForCLUpdates: true,
     username: '',
     password: '',
     baseUrl: 'https://library.cdisc.org/api',

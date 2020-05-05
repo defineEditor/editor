@@ -34,7 +34,7 @@ import NavigationBar from 'core/navigationBar.js';
 import SaveCancel from 'editors/saveCancel.js';
 import InternalHelp from 'components/utils/internalHelp.js';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
-import { initCdiscLibrary, updateCdiscLibrarySettings } from 'utils/cdiscLibraryUtils.js';
+import { initCdiscLibrary, updateCdiscLibrarySettings, dummyRequest } from 'utils/cdiscLibraryUtils.js';
 import { CT_LOCATION, CDISC_LIBRARY } from 'constants/help.js';
 import { updateSettings, openModal, openSnackbar } from 'actions/index.js';
 import { encrypt, decrypt } from 'utils/encryptDecrypt.js';
@@ -196,6 +196,7 @@ class ConnectedSettings extends React.Component {
             'addStylesheet',
             'onlyArmEdit',
             'enableCdiscLibrary',
+            'checkForCLUpdates',
         ].includes(name) || category === 'popUp') {
             this.setState({
                 settings: { ...this.state.settings,
@@ -289,15 +290,12 @@ class ConnectedSettings extends React.Component {
         // Encrypt password
         claSettings.password = encrypt(claSettings.password);
         let newCl = initCdiscLibrary(claSettings);
-        // There is a glitch, which causes the response not to come back in some cases
-        // It is currently fixed by sending a dummy request
-        setTimeout(async () => {
-            try {
-                await newCl.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
-            } catch (error) {
-                // It is expected to fail, so do nothing
-            }
-        }, 500);
+        // As bug workaround, send a dummy request in 1 seconds if the object did not load
+        if (process.platform === 'linux') {
+            setTimeout(() => {
+                dummyRequest(newCl.cdiscLibrary);
+            }, 1000);
+        }
         let check = await newCl.checkConnection();
         if (!check || check.statusCode === -1) {
             this.props.openSnackbar({
@@ -748,6 +746,18 @@ class ConnectedSettings extends React.Component {
                                             />
                                         }
                                         label='Enable CDISC Library'
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.settings.cdiscLibrary.checkForCLUpdates}
+                                                onChange={this.handleChange('cdiscLibrary', 'checkForCLUpdates')}
+                                                color='primary'
+                                                disabled={this.state.settings.cdiscLibrary.enableCdiscLibrary === false}
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Check for CDISC Library updates'
                                     />
                                 </FormGroup>
                             </Grid>

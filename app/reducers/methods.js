@@ -20,6 +20,7 @@ import {
     ADD_VARS,
     ADD_ITEMGROUPS,
     UPD_LEAFS,
+    ADD_IMPORTMETADATA,
 } from 'constants/action-types';
 import { Method, TranslatedText } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
@@ -472,6 +473,39 @@ const handleUpdatedLeafs = (state, action) => {
     }
 };
 
+const addImportMetadata = (state, action) => {
+    let newMethods = action.updateObj.methodResult;
+    let removedMethodSources = action.updateObj.removedSources.methods;
+    // Add ItemGroups
+    if (Object.keys(newMethods).length > 0 || Object.keys(removedMethodSources).length > 0) {
+        let newState = { ...state };
+        // Add new methods
+        if (Object.keys(newMethods).length > 0) {
+            newState = { ...state, ...newMethods };
+        }
+        // Delete a method or a source reference
+        if (Object.keys(removedMethodSources).length > 0) {
+            Object.keys(removedMethodSources).forEach(methodOid => {
+                Object.keys(removedMethodSources[methodOid]).forEach(sourceType => {
+                    let sourceTypeOids = Object.keys(removedMethodSources[methodOid][sourceType]);
+                    sourceTypeOids.forEach(sourceTypeOid => {
+                        let sourceOids = removedMethodSources[methodOid][sourceType][sourceTypeOid];
+                        sourceOids.forEach(sourceOid => {
+                            let subAction = {};
+                            subAction.method = newState[methodOid];
+                            subAction.source = { type: sourceType, oid: sourceOid, typeOid: sourceTypeOid };
+                            newState = deleteMethod(newState, subAction);
+                        });
+                    });
+                });
+            });
+        }
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const methods = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMDESCRIPTION:
@@ -488,6 +522,8 @@ const methods = (state = {}, action) => {
             return handleAddItemGroups(state, action);
         case UPD_LEAFS:
             return handleUpdatedLeafs(state, action);
+        case ADD_IMPORTMETADATA:
+            return addImportMetadata(state, action);
         default:
             return state;
     }

@@ -79,6 +79,7 @@ class VariableNameLabelEditor extends React.Component {
                         fullWidth
                         error={issue}
                         helperText={issue && helperText}
+                        inputProps={{ spellCheck: 'true' }}
                         FormHelperTextProps={{ className: classes.helperText }}
                         value={this.props.label}
                         onChange={this.props.handleChange('label')}

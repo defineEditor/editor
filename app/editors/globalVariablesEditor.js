@@ -103,6 +103,7 @@ class GlobalVariablesEditor extends React.Component {
                             value={this.state.studyDescription}
                             fullWidth
                             multiline
+                            inputProps={{ spellCheck: 'true' }}
                             onChange={this.handleChange('studyDescription')}
                             className={classes.inputField}
                         />

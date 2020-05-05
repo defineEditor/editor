@@ -25,6 +25,7 @@ import Typography from '@material-ui/core/Typography';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import CdiscLibraryBreadcrumbs from 'components/cdiscLibrary/breadcrumbs.js';
 import Loading from 'components/utils/loading.js';
+import { dummyRequest } from 'utils/cdiscLibraryUtils.js';
 import { openDB } from 'idb';
 import {
     changeCdiscLibraryView,
@@ -84,12 +85,14 @@ class ConnectedProducts extends React.Component {
     }
 
     getItems = async () => {
-        // As a temporary bugfix, send a dummy request in 1 seconds if the object did not load
-        setTimeout(() => {
-            if (Object.keys(this.state.classes).length === 0) {
-                this.dummyRequest();
-            }
-        }, 1000);
+        // As bug workaround, send a dummy request in 1 seconds if the object did not load
+        if (process.platform === 'linux') {
+            setTimeout(() => {
+                if (Object.keys(this.state.classes).length === 0) {
+                    dummyRequest(this.context.cdiscLibrary);
+                }
+            }, 1000);
+        }
         let productClasses = await this.context.cdiscLibrary.getProductClasses();
         let panelIds = Object.keys(productClasses);
         let classes = {};
@@ -127,16 +130,6 @@ class ConnectedProducts extends React.Component {
             classes[classId].groups = groups;
         });
         this.setState({ classes });
-    }
-
-    dummyRequest = async () => {
-        // There is a glitch, which causes the response not to come back in some cases
-        // It is currently fixed by sending a dummy request in 1 second if the main response did not come back
-        try {
-            await this.context.cdiscLibrary.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
-        } catch (error) {
-            // It is expected to fail, so do nothing
-        }
     }
 
     selectProduct = (productId, productName) => () => {
@@ -229,6 +222,14 @@ class ConnectedProducts extends React.Component {
         });
 
         await db.delete('cdiscLibrary', 'products');
+        // Delete all root keys as they can be also updated
+        let allKeys = await db.getAllKeys('cdiscLibrary');
+        for (let i = 0; i < allKeys.length; i++) {
+            let key = allKeys[i];
+            if (key.startsWith('r/')) {
+                await db.delete('cdiscLibrary', key);
+            }
+        }
 
         // Reset the library contents
         this.context.cdiscLibrary.reset();

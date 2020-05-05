@@ -12,13 +12,14 @@
  * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
  ***********************************************************************************/
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { ipcRenderer, shell, remote } from 'electron';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import UpdateIcon from '@material-ui/icons/Update';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -71,14 +72,19 @@ const openLink = (event) => {
     shell.openExternal(event.target.href);
 };
 
-const checkForUpdates = (event) => {
-    ipcRenderer.send('checkForUpdates');
-};
-
 const About = () => {
     const dispatch = useDispatch();
+
+    const [checkingForUpdate, setCheckingForUpdate] = useState(false);
+
+    const checkForUpdates = (event) => {
+        setCheckingForUpdate(true);
+        ipcRenderer.send('checkForUpdates');
+    };
+
     useEffect(() => {
         const handleUpdate = (event, updateAvailable, data) => {
+            setCheckingForUpdate(false);
             if (updateAvailable) {
                 dispatch(openModal({
                     type: 'UPDATE_APPLICATION',
@@ -114,9 +120,13 @@ const About = () => {
                     <Typography variant='body1' align='center' color='primary' gutterBottom>
                         Application Version: { remote.app.getVersion() }
                         <Tooltip title='Check for Updates' placement='bottom' enterDelay={500}>
-                            <IconButton onClick={checkForUpdates}>
-                                <UpdateIcon/>
-                            </IconButton>
+                            { checkingForUpdate ? (
+                                <CircularProgress size={28} />
+                            ) : (
+                                <IconButton onClick={checkForUpdates}>
+                                    <UpdateIcon/>
+                                </IconButton>
+                            )}
                         </Tooltip>
                     </Typography>
                     <Typography variant='body1' align='center' color='textPrimary' gutterBottom>

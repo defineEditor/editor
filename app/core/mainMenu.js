@@ -37,7 +37,6 @@ import Keyboard from '@material-ui/icons/Keyboard';
 import Print from '@material-ui/icons/Print';
 import Search from '@material-ui/icons/Search';
 import Review from '@material-ui/icons/RemoveRedEye';
-import Archive from '@material-ui/icons/Archive';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import Description from '@material-ui/icons/Description';
 import OpenInBrowser from '@material-ui/icons/OpenInBrowser';
@@ -294,13 +293,6 @@ class ConnectedMainMenu extends React.Component {
                                             <Print/>
                                         </ListItemIcon>
                                         <ListItemText primary='Print'/>
-                                    </ListItem>
-                                ), (
-                                    <ListItem button key='dataInput' onClick={() => { this.props.updateMainUi({ showDataInput: true }); this.props.toggleMainMenu(); }}>
-                                        <ListItemIcon>
-                                            <Archive/>
-                                        </ListItemIcon>
-                                        <ListItemText primary='Import Length'/>
                                     </ListItem>
                                 ), (
                                     <ListItem button key='commentMethod' onClick={() => { this.props.updateMainUi({ showCommentMethodTable: true }); this.props.toggleMainMenu(); }}>

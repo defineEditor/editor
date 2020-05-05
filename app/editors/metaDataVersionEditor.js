@@ -92,6 +92,7 @@ class MetaDataVersionEditor extends React.Component {
                             value={this.state.description || ''}
                             fullWidth
                             multiline
+                            inputProps={{ spellCheck: 'true' }}
                             onChange={this.handleChange('description')}
                             className={classes.inputField}
                         />

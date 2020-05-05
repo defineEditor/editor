@@ -33,6 +33,7 @@ import {
     INSERT_VAR,
     ADD_REVIEWCOMMENT,
     DEL_REVIEWCOMMENT,
+    ADD_IMPORTMETADATA,
 } from 'constants/action-types';
 import { ItemGroup, TranslatedText, DatasetClass, Leaf, ItemRef } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
@@ -70,8 +71,8 @@ const updateItemGroup = (state, action) => {
             updateObj.descriptions = [];
             delete updateObj.description;
         } else {
-            // Otherwise update the description and set language to standard;
-            let newDescription = { ...new TranslatedText({ value: updateObj.description, lang: 'en' }) };
+            // Otherwise update the description;
+            let newDescription = { ...new TranslatedText({ value: updateObj.description }) };
             updateObj.descriptions = [newDescription];
         }
     }
@@ -440,6 +441,39 @@ const deleteReviewComment = (state, action) => {
     }
 };
 
+const addImportMetadata = (state, action) => {
+    let newState;
+    let { newItemGroups, updatedItemGroups } = action.updateObj.dsResult;
+    // Add ItemGroups
+    if (newItemGroups || updatedItemGroups) {
+        newState = { ...state };
+        if (newItemGroups) {
+            newState = { ...newState, ...newItemGroups };
+        }
+        if (updatedItemGroups) {
+            newState = { ...newState, ...updatedItemGroups };
+        }
+    } else {
+        newState = state;
+    }
+    // Add ItemRefs
+    Object.keys(action.updateObj.varResult).forEach(itemGroupOid => {
+        let { newItemRefs, updatedItemRefs } = action.updateObj.varResult[itemGroupOid];
+        if (newItemRefs) {
+            let itemGroup = { ...newState[itemGroupOid] };
+            itemGroup.itemRefs = { ...itemGroup.itemRefs, ...newItemRefs };
+            itemGroup.itemRefOrder = itemGroup.itemRefOrder.concat(Object.keys(newItemRefs));
+            newState = { ...newState, [itemGroupOid]: itemGroup };
+        }
+        if (updatedItemRefs) {
+            let itemGroup = { ...newState[itemGroupOid] };
+            itemGroup.itemRefs = { ...itemGroup.itemRefs, ...updatedItemRefs };
+            newState = { ...newState, [itemGroupOid]: itemGroup };
+        }
+    });
+    return newState;
+};
+
 const itemGroups = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMGROUP:
@@ -482,6 +516,8 @@ const itemGroups = (state = {}, action) => {
             return addReviewComment(state, action);
         case DEL_REVIEWCOMMENT:
             return deleteReviewComment(state, action);
+        case ADD_IMPORTMETADATA:
+            return addImportMetadata(state, action);
         default:
             return state;
     }

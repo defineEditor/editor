@@ -32,6 +32,7 @@ import {
     UPD_LEAFS,
     ADD_REVIEWCOMMENT,
     DEL_REVIEWCOMMENT,
+    ADD_IMPORTMETADATA,
 } from 'constants/action-types';
 import { ItemDef, TranslatedText, Origin } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
@@ -502,6 +503,24 @@ const deleteReviewComment = (state, action) => {
     }
 };
 
+const addImportMetadata = (state, action) => {
+    let allNewItemDefs = {};
+    Object.keys(action.updateObj.varResult).forEach(itemGroupOid => {
+        let { newItemDefs, updatedItemDefs } = action.updateObj.varResult[itemGroupOid];
+        if (newItemDefs) {
+            allNewItemDefs = { ...allNewItemDefs, ...newItemDefs };
+        }
+        if (updatedItemDefs) {
+            allNewItemDefs = { ...allNewItemDefs, ...updatedItemDefs };
+        }
+    });
+    if (Object.keys(allNewItemDefs).length > 0) {
+        return { ...state, ...allNewItemDefs };
+    } else {
+        return state;
+    }
+};
+
 const itemDefs = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMDEF:
@@ -542,6 +561,8 @@ const itemDefs = (state = {}, action) => {
             return addReviewComment(state, action);
         case DEL_REVIEWCOMMENT:
             return deleteReviewComment(state, action);
+        case ADD_IMPORTMETADATA:
+            return addImportMetadata(state, action);
         default:
             return state;
     }
