@@ -46,7 +46,7 @@ const getItemsFromFilter = (filter, mdv, defineVersion) => {
             const dataset = mdv.itemGroups[itemGroupOid];
             // If only datasets were selected, collect all OIDs
             if (updatedFilter.conditions.length === 0) {
-                Object.keys(dataset.itemRefs).forEach(itemRefOid => {
+                dataset.itemRefOrder.forEach(itemRefOid => {
                     selectedItems.push({ itemGroupOid: itemGroupOid, itemDefOid: dataset.itemRefs[itemRefOid].itemOid });
                     if (updatedFilter.applyToVlm) {
                         if (mdv.itemDefs[dataset.itemRefs[itemRefOid].itemOid].valueListOid !== undefined) {
