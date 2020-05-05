@@ -23,11 +23,11 @@ import compareMethods from 'utils/compareMethods.js';
 import compareComments from 'utils/compareComments.js';
 import compareCodeLists from 'utils/compareCodeLists.js';
 import getOidByName from 'utils/getOidByName.js';
-import validateItemDef from 'validators/validateItemDef.js';
-import validateItemRef from 'validators/validateItemRef.js';
-import validateItemGroupDef from 'validators/validateItemGroupDef.js';
-import validateCodeList from 'validators/validateCodeList.js';
-import validateCodeListItem from 'validators/validateCodeListItem.js';
+import validateItemDef from 'utils/importValidators/validateItemDef.js';
+import validateItemRef from 'utils/importValidators/validateItemRef.js';
+import validateItemGroupDef from 'utils/importValidators/validateItemGroupDef.js';
+import validateCodeList from 'utils/importValidators/validateCodeList.js';
+import validateCodeListItem from 'utils/importValidators/validateCodeListItem.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
 const handleBlankAttributes = (obj, ignoreBlanks, recursive) => {
@@ -233,7 +233,7 @@ const updateItemDef = (item, itemDef, stdConstants, model, mdv, options, errors)
 };
 
 const convertImportMetadata = (metadata) => {
-    const { dsData, varData, codeListData, codedValueData } = metadata;
+    const { dsData, varData, codeListData, codedValueData } = clone(metadata);
     // Upcase all variable/dataset names, rename some fields;
     dsData.forEach(ds => {
         if (ds.dataset) {
@@ -804,14 +804,19 @@ const convertImportMetadata = (metadata) => {
                     // New
                     cvOid = getOid('CodeListItem', Object.keys(cl[clItemType]));
                     newOids.push(cvOid);
-                    let newCodedValue = new CodeListItem(item);
-                    // Add decode
-                    if (item.decode !== undefined) {
-                        let newDecode = { ...new TranslatedText({ value: item.decode }) };
-                        newCodedValue.setDecode(newDecode);
+                    let newCodedValue;
+                    if (clItemType === 'decoded') {
+                        newCodedValue = new CodeListItem(item);
+                        // Add decode
+                        if (item.decode !== undefined) {
+                            let newDecode = { ...new TranslatedText({ value: item.decode }) };
+                            newCodedValue.setDecode(newDecode);
+                        } else {
+                            let newDecode = { ...new TranslatedText({ value: '' }) };
+                            newCodedValue.setDecode(newDecode);
+                        }
                     } else {
-                        let newDecode = { ...new TranslatedText({ value: '' }) };
-                        newCodedValue.setDecode(newDecode);
+                        newCodedValue = new EnumeratedItem(item);
                     }
                     // Check for Alias in Standard Controlled Terminology
                     if (cl.alias !== undefined &&
@@ -846,8 +851,16 @@ const convertImportMetadata = (metadata) => {
             if (removeMissingCodedValues === true) {
                 // Use order from the imported data
                 let codedValueOids = {};
-                Object.keys(cl[clItemType]).forEach(oid => { codedValueOids[cl[clItemType][oid].codedValue] = oid; });
-                cl.itemOrder = codedValueData.map(item => codedValueOids[item.codedValue]);
+                let currentItems = currentCodedValues.map(item => item.codedValue);
+                Object.keys(cl[clItemType]).forEach(oid => {
+                    if (currentItems.includes(cl[clItemType][oid].codedValue)) {
+                        codedValueOids[cl[clItemType][oid].codedValue] = oid;
+                    } else {
+                        // Remove values which are not imported
+                        delete cl[clItemType][oid];
+                    }
+                });
+                cl.itemOrder = currentCodedValues.map(item => codedValueOids[item.codedValue]);
             } else if (newOids.length > 0) {
                 cl.itemOrder = cl.itemOrder.concat(newOids);
             }

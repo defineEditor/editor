@@ -12,12 +12,23 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { validateType } from 'validators/validationUtils.js';
+import { validateList } from 'utils/importValidators/validationUtils.js';
 
-const validateCodeListItem = (codeListItem) => {
+const validateItemGroupDef = (itemGroupDef, stdConstants, model) => {
     let errors = [];
-    validateType(codeListItem.rank, 'isNumber', 'rank', errors);
+    if (itemGroupDef.hasOwnProperty('purpose')) {
+        validateList(itemGroupDef.purpose, 'purpose', ['Analysis', 'Tabulation'], false, errors);
+    }
+    if (itemGroupDef.hasOwnProperty('repeating')) {
+        validateList(itemGroupDef.repeating, 'repeating', ['Yes', 'No'], false, errors);
+    }
+    validateList(itemGroupDef.isReferenceData, 'isReferenceData', ['Yes', 'No'], true, errors);
+    validateList(itemGroupDef.isNonStandard, 'isNonStandard', ['Yes'], true, errors);
+    validateList(itemGroupDef.hasNoData, 'hasNoData', ['Yes'], true, errors);
+    if (itemGroupDef.datasetClass && itemGroupDef.datasetClass.name !== undefined && stdConstants && stdConstants.classTypes && stdConstants.classTypes[model]) {
+        validateList(itemGroupDef.datasetClass.name, 'class', Object.keys(stdConstants.classTypes[model]), false, errors);
+    }
     return errors;
 };
 
-export default validateCodeListItem;
+export default validateItemGroupDef;

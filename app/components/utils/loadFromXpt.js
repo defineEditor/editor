@@ -131,16 +131,16 @@ const LoadFromXpt = (props) => {
         // Dataset data
         let datasetData = '';
         if (newDatasets.length > 0) {
-            let dsAttrs = ['dataset,label,fileName,fileTitle'];
+            let dsAttrs = ['dataset,label,purpose,fileName,fileTitle'];
             Object.values(newDatasets).forEach(ds => {
-                dsAttrs.push(escapeValue(ds.name) + ',' + escapeValue(ds.label) + ',' + escapeValue(ds.fileName) + ',' + escapeValue(ds.fileName));
+                dsAttrs.push(escapeValue(ds.name) + ',' + escapeValue(ds.label) + ',' + ds.purpose + ',' + escapeValue(ds.fileName) + ',' + escapeValue(ds.fileName));
             });
             datasetData = dsAttrs.join('\n');
         }
         // Coded Value data
         let codedValueData = '';
         if (newCodedValues.length > 0) {
-            let cvAttrs = ['codelist,codedValue'];
+            let cvAttrs = ['codeList,codedValue'];
             Object.values(newCodedValues).forEach(item => {
                 cvAttrs.push(escapeValue(item.codeList) + ',' + escapeValue(item.value));
             });

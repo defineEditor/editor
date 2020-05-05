@@ -139,7 +139,7 @@ const LoadFromXptStep3 = (props) => {
     if (targetDatasets.length > 0) {
         progressValue = (targetDatasets.length - remainingDatasets.length) / targetDatasets.length * 100;
     }
-    let processLine = `Processed ${targetDatasets.length - remainingDatasets.length}/${targetDatasets.length} datasets (${processedRecords} records)`;
+    let processLine = `Extracted additional data options for ${targetDatasets.length - remainingDatasets.length}/${targetDatasets.length} datasets (${processedRecords} records)`;
     let processingLine = '';
     if (remainingDatasets.length > 0) {
         processingLine = `Processing ${remainingDatasets.join(', ')}`;
@@ -289,7 +289,8 @@ const LoadFromXptStep3 = (props) => {
                 });
             } else if (options.addNewVariables) {
                 // A new dataset
-                xptNewDatasets.push({ name: dsName, label: xptDs.dsMetadata.label, fileName: xptDs.dsMetadata.fileName });
+                let purpose = mdv.model === 'ADaM' ? 'Analysis' : 'Tabulation';
+                xptNewDatasets.push({ name: dsName, label: xptDs.dsMetadata.label, fileName: xptDs.dsMetadata.fileName, purpose });
                 updatedData[dsName] = {};
                 xptVarNames.forEach(itemName => {
                     const xptVar = xptVarObj[itemName];

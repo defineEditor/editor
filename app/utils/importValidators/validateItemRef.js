@@ -12,11 +12,13 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { validateList } from 'validators/validationUtils.js';
+import { validateList } from 'utils/importValidators/validationUtils.js';
 
 const validateItemRef = (itemRef, stdConstants, model) => {
     let errors = [];
-    validateList(itemRef.mandatory, 'mandatory', ['Yes', 'No'], false, errors);
+    if (itemRef.hasOwnProperty('mandatory')) {
+        validateList(itemRef.mandatory, 'mandatory', ['Yes', 'No'], false, errors);
+    }
     validateList(itemRef.isNonStandard, 'isNonStandard', ['Yes'], true, errors);
     validateList(itemRef.hasNoData, 'hasNoData', ['Yes'], true, errors);
     if (stdConstants && stdConstants.variableRoles) {

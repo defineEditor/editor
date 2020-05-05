@@ -55,6 +55,8 @@ const getStyles = makeStyles(theme => ({
         fontSize: '1.25rem',
         lineHeight: '1.6',
         paddingLeft: theme.spacing(2),
+        paddingTop: theme.spacing(1),
+        paddingBottom: theme.spacing(1),
         letterSpacing: '0.0075em',
     },
     content: {

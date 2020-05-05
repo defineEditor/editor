@@ -12,13 +12,17 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { validateList } from 'validators/validationUtils.js';
+import { validateList } from 'utils/importValidators/validationUtils.js';
 import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 
 const validateCodeList = (codeList) => {
     let errors = [];
-    validateList(codeList.codeListType, 'type', ['decoded', 'enumerated', 'external'], false, errors);
-    validateList(codeList.dataType, 'dataType', ['text', 'integer', 'float'], false, errors);
+    if (codeList.hasOwnProperty('codeListType')) {
+        validateList(codeList.codeListType, 'type', ['decoded', 'enumerated', 'external'], false, errors);
+    }
+    if (codeList.hasOwnProperty('dataType')) {
+        validateList(codeList.dataType, 'dataType', ['text', 'integer', 'float'], false, errors);
+    }
     if (codeList.formatName) {
         let issues = [];
         issues = checkForSpecialChars(codeList.formatName, new RegExp(/[^$A-Z_0-9]/, 'gi'), 'Invalid character');

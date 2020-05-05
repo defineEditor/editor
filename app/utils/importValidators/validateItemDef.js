@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { validateType } from 'validators/validationUtils.js';
+import { validateType } from 'utils/importValidators/validationUtils.js';
 
 const validateItemDef = (itemDef, stdConstants, model) => {
     let errors = [];
