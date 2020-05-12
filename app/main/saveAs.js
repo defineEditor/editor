@@ -18,6 +18,8 @@ import { BrowserWindow, dialog, app } from 'electron';
 import createDefine from '../core/createDefine.js';
 import copyStylesheet from '../main/copyStylesheet.js';
 import writeDefineObject from '../main/writeDefineObject.js';
+import EStore from 'electron-store';
+import { PluginManager } from 'live-plugin-manager';
 import { promisify } from 'util';
 
 const readFile = promisify(fs.readFile);
@@ -106,11 +108,37 @@ const saveUsingStylesheet = async (savePath, odm, callback) => {
     });
 };
 
+const saveUsingPlugin = async (plugin, filePath, data, originalData, options) => {
+    const manager = new PluginManager();
+    let allPlugins = await manager.list();
+    if (!allPlugins.includes(plugin.name)) {
+        await manager.installFromPath(plugin.path);
+    }
+    const pluginInstance = manager.require(plugin.name);
+    pluginInstance.saveAs(filePath, data, originalData, options);
+};
+
 // Create Define-XML
-const saveFile = (mainWindow, data, originalData, options, saveDialogResult) => {
+const saveFile = (mainWindow, data, originalData, options, saveAsPlugins, saveDialogResult) => {
     const { filePath, canceled } = saveDialogResult;
     if (!canceled && filePath !== undefined) {
-        if (filePath.endsWith('nogz')) {
+        // Check for saveAs plugins
+        let matchedPlugin;
+        saveAsPlugins.some(plugin => {
+            let filterMatched = plugin.filters.some(filter => {
+                let extensionMatched = filter.extensions.some(extension => {
+                    if (filePath.endsWith(extension)) {
+                        matchedPlugin = plugin;
+                        return true;
+                    }
+                });
+                return extensionMatched;
+            });
+            return filterMatched;
+        });
+        if (matchedPlugin !== undefined) {
+            saveUsingPlugin(matchedPlugin, filePath, data, originalData, options);
+        } else if (filePath.endsWith('nogz')) {
             writeDefineObject(mainWindow, originalData, false, filePath, onSaveCallback(mainWindow, filePath));
         } else {
             let defineXml = createDefine(data.odm, data.odm.study.metaDataVersion.defineVersion);
@@ -136,20 +164,34 @@ const saveFile = (mainWindow, data, originalData, options, saveDialogResult) => 
 };
 
 const saveAs = async (mainWindow, data, originalData, options) => {
+    let filters = [
+        { name: 'XML files', extensions: ['xml'] },
+        { name: 'NOGZ files', extensions: ['nogz'] },
+        { name: 'HTML files', extensions: ['html'] },
+        { name: 'PDF files', extensions: ['pdf'] },
+    ];
+    // Check if there are plugins present
+    const pluginsStore = new EStore({
+        name: 'plugins',
+    });
+    let saveAsPlugins = [];
+    if (pluginsStore !== undefined && pluginsStore.plugins !== undefined) {
+        Object.values(pluginsStore.plugins).forEach(plugin => {
+            if (plugin.type === 'saveAs') {
+                filters.concat(plugin.filters);
+                saveAsPlugins.push(plugin);
+            }
+        });
+    }
     let result = await dialog.showSaveDialog(
         mainWindow,
         {
             title: 'Export Define-XML',
-            filters: [
-                { name: 'XML files', extensions: ['xml'] },
-                { name: 'NOGZ files', extensions: ['nogz'] },
-                { name: 'HTML files', extensions: ['html'] },
-                { name: 'PDF files', extensions: ['pdf'] },
-            ],
+            filters,
             defaultPath: options.pathToLastFile,
         }
     );
-    saveFile(mainWindow, data, originalData, options, result);
+    saveFile(mainWindow, data, originalData, options, saveAsPlugins, result);
 };
 
 module.exports = saveAs;
