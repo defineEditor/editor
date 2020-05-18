@@ -175,7 +175,7 @@ const ModalCodeListTable = (props) => {
         let data, header, codeListTitle;
         let product = await cl.getFullProduct(itemInfo.productId);
         let itemGroup = await product.getItemGroup(itemInfo.itemGroupName);
-        let item = itemGroup.findMatchingItems(itemInfo.itemName)[0];
+        let item = Object.values(itemGroup.getItems()).filter(item => item.name === itemInfo.itemName)[0];
         // As bug workaround, send a dummy request in 1 seconds if the object did not load
         if (process.platform === 'linux') {
             setTimeout(() => {
@@ -289,7 +289,7 @@ const ModalCodeListTable = (props) => {
                 )}
             </DialogContent>
             <DialogActions>
-                { codeListType !== 'external' && props.stdCodeListOid === undefined && (
+                { codeListType !== 'external' && props.stdCodeListOid === undefined && props.itemInfo === undefined && (
                     <Button onClick={goToCodeList} color="primary">
                         Go To Codelist
                     </Button>

@@ -11,13 +11,15 @@
 * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
-import React from 'react';
+import React, { useState } from 'react';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
 const AutocompleteSelectEditor = (props) => {
+    const [ isOpened, setIsOpened ] = useState(false);
+
     const handleKeyDown = (event) => {
-        if (event.key === 'Escape' || event.keyCode === 27) {
+        if (isOpened && (event.key === 'Escape' || event.keyCode === 27)) {
             event.stopPropagation();
             props.onChange(event, props.defaultValue);
         }
@@ -31,12 +33,24 @@ const AutocompleteSelectEditor = (props) => {
         }
     };
 
+    const getOptionSelected = (option, value) => {
+        if (typeof option === 'object') {
+            return option.value === value.value;
+        } else {
+            return option === value;
+        }
+    };
+
     return (
         <Autocomplete
             { ...props }
+            value={props.value && props.multiSelect ? [props.value] : props.value}
             defaultValue={props.defaultValue && props.multiSelect ? [props.defaultValue] : props.defaultValue}
             clearOnEscape={false}
+            onOpen={() => { setIsOpened(true); }}
+            onClose={() => { setIsOpened(false); }}
             getOptionLabel={getOptionLabel}
+            getOptionSelected={getOptionSelected}
             renderInput={params => (
                 <TextField
                     {...params}

@@ -203,5 +203,5 @@ InteractiveKeyOrderEditorConnected.propTypes = {
     onFinished: PropTypes.func.isRequired,
 };
 
-const InteractiveKeyOrderEditor = connect(mapStateToProps, mapDispatchToProps)(InteractiveKeyOrderEditorConnected);
+const InteractiveKeyOrderEditor = connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(InteractiveKeyOrderEditorConnected);
 export default withStyles(styles)(InteractiveKeyOrderEditor);

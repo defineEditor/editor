@@ -137,5 +137,5 @@ ConnectedLinkedCodeListEditor.propTypes = {
     onUpdate: PropTypes.func
 };
 
-const LinkedCodeListEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedLinkedCodeListEditor);
+const LinkedCodeListEditor = connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(ConnectedLinkedCodeListEditor);
 export default LinkedCodeListEditor;

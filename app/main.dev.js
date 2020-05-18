@@ -35,6 +35,7 @@ import openDocument from './main/openDocument.js';
 import openWithStylesheet from './main/openWithStylesheet.js';
 import deleteFiles from './main/deleteFiles.js';
 import openFileInExternalApp from './main/openFileInExternalApp.js';
+import checkPreinstalledPlugins from './main/checkPreinstalledPlugins.js';
 import createMenu from './menu/menu.js';
 import exportReviewComments from './main/exportReviewComments.js';
 import { checkForUpdates, downloadUpdate } from './main/appUpdate.js';
@@ -72,6 +73,8 @@ contextMenu({
     showLookUpSelection: false,
     showSearchWithGoogle: false,
 });
+
+checkPreinstalledPlugins();
 
 function createWindow () {
     mainWindow = new BrowserWindow({

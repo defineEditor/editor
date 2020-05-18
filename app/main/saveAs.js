@@ -19,7 +19,7 @@ import createDefine from '../core/createDefine.js';
 import copyStylesheet from '../main/copyStylesheet.js';
 import writeDefineObject from '../main/writeDefineObject.js';
 import EStore from 'electron-store';
-import { PluginManager } from 'live-plugin-manager';
+// import { PluginManager } from 'live-plugin-manager';
 import { promisify } from 'util';
 
 const readFile = promisify(fs.readFile);
@@ -109,13 +109,26 @@ const saveUsingStylesheet = async (savePath, odm, callback) => {
 };
 
 const saveUsingPlugin = async (plugin, filePath, data, originalData, options) => {
-    const manager = new PluginManager();
-    let allPlugins = await manager.list();
-    if (!allPlugins.includes(plugin.name)) {
-        await manager.installFromPath(plugin.path);
+    try {
+        /*
+        const manager = new PluginManager({ cwd: pathToUserData, pluginsPath: path.join(pathToUserData, '.', 'plugins') });
+        let allPlugins = await manager.list();
+        if (process.env.NODE_ENV === 'development') {
+            await manager.installFromPath(plugin.path, { force: true });
+        } else if (!allPlugins.includes(plugin.name)) {
+            await manager.installFromPath(plugin.path);
+        }
+        const PluginClass = manager.require(plugin.name);
+        */
+        // eslint-disable-next-line camelcase, no-undef
+        const requireFunc = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require;
+        let moduleName = path.join(plugin.path, plugin.main);
+        let PluginClass = requireFunc(moduleName);
+        let pluginInstance = new PluginClass({ ...plugin.options, pathToPlugin: plugin.path });
+        await pluginInstance.saveAs(filePath, data, originalData, options);
+    } catch (error) {
+        dialog.showErrorBox(`Error in ${plugin.name} plugin`, error.message + '\n' + error.stack);
     }
-    const pluginInstance = manager.require(plugin.name);
-    pluginInstance.saveAs(filePath, data, originalData, options);
 };
 
 // Create Define-XML
@@ -173,12 +186,21 @@ const saveAs = async (mainWindow, data, originalData, options) => {
     // Check if there are plugins present
     const pluginsStore = new EStore({
         name: 'plugins',
-    });
+    }).get();
     let saveAsPlugins = [];
     if (pluginsStore !== undefined && pluginsStore.plugins !== undefined) {
         Object.values(pluginsStore.plugins).forEach(plugin => {
             if (plugin.type === 'saveAs') {
-                filters.concat(plugin.filters);
+                // Remove all existing filters with the same extension
+                const newFilter = filters.slice();
+                plugin.filters.forEach(pluginFilter => {
+                    filters.filter(item => {
+                        if (pluginFilter.extensions.filter(ext => item.extensions.includes(ext)).length > 0) {
+                            newFilter.splice(newFilter.map(el => el.name).indexOf(item.name), 1);
+                        }
+                    });
+                });
+                filters = newFilter.concat(plugin.filters);
                 saveAsPlugins.push(plugin);
             }
         });
