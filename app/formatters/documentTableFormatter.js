@@ -55,7 +55,7 @@ const CustomTableCell = withStyles(theme => ({
 class DocumentTableFormatter extends React.Component {
     openPdf = (event) => {
         event.preventDefault();
-        ipcRenderer.send('openDocument', path.dirname(this.props.pathToDefine), event.target.attributes[0].value);
+        ipcRenderer.send('openDocument', path.dirname(this.props.pathToDefine), event.target.attributes[0].value, { pdfViewer: this.props.pdfViewer });
     }
 
     getDocuments = () => {
@@ -110,6 +110,7 @@ DocumentTableFormatter.propTypes = {
     classes: PropTypes.object.isRequired,
     onEdit: PropTypes.func.isRequired,
     pathToDefine: PropTypes.string,
+    pdfViewer: PropTypes.string,
     onComment: PropTypes.func,
 };
 

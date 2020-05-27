@@ -638,7 +638,7 @@ const convertImportMetadata = (metadata) => {
                     item = handleBlankAttributes(item, ignoreBlanks);
                     let itemDefOid = getOid('ItemDef', currentItemDefOids);
                     currentItemDefOids.push(itemDefOid);
-                    let itemDef = new ItemDef({ ...item, name: item.variable });
+                    let itemDef = new ItemDef({ ...item, name: item.variable, oid: itemDefOid });
                     updateItemDef(item, itemDef, stdConstants, model, mdv, options, errors);
                     itemDef.sources.itemGroups = [itemGroupOid];
                     let itemRefOid = getOid('ItemRef', currentItemRefOids);

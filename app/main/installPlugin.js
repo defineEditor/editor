@@ -52,6 +52,7 @@ const installPlugin = async (pathToPlugin) => {
         newPlugin.version = plugin.version;
         newPlugin.enabled = true;
         newPlugin.path = newPluginPath;
+        newPlugin.originalPath = pathToPlugin;
         newPlugin.main = plugin.main;
         newPlugin.type = plugin.pluginOptions.type;
         newPlugin.filters = plugin.pluginOptions.filters;

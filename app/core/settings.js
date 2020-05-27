@@ -26,6 +26,7 @@ import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import MenuItem from '@material-ui/core/MenuItem';
 import Switch from '@material-ui/core/Switch';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -66,6 +67,10 @@ const styles = theme => ({
     sourceSystem: {
         width: 300,
         margin: theme.spacing(1)
+    },
+    selector: {
+        width: 95,
+        marginBottom: theme.spacing(1)
     },
     sourceSystemVersion: {
         width: 200,
@@ -367,6 +372,18 @@ class ConnectedSettings extends React.Component {
                                     }}
                                 />
                             </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="PDF Viewer"
+                                    value={this.state.settings.general.pdfViewer}
+                                    onChange={this.handleChange('general', 'pdfViewer')}
+                                    className={classes.selector}
+                                    select
+                                >
+                                    <MenuItem key='pdf.js' value='PDF.js'>PDF.js</MenuItem>
+                                    <MenuItem key='pdfium' value='PDFium'>PDFium</MenuItem>
+                                </TextField>
+                            </Grid>
                             <Grid item>
                                 <FormGroup>
                                     <FormControlLabel
@@ -456,7 +473,7 @@ class ConnectedSettings extends React.Component {
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Instantly process text in Comments and Methods'
+                                        label='Real-time check for special characters in Comments and Methods'
                                     />
                                     <FormControlLabel
                                         control={
@@ -478,7 +495,7 @@ class ConnectedSettings extends React.Component {
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Allow adding programming notes'
+                                        label='Enable programming notes'
                                     />
                                     <FormControlLabel
                                         control={

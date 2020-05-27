@@ -39,6 +39,7 @@ const mapStateToProps = state => {
         defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
         documentTypes: state.present.stdConstants.documentTypes,
         pathToDefine: state.present.defines.byId[state.present.odm.defineId].pathToFile,
+        pdfViewer: state.present.settings.general.pdfViewer,
         tabs: state.present.ui.tabs,
     };
 };
@@ -136,6 +137,7 @@ class ConnectedDocumentTable extends React.Component {
                             leafOrder={this.props.leafOrder}
                             documentTypes={this.props.documentTypes}
                             pathToDefine={this.props.pathToDefine}
+                            pdfViewer={this.props.pdfViewer}
                             onEdit={this.handleChange('documentEdit')}
                         />
                     )
@@ -151,6 +153,7 @@ ConnectedDocumentTable.propTypes = {
     documentTypes: PropTypes.object.isRequired,
     defineVersion: PropTypes.string.isRequired,
     pathToDefine: PropTypes.string,
+    pdfViewer: PropTypes.string,
 };
 ConnectedDocumentTable.displayName = 'DocumentTable';
 

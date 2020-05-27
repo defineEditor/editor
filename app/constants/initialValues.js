@@ -176,6 +176,7 @@ const general = {
     addStylesheet: true,
     disableAnimations: false,
     checkForUpdates: true,
+    pdfViewer: 'PDFium',
 };
 
 const popUp = {

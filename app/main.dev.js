@@ -169,8 +169,8 @@ ipcMain.on('deleteFiles', (event, filesToDelete) => {
     deleteFiles(filesToDelete);
 });
 // Open Document file
-ipcMain.on('openDocument', (event, defineLocation, pdfLink) => {
-    openDocument(mainWindow, defineLocation, pdfLink);
+ipcMain.on('openDocument', (event, defineLocation, pdfLink, options) => {
+    openDocument(mainWindow, defineLocation, pdfLink, options);
 });
 // Open file using external application
 ipcMain.on('openFileInExternalApp', (event, defineLocation, fileLink) => {

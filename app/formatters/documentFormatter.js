@@ -26,9 +26,10 @@ const styles = theme => ({
 
 const openPdf = (event) => {
     event.preventDefault();
-    let state = store.getState();
-    let pathToDefine = state.present.defines.byId[state.present.odm.defineId].pathToFile || '';
-    ipcRenderer.send('openDocument', path.dirname(pathToDefine), event.target.attributes[0].value);
+    const state = store.getState();
+    const pathToDefine = state.present.defines.byId[state.present.odm.defineId].pathToFile || '';
+    const pdfViewer = state.present.settings.general.pdfViewer;
+    ipcRenderer.send('openDocument', path.dirname(pathToDefine), event.target.attributes[0].value, { pdfViewer });
 };
 
 class DocumentFormatter extends React.Component {

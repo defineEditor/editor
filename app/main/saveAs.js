@@ -19,7 +19,6 @@ import createDefine from '../core/createDefine.js';
 import copyStylesheet from '../main/copyStylesheet.js';
 import writeDefineObject from '../main/writeDefineObject.js';
 import EStore from 'electron-store';
-// import { PluginManager } from 'live-plugin-manager';
 import { promisify } from 'util';
 
 const readFile = promisify(fs.readFile);
@@ -110,20 +109,18 @@ const saveUsingStylesheet = async (savePath, odm, callback) => {
 
 const saveUsingPlugin = async (plugin, filePath, data, originalData, options) => {
     try {
-        /*
-        const manager = new PluginManager({ cwd: pathToUserData, pluginsPath: path.join(pathToUserData, '.', 'plugins') });
-        let allPlugins = await manager.list();
-        if (process.env.NODE_ENV === 'development') {
-            await manager.installFromPath(plugin.path, { force: true });
-        } else if (!allPlugins.includes(plugin.name)) {
-            await manager.installFromPath(plugin.path);
-        }
-        const PluginClass = manager.require(plugin.name);
-        */
         // eslint-disable-next-line camelcase, no-undef
         const requireFunc = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require;
         let moduleName = path.join(plugin.path, plugin.main);
-        let PluginClass = requireFunc(moduleName);
+        let PluginClass;
+        if (process.env.NODE_ENV === 'development') {
+            const PluginManager = requireFunc('live-plugin-manager').PluginManager;
+            const manager = new PluginManager({ cwd: pathToUserData, pluginsPath: path.join(pathToUserData, '.', 'devplugins') });
+            await manager.installFromPath(plugin.originalPath, { force: true });
+            PluginClass = manager.require(plugin.name);
+        } else {
+            PluginClass = requireFunc(moduleName);
+        }
         let pluginInstance = new PluginClass({ ...plugin.options, pathToPlugin: plugin.path });
         await pluginInstance.saveAs(filePath, data, originalData, options);
     } catch (error) {

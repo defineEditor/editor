@@ -21,6 +21,7 @@ import { BootstrapTable, ButtonGroup } from 'react-bootstrap-table';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
 import Grid from '@material-ui/core/Grid';
+import Link from '@material-ui/core/Link';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
@@ -34,6 +35,7 @@ import ArchiveIcon from '@material-ui/icons/Archive';
 import CallMerge from '@material-ui/icons/CallMerge';
 import AddCodeList from 'components/tableActions/addCodeList.js';
 import renderColumns from 'utils/renderColumns.js';
+import openCodeList from 'utils/openCodeList.js';
 import getCodeListsDataAsText from 'utils/getCodeListsDataAsText.js';
 import CodeListOrderEditor from 'components/orderEditors/codeListOrderEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
@@ -167,7 +169,21 @@ function codeListStandardFormatter (cell, row) {
         }
         return result;
     } else if (row.standardDescription !== undefined) {
-        return (<div>{row.standardDescription} <br/> {cell.cdiscSubmissionValue}</div>);
+        return (
+            <React.Fragment>
+                <div>{row.standardDescription}
+                    <br/> {cell.cdiscSubmissionValue}
+                </div>
+                <Link
+                    variant='body2'
+                    onClick={() => { openCodeList(row.stdCodeListOid, cell.standardOid); }}
+                    style = {{ color: '#007BFF' }}
+                    href='blank'
+                >
+                    {cell.cdiscSubmissionValue}
+                </Link>
+            </React.Fragment>
+        );
     }
 }
 
@@ -418,7 +434,7 @@ class ConnectedCodeListTable extends React.Component {
                                 size='small'
                                 color='default'
                                 onClick={openImportMetadata}
-                                className={this.props.classes.fabIcon}
+                                className={this.props.classes.fab}
                             >
                                 <ArchiveIcon/>
                             </Fab>
@@ -610,6 +626,12 @@ class ConnectedCodeListTable extends React.Component {
                 if (originCL.standardOid !== undefined && this.props.standards.hasOwnProperty(originCL.standardOid)) {
                     let standard = this.props.standards[originCL.standardOid];
                     currentCL.standardDescription = standard.name + ' ' + standard.publishingSet + ' ver. ' + standard.version;
+                    const stdCodeLists = this.props.stdCodeLists;
+                    if (stdCodeLists[originCL.standardOid] && originCL.alias &&
+                        originCL.alias.name && stdCodeLists[originCL.standardOid].nciCodeOids[originCL.alias.name] !== undefined
+                    ) {
+                        currentCL.stdCodeListOid = stdCodeLists[originCL.standardOid].nciCodeOids[originCL.alias.name];
+                    }
                 } else {
                     currentCL.standardDescription = undefined;
                 }
