@@ -21,6 +21,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import TuneIcon from '@material-ui/icons/Tune';
 import Switch from '@material-ui/core/Switch';
 import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -87,12 +88,18 @@ const ImportMetadataOptions = (props) => {
 
     return (
         <React.Fragment>
-            <IconButton
-                onClick={handleOpen}
-                className={classes.clipboardIcon}
+            <Tooltip
+                title='Import options'
+                placement='bottom'
+                enterDelay={700}
             >
-                <TuneIcon/>
-            </IconButton>
+                <IconButton
+                    onClick={handleOpen}
+                    className={classes.clipboardIcon}
+                >
+                    <TuneIcon/>
+                </IconButton>
+            </Tooltip>
             <Dialog
                 open={open}
                 PaperProps={{ className: classes.dialog }}

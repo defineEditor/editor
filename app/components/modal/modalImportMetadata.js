@@ -468,13 +468,7 @@ const ModalImportMetadata = (props) => {
                                 Define
                             </Button>
                             <div className={classes.grow} />
-                            <Tooltip
-                                title='Import options'
-                                placement='bottom'
-                                enterDelay={700}
-                            >
-                                <ImportMetadataOptions/>
-                            </Tooltip>
+                            <ImportMetadataOptions/>
                             <Tooltip
                                 title='Copy to clipboard'
                                 placement='bottom'

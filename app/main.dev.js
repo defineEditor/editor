@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { app, BrowserWindow, ipcMain, Menu } from 'electron';
+import { app, BrowserWindow, session, ipcMain, Menu } from 'electron';
 import path from 'path';
 import contextMenu from 'electron-context-menu';
 import saveAs from './main/saveAs.js';
@@ -235,6 +235,10 @@ app.on('ready', async () => {
         process.env.DEBUG_PROD === 'true'
     ) {
         await installExtensions();
+        const reduxPath = path.join(app.getPath('userData'), 'extensions', 'lmhkpmbekcpmknklioeibfkpmmfibljd');
+        await session.defaultSession.loadExtension(reduxPath);
+        const reactPath = path.join(app.getPath('userData'), 'extensions', 'fmkadmapgofadopljbjfkapdkoienihi');
+        await session.defaultSession.loadExtension(reactPath);
     }
     createWindow();
 });
