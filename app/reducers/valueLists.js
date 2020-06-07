@@ -26,6 +26,7 @@ import {
     UPD_ITEMDESCRIPTION,
     UPD_VLMITEMREFORDER,
     UPD_ITEMREFKEYORDER,
+    ADD_IMPORTMETADATA,
 } from 'constants/action-types';
 import { ValueList, ItemRef } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
@@ -420,6 +421,33 @@ const handleAddItemGroups = (state, action) => {
     return { ...state, ...allValueLists };
 };
 
+const addImportMetadata = (state, action) => {
+    let newState;
+    let { newValueLists, varResult } = action.updateObj;
+    // Add ValueLists
+    if (Object.keys(newValueLists).length > 0) {
+        newState = { ...state, ...newValueLists };
+    } else {
+        newState = state;
+    }
+    // Add ItemRefs
+    Object.values(varResult).forEach(varData => {
+        let { newVlmItemRefs, updatedVlmItemRefs } = varData;
+        Object.keys(newVlmItemRefs).forEach(valueListOid => {
+            let valueList = { ...newState[valueListOid] };
+            valueList.itemRefs = { ...valueList.itemRefs, ...newVlmItemRefs[valueListOid] };
+            valueList.itemRefOrder = valueList.itemRefOrder.concat(Object.keys(newVlmItemRefs[valueListOid]));
+            newState = { ...newState, [valueListOid]: valueList };
+        });
+        Object.keys(updatedVlmItemRefs).forEach(valueListOid => {
+            let valueList = { ...newState[valueListOid] };
+            valueList.itemRefs = { ...valueList.itemRefs, ...updatedVlmItemRefs[valueListOid] };
+            newState = { ...newState, [valueListOid]: valueList };
+        });
+    });
+    return newState;
+};
+
 const valueLists = (state = {}, action) => {
     switch (action.type) {
         case ADD_VALUELIST:
@@ -448,6 +476,8 @@ const valueLists = (state = {}, action) => {
             return insertValueLevel(state, action);
         case UPD_ITEMREFKEYORDER:
             return updateItemRefKeyOrder(state, action);
+        case ADD_IMPORTMETADATA:
+            return addImportMetadata(state, action);
         default:
             return state;
     }

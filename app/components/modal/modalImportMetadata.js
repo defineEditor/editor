@@ -131,7 +131,7 @@ const getStyles = makeStyles(theme => ({
 
 const varDefault = {
     isEnabled: false,
-    applyToVlm: false,
+    applyToVlm: true,
     conditions: [{ field: 'dataset', comparator: 'IN', selectedValues: [], regexIsValid: true }],
     connectors: [],
 };

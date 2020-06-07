@@ -172,8 +172,9 @@ Import and export metadata to different sources. When pasting metadata from Exce
 * fileTitle - Title used in Define-XML for the file
 #### Variable Attributes
 * dataset - **key** Dataset name. Must be present either in Define-XML or in the imported Dataset tab.
-* variable - **key** Variable name. Automatically upcased.
+* variable - **key** Variable name. Automatically upcased. For VLM records use format (parentVariable).(variable), e.g., AVAL.TEST1.
 * label - Variable label.
+* whereClause - Where clause. Use format: <condition1> \\[AND <condition2>\\], e.g.,*LBTESTCD EQ 'BILI' AND LBSPEC EQ "BLOOD"*. Must be used for VLM records only (see **variable** attribute description). See Define-XML specification for the definition of a valid where clause.
 * dataType - Type of the variable. See Define-XML specification for the list of valid types.
 * length - Variable length \\[***number***\\]
 * fractionDigits - Number of possible digits after the dot for float data type (SignificantDigits in Define-XML spec). \\[***number***\\]
