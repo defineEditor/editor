@@ -143,7 +143,9 @@ const checkDuplicateKeys = (data, keys) => {
     return hasDuplicateKeys;
 };
 
-const updateItemDef = (item, itemDef, stdConstants, model, mdv, options, errors) => {
+const updateItem = ({ item, itemDef, itemRef, stdConstants, model, mdv, options, errors,
+    currentCommentOids, currentMethodOids, itemGroupOid, methodResult, codeListResult, commentResult, removedSources, addedSources,
+} = {}) => {
     let defineVersion = mdv.defineVersion;
     // If it is a VLM, update the name to use only the second part (first part is the parent variable)
     if (/\S+\.\S+/.test(item.variable)) {
@@ -237,6 +239,143 @@ const updateItemDef = (item, itemDef, stdConstants, model, mdv, options, errors)
             }
 
             itemDef.origins[0] = { ...newOrigin };
+        }
+    }
+    // Comment
+    if (item.comment !== undefined) {
+        if (itemDef.commentOid === undefined) {
+            let commentOid = getOid('Comment', currentCommentOids);
+            currentCommentOids.push(commentOid);
+            let comment = new Comment({ oid: commentOid });
+            comment.sources.itemDefs = [itemDef.oid];
+            comment.setDescription(item.comment);
+            comment.descriptions = toSimpleObject(comment.descriptions);
+            itemDef.commentOid = commentOid;
+            commentResult[commentOid] = { ...comment };
+        } else {
+            let commentOid = itemDef.commentOid;
+            let comment = new Comment(clone(mdv.comments[commentOid]));
+            comment.setDescription(item.comment);
+            comment.descriptions = toSimpleObject(comment.descriptions);
+            itemDef.commentOid = commentOid;
+            // Check if comment was already updated in this import;
+            if (commentResult.hasOwnProperty(commentOid)) {
+                if (compareMethods(commentResult[commentOid], comment) === false) {
+                    errors.push({
+                        id: 'inconsistentImport',
+                        message: `Comment for **${itemDef.name || ''}** is used by different items and is imported more than once with different attributes. Either use the same values or unlink the comment first.`
+                    });
+                }
+            }
+            if (compareComments(mdv.comments[commentOid], comment) === false) {
+                commentResult[commentOid] = { ...comment };
+            }
+        }
+    } else if (item.hasOwnProperty('comment') && item.comment === undefined && itemDef.commentOid !== undefined) {
+        // Remove comment
+        let commentOid = itemDef.commentOid;
+        if (removedSources.comments[commentOid] === undefined) {
+            removedSources.comments[commentOid] = {};
+        }
+        if (removedSources.comments[commentOid].itemDefs === undefined) {
+            removedSources.comments[commentOid].itemDefs = [itemDef.oid];
+        } else {
+            removedSources.comments[commentOid].itemDefs.push(itemDef.oid);
+        }
+        itemDef.commentOid = undefined;
+    }
+    // Method
+    if (item.method !== undefined || item.methodName !== undefined) {
+        if (itemRef.methodOid === undefined) {
+            let methodOid = getOid('Method', currentMethodOids);
+            currentMethodOids.push(methodOid);
+            let method = new Method({ oid: methodOid });
+            method.sources.itemGroups[itemGroupOid] = [itemRef.oid];
+            if (item.method !== undefined) {
+                method.setDescription(item.method);
+                method.descriptions = toSimpleObject(method.descriptions);
+            }
+            if (item.methodName !== undefined) {
+                method.name = item.methodName;
+            }
+            itemRef.methodOid = methodOid;
+            methodResult[methodOid] = { ...method };
+        } else {
+            let methodOid = itemRef.methodOid;
+            let method = new Method(clone(mdv.methods[methodOid]));
+            if (item.method !== undefined) {
+                method.setDescription(item.method);
+                method.descriptions = toSimpleObject(method.descriptions);
+            }
+            if (item.methodName !== undefined) {
+                method.name = item.methodName;
+            }
+            itemRef.methodOid = methodOid;
+            // Check if method was already updated in this import;
+            if (methodResult.hasOwnProperty(methodOid)) {
+                if (compareMethods(methodResult[methodOid], method) === false) {
+                    errors.push({
+                        id: 'inconsistentImport',
+                        message: `Method "**${method.name || ''}**" is used by different variables and is imported more than once with different attributes. Either use the same values or unlink the method first.`
+                    });
+                }
+            }
+            if (compareMethods(mdv.methods[methodOid], method) === false) {
+                methodResult[methodOid] = { ...method };
+            }
+        }
+    } else if (item.hasOwnProperty('method') && item.method === undefined && itemRef.methodOid !== undefined) {
+        // Remove method
+        let methodOid = itemRef.methodOid;
+        if (removedSources.methods[methodOid] === undefined) {
+            removedSources.methods[methodOid] = {};
+        }
+        if (removedSources.methods[methodOid].itemGroups === undefined) {
+            removedSources.methods[methodOid].itemGroups = { [itemGroupOid]: [itemRef.oid] };
+        } else if (removedSources.methods[methodOid].itemGroups[itemGroupOid] === undefined) {
+            removedSources.methods[methodOid].itemGroups[itemGroupOid] = [itemRef.oid];
+        } else {
+            removedSources.methods[methodOid].itemGroups[itemGroupOid].push(itemRef.oid);
+        }
+        itemRef.methodOid = undefined;
+    }
+    // CodeList
+    if (item.codeList !== undefined && !(item.codeList === '' && itemDef.codeListOid === undefined)) {
+        if (item.codeList === '' && itemDef.codeListOid !== undefined) {
+            // Remove the codelist
+            removedSources.codeLists[itemDef.codeListOid].push(itemDef.oid);
+            itemDef.codeListOid = undefined;
+        } else {
+            // Search for the codelist OID
+            let codeListOid;
+            let allCodeLists = { ...mdv.codeLists };
+            if (codeListResult.newCodeLists) {
+                allCodeLists = { ...allCodeLists, ...codeListResult.newCodeLists };
+            }
+            let clFound = Object.values(allCodeLists).some(codeList => {
+                if (codeList.name === item.codeList) {
+                    codeListOid = codeList.oid;
+                    return true;
+                }
+            });
+            if (!clFound) {
+                errors.push({
+                    id: 'inconsistentImport',
+                    message: `Codelist "**${item.codeList}**" was not found for ${item.dataset + item.variable}`,
+                });
+                return;
+            }
+            if (itemDef.codeListOid !== codeListOid) {
+                // Remove source from the previous codelist
+                if (itemDef.codeListOid !== undefined) {
+                    removedSources.codeLists[itemDef.codeListOid] = removedSources.codeLists[itemDef.codeListOid] || [];
+                    removedSources.codeLists[itemDef.codeListOid].push(itemDef.oid);
+                }
+                // Add source to the new codelist
+                addedSources.codeLists[codeListOid] = addedSources.codeLists[codeListOid] || [];
+                addedSources.codeLists[codeListOid].push(itemDef.oid);
+                itemDef.codeListOid = codeListOid;
+            }
         }
     }
 };
@@ -372,9 +511,13 @@ const convertImportMetadata = (metadata) => {
     }
     let errors = [];
     let commentResult = {};
+    let addedSources = {
+        codeLists: {},
+    };
     let removedSources = {
         comments: {},
         methods: {},
+        codeLists: {},
     };
     let methodResult = {};
     let currentMethodOids = Object.keys(mdv.methods);
@@ -535,323 +678,6 @@ const convertImportMetadata = (metadata) => {
             }
         });
         dsResult = { newItemGroups, updatedItemGroups };
-    }
-    // Variables
-    let varResult = {};
-    if (varData && varData.length > 0) {
-        // Get the list of datasets
-        let currentItemDefOids = Object.keys(mdv.itemDefs);
-        let itemGroupOids = {};
-        let allItemGroups = { ...mdv.itemGroups };
-        if (dsResult.newItemGroups) {
-            allItemGroups = { ...allItemGroups, ...dsResult.newItemGroups };
-        }
-        if (checkDuplicateKeys(varData, ['dataset', 'variable'])) {
-            errors.push({
-                id: 'duplicateKeys',
-                message: 'There are duplicate keys for variable metadata. Attribute **dataset** and **variable** values must be unique.'
-            });
-        }
-        varData.forEach(item => {
-            if (!Object.keys(itemGroupOids).includes(item.dataset)) {
-                let dsFound = Object.values(allItemGroups).some(itemGroup => {
-                    if (itemGroup.name === item.dataset) {
-                        itemGroupOids[item.dataset] = itemGroup.oid;
-                        return true;
-                    }
-                });
-                if (!dsFound) {
-                    throw new Error(`Dataset ${item.dataset} is not defined.`);
-                }
-            }
-        });
-
-        Object.keys(itemGroupOids).forEach(dsName => {
-            // Get all variables for this dataset
-            let itemGroupOid = itemGroupOids[dsName];
-            let currentVars = varData.filter(item => dsName === item.dataset);
-            let existingDataset = Object.keys(mdv.itemGroups).includes(itemGroupOid);
-            let currentItemRefOids = allItemGroups[itemGroupOid].itemRefOrder.slice();
-            let newItemDefs = {};
-            let updatedItemDefs = {};
-            let newItemRefs = {};
-            let newVlmItemRefs = {};
-            let updatedItemRefs = {};
-            let updatedVlmItemRefs = {};
-            if (existingDataset) {
-                currentVars.forEach(item => {
-                    item = handleBlankAttributes(item, ignoreBlanks);
-                    errors = errors.concat(validateItemDef(item, stdConstants, model));
-                    errors = errors.concat(validateItemRef(item, stdConstants, model));
-                    const isVlm = /\S+\.\S+/.test(item.variable);
-                    // Check if variable exists
-                    let itemDefOid;
-                    let parentItemDef;
-                    let valueListOid;
-                    let allValueLists = mdv.valueLists;
-                    if (Object.keys(newValueLists).length > 0) {
-                        allValueLists = { ...allValueLists, ...newValueLists };
-                    }
-                    if (isVlm) {
-                        parentItemDef = getParentItemDef(item, { ...mdv.itemDefs, ...newItemDefs, ...updatedItemDefs }, itemGroupOid, errors);
-                        if (parentItemDef.valueListOid) {
-                            let vlmName = item.variable.replace(/(\S+)\.(.*)/, '$2');
-                            valueListOid = parentItemDef.valueListOid;
-                            itemDefOid = getOidByName(mdv, 'ValueLists', vlmName, parentItemDef.valueListOid);
-                        }
-                    } else {
-                        itemDefOid = getOidByName(mdv, 'ItemRefs', item.variable, itemGroupOid);
-                    }
-                    let itemDef;
-                    let itemRef;
-                    let isNewItem = false;
-                    if (itemDefOid !== undefined && !isVlm) {
-                        // Existing variable
-                        Object.values(mdv.itemGroups[itemGroupOid].itemRefs).some(existingItemRef => {
-                            if (existingItemRef.itemOid === itemDefOid) {
-                                itemRef = new ItemRef({ ...existingItemRef, ...item });
-                            }
-                        });
-                        itemDef = new ItemDef({ ...clone(mdv.itemDefs[itemDefOid]), ...item });
-                    } else if (itemDefOid !== undefined && isVlm) {
-                        // Existing VLM variable
-                        Object.values(allValueLists[valueListOid].itemRefs).some(existingItemRef => {
-                            if (existingItemRef.itemOid === itemDefOid) {
-                                itemRef = new ItemRef({ ...existingItemRef, ...item });
-                                if (item.whereClause !== undefined) {
-                                    itemRef.whereClauseOid = parseWhereClause(item.whereClause, itemRef.whereClauseOid,
-                                        updatedWhereClauses, newWhereClauses, itemGroupOid, valueListOid, mdv, errors
-                                    );
-                                }
-                            }
-                        });
-                        itemDef = new ItemDef({ ...clone(mdv.itemDefs[itemDefOid]), ...item });
-                    } else {
-                        // New variable
-                        isNewItem = true;
-                        itemDefOid = getOid('ItemDef', currentItemDefOids);
-                        currentItemDefOids.push(itemDefOid);
-                        itemDef = new ItemDef({ ...item, name: item.variable, oid: itemDefOid });
-                        if (isVlm) {
-                            itemDef.parentItemDefOid = parentItemDef.oid;
-                            if (parentItemDef.valueListOid !== undefined) {
-                                valueListOid = parentItemDef.valueListOid;
-                                itemDef.sources.valueLists = [parentItemDef.valueListOid];
-                                newVlmItemRefs[parentItemDef.valueListOid] = {};
-                            } else {
-                                // Create a new value list
-                                valueListOid = getOid('ValueList', Object.keys({ ...mdv.valueLists, ...newValueLists }));
-                                itemDef.sources.valueLists = [valueListOid];
-                                if (Object.keys({ ...newItemDefs, ...updatedItemDefs }).includes(parentItemDef.oid)) {
-                                    parentItemDef.valueListOid = valueListOid;
-                                } else {
-                                    // Add the parent itemDef to update, and specify a value list for it;
-                                    updatedItemDefs[parentItemDef.oid] = { ...new ItemDef({ ...clone(mdv.itemDefs[parentItemDef.oid]), valueListOid }) };
-                                }
-                                let valueList = new ValueList({ oid: valueListOid });
-                                valueList.sources.itemDefs = [parentItemDef.oid];
-                                newValueLists[valueListOid] = { ...valueList };
-                                newVlmItemRefs[valueListOid] = {};
-                            }
-                        } else {
-                            itemDef.sources.itemGroups = [itemGroupOid];
-                        }
-                        let itemRefOid = getOid('ItemRef', currentItemRefOids);
-                        currentItemRefOids.push(itemRefOid);
-                        itemRef = new ItemRef({ ...item, itemOid: itemDefOid, oid: itemRefOid });
-                        if (isVlm && item.whereClause !== undefined) {
-                            itemRef.whereClauseOid = parseWhereClause(item.whereClause, itemRef.whereClauseOid,
-                                updatedWhereClauses, newWhereClauses, itemGroupOid, valueListOid, mdv, errors
-                            );
-                        }
-                    }
-                    // Update main attributes
-                    updateItemDef(item, itemDef, stdConstants, model, mdv, options, errors);
-                    // Comment
-                    if (item.comment !== undefined) {
-                        if (itemDef.commentOid === undefined) {
-                            let commentOid = getOid('Comment', currentCommentOids);
-                            currentCommentOids.push(commentOid);
-                            let comment = new Comment({ oid: commentOid });
-                            comment.sources.itemDefs = [itemDef.oid];
-                            comment.setDescription(item.comment);
-                            comment.descriptions = toSimpleObject(comment.descriptions);
-                            itemDef.commentOid = commentOid;
-                            commentResult[commentOid] = { ...comment };
-                        } else {
-                            let commentOid = itemDef.commentOid;
-                            let comment = new Comment(clone(mdv.comments[commentOid]));
-                            comment.setDescription(item.comment);
-                            comment.descriptions = toSimpleObject(comment.descriptions);
-                            itemDef.commentOid = commentOid;
-                            // Check if comment was already updated in this import;
-                            if (commentResult.hasOwnProperty(commentOid)) {
-                                if (compareMethods(commentResult[commentOid], comment) === false) {
-                                    errors.push({
-                                        id: 'inconsistentImport',
-                                        message: `Comment for **${itemDef.name || ''}** is used by different items and is imported more than once with different attributes. Either use the same values or unlink the comment first.`
-                                    });
-                                }
-                            }
-                            if (compareComments(mdv.comments[commentOid], comment) === false) {
-                                commentResult[commentOid] = { ...comment };
-                            }
-                        }
-                    } else if (item.hasOwnProperty('comment') && item.comment === undefined && itemDef.commentOid !== undefined) {
-                        // Remove comment
-                        let commentOid = itemDef.commentOid;
-                        if (removedSources.comments[commentOid] === undefined) {
-                            removedSources.comments[commentOid] = {};
-                        }
-                        if (removedSources.comments[commentOid].itemDefs === undefined) {
-                            removedSources.comments[commentOid].itemDefs = [itemDef.oid];
-                        } else {
-                            removedSources.comments[commentOid].itemDefs.push(itemDef.oid);
-                        }
-                        itemDef.commentOid = undefined;
-                    }
-                    // Method
-                    if (item.method !== undefined || item.methodName !== undefined) {
-                        if (itemRef.methodOid === undefined) {
-                            let methodOid = getOid('Method', currentMethodOids);
-                            currentMethodOids.push(methodOid);
-                            let method = new Method({ oid: methodOid });
-                            method.sources.itemGroups[itemGroupOid] = [itemRef.oid];
-                            if (item.method !== undefined) {
-                                method.setDescription(item.method);
-                                method.descriptions = toSimpleObject(method.descriptions);
-                            }
-                            if (item.methodName !== undefined) {
-                                method.name = item.methodName;
-                            }
-                            itemRef.methodOid = methodOid;
-                            methodResult[methodOid] = { ...method };
-                        } else {
-                            let methodOid = itemRef.methodOid;
-                            let method = new Method(clone(mdv.methods[methodOid]));
-                            if (item.method !== undefined) {
-                                method.setDescription(item.method);
-                                method.descriptions = toSimpleObject(method.descriptions);
-                            }
-                            if (item.methodName !== undefined) {
-                                method.name = item.methodName;
-                            }
-                            itemRef.methodOid = methodOid;
-                            // Check if method was already updated in this import;
-                            if (methodResult.hasOwnProperty(methodOid)) {
-                                if (compareMethods(methodResult[methodOid], method) === false) {
-                                    errors.push({
-                                        id: 'inconsistentImport',
-                                        message: `Method "**${method.name || ''}**" is used by different variables and is imported more than once with different attributes. Either use the same values or unlink the method first.`
-                                    });
-                                }
-                            }
-                            if (compareMethods(mdv.methods[methodOid], method) === false) {
-                                methodResult[methodOid] = { ...method };
-                            }
-                        }
-                    } else if (item.hasOwnProperty('method') && item.method === undefined && itemRef.methodOid !== undefined) {
-                        // Remove method
-                        let methodOid = itemRef.methodOid;
-                        if (removedSources.methods[methodOid] === undefined) {
-                            removedSources.methods[methodOid] = {};
-                        }
-                        if (removedSources.methods[methodOid].itemGroups === undefined) {
-                            removedSources.methods[methodOid].itemGroups = { [itemGroupOid]: [itemRef.oid] };
-                        } else if (removedSources.methods[methodOid].itemGroups[itemGroupOid] === undefined) {
-                            removedSources.methods[methodOid].itemGroups[itemGroupOid] = [itemRef.oid];
-                        } else {
-                            removedSources.methods[methodOid].itemGroups[itemGroupOid].push(itemRef.oid);
-                        }
-                        itemRef.methodOid = undefined;
-                    }
-                    // Write results
-                    if (isNewItem) {
-                        newItemDefs[itemDefOid] = { ...itemDef };
-                        if (isVlm) {
-                            newVlmItemRefs[valueListOid][itemRef.oid] = { ...itemRef };
-                        } else {
-                            newItemRefs[itemRef.oid] = { ...itemRef };
-                        }
-                    } else {
-                        itemDef = { ...itemDef };
-                        let updatedItemDef = handleBlankAttributes(itemDef, false, true);
-                        let originalItemDef = handleBlankAttributes(mdv.itemDefs[itemDefOid], false, true);
-                        if (!deepEqual(originalItemDef, updatedItemDef)) {
-                            updatedItemDefs[itemDefOid] = { ...itemDef };
-                        }
-                        itemRef = { ...itemRef };
-                        let updatedItemRef = handleBlankAttributes(itemRef, false, true);
-                        if (isVlm) {
-                            let originalItemRef = handleBlankAttributes(mdv.valueLists[valueListOid].itemRefs[itemRef.oid], false, true);
-                            if (!deepEqual(originalItemRef, updatedItemRef)) {
-                                updatedVlmItemRefs[valueListOid] = updatedVlmItemRefs[valueListOid] || {};
-                                updatedVlmItemRefs[valueListOid][itemRef.oid] = { ...itemRef };
-                            }
-                        } else {
-                            let originalItemRef = handleBlankAttributes(mdv.itemGroups[itemGroupOid].itemRefs[itemRef.oid], false, true);
-                            if (!deepEqual(originalItemRef, updatedItemRef)) {
-                                updatedItemRefs[itemRef.oid] = { ...itemRef };
-                            }
-                        }
-                    }
-                });
-            } else {
-                currentVars.forEach(item => {
-                    item = handleBlankAttributes(item, ignoreBlanks);
-                    let itemDefOid = getOid('ItemDef', currentItemDefOids);
-                    currentItemDefOids.push(itemDefOid);
-                    let itemDef = new ItemDef({ ...item, name: item.variable, oid: itemDefOid });
-                    updateItemDef(item, itemDef, stdConstants, model, mdv, options, errors);
-                    let itemRefOid = getOid('ItemRef', currentItemRefOids);
-                    currentItemRefOids.push(itemRefOid);
-                    let itemRef = new ItemRef({ ...item, itemOid: itemDefOid, oid: itemRefOid });
-
-                    const isVlm = /\S+\.\S+/.test(item.variable);
-                    if (isVlm) {
-                        let parentItemDef;
-                        parentItemDef = getParentItemDef(item, { ...mdv.itemDefs, ...newItemDefs, ...updatedItemDefs }, itemGroupOid, errors);
-                        itemDef.parentItemDefOid = parentItemDef.oid;
-                        let valueListOid;
-                        if (parentItemDef.valueListOid) {
-                            valueListOid = parentItemDef.valueListOid;
-                        } else {
-                            // Create a new value list
-                            valueListOid = getOid('ValueList', Object.keys({ ...mdv.valueLists, ...newValueLists }));
-                            if (Object.keys({ ...newItemDefs, ...updatedItemDefs }).includes(parentItemDef.oid)) {
-                                parentItemDef.valueListOid = valueListOid;
-                            } else {
-                                // Add the parent itemDef to update, and specify a value list for it;
-                                updatedItemDefs[parentItemDef.oid] = { ...new ItemDef({ ...clone(mdv.itemDefs[parentItemDef.oid]), valueListOid }) };
-                            }
-                            let valueList = new ValueList({ oid: valueListOid });
-                            valueList.sources.itemDefs = [parentItemDef.oid];
-                            newValueLists[valueListOid] = { ...valueList };
-                        }
-                        if (item.whereClause !== undefined) {
-                            itemRef.whereClauseOid = parseWhereClause(item.whereClause, itemRef.whereClauseOid,
-                                updatedWhereClauses, newWhereClauses, itemGroupOid, valueListOid, mdv, errors
-                            );
-                        }
-                        if (newVlmItemRefs[valueListOid] !== undefined) {
-                            newVlmItemRefs[valueListOid][itemRef.oid] = { ...itemRef };
-                        } else {
-                            newVlmItemRefs[valueListOid] = { [itemRef.oid]: { ...itemRef } };
-                        }
-                        itemDef.sources.valueLists = [valueListOid];
-                        newItemDefs[itemDefOid] = { ...itemDef };
-                    } else {
-                        itemDef.sources.itemGroups = [itemGroupOid];
-                        newItemRefs[itemRef.oid] = { ...itemRef };
-                        newItemDefs[itemDefOid] = { ...itemDef };
-                    }
-                });
-            }
-            // Handle new/updated VLM records;
-            if (Object.keys({ ...newItemDefs, ...updatedItemDefs, ...newItemRefs, ...updatedItemRefs, ...newVlmItemRefs, ...updatedVlmItemRefs }).length > 0) {
-                varResult[itemGroupOid] = { newItemDefs, updatedItemDefs, newItemRefs, updatedItemRefs, newVlmItemRefs, updatedVlmItemRefs };
-            }
-        });
     }
     // Codelists
     let codeListResult = {};
@@ -1089,10 +915,240 @@ const convertImportMetadata = (metadata) => {
             }
         });
     }
+    // Variables
+    let varResult = {};
+    if (varData && varData.length > 0) {
+        // Get the list of datasets
+        let currentItemDefOids = Object.keys(mdv.itemDefs);
+        let itemGroupOids = {};
+        let allItemGroups = { ...mdv.itemGroups };
+        if (dsResult.newItemGroups) {
+            allItemGroups = { ...allItemGroups, ...dsResult.newItemGroups };
+        }
+        if (checkDuplicateKeys(varData, ['dataset', 'variable'])) {
+            errors.push({
+                id: 'duplicateKeys',
+                message: 'There are duplicate keys for variable metadata. Attribute **dataset** and **variable** values must be unique.'
+            });
+        }
+        varData.forEach(item => {
+            if (!Object.keys(itemGroupOids).includes(item.dataset)) {
+                let dsFound = Object.values(allItemGroups).some(itemGroup => {
+                    if (itemGroup.name === item.dataset) {
+                        itemGroupOids[item.dataset] = itemGroup.oid;
+                        return true;
+                    }
+                });
+                if (!dsFound) {
+                    throw new Error(`Dataset ${item.dataset} is not defined.`);
+                }
+            }
+        });
+
+        Object.keys(itemGroupOids).forEach(dsName => {
+            // Get all variables for this dataset
+            let itemGroupOid = itemGroupOids[dsName];
+            let currentVars = varData.filter(item => dsName === item.dataset);
+            let existingDataset = Object.keys(mdv.itemGroups).includes(itemGroupOid);
+            let currentItemRefOids = allItemGroups[itemGroupOid].itemRefOrder.slice();
+            let newItemDefs = {};
+            let updatedItemDefs = {};
+            let newItemRefs = {};
+            let newVlmItemRefs = {};
+            let updatedItemRefs = {};
+            let updatedVlmItemRefs = {};
+            if (existingDataset) {
+                currentVars.forEach(item => {
+                    item = handleBlankAttributes(item, ignoreBlanks);
+                    errors = errors.concat(validateItemDef(item, stdConstants, model));
+                    errors = errors.concat(validateItemRef(item, stdConstants, model));
+                    const isVlm = /\S+\.\S+/.test(item.variable);
+                    // Check if variable exists
+                    let itemDefOid;
+                    let parentItemDef;
+                    let valueListOid;
+                    let allValueLists = mdv.valueLists;
+                    if (Object.keys(newValueLists).length > 0) {
+                        allValueLists = { ...allValueLists, ...newValueLists };
+                    }
+                    if (isVlm) {
+                        parentItemDef = getParentItemDef(item, { ...mdv.itemDefs, ...newItemDefs, ...updatedItemDefs }, itemGroupOid, errors);
+                        if (parentItemDef.valueListOid) {
+                            let vlmName = item.variable.replace(/(\S+)\.(.*)/, '$2');
+                            valueListOid = parentItemDef.valueListOid;
+                            itemDefOid = getOidByName(mdv, 'ValueLists', vlmName, parentItemDef.valueListOid);
+                        }
+                    } else {
+                        itemDefOid = getOidByName(mdv, 'ItemRefs', item.variable, itemGroupOid);
+                    }
+                    let itemDef;
+                    let itemRef;
+                    let isNewItem = false;
+                    if (itemDefOid !== undefined && !isVlm) {
+                        // Existing variable
+                        Object.values(mdv.itemGroups[itemGroupOid].itemRefs).some(existingItemRef => {
+                            if (existingItemRef.itemOid === itemDefOid) {
+                                itemRef = new ItemRef({ ...existingItemRef, ...item });
+                            }
+                        });
+                        itemDef = new ItemDef({ ...clone(mdv.itemDefs[itemDefOid]), ...item });
+                    } else if (itemDefOid !== undefined && isVlm) {
+                        // Existing VLM variable
+                        Object.values(allValueLists[valueListOid].itemRefs).some(existingItemRef => {
+                            if (existingItemRef.itemOid === itemDefOid) {
+                                itemRef = new ItemRef({ ...existingItemRef, ...item });
+                                if (item.whereClause !== undefined) {
+                                    itemRef.whereClauseOid = parseWhereClause(item.whereClause, itemRef.whereClauseOid,
+                                        updatedWhereClauses, newWhereClauses, itemGroupOid, valueListOid, mdv, errors
+                                    );
+                                }
+                            }
+                        });
+                        itemDef = new ItemDef({ ...clone(mdv.itemDefs[itemDefOid]), ...item });
+                    } else {
+                        // New variable
+                        isNewItem = true;
+                        itemDefOid = getOid('ItemDef', currentItemDefOids);
+                        currentItemDefOids.push(itemDefOid);
+                        itemDef = new ItemDef({ ...item, name: item.variable, oid: itemDefOid });
+                        if (isVlm) {
+                            itemDef.parentItemDefOid = parentItemDef.oid;
+                            if (parentItemDef.valueListOid !== undefined) {
+                                valueListOid = parentItemDef.valueListOid;
+                                itemDef.sources.valueLists = [parentItemDef.valueListOid];
+                                newVlmItemRefs[parentItemDef.valueListOid] = {};
+                            } else {
+                                // Create a new value list
+                                valueListOid = getOid('ValueList', Object.keys({ ...mdv.valueLists, ...newValueLists }));
+                                itemDef.sources.valueLists = [valueListOid];
+                                if (Object.keys({ ...newItemDefs, ...updatedItemDefs }).includes(parentItemDef.oid)) {
+                                    parentItemDef.valueListOid = valueListOid;
+                                } else {
+                                    // Add the parent itemDef to update, and specify a value list for it;
+                                    updatedItemDefs[parentItemDef.oid] = { ...new ItemDef({ ...clone(mdv.itemDefs[parentItemDef.oid]), valueListOid }) };
+                                }
+                                let valueList = new ValueList({ oid: valueListOid });
+                                valueList.sources.itemDefs = [parentItemDef.oid];
+                                newValueLists[valueListOid] = { ...valueList };
+                                newVlmItemRefs[valueListOid] = {};
+                            }
+                        } else {
+                            itemDef.sources.itemGroups = [itemGroupOid];
+                        }
+                        let itemRefOid = getOid('ItemRef', currentItemRefOids);
+                        currentItemRefOids.push(itemRefOid);
+                        itemRef = new ItemRef({ ...item, itemOid: itemDefOid, oid: itemRefOid });
+                        if (isVlm && item.whereClause !== undefined) {
+                            itemRef.whereClauseOid = parseWhereClause(item.whereClause, itemRef.whereClauseOid,
+                                updatedWhereClauses, newWhereClauses, itemGroupOid, valueListOid, mdv, errors
+                            );
+                        }
+                    }
+                    // Update main attributes
+                    updateItem({ item, itemDef, itemRef, stdConstants, model, mdv, options, errors, currentCommentOids, currentMethodOids, itemGroupOid, methodResult, codeListResult, commentResult, removedSources, addedSources });
+                    // Write results
+                    if (isNewItem) {
+                        newItemDefs[itemDefOid] = { ...itemDef };
+                        if (isVlm) {
+                            newVlmItemRefs[valueListOid][itemRef.oid] = { ...itemRef };
+                        } else {
+                            newItemRefs[itemRef.oid] = { ...itemRef };
+                        }
+                    } else {
+                        itemDef = { ...itemDef };
+                        let updatedItemDef = handleBlankAttributes(itemDef, false, true);
+                        let originalItemDef = handleBlankAttributes(mdv.itemDefs[itemDefOid], false, true);
+                        if (!deepEqual(originalItemDef, updatedItemDef)) {
+                            updatedItemDefs[itemDefOid] = { ...itemDef };
+                        }
+                        itemRef = { ...itemRef };
+                        let updatedItemRef = handleBlankAttributes(itemRef, false, true);
+                        if (isVlm) {
+                            let originalItemRef = handleBlankAttributes(mdv.valueLists[valueListOid].itemRefs[itemRef.oid], false, true);
+                            if (!deepEqual(originalItemRef, updatedItemRef)) {
+                                updatedVlmItemRefs[valueListOid] = updatedVlmItemRefs[valueListOid] || {};
+                                updatedVlmItemRefs[valueListOid][itemRef.oid] = { ...itemRef };
+                            }
+                        } else {
+                            let originalItemRef = handleBlankAttributes(mdv.itemGroups[itemGroupOid].itemRefs[itemRef.oid], false, true);
+                            if (!deepEqual(originalItemRef, updatedItemRef)) {
+                                updatedItemRefs[itemRef.oid] = { ...itemRef };
+                            }
+                        }
+                    }
+                });
+            } else {
+                currentVars.forEach(item => {
+                    item = handleBlankAttributes(item, ignoreBlanks);
+                    let itemDefOid = getOid('ItemDef', currentItemDefOids);
+                    currentItemDefOids.push(itemDefOid);
+                    let itemDef = new ItemDef({ ...item, name: item.variable, oid: itemDefOid });
+                    let itemRefOid = getOid('ItemRef', currentItemRefOids);
+                    currentItemRefOids.push(itemRefOid);
+                    let itemRef = new ItemRef({ ...item, itemOid: itemDefOid, oid: itemRefOid });
+                    updateItem({ item, itemDef, itemRef, stdConstants, model, mdv, options, errors, currentCommentOids, currentMethodOids, itemGroupOid, methodResult, codeListResult, commentResult, removedSources, addedSources });
+
+                    const isVlm = /\S+\.\S+/.test(item.variable);
+                    if (isVlm) {
+                        let parentItemDef;
+                        parentItemDef = getParentItemDef(item, { ...mdv.itemDefs, ...newItemDefs, ...updatedItemDefs }, itemGroupOid, errors);
+                        itemDef.parentItemDefOid = parentItemDef.oid;
+                        let valueListOid;
+                        if (parentItemDef.valueListOid) {
+                            valueListOid = parentItemDef.valueListOid;
+                        } else {
+                            // Create a new value list
+                            valueListOid = getOid('ValueList', Object.keys({ ...mdv.valueLists, ...newValueLists }));
+                            if (Object.keys({ ...newItemDefs, ...updatedItemDefs }).includes(parentItemDef.oid)) {
+                                parentItemDef.valueListOid = valueListOid;
+                            } else {
+                                // Add the parent itemDef to update, and specify a value list for it;
+                                updatedItemDefs[parentItemDef.oid] = { ...new ItemDef({ ...clone(mdv.itemDefs[parentItemDef.oid]), valueListOid }) };
+                            }
+                            let valueList = new ValueList({ oid: valueListOid });
+                            valueList.sources.itemDefs = [parentItemDef.oid];
+                            newValueLists[valueListOid] = { ...valueList };
+                        }
+                        if (item.whereClause !== undefined) {
+                            itemRef.whereClauseOid = parseWhereClause(item.whereClause, itemRef.whereClauseOid,
+                                updatedWhereClauses, newWhereClauses, itemGroupOid, valueListOid, mdv, errors
+                            );
+                        }
+                        if (newVlmItemRefs[valueListOid] !== undefined) {
+                            newVlmItemRefs[valueListOid][itemRef.oid] = { ...itemRef };
+                        } else {
+                            newVlmItemRefs[valueListOid] = { [itemRef.oid]: { ...itemRef } };
+                        }
+                        itemDef.sources.valueLists = [valueListOid];
+                        newItemDefs[itemDefOid] = { ...itemDef };
+                    } else {
+                        itemDef.sources.itemGroups = [itemGroupOid];
+                        newItemRefs[itemRef.oid] = { ...itemRef };
+                        newItemDefs[itemDefOid] = { ...itemDef };
+                    }
+                });
+            }
+            // Handle new/updated VLM records;
+            if (Object.keys({ ...newItemDefs, ...updatedItemDefs, ...newItemRefs, ...updatedItemRefs, ...newVlmItemRefs, ...updatedVlmItemRefs }).length > 0) {
+                varResult[itemGroupOid] = { newItemDefs, updatedItemDefs, newItemRefs, updatedItemRefs, newVlmItemRefs, updatedVlmItemRefs };
+            }
+        });
+    }
     if (errors.length > 0) {
         throw new Error(errors.map(error => error.message).join(' \n\n'));
     }
-    return { dsResult, varResult, codeListResult, commentResult, methodResult, newValueLists, removedSources, newWhereClauses, updatedWhereClauses };
+    return {
+        dsResult,
+        varResult,
+        codeListResult,
+        commentResult,
+        methodResult,
+        newValueLists,
+        removedSources,
+        addedSources,
+        newWhereClauses,
+        updatedWhereClauses,
+    };
 };
 
 export default convertImportMetadata;

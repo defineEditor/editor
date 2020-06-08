@@ -77,7 +77,7 @@ const attributes = {
     dataset: ['label', 'class', 'domain', 'domainDescription', 'sasDatasetName',
         'repeating', 'isReferenceData', 'hasNoData', 'purpose', 'structure', 'comment', 'note', 'fileName', 'fileTitle'
     ],
-    variable: ['label', 'whereClause', 'dataType', 'length', 'fractionDigits', 'sasFieldName',
+    variable: ['label', 'whereClause', 'dataType', 'length', 'fractionDigits', 'sasFieldName', 'codeList',
         'displayFormat', 'role', 'mandatory', 'comment', 'method', 'methodName', 'note', 'lengthAsData', 'lengthAsCodeList', 'originType', 'originDescription', 'crfPages'
     ],
     codeList: ['type', 'dataType', 'formatName'],
@@ -254,6 +254,9 @@ const LoadFromDefine = (props) => {
                             }
                             if (selectedAttrs.includes('role')) {
                                 item.role = itemRef.role;
+                            }
+                            if (selectedAttrs.includes('codeList') && itemDef.codeListOid !== undefined) {
+                                item.codeList = mdv.codeLists[itemDef.codeListOid].name;
                             }
                             if (selectedAttrs.includes('originType') && itemDef.origins.length > 0) {
                                 item.originType = itemDef.origins[0].type;
