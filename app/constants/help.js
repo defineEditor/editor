@@ -174,11 +174,12 @@ Import and export metadata to different sources. When pasting metadata from Exce
 * dataset - **key** Dataset name. Must be present either in Define-XML or in the imported Dataset tab.
 * variable - **key** Variable name. Automatically upcased. For VLM records use format (parentVariable).(variable), e.g., AVAL.TEST1.
 * label - Variable label.
-* whereClause - Where clause. Use format: <condition1> \\[AND <condition2>\\], e.g.,*LBTESTCD EQ 'BILI' AND LBSPEC EQ "BLOOD"*. Must be used for VLM records only (see **variable** attribute description). See Define-XML specification for the definition of a valid where clause.
+* whereClause - Where clause. Use format: <VAR operator "VALUE"> \\[AND <condition2>\\], e.g.,*LBTESTCD EQ 'TEST1' AND LBSPEC IN ("SPEC1", "SPEC2")*. Must be used for VLM records only (see **variable** attribute description). See Define-XML specification for the definition of a valid where clause.
 * dataType - Type of the variable. See Define-XML specification for the list of valid types.
 * length - Variable length \\[***number***\\]
 * fractionDigits - Number of possible digits after the dot for float data type (SignificantDigits in Define-XML spec). \\[***number***\\]
 * sasFieldName - SAS variable name
+* codeList - Name of a codelist
 * displayFormat - Format (usually SAS format)
 * role - Variable role. See SDTM IG for the list of possible roles.
 * mandatory - Mandatory flag \\[Yes, No\\]
@@ -203,5 +204,26 @@ Import and export metadata to different sources. When pasting metadata from Exce
 * codedValue - **key** Codelist type. \\[enumerated, decoded, external\\]
 * decode - Decode value. Must be used only for codelists, which have type decoded.
 * rank - Rank value
+`
+};
+
+export const STD_VDE_ATTRIBUTES = {
+    title: 'Visual Define-XML Attributes',
+    content: `
+#### About
+These attributes are not saved in the Define-XML file and are used only by the Visual Define-XML Editor.
+* **Name** - Name of Define-XML as it is shown on the Studies tab.
+* **Define-XML Location** - Path to the file. It is used when the 'Write changes to Define-XML file when saving the current Define-XML document' setting is enabled.
+* **Language (xml:lang)** - Language used for TranslatedText elements. If left as blank, the original or default value will be written. By default for all new elements 'en' value is used.
+`
+};
+
+export const STD_MDV_LANG_ATTRIBUTES = {
+    title: 'MetadataVersion and Language Attributes',
+    content: `
+#### About
+* **Name**
+* **Description**
+* **Language (xml:lang)** - Language used for TranslatedText elements. If left as blank, the original or default value will be written. By default for all new elements 'en' value is used.
 `
 };

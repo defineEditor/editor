@@ -19,6 +19,7 @@ import { connect } from 'react-redux';
 import CommentIcon from '@material-ui/icons/Comment';
 import EditIcon from '@material-ui/icons/Edit';
 import IconButton from '@material-ui/core/IconButton';
+import InternalHelp from 'components/utils/internalHelp.js';
 import {
     openModal,
 } from 'actions/index.js';
@@ -54,7 +55,7 @@ class ConnectedFormattingControlIcons extends React.Component {
     render () {
         // Get comment stats
         let commentPresent;
-        const { type, reviewMode } = this.props;
+        const { type, reviewMode, helpData } = this.props;
         if (type === undefined) {
             commentPresent = false;
         } else if (type === 'odm') {
@@ -78,6 +79,9 @@ class ConnectedFormattingControlIcons extends React.Component {
                         <CommentIcon/>
                     </IconButton>
                 )}
+                { helpData !== undefined && (
+                    <InternalHelp data={helpData} buttonClass={classes.icon} buttonType='icon' />
+                )}
             </React.Fragment>
         );
     }
@@ -87,7 +91,7 @@ ConnectedFormattingControlIcons.propTypes = {
     reviewMode: PropTypes.bool.isRequired,
     openModal: PropTypes.func.isRequired,
     onEdit: PropTypes.func.isRequired,
-    onHelp: PropTypes.func,
+    helpData: PropTypes.object,
     onComment: PropTypes.func,
     type: PropTypes.string,
     odm: PropTypes.object.isRequired,

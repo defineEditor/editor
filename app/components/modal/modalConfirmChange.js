@@ -66,7 +66,7 @@ const mapDispatchToProps = dispatch => {
 class ConnectedModalConfirmChange extends React.Component {
     onContinue = () => {
         // Change must be called after the current Define-XML is saved
-        this.props.closeModal();
+        this.props.closeModal('CONFIRM_CHANGE');
         if (this.props.type === 'CHANGETAB') {
             this.props.changeTab(JSON.parse(this.props.updateObj));
         } else if (this.props.type === 'SELECTGROUP') {
@@ -75,7 +75,7 @@ class ConnectedModalConfirmChange extends React.Component {
     }
 
     onCancel = () => {
-        this.props.closeModal({ type: this.props.type });
+        this.props.closeModal('CONFIRM_CHANGE');
     }
 
     onKeyDown = (event) => {

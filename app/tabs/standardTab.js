@@ -33,6 +33,7 @@ import StandardEditor from 'editors/standardEditor.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import getModelFromStandard from 'utils/getModelFromStandard.js';
 import getArmResultDisplayOids from 'utils/getArmResultDisplayOids.js';
+import { STD_MDV_LANG_ATTRIBUTES } from 'constants/help.js';
 import {
     updateGlobalVariablesAndStudyOid,
     updateMetaDataVersion,
@@ -76,6 +77,7 @@ const mapStateToProps = state => {
     }
     const mdvAttrs = {
         name: state.present.odm.study.metaDataVersion.name,
+        lang: state.present.odm.study.metaDataVersion.lang,
         description,
         comment,
     };
@@ -99,7 +101,6 @@ const mapStateToProps = state => {
         studyOid: state.present.odm.study.oid,
         standards: state.present.odm.study.metaDataVersion.standards,
         standardOrder: state.present.odm.study.metaDataVersion.order.standardOrder,
-        lang: state.present.odm.study.metaDataVersion.lang,
         model: state.present.odm.study.metaDataVersion.model,
         stdConstants: state.present.stdConstants,
         controlledTerminology: state.present.controlledTerminology,
@@ -404,6 +405,7 @@ class ConnectedStandardTable extends React.Component {
                             mdvAttrs={this.props.mdvAttrs}
                             defineVersion={this.props.defineVersion}
                             onEdit={this.handleChange('metaDataVersionEdit')}
+                            helpData={STD_MDV_LANG_ATTRIBUTES}
                         />
                     )
                     }
@@ -495,7 +497,6 @@ ConnectedStandardTable.propTypes = {
     defineVersion: PropTypes.string.isRequired,
     stdConstants: PropTypes.object.isRequired,
     analysisResultDisplays: PropTypes.object,
-    lang: PropTypes.string.isRequired,
 };
 ConnectedStandardTable.displayName = 'StandardTable';
 
