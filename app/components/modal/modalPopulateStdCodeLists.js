@@ -35,7 +35,6 @@ import {
     closeModal,
     openSnackbar,
 } from 'actions/index.js';
-import { CODELIST_POPULATESTD } from 'constants/help.js';
 
 const styles = theme => ({
     dialog: {
@@ -304,7 +303,7 @@ class ConnectedModalAttachStdCodelists extends React.Component {
             >
                 <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
                     Populate Standard Codelists
-                    <InternalHelp data={CODELIST_POPULATESTD} />
+                    <InternalHelp helpId='CODELIST_POPULATESTD'/>
                 </DialogTitle>
                 <DialogContent>
                     <Grid

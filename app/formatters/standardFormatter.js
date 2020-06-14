@@ -77,7 +77,7 @@ class StandardFormatter extends React.Component {
             <Paper className={classes.mainPart} elevation={4}>
                 <Typography variant="h5">
                     Standard
-                    <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment}/>
+                    <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} helpId='STD_STANDARD'/>
                 </Typography>
                 <Table>
                     <TableHead>
@@ -85,7 +85,7 @@ class StandardFormatter extends React.Component {
                             <TableCell>Name</TableCell>
                             <TableCell>Version</TableCell>
                             { isAdam &&
-                                    <TableCell>Analysis Result Metadata</TableCell>
+                                    <TableCell>Analysis Results Metadata</TableCell>
                             }
                         </TableRow>
                     </TableHead>

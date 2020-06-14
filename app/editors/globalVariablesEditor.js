@@ -65,8 +65,8 @@ class GlobalVariablesEditor extends React.Component {
         return (
             <Paper className={classes.globalVariables} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Typography variant="h5">
-                    Global Variables and Study OID
-                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
+                    Global Variables &amp; Study OID
+                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} helpId='STD_GLOBVAR'/>
                 </Typography>
                 <List>
                     <ListItem dense>

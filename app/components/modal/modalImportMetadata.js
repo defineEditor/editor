@@ -38,7 +38,6 @@ import LoadFromDefine from 'components/utils/loadFromDefine.js';
 import convertImportMetadata from 'utils/convertImportMetadata.js';
 import MetadataImportTableView from 'components/utils/metadataImportTableView.js';
 import ImportMetadataOptions from 'components/utils/importMetadataOptions.js';
-import { IMPORT_METADATA } from 'constants/help.js';
 import {
     openModal,
     closeModal,
@@ -421,7 +420,7 @@ const ModalImportMetadata = (props) => {
                         <Toolbar variant="dense">
                             <Typography className={classes.titleLabel} variant="h6" noWrap>
                                 Import Metadata
-                                <InternalHelp data={IMPORT_METADATA} buttonClass={classes.helpIcon} />
+                                <InternalHelp helpId='IMPORT_METADATA' buttonClass={classes.helpIcon} />
                             </Typography>
                             <Typography className={classes.formatLabel} variant="h6" noWrap>
                                 Format:

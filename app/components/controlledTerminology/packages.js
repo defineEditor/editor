@@ -37,7 +37,6 @@ import GeneralTable from 'components/utils/generalTable.js';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import ControlledTerminologyBreadcrumbs from 'components/controlledTerminology/breadcrumbs.js';
-import { CT_LOCATION } from 'constants/help.js';
 import {
     updateControlledTerminology,
     addControlledTerminology,
@@ -416,7 +415,7 @@ class ConnectedPackages extends React.Component {
         );
         result.push(
             <InternalHelp
-                data={CT_LOCATION}
+                helpId='CT_LOCATION'
                 size='medium'
                 buttonClass={classes.toolbarFab}
             />

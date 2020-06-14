@@ -38,7 +38,7 @@ class OtherAttributesFormatter extends React.Component {
             <Paper className={classes.otherAttributes} elevation={4}>
                 <Typography variant="h5">
                     Visual Define-XML Editor Attributes
-                    <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment}/>
+                    <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} helpId='STD_VDE_ATTRIBUTES'/>
                 </Typography>
                 <List>
                     <ListItem>

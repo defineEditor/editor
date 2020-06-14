@@ -33,7 +33,6 @@ import StandardEditor from 'editors/standardEditor.js';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import getModelFromStandard from 'utils/getModelFromStandard.js';
 import getArmResultDisplayOids from 'utils/getArmResultDisplayOids.js';
-import { STD_MDV_LANG_ATTRIBUTES } from 'constants/help.js';
 import {
     updateGlobalVariablesAndStudyOid,
     updateMetaDataVersion,
@@ -161,6 +160,9 @@ class ConnectedStandardTable extends React.Component {
                 updateObj.description = undefined;
             } else if (this.props.mdvAttrs.description !== returnValue.description) {
                 updateObj.description = returnValue.description;
+            }
+            if (this.props.mdvAttrs.lang !== returnValue.lang) {
+                updateObj.lang = returnValue.lang;
             }
 
             if (Object.keys(updateObj).length > 0) {
@@ -405,7 +407,6 @@ class ConnectedStandardTable extends React.Component {
                             mdvAttrs={this.props.mdvAttrs}
                             defineVersion={this.props.defineVersion}
                             onEdit={this.handleChange('metaDataVersionEdit')}
-                            helpData={STD_MDV_LANG_ATTRIBUTES}
                         />
                     )
                     }

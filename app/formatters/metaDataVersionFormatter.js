@@ -38,8 +38,13 @@ class MetaDataVersionFormatter extends React.Component {
         return (
             <Paper className={classes.metaDataVersion} elevation={4}>
                 <Typography variant="h5">
-                    Metadata Version
-                    <FormattingControlIcons onEdit={this.props.onEdit} onComment={this.props.onComment} type='metaDataVersion' helpData={this.props.helpData}/>
+                    Metadata Version &amp; Language
+                    <FormattingControlIcons
+                        onEdit={this.props.onEdit}
+                        onComment={this.props.onComment}
+                        type='metaDataVersion'
+                        helpId='STD_MDV_LANG_ATTRIBUTES'
+                    />
                 </Typography>
                 <List>
                     <ListItem>
@@ -49,7 +54,7 @@ class MetaDataVersionFormatter extends React.Component {
                         <ListItemText primary='Description' secondary={description}/>
                     </ListItem>
                     <ListItem>
-                        <ListItemText primary='Language (xml:lang)' secondary={lang}/>
+                        <ListItemText primary='Language' secondary={lang}/>
                     </ListItem>
                     { defineVersion === '2.1.0' &&
                     <ListItem>
@@ -67,7 +72,6 @@ MetaDataVersionFormatter.propTypes = {
     defineVersion: PropTypes.string.isRequired,
     classes: PropTypes.object.isRequired,
     onEdit: PropTypes.func.isRequired,
-    helpData: PropTypes.object,
     onComment: PropTypes.func,
 };
 

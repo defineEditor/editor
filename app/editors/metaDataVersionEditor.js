@@ -73,7 +73,11 @@ class MetaDataVersionEditor extends React.Component {
             <Paper className={classes.metaDataVersion} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Typography variant="h5">
                     Metadata Version &amp; Language
-                    <EditingControlIcons onSave={this.save} onCancel={this.cancel}/>
+                    <EditingControlIcons
+                        onSave={this.save}
+                        onCancel={this.cancel}
+                        helpId='STD_MDV_LANG_ATTRIBUTES'
+                    />
                 </Typography>
                 <List>
                     <ListItem dense>
@@ -99,7 +103,7 @@ class MetaDataVersionEditor extends React.Component {
                     </ListItem>
                     <ListItem dense>
                         <TextField
-                            label='Language (xml:lang)'
+                            label='Language'
                             value={this.state.lang}
                             autoFocus
                             fullWidth

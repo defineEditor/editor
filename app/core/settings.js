@@ -36,7 +36,6 @@ import SaveCancel from 'editors/saveCancel.js';
 import InternalHelp from 'components/utils/internalHelp.js';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import { initCdiscLibrary, updateCdiscLibrarySettings, dummyRequest } from 'utils/cdiscLibraryUtils.js';
-import { CT_LOCATION, CDISC_LIBRARY } from 'constants/help.js';
 import { updateSettings, openModal, openSnackbar } from 'actions/index.js';
 import { encrypt, decrypt } from 'utils/encryptDecrypt.js';
 
@@ -359,7 +358,7 @@ class ConnectedSettings extends React.Component {
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">
-                                                <InternalHelp data={CT_LOCATION} buttonType='icon'/>
+                                                <InternalHelp helpId='CT_LOCATION' buttonType='icon'/>
                                                 <IconButton
                                                     color="default"
                                                     onClick={this.selectControlledTerminologyLocation}
@@ -748,7 +747,7 @@ class ConnectedSettings extends React.Component {
                     <Grid item>
                         <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
                             CDISC Library
-                            <InternalHelp data={CDISC_LIBRARY}/>
+                            <InternalHelp helpId='CDISC_LIBRARY'/>
                         </Typography>
                         <Grid container>
                             <Grid item xs={12}>

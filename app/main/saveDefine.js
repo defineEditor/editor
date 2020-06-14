@@ -39,7 +39,7 @@ const saveDefine = async (mainWindow, data, options) => {
         if (options.pathToFile.endsWith('nogz')) {
             writeDefineObject(mainWindow, data, false, options.pathToFile, onSaveCallback(mainWindow, data.defineId));
         } else {
-            let defineXml = createDefine(data.odm, data.odm.study.metaDataVersion.defineVersion);
+            let defineXml = createDefine(data.odm, { version: data.odm.study.metaDataVersion.defineVersion });
             fs.writeFile(options.pathToFile, defineXml, function (err) {
                 let stylesheetLocation = data.odm && data.odm.stylesheetLocation;
                 if (options.addStylesheet === true && stylesheetLocation) {
