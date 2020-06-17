@@ -207,5 +207,5 @@ class ConnectedCodeListTypeSelectEditor extends React.Component {
     }
 }
 
-const CodeListTypeSelectEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedCodeListTypeSelectEditor);
+const CodeListTypeSelectEditor = connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(ConnectedCodeListTypeSelectEditor);
 export default withStyles(styles)(CodeListTypeSelectEditor);

@@ -94,7 +94,7 @@ class OtherAttributesEditor extends React.Component {
             <Paper className={classes.root} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Typography variant="h5">
                     Visual Define-XML Editor Attributes
-                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
+                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} helpId='STD_VDE_ATTRIBUTES'/>
                 </Typography>
                 <Typography variant="caption">
                     Those attributes are not part of the Define-XML standard and are not saved in a Define-XML file.

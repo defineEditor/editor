@@ -27,6 +27,7 @@ import {
     ADD_ANALYSISRESULTS,
     ADD_RESULTDISPLAYS,
     UPD_ARMSTATUS,
+    ADD_IMPORTMETADATA,
 } from 'constants/action-types';
 import { WhereClause } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
@@ -331,6 +332,23 @@ const handleUpdatedArmItem = (state, action) => {
     }
 };
 
+const addImportMetadata = (state, action) => {
+    let { newWhereClauses, updatedWhereClauses } = action.updateObj;
+    // Add ItemGroups
+    if (Object.keys({ ...newWhereClauses, ...updatedWhereClauses }).length > 0) {
+        let newState = { ...state };
+        if (newWhereClauses) {
+            newState = { ...newState, ...newWhereClauses };
+        }
+        if (updatedWhereClauses) {
+            newState = { ...newState, ...updatedWhereClauses };
+        }
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const whereClauses = (state = {}, action) => {
     switch (action.type) {
         case DEL_ITEMGROUPS:
@@ -361,6 +379,8 @@ const whereClauses = (state = {}, action) => {
             return handleUpdatedArmItem(state, action);
         case UPD_ARMSTATUS:
             return handleUpdateArmStatus(state, action);
+        case ADD_IMPORTMETADATA:
+            return addImportMetadata(state, action);
         default:
             return state;
     }

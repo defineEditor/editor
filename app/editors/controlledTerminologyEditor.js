@@ -165,7 +165,7 @@ class ControlledTerminologyEditor extends React.Component {
             <Paper className={classes.controlledTerminology} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Typography variant="h5">
                     Controlled Terminology
-                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} saveDisabled={saveDisabled}/>
+                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} saveDisabled={saveDisabled} helpId='STD_CT'/>
                 </Typography>
                 <List>
                     <ListItem dense>

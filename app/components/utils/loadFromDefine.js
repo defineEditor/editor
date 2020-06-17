@@ -29,7 +29,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import getItemsFromFilter from 'utils/getItemsFromFilter.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getCodeListData from 'utils/getCodeListData.js';
-import { getDescription } from 'utils/defineStructureUtils.js';
+import { getDescription, getWhereClauseAsText } from 'utils/defineStructureUtils.js';
 import { openSnackbar } from 'actions/index.js';
 
 const getStyles = makeStyles(theme => ({
@@ -77,7 +77,7 @@ const attributes = {
     dataset: ['label', 'class', 'domain', 'domainDescription', 'sasDatasetName',
         'repeating', 'isReferenceData', 'hasNoData', 'purpose', 'structure', 'comment', 'note', 'fileName', 'fileTitle'
     ],
-    variable: ['label', 'dataType', 'length', 'fractionDigits', 'sasFieldName',
+    variable: ['label', 'whereClause', 'dataType', 'length', 'fractionDigits', 'sasFieldName', 'codeList',
         'displayFormat', 'role', 'mandatory', 'comment', 'method', 'methodName', 'note', 'lengthAsData', 'lengthAsCodeList', 'originType', 'originDescription', 'crfPages'
     ],
     codeList: ['type', 'dataType', 'formatName'],
@@ -204,16 +204,34 @@ const LoadFromDefine = (props) => {
                     .filter(igOid => allSelectedItemGroups.includes(igOid))
                     .forEach(igOid => {
                         let dataset = mdv.itemGroups[igOid];
-                        let itemDefOids = selectedItems['variable'].filter(item => (item.itemGroupOid === igOid)).map(item => item.itemDefOid);
-                        itemDefOids.forEach(itemDefOid => {
+                        let datasetItems = selectedItems['variable'].filter(item => (item.itemGroupOid === igOid));
+                        datasetItems.forEach(datasetItem => {
+                            const { itemDefOid, valueListOid } = datasetItem;
                             let itemDef = mdv.itemDefs[itemDefOid];
-                            let itemRef = Object.values(dataset.itemRefs).filter(itemRef => itemRef.itemOid === itemDefOid)[0];
+                            let valueList;
+                            let isVlm = false;
+                            if (valueListOid !== undefined) {
+                                valueList = mdv.valueLists[valueListOid];
+                                isVlm = true;
+                            }
+                            let itemRef;
+                            if (isVlm) {
+                                itemRef = Object.values(valueList.itemRefs).filter(itemRef => itemRef.itemOid === itemDefOid)[0];
+                            } else {
+                                itemRef = Object.values(dataset.itemRefs).filter(itemRef => itemRef.itemOid === itemDefOid)[0];
+                            }
+
                             if (itemRef === undefined) {
                                 console.log();
                             }
                             let item = {};
                             item.dataset = dataset.name;
-                            item.variable = itemDef.name;
+                            if (isVlm && mdv.itemDefs[itemDef.parentItemDefOid] !== undefined) {
+                                let parentItemDef = mdv.itemDefs[itemDef.parentItemDefOid];
+                                item.variable = parentItemDef.name + '.' + itemDef.name;
+                            } else {
+                                item.variable = itemDef.name;
+                            }
                             Object.keys(itemDef).forEach(rowAttr => {
                                 if (selectedAttrs.includes(rowAttr)) {
                                     if (rowAttr === 'fieldName') {
@@ -226,11 +244,19 @@ const LoadFromDefine = (props) => {
                             if (selectedAttrs.includes('label')) {
                                 item.label = getDescription(itemDef);
                             }
+                            if (selectedAttrs.includes('whereClause') && isVlm &&
+                                itemRef.whereClauseOid !== undefined && mdv.whereClauses[itemRef.whereClauseOid] !== undefined
+                            ) {
+                                item.whereClause = getWhereClauseAsText(mdv.whereClauses[itemRef.whereClauseOid], mdv);
+                            }
                             if (selectedAttrs.includes('mandatory')) {
                                 item.mandatory = itemRef.mandatory;
                             }
                             if (selectedAttrs.includes('role')) {
                                 item.role = itemRef.role;
+                            }
+                            if (selectedAttrs.includes('codeList') && itemDef.codeListOid !== undefined) {
+                                item.codeList = mdv.codeLists[itemDef.codeListOid].name;
                             }
                             if (selectedAttrs.includes('originType') && itemDef.origins.length > 0) {
                                 item.originType = itemDef.origins[0].type;
@@ -477,7 +503,6 @@ const LoadFromDefine = (props) => {
                     onClose={ () => { setShowFilter(false); } }
                     onUpdate={onFilterUpdate}
                     allowReset
-                    disableVlm
                 />
             }
         </React.Fragment>

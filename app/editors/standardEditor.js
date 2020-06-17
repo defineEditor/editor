@@ -159,7 +159,7 @@ class StandardEditor extends React.Component {
             <Paper className={classes.Standard} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Typography variant="h5">
                     Standard
-                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} />
+                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} helpId='STD_STANDARD'/>
                 </Typography>
                 <Table>
                     <TableHead>
@@ -170,7 +170,7 @@ class StandardEditor extends React.Component {
                             <TableCell>Name</TableCell>
                             <TableCell>Version</TableCell>
                             { isAdam &&
-                                    <TableCell>Analysis Result Metadata</TableCell>
+                                    <TableCell>Analysis Results Metadata</TableCell>
                             }
                         </TableRow>
                     </TableHead>

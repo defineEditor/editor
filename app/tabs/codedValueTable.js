@@ -72,7 +72,7 @@ const styles = theme => ({
     variableName: {
         marginLeft: theme.spacing(2),
     },
-    commentIcon: {
+    fabIcon: {
         transform: 'translate(0, -5%)',
     },
     drawerButton: {
@@ -517,7 +517,7 @@ class ConnectedCodedValueTable extends React.Component {
                                 size='small'
                                 color={ commentPresent ? 'primary' : 'default' }
                                 onClick={openComments}
-                                className={this.props.classes.commentIcon}
+                                className={this.props.classes.fabIcon}
                             >
                                 <CommentIcon/>
                             </Fab>

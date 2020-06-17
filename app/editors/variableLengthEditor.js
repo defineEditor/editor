@@ -225,5 +225,5 @@ ConnectedVariableLengthEditor.propTypes = {
     actualData: PropTypes.object,
 };
 
-const VariableLengthEditor = connect(mapStateToProps)(ConnectedVariableLengthEditor);
+const VariableLengthEditor = connect(mapStateToProps, null, null, { forwardRef: true })(ConnectedVariableLengthEditor);
 export default withStyles(styles)(VariableLengthEditor);

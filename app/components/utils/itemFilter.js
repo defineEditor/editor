@@ -36,7 +36,6 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
 import InternalHelp from 'components/utils/internalHelp.js';
-import { VARIABLE_FILTER } from 'constants/help.js';
 import {
     updateFilter
 } from 'actions/index.js';
@@ -683,7 +682,7 @@ class ConnectedVariableTabFilter extends React.Component {
             >
                 <DialogTitle className={classes.title} disableTypography>
                     Filter
-                    <InternalHelp data={VARIABLE_FILTER} />
+                    <InternalHelp helpId='VARIABLE_FILTER'/>
                 </DialogTitle>
                 <DialogContent>
                     <Grid container spacing={2} alignItems='flex-end'>

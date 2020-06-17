@@ -115,7 +115,7 @@ class ConnectedEditorTabs extends React.Component {
                 this.props.openModal({
                     type: 'CONFIRM_CHANGE',
                     props: {
-                        type: 'CHANGETAB',
+                        changeType: 'CHANGETAB',
                         updateObj: JSON.stringify(updateObj),
                     }
                 });

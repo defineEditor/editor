@@ -172,12 +172,14 @@ Import and export metadata to different sources. When pasting metadata from Exce
 * fileTitle - Title used in Define-XML for the file
 #### Variable Attributes
 * dataset - **key** Dataset name. Must be present either in Define-XML or in the imported Dataset tab.
-* variable - **key** Variable name. Automatically upcased.
+* variable - **key** Variable name. Automatically upcased. For VLM records use format (parentVariable).(variable), e.g., AVAL.TEST1.
 * label - Variable label.
+* whereClause - Where clause. Use format: <VAR operator "VALUE"> \\[AND <condition2>\\], e.g.,*LBTESTCD EQ 'TEST1' AND LBSPEC IN ("SPEC1", "SPEC2")*. Must be used for VLM records only (see **variable** attribute description). See Define-XML specification for the definition of a valid where clause.
 * dataType - Type of the variable. See Define-XML specification for the list of valid types.
 * length - Variable length \\[***number***\\]
 * fractionDigits - Number of possible digits after the dot for float data type (SignificantDigits in Define-XML spec). \\[***number***\\]
 * sasFieldName - SAS variable name
+* codeList - Name of a codelist
 * displayFormat - Format (usually SAS format)
 * role - Variable role. See SDTM IG for the list of possible roles.
 * mandatory - Mandatory flag \\[Yes, No\\]
@@ -202,5 +204,61 @@ Import and export metadata to different sources. When pasting metadata from Exce
 * codedValue - **key** Codelist type. \\[enumerated, decoded, external\\]
 * decode - Decode value. Must be used only for codelists, which have type decoded.
 * rank - Rank value
+`
+};
+
+export const STD_MDV_LANG_ATTRIBUTES = {
+    title: 'MetadataVersion and Language Attributes',
+    content: `
+* **Name (Required)**. Name of the described metadata. For example, <code>Study XXX, updated ADaM and ARM submission.</code>
+* **Description (Optional)**. Additional metadata description. For Define-XML 2.0 can be used to describe information about Controlled Terminology used or additional standards.
+* **Language (Optional)** - Language used for Define-XML text elements (TranslatedText). If left as blank, values from the original Define-XML are sed used. In this case for all new elements 'en' value is used.
+`
+};
+
+export const STD_GLOBVAR = {
+    title: 'Global Variables and Study OID',
+    content: `
+* **Study OID (Required)**. Univesally unique study identifier. For example, <code>your.company.com/study12345</code>.
+* **Study Name (Required)**. Internal Name of the study.
+* **Study Description (Required)**. A short description of the study. For example, <code>Phase III, randomized, multicenter, double-blind, placebo-controlled, three-arm cross-over trial of Vitamin C.</code>
+* **Protocol Name (Required)**. Study protocol identifier.
+`
+};
+
+export const STD_STANDARD = {
+    title: 'Standard',
+    content: `
+* **Name (Required)**. Name of a standard implementation guide.
+* **Version (Required)**. Version of the implementation guide.
+* **Analysis Results Metadata (Optional)**. When using ADaM-IG, it is possible to enable ARM support for Define-XML.
+`
+};
+
+export const STD_CT = {
+    title: 'Controlled Terminology',
+    content: `
+VDE allows to load and use CDISC/NCI controlled terminology. To load CT into the current Define-XML, you first need to add it to VDE using Menu -> Controlled Terminology either from CDISC Library or using *.ODM.XML version of CT downloaded from the [NCI site](https://evs.nci.nih.gov/ftp1/CDISC/).
+
+Model of the CT may be different from the IG name. For example, QS, SDTM, SEND controlled terminologies will all have SDTM model.
+`
+};
+
+export const STD_ODMATTR = {
+    title: 'ODM Attributes & Stylesheet location',
+    content: `
+* **File OID (Required)**. Univesally unique identifier of a file. For example, <code>your.company.com/study12345</code>.
+* **Sponsor Name (Optional)**. Submission sponsor name.
+* **Database Query Datetime (Optional)**. The date and time at which the source database was queried to create the Define-XML document.
+* **Stylesheet Location (Required)**. Path to the stylesheet relative to the Define-XML file. For example, <code>./define2-0-0.xsl</code>.
+`
+};
+
+export const STD_VDE_ATTRIBUTES = {
+    title: 'Visual Define-XML Attributes',
+    content: `
+These attributes are not saved in the Define-XML file and are used only by the Visual Define-XML Editor.
+* **Name (Required)** - Name of Define-XML as it is shown on the Studies tab.
+* **Define-XML Location (Optional)** - Path to the file. Used by the 'Write changes to Define-XML file when saving the current Define-XML document' setting.
 `
 };

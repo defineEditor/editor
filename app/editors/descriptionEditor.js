@@ -183,5 +183,5 @@ ConnectedDescriptionEditor.propTypes = {
 };
 ConnectedDescriptionEditor.displayName = 'descriptionEditor';
 
-const DescriptionEditor = connect(mapStateToProps, mapDispatchToProps)(ConnectedDescriptionEditor);
+const DescriptionEditor = connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(ConnectedDescriptionEditor);
 export default withStyles(styles)(DescriptionEditor);

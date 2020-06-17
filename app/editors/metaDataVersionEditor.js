@@ -72,8 +72,12 @@ class MetaDataVersionEditor extends React.Component {
         return (
             <Paper className={classes.metaDataVersion} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Typography variant="h5">
-                    Metadata Version
-                    <EditingControlIcons onSave={this.save} onCancel={this.cancel}/>
+                    Metadata Version &amp; Language
+                    <EditingControlIcons
+                        onSave={this.save}
+                        onCancel={this.cancel}
+                        helpId='STD_MDV_LANG_ATTRIBUTES'
+                    />
                 </Typography>
                 <List>
                     <ListItem dense>
@@ -94,6 +98,16 @@ class MetaDataVersionEditor extends React.Component {
                             multiline
                             inputProps={{ spellCheck: 'true' }}
                             onChange={this.handleChange('description')}
+                            className={classes.inputField}
+                        />
+                    </ListItem>
+                    <ListItem dense>
+                        <TextField
+                            label='Language'
+                            value={this.state.lang}
+                            autoFocus
+                            fullWidth
+                            onChange={this.handleChange('lang')}
                             className={classes.inputField}
                         />
                     </ListItem>

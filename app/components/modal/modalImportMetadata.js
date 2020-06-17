@@ -38,7 +38,6 @@ import LoadFromDefine from 'components/utils/loadFromDefine.js';
 import convertImportMetadata from 'utils/convertImportMetadata.js';
 import MetadataImportTableView from 'components/utils/metadataImportTableView.js';
 import ImportMetadataOptions from 'components/utils/importMetadataOptions.js';
-import { IMPORT_METADATA } from 'constants/help.js';
 import {
     openModal,
     closeModal,
@@ -131,7 +130,7 @@ const getStyles = makeStyles(theme => ({
 
 const varDefault = {
     isEnabled: false,
-    applyToVlm: false,
+    applyToVlm: true,
     conditions: [{ field: 'dataset', comparator: 'IN', selectedValues: [], regexIsValid: true }],
     connectors: [],
 };
@@ -421,7 +420,7 @@ const ModalImportMetadata = (props) => {
                         <Toolbar variant="dense">
                             <Typography className={classes.titleLabel} variant="h6" noWrap>
                                 Import Metadata
-                                <InternalHelp data={IMPORT_METADATA} buttonClass={classes.helpIcon} />
+                                <InternalHelp helpId='IMPORT_METADATA' buttonClass={classes.helpIcon} />
                             </Typography>
                             <Typography className={classes.formatLabel} variant="h6" noWrap>
                                 Format:
@@ -468,13 +467,7 @@ const ModalImportMetadata = (props) => {
                                 Define
                             </Button>
                             <div className={classes.grow} />
-                            <Tooltip
-                                title='Import options'
-                                placement='bottom'
-                                enterDelay={700}
-                            >
-                                <ImportMetadataOptions/>
-                            </Tooltip>
+                            <ImportMetadataOptions/>
                             <Tooltip
                                 title='Copy to clipboard'
                                 placement='bottom'

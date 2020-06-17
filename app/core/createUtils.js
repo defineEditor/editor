@@ -20,9 +20,9 @@ export function removeBlankAttributes (attrs, exceptions = []) {
     });
 }
 
-export function createDocumentRef (data, version) {
+export function createDocumentRef (data, options) {
     let result = {};
-    if (version === '2.0.0') {
+    if (options.version === '2.0.0') {
         let attributes = {
             leafID: data.leafId
         };
@@ -51,15 +51,17 @@ export function createDocumentRef (data, version) {
     return result;
 }
 
-export function createTranslatedText (data, version) {
+export function createTranslatedText (data, options) {
     let result = {};
-    if (version === '2.0.0') {
+    if (options.version === '2.0.0') {
         if (data.value !== undefined) {
             result = { 'TranslatedText': { '#text': data.value } };
         } else {
             result = { 'TranslatedText': { '#text': '' } };
         }
-        if (data.lang !== undefined) {
+        if (options.lang) {
+            result['TranslatedText']['@xml:lang'] = options.lang;
+        } else if (data.lang !== undefined) {
             result['TranslatedText']['@xml:lang'] = data.lang;
         }
     }

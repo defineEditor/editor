@@ -853,19 +853,42 @@ const handleAddValueListFromCodeList = (state, action) => {
 };
 
 const addImportMetadata = (state, action) => {
+    let newState = state;
     let { newCodeLists, updatedCodeLists } = action.updateObj.codeListResult;
     if (newCodeLists || updatedCodeLists) {
-        let newState = { ...state };
+        newState = { ...state };
         if (newCodeLists) {
             newState = { ...newState, ...newCodeLists };
         }
         if (updatedCodeLists) {
             newState = { ...newState, ...updatedCodeLists };
         }
-        return newState;
-    } else {
-        return state;
     }
+
+    let { removedSources, addedSources } = action.updateObj;
+    Object.keys(removedSources.codeLists).forEach(codeListOid => {
+        let removedItemDefs = removedSources.codeLists[codeListOid];
+        let codeList = newState[codeListOid];
+        let newItemDefSources = codeList.sources.itemDefs.slice();
+        removedItemDefs.forEach(itemDefOid => {
+            if (newItemDefSources.includes(itemDefOid)) {
+                newItemDefSources.splice(newItemDefSources.indexOf(itemDefOid), 1);
+            }
+        });
+        newState[codeListOid] = { ...codeList, sources: { ...codeList.sources, itemDefs: newItemDefSources } };
+    });
+    Object.keys(addedSources.codeLists).forEach(codeListOid => {
+        let addedItemDefs = addedSources.codeLists[codeListOid];
+        let codeList = newState[codeListOid];
+        let newItemDefSources = codeList.sources.itemDefs.slice();
+        addedItemDefs.forEach(itemDefOid => {
+            if (!newItemDefSources.includes(itemDefOid)) {
+                newItemDefSources.push(itemDefOid);
+            }
+        });
+        newState[codeListOid] = { ...codeList, sources: { ...codeList.sources, itemDefs: newItemDefSources } };
+    });
+    return newState;
 };
 
 const codeLists = (state = {}, action) => {

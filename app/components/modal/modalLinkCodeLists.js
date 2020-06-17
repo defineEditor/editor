@@ -29,7 +29,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Button from '@material-ui/core/Button';
 import compareCodeListItems from 'utils/compareCodeListItems.js';
 import InternalHelp from 'components/utils/internalHelp.js';
-import { CODELIST_LINK } from 'constants/help.js';
 import {
     closeModal,
     updateLinkCodeLists,
@@ -204,7 +203,7 @@ class ConnectedModalLinkCodeLists extends React.Component {
             >
                 <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
                     Link Decoded and Enumerated Codelists
-                    <InternalHelp data={CODELIST_LINK} />
+                    <InternalHelp helpId='CODELIST_LINK'/>
                 </DialogTitle>
                 <DialogContent>
                     <Grid

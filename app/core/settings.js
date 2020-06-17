@@ -26,6 +26,7 @@ import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import MenuItem from '@material-ui/core/MenuItem';
 import Switch from '@material-ui/core/Switch';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -35,7 +36,6 @@ import SaveCancel from 'editors/saveCancel.js';
 import InternalHelp from 'components/utils/internalHelp.js';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import { initCdiscLibrary, updateCdiscLibrarySettings, dummyRequest } from 'utils/cdiscLibraryUtils.js';
-import { CT_LOCATION, CDISC_LIBRARY } from 'constants/help.js';
 import { updateSettings, openModal, openSnackbar } from 'actions/index.js';
 import { encrypt, decrypt } from 'utils/encryptDecrypt.js';
 
@@ -66,6 +66,10 @@ const styles = theme => ({
     sourceSystem: {
         width: 300,
         margin: theme.spacing(1)
+    },
+    selector: {
+        width: 95,
+        marginBottom: theme.spacing(1)
     },
     sourceSystemVersion: {
         width: 200,
@@ -354,7 +358,7 @@ class ConnectedSettings extends React.Component {
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">
-                                                <InternalHelp data={CT_LOCATION} buttonType='icon'/>
+                                                <InternalHelp helpId='CT_LOCATION' buttonType='icon'/>
                                                 <IconButton
                                                     color="default"
                                                     onClick={this.selectControlledTerminologyLocation}
@@ -366,6 +370,18 @@ class ConnectedSettings extends React.Component {
                                         )
                                     }}
                                 />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="PDF Viewer"
+                                    value={this.state.settings.general.pdfViewer}
+                                    onChange={this.handleChange('general', 'pdfViewer')}
+                                    className={classes.selector}
+                                    select
+                                >
+                                    <MenuItem key='pdf.js' value='PDF.js'>PDF.js</MenuItem>
+                                    <MenuItem key='pdfium' value='PDFium'>PDFium</MenuItem>
+                                </TextField>
                             </Grid>
                             <Grid item>
                                 <FormGroup>
@@ -456,7 +472,7 @@ class ConnectedSettings extends React.Component {
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Instantly process text in Comments and Methods'
+                                        label='Real-time check for special characters in Comments and Methods'
                                     />
                                     <FormControlLabel
                                         control={
@@ -478,7 +494,7 @@ class ConnectedSettings extends React.Component {
                                                 className={classes.switch}
                                             />
                                         }
-                                        label='Allow adding programming notes'
+                                        label='Enable programming notes'
                                     />
                                     <FormControlLabel
                                         control={
@@ -731,7 +747,7 @@ class ConnectedSettings extends React.Component {
                     <Grid item>
                         <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
                             CDISC Library
-                            <InternalHelp data={CDISC_LIBRARY}/>
+                            <InternalHelp helpId='CDISC_LIBRARY'/>
                         </Typography>
                         <Grid container>
                             <Grid item xs={12}>

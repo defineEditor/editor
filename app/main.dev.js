@@ -35,6 +35,7 @@ import openDocument from './main/openDocument.js';
 import openWithStylesheet from './main/openWithStylesheet.js';
 import deleteFiles from './main/deleteFiles.js';
 import openFileInExternalApp from './main/openFileInExternalApp.js';
+import checkPreinstalledPlugins from './main/checkPreinstalledPlugins.js';
 import createMenu from './menu/menu.js';
 import exportReviewComments from './main/exportReviewComments.js';
 import { checkForUpdates, downloadUpdate } from './main/appUpdate.js';
@@ -73,7 +74,18 @@ contextMenu({
     showSearchWithGoogle: false,
 });
 
-function createWindow () {
+checkPreinstalledPlugins();
+
+const createWindow = async () => {
+    await app.whenReady();
+
+    if (
+        process.env.NODE_ENV === 'development' ||
+        process.env.DEBUG_PROD === 'true'
+    ) {
+        await installExtensions();
+    }
+
     mainWindow = new BrowserWindow({
         width: 768,
         height: 1024,
@@ -81,12 +93,14 @@ function createWindow () {
         show: false,
         icon: path.join(__dirname, '/static/images/misc/mainIcon64x64.png'),
         webPreferences: {
+            enableRemoteModule: true,
             nodeIntegration: true,
             spellcheck: true,
         },
     });
 
     mainWindow.loadFile('index.html');
+    // mainWindow.loadURL('https://redux.js.org/');
 
     mainWindow.webContents.on('did-finish-load', () => {
         if (!mainWindow) {
@@ -112,7 +126,7 @@ function createWindow () {
             mainWindow.webContents.send('quit');
         }
     });
-}
+};
 
 /**
  * Add event listeners...
@@ -166,8 +180,8 @@ ipcMain.on('deleteFiles', (event, filesToDelete) => {
     deleteFiles(filesToDelete);
 });
 // Open Document file
-ipcMain.on('openDocument', (event, defineLocation, pdfLink) => {
-    openDocument(mainWindow, defineLocation, pdfLink);
+ipcMain.on('openDocument', (event, defineLocation, pdfLink, options) => {
+    openDocument(mainWindow, defineLocation, pdfLink, options);
 });
 // Open file using external application
 ipcMain.on('openFileInExternalApp', (event, defineLocation, fileLink) => {
@@ -226,12 +240,4 @@ app.on('window-all-closed', () => {
     }
 });
 
-app.on('ready', async () => {
-    if (
-        process.env.NODE_ENV === 'development' ||
-        process.env.DEBUG_PROD === 'true'
-    ) {
-        await installExtensions();
-    }
-    createWindow();
-});
+createWindow();

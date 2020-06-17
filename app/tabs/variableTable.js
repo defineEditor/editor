@@ -795,14 +795,16 @@ class ConnectedVariableTable extends React.Component {
                         <VariableOrderEditor itemGroupOid={this.props.itemGroupOid}/>
                     </Grid>
                     <Grid item>
-                        <Fab
-                            size='small'
-                            color={ commentPresent ? 'primary' : 'default' }
-                            onClick={openComments}
-                            className={this.props.classes.fabIcon}
-                        >
-                            <CommentIcon/>
-                        </Fab>
+                        <Tooltip title={'Show Comments'} placement='bottom' enterDelay={700}>
+                            <Fab
+                                size='small'
+                                color={ commentPresent ? 'primary' : 'default' }
+                                onClick={openComments}
+                                className={this.props.classes.fabIcon}
+                            >
+                                <CommentIcon/>
+                            </Fab>
+                        </Tooltip>
                     </Grid>
                     <Grid item>
                         <Tooltip title={'Import Metadata'} placement='bottom' enterDelay={700}>

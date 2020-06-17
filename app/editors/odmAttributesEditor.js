@@ -66,7 +66,7 @@ class OdmAttributesEditor extends React.Component {
             <Paper className={classes.root} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Typography variant="h5">
                     ODM Attributes &amp; Stylesheet location
-                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel}/>
+                    <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} helpId='STD_ODMATTR'/>
                 </Typography>
                 <List>
                     <ListItem dense>

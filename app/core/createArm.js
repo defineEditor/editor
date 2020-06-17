@@ -15,12 +15,13 @@
 import { createTranslatedText, createDocumentRef, removeBlankAttributes } from './createUtils.js';
 import clone from 'clone';
 
-function createArm (rawData, version) {
+function createArm (rawData, rawOptions) {
     let result = {};
     let data = clone(rawData);
     // Use the same version as before if the version is not specified
     // Use 1.0.0 by default
-    version = version || '1.0.0';
+    let version = rawOptions.armVersion || '1.0.0';
+    let options = { ...rawOptions, version };
     // De-normalize ARM
     Object.values(data.resultDisplays).forEach(resultDisplay => {
         resultDisplay.analysisResults = {};
@@ -29,19 +30,19 @@ function createArm (rawData, version) {
         });
     });
 
-    if (version === '1.0.0') {
+    if (options.version === '1.0.0') {
         result = { 'arm:ResultDisplay': [] };
         data.resultDisplayOrder.forEach(function (resultDisplayOid) {
-            result['arm:ResultDisplay'].push(createResultDisplay(data.resultDisplays[resultDisplayOid], version));
+            result['arm:ResultDisplay'].push(createResultDisplay(data.resultDisplays[resultDisplayOid], options));
         });
     }
 
     return result;
 }
 
-function createResultDisplay (data, version) {
+function createResultDisplay (data, options) {
     let result = {};
-    if (version === '1.0.0') {
+    if (options.version === '1.0.0') {
         // Attributes
         let attributes = {
             'OID': data.oid,
@@ -71,16 +72,16 @@ function createResultDisplay (data, version) {
         // Add analysis result
         result['arm:AnalysisResult'] = [];
         data.analysisResultOrder.forEach(function (oid) {
-            result['arm:AnalysisResult'].push(createAnalysisResult(data.analysisResults[oid], version));
+            result['arm:AnalysisResult'].push(createAnalysisResult(data.analysisResults[oid], options));
         });
     }
 
     return result;
 }
 
-function createAnalysisResult (data, version) {
+function createAnalysisResult (data, options) {
     let result = {};
-    if (version === '1.0.0') {
+    if (options.version === '1.0.0') {
         // Attributes
         let attributes = {
             'OID': data.oid,
@@ -106,7 +107,7 @@ function createAnalysisResult (data, version) {
         // Add analysis datasets
         result['arm:AnalysisDatasets'] = { 'arm:AnalysisDataset': [] };
         data.analysisDatasetOrder.forEach(function (oid) {
-            result['arm:AnalysisDatasets']['arm:AnalysisDataset'].push(createAnalysisDataset(data.analysisDatasets[oid], version));
+            result['arm:AnalysisDatasets']['arm:AnalysisDataset'].push(createAnalysisDataset(data.analysisDatasets[oid], options));
         });
         // Datasets comment
         if (data.analysisDatasetsCommentOid !== undefined) {
@@ -114,20 +115,20 @@ function createAnalysisResult (data, version) {
         }
         // Add documentation
         if (data.documentation !== undefined) {
-            result['arm:Documentation'] = createDocumentation(data.documentation, version);
+            result['arm:Documentation'] = createDocumentation(data.documentation, options);
         }
         // Add programming code
         if (data.programmingCode !== undefined) {
-            result['arm:ProgrammingCode'] = createProgrammingCode(data.programmingCode, version);
+            result['arm:ProgrammingCode'] = createProgrammingCode(data.programmingCode, options);
         }
     }
 
     return result;
 }
 
-function createAnalysisDataset (data, version) {
+function createAnalysisDataset (data, options) {
     let result = {};
-    if (version === '1.0.0') {
+    if (options.version === '1.0.0') {
         // Attributes
         let attributes = {
             'ItemGroupOID': data.itemGroupOid,
@@ -155,9 +156,9 @@ function createAnalysisDataset (data, version) {
     return result;
 }
 
-function createDocumentation (data, version) {
+function createDocumentation (data, options) {
     let result = {};
-    if (version === '1.0.0') {
+    if (options.version === '1.0.0') {
         // Add description
         if (data.descriptions.length !== 0) {
             result['Description'] = [];
@@ -177,9 +178,9 @@ function createDocumentation (data, version) {
     return result;
 }
 
-function createProgrammingCode (data, version) {
+function createProgrammingCode (data, options) {
     let result = {};
-    if (version === '1.0.0') {
+    if (options.version === '1.0.0') {
         // Attributes
         let attributes = {
             'Context': data.context,

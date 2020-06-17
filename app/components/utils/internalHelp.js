@@ -14,41 +14,16 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Button from '@material-ui/core/Button';
+import { makeStyles } from '@material-ui/core/styles';
+import { useDispatch } from 'react-redux';
 import HelpIcon from '@material-ui/icons/HelpOutline';
 import IconButton from '@material-ui/core/IconButton';
 import Fab from '@material-ui/core/Fab';
-import ReactMarkdown from 'react-markdown';
+import {
+    openModal,
+} from 'actions/index.js';
 
-const styles = theme => ({
-    dialog: {
-        position: 'absolute',
-        top: '10%',
-        maxHeight: '80%',
-        width: '55%',
-        overflowX: 'auto',
-        overflowY: 'auto',
-        paddingBottom: theme.spacing(1),
-        margin: '0 auto',
-        borderRadius: '10px',
-        border: '2px solid',
-        borderColor: 'primary',
-    },
-    title: {
-        marginBottom: theme.spacing(2),
-        backgroundColor: theme.palette.primary.main,
-        color: '#FFFFFF',
-        fontWeight: 'bold',
-        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-        fontSize: '1.25rem',
-        lineHeight: '1.6',
-        letterSpacing: '0.0075em',
-    },
+const getStyles = makeStyles(theme => ({
     icon: {
         transform: 'translate(0, -5%)',
         marginLeft: theme.spacing(1),
@@ -61,81 +36,52 @@ const styles = theme => ({
         backgroundColor: theme.palette.primary.light,
         marginLeft: theme.spacing(1),
     },
-});
+}));
 
-class InternalHelp extends React.Component {
-    constructor (props) {
-        super(props);
-        this.state = {
-            open: false,
-        };
-    }
+const InternalHelp = (props) => {
+    const dispatch = useDispatch();
+    const classes = getStyles();
 
-    close = () => {
-        this.setState({ open: false });
-    }
-
-    open = () => {
-        this.setState({ open: true });
-    }
-
-    render () {
-        const { classes } = this.props;
-
-        return (
-            <React.Fragment>
-                { this.props.buttonType === 'icon' &&
-                    <IconButton
-                        color='primary'
-                        onClick={this.open}
-                        className={this.props.buttonClass ? this.props.buttonClass : classes.fab}
-                        size={this.props.size}
-                    >
-                        <HelpIcon/>
-                    </IconButton>
-                }
-                { this.props.buttonType !== 'icon' &&
-                    <Fab
-                        size={this.props.size ? this.props.size : 'small'}
-                        color='default'
-                        onClick={this.open}
-                        className={this.props.buttonClass ? this.props.buttonClass : classes.icon}
-                    >
-                        <HelpIcon/>
-                    </Fab>
-                }
-                <Dialog
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                    open={this.state.open}
-                    fullWidth
-                    maxWidth={false}
-                    onClose={this.close}
-                    PaperProps={{ className: classes.dialog }}
-                >
-                    <DialogTitle id="alert-dialog-title" className={classes.title} disableTypography>
-                        {this.props.data.title}
-                    </DialogTitle>
-                    <DialogContent>
-                        <ReactMarkdown source={this.props.data.content} {...this.props.data.reactMarkdownOptions}/>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={this.close} color="primary">
-                            Close
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </React.Fragment>
+    const openHelp = (id) => {
+        dispatch(
+            openModal({
+                type: 'HELP',
+                props: { id: props.helpId },
+            })
         );
-    }
-}
+    };
+
+    return (
+        <React.Fragment>
+            { props.buttonType === 'icon' &&
+                <IconButton
+                    color='primary'
+                    onClick={openHelp}
+                    className={props.buttonClass ? props.buttonClass : classes.fab}
+                    size={props.size}
+                >
+                    <HelpIcon/>
+                </IconButton>
+            }
+            { props.buttonType !== 'icon' &&
+                <Fab
+                    size={props.size ? props.size : 'small'}
+                    color='default'
+                    onClick={openHelp}
+                    className={props.buttonClass ? props.buttonClass : classes.icon}
+                >
+                    <HelpIcon/>
+                </Fab>
+            }
+        </React.Fragment>
+    );
+};
 
 InternalHelp.propTypes = {
-    classes: PropTypes.object.isRequired,
-    data: PropTypes.object.isRequired,
+    helpId: PropTypes.string.isRequired,
     buttonType: PropTypes.string,
     size: PropTypes.string,
     buttonClass: PropTypes.string,
 };
 
-export default withStyles(styles)(InternalHelp);
+export default InternalHelp;

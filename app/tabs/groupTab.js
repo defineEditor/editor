@@ -103,7 +103,7 @@ class ConnectedGroupTab extends React.Component {
                 this.props.openModal({
                     type: 'CONFIRM_CHANGE',
                     props: {
-                        type: 'SELECTGROUP',
+                        changeType: 'SELECTGROUP',
                         updateObj: JSON.stringify(updateObj),
                     }
                 });

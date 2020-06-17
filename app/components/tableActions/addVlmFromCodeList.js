@@ -32,7 +32,6 @@ import InternalHelp from 'components/utils/internalHelp.js';
 import CodedValueSelectorTable from 'components/utils/codedValueSelectorTable.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getOid from 'utils/getOid.js';
-import { CODELIST_TO_VLM } from 'constants/help.js';
 import {
     addValueListFromCodelist,
 } from 'actions/index.js';
@@ -59,8 +58,6 @@ const styles = theme => ({
         width: '80%',
         overflowX: 'auto',
         overflowY: 'auto',
-        paddingLeft: theme.spacing(2),
-        paddingRight: theme.spacing(2),
         paddingBottom: theme.spacing(1),
         margin: '0 auto',
         borderRadius: '10px',
@@ -198,7 +195,7 @@ function AddVlmFromCodeList (props) {
                 <Grid container spacing={0} justify='space-between' alignItems='center'>
                     <Grid item>
                         Create Value Level Metadata from Variable Values
-                        <InternalHelp data={CODELIST_TO_VLM} />
+                        <InternalHelp helpId='CODELIST_TO_VLM'/>
                     </Grid>
                     <Grid item>
                         <IconButton

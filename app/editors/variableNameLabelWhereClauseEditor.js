@@ -212,5 +212,5 @@ ConnectedVariableNameLabelWhereClauseEditor.propTypes = {
     lang: PropTypes.string.isRequired,
 };
 
-const VariableNameLabelWhereClauseEditor = connect(mapStateToProps)(ConnectedVariableNameLabelWhereClauseEditor);
+const VariableNameLabelWhereClauseEditor = connect(mapStateToProps, null, null, { forwardRef: true })(ConnectedVariableNameLabelWhereClauseEditor);
 export default withStyles(styles)(VariableNameLabelWhereClauseEditor);

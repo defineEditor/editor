@@ -14,84 +14,84 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import { connect } from 'react-redux';
+import { makeStyles } from '@material-ui/core/styles';
+import { useDispatch, useSelector } from 'react-redux';
 import CommentIcon from '@material-ui/icons/Comment';
 import EditIcon from '@material-ui/icons/Edit';
 import IconButton from '@material-ui/core/IconButton';
+import HelpIcon from '@material-ui/icons/HelpOutline';
 import {
     openModal,
 } from 'actions/index.js';
 
-const styles = theme => ({
+const getStyles = makeStyles(theme => ({
     icon: {
         transform: 'translate(0, -5%)',
     }
-});
+}));
 
-// Redux functions
-const mapDispatchToProps = dispatch => {
-    return {
-        openModal: (updateObj) => dispatch(openModal(updateObj)),
-    };
-};
+const FormattingControlIcons = (props) => {
+    const dispatch = useDispatch();
+    const classes = getStyles();
 
-const mapStateToProps = state => {
-    return {
-        reviewMode: state.present.ui.main.reviewMode,
-        odm: state.present.odm,
-    };
-};
+    const reviewMode = useSelector(state => state.present.ui.main.reviewMode);
+    const odm = useSelector(state => state.present.odm);
 
-class ConnectedFormattingControlIcons extends React.Component {
-    openComments = () => {
-        this.props.openModal({
+    const openComments = () => {
+        openModal({
             type: 'REVIEW_COMMENT',
-            props: { sources: { [this.props.type]: ['thisElementIsUnique'] } }
+            props: { sources: { [props.type]: ['thisElementIsUnique'] } }
         });
-    }
+    };
 
-    render () {
-        // Get comment stats
-        let commentPresent;
-        const { type, reviewMode } = this.props;
-        if (type === undefined) {
-            commentPresent = false;
-        } else if (type === 'odm') {
-            commentPresent = this.props.odm.reviewCommentOids.length > 0;
-        } else if (type === 'globalVariables') {
-            commentPresent = this.props.odm.study.globalVariables.reviewCommentOids.length > 0;
-        } else if (type === 'metaDataVersion') {
-            commentPresent = this.props.odm.study.metaDataVersion.reviewCommentOids.length > 0;
-        }
-        const { classes } = this.props;
-
-        return (
-            <React.Fragment>
-                { !reviewMode && (
-                    <IconButton color='default' onClick={this.props.onEdit} className={classes.icon}>
-                        <EditIcon/>
-                    </IconButton>
-                )}
-                { type !== undefined && (
-                    <IconButton color={ commentPresent ? 'primary' : 'default' } onClick={this.openComments} className={classes.icon}>
-                        <CommentIcon/>
-                    </IconButton>
-                )}
-            </React.Fragment>
+    const openHelp = (id) => {
+        dispatch(
+            openModal({
+                type: 'HELP',
+                props: { id: props.helpId },
+            })
         );
-    }
-}
+    };
 
-ConnectedFormattingControlIcons.propTypes = {
-    reviewMode: PropTypes.bool.isRequired,
-    openModal: PropTypes.func.isRequired,
+    // Get comment stats
+    let commentPresent;
+    const { type, helpId } = props;
+    if (type === undefined) {
+        commentPresent = false;
+    } else if (type === 'odm') {
+        commentPresent = odm.reviewCommentOids.length > 0;
+    } else if (type === 'globalVariables') {
+        commentPresent = odm.study.globalVariables.reviewCommentOids.length > 0;
+    } else if (type === 'metaDataVersion') {
+        commentPresent = odm.study.metaDataVersion.reviewCommentOids.length > 0;
+    }
+
+    return (
+        <React.Fragment>
+            { !reviewMode && (
+                <IconButton color='default' onClick={props.onEdit} className={classes.icon}>
+                    <EditIcon/>
+                </IconButton>
+            )}
+            { type !== undefined && (
+                <IconButton color={ commentPresent ? 'primary' : 'default' } onClick={openComments} className={classes.icon}>
+                    <CommentIcon/>
+                </IconButton>
+            )}
+            { helpId !== undefined && (
+                <IconButton color='default' onClick={openHelp} className={classes.icon}>
+                    <HelpIcon/>
+                </IconButton>
+            )}
+        </React.Fragment>
+    );
+};
+
+FormattingControlIcons.propTypes = {
     onEdit: PropTypes.func.isRequired,
-    onHelp: PropTypes.func,
+    helpId: PropTypes.string,
     onComment: PropTypes.func,
     type: PropTypes.string,
-    odm: PropTypes.object.isRequired,
 };
 
-const FormattingControlIcons = connect(mapStateToProps, mapDispatchToProps)(ConnectedFormattingControlIcons);
-export default withStyles(styles)(FormattingControlIcons);
+export default FormattingControlIcons;

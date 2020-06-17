@@ -153,9 +153,9 @@ class ConnectedCodeListStandardEditor extends React.Component {
         if (this.state.standard !== undefined) {
             standardOid = this.state.standard.oid;
         }
-        let defaultCodeList;
+        let value;
         if (standardOid !== '' && this.state.standardCodeListOid !== undefined && this.state.standard.codeLists[this.state.standardCodeListOid]) {
-            defaultCodeList = {
+            value = {
                 value: this.state.standardCodeListOid,
                 label: this.props.stdCodeLists[standardOid].codeLists[this.state.standardCodeListOid].name,
             };
@@ -188,7 +188,7 @@ class ConnectedCodeListStandardEditor extends React.Component {
                                         <AutocompleteSelectEditor
                                             key={standardOid}
                                             onChange={this.handleChange('codeList')}
-                                            defaultValue={defaultCodeList}
+                                            value={value}
                                             options={this.state.codeListList}
                                         />
                                     )
@@ -215,5 +215,5 @@ ConnectedCodeListStandardEditor.propTypes = {
     onUpdate: PropTypes.func
 };
 
-const CodeListStandardEditor = connect(mapStateToProps)(ConnectedCodeListStandardEditor);
+const CodeListStandardEditor = connect(mapStateToProps, null, null, { forwardRef: true })(ConnectedCodeListStandardEditor);
 export default withStyles(styles)(CodeListStandardEditor);

@@ -39,7 +39,6 @@ import getItemsFromFilter from 'utils/getItemsFromFilter.js';
 import sortIdList from 'utils/sortIdList.js';
 import getTableData from 'utils/getTableData.js';
 import InternalHelp from 'components/utils/internalHelp.js';
-import { VARIABLE_UPDATE } from 'constants/help.js';
 import {
     updateItemsBulk,
     openSnackbar,
@@ -526,7 +525,7 @@ class ConnectedVariableTabUpdate extends React.Component {
             >
                 <DialogTitle className={classes.title} disableTypography>
                     Variable Update
-                    <InternalHelp data={VARIABLE_UPDATE} />
+                    <InternalHelp helpId='VARIABLE_UPDATE' />
                 </DialogTitle>
                 <DialogContent>
                     <Grid container spacing={2} alignItems='flex-end'>

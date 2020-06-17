@@ -76,6 +76,7 @@ const mapStateToProps = state => {
     }
     const mdvAttrs = {
         name: state.present.odm.study.metaDataVersion.name,
+        lang: state.present.odm.study.metaDataVersion.lang,
         description,
         comment,
     };
@@ -99,7 +100,6 @@ const mapStateToProps = state => {
         studyOid: state.present.odm.study.oid,
         standards: state.present.odm.study.metaDataVersion.standards,
         standardOrder: state.present.odm.study.metaDataVersion.order.standardOrder,
-        lang: state.present.odm.study.metaDataVersion.lang,
         model: state.present.odm.study.metaDataVersion.model,
         stdConstants: state.present.stdConstants,
         controlledTerminology: state.present.controlledTerminology,
@@ -160,6 +160,9 @@ class ConnectedStandardTable extends React.Component {
                 updateObj.description = undefined;
             } else if (this.props.mdvAttrs.description !== returnValue.description) {
                 updateObj.description = returnValue.description;
+            }
+            if (this.props.mdvAttrs.lang !== returnValue.lang) {
+                updateObj.lang = returnValue.lang;
             }
 
             if (Object.keys(updateObj).length > 0) {
@@ -495,7 +498,6 @@ ConnectedStandardTable.propTypes = {
     defineVersion: PropTypes.string.isRequired,
     stdConstants: PropTypes.object.isRequired,
     analysisResultDisplays: PropTypes.object,
-    lang: PropTypes.string.isRequired,
 };
 ConnectedStandardTable.displayName = 'StandardTable';
 

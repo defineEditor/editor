@@ -16,7 +16,7 @@ import fs from 'fs';
 import path from 'path';
 import { BrowserWindow, dialog } from 'electron';
 
-async function openDocument (mainWindow, defineLocation, pdfLink) {
+async function openDocument (mainWindow, defineLocation, pdfLink, options) {
     // Check the file exists
     let fullDocLink = path.join(defineLocation, pdfLink);
     // It is possible that link contains a page number of named destination, remove it before checking
@@ -33,14 +33,18 @@ async function openDocument (mainWindow, defineLocation, pdfLink) {
         });
         pdfWindow.setMenu(null);
         if (isPdf) {
-            let pathToPdfJs = path.join(__dirname, '..', 'static', 'pdfjs', 'web', 'viewer.html');
-            if (fullDocLink !== pathToDoc) {
-                // If there are pages specified, use the full link
-                pdfWindow.loadURL('file://' + pathToPdfJs + '?file=' + fullDocLink);
-            } else {
-                // PDF.js loads the last saved page (I have no idea where it stores this date)
-                // To overcome this the first page is manually specified
-                pdfWindow.loadURL('file://' + pathToPdfJs + '?file=' + fullDocLink + '#page=1');
+            if (options.pdfViewer === 'PDF.js') {
+                let pathToPdfJs = path.join(__dirname, '..', 'static', 'pdfjs', 'web', 'viewer.html');
+                if (fullDocLink !== pathToDoc) {
+                    // If there are pages specified, use the full link
+                    pdfWindow.loadURL('file://' + pathToPdfJs + '?file=' + fullDocLink);
+                } else {
+                    // PDF.js loads the last saved page (I have no idea where it stores this data)
+                    // To overcome this the first page is manually specified
+                    pdfWindow.loadURL('file://' + pathToPdfJs + '?file=' + fullDocLink + '#page=1');
+                }
+            } else if (options.pdfViewer === 'PDFium') {
+                pdfWindow.loadURL('file://' + fullDocLink);
             }
         } else {
             pdfWindow.loadURL('file://' + fullDocLink);
