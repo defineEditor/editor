@@ -66,16 +66,16 @@ const mapDispatchToProps = dispatch => {
 class ConnectedModalConfirmChange extends React.Component {
     onContinue = () => {
         // Change must be called after the current Define-XML is saved
-        this.props.closeModal('CONFIRM_CHANGE');
-        if (this.props.type === 'CHANGETAB') {
+        this.props.closeModal(this.props.type);
+        if (this.props.changeType === 'CHANGETAB') {
             this.props.changeTab(JSON.parse(this.props.updateObj));
-        } else if (this.props.type === 'SELECTGROUP') {
+        } else if (this.props.changeType === 'SELECTGROUP') {
             this.props.selectGroup(JSON.parse(this.props.updateObj));
         }
     }
 
     onCancel = () => {
-        this.props.closeModal('CONFIRM_CHANGE');
+        this.props.closeModal(this.props.type);
     }
 
     onKeyDown = (event) => {
@@ -87,7 +87,7 @@ class ConnectedModalConfirmChange extends React.Component {
     render () {
         const { classes } = this.props;
         let title;
-        switch (this.props.type) {
+        switch (this.props.changeType) {
             case 'CHANGETAB':
                 title = 'Confirm Tab Change';
                 break;
@@ -135,6 +135,7 @@ ConnectedModalConfirmChange.propTypes = {
     changeTab: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
     selectGroup: PropTypes.func.isRequired,
+    changeType: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
 };
 
