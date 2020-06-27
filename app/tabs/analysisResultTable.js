@@ -17,8 +17,10 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Prism from 'prismjs';
 import Grid from '@material-ui/core/Grid';
+import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import CommentIcon from '@material-ui/icons/Comment';
+import ArchiveIcon from '@material-ui/icons/Archive';
 import Fab from '@material-ui/core/Fab';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
@@ -127,6 +129,13 @@ class ConnectedAnalysisResultTable extends React.Component {
         });
     };
 
+    openImportMetadata = () => {
+        this.props.openModal({
+            type: 'IMPORT_METADATA',
+            props: { tab: 'analysisResults' }
+        });
+    };
+
     render () {
         const { classes } = this.props;
         const resultDisplay = this.props.resultDisplays[this.props.resultDisplayOid];
@@ -181,6 +190,18 @@ class ConnectedAnalysisResultTable extends React.Component {
                                 >
                                     <CommentIcon/>
                                 </Fab>
+                            </Grid>
+                            <Grid item>
+                                <Tooltip title={'Import Metadata'} placement='bottom' enterDelay={700}>
+                                    <Fab
+                                        size='small'
+                                        color='default'
+                                        onClick={this.openImportMetadata}
+                                        className={this.props.classes.fabIcon}
+                                    >
+                                        <ArchiveIcon/>
+                                    </Fab>
+                                </Tooltip>
                             </Grid>
                         </Grid>
                     </Grid>

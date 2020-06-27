@@ -29,6 +29,7 @@ import {
     UPD_LEAFS,
     ADD_REVIEWCOMMENT,
     DEL_REVIEWCOMMENT,
+    ADD_IMPORTMETADATA,
 } from 'constants/action-types';
 import { AnalysisResultDisplays, ResultDisplay, AnalysisResult } from 'core/armStructure.js';
 import getOid from 'utils/getOid.js';
@@ -386,6 +387,20 @@ const deleteReviewComment = (state, action) => {
     }
 };
 
+const addImportMetadata = (state, action) => {
+    let newState = state;
+    let { newResultDisplays, updatedResultDisplays } = action.updateObj.resultDisplayResult;
+    if (Object.keys({ ...newResultDisplays, ...updatedResultDisplays }).length > 0) {
+        newState = { ...state };
+        newState.resultDisplays = { ...newState.resultDisplays, ...newResultDisplays, ...updatedResultDisplays };
+        if (Object.keys(newResultDisplays).length > 0) {
+            newState.resultDisplayOrder = newState.resultDisplayOrder.concat(Object.keys(newResultDisplays));
+        }
+    }
+
+    return newState;
+};
+
 const analysisResultDisplays = (state = {}, action) => {
     switch (action.type) {
         case UPD_ARMSTATUS:
@@ -420,6 +435,8 @@ const analysisResultDisplays = (state = {}, action) => {
             return addReviewComment(state, action);
         case DEL_REVIEWCOMMENT:
             return deleteReviewComment(state, action);
+        case ADD_IMPORTMETADATA:
+            return addImportMetadata(state, action);
         default:
             return state;
     }

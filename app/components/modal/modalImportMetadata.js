@@ -142,6 +142,13 @@ const clDefault = {
     connectors: [],
 };
 
+const rlDefault = {
+    isEnabled: false,
+    applyToVlm: false,
+    conditions: [{ field: 'resultDisplay', comparator: 'IN', selectedValues: [], regexIsValid: true }],
+    connectors: [],
+};
+
 const json2csv = (json, delimiter) => {
     let attrs = Object.keys(json[0]);
     let result = [attrs.join(delimiter)];
@@ -203,13 +210,15 @@ const convertLayout = async (data, layout, newLayout) => {
     }
 };
 
-const tabNames = ['datasets', 'variables', 'codeLists', 'codedValues'];
-const tabLabels = ['Datasets', 'Variables', 'Codelists', 'Coded Values'];
+const tabNames = ['datasets', 'variables', 'codeLists', 'codedValues', 'resultDisplays', 'analysisResults'];
+const tabLabels = ['Datasets', 'Variables', 'Codelists', 'Coded Values', 'Result Displays', 'Analysis Results'];
 let placeholders = {
     datasets: 'dataset,label,class, ...\nADSL,Subject Level Analysis Dataset,ADSL,...\nADLB,Laboratory Analysis Laboratory Dataset,BDS,...',
     variables: 'dataset,variable,length,...\nADSL,AVAL,20,...\nADSL,AVAL.AST,8,...',
     codeLists: 'codeList,codeListType,dataType,...\nNo Yes Response,decoded,text,...\nRace,decoded,text,...',
     codedValues: 'codeList,codedValue,decode,...\nNo Yes Response,Y,Yes,...\nNo Yes Response,N,No,...',
+    resultDisplays: 'resultDisplay,description,...\nTable 1.1,Kaplan-Meier Overall Survival Analysis,...',
+    analysisResults: 'resultDisplay,description,...\nTable 1.1,OS Analysis,...',
 };
 
 const ModalImportMetadata = (props) => {
@@ -217,11 +226,16 @@ const ModalImportMetadata = (props) => {
     let classes = getStyles();
     const reviewMode = useSelector(state => state.present.ui.main.reviewMode);
     const onlyArmEdit = useSelector(state => state.present.settings.editor.onlyArmEdit);
+    const hasArm = useSelector(state => state.present.odm.study.metaDataVersion.analysisResultDisplays !== undefined &&
+        Object.keys(state.present.odm.study.metaDataVersion.analysisResultDisplays).length > 0
+    );
 
     const [varData, setVarData] = useState('');
     const [dsData, setDsData] = useState('');
     const [codeListData, setCodeListData] = useState('');
     const [codedValueData, setCodedValueData] = useState('');
+    const [resultDisplayData, setResultDisplayData] = useState('');
+    const [analysisResultData, setAnalysisResultData] = useState('');
     const [showXptLoad, setShowXptLoad] = useState(false);
     const [showDefineLoad, setShowDefineLoad] = useState(false);
 
@@ -230,8 +244,8 @@ const ModalImportMetadata = (props) => {
         setCurrentTab(newTab);
     };
 
-    let currentData = [dsData, varData, codeListData, codedValueData][tabNames.indexOf(currentTab)];
-    let currentSetter = [setDsData, setVarData, setCodeListData, setCodedValueData][tabNames.indexOf(currentTab)];
+    let currentData = [dsData, varData, codeListData, codedValueData, resultDisplayData, analysisResultData][tabNames.indexOf(currentTab)];
+    let currentSetter = [setDsData, setVarData, setCodeListData, setCodedValueData, setResultDisplayData, setAnalysisResultData][tabNames.indexOf(currentTab)];
     const handleChange = (event) => {
         currentSetter(event.target.value);
     };
@@ -251,6 +265,8 @@ const ModalImportMetadata = (props) => {
         variable: varDefault,
         codeList: clDefault,
         codedValue: clDefault,
+        resultDisplay: rlDefault,
+        analysisResult: rlDefault,
     });
 
     const [selectedAttributes, setSelectedAttributes] = useState({
@@ -258,6 +274,8 @@ const ModalImportMetadata = (props) => {
         variable: [],
         codeList: [],
         codedValue: [],
+        resultDisplay: [],
+        analysisResult: [],
     });
 
     const [selectedItems, setSelectedItems] = useState({
@@ -265,6 +283,8 @@ const ModalImportMetadata = (props) => {
         variable: [],
         codeList: [],
         codedValue: [],
+        resultDisplay: [],
+        analysisResult: [],
     });
 
     const [selectedItemNum, setSelectedItemNum] = useState({
@@ -272,6 +292,8 @@ const ModalImportMetadata = (props) => {
         variable: 0,
         codeList: 0,
         codedValue: 0,
+        resultDisplay: 0,
+        analysisResult: 0,
     });
 
     const handleImportMetadata = async () => {
@@ -279,7 +301,9 @@ const ModalImportMetadata = (props) => {
             dsData: await convertLayout(dsData, layout, 'table'),
             varData: await convertLayout(varData, layout, 'table'),
             codeListData: await convertLayout(codeListData, layout, 'table'),
-            codedValueData: await convertLayout(codedValueData, layout, 'table')
+            codedValueData: await convertLayout(codedValueData, layout, 'table'),
+            resultDisplayData: await convertLayout(resultDisplayData, layout, 'table'),
+            analysisResultData: await convertLayout(analysisResultData, layout, 'table'),
         };
         let convertedMetadata;
         try {
@@ -311,18 +335,22 @@ const ModalImportMetadata = (props) => {
         }
     };
 
-    const handleDefineFinish = async (varData, dsData, codeListData, codedValueData) => {
+    const handleDefineFinish = async (varData, dsData, codeListData, codedValueData, resultDisplayData, analysisResultData) => {
         setShowDefineLoad(false);
         if (layout !== 'csv') {
             setVarData(await convertLayout(varData, 'csv', layout));
             setDsData(await convertLayout(dsData, 'csv', layout));
             setCodeListData(await convertLayout(codeListData, 'csv', layout));
             setCodedValueData(await convertLayout(codedValueData, 'csv', layout));
+            setResultDisplayData(await convertLayout(resultDisplayData, 'csv', layout));
+            setAnalysisResultData(await convertLayout(analysisResultData, 'csv', layout));
         } else {
             setVarData(varData);
             setDsData(dsData);
             setCodeListData(codeListData);
             setCodedValueData(codedValueData);
+            setResultDisplayData(resultDisplayData);
+            setAnalysisResultData(analysisResultData);
         }
     };
 
@@ -361,7 +389,7 @@ const ModalImportMetadata = (props) => {
 
     const [layout, setLayout] = useState('excel');
     const handleLayout = async (event) => {
-        let data = [dsData, varData, codeListData, codedValueData];
+        let data = [dsData, varData, codeListData, codedValueData, resultDisplayData, analysisResultData];
         let convertedData = [];
         let conversionFailed = false;
         let newLayout = event.target.value;
@@ -392,7 +420,7 @@ const ModalImportMetadata = (props) => {
                 })
             );
         } else {
-            let setters = [setDsData, setVarData, setCodeListData, setCodedValueData];
+            let setters = [setDsData, setVarData, setCodeListData, setCodedValueData, setResultDisplayData, setAnalysisResultData];
             convertedData.forEach((convData, index) => {
                 setters[index](convData);
             });
@@ -503,9 +531,11 @@ const ModalImportMetadata = (props) => {
                             indicatorColor='primary'
                             textColor='primary'
                         >
-                            { tabNames.map((tab, index) => {
-                                return <Tab value={tab} key={tab} label={tabLabels[index]}/>;
-                            })
+                            { tabNames
+                                .filter(tab => (hasArm === true || !['analysisResults', 'resultDisplays'].includes(tab)))
+                                .map((tab, index) => {
+                                    return <Tab value={tab} key={tab} label={tabLabels[index]}/>;
+                                })
                             }
                         </Tabs>
                     </AppBar>
@@ -536,7 +566,9 @@ const ModalImportMetadata = (props) => {
                     <Button
                         onClick={handleImportMetadata}
                         color="primary"
-                        disabled={reviewMode || onlyArmEdit || (varData === '' && dsData === '' && codedValueData === '' && codeListData === '')}
+                        disabled={reviewMode ||
+                                (onlyArmEdit && (varData !== '' || dsData !== '' || codedValueData !== '' || codeListData !== '')) ||
+                                (varData === '' && dsData === '' && codedValueData === '' && codeListData === '' && resultDisplayData === '' && analysisResultData === '')}
                     >
                         Import
                     </Button>

@@ -17,6 +17,7 @@ import clone from 'clone';
 import { ItemGroup, ItemDef, ItemRef, TranslatedText, EnumeratedItem, DatasetClass, ValueList,
     CodeListItem, Origin, Alias, Leaf, CodeList, Document, PdfPageRef, Comment, Method, WhereClause,
 } from 'core/defineStructure.js';
+import { ResultDisplay, AnalysisResult } from 'core/armStructure.js';
 import getOid from 'utils/getOid.js';
 import deepEqual from 'fast-deep-equal';
 import compareMethods from 'utils/compareMethods.js';
@@ -74,6 +75,10 @@ const handleBlankAttributes = (obj, ignoreBlanks, recursive) => {
                 } else if (['decode', 'codedValue'].includes(attr)) {
                     result[attr] = '';
                 }
+                // Result Display attributes
+                if (['pages', 'description', 'document'].includes(attr)) {
+                    result[attr] = '';
+                }
             } else if (result[attr] === undefined) {
                 delete result[attr];
             } else if (recursive === true && typeof result[attr] === 'object') {
@@ -112,6 +117,36 @@ const cast2Type = (value, type) => {
         }
     }
     return result;
+};
+
+const getDocIdByName = (name, mdv) => {
+    let result;
+    Object.keys(mdv.leafs).some(leafId => {
+        if (mdv.leafs[leafId].title === name) {
+            result = leafId;
+            return true;
+        }
+    });
+    return result;
+};
+
+const updatePages = (pages, originalDoc) => {
+    let doc = clone(originalDoc);
+    if (pages === '' && doc.pdfPageRefs.length > 0) {
+        doc.pdfPageRefs = [];
+    } else if (pages) {
+        let type = /^\s*\d+\s*(-\s*\d+\s*)?$/.test(pages) ? 'PhysicalRef' : 'NamedDestination';
+        if (doc.pdfPageRefs.length === 0) {
+            doc.pdfPageRefs = [{ ...new PdfPageRef({ type }) }];
+        }
+        if (/^\s*\d+\s*-\s*\d+\s*$/.test(pages)) {
+            doc.pdfPageRefs[0].firstPage = pages.replace(/^\s*(\d+)\s*-\s*(\d+)\s*$/, '$1');
+            doc.pdfPageRefs[0].lastPage = pages.replace(/^\s*(\d+)\s*-\s*(\d+)\s*$/, '$2');
+        } else {
+            doc.pdfPageRefs[0].pageRefs = pages;
+        }
+    }
+    return doc;
 };
 
 const toSimpleObject = (object) => {
@@ -156,11 +191,12 @@ const updateItem = ({ item, itemDef, itemRef, stdConstants, model, mdv, options,
         itemDef.fieldName = itemDef.name.slice(0, 8);
     }
     // Label
-    if (item.label) {
+    if (item.label !== undefined) {
         itemDef.setDescription(item.label);
         itemDef.descriptions = toSimpleObject(itemDef.descriptions);
     }
     // Origin
+    // Filter analysis resultts for that resultDisplay
     if (item.hasOwnProperty('originType') || item.hasOwnProperty('originDescription') ||
         item.hasOwnProperty('originSource') || item.hasOwnProperty('crfPages')
     ) {
@@ -460,7 +496,7 @@ const getParentItemDef = (item, allItemDefs, itemGroupOid, errors) => {
 };
 
 const convertImportMetadata = (metadata) => {
-    const { dsData, varData, codeListData, codedValueData } = clone(metadata);
+    const { dsData, varData, codeListData, codedValueData, resultDisplayData, analysisResultData } = clone(metadata);
     // Upcase all variable/dataset names, rename some fields;
     dsData.forEach(ds => {
         if (ds.dataset) {
@@ -544,7 +580,7 @@ const convertImportMetadata = (metadata) => {
                 let name = itemGroup.name;
                 if (ds.dataset === name) {
                     let newItemGroup = new ItemGroup({
-                        ...itemGroup,
+                        ...clone(itemGroup),
                         ...ds,
                     });
                     if (ds.datasetName === undefined) {
@@ -712,7 +748,7 @@ const convertImportMetadata = (metadata) => {
             let codeList;
             let isNewCodeList = false;
             if (Object.keys(mdv.codeLists).includes(codeListOid)) {
-                codeList = new CodeList({ ...mdv.codeLists[codeListOid], ...currentCodeList });
+                codeList = new CodeList({ ...clone(mdv.codeLists[codeListOid]), ...currentCodeList });
                 // Codelist types should not be changed in import metadata, because it is a complex operation
                 if (mdv.codeLists[codeListOid].codeListType !== codeList.codeListType) {
                     errors.push({
@@ -817,9 +853,9 @@ const convertImportMetadata = (metadata) => {
                     // Existing
                     let newCodedValue;
                     if (cl.codeListType === 'decoded') {
-                        newCodedValue = new CodeListItem({ ...cl[clItemType][cvOid], ...item });
+                        newCodedValue = new CodeListItem({ ...clone(cl[clItemType][cvOid]), ...item });
                     } else {
-                        newCodedValue = new EnumeratedItem({ ...cl[clItemType][cvOid], ...item });
+                        newCodedValue = new EnumeratedItem({ ...clone(cl[clItemType][cvOid]), ...item });
                     }
                     if (item.decode !== undefined && cl.codeListType === 'decoded') {
                         let newDecode = { ...new TranslatedText({ value: item.decode }) };
@@ -988,7 +1024,7 @@ const convertImportMetadata = (metadata) => {
                         // Existing variable
                         Object.values(mdv.itemGroups[itemGroupOid].itemRefs).some(existingItemRef => {
                             if (existingItemRef.itemOid === itemDefOid) {
-                                itemRef = new ItemRef({ ...existingItemRef, ...item });
+                                itemRef = new ItemRef({ ...clone(existingItemRef), ...item });
                             }
                         });
                         itemDef = new ItemDef({ ...clone(mdv.itemDefs[itemDefOid]), ...item });
@@ -996,7 +1032,7 @@ const convertImportMetadata = (metadata) => {
                         // Existing VLM variable
                         Object.values(allValueLists[valueListOid].itemRefs).some(existingItemRef => {
                             if (existingItemRef.itemOid === itemDefOid) {
-                                itemRef = new ItemRef({ ...existingItemRef, ...item });
+                                itemRef = new ItemRef({ ...clone(existingItemRef), ...item });
                                 if (item.whereClause !== undefined) {
                                     itemRef.whereClauseOid = parseWhereClause(item.whereClause, itemRef.whereClauseOid,
                                         updatedWhereClauses, newWhereClauses, itemGroupOid, valueListOid, mdv, errors
@@ -1134,6 +1170,180 @@ const convertImportMetadata = (metadata) => {
             }
         });
     }
+    // Result Displays
+    let resultDisplayResult = {};
+    if (resultDisplayData && resultDisplayData.length > 0) {
+        let newResultDisplays = {};
+        let updatedResultDisplays = {};
+        let resultDisplayOids = {};
+        let currentResultDisplayOids = Object.keys(mdv.analysisResultDisplays.resultDisplays);
+        if (checkDuplicateKeys(resultDisplayData, ['resultDisplay'])) {
+            errors.push({
+                id: 'duplicateKeys',
+                message: 'There are duplicate keys for result display metadata. Attribute **resultDisplay** values must be unique.'
+            });
+        }
+        // Get the list of current result displays
+        resultDisplayData.forEach(resultDisplay => {
+            let resultDisplayOid = getOidByName(mdv, 'resultDisplays', resultDisplay.resultDisplay);
+            if (resultDisplayOid === undefined) {
+                resultDisplayOid = getOid('ResultDisplay', currentResultDisplayOids);
+                currentResultDisplayOids.push(resultDisplayOid);
+                resultDisplayOids[resultDisplay.resultDisplay] = resultDisplayOid;
+            } else {
+                resultDisplayOids[resultDisplay.resultDisplay] = resultDisplayOid;
+            }
+        });
+        // Create new or updated result displays
+        Object.keys(resultDisplayOids).forEach(resultDisplayName => {
+            let resultDisplayOid = resultDisplayOids[resultDisplayName];
+            let currentResultDisplay = resultDisplayData.filter(cl => cl.resultDisplay === resultDisplayName)[0];
+            currentResultDisplay = handleBlankAttributes(currentResultDisplay, ignoreBlanks);
+            let resultDisplay;
+            let isNewResultDisplay = false;
+            if (Object.keys(mdv.analysisResultDisplays.resultDisplays).includes(resultDisplayOid)) {
+                resultDisplay = new ResultDisplay({ ...clone(mdv.analysisResultDisplays.resultDisplays[resultDisplayOid]), ...currentResultDisplay });
+            } else {
+                isNewResultDisplay = true;
+                resultDisplay = new ResultDisplay({ ...currentResultDisplay, oid: resultDisplayOid, name: currentResultDisplay.resultDisplay });
+            }
+            if (currentResultDisplay.description !== undefined) {
+                resultDisplay.setDescription(currentResultDisplay.description);
+                resultDisplay.descriptions = toSimpleObject(resultDisplay.descriptions);
+            }
+            if (currentResultDisplay.document) {
+                let docId = getDocIdByName(currentResultDisplay.document, mdv);
+                if (docId === undefined) {
+                    errors.push({
+                        id: 'additional',
+                        message: `Document ${currentResultDisplay.document} specified for result display ${currentResultDisplay.resultDisplay} does not exist. `
+                    });
+                } else {
+                    if (resultDisplay.documents.length === 0) {
+                        resultDisplay.documents[0] = { ...new Document({ leafId: docId }) };
+                    } else {
+                        resultDisplay.documents[0] = { ...new Document({ ...resultDisplay.documents[0], leafId: docId }) };
+                    }
+                }
+            } else if (currentResultDisplay.document === '' && resultDisplay.documents.length > 0) {
+                resultDisplay.documents = [];
+            }
+            if (currentResultDisplay.pages !== undefined) {
+                if (resultDisplay.documents.length === 0 && currentResultDisplay.pages !== '') {
+                    errors.push({
+                        id: 'additional',
+                        message: `Pages were specified for result display ${currentResultDisplay.resultDisplay} which does not reference any document.`
+                    });
+                } else if (resultDisplay.documents.length > 0) {
+                    resultDisplay.documents[0] = updatePages(currentResultDisplay.pages, resultDisplay.documents[0]);
+                }
+            }
+            if (isNewResultDisplay) {
+                newResultDisplays[resultDisplayOid] = { ...resultDisplay };
+            } else {
+                // Do not update if there are no changes
+                let sourceResultDisplay = mdv.analysisResultDisplays.resultDisplays[resultDisplayOid];
+
+                let original = handleBlankAttributes(sourceResultDisplay, false, true);
+                let updated = handleBlankAttributes(resultDisplay, false, true);
+                if (!deepEqual(original, updated)) {
+                    updatedResultDisplays[resultDisplayOid] = { ...resultDisplay };
+                }
+            }
+        });
+        resultDisplayResult = { newResultDisplays, updatedResultDisplays };
+    }
+    // Analysis Result
+    let analysisResultResult = {};
+    if (analysisResultData && analysisResultData.length > 0) {
+        let newAnalysisResults = {};
+        let updatedAnalysisResults = {};
+        let currentAnalysisResultOids = Object.keys(mdv.analysisAnalysisResults.analysisResults);
+        if (checkDuplicateKeys(analysisResultData, ['resultDisplay', 'description'])) {
+            errors.push({
+                id: 'duplicateKeys',
+                message: 'There are duplicate keys for analysis result metadata. Attribute **resultDisplay, description** values must be unique.'
+            });
+        }
+        // Get the list of current result displays
+        let resultDisplayOids = {};
+        analysisResultData.forEach(analysisResult => {
+            let resultDisplayOid = getOidByName(mdv, 'resultDisplays', analysisResult.resultDisplay);
+            if (resultDisplayOid === undefined) {
+                // Search in the new result displays
+                Object.values(resultDisplayData.newResultDisplays).some(resultDisplay => {
+                    if (resultDisplay.name === analysisResult.resultDisplay) {
+                        resultDisplayOid = resultDisplay.oid;
+                        return true;
+                    }
+                });
+            }
+            if (resultDisplayOid === undefined) {
+                throw new Error(`Result Display ${analysisResult.resultDisplay} is not defined.`);
+            } else {
+                resultDisplayOids[analysisResult.resultDisplay] = resultDisplayOid;
+            }
+        });
+
+        Object.keys(resultDisplayOids).forEach(resultDisplayName => {
+            let resultDisplayOid = resultDisplayOids[resultDisplayName];
+            // Filter analysis resultts for that resultDisplay
+            let currentAnalysisResults = analysisResultData.filter(analysisResult => analysisResult.resultDisplay === resultDisplayName);
+            currentAnalysisResults.forEach(currentAnalysisResult => {
+                // Check if this is an existing or a new analysis result
+                currentAnalysisResults.forEach(currentAnalysisResult => {
+                    let analysisResultOid;
+                    let analysisResult;
+                    let isNewAnalysisResult = false;
+                    isNewAnalysisResult = !Object.values(mdv.analysisResultDisplays.analysisResults).some(existingAnalysisResult => {
+                        if (getDescription(existingAnalysisResult).toLowerCase() === currentAnalysisResult.description.toLowerCase()) {
+                            analysisResultOid = existingAnalysisResult.oid;
+                            analysisResult = new AnalysisResult({ ...clone(mdv.analysisResultDisplays.analysisResults[analysisResultOid]), ...currentAnalysisResult });
+                            return true;
+                        }
+                    });
+                    if (isNewAnalysisResult === true) {
+                        analysisResultOid = getOid('AnalysisResult', currentAnalysisResultOids);
+                        currentAnalysisResultOids.push(analysisResultOid);
+                        analysisResult = new AnalysisResult({ ...currentAnalysisResult, oid: analysisResultOid });
+                        analysisResult.sources.resultDisplays.push(resultDisplayOid);
+                    }
+                    if (currentAnalysisResult.description !== undefined) {
+                        analysisResult.setDescription(currentAnalysisResult.description);
+                        analysisResult.descriptions = toSimpleObject(analysisResult.descriptions);
+                    }
+                    if (currentAnalysisResult.document) {
+                        let docId = getDocIdByName(currentAnalysisResult.document, mdv);
+                        if (docId === undefined) {
+                            errors.push({
+                                id: 'additional',
+                                message: `Document ${currentAnalysisResult.document} specified for result display ${currentAnalysisResult.analysisResult} does not exist. `
+                            });
+                        } else {
+                            if (analysisResult.documents.length === 0) {
+                                analysisResult.documents[0] = { ...new Document({ leafId: docId }) };
+                            } else {
+                                analysisResult.documents[0] = { ...new Document({ ...analysisResult.documents[0], leafId: docId }) };
+                            }
+                        }
+                    } else if (currentAnalysisResult.document === '' && analysisResult.documents.length > 0) {
+                        analysisResult.documents = [];
+                    }
+                    if (currentAnalysisResult.pages !== undefined) {
+                        if (analysisResult.documents.length === 0 && currentAnalysisResult.pages !== '') {
+                            errors.push({
+                                id: 'additional',
+                                message: `Pages were specified for result display ${currentAnalysisResult.analysisResult} which does not reference any document.`
+                            });
+                        } else if (analysisResult.documents.length > 0) {
+                            analysisResult.documents[0] = updatePages(currentAnalysisResult.pages, analysisResult.documents[0]);
+                        }
+                    }
+                });
+            });
+        });
+        analysisResultResult = { newAnalysisResults, updatedAnalysisResults };
+    }
     if (errors.length > 0) {
         throw new Error(errors.map(error => error.message).join(' \n\n'));
     }
@@ -1148,6 +1358,8 @@ const convertImportMetadata = (metadata) => {
         addedSources,
         newWhereClauses,
         updatedWhereClauses,
+        resultDisplayResult,
+        analysisResultResult,
     };
 };
 

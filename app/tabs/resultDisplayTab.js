@@ -20,10 +20,13 @@ import { BootstrapTable, ButtonGroup } from 'react-bootstrap-table';
 import deepEqual from 'fast-deep-equal';
 import clone from 'clone';
 import renderColumns from 'utils/renderColumns.js';
+import Tooltip from '@material-ui/core/Tooltip';
+import Fab from '@material-ui/core/Fab';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import indigo from '@material-ui/core/colors/indigo';
 import grey from '@material-ui/core/colors/grey';
+import ArchiveIcon from '@material-ui/icons/Archive';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import ResultDisplayOrderEditor from 'components/orderEditors/resultDisplayOrderEditor.js';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
@@ -41,11 +44,15 @@ import { getReviewCommentStats } from 'utils/reviewCommentUtils.js';
 import {
     updateResultDisplay,
     deleteResultDisplays,
+    openModal,
 } from 'actions/index.js';
 
 const styles = theme => ({
     buttonGroup: {
         marginLeft: theme.spacing(2),
+    },
+    fabIcon: {
+        transform: 'translate(0, -5%)',
     },
 });
 
@@ -54,6 +61,7 @@ const mapDispatchToProps = dispatch => {
     return {
         updateResultDisplay: (updateObj) => dispatch(updateResultDisplay(updateObj)),
         deleteResultDisplays: (deleteObj) => dispatch(deleteResultDisplays(deleteObj)),
+        openModal: (updateObj) => dispatch(openModal(updateObj)),
     };
 };
 
@@ -191,6 +199,13 @@ class ConnectedResultDisplayTable extends React.Component {
     }
 
     createCustomButtonGroup = props => {
+        const openImportMetadata = () => {
+            this.props.openModal({
+                type: 'IMPORT_METADATA',
+                props: { tab: 'resultDisplays' }
+            });
+        };
+
         return (
             <ButtonGroup className={this.props.classes.buttonGroup}>
                 <Grid container spacing={2}>
@@ -219,6 +234,18 @@ class ConnectedResultDisplayTable extends React.Component {
                     </Grid>
                     <Grid item>
                         <ResultDisplayOrderEditor/>
+                    </Grid>
+                    <Grid item>
+                        <Tooltip title={'Import Metadata'} placement='bottom' enterDelay={700}>
+                            <Fab
+                                size='small'
+                                color='default'
+                                onClick={openImportMetadata}
+                                className={this.props.classes.fabIcon}
+                            >
+                                <ArchiveIcon/>
+                            </Fab>
+                        </Tooltip>
                     </Grid>
                 </Grid>
             </ButtonGroup>
