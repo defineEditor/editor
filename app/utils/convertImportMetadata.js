@@ -17,7 +17,7 @@ import clone from 'clone';
 import { ItemGroup, ItemDef, ItemRef, TranslatedText, EnumeratedItem, DatasetClass, ValueList,
     CodeListItem, Origin, Alias, Leaf, CodeList, Document, PdfPageRef, Comment, Method, WhereClause,
 } from 'core/defineStructure.js';
-import { ResultDisplay, AnalysisResult } from 'core/armStructure.js';
+import { ResultDisplay, AnalysisResult, AnalysisDataset, Documentation } from 'core/armStructure.js';
 import getOid from 'utils/getOid.js';
 import deepEqual from 'fast-deep-equal';
 import compareMethods from 'utils/compareMethods.js';
@@ -29,7 +29,7 @@ import validateItemRef from 'utils/importValidators/validateItemRef.js';
 import validateItemGroupDef from 'utils/importValidators/validateItemGroupDef.js';
 import validateCodeList from 'utils/importValidators/validateCodeList.js';
 import validateCodeListItem from 'utils/importValidators/validateCodeListItem.js';
-import { getDescription } from 'utils/defineStructureUtils.js';
+import { getDescription, setDescription } from 'utils/defineStructureUtils.js';
 import { convertWhereClauseLineToRangeChecks, validateWhereClauseLine } from 'utils/parseWhereClause.js';
 
 const handleBlankAttributes = (obj, ignoreBlanks, recursive) => {
@@ -77,6 +77,12 @@ const handleBlankAttributes = (obj, ignoreBlanks, recursive) => {
                 }
                 // Result Display attributes
                 if (['pages', 'description', 'document'].includes(attr)) {
+                    result[attr] = '';
+                }
+                // Analysis Result attributes
+                if (['reason', 'purpose'].includes(attr)) {
+                    result[attr] = undefined;
+                } else if (['datasets', 'criteria', 'variables', 'documentation', 'document', 'pages', 'context', 'code'].includes(attr)) {
                     result[attr] = '';
                 }
             } else if (result[attr] === undefined) {
@@ -416,7 +422,8 @@ const updateItem = ({ item, itemDef, itemRef, stdConstants, model, mdv, options,
     }
 };
 
-const parseWhereClause = (whereClauseText, whereClauseOid, updatedWhereClauses, newWhereClauses, itemGroupOid, valueListOid, mdv, errors) => {
+const parseWhereClause = (whereClauseText, whereClauseOid, updatedWhereClauses, newWhereClauses, itemGroupOid, sourceOid, mdv, errors, sourceType = 'valueLists'
+) => {
     if (whereClauseText) {
         let wcIsInvalid = !validateWhereClauseLine(
             whereClauseText,
@@ -440,13 +447,28 @@ const parseWhereClause = (whereClauseText, whereClauseOid, updatedWhereClauses, 
                 // Create a new WhereClause
                 let newWhereClauseOid = getOid('WhereClause', Object.keys({ ...mdv.whereClauses, ...newWhereClauses }));
                 whereClause = { ...new WhereClause({ oid: newWhereClauseOid, rangeChecks }) };
-                whereClause.sources.valueLists.push(valueListOid);
+                if (sourceType === 'valueLists') {
+                    whereClause.sources[sourceType].push(sourceOid);
+                } else if (sourceType === 'analysisResults') {
+                    whereClause.sources[sourceType][sourceOid] = [itemGroupOid];
+                }
                 newWhereClauses[newWhereClauseOid] = { ...whereClause };
             } else {
                 // Update existing WhereClause
                 whereClause = { ...new WhereClause({ ...mdv.whereClauses[whereClauseOid], rangeChecks }) };
-                if (whereClause.sources.valueLists && !whereClause.sources.valueLists.includes(valueListOid)) {
-                    whereClause.sources.valueLists.push(valueListOid);
+                if (sourceType === 'valueLists') {
+                    if (whereClause.sources[sourceType] && !whereClause.sources[sourceType].includes(sourceOid)) {
+                        whereClause.sources[sourceType].push(sourceOid);
+                    }
+                } else if (sourceType === 'analysisResults') {
+                    whereClause.sources[sourceType][sourceOid] = [itemGroupOid];
+                    if (whereClause.sources[sourceType] && whereClause.sources[sourceType][sourceOid] === undefined) {
+                        whereClause.sources[sourceType][sourceOid] = [itemGroupOid];
+                    } else if (whereClause.sources[sourceType] && whereClause.sources[sourceType][sourceOid] !== undefined &&
+                        whereClause.sources[sourceType][sourceOid].includes(itemGroupOid)
+                    ) {
+                        whereClause.sources[sourceType][sourceOid].push(itemGroupOid);
+                    }
                 }
                 let original = handleBlankAttributes(mdv.whereClauses[whereClauseOid], false, true);
                 let updated = handleBlankAttributes(whereClause, false, true);
@@ -1258,7 +1280,7 @@ const convertImportMetadata = (metadata) => {
     if (analysisResultData && analysisResultData.length > 0) {
         let newAnalysisResults = {};
         let updatedAnalysisResults = {};
-        let currentAnalysisResultOids = Object.keys(mdv.analysisAnalysisResults.analysisResults);
+        let currentAnalysisResultOids = Object.keys(mdv.analysisResultDisplays.analysisResults);
         if (checkDuplicateKeys(analysisResultData, ['resultDisplay', 'description'])) {
             errors.push({
                 id: 'duplicateKeys',
@@ -1298,7 +1320,7 @@ const convertImportMetadata = (metadata) => {
                     isNewAnalysisResult = !Object.values(mdv.analysisResultDisplays.analysisResults).some(existingAnalysisResult => {
                         if (getDescription(existingAnalysisResult).toLowerCase() === currentAnalysisResult.description.toLowerCase()) {
                             analysisResultOid = existingAnalysisResult.oid;
-                            analysisResult = new AnalysisResult({ ...clone(mdv.analysisResultDisplays.analysisResults[analysisResultOid]), ...currentAnalysisResult });
+                            analysisResult = new AnalysisResult({ ...clone(mdv.analysisResultDisplays.analysisResults[analysisResultOid]) });
                             return true;
                         }
                     });
@@ -1308,35 +1330,184 @@ const convertImportMetadata = (metadata) => {
                         analysisResult = new AnalysisResult({ ...currentAnalysisResult, oid: analysisResultOid });
                         analysisResult.sources.resultDisplays.push(resultDisplayOid);
                     }
-                    if (currentAnalysisResult.description !== undefined) {
-                        analysisResult.setDescription(currentAnalysisResult.description);
-                        analysisResult.descriptions = toSimpleObject(analysisResult.descriptions);
+                    // Set attributes
+                    if (currentAnalysisResult.reason !== undefined) {
+                        analysisResult.analysisReason = currentAnalysisResult.reason;
                     }
+                    if (currentAnalysisResult.purpose !== undefined) {
+                        analysisResult.analysisPurpose = currentAnalysisResult.purpose;
+                    }
+                    // Documentation
+                    if (currentAnalysisResult.documentation !== undefined) {
+                        if (analysisResult.documentation !== undefined) {
+                            setDescription(analysisResult.documentation, currentAnalysisResult.documentation);
+                        } else {
+                            analysisResult.documentation = new Documentation({});
+                            analysisResult.documentation.setDescription(currentAnalysisResult.documentation);
+                            analysisResult.documentation.descriptions = toSimpleObject(analysisResult.documentation);
+                        }
+                    }
+                    // Document
                     if (currentAnalysisResult.document) {
                         let docId = getDocIdByName(currentAnalysisResult.document, mdv);
                         if (docId === undefined) {
                             errors.push({
-                                id: 'additional',
-                                message: `Document ${currentAnalysisResult.document} specified for result display ${currentAnalysisResult.analysisResult} does not exist. `
+                                id: 'analysisResult',
+                                message: `Document ${currentAnalysisResult.document} specified for result display ${currentAnalysisResult.description} does not exist. `
+                            });
+                        } else if (analysisResult.documentation !== undefined) {
+                            if (analysisResult.documentation.documents.length === 0) {
+                                analysisResult.documentation.documents[0] = { ...new Document({ leafId: docId }) };
+                            } else {
+                                analysisResult.documentation.documents[0] = { ...new Document({ ...analysisResult.documentation.documents[0], leafId: docId }) };
+                            }
+                        } else {
+                            analysisResult.documentation = new Documentation({});
+                            analysisResult.documentation.documents[0] = { ...new Document({ leafId: docId }) };
+                        }
+                    } else if (currentAnalysisResult.document === '' && analysisResult.documentation && analysisResult.documentation.documents.length > 0) {
+                        analysisResult.documentation.documents = [];
+                    }
+                    // Pages
+                    if (currentAnalysisResult.pages !== undefined) {
+                        if (analysisResult.documentation && analysisResult.documentation.documents.length === 0 && currentAnalysisResult.pages !== '') {
+                            errors.push({
+                                id: 'analysisResult',
+                                message: `Pages were specified for analysis result ${currentAnalysisResult.description} which does not reference any document.`
+                            });
+                        } else if (analysisResult.documentation && analysisResult.documentation.documents.length > 0) {
+                            analysisResult.documentation.documents[0] = updatePages(currentAnalysisResult.pages, analysisResult.documentation.documents[0]);
+                        }
+                    }
+                    // Check if both description and documents were deleted, in this case remove the documentation
+                    if (analysisResult.documentation && getDescription(analysisResult.documentation) === '' && analysisResult.documentation.documents && analysisResult.documentation.documents.length === 0) {
+                        analysisResult.documentation = undefined;
+                    }
+                    // Datasets
+                    // When datasets needs to be removed
+                    if (currentAnalysisResult.datasets === '') {
+                        analysisResult.analysisDatasets = {};
+                        analysisResult.analysisDatasetOrder = [];
+                    } else if (currentAnalysisResult.datasets !== undefined) {
+                        let datasets = currentAnalysisResult.datasets.split(',').map(item => item.trim());
+                        let analysisDatasets = clone(analysisResult.analysisDatasets);
+                        let analysisDatasetOrder = analysisResult.analysisDatasetOrder.slice();
+                        let itemGroupOids = [];
+                        // Seach in the existing datasets
+                        let allItemGroups = { ...mdv.itemGroups };
+                        if (dsResult.newItemGroups) {
+                            allItemGroups = { ...allItemGroups, ...dsResult.newItemGroups };
+                        }
+                        Object.values(allItemGroups).some(itemGroup => {
+                            datasets.forEach(dataset => {
+                                if (itemGroup.name.toUpperCase() === dataset.toUpperCase()) {
+                                    itemGroupOids.push(itemGroup.oid);
+                                }
+                            });
+                        });
+                        if (datasets.length !== itemGroupOids.length) {
+                            errors.push({
+                                id: 'analysisResult',
+                                message: `Some of values in datasets ${currentAnalysisResult.datasets} specified for analysis result ${currentAnalysisResult.description} could not be found.`
                             });
                         } else {
-                            if (analysisResult.documents.length === 0) {
-                                analysisResult.documents[0] = { ...new Document({ leafId: docId }) };
-                            } else {
-                                analysisResult.documents[0] = { ...new Document({ ...analysisResult.documents[0], leafId: docId }) };
-                            }
-                        }
-                    } else if (currentAnalysisResult.document === '' && analysisResult.documents.length > 0) {
-                        analysisResult.documents = [];
-                    }
-                    if (currentAnalysisResult.pages !== undefined) {
-                        if (analysisResult.documents.length === 0 && currentAnalysisResult.pages !== '') {
-                            errors.push({
-                                id: 'additional',
-                                message: `Pages were specified for result display ${currentAnalysisResult.analysisResult} which does not reference any document.`
+                            // Remove datasets, which are not listed
+                            Object.keys(analysisDatasets).forEach(oid => {
+                                if (!itemGroupOids.includes(oid)) {
+                                    delete analysisDatasets[oid];
+                                    analysisDatasetOrder.splice(analysisDatasetOrder.indexOf(oid), 1);
+                                }
                             });
-                        } else if (analysisResult.documents.length > 0) {
-                            analysisResult.documents[0] = updatePages(currentAnalysisResult.pages, analysisResult.documents[0]);
+                            // Create new datasets
+                            itemGroupOids.forEach(itemGroupOid => {
+                                if (!analysisDatasetOrder.includes(itemGroupOid)) {
+                                    analysisDatasetOrder.push(itemGroupOid);
+                                    analysisDatasets[itemGroupOid] = new AnalysisDataset({ itemGroupOid });
+                                }
+                            });
+                        }
+                        analysisResult.analysisDatasets = analysisDatasets;
+                        analysisResult.analysisDatasetOrder = analysisDatasetOrder;
+                    }
+                    // Variables
+                    if (currentAnalysisResult.variables === '') {
+                        analysisResult.analysisDatasetOrder.forEach(oid => {
+                            analysisResult.analysisDatasets[oid].analysisVariableOids = [];
+                        });
+                    } else if (currentAnalysisResult.variables !== undefined) {
+                        let variables = currentAnalysisResult.variables.split(',');
+                        let analysisDatasets = clone(analysisResult.analysisDatasets);
+                        analysisResult.analysisDatasetOrder.forEach((oid, index) => {
+                            // There can be several datasets, but variables specified without comma -> means it will be used only for the first dataset
+                            if (variables[index] !== undefined) {
+                                let analysisVariableOids = [];
+                                // Variables are expected to be space separated, remove repeating spaces
+                                let dsVariables = variables[index].trim().replace(/\s+/, ' ').split(' ');
+                                // Seach variables in the existing datasets
+                                let allItemDefs = { ...mdv.itemDefs };
+                                if (varResult[oid] !== undefined) {
+                                    allItemDefs = { ...allItemDefs, ...varResult[oid].newItemDefs, ...varResult[oid].updatedItemDefs };
+                                }
+                                let dsNameOids = {};
+                                Object.values(allItemDefs).filter(itemDef => {
+                                    // Select only variables in that dataset
+                                    return itemDef.sources && itemDef.sources.itemGroups && itemDef.sources.itemGroups.includes(oid);
+                                }).forEach(itemDef => {
+                                    dsNameOids[itemDef.name.toUpperCase()] = itemDef.oid;
+                                });
+                                dsVariables.forEach(varName => {
+                                    if (Object.keys(dsNameOids).includes(varName.toUpperCase())) {
+                                        analysisVariableOids.push(dsNameOids[varName]);
+                                    } else {
+                                        errors.push({
+                                            id: 'analysisResult',
+                                            message: `Variable ${varName} specified for analysis result ${currentAnalysisResult.description} could not be found.`
+                                        });
+                                    }
+                                });
+                                analysisDatasets[oid].analysisVariableOids = analysisVariableOids;
+                            }
+                        });
+                        analysisResult.analysisDatasets = analysisDatasets;
+                    }
+                    if (currentAnalysisResult.criteria === '') {
+                        analysisResult.analysisDatasetOrder.forEach(oid => {
+                            analysisResult.analysisDatasets[oid].whereClauseOid = undefined;
+                        });
+                    } else if (currentAnalysisResult.criteria !== undefined) {
+                        let criteria = currentAnalysisResult.criteria.split('\n');
+                        let analysisDatasets = clone(analysisResult.analysisDatasets);
+                        analysisResult.analysisDatasetOrder.forEach((oid, index) => {
+                            // There can be several datasets, but criteria specified without comma -> means it will be used only for the first dataset
+                            if (criteria[index] !== undefined) {
+                                let criterion = criteria[index].trim();
+                                analysisDatasets[oid].whereClauseOid = parseWhereClause(criterion, analysisDatasets[oid].whereClauseOid,
+                                    updatedWhereClauses, newWhereClauses, oid, analysisResult.oid, mdv, errors, 'analysisResults'
+                                );
+                            }
+                        });
+                    }
+                    // Final processing and comparison
+                    if (isNewAnalysisResult) {
+                        newAnalysisResults[analysisResultOid] = { ...analysisResult };
+                        const { updatedResultDisplays, newResultDisplays } = resultDisplayResult;
+                        // If it is a new analysis result, add it in the resultDisplay
+                        if (updatedResultDisplays[resultDisplayOid] !== undefined) {
+                            updatedResultDisplays[resultDisplayOid].analysisResultOrder.push(analysisResult.oid);
+                        } else if (newResultDisplays[resultDisplayOid] !== undefined) {
+                            newResultDisplays[resultDisplayOid].analysisResultOrder.push(analysisResult.oid);
+                        } else if (mdv.analysisResultDisplays.resultDisplays[resultDisplayOid] !== undefined) {
+                            updatedAnalysisResults[resultDisplayOid] = clone(mdv.analysisResultDisplays.resultDisplays[resultDisplayOid]);
+                            updatedResultDisplays[resultDisplayOid].analysisResultOrder.push(analysisResult.oid);
+                        }
+                    } else {
+                        // Do not update if there are no changes
+                        let sourceAnalysisResult = mdv.analysisResultDisplays.analysisResults[analysisResultOid];
+
+                        let original = handleBlankAttributes(sourceAnalysisResult, false, true);
+                        let updated = handleBlankAttributes(analysisResult, false, true);
+                        if (!deepEqual(original, updated)) {
+                            updatedAnalysisResults[analysisResultOid] = { ...analysisResult };
                         }
                     }
                 });

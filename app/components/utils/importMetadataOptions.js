@@ -135,7 +135,7 @@ const ImportMetadataOptions = (props) => {
                                                 color='primary'
                                             />
                                         }
-                                        label='Remove code values not in listed in the import'
+                                        label='Remove coded values not in listed in the import'
                                     />
                                 </FormGroup>
                             </FormControl>

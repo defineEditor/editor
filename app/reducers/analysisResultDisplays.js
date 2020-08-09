@@ -389,13 +389,20 @@ const deleteReviewComment = (state, action) => {
 
 const addImportMetadata = (state, action) => {
     let newState = state;
+    // Result displays
     let { newResultDisplays, updatedResultDisplays } = action.updateObj.resultDisplayResult;
     if (Object.keys({ ...newResultDisplays, ...updatedResultDisplays }).length > 0) {
-        newState = { ...state };
+        newState = { ...newState };
         newState.resultDisplays = { ...newState.resultDisplays, ...newResultDisplays, ...updatedResultDisplays };
         if (Object.keys(newResultDisplays).length > 0) {
             newState.resultDisplayOrder = newState.resultDisplayOrder.concat(Object.keys(newResultDisplays));
         }
+    }
+    // Analysis results
+    let { newAnalysisResults, updatedAnalysisResults } = action.updateObj.analysisResultResult;
+    if (Object.keys({ ...newAnalysisResults, ...updatedAnalysisResults }).length > 0) {
+        newState = { ...newState };
+        newState.analysisResults = { ...newState.analysisResults, ...newAnalysisResults, ...updatedAnalysisResults };
     }
 
     return newState;

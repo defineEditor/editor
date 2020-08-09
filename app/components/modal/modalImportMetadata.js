@@ -546,6 +546,7 @@ const ModalImportMetadata = (props) => {
                     ) : (
                         <TextField
                             multiline
+                            autoFocus
                             fullWidth
                             value={currentData}
                             className={classes.mainContent}

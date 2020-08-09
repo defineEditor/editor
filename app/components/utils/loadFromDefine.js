@@ -83,7 +83,7 @@ const attributes = {
     codeList: ['type', 'dataType', 'formatName'],
     codedValue: ['decode', 'rank'],
     resultDisplay: ['description', 'document', 'pages'],
-    analysisResult: ['reason', 'purpose', 'dataset', 'criteria', 'variables', 'documentation', 'document', 'pages', 'context', 'code'],
+    analysisResult: ['reason', 'purpose', 'datasets', 'criteria', 'variables', 'documentation', 'document', 'pages', 'context', 'code'],
 };
 
 const getPages = (pdfPageRefs) => {
@@ -469,13 +469,13 @@ const LoadFromDefine = (props) => {
                         if (selectedAttrs.includes('purpose')) {
                             item.purpose = analysisResult.analysisPurpose;
                         }
-                        if (selectedAttrs.includes('dataset')) {
+                        if (selectedAttrs.includes('datasets')) {
                             let datasets = [];
                             analysisResult.analysisDatasetOrder.forEach(dsId => {
                                 let analysisDataset = analysisResult.analysisDatasets[dsId];
                                 datasets.push(mdv.itemGroups[analysisDataset.itemGroupOid].name);
                             });
-                            item.dataset = datasets.join(', ');
+                            item.datasets = datasets.join(', ');
                         }
                         if (selectedAttrs.includes('criteria')) {
                             let criteria = [];
@@ -486,7 +486,7 @@ const LoadFromDefine = (props) => {
                                     criteria.push(whereClause);
                                 }
                             });
-                            item.criteria = criteria.join(', ');
+                            item.criteria = criteria.join('\n');
                         }
                         if (selectedAttrs.includes('variables')) {
                             let variables = [];
@@ -500,7 +500,6 @@ const LoadFromDefine = (props) => {
                             });
                             item.variables = variables.join(', ');
                         }
-                        // analysisResult: ['description', 'reason', 'purpose', 'dataset', 'criteria', 'variables', 'documentation', 'document', 'pages', 'context', 'code'],
                         if (selectedAttrs.includes('documentation')) {
                             item.documentation = getDescription(analysisResult.documentation);
                         }

@@ -25,12 +25,12 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import Accordion from '@material-ui/core/Accordion';
 import { FaArrowCircleRight as GoToSourceIcon, FaCheck, FaTimes, FaFileDownload } from 'react-icons/fa';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
@@ -533,23 +533,23 @@ class ConnectedReviewCommentTab extends React.Component {
                             let data = this.getReviewCommentData(reviewComments, panelId, showResolved, mdv, this.state.searchString);
                             let panelStats = this.getPanelStats(data);
                             return (
-                                <ExpansionPanel
+                                <Accordion
                                     key={panelId}
                                     expanded={this.props.panelStatus[panelId] === true && panelStats.count > 0}
                                     onChange={this.handleChange(panelId)}
                                     disabled={panelStats.count === 0}
                                 >
-                                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                         <Typography className={classes.heading}>{panelLabels[panelId]}</Typography>
                                         <Typography className={classes.secondaryHeading}>
                                             {panelStats.count} comment{panelStats.count !== 1 && ('s')}
                                             { panelStats.resolvedCount > 0 && (`(${panelStats.resolvedCount} resolved)`) }
                                         </Typography>
-                                    </ExpansionPanelSummary>
-                                    <ExpansionPanelDetails>
+                                    </AccordionSummary>
+                                    <AccordionDetails>
                                         {this.getTable(data, panelId)}
-                                    </ExpansionPanelDetails>
-                                </ExpansionPanel>
+                                    </AccordionDetails>
+                                </Accordion>
                             );
                         }) }
                     </Grid>
