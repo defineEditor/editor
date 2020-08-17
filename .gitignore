@@ -10,6 +10,7 @@ app/temp
 app/static/plugins
 app/main.prod*
 *.swp
+*.swo
 *.log
 *~
 .tern-project

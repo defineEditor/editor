@@ -439,7 +439,7 @@ class Comment extends BasicFunctions {
                 whereClauses: [],
                 codeLists: [],
                 metaDataVersion: [],
-                resultDisplays: [],
+                analysisResults: [],
             };
         }
     }

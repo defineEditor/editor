@@ -182,14 +182,16 @@ class ConnectedAnalysisResultTable extends React.Component {
                                 <AnalysisResultOrderEditor resultDisplayOid={this.props.resultDisplayOid}/>
                             </Grid>
                             <Grid item>
-                                <Fab
-                                    size='small'
-                                    color={ commentPresent ? 'primary' : 'default' }
-                                    onClick={this.openComments}
-                                    className={classes.commentIcon}
-                                >
-                                    <CommentIcon/>
-                                </Fab>
+                                <Tooltip title={'Review Comment'} placement='bottom' enterDelay={700}>
+                                    <Fab
+                                        size='small'
+                                        color={ commentPresent ? 'primary' : 'default' }
+                                        onClick={this.openComments}
+                                        className={classes.commentIcon}
+                                    >
+                                        <CommentIcon/>
+                                    </Fab>
+                                </Tooltip>
                             </Grid>
                             <Grid item>
                                 <Tooltip title={'Import Metadata'} placement='bottom' enterDelay={700}>

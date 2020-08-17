@@ -83,7 +83,7 @@ const attributes = {
     codeList: ['type', 'dataType', 'formatName'],
     codedValue: ['decode', 'rank'],
     resultDisplay: ['description', 'document', 'pages'],
-    analysisResult: ['reason', 'purpose', 'datasets', 'criteria', 'variables', 'documentation', 'document', 'pages', 'context', 'code'],
+    analysisResult: ['reason', 'purpose', 'datasets', 'comment', 'criteria', 'variables', 'documentation', 'document', 'pages', 'context', 'code', 'codeDocument'],
 };
 
 const getPages = (pdfPageRefs) => {
@@ -477,6 +477,16 @@ const LoadFromDefine = (props) => {
                             });
                             item.datasets = datasets.join(', ');
                         }
+                        if (selectedAttrs.includes('comment')) {
+                            if (analysisResult.analysisDatasetsCommentOid !== undefined &&
+                                mdv.comments[analysisResult.analysisDatasetsCommentOid] !== undefined
+                            ) {
+                                let comment = mdv.comments[analysisResult.analysisDatasetsCommentOid];
+                                item.comment = getDescription(comment);
+                            } else {
+                                item.comment = '';
+                            }
+                        }
                         if (selectedAttrs.includes('criteria')) {
                             let criteria = [];
                             analysisResult.analysisDatasetOrder.forEach(dsId => {
@@ -539,6 +549,18 @@ const LoadFromDefine = (props) => {
                                 item.code = analysisResult.programmingCode.code;
                             } else {
                                 item.code = '';
+                            }
+                        }
+                        if (selectedAttrs.includes('codeDocument')) {
+                            if (analysisResult.programmingCode && analysisResult.programmingCode.documents.length > 0) {
+                                let document = analysisResult.programmingCode.documents[0];
+                                if (mdv.leafs[document.leafId]) {
+                                    item.codeDocument = mdv.leafs[document.leafId].title;
+                                } else {
+                                    item.codeDocument = '';
+                                }
+                            } else {
+                                item.codeDocument = '';
                             }
                         }
                         rawValues.push(item);
