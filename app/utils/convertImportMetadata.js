@@ -82,7 +82,7 @@ const handleBlankAttributes = (obj, ignoreBlanks, recursive) => {
                 // Analysis Result attributes
                 if (['reason', 'purpose'].includes(attr)) {
                     result[attr] = undefined;
-                } else if (['datasets', 'criteria', 'variables', 'documentation', 'document', 'pages', 'context', 'code', 'codeDocument'].includes(attr)) {
+                } else if (['datasets', 'criteria', 'variables', 'parameter', 'documentation', 'document', 'pages', 'context', 'code', 'codeDocument'].includes(attr)) {
                     result[attr] = '';
                 }
             } else if (result[attr] === undefined) {
@@ -847,6 +847,26 @@ const convertImportMetadata = (metadata) => {
             }
         });
 
+        // Check if linked codelists are not imported together
+        Object.keys(codeListOids)
+            .filter(clName => {
+                // Keep only those which have a linked codelist
+                if (allCodeLists[codeListOids[clName]].linkedCodeListOid) {
+                    return true;
+                }
+            })
+            .forEach(clName => {
+                if (!Object.values(codeListOids).includes(allCodeLists[codeListOids[clName]].linkedCodeListOid)) {
+                    errors.push({
+                        id: 'codedValues',
+                        message: `Your are adding coded values to codelist **${clName}** which has a linked codelist and which is not present in the same import.` +
+                        ' Linked codelists are not automatically updated in the import and must be present and manually updated in the same import.' +
+                        ' Breaking a connection between linked codelists may result in unexpected issues.' +
+                        ' You can unlink the codelists, perform the import and then link the codelist again to avoid any issues.'
+                    });
+                }
+            });
+
         // Update the coded values
         Object.keys(codeListOids).forEach(clName => {
             let clOid = codeListOids[clName];
@@ -1334,13 +1354,18 @@ const convertImportMetadata = (metadata) => {
                 let analysisResultOid;
                 let analysisResult;
                 let isNewAnalysisResult = false;
-                isNewAnalysisResult = !Object.values(mdv.analysisResultDisplays.analysisResults).some(existingAnalysisResult => {
-                    if (getDescription(existingAnalysisResult).toLowerCase() === currentAnalysisResult.description.toLowerCase()) {
-                        analysisResultOid = existingAnalysisResult.oid;
-                        analysisResult = new AnalysisResult({ ...clone(mdv.analysisResultDisplays.analysisResults[analysisResultOid]) });
-                        return true;
-                    }
-                });
+                isNewAnalysisResult = !Object.values(mdv.analysisResultDisplays.analysisResults)
+                    .filter(existingAnalysisResult => {
+                        // Keep only analysis results which correspond to the currnt result display
+                        return existingAnalysisResult.sources.resultDisplays.includes(resultDisplayOid);
+                    })
+                    .some(existingAnalysisResult => {
+                        if (getDescription(existingAnalysisResult).toLowerCase() === currentAnalysisResult.description.toLowerCase()) {
+                            analysisResultOid = existingAnalysisResult.oid;
+                            analysisResult = new AnalysisResult({ ...clone(mdv.analysisResultDisplays.analysisResults[analysisResultOid]) });
+                            return true;
+                        }
+                    });
                 if (isNewAnalysisResult === true) {
                     analysisResultOid = getOid('AnalysisResult', currentAnalysisResultOids);
                     currentAnalysisResultOids.push(analysisResultOid);
@@ -1348,9 +1373,15 @@ const convertImportMetadata = (metadata) => {
                     analysisResult.sources.resultDisplays.push(resultDisplayOid);
                 }
                 // Set attributes
+                // Description
+                if (currentAnalysisResult.description !== undefined) {
+                    setDescription(analysisResult, currentAnalysisResult.description);
+                }
+                // Reason
                 if (currentAnalysisResult.reason !== undefined) {
                     analysisResult.analysisReason = currentAnalysisResult.reason;
                 }
+                // Purpose
                 if (currentAnalysisResult.purpose !== undefined) {
                     analysisResult.analysisPurpose = currentAnalysisResult.purpose;
                 }
@@ -1491,6 +1522,32 @@ const convertImportMetadata = (metadata) => {
                     });
                     analysisResult.analysisDatasets = analysisDatasets;
                 }
+                // Parameter
+                if (currentAnalysisResult.parameter === '') {
+                    analysisResult.parameterOid = '';
+                } else if (currentAnalysisResult.parameter !== undefined) {
+                    let parameter = currentAnalysisResult.parameter.trim();
+                    if (/^\w+\.\w+$/.test(parameter)) {
+                        let dsName = parameter.replace(/^(\w+)\.\w+$/, '$1');
+                        let varName = parameter.replace(/^(\w+)\.(\w+)$/, '$2');
+                        let itemGroupOid = getOidByName(mdv, 'itemGroups', dsName);
+                        let itemOid = getOidByName(mdv, 'ItemRefs', varName, itemGroupOid);
+                        if (itemOid === undefined) {
+                            errors.push({
+                                id: 'analysisResult',
+                                message: `Could not find parameter ${parameter} for analysis result ${currentAnalysisResult.description}.`
+                            });
+                        } else {
+                            analysisResult.parameterOid = itemOid;
+                        }
+                    } else {
+                        errors.push({
+                            id: 'analysisResult',
+                            message: `Parameter ${parameter} is not in format DS.VAR for analysis result ${currentAnalysisResult.description}.`
+                        });
+                    }
+                }
+                // Selection criteria
                 if (currentAnalysisResult.criteria === '') {
                     analysisResult.analysisDatasetOrder.forEach(oid => {
                         let existingWhereClauseOid = analysisResult.analysisDatasets[oid].whereClauseOid;
@@ -1519,6 +1576,7 @@ const convertImportMetadata = (metadata) => {
                             );
                         }
                     });
+                    analysisResult.analysisDatasets = analysisDatasets;
                 }
                 // Code
                 if (currentAnalysisResult.code) {

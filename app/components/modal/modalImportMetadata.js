@@ -168,7 +168,7 @@ const json2csv = (json, delimiter) => {
     return result.join('\n');
 };
 
-const convertLayout = async (data, layout, newLayout) => {
+const convertLayout = async (data, layout, newLayout, options) => {
     try {
         if (layout === newLayout) {
             return data;
@@ -176,7 +176,7 @@ const convertLayout = async (data, layout, newLayout) => {
             return newLayout === 'table' ? [] : '';
         } else if (['csv', 'excel'].includes(layout)) {
             const delimiter = layout === 'csv' ? ',' : '\t';
-            let jsonData = await csv2json({ delimiter }).fromString(data);
+            let jsonData = await csv2json({ delimiter, trim: options.trimValues }).fromString(data);
             if (jsonData.length === 0) {
                 // Did not convert
                 throw new Error('Failed to convert');
@@ -225,6 +225,7 @@ const ModalImportMetadata = (props) => {
     const dispatch = useDispatch();
     let classes = getStyles();
     const reviewMode = useSelector(state => state.present.ui.main.reviewMode);
+    const options = useSelector(state => state.present.ui.main.metadataImportOptions);
     const onlyArmEdit = useSelector(state => state.present.settings.editor.onlyArmEdit);
     const hasArm = useSelector(state => state.present.odm.study.metaDataVersion.analysisResultDisplays !== undefined &&
         Object.keys(state.present.odm.study.metaDataVersion.analysisResultDisplays).length > 0
@@ -298,12 +299,12 @@ const ModalImportMetadata = (props) => {
 
     const handleImportMetadata = async () => {
         let metadata = {
-            dsData: await convertLayout(dsData, layout, 'table'),
-            varData: await convertLayout(varData, layout, 'table'),
-            codeListData: await convertLayout(codeListData, layout, 'table'),
-            codedValueData: await convertLayout(codedValueData, layout, 'table'),
-            resultDisplayData: await convertLayout(resultDisplayData, layout, 'table'),
-            analysisResultData: await convertLayout(analysisResultData, layout, 'table'),
+            dsData: await convertLayout(dsData, layout, 'table', options),
+            varData: await convertLayout(varData, layout, 'table', options),
+            codeListData: await convertLayout(codeListData, layout, 'table', options),
+            codedValueData: await convertLayout(codedValueData, layout, 'table', options),
+            resultDisplayData: await convertLayout(resultDisplayData, layout, 'table', options),
+            analysisResultData: await convertLayout(analysisResultData, layout, 'table', options),
         };
         let convertedMetadata;
         try {
@@ -325,9 +326,9 @@ const ModalImportMetadata = (props) => {
     const handleXptFinish = async (varData, dsData, codedValueData) => {
         setShowXptLoad(false);
         if (layout !== 'csv') {
-            setVarData(await convertLayout(varData, 'csv', layout));
-            setDsData(await convertLayout(dsData, 'csv', layout));
-            setCodedValueData(await convertLayout(codedValueData, 'csv', layout));
+            setVarData(await convertLayout(varData, 'csv', layout, options));
+            setDsData(await convertLayout(dsData, 'csv', layout, options));
+            setCodedValueData(await convertLayout(codedValueData, 'csv', layout, options));
         } else {
             setVarData(varData);
             setDsData(dsData);
@@ -338,12 +339,12 @@ const ModalImportMetadata = (props) => {
     const handleDefineFinish = async (varData, dsData, codeListData, codedValueData, resultDisplayData, analysisResultData) => {
         setShowDefineLoad(false);
         if (layout !== 'csv') {
-            setVarData(await convertLayout(varData, 'csv', layout));
-            setDsData(await convertLayout(dsData, 'csv', layout));
-            setCodeListData(await convertLayout(codeListData, 'csv', layout));
-            setCodedValueData(await convertLayout(codedValueData, 'csv', layout));
-            setResultDisplayData(await convertLayout(resultDisplayData, 'csv', layout));
-            setAnalysisResultData(await convertLayout(analysisResultData, 'csv', layout));
+            setVarData(await convertLayout(varData, 'csv', layout, options));
+            setDsData(await convertLayout(dsData, 'csv', layout, options));
+            setCodeListData(await convertLayout(codeListData, 'csv', layout, options));
+            setCodedValueData(await convertLayout(codedValueData, 'csv', layout, options));
+            setResultDisplayData(await convertLayout(resultDisplayData, 'csv', layout, options));
+            setAnalysisResultData(await convertLayout(analysisResultData, 'csv', layout, options));
         } else {
             setVarData(varData);
             setDsData(dsData);
@@ -400,7 +401,7 @@ const ModalImportMetadata = (props) => {
                 (typeof sourceData === 'object' && Object.keys(sourceData).length > 0)
             ) {
                 // Data is not blank
-                let newData = await convertLayout(sourceData, layout, newLayout);
+                let newData = await convertLayout(sourceData, layout, newLayout, options);
                 if (newData === false) {
                     conversionFailed = true;
                 } else {

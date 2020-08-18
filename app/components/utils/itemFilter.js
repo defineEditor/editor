@@ -484,15 +484,24 @@ class ConnectedVariableTabFilter extends React.Component {
             // Remove duplicates and undefined
             values.codeListType = type.filter((item, index) => (type.indexOf(item) === index)).filter(item => (item !== undefined));
         } else if (type === 'resultDisplay') {
-            let resultDisplays = this.props.mdv.analysisResultDisplays.resultDisplays;
-            values.resultDisplay = Object.values(resultDisplays).map(resultDisplay => (resultDisplay.name));
-            let description = Object.values(resultDisplays).map(resultDisplay => (getDescription(resultDisplay)));
+            let resultDisplayOrder = this.props.mdv.analysisResultDisplays.resultDisplayOrder;
+            values.resultDisplay = resultDisplayOrder.map(resultDisplayOid => {
+                let resultDisplay = this.props.mdv.analysisResultDisplays.resultDisplays[resultDisplayOid];
+                return resultDisplay.name;
+            });
+            let description = resultDisplayOrder.map(resultDisplayOid => {
+                let resultDisplay = this.props.mdv.analysisResultDisplays.resultDisplays[resultDisplayOid];
+                return getDescription(resultDisplay);
+            }).sort();
             // Remove duplicates and undefined
             values.description = description.filter((item, index) => (description.indexOf(item) === index)).filter(item => (item !== undefined));
         } else if (type === 'analysisResult') {
-            let resultDisplays = this.props.mdv.analysisResultDisplays.resultDisplays;
-            values.resultDisplay = Object.values(resultDisplays).map(resultDisplay => (resultDisplay.name));
-            let description = Object.values(this.props.mdv.analysisResultDisplays.analysisResults).map(analysisResult => (getDescription(analysisResult)));
+            let resultDisplayOrder = this.props.mdv.analysisResultDisplays.resultDisplayOrder;
+            values.resultDisplay = resultDisplayOrder.map(resultDisplayOid => {
+                let resultDisplay = this.props.mdv.analysisResultDisplays.resultDisplays[resultDisplayOid];
+                return resultDisplay.name;
+            });
+            let description = Object.values(this.props.mdv.analysisResultDisplays.analysisResults).map(analysisResult => (getDescription(analysisResult))).sort();
             // Remove duplicates and undefined
             values.description = description.filter((item, index) => (description.indexOf(item) === index)).filter(item => (item !== undefined));
         }

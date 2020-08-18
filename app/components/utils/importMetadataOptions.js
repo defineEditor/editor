@@ -67,7 +67,7 @@ const ImportMetadataOptions = (props) => {
     const classes = getStyles();
     const [open, setOpen] = React.useState(false);
     const options = useSelector(state => state.present.ui.main.metadataImportOptions);
-    const { ignoreBlanks, removeMissingCodedValues } = options;
+    const { ignoreBlanks, removeMissingCodedValues, trimValues } = options;
 
     const toggleOption = (option) => (event) => {
         dispatch(updateMainUi({
@@ -124,6 +124,18 @@ const ImportMetadataOptions = (props) => {
                                             />
                                         }
                                         label='Ignore Blank Values'
+                                    />
+                                    <FormControlLabel
+                                        key='trimValues'
+                                        control={
+                                            <Switch
+                                                checked={trimValues}
+                                                onChange={toggleOption('trimValues')}
+                                                value={trimValues}
+                                                color='primary'
+                                            />
+                                        }
+                                        label='Remove leading and trailing spaces from values'
                                     />
                                     <FormControlLabel
                                         key='codeList'

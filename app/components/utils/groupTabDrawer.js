@@ -58,7 +58,7 @@ class GroupTabDrawer extends React.Component {
         };
     }
 
-    componentDidMount () {
+    getGroupList = (currentGroupOid, filteredGroupOids) => {
         let groupInitialFilter = this.props.groupOrder
             .filter(groupOid => {
                 if (this.props.groupClass === 'Coded Values') {
@@ -71,15 +71,9 @@ class GroupTabDrawer extends React.Component {
             .filter(groupOid => {
                 return this.props.groups[groupOid].name.toUpperCase().includes(this.state.textFieldString.toUpperCase());
             });
-        this.setState({
-            groupInitialFilter: groupInitialFilter,
-            groupSearchFilter: groupSearchFilter,
-        });
-    }
 
-    getGroupList = (currentGroupOid, filteredGroupOids) => {
-        let lastItemToolTip = this.state.groupSearchFilter.length === 1 ? '<Enter> to open' : null;
-        let result = this.state.groupSearchFilter.map(groupOid => {
+        let lastItemToolTip = groupSearchFilter.length === 1 ? '<Enter> to open' : null;
+        let result = groupSearchFilter.map(groupOid => {
             if (groupOid === currentGroupOid) {
                 return (
                     <ListItem button key={groupOid} className={this.props.classes.currentLine} onClick={this.props.selectGroup(groupOid)}>
@@ -121,20 +115,27 @@ class GroupTabDrawer extends React.Component {
     }
 
     handleChangeTextField = event => {
-        let groupSearchFilter = this.state.groupInitialFilter
-            .filter(groupOid => {
-                return this.props.groups[groupOid].name.toUpperCase().includes(event.target.value.toUpperCase());
-            });
         this.setState({
             textFieldString: event.target.value,
-            groupSearchFilter: groupSearchFilter,
         });
     }
 
     handleKeyDownTextField = keyPressed => {
         if (keyPressed.keyCode === 13) {
-            if (this.state.groupSearchFilter.length === 1) {
-                this.props.selectGroup(this.state.groupSearchFilter[0])();
+            let groupInitialFilter = this.props.groupOrder
+                .filter(groupOid => {
+                    if (this.props.groupClass === 'Coded Values') {
+                        return ['decoded', 'enumerated'].includes(this.props.groups[groupOid].codeListType);
+                    } else {
+                        return true;
+                    }
+                });
+            let groupSearchFilter = groupInitialFilter
+                .filter(groupOid => {
+                    return this.props.groups[groupOid].name.toUpperCase().includes(this.state.textFieldString.toUpperCase());
+                });
+            if (groupSearchFilter.length === 1) {
+                this.props.selectGroup(groupSearchFilter[0])();
             }
         }
     }

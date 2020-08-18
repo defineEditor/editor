@@ -83,7 +83,7 @@ const attributes = {
     codeList: ['type', 'dataType', 'formatName'],
     codedValue: ['decode', 'rank'],
     resultDisplay: ['description', 'document', 'pages'],
-    analysisResult: ['reason', 'purpose', 'datasets', 'comment', 'criteria', 'variables', 'documentation', 'document', 'pages', 'context', 'code', 'codeDocument'],
+    analysisResult: ['reason', 'purpose', 'parameter', 'datasets', 'comment', 'criteria', 'variables', 'documentation', 'document', 'pages', 'context', 'code', 'codeDocument'],
 };
 
 const getPages = (pdfPageRefs) => {
@@ -468,6 +468,17 @@ const LoadFromDefine = (props) => {
                         }
                         if (selectedAttrs.includes('purpose')) {
                             item.purpose = analysisResult.analysisPurpose;
+                        }
+                        if (selectedAttrs.includes('parameter')) {
+                            let itemDef = mdv.itemDefs[analysisResult.parameterOid];
+                            if (itemDef !== undefined) {
+                                let name = itemDef.name;
+                                let itemGroupOid = itemDef.sources.itemGroups[0];
+                                let dsName = mdv.itemGroups[itemGroupOid].name;
+                                item.parameter = `${dsName}.${name}`;
+                            } else {
+                                item.parameter = '';
+                            }
                         }
                         if (selectedAttrs.includes('datasets')) {
                             let datasets = [];

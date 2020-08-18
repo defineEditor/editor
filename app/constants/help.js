@@ -149,6 +149,7 @@ Import and export metadata to different sources. When pasting metadata from Exce
 * Key combinations must be unique
 #### Import Options
 * **Ignore Blank Values** When enabled, attributes which have blank values are not be updated during the import.
+* **Remove leading and trailing spaces from values** When enabled, leading and trailing spaces are removed from attribute values.
 * **Remove code values not in listed in the import** When enabled, all coded values not listed in the import for codelists, which are listed in the same import (in the Coded Values tab), are removed. In this case coded values are also ordered as in the import.
 
 #### Import from XPT
@@ -204,6 +205,30 @@ Import and export metadata to different sources. When pasting metadata from Exce
 * codedValue - **key** Codelist type. \\[enumerated, decoded, external\\]
 * decode - Decode value. Must be used only for codelists, which have type decoded.
 * rank - Rank value
+#### Result Display Attributes
+* resultDisplay - **key** Result display name.
+* description - Result display description.
+* document - Name of a document (title) linked from the result display.
+* pages - List of pages. Possible values:
+  * Page numbers separated by space: 11 12 14
+  * Range of pages: 11-14
+  * Name destinations separated by space: NamedDestination1 NamedDestination2
+#### Analysis Result Attributes
+* resultDisplay - **key** Result display name. Must be present either in the Define-XML or in the imported Result Display tab.
+* description - **key** Analysis result description.
+* reason - Analysis result reason. Free text, note that standard values must be capitalized, e.g., SPECIFIED IN SAP.
+* purpose - Analysis result purpose. Free text, note that standard values must be capitalized, e.g., EXPLORATORY OUTCOME MEASURE.
+* parameter - Parameter name in format DS.VAR, e.g., ADLB.PARAMCD.
+* datasets - Dataset names, comma separated.
+* comment - Datasets comment.
+* criteria - Dataset selection criteria. Multiple values can be specified separated by a new line. Must be a valid where clause.
+* variables - Dataset varibles separated by space. Variables for multiple datasets can be specified separated by a comma.
+* documentation - Analysis result documentation text.
+* document - Name of a document (title) linked from the documentation.
+* pages - List of pages in documentation. See result display possible values.
+* context - Programming code context.
+* code - Programming code.
+* codeDocument - Document linked from the programming code.
 `
 };
 
