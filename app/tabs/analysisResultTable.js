@@ -16,6 +16,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Prism from 'prismjs';
+import path from 'path';
+import store from 'store/index.js';
+import { ipcRenderer } from 'electron';
 import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
@@ -65,7 +68,16 @@ const mapStateToProps = state => {
         resultDisplays: state.present.odm.study.metaDataVersion.analysisResultDisplays.resultDisplays,
         tabSettings: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab],
         reviewMode: state.present.ui.main.reviewMode,
+        leafs: state.present.odm.study.metaDataVersion.leafs,
     };
+};
+
+const openPdf = (event) => {
+    event.preventDefault();
+    const state = store.getState();
+    const pathToDefine = state.present.defines.byId[state.present.odm.defineId].pathToFile || '';
+    const pdfViewer = state.present.settings.general.pdfViewer;
+    ipcRenderer.send('openDocument', path.dirname(pathToDefine), event.target.attributes[0].value, { pdfViewer });
 };
 
 class ConnectedAnalysisResultTable extends React.Component {
@@ -139,7 +151,32 @@ class ConnectedAnalysisResultTable extends React.Component {
     render () {
         const { classes } = this.props;
         const resultDisplay = this.props.resultDisplays[this.props.resultDisplayOid];
-        let resultDisplayTitle = resultDisplay.name + ' ' + getDescription(resultDisplay);
+        let resultDisplayTitle;
+        if (resultDisplay.documents.length > 0) {
+            // Add a link to the first document
+            let doc = resultDisplay.documents[0];
+            let leafs = this.props.leafs;
+            let linkText = resultDisplay.name + ' ' + getDescription(resultDisplay);
+            if (doc.pdfPageRefs.length === 0) {
+                resultDisplayTitle = (<a href={leafs[doc.leafId].href} key={doc.leafId} onClick={openPdf}>{linkText}</a>);
+            } else {
+                let pdfPageRef = doc.pdfPageRefs[0];
+                let firstLink;
+                if (pdfPageRef.pageRefs !== undefined) {
+                    // Keep the first link only
+                    firstLink = pdfPageRef.pageRefs.split(' ')[0];
+                } else if (pdfPageRef.firstPage !== undefined) {
+                    firstLink = pdfPageRef.firstPage;
+                }
+                if (pdfPageRef.type === 'NamedDestination') {
+                    resultDisplayTitle = (<a href={leafs[doc.leafId].href + '#' + firstLink} key={firstLink} onClick={openPdf}>{linkText}</a>);
+                } else if (pdfPageRef.type === 'PhysicalRef') {
+                    resultDisplayTitle = (<a href={leafs[doc.leafId].href + '#page=' + firstLink} key={firstLink} onClick={openPdf}>{linkText}</a>);
+                }
+            }
+        } else {
+            resultDisplayTitle = resultDisplay.name + ' ' + getDescription(resultDisplay);
+        }
 
         let commentPresent = resultDisplay.reviewCommentOids !== undefined && resultDisplay.reviewCommentOids.length > 0;
 
@@ -221,6 +258,7 @@ class ConnectedAnalysisResultTable extends React.Component {
 ConnectedAnalysisResultTable.propTypes = {
     resultDisplays: PropTypes.object.isRequired,
     resultDisplayOid: PropTypes.string.isRequired,
+    leafs: PropTypes.object.isRequired,
     reviewMode: PropTypes.bool,
     openModal: PropTypes.func.isRequired,
 };

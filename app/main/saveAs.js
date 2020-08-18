@@ -107,7 +107,7 @@ const saveUsingStylesheet = async (savePath, odm, callback) => {
     });
 };
 
-const saveUsingPlugin = async (plugin, filePath, data, originalData, options) => {
+const saveUsingPlugin = async (plugin, filePath, data, originalData, options, onSaveCallback) => {
     try {
         // eslint-disable-next-line camelcase, no-undef
         const requireFunc = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require;
@@ -122,7 +122,7 @@ const saveUsingPlugin = async (plugin, filePath, data, originalData, options) =>
             PluginClass = requireFunc(moduleName);
         }
         let pluginInstance = new PluginClass({ ...plugin.options, pathToPlugin: plugin.path });
-        await pluginInstance.saveAs(filePath, data, originalData, options);
+        await pluginInstance.saveAs(filePath, data, originalData, options, onSaveCallback);
     } catch (error) {
         dialog.showErrorBox(`Error in ${plugin.name} plugin`, error.message + '\n' + error.stack);
     }
@@ -147,7 +147,7 @@ const saveFile = (mainWindow, data, originalData, options, saveAsPlugins, saveDi
             return filterMatched;
         });
         if (matchedPlugin !== undefined) {
-            saveUsingPlugin(matchedPlugin, filePath, data, originalData, options);
+            saveUsingPlugin(matchedPlugin, filePath, data, originalData, options, onSaveCallback(mainWindow, filePath));
         } else if (filePath.endsWith('nogz')) {
             writeDefineObject(mainWindow, originalData, false, filePath, onSaveCallback(mainWindow, filePath));
         } else {

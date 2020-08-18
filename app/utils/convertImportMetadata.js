@@ -906,7 +906,7 @@ const convertImportMetadata = (metadata) => {
                     cvOid = getOid('CodeListItem', Object.keys(cl[clItemType]));
                     newOids.push(cvOid);
                     let newCodedValue;
-                    if (clItemType === 'decoded') {
+                    if (cl.codeListType === 'decoded') {
                         newCodedValue = new CodeListItem(item);
                         // Add decode
                         if (item.decode !== undefined) {
@@ -1564,6 +1564,14 @@ const convertImportMetadata = (metadata) => {
                     }
                 } else if (currentAnalysisResult.codeDocument === '' && analysisResult.programmingCode && analysisResult.programmingCode.documents.length > 0) {
                     analysisResult.programmingCode.documents = [];
+                }
+                // Check if both programming code part is blank, in this case remove it
+                if (analysisResult.programmingCode &&
+                    analysisResult.programmingCode.code === undefined &&
+                    analysisResult.programmingCode.context === undefined &&
+                    analysisResult.programmingCode.documents && analysisResult.programmingCode.documents.length === 0
+                ) {
+                    analysisResult.programmingCode = undefined;
                 }
                 // Comment
                 if (currentAnalysisResult.comment !== undefined) {
