@@ -150,7 +150,8 @@ Import and export metadata to different sources. When pasting metadata from Exce
 #### Import Options
 * **Ignore Blank Values** When enabled, attributes which have blank values are not be updated during the import.
 * **Remove leading and trailing spaces from values** When enabled, leading and trailing spaces are removed from attribute values.
-* **Remove code values not in listed in the import** When enabled, all coded values not listed in the import for codelists, which are listed in the same import (in the Coded Values tab), are removed. In this case coded values are also ordered as in the import.
+* **Remove code values not listed in the import** When enabled, all coded values not listed in the import for codelists, which are listed in the same import (in the Coded Values tab), are removed. In this case coded values are also ordered as in the import.
+* **Remove analysis results not listed in the import** When enabled, all analysis results not listed in the import for result displays, which are listed in the same import (in the Analysis Result tab), are removed.
 
 #### Import from XPT
 * When importing from XPT, enable the **Ignore Blank Values** option as for exising variables attributes are populated only when different from the values in XPT.

@@ -223,7 +223,7 @@ const updateItem = ({ item, itemDef, itemRef, stdConstants, model, mdv, options,
                     if (item.originType !== undefined && !validOrigins.includes(item.originType)) {
                         errors.push({
                             id: 'additional',
-                            message: `Invalid origin type value "${item.originType}", must be one of the following values: ${validOrigins.join(', ')}`
+                            message: `Invalid origin type value **"${item.originType}"**, must be one of the following values: ${validOrigins.join(', ')}`
                         });
                     }
                 }
@@ -358,7 +358,7 @@ const updateItem = ({ item, itemDef, itemRef, stdConstants, model, mdv, options,
                 if (compareMethods(methodResult[methodOid], method) === false) {
                     errors.push({
                         id: 'inconsistentImport',
-                        message: `Method "**${method.name || ''}**" is used by different variables and is imported more than once with different attributes. Either use the same values or unlink the method first.`
+                        message: `Method **${method.name || ''}** is used by different variables and is imported more than once with different attributes. Either use the same values or unlink the method first.`
                     });
                 }
             }
@@ -433,7 +433,7 @@ const parseWhereClause = (whereClauseText, whereClauseOid, updatedWhereClauses, 
         if (wcIsInvalid) {
             errors.push({
                 id: 'additional',
-                message: `Where Clause ${whereClauseText} is invalid.`
+                message: `Where Clause **${whereClauseText}** is invalid.`
             });
             return undefined;
         } else {
@@ -522,7 +522,7 @@ const getParentItemDef = (item, allItemDefs, itemGroupOid, errors) => {
     if (parentItemDef === undefined) {
         errors.push({
             id: 'additional',
-            message: `VLM variable ${item.name} is referencing non-existent variable ${parentName}. It must exist in the dataset or be defined earlier in the import.`
+            message: `VLM variable **${item.name}** is referencing non-existent variable ${parentName}. It must exist in the dataset or be defined earlier in the import.`
         });
         return {};
     } else {
@@ -590,6 +590,8 @@ const convertImportMetadata = (metadata) => {
         methods: {},
         codeLists: {},
         whereClauses: {},
+        reviewComments: { analysisResults: {} },
+        analysisResults: [],
     };
     let methodResult = {};
     let currentMethodOids = Object.keys(mdv.methods);
@@ -1275,7 +1277,7 @@ const convertImportMetadata = (metadata) => {
                 if (docId === undefined) {
                     errors.push({
                         id: 'additional',
-                        message: `Document ${currentResultDisplay.document} specified for result display ${currentResultDisplay.resultDisplay} does not exist. `
+                        message: `Document **${currentResultDisplay.document}** specified for result display **${currentResultDisplay.resultDisplay}** does not exist. `
                     });
                 } else {
                     if (resultDisplay.documents.length === 0) {
@@ -1291,7 +1293,7 @@ const convertImportMetadata = (metadata) => {
                 if (resultDisplay.documents.length === 0 && currentResultDisplay.pages !== '') {
                     errors.push({
                         id: 'additional',
-                        message: `Pages were specified for result display ${currentResultDisplay.resultDisplay} which does not reference any document.`
+                        message: `Pages were specified for result display **${currentResultDisplay.resultDisplay}** which does not reference any document.`
                     });
                 } else if (resultDisplay.documents.length > 0) {
                     resultDisplay.documents[0] = updatePages(currentResultDisplay.pages, resultDisplay.documents[0]);
@@ -1356,11 +1358,11 @@ const convertImportMetadata = (metadata) => {
                 let isNewAnalysisResult = false;
                 isNewAnalysisResult = !Object.values(mdv.analysisResultDisplays.analysisResults)
                     .filter(existingAnalysisResult => {
-                        // Keep only analysis results which correspond to the currnt result display
+                        // Keep only analysis results which correspond to the current result display
                         return existingAnalysisResult.sources.resultDisplays.includes(resultDisplayOid);
                     })
                     .some(existingAnalysisResult => {
-                        if (getDescription(existingAnalysisResult).toLowerCase() === currentAnalysisResult.description.toLowerCase()) {
+                        if (getDescription(existingAnalysisResult) === currentAnalysisResult.description) {
                             analysisResultOid = existingAnalysisResult.oid;
                             analysisResult = new AnalysisResult({ ...clone(mdv.analysisResultDisplays.analysisResults[analysisResultOid]) });
                             return true;
@@ -1401,7 +1403,7 @@ const convertImportMetadata = (metadata) => {
                     if (docId === undefined) {
                         errors.push({
                             id: 'analysisResult',
-                            message: `Document ${currentAnalysisResult.document} specified for result display ${currentAnalysisResult.description} does not exist. `
+                            message: `Document **${currentAnalysisResult.document}** specified for result display **${currentAnalysisResult.description}** does not exist. `
                         });
                     } else if (analysisResult.documentation !== undefined) {
                         if (analysisResult.documentation.documents.length === 0) {
@@ -1422,7 +1424,7 @@ const convertImportMetadata = (metadata) => {
                     if (analysisResult.documentation && analysisResult.documentation.documents.length === 0 && currentAnalysisResult.pages !== '') {
                         errors.push({
                             id: 'analysisResult',
-                            message: `Pages were specified for analysis result ${currentAnalysisResult.description} which does not reference any document.`
+                            message: `Pages were specified for analysis result **${currentAnalysisResult.description}** which does not reference any document.`
                         });
                     } else if (analysisResult.documentation && analysisResult.documentation.documents.length > 0) {
                         analysisResult.documentation.documents[0] = updatePages(currentAnalysisResult.pages, analysisResult.documentation.documents[0]);
@@ -1447,8 +1449,8 @@ const convertImportMetadata = (metadata) => {
                     if (dsResult.newItemGroups) {
                         allItemGroups = { ...allItemGroups, ...dsResult.newItemGroups };
                     }
-                    Object.values(allItemGroups).some(itemGroup => {
-                        datasets.forEach(dataset => {
+                    datasets.forEach(dataset => {
+                        Object.values(allItemGroups).some(itemGroup => {
                             if (itemGroup.name.toUpperCase() === dataset.toUpperCase()) {
                                 itemGroupOids.push(itemGroup.oid);
                             }
@@ -1457,7 +1459,7 @@ const convertImportMetadata = (metadata) => {
                     if (datasets.length !== itemGroupOids.length) {
                         errors.push({
                             id: 'analysisResult',
-                            message: `Some of values in datasets ${currentAnalysisResult.datasets} specified for analysis result ${currentAnalysisResult.description} could not be found.`
+                            message: `Some of values in datasets **${currentAnalysisResult.datasets}** specified for analysis result **${currentAnalysisResult.description}** could not be found.`
                         });
                     } else {
                         // Remove datasets, which are not listed
@@ -1513,7 +1515,7 @@ const convertImportMetadata = (metadata) => {
                                 } else {
                                     errors.push({
                                         id: 'analysisResult',
-                                        message: `Variable ${varName} specified for analysis result ${currentAnalysisResult.description} could not be found.`
+                                        message: `Variable **${varName}** specified for analysis result **${currentAnalysisResult.description}** could not be found.`
                                     });
                                 }
                             });
@@ -1535,7 +1537,7 @@ const convertImportMetadata = (metadata) => {
                         if (itemOid === undefined) {
                             errors.push({
                                 id: 'analysisResult',
-                                message: `Could not find parameter ${parameter} for analysis result ${currentAnalysisResult.description}.`
+                                message: `Could not find parameter **${parameter}** for analysis result **${currentAnalysisResult.description}**.`
                             });
                         } else {
                             analysisResult.parameterOid = itemOid;
@@ -1543,7 +1545,7 @@ const convertImportMetadata = (metadata) => {
                     } else {
                         errors.push({
                             id: 'analysisResult',
-                            message: `Parameter ${parameter} is not in format DS.VAR for analysis result ${currentAnalysisResult.description}.`
+                            message: `Parameter **${parameter}** is not in format DS.VAR for analysis result **${currentAnalysisResult.description}**.`
                         });
                     }
                 }
@@ -1607,7 +1609,7 @@ const convertImportMetadata = (metadata) => {
                     if (docId === undefined) {
                         errors.push({
                             id: 'analysisResult',
-                            message: `Document ${currentAnalysisResult.codeDocument} specified for result display ${currentAnalysisResult.description} does not exist. `
+                            message: `Document **${currentAnalysisResult.codeDocument}** specified for analysis result **${currentAnalysisResult.description}** does not exist. `
                         });
                     } else if (analysisResult.programmingCode !== undefined) {
                         if (analysisResult.programmingCode.documents.length === 0) {
@@ -1691,6 +1693,62 @@ const convertImportMetadata = (metadata) => {
                     }
                 }
             });
+            // Remove analysis results, which are not specified if corresponding option is enabled
+            if (options.removeMissingAnalysisResults === true && mdv.analysisResultDisplays.resultDisplays[resultDisplayOid] !== undefined) {
+                // No need to go through updated result display, because we are searching for exisiting analysis results
+                let rd = mdv.analysisResultDisplays.resultDisplays[resultDisplayOid];
+                rd.analysisResultOrder.forEach(arOid => {
+                    let existingAnalysisResult = mdv.analysisResultDisplays.analysisResults[arOid];
+                    let importDescriptions = currentAnalysisResults.map(item => item.description);
+                    if (!importDescriptions.includes(getDescription(existingAnalysisResult))) {
+                        // Remove comment reference
+                        if (existingAnalysisResult.analysisDatasetsCommentOid !== undefined) {
+                            let commentOid = existingAnalysisResult.analysisDatasetsCommentOid;
+                            if (removedSources.comments[commentOid] === undefined) {
+                                removedSources.comments[commentOid] = {};
+                            }
+                            if (removedSources.comments[commentOid].analysisResults === undefined) {
+                                removedSources.comments[commentOid].analysisResults = [arOid];
+                            } else {
+                                removedSources.comments[commentOid].analysisResults.push(arOid);
+                            }
+                        }
+                        // Remove where clause reference
+                        Object.values(existingAnalysisResult.analysisDatasets).forEach(anDs => {
+                            let wcOid = anDs.whereClauseOid;
+                            if (wcOid !== undefined) {
+                                if (removedSources.whereClauses[wcOid] !== undefined) {
+                                    if (removedSources.whereClauses[wcOid][arOid] !== undefined) {
+                                        removedSources.whereClauses[wcOid][arOid].push(anDs.itemGroupOid);
+                                    } else {
+                                        removedSources.whereClauses[wcOid][arOid] = [anDs.itemGroupOid];
+                                    }
+                                } else {
+                                    removedSources.whereClauses[wcOid] = { [arOid]: [anDs.itemGroupOid] };
+                                }
+                            }
+                        });
+                        // Remove review comments
+                        if (existingAnalysisResult.reviewCommentOids.length > 0) {
+                            removedSources.reviewComments.analysisResults[arOid] = existingAnalysisResult.reviewCommentOids;
+                        }
+                        // Remove analysis result
+                        let updatedResultDisplays = resultDisplayResult.updatedResultDisplays;
+                        if (updatedResultDisplays[resultDisplayOid] === undefined &&
+                            mdv.analysisResultDisplays.resultDisplays[resultDisplayOid] !== undefined
+                        ) {
+                            updatedResultDisplays[resultDisplayOid] = clone(mdv.analysisResultDisplays.resultDisplays[resultDisplayOid]);
+                        }
+
+                        let analysisResultOrder = updatedResultDisplays[resultDisplayOid].analysisResultOrder;
+                        analysisResultOrder.splice(analysisResultOrder.indexOf(arOid), 1);
+
+                        if (!removedSources.analysisResults.includes(arOid)) {
+                            removedSources.analysisResults.push(arOid);
+                        }
+                    }
+                });
+            }
         });
         analysisResultResult = { newAnalysisResults, updatedAnalysisResults };
     }

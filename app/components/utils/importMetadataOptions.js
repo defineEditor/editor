@@ -67,7 +67,7 @@ const ImportMetadataOptions = (props) => {
     const classes = getStyles();
     const [open, setOpen] = React.useState(false);
     const options = useSelector(state => state.present.ui.main.metadataImportOptions);
-    const { ignoreBlanks, removeMissingCodedValues, trimValues } = options;
+    const { ignoreBlanks, removeMissingCodedValues, removeMissingAnalysisResults, trimValues } = options;
 
     const toggleOption = (option) => (event) => {
         dispatch(updateMainUi({
@@ -147,7 +147,19 @@ const ImportMetadataOptions = (props) => {
                                                 color='primary'
                                             />
                                         }
-                                        label='Remove coded values not in listed in the import'
+                                        label='Remove coded values not listed in the import'
+                                    />
+                                    <FormControlLabel
+                                        key='codeList'
+                                        control={
+                                            <Switch
+                                                checked={removeMissingAnalysisResults}
+                                                onChange={toggleOption('removeMissingAnalysisResults')}
+                                                value={removeMissingAnalysisResults}
+                                                color='primary'
+                                            />
+                                        }
+                                        label='Remove analysis results not listed in the import'
                                     />
                                 </FormGroup>
                             </FormControl>

@@ -23,6 +23,7 @@ import {
     DEL_RESULTDISPLAY,
     DEL_ANALYSISRESULT,
     DEL_CODELISTS,
+    ADD_IMPORTMETADATA,
 } from 'constants/action-types';
 import { ReviewComment } from 'core/mainStructure.js';
 const initialState = {};
@@ -194,6 +195,26 @@ const handleDeleteResultDisplays = (state, action) => {
     }
 };
 
+const addImportMetadata = (state, action) => {
+    let removedAnalysisResults = action.updateObj.removedSources.reviewComments.analysisResults;
+    if (Object.keys(removedAnalysisResults).length > 0) {
+        let newState = { ...state };
+        Object.keys(removedAnalysisResults).forEach(arOid => {
+            let removedOids = removedAnalysisResults[arOid];
+            removedOids.forEach(removedOid => {
+                let deleteObj = {
+                    oid: removedOid,
+                    sources: { analysisResults: [arOid] }
+                };
+                newState = deleteReviewComment(newState, { deleteObj });
+            });
+        });
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const reviewComments = (state = initialState, action) => {
     switch (action.type) {
         case ADD_REVIEWCOMMENT:
@@ -216,6 +237,8 @@ const reviewComments = (state = initialState, action) => {
             return handleDeleteResultDisplays(state, action);
         case DEL_CODELISTS:
             return handleDeleteItems(state, action);
+        case ADD_IMPORTMETADATA:
+            return addImportMetadata(state, action);
         default:
             return state;
     }

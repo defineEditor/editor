@@ -404,6 +404,17 @@ const addImportMetadata = (state, action) => {
         newState = { ...newState };
         newState.analysisResults = { ...newState.analysisResults, ...newAnalysisResults, ...updatedAnalysisResults };
     }
+    // Removed analysis results, no need to update result display, as it was already removed in convertImportMetadata
+    let removedOids = action.updateObj.removedSources.analysisResults;
+    if (removedOids.length > 0) {
+        newState = { ...newState };
+        newState.analysisResults = { ...newState.analysisResults };
+        removedOids.forEach(removedOid => {
+            if (newState.analysisResults[removedOid] !== undefined) {
+                delete newState.analysisResults[removedOid];
+            }
+        });
+    }
 
     return newState;
 };
