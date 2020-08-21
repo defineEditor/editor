@@ -30,7 +30,6 @@ import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
 import DoneAll from '@material-ui/icons/DoneAll';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { getDescription } from 'utils/defineStructureUtils.js';
 import getSelectionList from 'utils/getSelectionList.js';
@@ -98,6 +97,9 @@ const styles = theme => ({
         marginLeft: theme.spacing(8),
         marginTop: theme.spacing(2),
     },
+    followingRangeCheck: {
+        marginTop: theme.spacing(2),
+    },
     button: {
         marginLeft: theme.spacing(1),
     },
@@ -160,7 +162,15 @@ const filterFieldsByType = {
     codedValue: {
         'codeList': { label: 'Name', type: 'string' },
         'codeListType': { label: 'Type', type: 'string' },
-    }
+    },
+    resultDisplay: {
+        'resultDisplay': { label: 'Name', type: 'string' },
+        'description': { label: 'Description', type: 'string' },
+    },
+    analysisResult: {
+        'resultDisplay': { label: 'Name', type: 'string' },
+        'description': { label: 'Description', type: 'string' },
+    },
 };
 
 class ConnectedVariableTabFilter extends React.Component {
@@ -189,7 +199,7 @@ class ConnectedVariableTabFilter extends React.Component {
                 // Get the list of all datasets
                 values.dataset = Object.keys(itemGroups).map(itemGroupOid => (itemGroups[itemGroupOid].name));
             }
-        } else if (['dataset', 'codeList', 'codedValue'].includes(type)) {
+        } else if (['dataset', 'codeList', 'codedValue', 'resultDisplay', 'analysisResult'].includes(type)) {
             values = this.getValues(type);
         }
         // As filters are cross-dataset, it is possible that some of the values are not in the new dataset
@@ -348,6 +358,8 @@ class ConnectedVariableTabFilter extends React.Component {
                 result[newIndex].field = 'dataset';
             } else if (type === 'codeList' || type === 'codedValue') {
                 result[newIndex].field = 'codeList';
+            } else if (type === 'resultDisplay' || type === 'analysisResult') {
+                result[newIndex].field = 'resultDisplay';
             }
             result[newIndex].comparator = 'IN';
             result[newIndex].selectedValues = [];
@@ -471,6 +483,27 @@ class ConnectedVariableTabFilter extends React.Component {
             let type = Object.values(codeLists).map(codeList => (codeList.codeListType));
             // Remove duplicates and undefined
             values.codeListType = type.filter((item, index) => (type.indexOf(item) === index)).filter(item => (item !== undefined));
+        } else if (type === 'resultDisplay') {
+            let resultDisplayOrder = this.props.mdv.analysisResultDisplays.resultDisplayOrder;
+            values.resultDisplay = resultDisplayOrder.map(resultDisplayOid => {
+                let resultDisplay = this.props.mdv.analysisResultDisplays.resultDisplays[resultDisplayOid];
+                return resultDisplay.name;
+            });
+            let description = resultDisplayOrder.map(resultDisplayOid => {
+                let resultDisplay = this.props.mdv.analysisResultDisplays.resultDisplays[resultDisplayOid];
+                return getDescription(resultDisplay);
+            }).sort();
+            // Remove duplicates and undefined
+            values.description = description.filter((item, index) => (description.indexOf(item) === index)).filter(item => (item !== undefined));
+        } else if (type === 'analysisResult') {
+            let resultDisplayOrder = this.props.mdv.analysisResultDisplays.resultDisplayOrder;
+            values.resultDisplay = resultDisplayOrder.map(resultDisplayOid => {
+                let resultDisplay = this.props.mdv.analysisResultDisplays.resultDisplays[resultDisplayOid];
+                return resultDisplay.name;
+            });
+            let description = Object.values(this.props.mdv.analysisResultDisplays.analysisResults).map(analysisResult => (getDescription(analysisResult))).sort();
+            // Remove duplicates and undefined
+            values.description = description.filter((item, index) => (description.indexOf(item) === index)).filter(item => (item !== undefined));
         }
         return values;
     }
@@ -544,7 +577,7 @@ class ConnectedVariableTabFilter extends React.Component {
                                 </Grid>
                             ]
                     }
-                    <Grid item className={index === 0 ? classes.firstRangeCheck : undefined}>
+                    <Grid item className={index === 0 ? classes.firstRangeCheck : classes.followingRangeCheck}>
                         <TextField
                             label='Field'
                             fullWidth
@@ -570,68 +603,53 @@ class ConnectedVariableTabFilter extends React.Component {
                             {getSelectionList(comparators[filterFields[condition.field].type])}
                         </TextField>
                     </Grid>
-                    { condition.field === 'dataset' ? (
+                    { valueSelect ? (
                         <Grid item className={classes.valuesGridItem}>
-                            <TextField
-                                label='Values'
-                                select
-                                fullWidth
-                                multiline
-                                value={value}
-                                SelectProps={{ multiple: multipleValuesSelect }}
-                                onChange={this.handleChange('selectedValues', index)}
-                                className={classes.textFieldValues}
-                                InputProps={ multipleValuesSelect ? {
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <IconButton
-                                                color="default"
-                                                onClick={this.handleChange('selectAllValues', index)}
-                                            >
-                                                <DoneAll />
-                                            </IconButton>
-                                        </InputAdornment>
-                                    )
-                                } : undefined}
-                            >
-                                {getSelectionList(this.state.values[condition.field], this.state.values[condition.field].length === 0)}
-                            </TextField>
+                            <Grid container wrap='nowrap' justify='flex-start' alignItems='flex-end'>
+                                { multipleValuesSelect && (
+                                    <Grid item>
+                                        <IconButton
+                                            color="default"
+                                            onClick={this.handleChange('selectAllValues', index)}
+                                        >
+                                            <DoneAll />
+                                        </IconButton>
+                                    </Grid>
+                                )}
+                                <Grid item>
+                                    <Autocomplete
+                                        clearOnEscape={false}
+                                        multiple={multipleValuesSelect}
+                                        onChange={this.handleChange('selectedValues', index)}
+                                        value={value}
+                                        key={condition.comparator}
+                                        disableCloseOnSelect
+                                        filterSelectedOptions
+                                        options={this.state.values[condition.field]}
+                                        renderInput={params => (
+                                            <TextField
+                                                {...params}
+                                                label='Values'
+                                                fullWidth
+                                                className={classes.autocompleteField}
+                                            />
+                                        )}
+                                    />
+                                </Grid>
+                            </Grid>
                         </Grid>
                     ) : (
-                        valueSelect ? (
-                            <Grid item className={classes.valuesGridItem}>
-                                <Autocomplete
-                                    clearOnEscape={false}
-                                    multiple={multipleValuesSelect}
-                                    onChange={this.handleChange('selectedValues', index)}
-                                    value={value}
-                                    key={condition.comparator}
-                                    disableCloseOnSelect
-                                    filterSelectedOptions
-                                    options={this.state.values[condition.field]}
-                                    renderInput={params => (
-                                        <TextField
-                                            {...params}
-                                            label='Values'
-                                            fullWidth
-                                            className={classes.autocompleteField}
-                                        />
-                                    )}
-                                />
-                            </Grid>
-                        ) : (
-                            <Grid item>
-                                <TextField
-                                    label='Value'
-                                    fullWidth
-                                    multiline
-                                    error={!condition.regexIsValid}
-                                    value={value}
-                                    onChange={this.handleChange('selectedValues', index)}
-                                    className={classes.textFieldValues}
-                                />
-                            </Grid>
-                        )
+                        <Grid item>
+                            <TextField
+                                label='Value'
+                                fullWidth
+                                multiline
+                                error={!condition.regexIsValid}
+                                value={value}
+                                onChange={this.handleChange('selectedValues', index)}
+                                className={classes.textFieldValues}
+                            />
+                        </Grid>
                     )}
                 </Grid>
             );

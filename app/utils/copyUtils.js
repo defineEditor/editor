@@ -93,6 +93,7 @@ const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, par
             ...clone(sourceMdv.itemDefs[itemRef.itemOid]),
             oid: newItemDefOid,
             parentItemDefOid,
+            reviewCommentOids: [],
             sources })
         };
         // Check if VLM is attached
@@ -540,6 +541,7 @@ const copyItemGroups = ({
             ...sourceGroup,
             oid: itemGroupOid,
             purpose: purpose || sourceGroup.purpose,
+            reviewCommentOids: [],
         }) };
         // Copy itemGroup comment if it exists
         if (currentGroup.commentOid !== undefined) {

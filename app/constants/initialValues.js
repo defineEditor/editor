@@ -39,6 +39,8 @@ const main = (() => {
         metadataImportOptions: {
             ignoreBlanks: false,
             removeMissingCodedValues: false,
+            removeMissingAnalysisResults: false,
+            trimValues: true,
         },
         pathToLastFile: undefined,
         appVersion: remote.app.getVersion(),

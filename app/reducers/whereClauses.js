@@ -312,7 +312,7 @@ const handleUpdatedArmItem = (state, action) => {
         Object.keys(whereClauseData.added).forEach(whereClauseOid => {
             newState[whereClauseOid] = whereClauseData.added[whereClauseOid];
         });
-        // TODO Implement more in-depth comparison for changed Where Clauses
+        // TODO Implement an in-depth comparison for changed Where Clauses
         Object.keys(whereClauseData.changed).forEach(whereClauseOid => {
             newState[whereClauseOid] = whereClauseData.changed[whereClauseOid];
         });
@@ -333,15 +333,27 @@ const handleUpdatedArmItem = (state, action) => {
 };
 
 const addImportMetadata = (state, action) => {
-    let { newWhereClauses, updatedWhereClauses } = action.updateObj;
-    // Add ItemGroups
-    if (Object.keys({ ...newWhereClauses, ...updatedWhereClauses }).length > 0) {
+    let { newWhereClauses, updatedWhereClauses, removedSources } = action.updateObj;
+    if (Object.keys({ ...newWhereClauses, ...updatedWhereClauses, ...removedSources.whereClauses }).length > 0) {
         let newState = { ...state };
         if (newWhereClauses) {
             newState = { ...newState, ...newWhereClauses };
         }
         if (updatedWhereClauses) {
             newState = { ...newState, ...updatedWhereClauses };
+        }
+        if (removedSources.whereClauses) {
+            Object.keys(removedSources.whereClauses).forEach(whereClauseOid => {
+                Object.keys(removedSources.whereClauses[whereClauseOid]).forEach(analysisResultOid => {
+                    let itemGroupOids = removedSources.whereClauses[whereClauseOid][analysisResultOid];
+                    itemGroupOids.forEach(itemGroupOid => {
+                        let subAction = {};
+                        subAction.whereClause = newState[whereClauseOid];
+                        subAction.source = { type: 'analysisResults', oid: itemGroupOid, typeOid: analysisResultOid };
+                        newState = deleteWhereClause(newState, subAction);
+                    });
+                });
+            });
         }
         return newState;
     } else {

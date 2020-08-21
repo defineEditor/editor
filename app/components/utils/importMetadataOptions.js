@@ -67,7 +67,7 @@ const ImportMetadataOptions = (props) => {
     const classes = getStyles();
     const [open, setOpen] = React.useState(false);
     const options = useSelector(state => state.present.ui.main.metadataImportOptions);
-    const { ignoreBlanks, removeMissingCodedValues } = options;
+    const { ignoreBlanks, removeMissingCodedValues, removeMissingAnalysisResults, trimValues } = options;
 
     const toggleOption = (option) => (event) => {
         dispatch(updateMainUi({
@@ -126,6 +126,18 @@ const ImportMetadataOptions = (props) => {
                                         label='Ignore Blank Values'
                                     />
                                     <FormControlLabel
+                                        key='trimValues'
+                                        control={
+                                            <Switch
+                                                checked={trimValues}
+                                                onChange={toggleOption('trimValues')}
+                                                value={trimValues}
+                                                color='primary'
+                                            />
+                                        }
+                                        label='Remove leading and trailing spaces from values'
+                                    />
+                                    <FormControlLabel
                                         key='codeList'
                                         control={
                                             <Switch
@@ -135,7 +147,19 @@ const ImportMetadataOptions = (props) => {
                                                 color='primary'
                                             />
                                         }
-                                        label='Remove code values not in listed in the import'
+                                        label='Remove coded values not listed in the import'
+                                    />
+                                    <FormControlLabel
+                                        key='codeList'
+                                        control={
+                                            <Switch
+                                                checked={removeMissingAnalysisResults}
+                                                onChange={toggleOption('removeMissingAnalysisResults')}
+                                                value={removeMissingAnalysisResults}
+                                                color='primary'
+                                            />
+                                        }
+                                        label='Remove analysis results not listed in the import'
                                     />
                                 </FormGroup>
                             </FormControl>

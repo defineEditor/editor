@@ -142,6 +142,13 @@ const clDefault = {
     connectors: [],
 };
 
+const rlDefault = {
+    isEnabled: false,
+    applyToVlm: false,
+    conditions: [{ field: 'resultDisplay', comparator: 'IN', selectedValues: [], regexIsValid: true }],
+    connectors: [],
+};
+
 const json2csv = (json, delimiter) => {
     let attrs = Object.keys(json[0]);
     let result = [attrs.join(delimiter)];
@@ -161,7 +168,7 @@ const json2csv = (json, delimiter) => {
     return result.join('\n');
 };
 
-const convertLayout = async (data, layout, newLayout) => {
+const convertLayout = async (data, layout, newLayout, options) => {
     try {
         if (layout === newLayout) {
             return data;
@@ -169,7 +176,7 @@ const convertLayout = async (data, layout, newLayout) => {
             return newLayout === 'table' ? [] : '';
         } else if (['csv', 'excel'].includes(layout)) {
             const delimiter = layout === 'csv' ? ',' : '\t';
-            let jsonData = await csv2json({ delimiter }).fromString(data);
+            let jsonData = await csv2json({ delimiter, trim: options.trimValues }).fromString(data);
             if (jsonData.length === 0) {
                 // Did not convert
                 throw new Error('Failed to convert');
@@ -203,25 +210,33 @@ const convertLayout = async (data, layout, newLayout) => {
     }
 };
 
-const tabNames = ['datasets', 'variables', 'codeLists', 'codedValues'];
-const tabLabels = ['Datasets', 'Variables', 'Codelists', 'Coded Values'];
+const tabNames = ['datasets', 'variables', 'codeLists', 'codedValues', 'resultDisplays', 'analysisResults'];
+const tabLabels = ['Datasets', 'Variables', 'Codelists', 'Coded Values', 'Result Displays', 'Analysis Results'];
 let placeholders = {
     datasets: 'dataset,label,class, ...\nADSL,Subject Level Analysis Dataset,ADSL,...\nADLB,Laboratory Analysis Laboratory Dataset,BDS,...',
     variables: 'dataset,variable,length,...\nADSL,AVAL,20,...\nADSL,AVAL.AST,8,...',
     codeLists: 'codeList,codeListType,dataType,...\nNo Yes Response,decoded,text,...\nRace,decoded,text,...',
     codedValues: 'codeList,codedValue,decode,...\nNo Yes Response,Y,Yes,...\nNo Yes Response,N,No,...',
+    resultDisplays: 'resultDisplay,description,...\nTable 1.1,Kaplan-Meier Overall Survival Analysis,...',
+    analysisResults: 'resultDisplay,description,...\nTable 1.1,OS Analysis,...',
 };
 
 const ModalImportMetadata = (props) => {
     const dispatch = useDispatch();
     let classes = getStyles();
     const reviewMode = useSelector(state => state.present.ui.main.reviewMode);
+    const options = useSelector(state => state.present.ui.main.metadataImportOptions);
     const onlyArmEdit = useSelector(state => state.present.settings.editor.onlyArmEdit);
+    const hasArm = useSelector(state => state.present.odm.study.metaDataVersion.analysisResultDisplays !== undefined &&
+        Object.keys(state.present.odm.study.metaDataVersion.analysisResultDisplays).length > 0
+    );
 
     const [varData, setVarData] = useState('');
     const [dsData, setDsData] = useState('');
     const [codeListData, setCodeListData] = useState('');
     const [codedValueData, setCodedValueData] = useState('');
+    const [resultDisplayData, setResultDisplayData] = useState('');
+    const [analysisResultData, setAnalysisResultData] = useState('');
     const [showXptLoad, setShowXptLoad] = useState(false);
     const [showDefineLoad, setShowDefineLoad] = useState(false);
 
@@ -230,8 +245,8 @@ const ModalImportMetadata = (props) => {
         setCurrentTab(newTab);
     };
 
-    let currentData = [dsData, varData, codeListData, codedValueData][tabNames.indexOf(currentTab)];
-    let currentSetter = [setDsData, setVarData, setCodeListData, setCodedValueData][tabNames.indexOf(currentTab)];
+    let currentData = [dsData, varData, codeListData, codedValueData, resultDisplayData, analysisResultData][tabNames.indexOf(currentTab)];
+    let currentSetter = [setDsData, setVarData, setCodeListData, setCodedValueData, setResultDisplayData, setAnalysisResultData][tabNames.indexOf(currentTab)];
     const handleChange = (event) => {
         currentSetter(event.target.value);
     };
@@ -251,6 +266,8 @@ const ModalImportMetadata = (props) => {
         variable: varDefault,
         codeList: clDefault,
         codedValue: clDefault,
+        resultDisplay: rlDefault,
+        analysisResult: rlDefault,
     });
 
     const [selectedAttributes, setSelectedAttributes] = useState({
@@ -258,6 +275,8 @@ const ModalImportMetadata = (props) => {
         variable: [],
         codeList: [],
         codedValue: [],
+        resultDisplay: [],
+        analysisResult: [],
     });
 
     const [selectedItems, setSelectedItems] = useState({
@@ -265,6 +284,8 @@ const ModalImportMetadata = (props) => {
         variable: [],
         codeList: [],
         codedValue: [],
+        resultDisplay: [],
+        analysisResult: [],
     });
 
     const [selectedItemNum, setSelectedItemNum] = useState({
@@ -272,14 +293,18 @@ const ModalImportMetadata = (props) => {
         variable: 0,
         codeList: 0,
         codedValue: 0,
+        resultDisplay: 0,
+        analysisResult: 0,
     });
 
     const handleImportMetadata = async () => {
         let metadata = {
-            dsData: await convertLayout(dsData, layout, 'table'),
-            varData: await convertLayout(varData, layout, 'table'),
-            codeListData: await convertLayout(codeListData, layout, 'table'),
-            codedValueData: await convertLayout(codedValueData, layout, 'table')
+            dsData: await convertLayout(dsData, layout, 'table', options),
+            varData: await convertLayout(varData, layout, 'table', options),
+            codeListData: await convertLayout(codeListData, layout, 'table', options),
+            codedValueData: await convertLayout(codedValueData, layout, 'table', options),
+            resultDisplayData: await convertLayout(resultDisplayData, layout, 'table', options),
+            analysisResultData: await convertLayout(analysisResultData, layout, 'table', options),
         };
         let convertedMetadata;
         try {
@@ -301,9 +326,9 @@ const ModalImportMetadata = (props) => {
     const handleXptFinish = async (varData, dsData, codedValueData) => {
         setShowXptLoad(false);
         if (layout !== 'csv') {
-            setVarData(await convertLayout(varData, 'csv', layout));
-            setDsData(await convertLayout(dsData, 'csv', layout));
-            setCodedValueData(await convertLayout(codedValueData, 'csv', layout));
+            setVarData(await convertLayout(varData, 'csv', layout, options));
+            setDsData(await convertLayout(dsData, 'csv', layout, options));
+            setCodedValueData(await convertLayout(codedValueData, 'csv', layout, options));
         } else {
             setVarData(varData);
             setDsData(dsData);
@@ -311,18 +336,22 @@ const ModalImportMetadata = (props) => {
         }
     };
 
-    const handleDefineFinish = async (varData, dsData, codeListData, codedValueData) => {
+    const handleDefineFinish = async (varData, dsData, codeListData, codedValueData, resultDisplayData, analysisResultData) => {
         setShowDefineLoad(false);
         if (layout !== 'csv') {
-            setVarData(await convertLayout(varData, 'csv', layout));
-            setDsData(await convertLayout(dsData, 'csv', layout));
-            setCodeListData(await convertLayout(codeListData, 'csv', layout));
-            setCodedValueData(await convertLayout(codedValueData, 'csv', layout));
+            setVarData(await convertLayout(varData, 'csv', layout, options));
+            setDsData(await convertLayout(dsData, 'csv', layout, options));
+            setCodeListData(await convertLayout(codeListData, 'csv', layout, options));
+            setCodedValueData(await convertLayout(codedValueData, 'csv', layout, options));
+            setResultDisplayData(await convertLayout(resultDisplayData, 'csv', layout, options));
+            setAnalysisResultData(await convertLayout(analysisResultData, 'csv', layout, options));
         } else {
             setVarData(varData);
             setDsData(dsData);
             setCodeListData(codeListData);
             setCodedValueData(codedValueData);
+            setResultDisplayData(resultDisplayData);
+            setAnalysisResultData(analysisResultData);
         }
     };
 
@@ -361,7 +390,7 @@ const ModalImportMetadata = (props) => {
 
     const [layout, setLayout] = useState('excel');
     const handleLayout = async (event) => {
-        let data = [dsData, varData, codeListData, codedValueData];
+        let data = [dsData, varData, codeListData, codedValueData, resultDisplayData, analysisResultData];
         let convertedData = [];
         let conversionFailed = false;
         let newLayout = event.target.value;
@@ -372,7 +401,7 @@ const ModalImportMetadata = (props) => {
                 (typeof sourceData === 'object' && Object.keys(sourceData).length > 0)
             ) {
                 // Data is not blank
-                let newData = await convertLayout(sourceData, layout, newLayout);
+                let newData = await convertLayout(sourceData, layout, newLayout, options);
                 if (newData === false) {
                     conversionFailed = true;
                 } else {
@@ -392,7 +421,7 @@ const ModalImportMetadata = (props) => {
                 })
             );
         } else {
-            let setters = [setDsData, setVarData, setCodeListData, setCodedValueData];
+            let setters = [setDsData, setVarData, setCodeListData, setCodedValueData, setResultDisplayData, setAnalysisResultData];
             convertedData.forEach((convData, index) => {
                 setters[index](convData);
             });
@@ -503,9 +532,11 @@ const ModalImportMetadata = (props) => {
                             indicatorColor='primary'
                             textColor='primary'
                         >
-                            { tabNames.map((tab, index) => {
-                                return <Tab value={tab} key={tab} label={tabLabels[index]}/>;
-                            })
+                            { tabNames
+                                .filter(tab => (hasArm === true || !['analysisResults', 'resultDisplays'].includes(tab)))
+                                .map((tab, index) => {
+                                    return <Tab value={tab} key={tab} label={tabLabels[index]}/>;
+                                })
                             }
                         </Tabs>
                     </AppBar>
@@ -516,6 +547,7 @@ const ModalImportMetadata = (props) => {
                     ) : (
                         <TextField
                             multiline
+                            autoFocus
                             fullWidth
                             value={currentData}
                             className={classes.mainContent}
@@ -536,7 +568,9 @@ const ModalImportMetadata = (props) => {
                     <Button
                         onClick={handleImportMetadata}
                         color="primary"
-                        disabled={reviewMode || onlyArmEdit || (varData === '' && dsData === '' && codedValueData === '' && codeListData === '')}
+                        disabled={reviewMode ||
+                                (onlyArmEdit && (varData !== '' || dsData !== '' || codedValueData !== '' || codeListData !== '')) ||
+                                (varData === '' && dsData === '' && codedValueData === '' && codeListData === '' && resultDisplayData === '' && analysisResultData === '')}
                     >
                         Import
                     </Button>

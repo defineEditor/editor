@@ -71,8 +71,8 @@ const escapeValue = (value) => {
     }
 };
 
-const types = ['dataset', 'variable', 'codeList', 'codedValue'];
-const typeLabels = ['datasets', 'variables', 'codelists', 'coded values'];
+const types = ['dataset', 'variable', 'codeList', 'codedValue', 'resultDisplay', 'analysisResult'];
+const typeLabels = ['datasets', 'variables', 'codelists', 'coded values', 'result displays', 'analysis results'];
 const attributes = {
     dataset: ['label', 'class', 'domain', 'domainDescription', 'sasDatasetName',
         'repeating', 'isReferenceData', 'hasNoData', 'purpose', 'structure', 'comment', 'note', 'fileName', 'fileTitle'
@@ -82,12 +82,30 @@ const attributes = {
     ],
     codeList: ['type', 'dataType', 'formatName'],
     codedValue: ['decode', 'rank'],
+    resultDisplay: ['description', 'document', 'pages'],
+    analysisResult: ['reason', 'purpose', 'parameter', 'datasets', 'comment', 'criteria', 'variables', 'documentation', 'document', 'pages', 'context', 'code', 'codeDocument'],
+};
+
+const getPages = (pdfPageRefs) => {
+    let result;
+    if (pdfPageRefs.length > 0) {
+        let pdfPageRef = pdfPageRefs[0];
+        if (pdfPageRef.pageRefs !== undefined) {
+            result = pdfPageRef.pageRefs;
+        } else if (pdfPageRef.firstPage !== undefined && pdfPageRef.lastPage !== undefined) {
+            result = `${pdfPageRef.firstPage}-${pdfPageRef.lastPage}`;
+        }
+    }
+    return result;
 };
 
 const LoadFromDefine = (props) => {
     let classes = getStyles();
     const dispatch = useDispatch();
     const mdv = useSelector(state => state.present.odm.study.metaDataVersion);
+    const hasArm = useSelector(state => state.present.odm.study.metaDataVersion.analysisResultDisplays !== undefined &&
+        Object.keys(state.present.odm.study.metaDataVersion.analysisResultDisplays).length > 0
+    );
     const defineVersion = mdv.defineVersion;
 
     const { filters, setFilters, selectedAttributes, setSelectedAttributes,
@@ -124,6 +142,8 @@ const LoadFromDefine = (props) => {
             let dsData = '';
             let codeListData = '';
             let codedValueData = '';
+            let resultDisplayData = '';
+            let analysisResultData = '';
             // Datasets
             if (selectedItems['dataset'].length > 0) {
                 let rawValues = [];
@@ -272,14 +292,7 @@ const LoadFromDefine = (props) => {
                                 let document = itemDef.origins[0].documents[0];
                                 // Check if the leaf is AnnotatedCRF
                                 if (mdv.leafs[document.leafId] && mdv.leafs[document.leafId].type === 'annotatedCrf') {
-                                    if (document.pdfPageRefs.length > 0) {
-                                        let pdfPageRef = document.pdfPageRefs[0];
-                                        if (pdfPageRef.pageRefs !== undefined) {
-                                            item.crfPages = pdfPageRef.pageRefs;
-                                        } else if (pdfPageRef.firstPage !== undefined && pdfPageRef.lastPage !== undefined) {
-                                            item.crfPages = `${pdfPageRef.firstPage}-${pdfPageRef.lastPage}`;
-                                        }
-                                    }
+                                    item.crfPages = getPages(document.pdfPageRefs);
                                 }
                             }
                             if (selectedAttrs.includes('comment') && itemDef.commentOid !== undefined && mdv.comments[itemDef.commentOid] !== undefined) {
@@ -393,7 +406,186 @@ const LoadFromDefine = (props) => {
                     codedValueData = attrs.join('\n');
                 }
             }
-            props.onFinish(varData, dsData, codeListData, codedValueData);
+            // Result Displays
+            if (selectedItems['resultDisplay'].length > 0) {
+                let rawValues = [];
+                let selectedAttrs = ['resultDisplay'].concat(selectedAttributes['resultDisplay']);
+                mdv.analysisResultDisplays.resultDisplayOrder
+                    .filter(resultDisplayOid => selectedItems['resultDisplay'].includes(resultDisplayOid))
+                    .forEach(resultDisplayOid => {
+                        let resultDisplay = mdv.analysisResultDisplays.resultDisplays[resultDisplayOid];
+                        let item = {};
+                        item.resultDisplay = resultDisplay.name;
+                        if (selectedAttrs.includes('description')) {
+                            item.description = getDescription(resultDisplay);
+                        }
+                        if (resultDisplay.documents.length > 0) {
+                            if (selectedAttrs.includes('document')) {
+                                let document = resultDisplay.documents[0];
+                                if (mdv.leafs[document.leafId]) {
+                                    item.document = mdv.leafs[document.leafId].title;
+                                }
+                            }
+                            if (selectedAttrs.includes('pages')) {
+                                let document = resultDisplay.documents[0];
+                                if (mdv.leafs[document.leafId]) {
+                                    item.pages = getPages(document.pdfPageRefs);
+                                }
+                            }
+                        } else {
+                            if (selectedAttrs.includes('document')) {
+                                item.document = '';
+                            }
+                            if (selectedAttrs.includes('pages')) {
+                                item.pages = '';
+                            }
+                        }
+                        rawValues.push(item);
+                    });
+                let attrs = [];
+                rawValues.forEach(item => {
+                    attrs.push(Object.values(item).map(item => escapeValue(item)).join(','));
+                });
+                if (attrs.length > 0) {
+                    attrs.unshift(Object.keys(rawValues[0]).join(','));
+                    resultDisplayData = attrs.join('\n');
+                }
+            }
+            // Analysis Results
+            if (selectedItems['analysisResult'].length > 0) {
+                let rawValues = [];
+                let selectedAttrs = ['resultDisplay'].concat(selectedAttributes['analysisResult']);
+                Object.keys(mdv.analysisResultDisplays.analysisResults)
+                    .filter(analysisResultOid => selectedItems['analysisResult'].includes(analysisResultOid))
+                    .forEach(analysisResultOid => {
+                        let analysisResult = mdv.analysisResultDisplays.analysisResults[analysisResultOid];
+                        let resultDisplay = mdv.analysisResultDisplays.resultDisplays[analysisResult.sources.resultDisplays[0]];
+                        let item = {};
+                        item.resultDisplay = resultDisplay.name;
+                        item.description = getDescription(analysisResult);
+                        if (selectedAttrs.includes('reason')) {
+                            item.reason = analysisResult.analysisReason;
+                        }
+                        if (selectedAttrs.includes('purpose')) {
+                            item.purpose = analysisResult.analysisPurpose;
+                        }
+                        if (selectedAttrs.includes('parameter')) {
+                            let itemDef = mdv.itemDefs[analysisResult.parameterOid];
+                            if (itemDef !== undefined) {
+                                let name = itemDef.name;
+                                let itemGroupOid = itemDef.sources.itemGroups[0];
+                                let dsName = mdv.itemGroups[itemGroupOid].name;
+                                item.parameter = `${dsName}.${name}`;
+                            } else {
+                                item.parameter = '';
+                            }
+                        }
+                        if (selectedAttrs.includes('datasets')) {
+                            let datasets = [];
+                            analysisResult.analysisDatasetOrder.forEach(dsId => {
+                                let analysisDataset = analysisResult.analysisDatasets[dsId];
+                                datasets.push(mdv.itemGroups[analysisDataset.itemGroupOid].name);
+                            });
+                            item.datasets = datasets.join(', ');
+                        }
+                        if (selectedAttrs.includes('comment')) {
+                            if (analysisResult.analysisDatasetsCommentOid !== undefined &&
+                                mdv.comments[analysisResult.analysisDatasetsCommentOid] !== undefined
+                            ) {
+                                let comment = mdv.comments[analysisResult.analysisDatasetsCommentOid];
+                                item.comment = getDescription(comment);
+                            } else {
+                                item.comment = '';
+                            }
+                        }
+                        if (selectedAttrs.includes('criteria')) {
+                            let criteria = [];
+                            analysisResult.analysisDatasetOrder.forEach(dsId => {
+                                let analysisDataset = analysisResult.analysisDatasets[dsId];
+                                if (analysisDataset.whereClauseOid !== undefined) {
+                                    let whereClause = getWhereClauseAsText(mdv.whereClauses[analysisDataset.whereClauseOid], mdv);
+                                    criteria.push(whereClause);
+                                }
+                            });
+                            item.criteria = criteria.join('\n');
+                        }
+                        if (selectedAttrs.includes('variables')) {
+                            let variables = [];
+                            analysisResult.analysisDatasetOrder.forEach(dsId => {
+                                let analysisDataset = analysisResult.analysisDatasets[dsId];
+                                let varNames = [];
+                                analysisDataset.analysisVariableOids.forEach(itemOid => {
+                                    varNames.push(mdv.itemDefs[itemOid].name);
+                                });
+                                variables.push(varNames.join(' '));
+                            });
+                            item.variables = variables.join(', ');
+                        }
+                        if (selectedAttrs.includes('documentation')) {
+                            item.documentation = getDescription(analysisResult.documentation);
+                        }
+                        if (analysisResult.documentation && analysisResult.documentation.documents.length > 0) {
+                            let document = analysisResult.documentation.documents[0];
+                            if (selectedAttrs.includes('document')) {
+                                if (mdv.leafs[document.leafId]) {
+                                    item.document = mdv.leafs[document.leafId].title;
+                                } else {
+                                    item.document = '';
+                                }
+                            }
+                            if (selectedAttrs.includes('pages')) {
+                                if (mdv.leafs[document.leafId]) {
+                                    item.pages = getPages(document.pdfPageRefs);
+                                } else {
+                                    item.pages = '';
+                                }
+                            }
+                        } else {
+                            if (selectedAttrs.includes('document')) {
+                                item.document = '';
+                            }
+                            if (selectedAttrs.includes('pages')) {
+                                item.pages = '';
+                            }
+                        }
+                        if (selectedAttrs.includes('context')) {
+                            if (analysisResult.programmingCode) {
+                                item.context = analysisResult.programmingCode.context;
+                            } else {
+                                item.context = '';
+                            }
+                        }
+                        if (selectedAttrs.includes('code')) {
+                            if (analysisResult.programmingCode) {
+                                item.code = analysisResult.programmingCode.code;
+                            } else {
+                                item.code = '';
+                            }
+                        }
+                        if (selectedAttrs.includes('codeDocument')) {
+                            if (analysisResult.programmingCode && analysisResult.programmingCode.documents.length > 0) {
+                                let document = analysisResult.programmingCode.documents[0];
+                                if (mdv.leafs[document.leafId]) {
+                                    item.codeDocument = mdv.leafs[document.leafId].title;
+                                } else {
+                                    item.codeDocument = '';
+                                }
+                            } else {
+                                item.codeDocument = '';
+                            }
+                        }
+                        rawValues.push(item);
+                    });
+                let attrs = [];
+                rawValues.forEach(item => {
+                    attrs.push(Object.values(item).map(item => escapeValue(item)).join(','));
+                });
+                if (attrs.length > 0) {
+                    attrs.unshift(Object.keys(rawValues[0]).join(','));
+                    analysisResultData = attrs.join('\n');
+                }
+            }
+            props.onFinish(varData, dsData, codeListData, codedValueData, resultDisplayData, analysisResultData);
             handleClose();
         } catch (error) {
             dispatch(
@@ -444,47 +636,48 @@ const LoadFromDefine = (props) => {
                 </DialogTitle>
                 <DialogContent className={classes.content}>
                     <Grid container spacing={2} alignItems='flex-start'>
-                        { types.map(curType => (
-                            <Grid item key={curType} xs={12}>
-                                <Grid container wrap='nowrap' justify='space-between'>
-                                    <Grid item>
-                                        <Button
-                                            color={selectedItemNum[curType] > 0 ? 'primary' : 'default'}
-                                            variant='contained'
-                                            onClick={() => openFilter(curType)}
-                                            className={classes.button}
-                                        >
-                                            {`${selectedItemNum[curType]} ${typeLabels[types.indexOf(curType)]}`}
-                                        </Button>
-                                    </Grid>
-                                    <Grid item>
-                                        <TextField
-                                            label='Attributes'
-                                            value={selectedAttributes[curType]}
-                                            multiline
-                                            select
-                                            SelectProps={{ multiple: true }}
-                                            onChange={handleAttributeChange(curType)}
-                                            className={classes.attributeField}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <IconButton
-                                                            color={selectedAttributes.length > 0 ? 'primary' : 'default'}
-                                                            onClick={handleSelectAllClick(curType)}
-                                                        >
-                                                            <DoneAll />
-                                                        </IconButton>
-                                                    </InputAdornment>
-                                                )
-                                            }}
-                                        >
-                                            {getSelectionList(attributes[curType])}
-                                        </TextField>
+                        { types.filter(curType => (hasArm === true || !['analysisResult', 'resultDisplay'].includes(curType)))
+                            .map(curType => (
+                                <Grid item key={curType} xs={12}>
+                                    <Grid container wrap='nowrap' justify='space-between'>
+                                        <Grid item>
+                                            <Button
+                                                color={selectedItemNum[curType] > 0 ? 'primary' : 'default'}
+                                                variant='contained'
+                                                onClick={() => openFilter(curType)}
+                                                className={classes.button}
+                                            >
+                                                {`${selectedItemNum[curType]} ${typeLabels[types.indexOf(curType)]}`}
+                                            </Button>
+                                        </Grid>
+                                        <Grid item>
+                                            <TextField
+                                                label='Attributes'
+                                                value={selectedAttributes[curType]}
+                                                multiline
+                                                select
+                                                SelectProps={{ multiple: true }}
+                                                onChange={handleAttributeChange(curType)}
+                                                className={classes.attributeField}
+                                                InputProps={{
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <IconButton
+                                                                color={selectedAttributes.length > 0 ? 'primary' : 'default'}
+                                                                onClick={handleSelectAllClick(curType)}
+                                                            >
+                                                                <DoneAll />
+                                                            </IconButton>
+                                                        </InputAdornment>
+                                                    )
+                                                }}
+                                            >
+                                                {getSelectionList(attributes[curType])}
+                                            </TextField>
+                                        </Grid>
                                     </Grid>
                                 </Grid>
-                            </Grid>
-                        )) }
+                            )) }
                     </Grid>
                 </DialogContent>
                 <DialogActions>

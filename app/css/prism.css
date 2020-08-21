@@ -143,6 +143,7 @@ pre[class*="language-"] {
 pre[class*="language-"].line-numbers {
 	position: relative;
 	padding-left: 3.8em;
+	padding-bottom: 5px;
 	counter-reset: linenumber;
 }
 

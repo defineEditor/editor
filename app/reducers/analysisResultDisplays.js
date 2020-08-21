@@ -29,6 +29,7 @@ import {
     UPD_LEAFS,
     ADD_REVIEWCOMMENT,
     DEL_REVIEWCOMMENT,
+    ADD_IMPORTMETADATA,
 } from 'constants/action-types';
 import { AnalysisResultDisplays, ResultDisplay, AnalysisResult } from 'core/armStructure.js';
 import getOid from 'utils/getOid.js';
@@ -386,6 +387,38 @@ const deleteReviewComment = (state, action) => {
     }
 };
 
+const addImportMetadata = (state, action) => {
+    let newState = state;
+    // Result displays
+    let { newResultDisplays, updatedResultDisplays } = action.updateObj.resultDisplayResult;
+    if (Object.keys({ ...newResultDisplays, ...updatedResultDisplays }).length > 0) {
+        newState = { ...newState };
+        newState.resultDisplays = { ...newState.resultDisplays, ...newResultDisplays, ...updatedResultDisplays };
+        if (Object.keys(newResultDisplays).length > 0) {
+            newState.resultDisplayOrder = newState.resultDisplayOrder.concat(Object.keys(newResultDisplays));
+        }
+    }
+    // Analysis results
+    let { newAnalysisResults, updatedAnalysisResults } = action.updateObj.analysisResultResult;
+    if (Object.keys({ ...newAnalysisResults, ...updatedAnalysisResults }).length > 0) {
+        newState = { ...newState };
+        newState.analysisResults = { ...newState.analysisResults, ...newAnalysisResults, ...updatedAnalysisResults };
+    }
+    // Removed analysis results, no need to update result display, as it was already removed in convertImportMetadata
+    let removedOids = action.updateObj.removedSources.analysisResults;
+    if (removedOids.length > 0) {
+        newState = { ...newState };
+        newState.analysisResults = { ...newState.analysisResults };
+        removedOids.forEach(removedOid => {
+            if (newState.analysisResults[removedOid] !== undefined) {
+                delete newState.analysisResults[removedOid];
+            }
+        });
+    }
+
+    return newState;
+};
+
 const analysisResultDisplays = (state = {}, action) => {
     switch (action.type) {
         case UPD_ARMSTATUS:
@@ -420,6 +453,8 @@ const analysisResultDisplays = (state = {}, action) => {
             return addReviewComment(state, action);
         case DEL_REVIEWCOMMENT:
             return deleteReviewComment(state, action);
+        case ADD_IMPORTMETADATA:
+            return addImportMetadata(state, action);
         default:
             return state;
     }

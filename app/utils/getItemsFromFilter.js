@@ -122,6 +122,29 @@ const getItemsFromFilter = (filter, mdv, defineVersion) => {
             });
             selectedItems = applyFilter(codeListData, filter);
         });
+    } else if (type === 'resultDisplay') {
+        let resultDisplayData = [];
+        Object.values(mdv.analysisResultDisplays.resultDisplays).forEach(resultDisplay => {
+            resultDisplayData.push({
+                oid: resultDisplay.oid,
+                resultDisplay: resultDisplay.name,
+                description: getDescription(resultDisplay),
+            });
+            selectedItems = applyFilter(resultDisplayData, filter);
+        });
+    } else if (type === 'analysisResult') {
+        let analysisResultData = [];
+        Object.values(mdv.analysisResultDisplays.analysisResults).forEach(analysisResult => {
+            analysisResult.sources.resultDisplays.forEach(resultDisplayOid => {
+                let resultDisplay = mdv.analysisResultDisplays.resultDisplays[resultDisplayOid];
+                analysisResultData.push({
+                    oid: analysisResult.oid,
+                    resultDisplay: resultDisplay.name,
+                    description: getDescription(analysisResult),
+                });
+            });
+            selectedItems = applyFilter(analysisResultData, filter);
+        });
     }
 
     return selectedItems;

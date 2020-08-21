@@ -27,7 +27,13 @@ const getOidByName = (mdv, source, name, itemGroupOid) => {
                 result = itemGroup.itemRefs[itemRefOid].itemOid;
                 return true;
             }
-            return false;
+        });
+    } else if (source === 'resultDisplays') {
+        Object.keys(mdv.analysisResultDisplays[source]).some(oid => {
+            if (mdv.analysisResultDisplays[source][oid].name.toLowerCase() === name.toLowerCase()) {
+                result = oid;
+                return true;
+            }
         });
     } else {
         Object.keys(mdv[source]).some(oid => {
@@ -43,7 +49,6 @@ const getOidByName = (mdv, source, name, itemGroupOid) => {
                     return true;
                 }
             }
-            return false;
         });
     }
     return result;
