@@ -144,7 +144,7 @@ class ConnectedControlledTerminologyBreadcrumbs extends React.Component {
                                 label='Search'
                                 placeholder='Ctrl+F'
                                 inputRef={this.searchFieldRef}
-                                inputProps={{ className: classes.searchInput }}
+                                inputProps={{ className: classes.searchInput, spellCheck: 'false' }}
                                 InputLabelProps={{ className: classes.searchLabel, shrink: true }}
                                 className={classes.searchField}
                                 defaultValue={this.props.searchString}

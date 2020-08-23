@@ -34,7 +34,7 @@ import Paper from '@material-ui/core/Paper';
     @property {array} selection.selected Selected items
     @property {func} selection.setSelected Function to set selected items
     @property {boolean} sorting Controls whether columns can be sorted
-    @property {boolean|Object} pagination Controls whether pagination is used. If boolean - pagination is handled internally, if objeca rowsperpage are handled externally
+    @property {boolean|Object} pagination Controls whether pagination is used. If boolean - pagination is handled internally, if object rowsperpage are handled externally
     @property {array} pagination.rowsPerPage Number of rows per page
     @property {func} pagination.setRowsPerPage Function to set rowsPerPage
     @property {boolean} pagination Controls whether pagination is enabled

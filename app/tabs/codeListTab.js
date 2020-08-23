@@ -176,7 +176,10 @@ function codeListStandardFormatter (cell, row) {
                 </div>
                 <Link
                     variant='body2'
-                    onClick={() => { openCodeList(row.stdCodeListOid, cell.standardOid); }}
+                    onClick={(event) => {
+                        event.preventDefault();
+                        openCodeList(row.stdCodeListOid, cell.standardOid);
+                    }}
                     style = {{ color: '#007BFF' }}
                     href='blank'
                 >
@@ -459,7 +462,7 @@ class ConnectedCodeListTable extends React.Component {
                                 label='Search'
                                 placeholder='Ctrl+F'
                                 inputRef={this.searchFieldRef}
-                                inputProps={{ className: this.props.classes.searchInput }}
+                                inputProps={{ className: this.props.classes.searchInput, spellCheck: 'false' }}
                                 InputLabelProps={{ className: this.props.classes.searchLabel, shrink: true }}
                                 className={this.props.classes.searchField}
                                 defaultValue={this.state.searchString}

@@ -565,8 +565,6 @@ class ConnectedItemTable extends React.Component {
                 customToolbar={this.customToolbar}
                 disableToolbar
                 fullRowSelect
-                pagination
-                rowsPerPageOptions={[25, 50, 100, 250]}
                 selection = { mountPoint !== 'main' && { selected: this.state.selected, setSelected: this.handleSelectChange }}
             />
         );
