@@ -26,6 +26,7 @@ import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import Refresh from '@material-ui/icons/Refresh';
+import SearchInTable from 'components/utils/searchInTable.js';
 import {
     changeCdiscLibraryView,
     toggleCdiscLibraryItemGroupGridView,
@@ -37,14 +38,14 @@ const styles = theme => ({
         outline: 'none',
     },
     traffic: {
-        marginTop: theme.spacing(1.6),
+        marginTop: theme.spacing(2),
         marginRight: theme.spacing(3),
     },
     breadcrumbs: {
         marginTop: theme.spacing(1),
     },
     searchField: {
-        marginTop: '0',
+        marginTop: theme.spacing(1),
         marginLeft: theme.spacing(3),
         marginRight: theme.spacing(3),
     },
@@ -195,8 +196,8 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                                     </Tooltip>
                                 </Grid>
                         }
-                        { currentView !== 'products' &&
-                                <Grid item>
+                        <Grid item>
+                            { currentView === 'products' &&
                                     <TextField
                                         variant='outlined'
                                         label='Search'
@@ -209,7 +210,28 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                                         onKeyDown={this.onSearchKeyDown}
                                         onBlur={(event) => { this.props.onSearchUpdate(event); }}
                                     />
-                                </Grid>
+                            }
+                        </Grid>
+                        { currentView === 'itemGroups' &&
+                                <TextField
+                                    variant='outlined'
+                                    label='Search'
+                                    placeholder='Ctrl+F'
+                                    inputRef={this.searchFieldRef}
+                                    inputProps={{ className: classes.searchInput, spellCheck: 'false' }}
+                                    InputLabelProps={{ className: classes.searchLabel, shrink: true }}
+                                    className={classes.searchField}
+                                    defaultValue={this.props.searchString}
+                                    onKeyDown={this.onSearchKeyDown}
+                                    onBlur={(event) => { this.props.onSearchUpdate(event); }}
+                                />
+                        }
+                        { currentView === 'items' &&
+                                <SearchInTable
+                                    header={this.props.header}
+                                    onSeachUpdate={(value) => { return this.props.onSearchUpdate({ target: { value } }); }}
+                                    margin='dense'
+                                />
                         }
                         <Grid item>
                             <Typography variant="body2" color='textSecondary' className={classes.traffic}>
@@ -240,6 +262,7 @@ ConnectedCdiscLibraryBreadcrumbs.propTypes = {
     onSearchUpdate: PropTypes.func,
     reloadProducts: PropTypes.func,
     additionalActions: PropTypes.array,
+    header: PropTypes.array,
 };
 
 ConnectedCdiscLibraryBreadcrumbs.displayName = 'CdiscLibraryBreadCrumbs';

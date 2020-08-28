@@ -17,6 +17,7 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import handleSearchInTable from 'utils/handleSearchInTable.js';
 
 const getStyles = makeStyles(theme => ({
     searchField: {
@@ -31,44 +32,6 @@ const getStyles = makeStyles(theme => ({
     searchLabel: {
     },
 }));
-
-const handleSearch = (data, originalSearchString, header) => {
-    let searchString = originalSearchString;
-    if (searchString !== '') {
-        // Check if specific attribute should be checked
-        let selectedAttr;
-        let firstWord = searchString.split(':')[0];
-        if (header.map(item => item.label).includes(firstWord)) {
-            header.some(item => {
-                if (item.label === firstWord) {
-                    selectedAttr = item.id;
-                    // Remove keyword from the string
-                    searchString = searchString.replace(/^.*?:/, '');
-                    return true;
-                }
-            });
-        }
-
-        return data.filter(row => {
-            let matchFound = false;
-            matchFound = Object.keys(row)
-                .filter(attr => ((selectedAttr !== undefined && attr === selectedAttr) || selectedAttr === undefined))
-                .some(attr => {
-                    if (typeof row[attr] === 'string') {
-                        if (/[A-Z]/.test(searchString)) {
-                            return row[attr].includes(searchString);
-                        } else {
-                            return row[attr].toLowerCase().includes(searchString.toLowerCase());
-                        }
-                    }
-                });
-
-            return matchFound;
-        });
-    } else {
-        return data;
-    }
-};
 
 const SearchInTable = (props) => {
     // Search
@@ -88,7 +51,7 @@ const SearchInTable = (props) => {
             });
             setOptions(dataOptions);
         }
-    }, [props]);
+    }, [props.header]);
 
     // Ctrl+F listener
     useEffect(() => {
@@ -106,11 +69,15 @@ const SearchInTable = (props) => {
     }, [searchFieldRef]);
 
     const handleSearchUpdate = (event, value) => {
+        let newSearchString = value || event.target.value;
         if (props.data !== undefined) {
-            let updatedData = handleSearch(props.data, value || event.target.value, props.header);
-            if (updatedData !== false) {
+            if (props.onDataUpdate !== undefined) {
+                let updatedData = handleSearchInTable(props.data, props.header, newSearchString);
                 props.onDataUpdate(updatedData);
             }
+        }
+        if (props.onSeachUpdate !== undefined) {
+            props.onSeachUpdate(newSearchString);
         }
     };
 
@@ -142,6 +109,7 @@ const SearchInTable = (props) => {
                         {...params}
                         label='Search'
                         placeholder='Ctrl+F'
+                        margin={props.margin}
                         variant={props.variant || 'outlined'}
                         onBlur={handleSearchUpdate}
                         onKeyDown={handleSearchKeyDown}
@@ -161,10 +129,12 @@ const SearchInTable = (props) => {
 SearchInTable.propTypes = {
     data: PropTypes.array,
     header: PropTypes.array,
-    onDataUpdate: PropTypes.func.isRequired,
+    onDataUpdate: PropTypes.func,
+    onSeachUpdate: PropTypes.func,
     classes: PropTypes.object,
     width: PropTypes.number,
     variant: PropTypes.string,
+    margin: PropTypes.string,
 };
 
 export default SearchInTable;

@@ -266,7 +266,7 @@ const ModalCodeListTable = (props) => {
         let timer;
         if (process.platform === 'linux') {
             timer = setTimeout(() => {
-                if (tableData.data !== undefined) {
+                if (tableData.data === undefined) {
                     dummyRequest(cl);
                 }
             }, 2000);

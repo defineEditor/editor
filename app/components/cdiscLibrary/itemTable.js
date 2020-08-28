@@ -24,6 +24,7 @@ import CdiscLibraryDataTypeButton from 'components/utils/cdiscLibraryDataTypeBut
 import CdiscLibraryCodeListButton from 'components/utils/cdiscLibraryCodeListButton.js';
 import CdiscLibraryVarAddOptions from 'components/utils/cdiscLibraryVarAddOptions.js';
 import { copyVariablesFromCdiscLibrary } from 'utils/copyUtils.js';
+import handleSearchInTable from 'utils/handleSearchInTable.js';
 import { addVariables, openModal } from 'actions/index.js';
 
 const getStyles = makeStyles(theme => ({
@@ -252,8 +253,11 @@ class ConnectedItemTable extends React.Component {
         }
         let items = deriveAdditionalAttributes(props.items, codeLists, existingNames);
 
+        // Header needs to be passed to the parent component as it is required for search
+        let header = this.getHeader();
+        this.props.setHeader(header);
+
         this.state = {
-            searchString: '',
             selected: [],
             options: {
                 addExisting: false,
@@ -264,8 +268,82 @@ class ConnectedItemTable extends React.Component {
             },
             codeLists,
             items,
+            header,
             existingNames,
         };
+    }
+
+    getHeader = () => {
+        const { mountPoint, itemGroup, product } = this.props;
+
+        // Define layout depending on the dataset type
+        let layout;
+        if (product.type === 'Foundational Model' && product.model === 'SDTM') {
+            layout = 4;
+        } else if (itemGroup.type === 'SDTM Dataset') {
+            layout = 1;
+        } else if (itemGroup.constructor && itemGroup.constructor.name === 'DataStructure') {
+            layout = 2;
+        } else if (product.model === 'CDASH') {
+            layout = 3;
+        } else {
+            layout = 1;
+        }
+
+        const descriptionFormatter = itemDescription(layout);
+
+        let header = [
+            { id: 'ordinal', label: 'id', hidden: true, key: true },
+            { id: 'name', label: 'Name', style: { wordBreak: 'break-all' } },
+            { id: 'label', label: 'Label' },
+            { id: 'simpleDatatype', label: 'Datatype', formatter: mountPoint !== 'main' && this.dataTypeButton },
+            { id: 'codelist', label: 'Codelist', formatter: this.codeListButton },
+            { id: 'description', label: 'Description', formatter: descriptionFormatter },
+        ];
+
+        // Additional columns shown only in the CDISC Library viewer mode
+        if (mountPoint === 'main') {
+            header.splice(4, 0, { id: 'core', label: 'Core' }, { id: 'role', label: 'Role', formatter: itemRole });
+            // Drop columns for some of the layouts
+            if (![1, 4].includes(layout)) {
+                header = header.filter(col => (col.id !== 'role'));
+            }
+            if (layout === 3) {
+                header = header.filter(col => (col.id !== 'core'));
+            }
+            if (layout === 4) {
+                header = header.filter(col => (col.id !== 'codelist' && col.id !== 'core'));
+            }
+        }
+
+        // Add width
+        let colWidths;
+        if (mountPoint !== 'main') {
+            colWidths = {
+                name: 120,
+                label: 230,
+                simpleDatatype: 155,
+                codelist: 220,
+            };
+        } else {
+            colWidths = {
+                name: 120,
+                label: 230,
+                simpleDatatype: 100,
+                codelist: 100,
+                core: 80,
+                role: layout === 4 ? 290 : 100,
+            };
+        }
+
+        header.forEach(column => {
+            let width = colWidths[column.id];
+            if (width !== undefined) {
+                column.style = column.style ? { ...column.style, minWidth: width, maxWidth: width } : { minWidth: width, maxWidth: width };
+            }
+        });
+
+        return header;
     }
 
     handleChangePage = (event, page) => {
@@ -452,75 +530,7 @@ class ConnectedItemTable extends React.Component {
     };
 
     render () {
-        const { mountPoint, itemGroup, searchString, variableSet } = this.props;
-
-        // Define layout depending on the dataset type
-        let layout;
-        let product = this.props.product;
-        if (product.type === 'Foundational Model' && product.model === 'SDTM') {
-            layout = 4;
-        } else if (itemGroup.type === 'SDTM Dataset') {
-            layout = 1;
-        } else if (itemGroup.constructor && itemGroup.constructor.name === 'DataStructure') {
-            layout = 2;
-        } else if (product.model === 'CDASH') {
-            layout = 3;
-        } else {
-            layout = 1;
-        }
-
-        const descriptionFormatter = itemDescription(layout);
-
-        let header = [
-            { id: 'ordinal', label: 'id', hidden: true, key: true },
-            { id: 'name', label: 'Name', style: { wordBreak: 'break-all' } },
-            { id: 'label', label: 'Label' },
-            { id: 'simpleDatatype', label: 'Datatype', formatter: mountPoint !== 'main' && this.dataTypeButton },
-            { id: 'codelist', label: 'Codelist', formatter: this.codeListButton },
-            { id: 'description', label: 'Description', formatter: descriptionFormatter },
-        ];
-
-        // Additional columns shown only in the CDISC Library viewer mode
-        if (mountPoint === 'main') {
-            header.splice(4, 0, { id: 'core', label: 'Core' }, { id: 'role', label: 'Role', formatter: itemRole });
-            // Drop columns for some of the layouts
-            if (![1, 4].includes(layout)) {
-                header = header.filter(col => (col.id !== 'role'));
-            }
-            if (layout === 3) {
-                header = header.filter(col => (col.id !== 'core'));
-            }
-            if (layout === 4) {
-                header = header.filter(col => (col.id !== 'codelist' && col.id !== 'core'));
-            }
-        }
-
-        // Add width
-        let colWidths;
-        if (mountPoint !== 'main') {
-            colWidths = {
-                name: 120,
-                label: 230,
-                simpleDatatype: 155,
-                codelist: 220,
-            };
-        } else {
-            colWidths = {
-                name: 120,
-                label: 230,
-                simpleDatatype: 100,
-                codelist: 100,
-                core: 80,
-                role: layout === 4 ? 290 : 100,
-            };
-        }
-
-        header.forEach(column => {
-            let width = colWidths[column.id];
-            if (width !== undefined) {
-                column.style = column.style ? { ...column.style, minWidth: width, maxWidth: width } : { minWidth: width, maxWidth: width };
-            }
-        });
+        const { mountPoint, searchString, variableSet } = this.props;
 
         let data = this.state.items.slice();
         if (variableSet && variableSet !== '__all') {
@@ -528,6 +538,9 @@ class ConnectedItemTable extends React.Component {
             data = data.filter(item => item.variableSet === variableSet);
         }
 
+        data = handleSearchInTable(data, this.state.header, searchString);
+
+        /*
         if (searchString !== '') {
             data = data.filter(row => {
                 let matchFound = false;
@@ -556,11 +569,12 @@ class ConnectedItemTable extends React.Component {
                 return matchFound;
             });
         }
+        */
 
         return (
             <GeneralTable
                 data={data}
-                header={header}
+                header={this.state.header}
                 sorting
                 customToolbar={this.customToolbar}
                 disableToolbar
@@ -578,6 +592,7 @@ ConnectedItemTable.propTypes = {
     searchString: PropTypes.string.isRequired,
     title: PropTypes.object.isRequired,
     mountPoint: PropTypes.string.isRequired,
+    setHeader: PropTypes.func.isRequired,
     variableSet: PropTypes.string,
     mdv: PropTypes.object,
     stdCodeLists: PropTypes.object,
