@@ -106,11 +106,16 @@ class ConnectedSettings extends React.Component {
         super(props);
         this.state = {};
         this.state.settings = clone(this.props.settings);
-        // Decrypt the cdiscLibrary password
+        // Decrypt the cdiscLibrary password/apiKey
         if (this.state.settings.cdiscLibrary && this.state.settings.cdiscLibrary.password) {
             this.state.settings.cdiscLibrary.password = decrypt(this.state.settings.cdiscLibrary.password);
             // Keep the decrypted password for comparison
             this.state.originalPassword = this.state.settings.cdiscLibrary.password;
+        }
+        if (this.state.settings.cdiscLibrary && this.state.settings.cdiscLibrary.apiKey) {
+            this.state.settings.cdiscLibrary.apiKey = decrypt(this.state.settings.cdiscLibrary.apiKey);
+            // Keep the decrypted apieKey for comparison
+            this.state.originalApiKey = this.state.settings.cdiscLibrary.apiKey;
         }
         // Check if default System is used
         if (this.state.settings.define && this.state.settings.define.sourceSystem === remote.app.name) {
@@ -118,7 +123,7 @@ class ConnectedSettings extends React.Component {
         } else {
             this.state.defaultSource = false;
         }
-        this.state.showPassword = false;
+        this.state.showEncryptedValue = false;
     }
 
     static contextType = CdiscLibraryContext;
@@ -201,6 +206,7 @@ class ConnectedSettings extends React.Component {
             'onlyArmEdit',
             'enableCdiscLibrary',
             'checkForCLUpdates',
+            'oAuth2',
         ].includes(name) || category === 'popUp') {
             this.setState({
                 settings: { ...this.state.settings,
@@ -248,6 +254,12 @@ class ConnectedSettings extends React.Component {
                 delete result.cdiscLibrary;
             }
         }
+        if (result.cdiscLibrary && result.cdiscLibrary.apiKey && result.cdiscLibrary.apiKey === this.state.originalApiKey) {
+            delete result.cdiscLibrary.apiKey;
+            if (Object.keys(result.cdiscLibrary).length === 0) {
+                delete result.cdiscLibrary;
+            }
+        }
         return result;
     }
 
@@ -256,11 +268,14 @@ class ConnectedSettings extends React.Component {
         if (Object.keys(diff).length > 0) {
             // Update CDISC Library credentials
             if (diff.cdiscLibrary) {
+                // Save the new unencrypted password/apiKey in state
                 if (diff.cdiscLibrary.password) {
-                    // Save the new unencrypted password in state
                     this.setState({ originalPassword: diff.cdiscLibrary.password });
                 }
-                // If password was changed, it is encrypted by the updateCdiscLibrarySettings
+                if (diff.cdiscLibrary.apiKey) {
+                    this.setState({ originalApiKey: diff.cdiscLibrary.apiKey });
+                }
+                // If password/apiKey was changed, it is encrypted by the updateCdiscLibrarySettings
                 diff.cdiscLibrary = updateCdiscLibrarySettings(diff.cdiscLibrary, this.props.settings.cdiscLibrary, this.context);
             }
             this.props.updateSettings(diff);
@@ -269,9 +284,12 @@ class ConnectedSettings extends React.Component {
 
     cancel = () => {
         let newState = clone(this.props.settings);
-        // Decrypt the cdiscLibrary password
+        // Decrypt the cdiscLibrary password/apiKey
         if (newState.cdiscLibrary && newState.cdiscLibrary.password) {
             newState.cdiscLibrary.password = decrypt(newState.cdiscLibrary.password);
+        }
+        if (newState.cdiscLibrary && newState.cdiscLibrary.apiKey) {
+            newState.cdiscLibrary.apiKey = decrypt(newState.cdiscLibrary.apiKey);
         }
         this.setState({ settings: newState });
     };
@@ -284,15 +302,16 @@ class ConnectedSettings extends React.Component {
         }
     };
 
-    handleClickShowPassword = () => {
-        this.setState(state => ({ showPassword: !state.showPassword }));
+    handleClickShowEncyptedValue = () => {
+        this.setState(state => ({ showEncryptedValue: !state.showEncryptedValue }));
     };
 
     checkCdiscLibraryConnection = async () => {
         // For the check, create a new instance of CDISC Library, because user may have not saved the changed settings
         let claSettings = clone(this.state.settings.cdiscLibrary);
-        // Encrypt password
+        // Encrypt password/apiKey
         claSettings.password = encrypt(claSettings.password);
+        claSettings.apiKey = encrypt(claSettings.apiKey);
         let newCl = initCdiscLibrary(claSettings);
         // As bug workaround, send a dummy request in 1 seconds if the object did not load
         if (process.platform === 'linux') {
@@ -775,42 +794,82 @@ class ConnectedSettings extends React.Component {
                                         }
                                         label='Check for CDISC Library updates'
                                     />
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.settings.cdiscLibrary.oAuth2}
+                                                onChange={this.handleChange('cdiscLibrary', 'oAuth2')}
+                                                color='primary'
+                                                disabled={this.state.settings.cdiscLibrary.enableCdiscLibrary === false}
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Use OAuth2 authentication'
+                                    />
                                 </FormGroup>
                             </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    label='Username'
-                                    disabled={!this.state.settings.cdiscLibrary.enableCdiscLibrary}
-                                    value={this.state.settings.cdiscLibrary.username}
-                                    onChange={this.handleChange('cdiscLibrary', 'username')}
-                                    helperText='CDISC Library API username (not CDISC account name)'
-                                    className={classes.textFieldShort}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    label='Password'
-                                    disabled={!this.state.settings.cdiscLibrary.enableCdiscLibrary}
-                                    value={this.state.settings.cdiscLibrary.password}
-                                    onChange={this.handleChange('cdiscLibrary', 'password')}
-                                    type={this.state.showPassword ? 'text' : 'password'}
-                                    helperText='CDISC Library API password'
-                                    className={classes.textFieldShort}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <IconButton
-                                                    aria-label="Toggle password visibility"
-                                                    onClick={this.handleClickShowPassword}
-                                                    className={classes.adorementIcon}
-                                                >
-                                                    {this.state.showPassword ? <Visibility /> : <VisibilityOff />}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        )
-                                    }}
-                                />
-                            </Grid>
+                            { this.state.settings.cdiscLibrary.oAuth2 !== true && [
+                                <Grid item xs={12} key='username'>
+                                    <TextField
+                                        label='Username'
+                                        disabled={!this.state.settings.cdiscLibrary.enableCdiscLibrary}
+                                        value={this.state.settings.cdiscLibrary.username}
+                                        onChange={this.handleChange('cdiscLibrary', 'username')}
+                                        helperText='CDISC Library API username (not CDISC account name)'
+                                        className={classes.textFieldShort}
+                                    />
+                                </Grid>,
+                                <Grid item xs={12} key='password'>
+                                    <TextField
+                                        label='Password'
+                                        disabled={!this.state.settings.cdiscLibrary.enableCdiscLibrary}
+                                        value={this.state.settings.cdiscLibrary.password}
+                                        onChange={this.handleChange('cdiscLibrary', 'password')}
+                                        type={this.state.showEncryptedValue ? 'text' : 'password'}
+                                        helperText='CDISC Library API password'
+                                        className={classes.textFieldShort}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <IconButton
+                                                        aria-label="Toggle password visibility"
+                                                        onClick={this.handleClickShowEncyptedValue}
+                                                        className={classes.adorementIcon}
+                                                    >
+                                                        {this.state.showEncryptedValue ? <Visibility /> : <VisibilityOff />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            )
+                                        }}
+                                    />
+                                </Grid>
+                            ]}
+                            { this.state.settings.cdiscLibrary.oAuth2 === true &&
+                                    <Grid item xs={12}>
+                                        <TextField
+                                            label='API Key'
+                                            disabled={!this.state.settings.cdiscLibrary.enableCdiscLibrary}
+                                            value={this.state.settings.cdiscLibrary.apiKey}
+                                            onChange={this.handleChange('cdiscLibrary', 'apiKey')}
+                                            type={this.state.showEncryptedValue ? 'text' : 'password'}
+                                            helperText='CDISC Library Primary API Key'
+                                            className={classes.textFieldShort}
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <IconButton
+                                                            aria-label="Toggle apiKey visibility"
+                                                            onClick={this.handleClickShowEncyptedValue}
+                                                            className={classes.adorementIcon}
+                                                        >
+                                                            {this.state.showEncryptedValue ? <Visibility /> : <VisibilityOff />}
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                        />
+                                    </Grid>
+                            }
                             <Grid item xs={12}>
                                 <TextField
                                     label='Base URL'

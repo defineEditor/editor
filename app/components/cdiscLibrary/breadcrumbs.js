@@ -27,6 +27,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import Refresh from '@material-ui/icons/Refresh';
 import SearchInTable from 'components/utils/searchInTable.js';
+import DependencyMenu from 'components/cdiscLibrary/dependencyMenu.js';
 import {
     changeCdiscLibraryView,
     toggleCdiscLibraryItemGroupGridView,
@@ -211,11 +212,12 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                                         onBlur={(event) => { this.props.onSearchUpdate(event); }}
                                     />
                             }
-                        </Grid>
-                        { currentView === 'itemGroups' &&
+                            { currentView === 'itemGroups' && [
+                                <DependencyMenu key='depMenu' productId={this.props.productId} mountPoint={this.props.mountPoint} />,
                                 <TextField
                                     variant='outlined'
                                     label='Search'
+                                    key='search'
                                     placeholder='Ctrl+F'
                                     inputRef={this.searchFieldRef}
                                     inputProps={{ className: classes.searchInput, spellCheck: 'false' }}
@@ -225,14 +227,15 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                                     onKeyDown={this.onSearchKeyDown}
                                     onBlur={(event) => { this.props.onSearchUpdate(event); }}
                                 />
-                        }
-                        { currentView === 'items' &&
-                                <SearchInTable
-                                    header={this.props.header}
-                                    onSeachUpdate={(value) => { return this.props.onSearchUpdate({ target: { value } }); }}
-                                    margin='dense'
-                                />
-                        }
+                            ]}
+                            { currentView === 'items' &&
+                                    <SearchInTable
+                                        header={this.props.header}
+                                        onSeachUpdate={(value) => { return this.props.onSearchUpdate({ target: { value } }); }}
+                                        margin='dense'
+                                    />
+                            }
+                        </Grid>
                         <Grid item>
                             <Typography variant="body2" color='textSecondary' className={classes.traffic}>
                                 {currentView === 'products' && `Version: ${this.props.cdiscLibraryVersion}  `}
@@ -251,6 +254,7 @@ ConnectedCdiscLibraryBreadcrumbs.propTypes = {
     traffic: PropTypes.string.isRequired,
     currentView: PropTypes.string.isRequired,
     searchString: PropTypes.string,
+    product: PropTypes.string,
     productId: PropTypes.string,
     productName: PropTypes.string,
     itemGroupId: PropTypes.string,

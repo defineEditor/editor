@@ -208,8 +208,10 @@ const editor = {
 const cdiscLibrary = {
     enableCdiscLibrary: false,
     checkForCLUpdates: true,
+    oAuth2: false,
     username: '',
     password: '',
+    apiKey: '',
     baseUrl: 'https://library.cdisc.org/api',
 };
 
