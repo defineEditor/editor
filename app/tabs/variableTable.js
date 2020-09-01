@@ -185,7 +185,7 @@ function mandatoryEditor (onUpdate, props) {
 
 // Formatters
 function descriptionFormatter (cell, row) {
-    return (<DescriptionFormatter value={cell} model={row.model} leafs={row.mdv.leafs}/>);
+    return (<DescriptionFormatter value={cell} model={row.model} mdv={row.mdv}/>);
 }
 
 function variableCodeListFormatFormatter (cell, row) {

@@ -12,9 +12,10 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
+import { app } from 'electron';
 import xmlBuilder from 'xmlbuilder';
 import createArm from './createArm.js';
-import { app } from 'electron';
+import getAutomaticMethodName from './../utils/getAutomaticMethodName.js';
 import os from 'os';
 import { createTranslatedText, createDocumentRef, removeBlankAttributes } from './createUtils.js';
 
@@ -245,7 +246,7 @@ function createMetaDataVersion (data, rawOptions) {
         if (Object.keys(data.methods).length !== 0) {
             let methodDefs = { 'MethodDef': [] };
             Object.keys(data.methods).forEach(function (methodOid) {
-                methodDefs['MethodDef'].push(createMethodDef(data.methods[methodOid], options));
+                methodDefs['MethodDef'].push(createMethodDef(data.methods[methodOid], data, options));
             });
             xmlRoot.com('******************');
             xmlRoot.com('Method Definitions');
@@ -674,12 +675,19 @@ function createExternalCodeList (data, options) {
     return result;
 }
 
-function createMethodDef (data, options) {
+function createMethodDef (data, mdv, options) {
     let result = {};
+    // Get automatic name is the corresponding option is set
+    let name;
+    if (data.autoMethodName === true) {
+        name = getAutomaticMethodName(data, mdv);
+    } else {
+        name = data.name;
+    }
     if (options.version === '2.0.0') {
         let attributes = {
             'OID': data.oid,
-            'Name': data.name,
+            'Name': name,
             'Type': data.type
         };
         removeBlankAttributes(attributes);

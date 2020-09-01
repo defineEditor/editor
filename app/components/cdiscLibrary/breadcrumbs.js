@@ -24,7 +24,7 @@ import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
+import Fab from '@material-ui/core/Fab';
 import Refresh from '@material-ui/icons/Refresh';
 import SearchInTable from 'components/utils/searchInTable.js';
 import DependencyMenu from 'components/cdiscLibrary/dependencyMenu.js';
@@ -35,7 +35,8 @@ import {
 
 const styles = theme => ({
     switch: {
-        marginLeft: theme.spacing(5),
+        marginTop: '6px',
+        marginLeft: theme.spacing(1),
         outline: 'none',
     },
     traffic: {
@@ -51,7 +52,8 @@ const styles = theme => ({
         marginRight: theme.spacing(3),
     },
     refreshButton: {
-        marginRight: theme.spacing(3),
+        marginTop: '4px',
+        marginRight: theme.spacing(1),
     },
     searchInput: {
         paddingTop: '9px',
@@ -160,21 +162,6 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                                 }
                             </Breadcrumbs>
                         </Grid>
-                        { currentView === 'itemGroups' && this.props.mountPoint !== 'datasets' &&
-                                <Grid item>
-                                    <FormControlLabel
-                                        control={
-                                            <Switch
-                                                checked={this.props.gridView}
-                                                onChange={() => (this.props.toggleCdiscLibraryItemGroupGridView(this.props.mountPoint))}
-                                                color='primary'
-                                                className={classes.switch}
-                                            />
-                                        }
-                                        label='Grid View'
-                                    />
-                                </Grid>
-                        }
                     </Grid>
                 </Grid>
                 <Grid item>
@@ -191,10 +178,30 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                         { currentView === 'products' &&
                                 <Grid item>
                                     <Tooltip title='Reload the list of products' placement='bottom' enterDelay={500}>
-                                        <IconButton onClick={this.props.reloadProducts} className={classes.refreshButton}>
+                                        <Fab
+                                            onClick={this.props.reloadProducts}
+                                            className={classes.refreshButton}
+                                            size='small'
+                                            color='default'
+                                        >
                                             <Refresh/>
-                                        </IconButton>
+                                        </Fab>
                                     </Tooltip>
+                                </Grid>
+                        }
+                        { currentView === 'itemGroups' && this.props.mountPoint !== 'datasets' &&
+                                <Grid item>
+                                    <FormControlLabel
+                                        className={classes.switch}
+                                        control={
+                                            <Switch
+                                                checked={this.props.gridView}
+                                                onChange={() => (this.props.toggleCdiscLibraryItemGroupGridView(this.props.mountPoint))}
+                                                color='primary'
+                                            />
+                                        }
+                                        label='Grid View'
+                                    />
                                 </Grid>
                         }
                         <Grid item>

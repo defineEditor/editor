@@ -32,6 +32,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import GeneralTable from 'components/utils/generalTable.js';
 import ControlledTerminologyBreadcrumbs from 'components/controlledTerminology/breadcrumbs.js';
+import handleSearchInTable from 'utils/handleSearchInTable.js';
 import {
     changeCtView,
     changeCtSettings,
@@ -278,6 +279,7 @@ class ConnectedCodedValues extends React.Component {
                     searchString={this.state.searchString}
                     onSearchUpdate={this.handleSearchUpdate}
                     additionalActions={this.additionalActions(classes)}
+                    header={props.header}
                 />
             </Toolbar>
         );
@@ -335,21 +337,8 @@ class ConnectedCodedValues extends React.Component {
             });
         }
 
-        const searchString = this.state.searchString;
-
-        if (searchString !== '') {
-            const caseSensitiveSearch = /[A-Z]/.test(searchString);
-            data = data.filter(row => (Object.keys(row)
-                .filter(item => (!['oid'].includes(item)))
-                .some(item => {
-                    if (caseSensitiveSearch) {
-                        return typeof row[item] === 'string' && row[item].includes(searchString);
-                    } else {
-                        return typeof row[item] === 'string' && row[item].toLowerCase().includes(searchString);
-                    }
-                })
-            ));
-        }
+        // Handle search
+        data = handleSearchInTable(data, header, this.state.searchString);
 
         return (
             <div className={classes.root}>

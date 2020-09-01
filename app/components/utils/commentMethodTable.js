@@ -37,6 +37,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import getMethodSourceLabels from 'utils/getMethodSourceLabels.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
 import getSelectionList from 'utils/getSelectionList.js';
+import getAutomaticMethodName from 'utils/getAutomaticMethodName.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
@@ -161,7 +162,7 @@ class ConnectedCommentMethodTable extends React.Component {
                                 <CommentFormatter comment={items[itemOid]} leafs={this.props.leafs}/>
                             }
                             { type === 'Method' &&
-                                <MethodFormatter method={items[itemOid]} leafs={this.props.leafs}/>
+                                <MethodFormatter method={items[itemOid]} mdv={this.props.mdv}/>
                             }
                         </TableCell>
                         <TableCell className={this.props.classes.col2}>
@@ -207,9 +208,8 @@ class ConnectedCommentMethodTable extends React.Component {
     }
 
     render () {
-        const { classes, type } = this.props;
-
-        const items = this.state.items;
+        const { classes, mdv } = this.props;
+        const { items, type } = this.state;
 
         let filteredItemOids;
         let searchString = this.state.searchString;
@@ -224,8 +224,11 @@ class ConnectedCommentMethodTable extends React.Component {
             Object.keys(items).forEach(itemOid => {
                 let text = getDescription(items[itemOid]);
                 if (type === 'Method') {
-                    if (items[itemOid].name !== undefined) {
-                        text = text + ' ' + items[itemOid].name;
+                    let method = items[itemOid];
+                    if (method.autoMethodName === true) {
+                        text = text + ' ' + getAutomaticMethodName(method, mdv);
+                    } else if (method.name) {
+                        text = text + ' ' + method.name;
                     }
                     if (items[itemOid].type !== undefined) {
                         text = text + ' ' + items[itemOid].type;

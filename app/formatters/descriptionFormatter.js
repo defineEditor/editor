@@ -41,7 +41,7 @@ class DescriptionFormatter extends React.Component {
             this.props.value.origins.forEach((origin) => {
                 result.push(
                     <Grid item key={origin} xs={12}>
-                        <OriginFormatter origin={origin} leafs={this.props.leafs}/>
+                        <OriginFormatter origin={origin} leafs={this.props.mdv.leafs}/>
                     </Grid>
                 );
             });
@@ -49,11 +49,12 @@ class DescriptionFormatter extends React.Component {
         if (this.props.value.method !== undefined) {
             result.push(
                 <Grid item key='method' xs={12}>
-                    <Typography variant="caption" gutterBottom color='textSecondary'>
-                        Method: {this.props.value.method.name} ({this.props.value.method.type})
-                    </Typography>
                     <Grid item xs={12}>
-                        <MethodFormatter method={this.props.value.method} leafs={this.props.leafs} hideName/>
+                        <MethodFormatter
+                            method={this.props.value.method}
+                            mdv={this.props.mdv}
+                            caption
+                        />
                     </Grid>
                 </Grid>
             );
@@ -65,7 +66,7 @@ class DescriptionFormatter extends React.Component {
                         Comment
                     </Typography>
                     <Grid item xs={12}>
-                        <CommentFormatter comment={this.props.value.comment} leafs={this.props.leafs}/>
+                        <CommentFormatter comment={this.props.value.comment} leafs={this.props.mdv.leafs}/>
                     </Grid>
                 </Grid>
             );
@@ -92,7 +93,7 @@ class DescriptionFormatter extends React.Component {
 DescriptionFormatter.propTypes = {
     classes: PropTypes.object.isRequired,
     value: PropTypes.object,
-    leafs: PropTypes.object,
+    mdv: PropTypes.object,
     model: PropTypes.string.isRequired,
 };
 

@@ -28,6 +28,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Toolbar from '@material-ui/core/Toolbar';
 import GeneralTable from 'components/utils/generalTable.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
+import handleSearchInTable from 'utils/handleSearchInTable.js';
 import ControlledTerminologyBreadcrumbs from 'components/controlledTerminology/breadcrumbs.js';
 import {
     changeCtView,
@@ -79,12 +80,12 @@ const useToolbarStyles = makeStyles(theme => ({
         paddingRight: theme.spacing(1),
     },
     searchTermField: {
-        marginTop: '0',
+        marginTop: '4px',
         marginRight: theme.spacing(2),
     },
     searchTermInput: {
         paddingTop: '9px',
-        paddingBottom: '9px',
+        paddingBottom: '12px',
     },
     searchTermLabel: {
         transform: 'translate(10px, 10px)',
@@ -136,6 +137,7 @@ class ConnectedCodeLists extends React.Component {
                     searchString={this.state.searchString}
                     onSearchUpdate={this.handleSearchUpdate}
                     additionalActions={this.additionalActions(classes)}
+                    header={props.header}
                 />
             </Toolbar>
         );
@@ -221,7 +223,7 @@ class ConnectedCodeLists extends React.Component {
             { id: 'synonyms', label: 'Synonyms' },
             { id: 'extensible', label: 'Ext.' },
             { id: 'cCode', label: 'Code' },
-            { id: 'oid', label: '', formatter: this.actions, noSort: true },
+            { id: 'oid', label: '', formatter: this.actions, noSort: true, searchable: false },
         ];
 
         // Add width
@@ -254,21 +256,8 @@ class ConnectedCodeLists extends React.Component {
             });
         }
 
-        const searchString = this.state.searchString;
-
-        if (searchString !== '') {
-            const caseSensitiveSearch = /[A-Z]/.test(searchString);
-            data = data.filter(row => (Object.keys(row)
-                .filter(item => (!['oid'].includes(item)))
-                .some(item => {
-                    if (caseSensitiveSearch) {
-                        return typeof row[item] === 'string' && row[item].includes(searchString);
-                    } else {
-                        return typeof row[item] === 'string' && row[item].toLowerCase().includes(searchString);
-                    }
-                })
-            ));
-        }
+        // Handle search
+        data = handleSearchInTable(data, header, this.state.searchString);
 
         if (this.state.searchTermString !== '') {
             data = data.filter(codeList => (this.state.matchedCodeListIds.includes(codeList.oid)));

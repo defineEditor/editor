@@ -13,6 +13,7 @@
 ***********************************************************************************/
 
 import { getDescription, getWhereClauseAsText } from 'utils/defineStructureUtils.js';
+import getAutomaticMethodName from 'utils/getAutomaticMethodName.js';
 // Extract data required for the table;
 function getTableDataAsText ({ source, datasetName, datasetOid, itemDefs, codeLists, mdv, defineVersion, vlmLevel, columns } = {}) {
     let result = [];
@@ -70,7 +71,9 @@ function getTableDataAsText ({ source, datasetName, datasetOid, itemDefs, codeLi
         if (originVar.methodOid !== undefined) {
             let method = mdv.methods[originVar.methodOid];
             currentVar.method = getDescription(method);
-            if (method.name) {
+            if (method.autoMethodName === true) {
+                currentVar.method += ' ' + getAutomaticMethodName(method, mdv);
+            } else if (method.name) {
                 currentVar.method += ' ' + method.name;
             }
             if (method.type) {

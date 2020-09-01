@@ -28,6 +28,7 @@ import { changeCdiscLibraryView } from 'actions/index.js';
 
 const getButtonStyles = makeStyles(theme => ({
     fab: {
+        marginTop: '4px',
         marginLeft: theme.spacing(1),
     },
     icon: {

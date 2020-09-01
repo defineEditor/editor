@@ -114,7 +114,7 @@ class ConnectedMethodEditor extends React.Component {
             let autoMethodName;
             if (this.props.fullName !== undefined) {
                 autoMethodName = true;
-                name = 'Algorithm for ' + this.props.fullName;
+                name = '';
             } else {
                 autoMethodName = false;
                 name = '';

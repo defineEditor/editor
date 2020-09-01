@@ -25,10 +25,6 @@ const getStyles = makeStyles(theme => ({
         marginLeft: theme.spacing(3),
         marginRight: theme.spacing(3),
     },
-    searchInput: {
-        paddingTop: '9px',
-        paddingBottom: '9px',
-    },
     searchLabel: {
     },
 }));
@@ -45,7 +41,7 @@ const SearchInTable = (props) => {
         if (header !== undefined && header.length > 0) {
             let dataOptions = [];
             header.forEach(column => {
-                if (column.hidden !== true) {
+                if (column.hidden !== true && column.searchable !== false) {
                     dataOptions.push(column.label + ':');
                 }
             });

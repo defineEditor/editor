@@ -341,7 +341,7 @@ export default function GeneralTable (props) {
             <Grid container justify='flex-start' direction='column' wrap='nowrap' className={classes.minHeight}>
                 { customToolbar && (
                     <Grid item className={classes.toolbarGridItem}>
-                        {customToolbar()}
+                        {customToolbar({ header, data })}
                     </Grid>
                 )}
                 { (!disableToolbar || selected.length > 0) && !customToolbar && (
