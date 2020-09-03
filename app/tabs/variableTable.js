@@ -185,7 +185,7 @@ function mandatoryEditor (onUpdate, props) {
 
 // Formatters
 function descriptionFormatter (cell, row) {
-    return (<DescriptionFormatter value={cell} model={row.model} leafs={row.mdv.leafs}/>);
+    return (<DescriptionFormatter value={cell} model={row.model} mdv={row.mdv}/>);
 }
 
 function variableCodeListFormatFormatter (cell, row) {
@@ -851,7 +851,7 @@ class ConnectedVariableTable extends React.Component {
                                 label='Search'
                                 placeholder='Ctrl+F'
                                 inputRef={this.searchFieldRef}
-                                inputProps={{ className: this.props.classes.searchInput }}
+                                inputProps={{ className: this.props.classes.searchInput, spellCheck: 'false' }}
                                 InputLabelProps={{ className: this.props.classes.searchLabel, shrink: true }}
                                 className={this.props.classes.searchField}
                                 defaultValue={this.state.searchString}

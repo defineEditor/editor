@@ -156,6 +156,10 @@ const copyMethod = ({ sourceMethodOid, mdv, sourceMdv, searchForDuplicate, group
     }
     if (!duplicateFound) {
         newMethodOid = getOid('Method', methodOids);
+        // When copying usually autoMethodName needs to be reset. It is automatically handled when creating a Define-XML or switching Auto Name.
+        if (method.autoMethodName === true) {
+            method.name = '';
+        }
         if (isVlm === true) {
             method.sources = { itemGroups: {}, valueLists: { [groupOid]: [itemRefOid] } };
         } else {

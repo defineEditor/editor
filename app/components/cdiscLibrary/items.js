@@ -44,10 +44,6 @@ const styles = theme => ({
     addItem: {
         outline: 'none'
     },
-    header: {
-        marginTop: theme.spacing(1),
-        marginBottom: theme.spacing(1),
-    },
     varSetSelection: {
         marginRight: theme.spacing(6),
         minWidth: 200,
@@ -90,6 +86,7 @@ class ConnectedCdiscLibraryItems extends React.Component {
             searchString: '',
             currentVariableSet: '',
             variableSets: {},
+            header: [],
         };
     }
 
@@ -101,6 +98,10 @@ class ConnectedCdiscLibraryItems extends React.Component {
 
     handleSearchUpdate = (event) => {
         this.setState({ searchString: event.target.value });
+    }
+
+    setHeader = (header) => {
+        this.setState({ header });
     }
 
     getItems = async () => {
@@ -236,6 +237,7 @@ class ConnectedCdiscLibraryItems extends React.Component {
                         onSearchUpdate={this.handleSearchUpdate}
                         additionalActions={this.additionalActions()}
                         mountPoint={this.props.mountPoint}
+                        header={this.state.header}
                     />
                 </Grid>
                 { this.state.items.length === 0 && (
@@ -256,6 +258,7 @@ class ConnectedCdiscLibraryItems extends React.Component {
                             variableSet={this.state.currentVariableSet}
                             itemGroupOid={this.props.itemGroupOid}
                             onClose={this.props.onClose}
+                            setHeader={this.setHeader}
                             position={this.props.position}
                         />
                     </Grid>

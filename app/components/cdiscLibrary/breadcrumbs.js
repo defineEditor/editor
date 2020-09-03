@@ -24,8 +24,10 @@ import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
+import Fab from '@material-ui/core/Fab';
 import Refresh from '@material-ui/icons/Refresh';
+import SearchInTable from 'components/utils/searchInTable.js';
+import DependencyMenu from 'components/cdiscLibrary/dependencyMenu.js';
 import {
     changeCdiscLibraryView,
     toggleCdiscLibraryItemGroupGridView,
@@ -33,23 +35,25 @@ import {
 
 const styles = theme => ({
     switch: {
-        marginLeft: theme.spacing(5),
+        marginTop: '6px',
+        marginLeft: theme.spacing(1),
         outline: 'none',
     },
     traffic: {
-        marginTop: theme.spacing(1.6),
+        marginTop: theme.spacing(2),
         marginRight: theme.spacing(3),
     },
     breadcrumbs: {
         marginTop: theme.spacing(1),
     },
     searchField: {
-        marginTop: '0',
+        marginTop: theme.spacing(1),
         marginLeft: theme.spacing(3),
         marginRight: theme.spacing(3),
     },
     refreshButton: {
-        marginRight: theme.spacing(3),
+        marginTop: '4px',
+        marginRight: theme.spacing(1),
     },
     searchInput: {
         paddingTop: '9px',
@@ -158,21 +162,6 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                                 }
                             </Breadcrumbs>
                         </Grid>
-                        { currentView === 'itemGroups' && this.props.mountPoint !== 'datasets' &&
-                                <Grid item>
-                                    <FormControlLabel
-                                        control={
-                                            <Switch
-                                                checked={this.props.gridView}
-                                                onChange={() => (this.props.toggleCdiscLibraryItemGroupGridView(this.props.mountPoint))}
-                                                color='primary'
-                                                className={classes.switch}
-                                            />
-                                        }
-                                        label='Grid View'
-                                    />
-                                </Grid>
-                        }
                     </Grid>
                 </Grid>
                 <Grid item>
@@ -189,28 +178,71 @@ class ConnectedCdiscLibraryBreadcrumbs extends React.Component {
                         { currentView === 'products' &&
                                 <Grid item>
                                     <Tooltip title='Reload the list of products' placement='bottom' enterDelay={500}>
-                                        <IconButton onClick={this.props.reloadProducts} className={classes.refreshButton}>
+                                        <Fab
+                                            onClick={this.props.reloadProducts}
+                                            className={classes.refreshButton}
+                                            size='small'
+                                            color='default'
+                                        >
                                             <Refresh/>
-                                        </IconButton>
+                                        </Fab>
                                     </Tooltip>
                                 </Grid>
                         }
-                        { currentView !== 'products' &&
+                        { currentView === 'itemGroups' && this.props.mountPoint !== 'datasets' &&
                                 <Grid item>
+                                    <FormControlLabel
+                                        className={classes.switch}
+                                        control={
+                                            <Switch
+                                                checked={this.props.gridView}
+                                                onChange={() => (this.props.toggleCdiscLibraryItemGroupGridView(this.props.mountPoint))}
+                                                color='primary'
+                                            />
+                                        }
+                                        label='Grid View'
+                                    />
+                                </Grid>
+                        }
+                        <Grid item>
+                            { currentView === 'products' &&
                                     <TextField
                                         variant='outlined'
                                         label='Search'
                                         placeholder='Ctrl+F'
                                         inputRef={this.searchFieldRef}
-                                        inputProps={{ className: classes.searchInput }}
+                                        inputProps={{ className: classes.searchInput, spellCheck: 'false' }}
                                         InputLabelProps={{ className: classes.searchLabel, shrink: true }}
                                         className={classes.searchField}
                                         defaultValue={this.props.searchString}
                                         onKeyDown={this.onSearchKeyDown}
                                         onBlur={(event) => { this.props.onSearchUpdate(event); }}
                                     />
-                                </Grid>
-                        }
+                            }
+                            { currentView === 'itemGroups' && [
+                                <DependencyMenu key='depMenu' productId={this.props.productId} mountPoint={this.props.mountPoint} />,
+                                <TextField
+                                    variant='outlined'
+                                    label='Search'
+                                    key='search'
+                                    placeholder='Ctrl+F'
+                                    inputRef={this.searchFieldRef}
+                                    inputProps={{ className: classes.searchInput, spellCheck: 'false' }}
+                                    InputLabelProps={{ className: classes.searchLabel, shrink: true }}
+                                    className={classes.searchField}
+                                    defaultValue={this.props.searchString}
+                                    onKeyDown={this.onSearchKeyDown}
+                                    onBlur={(event) => { this.props.onSearchUpdate(event); }}
+                                />
+                            ]}
+                            { currentView === 'items' &&
+                                    <SearchInTable
+                                        header={this.props.header}
+                                        onSeachUpdate={(value) => { return this.props.onSearchUpdate({ target: { value } }); }}
+                                        margin='dense'
+                                    />
+                            }
+                        </Grid>
                         <Grid item>
                             <Typography variant="body2" color='textSecondary' className={classes.traffic}>
                                 {currentView === 'products' && `Version: ${this.props.cdiscLibraryVersion}  `}
@@ -229,6 +261,7 @@ ConnectedCdiscLibraryBreadcrumbs.propTypes = {
     traffic: PropTypes.string.isRequired,
     currentView: PropTypes.string.isRequired,
     searchString: PropTypes.string,
+    product: PropTypes.string,
     productId: PropTypes.string,
     productName: PropTypes.string,
     itemGroupId: PropTypes.string,
@@ -240,6 +273,7 @@ ConnectedCdiscLibraryBreadcrumbs.propTypes = {
     onSearchUpdate: PropTypes.func,
     reloadProducts: PropTypes.func,
     additionalActions: PropTypes.array,
+    header: PropTypes.array,
 };
 
 ConnectedCdiscLibraryBreadcrumbs.displayName = 'CdiscLibraryBreadCrumbs';

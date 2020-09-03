@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector, useDispatch } from 'react-redux';
@@ -21,9 +21,11 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import getCodeListData from 'utils/getCodeListData.js';
 import Loading from 'components/utils/loading.js';
+import SearchInTable from 'components/utils/searchInTable.js';
 import GeneralTable from 'components/utils/generalTable.js';
 import { dummyRequest } from 'utils/cdiscLibraryUtils.js';
 import { getDecode } from 'utils/defineStructureUtils.js';
@@ -62,6 +64,30 @@ const getStyles = makeStyles(theme => ({
     content: {
         padding: 0,
         display: 'flex',
+    },
+}));
+
+const getSearchStyles = makeStyles(theme => ({
+    searchField: {
+        marginTop: '0',
+        marginLeft: theme.spacing(3),
+        marginRight: theme.spacing(3),
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    },
+    searchInput: {
+        paddingTop: '9px',
+        paddingBottom: '9px',
+        color: '#FFFFFF',
+    },
+    searchLabel: {
+        transform: 'translate(10px, 10px)',
+        color: '#FFFFFF',
+    },
+    shrinkLabel: {
+        color: '#FFFFFF',
+    },
+    focusedLabel: {
+        color: '#FFFFFF',
     }
 }));
 
@@ -154,6 +180,7 @@ const loadFromCodeLists = (codeLists, codeListOid, defineVersion) => {
             }
         }
     }
+
     return {
         codeListTitle,
         codeListType,
@@ -165,59 +192,54 @@ const loadFromCodeLists = (codeLists, codeListOid, defineVersion) => {
 const ModalCodeListTable = (props) => {
     const dispatch = useDispatch();
     let classes = getStyles();
+    let searchClasses = getSearchStyles();
     let odm = useSelector(state => state.present.odm);
     let stdCodeLists = useSelector(state => state.present.stdCodeLists);
     const [tableData, setTableData] = useState({});
+    const [currentData, setCurrentData] = useState();
+    const [retry, setRetry] = useState(0);
 
     let cl = useContext(CdiscLibraryContext).cdiscLibrary;
 
-    const loadFromCdiscLibrary = async (itemInfo) => {
-        let data, header, codeListTitle;
-        let product = await cl.getFullProduct(itemInfo.productId);
-        let itemGroup = await product.getItemGroup(itemInfo.itemGroupName);
-        let item = Object.values(itemGroup.getItems()).filter(item => item.name === itemInfo.itemName)[0];
-        // As bug workaround, send a dummy request in 1 seconds if the object did not load
-        if (process.platform === 'linux') {
-            setTimeout(() => {
-                if (Object.keys(tableData).length === 0) {
-                    dummyRequest(cl);
+    useEffect(() => {
+        const loadFromCdiscLibrary = async (itemInfo) => {
+            let data, header, codeListTitle;
+            let product = await cl.getFullProduct(itemInfo.productId);
+            let itemGroup = await product.getItemGroup(itemInfo.itemGroupName);
+            let item = Object.values(itemGroup.getItems()).filter(item => item.name === itemInfo.itemName)[0];
+            let codeList = await item.getCodeList();
+
+            header = [
+                { id: 'conceptId', label: 'oid', hidden: true, key: true },
+                { id: 'submissionValue', label: 'Coded Value' },
+                { id: 'preferredTerm', label: 'Preferred Term' },
+                { id: 'definition', label: 'Definition', style: { maxWidth: 500 } },
+                { id: 'joinedSynonyms', label: 'Synonyms' },
+                { id: 'conceptId', label: 'C-Code', style: { minWidth: 90 } },
+            ];
+
+            let packageId = codeList.href.replace(/\/mdr\/ct\/packages\/(.*?)\/.*/, '$1');
+            let ctInfo = await cl.getFullProduct(packageId, true);
+
+            data = codeList.getFormattedTerms();
+            data = data.map(row => {
+                if (row.synonyms && Array.isArray(row.synonyms)) {
+                    return { ...row, joinedSynonyms: row.synonyms.join(', ') };
+                } else {
+                    return row;
                 }
-            }, 2000);
-        }
-        let codeList = await item.getCodeList();
+            });
 
-        header = [
-            { id: 'conceptId', label: 'oid', hidden: true, key: true },
-            { id: 'submissionValue', label: 'Coded Value' },
-            { id: 'preferredTerm', label: 'Preferred Term' },
-            { id: 'definition', label: 'Definition', style: { maxWidth: 500 } },
-            { id: 'joinedSynonyms', label: 'Synonyms' },
-            { id: 'conceptId', label: 'C-Code', style: { minWidth: 90 } },
-        ];
+            codeListTitle = `${codeList.name} (${codeList.conceptId}) ${ctInfo.model} ${ctInfo.version}`;
 
-        let packageId = codeList.href.replace(/\/mdr\/ct\/packages\/(.*?)\/.*/, '$1');
-        let ctInfo = await cl.getFullProduct(packageId, true);
+            setTableData({
+                codeListTitle,
+                codeListType: 'decoded',
+                data,
+                header,
+            });
+        };
 
-        data = codeList.getFormattedTerms();
-        data = data.map(row => {
-            if (row.synonyms && Array.isArray(row.synonyms)) {
-                return { ...row, joinedSynonyms: row.synonyms.join(', ') };
-            } else {
-                return row;
-            }
-        });
-
-        codeListTitle = `${codeList.name} (${codeList.conceptId}) ${ctInfo.model} ${ctInfo.version}`;
-
-        setTableData({
-            codeListTitle,
-            codeListType,
-            data,
-            header,
-        });
-    };
-
-    if (Object.keys(tableData).length === 0) {
         if (props.itemInfo) {
             // Need to load codelist from the CDISC Library
             loadFromCdiscLibrary(props.itemInfo);
@@ -233,7 +255,29 @@ const ModalCodeListTable = (props) => {
                 setTableData(loadFromCodeLists(codeLists, props.codeListOid, defineVersion));
             }
         }
-    }
+    }, [props, odm, stdCodeLists, cl, retry]);
+
+    useEffect(() => {
+        setCurrentData(tableData.data);
+    }, [tableData]);
+
+    // As bug workaround, send a dummy request in 2 seconds if the object did not load
+    useEffect(() => {
+        let timer;
+        if (process.platform === 'linux') {
+            timer = setTimeout(() => {
+                if (tableData.data === undefined) {
+                    dummyRequest(cl);
+                }
+            }, 2000);
+        }
+
+        return () => {
+            if (process.platform === 'linux') {
+                clearTimeout(timer);
+            }
+        };
+    }, [tableData, cl]);
 
     let { codeListTitle, codeListType, data, header } = tableData;
 
@@ -273,19 +317,33 @@ const ModalCodeListTable = (props) => {
             tabIndex='0'
         >
             <DialogTitle className={classes.title} disableTypography>
-                {codeListTitle}
+                <Grid container justify='space-between' alignItems='center'>
+                    <Grid item>
+                        {codeListTitle}
+                    </Grid>
+                    <Grid item>
+                        <SearchInTable
+                            data={data}
+                            header={header}
+                            onDataUpdate={setCurrentData}
+                            classes={searchClasses}
+                            variant='filled'
+                        />
+                    </Grid>
+                </Grid>
             </DialogTitle>
             <DialogContent className={classes.content}>
-                { data !== undefined ? (
+                { currentData !== undefined ? (
                     <GeneralTable
-                        data={data}
+                        data={currentData}
                         header={header}
                         pagination
                         disableToolbar
-                        rowsPerPageOptions={[25, 50, 100]}
+                        initialRowsPerPage={250}
+                        rowsPerPageOptions={[100, 250, 500]}
                     />
                 ) : (
-                    props.itemInfo !== undefined && <Loading onRetry={() => { loadFromCdiscLibrary(props.itemInfo); }} />
+                    props.itemInfo !== undefined && <Loading onRetry={() => { setRetry(retry + 1); }} />
                 )}
             </DialogContent>
             <DialogActions>

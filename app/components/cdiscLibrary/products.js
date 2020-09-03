@@ -25,7 +25,7 @@ import Typography from '@material-ui/core/Typography';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import CdiscLibraryBreadcrumbs from 'components/cdiscLibrary/breadcrumbs.js';
 import Loading from 'components/utils/loading.js';
-import { dummyRequest } from 'utils/cdiscLibraryUtils.js';
+import { dummyRequest, getProductTitle } from 'utils/cdiscLibraryUtils.js';
 import { openDB } from 'idb';
 import {
     changeCdiscLibraryView,
@@ -112,18 +112,7 @@ class ConnectedProducts extends React.Component {
                 let ps = pgs[gId].getProducts();
                 let products = {};
                 Object.keys(ps).forEach(pId => {
-                    products[pId] = { title: pId.replace(/\b(\S*)/g, (txt) => {
-                        let result = txt.replace(/(\w)-([a-z])/ig, '$1 $2');
-                        result = result.replace(/([a-z])-(\w)/ig, '$1 $2');
-                        result = result.replace(/(\d)-(?=\d)/ig, '$1.');
-                        result = result.replace(/(\w)ig\b/ig, '$1-IG');
-                        if (txt.startsWith('adam')) {
-                            result = 'ADaM' + result.substring(4);
-                        } else {
-                            result = result.toUpperCase();
-                        }
-                        return result;
-                    }) };
+                    products[pId] = { title: getProductTitle(pId) };
                 });
                 groups[gId].products = products;
             });

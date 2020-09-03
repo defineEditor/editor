@@ -117,11 +117,15 @@ const initCdiscLibrary = (settings) => {
 
     if (claSettings.enableCdiscLibrary === true) {
         let options = {
-            username: claSettings.username,
-            password: decrypt(claSettings.password),
             baseUrl: claSettings.baseUrl,
             cache: { match: claMatch, put: claPut },
         };
+        if (claSettings.oAuth2 === true) {
+            options.apiKey = decrypt(claSettings.apiKey);
+        } else {
+            options.username = claSettings.username;
+            options.password = decrypt(claSettings.password);
+        }
         if (info) {
             options.traffic = info.traffic;
         }
@@ -132,10 +136,13 @@ const initCdiscLibrary = (settings) => {
 };
 
 const updateCdiscLibrarySettings = (settingsDiff, originalSettings, cdiscLibraryKit) => {
-    // Encrypt the cdiscLibrary password
+    // Encrypt the cdiscLibrary password/apiKey
     let diff = clone(settingsDiff);
     if (diff.password) {
         diff.password = encrypt(diff.password);
+    }
+    if (diff.apiKey) {
+        diff.apiKey = encrypt(diff.apiKey);
     }
     // Enable/Disable the CDISC Library
     if (diff.enableCdiscLibrary === true) {
@@ -152,11 +159,14 @@ const updateCdiscLibrarySettings = (settingsDiff, originalSettings, cdiscLibrary
         if (diff.password !== undefined) {
             coreObject.password = decrypt(diff.password);
         }
+        if (diff.apiKey !== undefined) {
+            coreObject.apiKey = decrypt(diff.apiKey);
+        }
         if (diff.baseUrl !== undefined) {
             coreObject.baseUrl = diff.baseUrl;
         }
     }
-    // Returns settings with encrypted password if it was in diff
+    // Returns settings with encrypted password/apiKey if it was in diff
     return diff;
 };
 
@@ -171,4 +181,20 @@ const dummyRequest = async (cl) => {
     }
 };
 
-export default { initCdiscLibrary, updateCdiscLibrarySettings, dummyRequest };
+const getProductTitle = (id) => {
+    return id.replace(/\b(\S*)/g, (txt) => {
+        let result = txt
+            .replace(/(\w)-([a-z])/ig, '$1 $2')
+            .replace(/([a-z])-(\w)/ig, '$1 $2')
+            .replace(/(\d)-(?=\d)/ig, '$1.')
+            .replace(/(\w)ig\b/ig, '$1-IG');
+        if (txt.startsWith('adam')) {
+            result = 'ADaM' + result.substring(4);
+        } else {
+            result = result.toUpperCase();
+        }
+        return result;
+    });
+};
+
+export default { initCdiscLibrary, updateCdiscLibrarySettings, dummyRequest, getProductTitle };

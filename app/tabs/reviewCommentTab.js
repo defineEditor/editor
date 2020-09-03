@@ -447,17 +447,17 @@ class ConnectedReviewCommentTab extends React.Component {
                                 <div className='htmlContent' dangerouslySetInnerHTML={{ __html: row.text }}/>
                             </CustomTableCell>
                             <CustomTableCell>
-                                <Tooltip title="Open Comment" placement="bottom-end" enterDelay={700}>
+                                <Tooltip title="Open Comment" placement="bottom" enterDelay={700}>
                                     <IconButton onClick={this.openComments(row.id)} className={classes.icon}>
                                         <CommentIcon/>
                                     </IconButton>
                                 </Tooltip>
-                                <Tooltip title="Go to source" placement="bottom-end" enterDelay={700}>
+                                <Tooltip title="Go to source" placement="bottom" enterDelay={700}>
                                     <IconButton onClick={this.goToSource(panelId, row.parentItemOid)} className={classes.icon}>
                                         <GoToSourceIcon/>
                                     </IconButton>
                                 </Tooltip>
-                                <Tooltip title={row.resolved ? 'Unresolve' : 'Resolve'} placement="bottom-end" enterDelay={700}>
+                                <Tooltip title={row.resolved ? 'Unresolve' : 'Resolve'} placement="bottom" enterDelay={700}>
                                     <IconButton onClick={this.toggleResolve(row.id)} className={classes.icon}>
                                         {row.resolved ? <FaTimes/> : <FaCheck/>}
                                     </IconButton>
@@ -488,7 +488,7 @@ class ConnectedReviewCommentTab extends React.Component {
                                     label='Search'
                                     placeholder='Ctrl+F'
                                     inputRef={this.searchFieldRef}
-                                    inputProps={{ className: classes.searchInput }}
+                                    inputProps={{ className: classes.searchInput, spellCheck: 'false' }}
                                     InputLabelProps={{ className: classes.searchLabel, shrink: true }}
                                     defaultValue={this.state.searchString}
                                     onKeyDown={this.onSearchKeyDown}
@@ -496,7 +496,7 @@ class ConnectedReviewCommentTab extends React.Component {
                                 />
                             </Grid>
                             <Grid item>
-                                <Tooltip title="Export comments" placement="bottom-end" enterDelay={700}>
+                                <Tooltip title="Export comments" placement="bottom" enterDelay={700}>
                                     <Fab
                                         size='small'
                                         color='default'

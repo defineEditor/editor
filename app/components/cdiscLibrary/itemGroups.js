@@ -107,6 +107,7 @@ class ConnectedItemGroups extends React.Component {
 
         this.state = {
             itemGroups: [],
+            productId: props.productId,
             product: null,
             type: null,
             searchString: '',
@@ -116,6 +117,24 @@ class ConnectedItemGroups extends React.Component {
 
     componentDidMount () {
         this.getItemGroups();
+    }
+
+    componentDidUpdate () {
+        if (this.state.product === null) {
+            this.getItemGroups();
+        }
+    }
+
+    static getDerivedStateFromProps (nextProps, prevState) {
+        if (prevState.productId !== nextProps.productId) {
+            return ({
+                product: null,
+                itemGroups: [],
+                productId: nextProps.productId,
+            });
+        } else {
+            return null;
+        }
     }
 
     getItemGroups = async () => {

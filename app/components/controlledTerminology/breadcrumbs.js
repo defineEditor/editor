@@ -19,6 +19,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import SearchInTable from 'components/utils/searchInTable.js';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import {
     changeCtView,
@@ -139,18 +140,27 @@ class ConnectedControlledTerminologyBreadcrumbs extends React.Component {
                             })
                         )}
                         <Grid item>
-                            <TextField
-                                variant='outlined'
-                                label='Search'
-                                placeholder='Ctrl+F'
-                                inputRef={this.searchFieldRef}
-                                inputProps={{ className: classes.searchInput }}
-                                InputLabelProps={{ className: classes.searchLabel, shrink: true }}
-                                className={classes.searchField}
-                                defaultValue={this.props.searchString}
-                                onKeyDown={this.onSearchKeyDown}
-                                onBlur={(event) => { this.props.onSearchUpdate(event); }}
-                            />
+                            { currentView === 'codeLists' || currentView === 'codedValues' ? (
+                                <SearchInTable
+                                    header={this.props.header}
+                                    className={classes.searchField}
+                                    onSeachUpdate={(value) => { return this.props.onSearchUpdate({ target: { value } }); }}
+                                    margin='dense'
+                                />
+                            ) : (
+                                <TextField
+                                    variant='outlined'
+                                    label='Search'
+                                    placeholder='Ctrl+F'
+                                    inputRef={this.searchFieldRef}
+                                    inputProps={{ className: classes.searchInput, spellCheck: 'false' }}
+                                    InputLabelProps={{ className: classes.searchLabel, shrink: true }}
+                                    className={classes.searchField}
+                                    defaultValue={this.props.searchString}
+                                    onKeyDown={this.onSearchKeyDown}
+                                    onBlur={(event) => { this.props.onSearchUpdate(event); }}
+                                />
+                            )}
                         </Grid>
                     </Grid>
                 </Grid>
@@ -168,6 +178,7 @@ ConnectedControlledTerminologyBreadcrumbs.propTypes = {
     changeCtView: PropTypes.func.isRequired,
     scanControlledTerminologyFolder: PropTypes.func,
     additionalActions: PropTypes.array,
+    header: PropTypes.array,
 };
 
 ConnectedControlledTerminologyBreadcrumbs.displayName = 'ControlledTerminologyBreadcrumbs';

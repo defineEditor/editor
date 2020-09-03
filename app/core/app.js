@@ -63,6 +63,11 @@ const baseThemeObj = {
         MuiInput: {
             inputProps: { spellCheck: 'false' }
         }
+    },
+    overrides: {
+        MuiTableRow: {
+            root: { '&$selected, &$selected:hover': { backgroundColor: '#eaebfb', } }
+        },
     }
 };
 

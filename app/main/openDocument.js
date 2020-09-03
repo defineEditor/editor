@@ -50,13 +50,7 @@ async function openDocument (mainWindow, defineLocation, pdfLink, options) {
             pdfWindow.loadURL('file://' + fullDocLink);
         }
     } else {
-        dialog.showMessageBox(
-            mainWindow,
-            {
-                type: 'error',
-                title: 'File not found',
-                message: 'File ' + pathToDoc + ' could not be found.',
-            });
+        dialog.showErrorBox('File not found', 'File ' + pathToDoc + ' could not be found.');
     }
 }
 

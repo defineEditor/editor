@@ -34,7 +34,7 @@ import Paper from '@material-ui/core/Paper';
     @property {array} selection.selected Selected items
     @property {func} selection.setSelected Function to set selected items
     @property {boolean} sorting Controls whether columns can be sorted
-    @property {boolean|Object} pagination Controls whether pagination is used. If boolean - pagination is handled internally, if objeca rowsperpage are handled externally
+    @property {boolean|Object} pagination Controls whether pagination is used. If boolean - pagination is handled internally, if object rowsperpage are handled externally
     @property {array} pagination.rowsPerPage Number of rows per page
     @property {func} pagination.setRowsPerPage Function to set rowsPerPage
     @property {boolean} pagination Controls whether pagination is enabled
@@ -226,6 +226,7 @@ const useStyles = makeStyles(theme => ({
         width: 1,
     },
 }));
+
 export default function GeneralTable (props) {
     let { data, header, selection, sorting, pagination, title, customToolbar,
         disableToolbar, initialRowsPerPage, rowsPerPageOptions,
@@ -341,7 +342,7 @@ export default function GeneralTable (props) {
             <Grid container justify='flex-start' direction='column' wrap='nowrap' className={classes.minHeight}>
                 { customToolbar && (
                     <Grid item className={classes.toolbarGridItem}>
-                        {customToolbar()}
+                        {customToolbar({ header, data })}
                     </Grid>
                 )}
                 { (!disableToolbar || selected.length > 0) && !customToolbar && (
@@ -355,7 +356,6 @@ export default function GeneralTable (props) {
                             aria-labelledby='tableTitle'
                             size='medium'
                             stickyHeader
-                            aria-label='enhanced table'
                         >
                             <GeneralTableHead
                                 classes={classes}
