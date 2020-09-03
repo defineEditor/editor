@@ -86,7 +86,6 @@ const mapStateToProps = state => {
         itemGroupOrder: state.present.odm.study.metaDataVersion.order.itemGroupOrder,
         itemDefs: state.present.odm.study.metaDataVersion.itemDefs,
         comments: state.present.odm.study.metaDataVersion.comments,
-        leafs: state.present.odm.study.metaDataVersion.leafs,
         mdv: state.present.odm.study.metaDataVersion,
         defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
         tabs: state.present.ui.tabs,
@@ -132,7 +131,7 @@ function simpleSelectEditor (onUpdate, props) {
 // Formatter functions
 function commentFormatter (cell, row) {
     if (cell !== undefined && Object.values(cell).filter(value => (value !== undefined)).length > 0) {
-        return (<DescriptionFormatter value={cell} leafs={row.leafs} model={row.model}/>);
+        return (<DescriptionFormatter value={cell} mdv={row.mdv} model={row.model}/>);
     } else {
         return null;
     }
@@ -451,7 +450,7 @@ class ConnectedDatasetTable extends React.Component {
                 purpose: originDs.purpose,
                 structure: originDs.structure,
                 defineVersion: this.props.defineVersion,
-                leafs: this.props.leafs,
+                mdv: this.props.mdv,
                 classTypes: this.props.classTypes,
             };
             if (originDs.datasetClass !== undefined) {
@@ -572,7 +571,6 @@ ConnectedDatasetTable.propTypes = {
     comments: PropTypes.object.isRequired,
     defineVersion: PropTypes.string.isRequired,
     itemGroupOrder: PropTypes.array.isRequired,
-    leafs: PropTypes.object.isRequired,
     tabs: PropTypes.object.isRequired,
     classTypes: PropTypes.object.isRequired,
     reviewComments: PropTypes.object.isRequired,

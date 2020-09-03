@@ -75,7 +75,7 @@ const ModalHelp = (props) => {
 
     useEffect(() => {
         const getHelp = async () => {
-            let allHelp = await import('constants/help.js');
+            let allHelp = await import(/* webpackMode: "eager" */ 'constants/help.js');
             setData(allHelp[props.id]);
             setOpen(true);
         };

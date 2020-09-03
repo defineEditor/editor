@@ -505,7 +505,7 @@ class Method extends Comment {
         if (autoMethodName !== undefined) {
             this.autoMethodName = autoMethodName;
         } else {
-            if (name) {
+            if (name !== '') {
                 this.autoMethodName = false;
             } else {
                 this.autoMethodName = true;

@@ -185,12 +185,14 @@ const checkDuplicateKeys = (data, keys) => {
 };
 
 const updateItem = ({ item, itemDef, itemRef, stdConstants, model, mdv, options, errors,
-    currentCommentOids, currentMethodOids, itemGroupOid, methodResult, codeListResult, commentResult, removedSources, addedSources,
+    currentCommentOids, currentMethodOids, itemGroupOid, valueListOid, methodResult, codeListResult, commentResult, removedSources, addedSources,
 } = {}) => {
     let defineVersion = mdv.defineVersion;
     // If it is a VLM, update the name to use only the second part (first part is the parent variable)
+    let isVlm = false;
     if (/\S+\.\S+/.test(item.variable)) {
         itemDef.name = item.variable.replace(/(\S+)\.(.*)/, '$2');
+        isVlm = true;
     }
     // SAS Field name
     if (item.fieldName === undefined) {
@@ -332,13 +334,18 @@ const updateItem = ({ item, itemDef, itemRef, stdConstants, model, mdv, options,
             let methodOid = getOid('Method', currentMethodOids);
             currentMethodOids.push(methodOid);
             let method = new Method({ oid: methodOid });
-            method.sources.itemGroups[itemGroupOid] = [itemRef.oid];
+            if (isVlm) {
+                method.sources.valueLists[valueListOid] = [itemRef.oid];
+            } else {
+                method.sources.itemGroups[itemGroupOid] = [itemRef.oid];
+            }
             if (item.method !== undefined) {
                 method.setDescription(item.method);
                 method.descriptions = toSimpleObject(method.descriptions);
             }
             if (item.methodName !== undefined) {
                 method.name = item.methodName;
+                method.autoMethodName = false;
             }
             itemRef.methodOid = methodOid;
             methodResult[methodOid] = { ...method };
@@ -1070,7 +1077,7 @@ const convertImportMetadata = (metadata) => {
                         if (parentItemDef.valueListOid) {
                             let vlmName = item.variable.replace(/(\S+)\.(.*)/, '$2');
                             valueListOid = parentItemDef.valueListOid;
-                            itemDefOid = getOidByName(mdv, 'ValueLists', vlmName, parentItemDef.valueListOid);
+                            itemDefOid = getOidByName({ ...mdv, valueLists: allValueLists }, 'ValueLists', vlmName, parentItemDef.valueListOid);
                         }
                     } else {
                         itemDefOid = getOidByName(mdv, 'ItemRefs', item.variable, itemGroupOid);
@@ -1110,7 +1117,9 @@ const convertImportMetadata = (metadata) => {
                             if (parentItemDef.valueListOid !== undefined) {
                                 valueListOid = parentItemDef.valueListOid;
                                 itemDef.sources.valueLists = [parentItemDef.valueListOid];
-                                newVlmItemRefs[parentItemDef.valueListOid] = {};
+                                if (newVlmItemRefs[parentItemDef.valueListOid] === undefined) {
+                                    newVlmItemRefs[parentItemDef.valueListOid] = {};
+                                }
                             } else {
                                 // Create a new value list
                                 valueListOid = getOid('ValueList', Object.keys({ ...mdv.valueLists, ...newValueLists }));
@@ -1139,7 +1148,7 @@ const convertImportMetadata = (metadata) => {
                         }
                     }
                     // Update main attributes
-                    updateItem({ item, itemDef, itemRef, stdConstants, model, mdv, options, errors, currentCommentOids, currentMethodOids, itemGroupOid, methodResult, codeListResult, commentResult, removedSources, addedSources });
+                    updateItem({ item, itemDef, itemRef, stdConstants, model, mdv, options, errors, currentCommentOids, currentMethodOids, itemGroupOid, valueListOid, methodResult, codeListResult, commentResult, removedSources, addedSources });
                     // Write results
                     if (isNewItem) {
                         newItemDefs[itemDefOid] = { ...itemDef };
@@ -1180,14 +1189,12 @@ const convertImportMetadata = (metadata) => {
                     let itemRefOid = getOid('ItemRef', currentItemRefOids);
                     currentItemRefOids.push(itemRefOid);
                     let itemRef = new ItemRef({ ...item, itemOid: itemDefOid, oid: itemRefOid });
-                    updateItem({ item, itemDef, itemRef, stdConstants, model, mdv, options, errors, currentCommentOids, currentMethodOids, itemGroupOid, methodResult, codeListResult, commentResult, removedSources, addedSources });
-
                     const isVlm = /\S+\.\S+/.test(item.variable);
+                    // Get value list OID and create a new value list if needed
+                    let parentItemDef;
+                    let valueListOid;
                     if (isVlm) {
-                        let parentItemDef;
                         parentItemDef = getParentItemDef(item, { ...mdv.itemDefs, ...newItemDefs, ...updatedItemDefs }, itemGroupOid, errors);
-                        itemDef.parentItemDefOid = parentItemDef.oid;
-                        let valueListOid;
                         if (parentItemDef.valueListOid) {
                             valueListOid = parentItemDef.valueListOid;
                         } else {
@@ -1203,6 +1210,12 @@ const convertImportMetadata = (metadata) => {
                             valueList.sources.itemDefs = [parentItemDef.oid];
                             newValueLists[valueListOid] = { ...valueList };
                         }
+                    }
+
+                    updateItem({ item, itemDef, itemRef, stdConstants, model, mdv, options, errors, currentCommentOids, currentMethodOids, itemGroupOid, valueListOid, methodResult, codeListResult, commentResult, removedSources, addedSources });
+
+                    if (isVlm) {
+                        itemDef.parentItemDefOid = parentItemDef.oid;
                         if (item.whereClause !== undefined) {
                             itemRef.whereClauseOid = parseWhereClause(item.whereClause, itemRef.whereClauseOid,
                                 updatedWhereClauses, newWhereClauses, removedSources, itemGroupOid, valueListOid, mdv, errors
