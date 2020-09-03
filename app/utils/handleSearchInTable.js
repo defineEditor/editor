@@ -29,13 +29,28 @@ const handleSearchInTable = (data, header, searchString) => {
             });
         }
 
+        // Check if search string is a regex or needs to be case-sensitive
+        let isCaseSensetive = /[A-Z]/.test(updatedSearchString);
+        let regex;
+        let isRegex = false;
+        if (updatedSearchString.startsWith('/') && updatedSearchString.endsWith('/')) {
+            try {
+                regex = new RegExp(updatedSearchString.replace(/\/(.*)\//, '$1'), isCaseSensetive ? undefined : 'i');
+                isRegex = true;
+            } catch (error) {
+                isRegex = false;
+            }
+        }
+
         return data.filter(row => {
             let matchFound = false;
             matchFound = Object.keys(row)
                 .filter(attr => ((selectedAttr !== undefined && attr === selectedAttr) || selectedAttr === undefined))
                 .some(attr => {
                     if (typeof row[attr] === 'string') {
-                        if (/[A-Z]/.test(updatedSearchString)) {
+                        if (isRegex) {
+                            return regex.test(row[attr]);
+                        } else if (isCaseSensetive) {
                             return row[attr].includes(updatedSearchString);
                         } else {
                             return row[attr].toLowerCase().includes(updatedSearchString.toLowerCase());
