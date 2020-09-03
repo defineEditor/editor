@@ -226,6 +226,7 @@ const useStyles = makeStyles(theme => ({
         width: 1,
     },
 }));
+
 export default function GeneralTable (props) {
     let { data, header, selection, sorting, pagination, title, customToolbar,
         disableToolbar, initialRowsPerPage, rowsPerPageOptions,
@@ -355,7 +356,6 @@ export default function GeneralTable (props) {
                             aria-labelledby='tableTitle'
                             size='medium'
                             stickyHeader
-                            aria-label='enhanced table'
                         >
                             <GeneralTableHead
                                 classes={classes}
