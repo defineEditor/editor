@@ -2,7 +2,7 @@
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
   "private": "true",
-  "version": "1.1.7-current",
+  "version": "1.1.8-current",
   "description": "Editor for CDISC Define-XML standard",
   "main": "./main.prod.js",
   "repository": {
@@ -14,11 +14,13 @@
     "email": "dmitry.m.kolosov@gmail.com",
     "url": ""
   },
-  "contributors": [{
-    "name": "Sergei Krivtcov",
-    "email": "1000eyed@gmail.com",
-    "url": ""
-  }],
+  "contributors": [
+    {
+      "name": "Sergei Krivtcov",
+      "email": "1000eyed@gmail.com",
+      "url": ""
+    }
+  ],
   "scripts": {
     "electron-rebuild": "node -r babel-register ../internals/scripts/ElectronRebuild.js",
     "postinstall": "npm run electron-rebuild"
