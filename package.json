@@ -1,7 +1,7 @@
 {
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
-  "version": "1.1.7-current",
+  "version": "1.1.8-current",
   "license": "AGPL-3.0-only",
   "private": "true",
   "description": "Visual Define-XML Editor",
@@ -186,7 +186,7 @@
     "cross-spawn": "^6.0.5",
     "css-loader": "^0.28.11",
     "detect-port": "^1.2.3",
-    "electron": "^8.0.0",
+    "electron": "^9.0.0",
     "electron-builder": "^21.2.0",
     "electron-devtools-installer": "3.0.0",
     "electron-rebuild": "^1.10.1",
