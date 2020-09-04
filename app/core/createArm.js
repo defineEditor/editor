@@ -59,14 +59,14 @@ function createResultDisplay (data, options) {
         if (data.descriptions.length !== 0) {
             result['Description'] = [];
             data.descriptions.forEach(function (description) {
-                result['Description'].push(createTranslatedText(description, '2.0.0'));
+                result['Description'].push(createTranslatedText(description, { ...options, version: '2.0.0' }));
             });
         }
         // Add DocumentRef
         if (data.documents.length !== 0) {
             result['def:DocumentRef'] = [];
             data.documents.forEach(function (document) {
-                result['def:DocumentRef'].push(createDocumentRef(document, '2.0.0'));
+                result['def:DocumentRef'].push(createDocumentRef(document, { ...options, version: '2.0.0' }));
             });
         }
         // Add analysis result
@@ -101,7 +101,7 @@ function createAnalysisResult (data, options) {
         if (data.descriptions.length !== 0) {
             result['Description'] = [];
             data.descriptions.forEach(function (description) {
-                result['Description'].push(createTranslatedText(description, '2.0.0'));
+                result['Description'].push(createTranslatedText(description, { ...options, version: '2.0.0' }));
             });
         }
         // Add analysis datasets
@@ -163,14 +163,14 @@ function createDocumentation (data, options) {
         if (data.descriptions.length !== 0) {
             result['Description'] = [];
             data.descriptions.forEach(function (description) {
-                result['Description'].push(createTranslatedText(description, '2.0.0'));
+                result['Description'].push(createTranslatedText(description, { ...options, version: '2.0.0' }));
             });
         }
         // Add DocumentRef
         if (data.documents.length !== 0) {
             result['def:DocumentRef'] = [];
             data.documents.forEach(function (document) {
-                result['def:DocumentRef'].push(createDocumentRef(document, '2.0.0'));
+                result['def:DocumentRef'].push(createDocumentRef(document, { ...options, version: '2.0.0' }));
             });
         }
     }
@@ -200,7 +200,7 @@ function createProgrammingCode (data, options) {
         if (data.documents.length !== 0) {
             result['def:DocumentRef'] = [];
             data.documents.forEach(function (document) {
-                result['def:DocumentRef'].push(createDocumentRef(document, '2.0.0'));
+                result['def:DocumentRef'].push(createDocumentRef(document, { ...options, version: '2.0.0' }));
             });
         }
     }
