@@ -16,7 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import { remote, ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron';
 import store from 'store/index.js';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -139,7 +139,7 @@ class ConnectedMainMenu extends React.Component {
     }
 
     print = () => {
-        remote.getCurrentWindow().webContents.print();
+        ipcRenderer.send('printCurrentView');
     }
 
     save = (noToggle) => {
@@ -332,7 +332,7 @@ class ConnectedMainMenu extends React.Component {
                                     </ListItem>
                                 )]
                             )}
-                            <ListItem button key='quit' onClick={() => { this.props.toggleMainMenu(); remote.app.quit(); }}>
+                            <ListItem button key='quit' onClick={() => { this.props.toggleMainMenu(); ipcRenderer.send('appQuit'); }}>
                                 <ListItemIcon>
                                     <Close/>
                                 </ListItemIcon>

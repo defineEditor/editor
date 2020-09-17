@@ -15,7 +15,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { ipcRenderer, shell, remote } from 'electron';
+import { ipcRenderer, shell } from 'electron';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import UpdateIcon from '@material-ui/icons/Update';
@@ -107,7 +107,8 @@ const About = () => {
 
     const classes = useAboutStyles();
     // Get release notes link
-    const releaseNotesLink = 'http://defineeditor.com/releases/#version-' + remote.app.getVersion().replace('.', '-');
+    const appVersion = process.argv.filter(arg => arg.startsWith('appVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+    const releaseNotesLink = 'http://defineeditor.com/releases/#version-' + appVersion.replace('.', '-');
 
     return (
         <div className={classes.root}>
@@ -118,7 +119,7 @@ const About = () => {
                         Visual Define-XML Editor
                     </Typography>
                     <Typography variant='body1' align='center' color='primary' gutterBottom>
-                        Application Version: { remote.app.getVersion() }
+                        Application Version: { appVersion }
                         <Tooltip title='Check for Updates' placement='bottom' enterDelay={500}>
                             { checkingForUpdate ? (
                                 <CircularProgress size={28} />

@@ -16,7 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import { shell, remote } from 'electron';
+import { shell } from 'electron';
 import { ActionCreators } from 'redux-undo';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -100,13 +100,14 @@ class ConnectedModalBugReport extends React.Component {
 
     render () {
         const { classes } = this.props;
+        const version = process.argv.filter(arg => arg.startsWith('appVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
 
         const mailSubject = encodeURIComponent('Bug Report');
         const mailBody = encodeURIComponent('Hello,\n\nPlease write your message above.') +
             '%0D%0AError message:%0D%0A' + encodeURIComponent(this.props.error) +
             '%0D%0AComponent stack:' + encodeURIComponent(this.props.info.componentStack) +
             '%0D%0AAction History: ' + encodeURIComponent(this.props.actionHistory.join(' -> ')) +
-            '%0D%0AApplication Version: ' + encodeURIComponent(remote.app.getVersion())
+            '%0D%0AApplication Version: ' + encodeURIComponent(version)
         ;
         const emails = [
             'rescue.rangers@defineeditor.com',

@@ -19,7 +19,6 @@ import {
     GlobalVariables,
     Standard
 } from 'core/defineStructure.js';
-import { remote } from 'electron';
 import getOid from 'utils/getOid.js';
 import getCtPublishingSet from 'utils/getCtPublishingSet.js';
 import getModelFromStandard from 'utils/getModelFromStandard.js';
@@ -51,8 +50,8 @@ function getEmptyDefineXml ({ standard, defineVersion, study, settings, controll
         defaultOdmAttrs.sourceSystem = settings.sourceSystem;
         defaultOdmAttrs.sourceSystemVersion = settings.sourceSystemVersion;
     } else {
-        defaultOdmAttrs.sourceSystem = remote.app.name;
-        defaultOdmAttrs.sourceSystemVersion = remote.app.getVersion();
+        defaultOdmAttrs.sourceSystem = process.argv.filter(arg => arg.startsWith('appName')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+        defaultOdmAttrs.sourceSystemVersion = process.argv.filter(arg => arg.startsWith('appVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
     }
 
     let standardOid = getOid('Standard');

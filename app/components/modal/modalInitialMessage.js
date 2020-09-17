@@ -16,7 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import { shell, remote } from 'electron';
+import { shell } from 'electron';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
@@ -89,7 +89,7 @@ class ConnectedModalInitialMessage extends React.Component {
 
     render () {
         const { classes } = this.props;
-        let version = remote.app.getVersion();
+        const version = process.argv.filter(arg => arg.startsWith('appVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
         const releaseNotesLink = 'http://defineeditor.com/releases/#version-' + version.replace('.', '-');
 
         return (

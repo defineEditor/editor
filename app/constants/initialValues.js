@@ -12,8 +12,10 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { remote } from 'electron';
 import stdColumns from 'constants/columns.js';
+
+const appVersion = process.argv.filter(arg => arg.startsWith('appVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+const appName = process.argv.filter(arg => arg.startsWith('appName')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
 
 // UI
 const main = (() => {
@@ -43,7 +45,7 @@ const main = (() => {
             trimValues: true,
         },
         pathToLastFile: undefined,
-        appVersion: remote.app.getVersion(),
+        appVersion: appVersion,
         updateInfo: {},
     };
 })();
@@ -218,8 +220,8 @@ const cdiscLibrary = {
 const define = {
     schemaLocation200: 'http://www.cdisc.org/ns/def/v2.0/define2-0-0.xsd',
     schemaLocation210: 'http://www.cdisc.org/ns/def/v2.1/define2-1-0.xsd',
-    sourceSystem: remote.app.name,
-    sourceSystemVersion: remote.app.getVersion(),
+    sourceSystem: appName,
+    sourceSystemVersion: appVersion,
     stylesheetLocation: './stylesheet/define2-0-0.xsl'
 };
 

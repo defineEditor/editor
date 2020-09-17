@@ -96,6 +96,11 @@ const createWindow = async () => {
             enableRemoteModule: true,
             nodeIntegration: true,
             spellcheck: true,
+            additionalArguments: [
+                `appVersion: ${app.getVersion()}`,
+                `appName: ${app.name}`,
+                `appMode: ${process.env.NODE_ENV === 'development' ? 'DEV' : 'PROD'}`
+            ],
         },
     });
 
@@ -226,6 +231,14 @@ ipcMain.on('loadXptMetadata', (event) => {
 // Derive metadata from XPT files
 ipcMain.on('deriveXptMetadata', (event, data) => {
     deriveXptMetadata(mainWindow, data);
+});
+// Print the current view
+ipcMain.on('printCurrentView', (event) => {
+    mainWindow.webContents.print();
+});
+// Quit the application
+ipcMain.on('appQuit', (event) => {
+    app.quit();
 });
 // Close the main window
 ipcMain.on('quitConfirmed', (event) => {

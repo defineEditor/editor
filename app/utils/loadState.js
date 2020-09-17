@@ -13,7 +13,6 @@
 ***********************************************************************************/
 
 import EStore from 'electron-store';
-import { remote } from 'electron';
 import stdConstants from 'constants/stdConstants.js';
 import {
     ui as uiInitialValues,
@@ -60,7 +59,8 @@ function loadState () {
             state.ui.main.showCommentMethodTable = false;
         }
         // If the application was updated/downgraded, start from studies page
-        if (state.ui.main.appVersion !== remote.app.getVersion()) {
+        const appVersion = process.argv.filter(arg => arg.startsWith('appVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+        if (state.ui.main.appVersion !== appVersion) {
             state.ui.main.currentPage = 'studies';
         }
         // If codelist or codedvalues are opened for the CT, reset view to packages
