@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { app, BrowserWindow, ipcMain, Menu } from 'electron';
+import { app, BrowserWindow, BrowserView, ipcMain, Menu } from 'electron';
 import path from 'path';
 import contextMenu from 'electron-context-menu';
 import saveAs from './main/saveAs.js';
@@ -41,6 +41,7 @@ import exportReviewComments from './main/exportReviewComments.js';
 import { checkForUpdates, downloadUpdate } from './main/appUpdate.js';
 
 let mainWindow = null;
+let findInPageView = null;
 
 if (process.env.NODE_ENV === 'production') {
     const sourceMapSupport = require('source-map-support');
@@ -226,6 +227,19 @@ ipcMain.on('loadXptMetadata', (event) => {
 // Derive metadata from XPT files
 ipcMain.on('deriveXptMetadata', (event, data) => {
     deriveXptMetadata(mainWindow, data);
+});
+// Derive metadata from XPT files
+ipcMain.on('openFindInPage', (event, data) => {
+    findInPageView = new BrowserView();
+    mainWindow.setBrowserView(findInPageView);
+    findInPageView.setAutoResize({ width: true, height: false });
+    findInPageView.setBounds({ ...mainWindow.getBounds(), height: 50 });
+    findInPageView.webContents.loadURL('https://electronjs.org');
+    console.log(mainWindow.getBounds());
+});
+ipcMain.on('closeFindInPage', (event, data) => {
+    mainWindow.removeBrowserView(findInPageView);
+    findInPageView.destroy();
 });
 // Close the main window
 ipcMain.on('quitConfirmed', (event) => {

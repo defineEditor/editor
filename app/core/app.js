@@ -29,7 +29,6 @@ import Settings from 'core/settings.js';
 import Studies from 'core/studies.js';
 import About from 'core/about.js';
 import RedoUndo from 'components/utils/redoUndo.js';
-import FindInPage from 'components/utils/findInPage.js';
 import saveState from 'utils/saveState.js';
 import sendDefineObject from 'utils/sendDefineObject.js';
 import changeAppTitle from 'utils/changeAppTitle.js';
@@ -270,6 +269,11 @@ class ConnectedApp extends Component {
     }
 
     toggleFindInPage = (timeOut) => {
+        if (this.state.showFindInPage === false) {
+            ipcRenderer.send('openFindInPage');
+        } else {
+            ipcRenderer.send('closeFindInPage');
+        }
         if (timeOut > 0) {
             // Timeout is required when toggle is triggered from the main menu
             // Otherwise the input field gets unfocused after main menu closes
@@ -305,7 +309,6 @@ class ConnectedApp extends Component {
                     <ModalRoot />
                     <SnackbarRoot />
                     { this.state.showRedoUndo && <RedoUndo onToggleRedoUndo={this.toggleRedoUndo}/> }
-                    { this.state.showFindInPage && <FindInPage onToggleFindInPage={this.toggleFindInPage}/> }
                 </MuiThemeProvider>
             </CdiscLibraryContext.Provider>
         );
