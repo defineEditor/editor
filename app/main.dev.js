@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { app, BrowserWindow, ipcMain, Menu } from 'electron';
+import { app, BrowserWindow, BrowserView, ipcMain, Menu } from 'electron';
 import path from 'path';
 import contextMenu from 'electron-context-menu';
 import saveAs from './main/saveAs.js';
@@ -41,6 +41,7 @@ import exportReviewComments from './main/exportReviewComments.js';
 import { checkForUpdates, downloadUpdate } from './main/appUpdate.js';
 
 let mainWindow = null;
+let findInPageView = null;
 
 if (process.env.NODE_ENV === 'production') {
     const sourceMapSupport = require('source-map-support');
@@ -100,7 +101,6 @@ const createWindow = async () => {
     });
 
     mainWindow.loadFile('index.html');
-    // mainWindow.loadURL('https://redux.js.org/');
 
     mainWindow.webContents.on('did-finish-load', () => {
         if (!mainWindow) {
@@ -226,6 +226,49 @@ ipcMain.on('loadXptMetadata', (event) => {
 // Derive metadata from XPT files
 ipcMain.on('deriveXptMetadata', (event, data) => {
     deriveXptMetadata(mainWindow, data);
+});
+// Find in page events
+ipcMain.on('openFindInPage', (event, data) => {
+    if (findInPageView === null) {
+        findInPageView = new BrowserView({
+            webPreferences: {
+                nodeIntegration: true,
+            },
+            show: true,
+            frame: false,
+            transparent: true,
+        });
+        mainWindow.setBrowserView(findInPageView);
+        let mainWindowBounds = mainWindow.getBounds();
+        let findInPageViewBounds = {
+            x: Math.max(0, mainWindowBounds.width - 490),
+            y: Math.max(0, mainWindowBounds.height - 60),
+            height: 60,
+            width: 490,
+        };
+        findInPageView.setBounds(findInPageViewBounds);
+        findInPageView.webContents.loadFile('findInPage.html');
+        findInPageView.webContents.focus();
+    } else {
+        if (!findInPageView.webContents.isFocused()) {
+            findInPageView.webContents.focus();
+        }
+    }
+});
+
+ipcMain.on('closeFindInPage', (event, data) => {
+    mainWindow.removeBrowserView(findInPageView);
+    mainWindow.webContents.stopFindInPage('clearSelection');
+    findInPageView.destroy();
+    findInPageView = null;
+    mainWindow.webContents.focus();
+});
+
+ipcMain.on('findInPageNext', (event, data) => {
+    mainWindow.webContents.once('found-in-page', (event, result) => {
+        findInPageView.webContents.send('foundInPage', result);
+    });
+    mainWindow.webContents.findInPage(data.text, data.options);
 });
 // Close the main window
 ipcMain.on('quitConfirmed', (event) => {
