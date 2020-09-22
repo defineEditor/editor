@@ -259,7 +259,7 @@ class ConnectedMainMenu extends React.Component {
                                 </ListItem>
                             }
                             <Divider/>
-                            <ListItem button key='search' onClick={() => { this.props.toggleMainMenu(); this.props.onToggleFindInPage(300); }}>
+                            <ListItem button key='search' onClick={() => { this.props.toggleMainMenu(); this.props.onToggleFindInPage(); }}>
                                 <ListItemIcon>
                                     <Search/>
                                 </ListItemIcon>

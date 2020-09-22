@@ -18,12 +18,15 @@ export default merge.smart(baseConfig, {
 
     target: 'electron-renderer',
 
-    entry: './app/index',
+    entry: {
+        renderer: './app/index',
+        findInPage: './app/core/findInPageEntry'
+    },
 
     output: {
         path: path.join(__dirname, 'app/dist'),
         publicPath: '../dist/',
-        filename: 'renderer.prod.js'
+        filename: '[name].prod.js'
     },
 
     optimization: {
@@ -178,7 +181,7 @@ export default merge.smart(baseConfig, {
             NODE_ENV: 'production'
         }),
 
-        new ExtractTextPlugin('style.css'),
+        new ExtractTextPlugin('[name].style.css'),
 
         new BundleAnalyzerPlugin({
             analyzerMode:

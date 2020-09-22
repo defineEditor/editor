@@ -130,7 +130,6 @@ class ConnectedApp extends Component {
         super(props);
         this.state = {
             showRedoUndo: false,
-            showFindInPage: false,
             showShortcuts: false,
             cdiscLibraryKit: { cdiscLibrary: initCdiscLibrary(), updateCdiscLibrary: this.updateCdiscLibrary },
         };
@@ -249,7 +248,7 @@ class ConnectedApp extends Component {
         if (event.ctrlKey && event.keyCode === 72 && this.props.currentPage === 'editor') {
             this.toggleRedoUndo();
         } else if (event.ctrlKey && event.keyCode === 70 && !this.props.disableFindToggle) {
-            this.toggleFindInPage();
+            this.findInPage();
         } else if (event.ctrlKey && event.keyCode === 191) {
             event.preventDefault();
             this.toggleShortcuts();
@@ -268,19 +267,8 @@ class ConnectedApp extends Component {
         this.setState({ showShortcuts: !this.state.showShortcuts });
     }
 
-    toggleFindInPage = (timeOut) => {
-        if (this.state.showFindInPage === false) {
-            ipcRenderer.send('openFindInPage');
-        } else {
-            ipcRenderer.send('closeFindInPage');
-        }
-        if (timeOut > 0) {
-            // Timeout is required when toggle is triggered from the main menu
-            // Otherwise the input field gets unfocused after main menu closes
-            setTimeout(() => { this.setState({ showFindInPage: !this.state.showFindInPage }); }, timeOut);
-        } else {
-            this.setState({ showFindInPage: !this.state.showFindInPage });
-        }
+    findInPage = () => {
+        ipcRenderer.send('openFindInPage');
     }
 
     render () {
@@ -296,7 +284,7 @@ class ConnectedApp extends Component {
                 <MuiThemeProvider theme={this.props.disableAnimations ? disabledAnimationTheme : baseTheme}>
                     <MainMenu
                         onToggleRedoUndo={this.toggleRedoUndo}
-                        onToggleFindInPage={this.toggleFindInPage}
+                        onToggleFindInPage={this.findInPage}
                         onToggleShortcuts={this.toggleShortcuts}
                     />
                     <KeyboardShortcuts open={this.state.showShortcuts} onToggleShortcuts={this.toggleShortcuts}/>

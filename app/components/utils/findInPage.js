@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
 * and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018, 2019 Dmitry Kolosov                                          *
+* Copyright (C) 2018 Dmitry Kolosov                                                *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -12,145 +12,149 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import { remote } from 'electron';
-import IconButton from '@material-ui/core/IconButton';
-import Grid from '@material-ui/core/Grid';
-import ClearIcon from '@material-ui/icons/Clear';
-import TextField from '@material-ui/core/TextField';
+import React, { useState, useEffect } from 'react';
+import { ipcRenderer } from 'electron';
+import { MuiThemeProvider, createMuiTheme, makeStyles } from '@material-ui/core/styles';
+import { IconButton, Tooltip, Grid, Divider, InputBase } from '@material-ui/core';
+import {
+    KeyboardArrowDown as PreviousIcon,
+    KeyboardArrowUp as NextIcon,
+    TextFormat as MatchCaseIcon,
+    Clear as ClearIcon
+} from '@material-ui/icons';
 
-const styles = theme => ({
+const baseTheme = createMuiTheme();
+
+const getStyles = makeStyles(theme => ({
     button: {
         marginLeft: theme.spacing(2),
     },
-    root: {
-        top: 'calc(100vh - 65px)',
-        position: 'fixed',
-        border: '1px solid #CCCCCC',
-        width: 'calc(100% - 20px)',
-        height: '56px',
-        backgroundImage: 'radial-gradient(#FFFFFF,#DDDDDD)',
-        borderRadius: '25px',
-        marginLeft: '10px',
-        marginRight: '10px',
-    },
     grid: {
-        height: '56px',
+        height: '50px',
+        position: 'fixed',
+        border: '2px solid #CCCCCC',
+        width: '480px',
+        backgroundImage: 'radial-gradient(#FFFFFF,#DDDDDD)',
+        borderRadius: '15px',
     },
-    textField: {
+    input: {
+        marginLeft: theme.spacing(1),
         width: 200,
-        marginBottom: theme.spacing(1),
-        marginLeft: theme.spacing(3),
     },
     count: {
+        width: 50,
+        textAlign: 'center',
         color: '#AAAAAA',
-        marginLeft: theme.spacing(2),
+        fontFamily: 'monospace',
+        fontSize: 'large',
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(1),
     },
-});
+}));
 
-class FindInPage extends React.Component {
-    constructor (props) {
-        super(props);
-        this.state = {
-            search: '',
-            currentNum: 0,
-            totalFound: 0,
-        };
-        this.searchInputRef = React.createRef();
-        this.page = remote.getCurrentWindow().webContents;
-    }
+const FindInPage = (props) => {
+    const classes = getStyles();
+    const [result, setResult] = useState({});
+    const [text, setText] = useState('');
+    const [options, setOptions] = useState({
+        matchCase: false,
+    });
 
-    onFoundInPage = (event, result) => {
-        if (result.matches > 0) {
-            // The input field text is always found
-            // TODO exclude input text from the found results
-            this.setState({ currentNum: result.activeMatchOrdinal - 1, totalFound: result.matches - 1 });
-        }
-    }
-
-    findInPage = (text, options) => {
-        if (text !== '') {
-            this.page.findInPage(text, options);
-        }
-    }
-
-    componentDidMount () {
-        window.addEventListener('keydown', this.onKeyDown);
-        this.page.webContents.on('found-in-page', this.onFoundInPage);
-        this.searchInputRef.current.focus();
-    }
-
-    componentWillUnmount () {
-        window.removeEventListener('keydown', this.onKeyDown);
-        this.page.webContents.stopFindInPage('clearSelection');
-        this.page.webContents.removeListener('found-in-page', this.onFoundInPage);
-    }
-
-    onKeyDown = (event) => {
+    const onKeyDown = (event, result) => {
         if (event.keyCode === 27) {
-            this.props.onToggleFindInPage();
-        } else if (event.keyCode === 13) {
-            if (this.state.totalFound > 0) {
-                this.findInPage(this.state.search, { findNext: true });
+            ipcRenderer.send('closeFindInPage');
+        } else if (event.keyCode === 13 && text !== '') {
+            if (result === undefined || result.matches === undefined) {
+                ipcRenderer.send('findInPageNext', { text, options: { ...options } });
             } else {
-                this.findInPage(this.state.search);
+                ipcRenderer.send('findInPageNext', { text, options: { ...options, findNext: true } });
             }
-        } else if (document.activeElement.id !== 'findInPage') {
-            this.searchInputRef.current.focus();
+        } else if (event.keyCode === 13 && text === '') {
+            setResult({});
         }
-    }
+    };
 
-    handleChange = (event) => {
-        if (event.target.value === '') {
-            // Disabled clearSelection as otherwise TextField looses focus;
-            // this.page.webContents.stopFindInPage('clearSelection');
-            this.setState({ search: event.target.value, totalFound: 0, currentNum: 0 });
-        } else {
-            this.setState({ search: event.target.value });
+    const goTo = (forward) => () => {
+        if (text !== '') {
+            ipcRenderer.send('findInPageNext', { text, options: { ...options, forward } });
         }
-    }
+    };
 
-    render () {
-        const { classes } = this.props;
+    const handleOption = (option) => (event) => {
+        setOptions({ ...options, [option]: !options[option] });
+    };
 
-        return (
-            <div className={classes.root}>
-                <Grid container wrap='nowrap' alignItems='center' justify='space-between' className={classes.grid}>
-                    <Grid item xs={11}>
-                        <TextField
-                            label="Find in page"
-                            id="findInPageElement"
-                            autoFocus
-                            inputRef={this.searchInputRef}
-                            value={this.state.search}
-                            onChange={this.handleChange}
-                            className={classes.textField}
-                        />
-                        { this.state.totalFound > 0 &&
-                                <span className={classes.count}>
-                                    { this.state.totalFound + (this.state.totalFound !== 1 ? ' matches' : ' match')}
-                                </span>
-                        }
-                    </Grid>
-                    <Grid item>
-                        <IconButton
-                            color="secondary"
-                            onClick={this.props.onToggleFindInPage}
-                        >
-                            <ClearIcon />
-                        </IconButton>
-                    </Grid>
+    useEffect(() => {
+        const onFoundInPage = (event, result) => {
+            setResult(result);
+        };
+
+        ipcRenderer.on('foundInPage', onFoundInPage);
+
+        return function cleanup () {
+            ipcRenderer.removeListener('foundInPage', onFoundInPage);
+        };
+    });
+
+    const close = () => {
+        ipcRenderer.send('closeFindInPage');
+    };
+
+    const handleChange = (event) => {
+        if (result.matches !== undefined) {
+            setResult({});
+        }
+        setText(event.target.value);
+    };
+
+    return (
+        <MuiThemeProvider theme={baseTheme}>
+            <Grid container alignItems='center' className={classes.grid}>
+                <InputBase
+                    placeholder='Search'
+                    autoFocus
+                    onKeyDown={onKeyDown}
+                    onChange={handleChange}
+                    className={classes.input}
+                    inputProps={{ spellCheck: 'false' }}
+                />
+                <Divider orientation='vertical' flexItem />
+                <Grid className={classes.count}>
+                    { result.matches > 0 &&
+                        result.activeMatchOrdinal + '/' + result.matches
+                    }
                 </Grid>
-            </div>
-        );
-    }
-}
-
-FindInPage.propTypes = {
-    classes: PropTypes.object.isRequired,
-    onToggleFindInPage: PropTypes.func.isRequired,
+                <Divider orientation='vertical' flexItem />
+                <Tooltip title='Match Case' placement='right' enterDelay={500}>
+                    <IconButton
+                        color={options.matchCase ? 'primary' : 'default'}
+                        onClick={handleOption('matchCase')}
+                    >
+                        <MatchCaseIcon />
+                    </IconButton>
+                </Tooltip>
+                <Divider orientation='vertical' flexItem />
+                <IconButton
+                    color="default"
+                    onClick={goTo(true)}
+                >
+                    <PreviousIcon />
+                </IconButton>
+                <IconButton
+                    color="default"
+                    onClick={goTo(false)}
+                >
+                    <NextIcon />
+                </IconButton>
+                <IconButton
+                    color="default"
+                    onClick={close}
+                >
+                    <ClearIcon />
+                </IconButton>
+            </Grid>
+        </MuiThemeProvider>
+    );
 };
 
-export default withStyles(styles)(FindInPage);
+export default FindInPage;

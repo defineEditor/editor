@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: file: http://localhost:1212; script-src * 'unsafe-inline' 'unsafe-eval'; style-src blob: 'self' 'unsafe-inline'; connect-src 'self' ws: http://localhost:1212;">
+    </head>
+    <body>
+        <div id="root"></div>
+        <script>
+            {
+                const scripts = [];
+
+                // Dynamically insert the DLL script in development env in the
+                // renderer process
+                if (process.env.NODE_ENV === 'development') {
+                    scripts.push('../dll/renderer.dev.dll.js');
+                }
+
+                // Dynamically insert the bundled app script in the renderer process
+                const port = process.env.PORT || 1212;
+                scripts.push(
+                    (process.env.START_HOT)
+                    ? 'http://localhost:' + port + '/dist/findInPage.dev.js'
+                    : './dist/findInPage.prod.js'
+                );
+
+                document.write(
+                    scripts
+                    .map(script => `<script defer src="${script}"><\/script>`)
+                    .join('')
+                );
+            }
+        </script>
+    </body>
+</html>

@@ -354,7 +354,9 @@ class ConnectedPackages extends React.Component {
             }
         }, 2000);
         let ct = await this.context.cdiscLibrary.getFullProduct(id);
-        ipcRenderer.send('saveCtFromCdiscLibrary', ct);
+        // IPCRender requires serialized objects
+        let ctSerialized = JSON.parse(JSON.stringify(ct));
+        ipcRenderer.send('saveCtFromCdiscLibrary', ctSerialized);
         // As CT uses a lot of memory, manually delete it as it is not needed
         Object.values(this.context.cdiscLibrary.productClasses.terminology.productGroups.packages.products).forEach(product => {
             if (product.fullyLoaded) {
