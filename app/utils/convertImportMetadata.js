@@ -204,7 +204,7 @@ const updateItem = ({ item, itemDef, itemRef, stdConstants, model, mdv, options,
         itemDef.descriptions = toSimpleObject(itemDef.descriptions);
     }
     // Origin
-    // Filter analysis resultts for that resultDisplay
+    // Filter analysis results for that resultDisplay
     if (item.hasOwnProperty('originType') || item.hasOwnProperty('originDescription') ||
         item.hasOwnProperty('originSource') || item.hasOwnProperty('crfPages')
     ) {

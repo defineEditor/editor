@@ -100,7 +100,7 @@ class SimpleInputEditor extends React.Component {
                 autoFocus
                 multiline
                 error={error}
-                inputProps={this.props.spellCheck ? { spellCheck: 'true', onKeyDown: this.props.onKeyDown } : { onKeyDown: this.props.onKeyDown }}
+                inputProps={this.props.spellCheck ? { spellCheck: 'true', onKeyDown: this.props.onKeyDown } : { spellCheck: 'false', onKeyDown: this.props.onKeyDown }}
                 helperText={(issue || error) && helperText}
                 FormHelperTextProps={{ className: error ? classes.helperTextError : classes.helperTextNote }}
                 value={this.state.value}

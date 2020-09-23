@@ -47,7 +47,7 @@ const styles = theme => ({
         top: '10%',
         transform: 'translate(0%, calc(-10%+0.5px))',
         overflowX: 'none',
-        maxHeight: '90%',
+        maxHeight: '85%',
         maxWidth: '90%',
         width: 800,
         overflowY: 'auto'
