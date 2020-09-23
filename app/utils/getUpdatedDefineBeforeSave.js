@@ -11,7 +11,6 @@
 * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
-import { remote } from 'electron';
 import store from 'store/index.js';
 import { getMaxLength } from 'utils/defineStructureUtils.js';
 import { ActionCreators } from 'redux-undo';
@@ -23,10 +22,11 @@ import {
 
 export const updateSourceSystem = (odm, state) => {
     // Set proper version of the app;
-    const appName = remote.app.name;
+    const appVersion = process.argv.filter(arg => arg.startsWith('appVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+    const appName = process.argv.filter(arg => arg.startsWith('appName')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
     if (state.settings.define.sourceSystem === '' || state.settings.define.sourceSystem === appName) {
         odm.sourceSystem = appName;
-        odm.sourceSystemVersion = remote.app.getVersion();
+        odm.sourceSystemVersion = appVersion;
     } else {
         odm.sourceSystem = state.settings.define.sourceSystem;
         odm.sourceSystemVersion = state.settings.define.sourceSystemVersion;

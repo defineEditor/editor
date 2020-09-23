@@ -16,7 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import { remote, ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron';
 import clone from 'clone';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
@@ -84,8 +84,8 @@ const styles = theme => ({
     },
 });
 
-const appVersion = remote.app.getVersion();
-const appName = remote.app.name;
+const appVersion = process.argv.filter(arg => arg.startsWith('appVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+const appName = process.argv.filter(arg => arg.startsWith('appName')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
 
 const mapDispatchToProps = dispatch => {
     return {
@@ -118,7 +118,7 @@ class ConnectedSettings extends React.Component {
             this.state.originalApiKey = this.state.settings.cdiscLibrary.apiKey;
         }
         // Check if default System is used
-        if (this.state.settings.define && this.state.settings.define.sourceSystem === remote.app.name) {
+        if (this.state.settings.define && this.state.settings.define.sourceSystem === appName) {
             this.state.defaultSource = true;
         } else {
             this.state.defaultSource = false;
@@ -160,19 +160,19 @@ class ConnectedSettings extends React.Component {
 
     handleChange = (category, name) => (event, checked) => {
         if (category === 'defaultSource') {
-            if (this.state.defaultSource === false && this.state.settings.define && this.state.settings.define.sourceSystem !== remote.app.name) {
+            if (this.state.defaultSource === false && this.state.settings.define && this.state.settings.define.sourceSystem !== appName) {
                 this.setState({
                     defaultSource: !this.state.defaultSource,
                     settings: { ...this.state.settings,
-                        define: { ...this.state.settings.define, sourceSystem: remote.app.name, sourceSystemVersion: remote.app.getVersion() }
+                        define: { ...this.state.settings.define, sourceSystem: appName, sourceSystemVersion: appVersion }
                     },
                 });
             } else {
-                if (this.state.settings.define && this.state.settings.define.sourceSystem === remote.app.name) {
+                if (this.state.settings.define && this.state.settings.define.sourceSystem === appName) {
                     this.setState({
                         defaultSource: !this.state.defaultSource,
                         settings: { ...this.state.settings,
-                            define: { ...this.state.settings.define, sourceSystemVersion: remote.app.getVersion() }
+                            define: { ...this.state.settings.define, sourceSystemVersion: appVersion }
                         },
                     });
                 } else {
@@ -215,7 +215,7 @@ class ConnectedSettings extends React.Component {
             });
         } else if (['sourceSystemVersion'].includes(name)) {
             // Version can be changed only when sourceSystem is modified
-            if (this.state.settings.define && this.state.settings.define.sourceSystem !== remote.app.name) {
+            if (this.state.settings.define && this.state.settings.define.sourceSystem !== appName) {
                 this.setState({
                     settings: { ...this.state.settings,
                         [category]: { ...this.state.settings[category], [name]: event.target.value }
@@ -745,7 +745,7 @@ class ConnectedSettings extends React.Component {
                                 <TextField
                                     label="Source System"
                                     disabled={this.state.defaultSource}
-                                    value={(this.state.defaultSource && remote.app.name) || this.state.settings.define.sourceSystem}
+                                    value={(this.state.defaultSource && appName) || this.state.settings.define.sourceSystem}
                                     onChange={this.handleChange('define', 'sourceSystem')}
                                     className={classes.sourceSystem}
                                 />

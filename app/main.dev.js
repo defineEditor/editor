@@ -97,6 +97,11 @@ const createWindow = async () => {
             enableRemoteModule: true,
             nodeIntegration: true,
             spellcheck: true,
+            additionalArguments: [
+                `appVersion: ${app.getVersion()}`,
+                `appName: ${app.name}`,
+                `appMode: ${process.env.NODE_ENV === 'development' ? 'DEV' : 'PROD'}`
+            ],
         },
     });
 
@@ -269,6 +274,14 @@ ipcMain.on('findInPageNext', (event, data) => {
         findInPageView.webContents.send('foundInPage', result);
     });
     mainWindow.webContents.findInPage(data.text, data.options);
+});
+// Print the current view
+ipcMain.on('printCurrentView', (event) => {
+    mainWindow.webContents.print();
+});
+// Quit the application
+ipcMain.on('appQuit', (event) => {
+    app.quit();
 });
 // Close the main window
 ipcMain.on('quitConfirmed', (event) => {

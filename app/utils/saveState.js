@@ -13,7 +13,7 @@
 ***********************************************************************************/
 
 import EStore from 'electron-store';
-import { ipcRenderer, remote } from 'electron';
+import { ipcRenderer } from 'electron';
 import store from 'store/index.js';
 import getDefineStats from 'utils/getDefineStats.js';
 import { getUpdatedDefineBeforeSave, updateSourceSystem } from 'utils/getUpdatedDefineBeforeSave.js';
@@ -56,7 +56,8 @@ function saveState (type, onSaveFinished) {
     let alwaysSaveDefineXml = state.settings.general && state.settings.general.alwaysSaveDefineXml;
     let addStylesheet = state.settings.general && state.settings.general.addStylesheet;
     // Close main menu when saving and save app version
-    let stateToSave = { ...state, ui: { ...state.ui, main: { ...state.ui.main, mainMenuOpened: false, appVersion: remote.app.getVersion() } } };
+    const appVersion = process.argv.filter(arg => arg.startsWith('appVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+    let stateToSave = { ...state, ui: { ...state.ui, main: { ...state.ui.main, mainMenuOpened: false, appVersion } } };
     // If it is a backup, write only if ODM is not blank
     if (type === 'backup' && (!stateToSave.hasOwnProperty('odm') || Object.keys(stateToSave.odm).length === 0)) {
         return;
