@@ -694,6 +694,18 @@ class ConnectedVariableTable extends React.Component {
     }
 
     toggleVlmRow = (itemOid) => () => {
+        // Check if there is an edit mode active
+        let editors = document.getElementsByClassName('generalEditorClass');
+        if (typeof editors === 'object' && Object.keys(editors).length > 0) {
+            this.props.openModal({
+                type: 'GENERAL',
+                props: {
+                    title: 'Closed Opened Editors',
+                    message: 'Close open editors before expanding/collapsing.',
+                }
+            });
+            return;
+        }
         // Copy the state
         let vlmState = { ...this.props.tabSettings.vlmState[this.props.itemGroupOid] };
         // Update the state
@@ -712,6 +724,18 @@ class ConnectedVariableTable extends React.Component {
     }
 
     toggleVlmRows = (type) => () => {
+        // Check if there is an edit mode active
+        let editors = document.getElementsByClassName('generalEditorClass');
+        if (typeof editors === 'object' && Object.keys(editors).length > 0) {
+            this.props.openModal({
+                type: 'GENERAL',
+                props: {
+                    title: 'Closed Opened Editors',
+                    message: 'Close open editors before expanding/collapsing.',
+                }
+            });
+            return;
+        }
         let vlmState = { global: 'collaps' };
         if (this.props.tabSettings.vlmState.hasOwnProperty(this.props.itemGroupOid)) {
             vlmState = this.props.tabSettings.vlmState[this.props.itemGroupOid];

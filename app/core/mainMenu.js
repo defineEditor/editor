@@ -130,6 +130,9 @@ class ConnectedMainMenu extends React.Component {
                 this.openSettings();
             } else if (event.keyCode === 67) {
                 this.openControlledTerminology();
+            } else if (event.keyCode === 70) {
+                this.props.toggleMainMenu();
+                this.props.onToggleFindInPage();
             } else if (event.keyCode === 76 && this.props.enableCdiscLibrary) {
                 this.openCdiscLibrary();
             } else if (event.keyCode === 80) {
@@ -263,7 +266,7 @@ class ConnectedMainMenu extends React.Component {
                                 <ListItemIcon>
                                     <Search/>
                                 </ListItemIcon>
-                                <ListItemText primary='Find in Page'/>
+                                <ListItemText primary={<span><u>F</u>ind in Page</span>}/>
                             </ListItem>
                             { this.props.currentPage === 'editor' && ([
                                 (
