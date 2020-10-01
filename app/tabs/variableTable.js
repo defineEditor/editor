@@ -340,20 +340,26 @@ class ConnectedVariableTable extends React.Component {
         }
     }
 
+    setScroll () {
+        // Restore previous tab scroll position for a specific dataset
+        let tabSettings = this.props.tabSettings;
+        if (tabSettings.scrollPosition[this.props.itemGroupOid] !== undefined) {
+            window.scrollTo(0, tabSettings.scrollPosition[this.props.itemGroupOid]);
+        } else {
+            window.scrollTo(0, 0);
+        }
+    }
+
     componentDidUpdate () {
         if (this.state.setScrollY) {
-            // Restore previous tab scroll position for a specific dataset
-            let tabSettings = this.props.tabSettings;
-            if (tabSettings.scrollPosition[this.props.itemGroupOid] !== undefined) {
-                window.scrollTo(0, tabSettings.scrollPosition[this.props.itemGroupOid]);
-            } else {
-                window.scrollTo(0, 0);
-            }
+            // TODO as table is rerendered when changed, this code and state.setScrollY might be irrelevant.
+            this.setScroll();
             this.setState({ setScrollY: false });
         }
     }
 
     componentDidMount () {
+        this.setScroll();
         window.addEventListener('keydown', this.onKeyDown);
     }
 
@@ -694,6 +700,18 @@ class ConnectedVariableTable extends React.Component {
     }
 
     toggleVlmRow = (itemOid) => () => {
+        // Check if there is an edit mode active
+        let editors = document.getElementsByClassName('generalEditorClass');
+        if (typeof editors === 'object' && Object.keys(editors).length > 0) {
+            this.props.openModal({
+                type: 'GENERAL',
+                props: {
+                    title: 'Closed Opened Editors',
+                    message: 'Close open editors before expanding/collapsing.',
+                }
+            });
+            return;
+        }
         // Copy the state
         let vlmState = { ...this.props.tabSettings.vlmState[this.props.itemGroupOid] };
         // Update the state
@@ -712,6 +730,18 @@ class ConnectedVariableTable extends React.Component {
     }
 
     toggleVlmRows = (type) => () => {
+        // Check if there is an edit mode active
+        let editors = document.getElementsByClassName('generalEditorClass');
+        if (typeof editors === 'object' && Object.keys(editors).length > 0) {
+            this.props.openModal({
+                type: 'GENERAL',
+                props: {
+                    title: 'Closed Opened Editors',
+                    message: 'Close open editors before expanding/collapsing.',
+                }
+            });
+            return;
+        }
         let vlmState = { global: 'collaps' };
         if (this.props.tabSettings.vlmState.hasOwnProperty(this.props.itemGroupOid)) {
             vlmState = this.props.tabSettings.vlmState[this.props.itemGroupOid];

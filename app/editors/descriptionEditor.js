@@ -18,6 +18,7 @@ import { connect } from 'react-redux';
 import { EditorState, ContentState, convertFromHTML } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import deepEqual from 'fast-deep-equal';
+import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
@@ -143,7 +144,7 @@ class ConnectedDescriptionEditor extends React.Component {
                 onKeyDown={this.onKeyDown}
                 tabIndex='0'
                 ref={this.rootRef}
-                className={classes.root}
+                className={classNames(classes.root, 'generalEditorClass')}
             >
                 <Grid container spacing={1} alignItems='center'>
                     <Grid item xs={12} className={classes.gridItem}>

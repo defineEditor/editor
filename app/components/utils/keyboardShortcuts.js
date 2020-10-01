@@ -97,6 +97,7 @@ const shortcuts = {
         'C': 'Open Controlled Terminology',
         'T': 'Open Settings',
         'L': 'Open CDISC Library',
+        'F': 'Find in Page',
         'Ctrl + P': 'Print',
     },
 };

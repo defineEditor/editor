@@ -38,10 +38,12 @@ const FormattingControlIcons = (props) => {
     const odm = useSelector(state => state.present.odm);
 
     const openComments = () => {
-        openModal({
-            type: 'REVIEW_COMMENT',
-            props: { sources: { [props.type]: ['thisElementIsUnique'] } }
-        });
+        dispatch(
+            openModal({
+                type: 'REVIEW_COMMENT',
+                props: { sources: { [props.type]: ['thisElementIsUnique'] } }
+            })
+        );
     };
 
     const openHelp = (id) => {
@@ -90,7 +92,6 @@ const FormattingControlIcons = (props) => {
 FormattingControlIcons.propTypes = {
     onEdit: PropTypes.func.isRequired,
     helpId: PropTypes.string,
-    onComment: PropTypes.func,
     type: PropTypes.string,
 };
 

@@ -16,6 +16,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
 import Grid from '@material-ui/core/Grid';
 import VariableNameLabelEditor from 'editors/variableNameLabelEditor.js';
 import WhereClauseEditor from 'editors/whereClauseEditor.js';
@@ -154,6 +155,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
 
     render () {
         const vlmLevel = this.props.row.vlmLevel;
+        const classes = this.props.classes;
         let label;
         if (this.state.descriptions.length > 0) {
             label = this.state.descriptions[0].value;
@@ -162,7 +164,12 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
         }
 
         return (
-            <div onKeyDown={this.onKeyDown} tabIndex='0' ref={this.rootRef} className={this.props.classes.root}>
+            <div
+                onKeyDown={this.onKeyDown}
+                tabIndex='0'
+                ref={this.rootRef}
+                className={classNames(classes.root, 'generalEditorClass')}
+            >
                 <Grid container spacing={1}>
                     <Grid item xs={12}>
                         <VariableNameLabelEditor
