@@ -19,6 +19,7 @@ import { ipcRenderer } from 'electron';
 import { AppContainer } from 'react-hot-loader';
 import store from 'store/index.js';
 import App from 'core/app.js';
+import backup from 'utils/backup.js';
 import saveState from 'utils/saveState.js';
 import sendDefineObject from 'utils/sendDefineObject.js';
 import loadDefineObject from 'utils/loadDefineObject.js';
@@ -32,6 +33,7 @@ ipcRenderer.on('sendDefineObjectToMain', sendDefineObject);
 ipcRenderer.on('loadDefineObjectToRender', loadDefineObject);
 ipcRenderer.on('loadControlledTerminologyToRender', loadControlledTerminology);
 ipcRenderer.on('saveState', saveState);
+ipcRenderer.on('backupFinished', backup);
 
 ReactDOM.render(
     <AppContainer>

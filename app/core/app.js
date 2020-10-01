@@ -105,6 +105,8 @@ const mapStateToProps = state => {
         showInitialMessage: state.present.settings.popUp.onStartUp,
         disableAnimations: state.present.settings.general.disableAnimations,
         checkForUpdates: state.present.settings.general.checkForUpdates,
+        backup: state.present.settings.backup,
+        lastBackupDate: state.present.ui.main.lastBackupDate,
         cdiscLibrarySettings: state.present.settings.cdiscLibrary,
         disableFindToggle,
         sampleStudyCopied: state.present.ui.main.sampleStudyCopied,
@@ -164,6 +166,15 @@ class ConnectedApp extends Component {
         // Set title of the application
         if (this.props.currentStudyId && this.props.currentDefineId) {
             changeAppTitle({ studyId: this.props.currentStudyId, defineId: this.props.currentDefineId });
+        }
+        if (this.props.backup.enableBackup) {
+            // Perform backup if needed
+            let lastBackupDate = new Date(this.props.lastBackupDate || '2000-01-01');
+            let compareDate = new Date(lastBackupDate.setDate(lastBackupDate.getDate() + this.props.backup.backupInterval));
+            // Perform backup once per time interval
+            if ((new Date() > compareDate)) {
+                ipcRenderer.send('backup', this.props.backup);
+            }
         }
     }
 
@@ -312,6 +323,8 @@ ConnectedApp.propTypes = {
     disableAnimations: PropTypes.bool.isRequired,
     checkForUpdates: PropTypes.bool.isRequired,
     cdiscLibrarySettings: PropTypes.object,
+    backup: PropTypes.object,
+    lastBackupDate: PropTypes.string,
     bugModalOpened: PropTypes.bool,
     openModal: PropTypes.func.isRequired,
     openSnackbar: PropTypes.func.isRequired,

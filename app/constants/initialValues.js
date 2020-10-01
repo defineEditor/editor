@@ -46,6 +46,7 @@ const main = (() => {
         },
         pathToLastFile: undefined,
         appVersion: appVersion,
+        lastBackupDate: '',
         updateInfo: {},
     };
 })();
@@ -225,12 +226,20 @@ const define = {
     stylesheetLocation: './stylesheet/define2-0-0.xsl'
 };
 
+const backup = {
+    enableBackup: false,
+    backupFolder: '',
+    backupInterval: 7,
+    numBackups: 5,
+};
+
 const settings = {
     general,
     editor,
     define,
     cdiscLibrary,
     popUp,
+    backup,
 };
 
 const defines = {
