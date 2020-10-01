@@ -269,20 +269,25 @@ class ConnectedCodedValueTable extends React.Component {
         }
     }
 
+    setScroll () {
+        // Restore previous tab scroll position for a specific codelist
+        let tabSettings = this.props.tabSettings;
+        if (tabSettings.scrollPosition[this.props.codeListOid] !== undefined) {
+            window.scrollTo(0, tabSettings.scrollPosition[this.props.codeListOid]);
+        } else {
+            window.scrollTo(0, 0);
+        }
+    }
+
     componentDidUpdate () {
         if (this.state.setScrollY) {
-            // Restore previous tab scroll position for a specific codelist
-            let tabSettings = this.props.tabSettings;
-            if (tabSettings.scrollPosition[this.props.codeListOid] !== undefined) {
-                window.scrollTo(0, tabSettings.scrollPosition[this.props.codeListOid]);
-            } else {
-                window.scrollTo(0, 0);
-            }
+            this.setScroll();
             this.setState({ setScrollY: false });
         }
     }
 
     componentDidMount () {
+        this.setScroll();
         window.addEventListener('keydown', this.onKeyDown);
     }
 
@@ -632,7 +637,7 @@ class ConnectedCodedValueTable extends React.Component {
         this.props.selectGroup(updateObj);
     }
 
-    getCodeListVariables = (limit = 4) => {
+    getCodeListVariables = (limit = 3) => {
         // Get list of variables which are using the codelist;
         const codeList = this.props.codeLists[this.props.codeListOid];
         const itemGroups = this.props.itemGroups;
@@ -660,6 +665,12 @@ class ConnectedCodedValueTable extends React.Component {
                 });
             }
         });
+
+        // When there is just one menu variable, show it as a normal variable, i.e. show menu only in case there is 1 or more variable
+        if (Object.keys(menuVariables).length === 1) {
+            codeListVariables = { ...codeListVariables, ...menuVariables };
+            menuVariables = {};
+        }
 
         // Normal buttons
         let items = Object.keys(codeListVariables).map(variableName => (

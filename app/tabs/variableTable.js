@@ -340,20 +340,26 @@ class ConnectedVariableTable extends React.Component {
         }
     }
 
+    setScroll () {
+        // Restore previous tab scroll position for a specific dataset
+        let tabSettings = this.props.tabSettings;
+        if (tabSettings.scrollPosition[this.props.itemGroupOid] !== undefined) {
+            window.scrollTo(0, tabSettings.scrollPosition[this.props.itemGroupOid]);
+        } else {
+            window.scrollTo(0, 0);
+        }
+    }
+
     componentDidUpdate () {
         if (this.state.setScrollY) {
-            // Restore previous tab scroll position for a specific dataset
-            let tabSettings = this.props.tabSettings;
-            if (tabSettings.scrollPosition[this.props.itemGroupOid] !== undefined) {
-                window.scrollTo(0, tabSettings.scrollPosition[this.props.itemGroupOid]);
-            } else {
-                window.scrollTo(0, 0);
-            }
+            // TODO as table is rerendered when changed, this code and state.setScrollY might be irrelevant.
+            this.setScroll();
             this.setState({ setScrollY: false });
         }
     }
 
     componentDidMount () {
+        this.setScroll();
         window.addEventListener('keydown', this.onKeyDown);
     }
 

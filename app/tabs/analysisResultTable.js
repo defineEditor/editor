@@ -102,20 +102,25 @@ class ConnectedAnalysisResultTable extends React.Component {
         }
     }
 
+    setScroll () {
+        // Restore previous tab scroll position for a specific dataset
+        let tabSettings = this.props.tabSettings;
+        if (tabSettings.scrollPosition[this.props.resultDisplayOid] !== undefined) {
+            window.scrollTo(0, tabSettings.scrollPosition[this.props.resultDisplayOid]);
+        } else {
+            window.scrollTo(0, 0);
+        }
+    }
+
     componentDidUpdate () {
         if (this.state.setScrollY) {
-            // Restore previous tab scroll position for a specific dataset
-            let tabSettings = this.props.tabSettings;
-            if (tabSettings.scrollPosition[this.props.resultDisplayOid] !== undefined) {
-                window.scrollTo(0, tabSettings.scrollPosition[this.props.resultDisplayOid]);
-            } else {
-                window.scrollTo(0, 0);
-            }
+            this.setScroll();
             this.setState({ setScrollY: false });
         }
     }
 
     componentDidMount () {
+        this.setScroll();
         window.addEventListener('keydown', this.onKeyDown);
         Prism.highlightAll();
     }

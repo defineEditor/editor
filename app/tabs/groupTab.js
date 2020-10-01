@@ -72,8 +72,6 @@ class ConnectedGroupTab extends React.Component {
     constructor (props) {
         super(props);
 
-        this.rootRef = React.createRef();
-
         this.state = {
             drawerOpened: false,
         };
@@ -212,7 +210,6 @@ class ConnectedGroupTab extends React.Component {
                 { (groupOid !== undefined) ? (
                     <div
                         tabIndex='0'
-                        ref={this.rootRef}
                         className={classes.root}
                     >
                         <GroupTabDrawer
