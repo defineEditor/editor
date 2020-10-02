@@ -249,6 +249,7 @@
     "@material-ui/core": "^4.6.1",
     "@material-ui/icons": "^4.5.1",
     "@material-ui/lab": "^4.0.0-alpha.32",
+    "archiver": "^5.0.2",
     "babel-plugin-prismjs": "^1.0.2",
     "bootstrap": "^4.1.1",
     "cla-wrapper": "^0.2.4",

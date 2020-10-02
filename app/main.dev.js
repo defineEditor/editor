@@ -38,6 +38,7 @@ import openFileInExternalApp from './main/openFileInExternalApp.js';
 import checkPreinstalledPlugins from './main/checkPreinstalledPlugins.js';
 import createMenu from './menu/menu.js';
 import exportReviewComments from './main/exportReviewComments.js';
+import backup from './main/backup.js';
 import { checkForUpdates, downloadUpdate } from './main/appUpdate.js';
 
 let mainWindow = null;
@@ -278,6 +279,10 @@ ipcMain.on('findInPageNext', (event, data) => {
 // Print the current view
 ipcMain.on('printCurrentView', (event) => {
     mainWindow.webContents.print();
+});
+// Make a backup
+ipcMain.on('backup', (event, backupOptions) => {
+    backup(mainWindow, backupOptions);
 });
 // Quit the application
 ipcMain.on('appQuit', (event) => {

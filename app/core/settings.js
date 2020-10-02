@@ -63,6 +63,10 @@ const styles = theme => ({
         width: 300,
         margin: theme.spacing(1)
     },
+    textFieldNumber: {
+        width: 200,
+        margin: theme.spacing(1)
+    },
     sourceSystem: {
         width: 300,
         margin: theme.spacing(1)
@@ -75,7 +79,7 @@ const styles = theme => ({
         width: 200,
         margin: theme.spacing(1)
     },
-    ctLocation: {
+    location: {
         width: '90%',
         margin: theme.spacing(1)
     },
@@ -129,12 +133,12 @@ class ConnectedSettings extends React.Component {
     static contextType = CdiscLibraryContext;
 
     componentDidMount () {
-        ipcRenderer.on('selectedFile', this.setCTLocation);
+        ipcRenderer.on('selectedFile', this.setFolder);
         window.addEventListener('keydown', this.onKeyDown);
     }
 
     componentWillUnmount () {
-        ipcRenderer.removeListener('selectedFile', this.setCTLocation);
+        ipcRenderer.removeListener('selectedFile', this.setFolder);
         window.removeEventListener('keydown', this.onKeyDown);
         // If settings are not saved, open a confirmation window
         let diff = this.getSettingsDiff();
@@ -146,16 +150,24 @@ class ConnectedSettings extends React.Component {
         }
     }
 
-    setCTLocation = (event, controlledTerminologyLocation, title) => {
-        this.handleChange('general', 'controlledTerminologyLocation')(
-            controlledTerminologyLocation
-        );
+    setFolder = (event, location, title) => {
+        if (title === 'Select Controlled Terminology Folder') {
+            this.handleChange('general', 'controlledTerminologyLocation')(location);
+        } else if (title === 'Select Backup Folder') {
+            this.handleChange('backup', 'backupFolder')(location);
+        }
     };
 
-    selectControlledTerminologyLocation = () => {
-        ipcRenderer.send('selectFile', 'Select Controlled Terminology Folder',
-            { initialFolder: this.props.settings.general.controlledTerminologyLocation, type: 'openDirectory' }
-        );
+    selectLocation = (type) => {
+        if (type === 'ct') {
+            ipcRenderer.send('selectFile', 'Select Controlled Terminology Folder',
+                { initialFolder: this.props.settings.general.controlledTerminologyLocation, type: 'openDirectory' }
+            );
+        } else if (type === 'backup') {
+            ipcRenderer.send('selectFile', 'Select Backup Folder',
+                { initialFolder: this.props.settings.backup.backupFolder, type: 'openDirectory' }
+            );
+        }
     };
 
     handleChange = (category, name) => (event, checked) => {
@@ -207,6 +219,7 @@ class ConnectedSettings extends React.Component {
             'enableCdiscLibrary',
             'checkForCLUpdates',
             'oAuth2',
+            'enableBackup',
         ].includes(name) || category === 'popUp') {
             this.setState({
                 settings: { ...this.state.settings,
@@ -221,6 +234,29 @@ class ConnectedSettings extends React.Component {
                         [category]: { ...this.state.settings[category], [name]: event.target.value }
                     },
                 });
+            }
+        } else if (category === 'backup') {
+            if (name === 'backupFolder') {
+                this.setState({
+                    settings: { ...this.state.settings,
+                        [category]: { ...this.state.settings[category], [name]: event }
+                    },
+                });
+            } else {
+                if (event.target.value && /^\d+$/.test(event.target.value.trim())) {
+                    this.setState({
+                        settings: { ...this.state.settings,
+                            [category]: { ...this.state.settings[category], [name]: parseInt(event.target.value) }
+                        },
+                    });
+                }
+                if (event.target.value === '') {
+                    this.setState({
+                        settings: { ...this.state.settings,
+                            [category]: { ...this.state.settings[category], [name]: 0 }
+                        },
+                    });
+                }
             }
         } else {
             this.setState({
@@ -373,14 +409,14 @@ class ConnectedSettings extends React.Component {
                                     label="Controlled Terminology Folder"
                                     value={this.state.settings.general.controlledTerminologyLocation}
                                     disabled={true}
-                                    className={classes.ctLocation}
+                                    className={classes.location}
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">
                                                 <InternalHelp helpId='CT_LOCATION' buttonType='icon'/>
                                                 <IconButton
                                                     color="default"
-                                                    onClick={this.selectControlledTerminologyLocation}
+                                                    onClick={() => { this.selectLocation('ct'); }}
                                                     className={classes.adorementIcon}
                                                 >
                                                     <FolderOpen />
@@ -432,7 +468,7 @@ class ConnectedSettings extends React.Component {
                     </Grid>
                     <Grid item xs={12}>
                         <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
-                            Define-XML Saving Settings
+                            Define-XML Save Settings
                         </Typography>
                         <Grid container>
                             <Grid item>
@@ -899,6 +935,72 @@ class ConnectedSettings extends React.Component {
                                 >
                                     Clean Cache
                                 </Button>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid item>
+                        <Typography variant="h4" gutterBottom align="left" color='textSecondary'>
+                            Backups
+                        </Typography>
+                        <Grid container>
+                            <Grid item xs={12}>
+                                <FormGroup>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.settings.backup.enableBackup}
+                                                onChange={this.handleChange('backup', 'enableBackup')}
+                                                color='primary'
+                                                className={classes.switch}
+                                            />
+                                        }
+                                        label='Enable Backups'
+                                    />
+                                </FormGroup>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="Backup Folder"
+                                    value={this.state.settings.backup.backupFolder}
+                                    disabled={true}
+                                    className={classes.location}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <IconButton
+                                                    color="default"
+                                                    disabled={!this.state.settings.backup.enableBackup}
+                                                    onClick={() => { this.selectLocation('backup'); }}
+                                                    className={classes.adorementIcon}
+                                                >
+                                                    <FolderOpen />
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item>
+                                <TextField
+                                    label='Backup interval (days)'
+                                    type='number'
+                                    disabled={!this.state.settings.backup.enableBackup}
+                                    value={this.state.settings.backup.backupInterval}
+                                    onChange={this.handleChange('backup', 'backupInterval')}
+                                    helperText='Number of days between which backups are performed'
+                                    className={classes.textFieldNumber}
+                                />
+                            </Grid>
+                            <Grid item>
+                                <TextField
+                                    label='Number of Backups'
+                                    type='number'
+                                    disabled={!this.state.settings.backup.enableBackup}
+                                    value={this.state.settings.backup.numBackups}
+                                    onChange={this.handleChange('backup', 'numBackups')}
+                                    helperText='Number of backup copies stored'
+                                    className={classes.textFieldNumber}
+                                />
                             </Grid>
                         </Grid>
                     </Grid>
