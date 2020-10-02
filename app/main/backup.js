@@ -25,9 +25,9 @@ const rename = promisify(fs.rename);
 const backup = async (mainWindow, backupOptions) => {
     const { backupFolder, numBackups } = backupOptions;
     const pathToUserData = app.getPath('userData');
-    const pathToStudies = path.join(pathToUserData, 'studies');
+    const pathToStudies = path.join(pathToUserData, 'defines');
 
-    if (!fs.existsSync(backupFolder)) {
+    if (backupFolder === '' || !fs.existsSync(backupFolder)) {
         throw Error('Backup folder ' + backupFolder + ' does not exist.');
     }
 
@@ -37,21 +37,28 @@ const backup = async (mainWindow, backupOptions) => {
     }
 
     // Go throw each file in the backup folder and decide what to do with them
-    let files = await readdir(pathToStudies);
+    let files = await readdir(backupFolder);
 
     const filesToRemove = [];
     const filesToRename = {};
     files
         .filter(file => /^backup\.\d+\.zip$/.test(file))
+        .sort((file1, file2) => {
+            // Sort files in decending order, so during the rename they are not overwritten;
+            const id1 = parseInt(file1.replace(/^backup\.(\d+)\.zip$/, '$1'));
+            const id2 = parseInt(file2.replace(/^backup\.(\d+)\.zip$/, '$1'));
+            return id1 < id2 ? 1 : -1;
+        })
         .forEach(file => {
-            const id = parseInt(file.replace(/^$backup\.(\d+)\.zip$/, '$1'));
+            const id = parseInt(file.replace(/^backup\.(\d+)\.zip$/, '$1'));
 
-            if (id >= numBackups) {
+            if (id >= numBackups - 1) {
                 filesToRemove.push(file);
             } else {
                 filesToRename[file] = `backup.${id + 1}.zip`;
             }
-        });
+        })
+    ;
 
     // Remove those exceeding the backup number
     await Promise.all(filesToRemove.map(async (file) => {
@@ -59,10 +66,11 @@ const backup = async (mainWindow, backupOptions) => {
     }));
 
     // Rename the rest
-    await Promise.all(Object.keys(filesToRename).map(async (oldName) => {
-        const newName = filesToRemove[oldName];
-        rename(path.join(backupFolder, oldName), path.join(backupFolder, newName));
-    }));
+    for (let i = 0; i < Object.keys(filesToRename).length; i++) {
+        const oldName = Object.keys(filesToRename)[i];
+        const newName = filesToRename[oldName];
+        await rename(path.join(backupFolder, oldName), path.join(backupFolder, newName));
+    }
 
     // Create a new backup
     const archive = archiver('zip', {

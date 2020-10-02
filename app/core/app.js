@@ -169,8 +169,9 @@ class ConnectedApp extends Component {
         }
         if (this.props.backup.enableBackup) {
             // Perform backup if needed
-            let lastBackupDate = new Date(this.props.lastBackupDate || '2000-01-01');
-            let compareDate = new Date(lastBackupDate.setDate(lastBackupDate.getDate() + this.props.backup.backupInterval));
+            let lastBackupDate = new Date(this.props.lastBackupDate ? this.props.lastBackupDate : '2000-01-01');
+            let compareDate = new Date(lastBackupDate.toISOString());
+            compareDate = new Date(compareDate.setDate(lastBackupDate.getDate() + this.props.backup.backupInterval));
             // Perform backup once per time interval
             if ((new Date() > compareDate)) {
                 ipcRenderer.send('backup', this.props.backup);
@@ -198,7 +199,8 @@ class ConnectedApp extends Component {
     checkCdiscLibraryForUpdates = async (value) => {
         let { cdiscLibraryVersion, cdiscLibraryLastChecked } = this.props.cdiscLibraryInfo;
         let lastCheckedDate = new Date(cdiscLibraryLastChecked || '2000-01-01');
-        let compareDate = new Date(lastCheckedDate.setDate(lastCheckedDate.getDate() + 1));
+        let compareDate = new Date(lastCheckedDate.toISOString());
+        compareDate = new Date(compareDate.setDate(lastCheckedDate.getDate() + 1));
         // Check only once a day
         if ((new Date() > compareDate) && this.state.cdiscLibraryKit) {
             let cl = this.state.cdiscLibraryKit.cdiscLibrary;
