@@ -250,6 +250,13 @@ class ConnectedSettings extends React.Component {
                         },
                     });
                 }
+                if (event.target.value === '') {
+                    this.setState({
+                        settings: { ...this.state.settings,
+                            [category]: { ...this.state.settings[category], [name]: 0 }
+                        },
+                    });
+                }
             }
         } else {
             this.setState({
