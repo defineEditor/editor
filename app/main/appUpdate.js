@@ -42,7 +42,6 @@ const checkForUpdates = async (mainWindow, eventLabel = 'updateInformation') => 
         // Add 0 to properly compare version like 1.1.9 and 1.1.10
         let newVersion = result.updateInfo.version.replace(/\b(\d)\b/g, '0$1');
         let currentVersion = appVersion.replace(/\b(\d)\b/g, '0$1');
-        console.log(newVersion, currentVersion);
 
         if (newVersion > currentVersion && !(currentVersion.includes('current') && !newVersion.includes('current'))) {
             mainWindow.webContents.send(eventLabel, true, result);
