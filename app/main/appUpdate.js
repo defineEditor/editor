@@ -39,7 +39,12 @@ const checkForUpdates = async (mainWindow, eventLabel = 'updateInformation') => 
 
     if (typeof result === 'object' && result.updateInfo) {
         // Do not switch from current to stable, as stable always has current equivalent
-        if (result.updateInfo.version > appVersion && !(appVersion.includes('current') && !result.updateInfo.version.includes('current'))) {
+        // Add 0 to properly compare version like 1.1.9 and 1.1.10
+        let newVersion = result.updateInfo.version.replace(/\b(\d)\b/g, '0$1');
+        let currentVersion = appVersion.replace(/\b(\d)\b/g, '0$1');
+        console.log(newVersion, currentVersion);
+
+        if (newVersion > currentVersion && !(currentVersion.includes('current') && !newVersion.includes('current'))) {
             mainWindow.webContents.send(eventLabel, true, result);
         } else {
             mainWindow.webContents.send(eventLabel, false);
