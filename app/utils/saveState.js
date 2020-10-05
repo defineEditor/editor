@@ -56,7 +56,7 @@ function saveState (type, onSaveFinished) {
     let alwaysSaveDefineXml = state.settings.general && state.settings.general.alwaysSaveDefineXml;
     let addStylesheet = state.settings.general && state.settings.general.addStylesheet;
     // Close main menu when saving and save app version
-    const appVersion = process.argv.filter(arg => arg.startsWith('appVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+    const appVersion = process.argv.filter(arg => arg.startsWith('--vdeVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
     let stateToSave = { ...state, ui: { ...state.ui, main: { ...state.ui.main, mainMenuOpened: false, appVersion } } };
     // If it is a backup, write only if ODM is not blank
     if (type === 'backup' && (!stateToSave.hasOwnProperty('odm') || Object.keys(stateToSave.odm).length === 0)) {

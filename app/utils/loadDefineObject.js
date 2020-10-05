@@ -32,8 +32,8 @@ function loadDefineObject (event, data) {
         }
         // Some of the versions require structure update. 4+ - development version
         // TODO - change > 4 to debug mode check
-        const appVersion = process.argv.filter(arg => arg.startsWith('appVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
-        const appMode = process.argv.filter(arg => arg.startsWith('appMode')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+        const appVersion = process.argv.filter(arg => arg.startsWith('--vdeVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+        const appMode = process.argv.filter(arg => arg.startsWith('--vdeMode')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
         if (
             data.info === undefined ||
             (data.info !== undefined && (data.info.appVersion !== appVersion || appMode === 'DEV'))

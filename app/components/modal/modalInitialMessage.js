@@ -89,7 +89,7 @@ class ConnectedModalInitialMessage extends React.Component {
 
     render () {
         const { classes } = this.props;
-        const version = process.argv.filter(arg => arg.startsWith('appVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+        const version = process.argv.filter(arg => arg.startsWith('--vdeVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
         const releaseNotesLink = 'http://defineeditor.com/releases/#version-' + version.replace('.', '-');
 
         return (

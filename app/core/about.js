@@ -107,7 +107,7 @@ const About = () => {
 
     const classes = useAboutStyles();
     // Get release notes link
-    const appVersion = process.argv.filter(arg => arg.startsWith('appVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+    const appVersion = process.argv.filter(arg => arg.startsWith('--vdeVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
     const releaseNotesLink = 'http://defineeditor.com/releases/#version-' + appVersion.replace('.', '-');
 
     return (

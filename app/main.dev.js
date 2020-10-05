@@ -99,9 +99,9 @@ const createWindow = async () => {
             nodeIntegration: true,
             spellcheck: true,
             additionalArguments: [
-                `appVersion: ${app.getVersion()}`,
-                `appName: ${app.name}`,
-                `appMode: ${process.env.NODE_ENV === 'development' ? 'DEV' : 'PROD'}`
+                `--vdeVersion: ${app.getVersion()}`,
+                `--vdeName: ${app.name}`,
+                `--vdeMode: ${process.env.NODE_ENV === 'development' ? 'DEV' : 'PROD'}`
             ],
         },
     });

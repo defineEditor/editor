@@ -59,7 +59,7 @@ function loadState () {
             state.ui.main.showCommentMethodTable = false;
         }
         // If the application was updated/downgraded, start from studies page
-        const appVersion = process.argv.filter(arg => arg.startsWith('appVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+        const appVersion = process.argv.filter(arg => arg.startsWith('--vdeVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
         if (state.ui.main.appVersion !== appVersion) {
             state.ui.main.currentPage = 'studies';
         }

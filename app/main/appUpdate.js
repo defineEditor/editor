@@ -40,10 +40,11 @@ const checkForUpdates = async (mainWindow, eventLabel = 'updateInformation') => 
     if (typeof result === 'object' && result.updateInfo) {
         // Do not switch from current to stable, as stable always has current equivalent
         // Add 0 to properly compare version like 1.1.9 and 1.1.10
+        // TODO remove 01.01.91 condition, as it is used temporarily for 1.1.10 to avoid false-positive update (issue was in 1.1.9 and below)
         let newVersion = result.updateInfo.version.replace(/\b(\d)\b/g, '0$1');
         let currentVersion = appVersion.replace(/\b(\d)\b/g, '0$1');
 
-        if (newVersion > currentVersion && !(currentVersion.includes('current') && !newVersion.includes('current'))) {
+        if (newVersion > currentVersion && !(currentVersion.includes('current') && !newVersion.includes('current')) && !newVersion.startsWith('01.01.91')) {
             mainWindow.webContents.send(eventLabel, true, result);
         } else {
             mainWindow.webContents.send(eventLabel, false);
