@@ -50,7 +50,7 @@ function getEmptyDefineXml ({ standard, defineVersion, study, settings, controll
         defaultOdmAttrs.sourceSystem = settings.sourceSystem;
         defaultOdmAttrs.sourceSystemVersion = settings.sourceSystemVersion;
     } else {
-        defaultOdmAttrs.sourceSystem = process.argv.filter(arg => arg.startsWith('--vdeName')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+        defaultOdmAttrs.sourceSystem = process.argv.filter(arg => arg.startsWith('--vdeName')).map(arg => arg.replace(/.*:\s*(.*)/, '$1').replace(/_/g, ' '))[0];
         defaultOdmAttrs.sourceSystemVersion = process.argv.filter(arg => arg.startsWith('--vdeVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
     }
 
