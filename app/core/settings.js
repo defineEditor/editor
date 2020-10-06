@@ -89,7 +89,7 @@ const styles = theme => ({
 });
 
 const appVersion = process.argv.filter(arg => arg.startsWith('--vdeVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
-const appName = process.argv.filter(arg => arg.startsWith('--vdeName')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+const appName = process.argv.filter(arg => arg.startsWith('--vdeName')).map(arg => arg.replace(/.*:\s*(.*)/, '$1').replace(/_/g, ' '))[0];
 
 const mapDispatchToProps = dispatch => {
     return {

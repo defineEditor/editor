@@ -1,7 +1,7 @@
 {
   "name": "defineEditor",
   "productName": "Visual Define-XML Editor",
-  "version": "1.1.11-current",
+  "version": "1.1.12-current",
   "license": "AGPL-3.0-only",
   "private": "true",
   "description": "Visual Define-XML Editor",
@@ -22,7 +22,7 @@
     "cleanReleaseFolder": "node --trace-warnings -r babel-register ./internals/scripts/CleanReleaseFolder.js",
     "package": "npm run build && electron-builder --publish never",
     "cleanSwp": "find . \\( -name '*.swp' -o -name '*.swo' \\) -delete",
-    "package-debug-all": "DEBUG_PROD=true npm run build && electron-builder --publish never",
+    "package-debug-win": "DEBUG_PROD=true npm run build && electron-builder --win --publish never",
     "package-debug": "DEBUG_PROD=true npm run build && electron-builder --linux --publish never",
     "package-linux": "npm run build && electron-builder --linux && npm run moveReleaseFiles",
     "package-mac": "npm run build && electron-builder --mac && npm run moveReleaseFiles",

@@ -99,9 +99,9 @@ const createWindow = async () => {
             nodeIntegration: true,
             spellcheck: true,
             additionalArguments: [
-                `--vdeVersion: ${app.getVersion()}`,
-                `--vdeName: ${app.name}`,
-                `--vdeMode: ${process.env.NODE_ENV === 'development' ? 'DEV' : 'PROD'}`
+                `--vdeVersion:${app.getVersion()}`,
+                `--vdeName:${app.name.replace(/\s/g, '_')}`,
+                `--vdeMode:${process.env.NODE_ENV === 'development' ? 'DEV' : 'PROD'}`
             ],
         },
     });
@@ -245,7 +245,7 @@ ipcMain.on('openFindInPage', (event, data) => {
             transparent: true,
         });
         mainWindow.setBrowserView(findInPageView);
-        let mainWindowBounds = mainWindow.getBounds();
+        let mainWindowBounds = mainWindow.getContentBounds();
         let findInPageViewBounds = {
             x: Math.max(0, mainWindowBounds.width - 490),
             y: Math.max(0, mainWindowBounds.height - 60),
