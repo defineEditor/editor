@@ -276,6 +276,10 @@ ipcMain.on('findInPageNext', (event, data) => {
     });
     mainWindow.webContents.findInPage(data.text, data.options);
 });
+
+ipcMain.on('findInPageClear', (event, data) => {
+    mainWindow.webContents.stopFindInPage('clearSelection');
+});
 // Print the current view
 ipcMain.on('printCurrentView', (event) => {
     mainWindow.webContents.print();

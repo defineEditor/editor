@@ -14,10 +14,15 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import FindInPage from 'components/utils/findInPage.js';
 import 'typeface-roboto-mono/index.css';
 
+const baseTheme = createMuiTheme();
+
 ReactDOM.render(
-    <FindInPage />,
+    <MuiThemeProvider theme={baseTheme}>
+        <FindInPage />
+    </MuiThemeProvider>,
     document.getElementById('root')
 );
