@@ -14,7 +14,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { ipcRenderer } from 'electron';
-import { MuiThemeProvider, createMuiTheme, makeStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
+import { makeStyles } from '@material-ui/core/styles';
 import { IconButton, Tooltip, Grid, Divider, InputBase } from '@material-ui/core';
 import {
     KeyboardArrowDown as PreviousIcon,
@@ -23,8 +24,6 @@ import {
     Clear as ClearIcon
 } from '@material-ui/icons';
 
-const baseTheme = createMuiTheme();
-
 const getStyles = makeStyles(theme => ({
     button: {
         marginLeft: theme.spacing(2),
@@ -32,10 +31,16 @@ const getStyles = makeStyles(theme => ({
     grid: {
         height: '50px',
         position: 'fixed',
-        border: '2px solid #CCCCCC',
         width: '480px',
-        backgroundImage: 'radial-gradient(#FFFFFF,#DDDDDD)',
         borderRadius: '15px',
+    },
+    normal: {
+        backgroundImage: 'radial-gradient(#FFFFFF,#DDDDDD)',
+        border: '2px solid #CCCCCC',
+    },
+    noMatch: {
+        backgroundColor: '#ff6347',
+        border: '2px solid #ff6347',
     },
     input: {
         marginLeft: theme.spacing(1),
@@ -60,17 +65,33 @@ const FindInPage = (props) => {
         matchCase: false,
     });
 
-    const onKeyDown = (event, result) => {
+    const onKeyDown = (event, searchText) => {
         if (event.keyCode === 27) {
             ipcRenderer.send('closeFindInPage');
-        } else if (event.keyCode === 13 && text !== '') {
-            if (result === undefined || result.matches === undefined) {
-                ipcRenderer.send('findInPageNext', { text, options: { ...options } });
+        } else if (event.keyCode === 13) {
+            // Coming from onKeyDown event
+            if (text === '') {
+                if (result.matches > 0) {
+                    ipcRenderer.send('findInPageClear');
+                }
+                setResult({});
             } else {
-                ipcRenderer.send('findInPageNext', { text, options: { ...options, findNext: true } });
+                if (result === undefined || result.matches === undefined) {
+                    ipcRenderer.send('findInPageNext', { text, options: { ...options } });
+                } else {
+                    ipcRenderer.send('findInPageNext', { text, options: { ...options, findNext: true } });
+                }
             }
-        } else if (event.keyCode === 13 && text === '') {
-            setResult({});
+        } else if (typeof searchText === 'string') {
+            // Coming from onHandleChange event
+            if (searchText.length < 2) {
+                if (result.matches > 0) {
+                    ipcRenderer.send('findInPageClear');
+                    setResult({});
+                }
+            } else {
+                ipcRenderer.send('findInPageNext', { text: searchText, options: { ...options } });
+            }
         }
     };
 
@@ -101,59 +122,59 @@ const FindInPage = (props) => {
     };
 
     const handleChange = (event) => {
-        if (result.matches !== undefined) {
-            setResult({});
-        }
         setText(event.target.value);
+        onKeyDown(event, event.target.value);
     };
 
     return (
-        <MuiThemeProvider theme={baseTheme}>
-            <Grid container alignItems='center' className={classes.grid}>
-                <InputBase
-                    placeholder='Search'
-                    autoFocus
-                    onKeyDown={onKeyDown}
-                    onChange={handleChange}
-                    className={classes.input}
-                    inputProps={{ spellCheck: 'false' }}
-                />
-                <Divider orientation='vertical' flexItem />
-                <Grid className={classes.count}>
-                    { result.matches > 0 &&
-                        result.activeMatchOrdinal + '/' + result.matches
-                    }
-                </Grid>
-                <Divider orientation='vertical' flexItem />
-                <Tooltip title='Match Case' placement='right' enterDelay={500}>
-                    <IconButton
-                        color={options.matchCase ? 'primary' : 'default'}
-                        onClick={handleOption('matchCase')}
-                    >
-                        <MatchCaseIcon />
-                    </IconButton>
-                </Tooltip>
-                <Divider orientation='vertical' flexItem />
-                <IconButton
-                    color="default"
-                    onClick={goTo(true)}
-                >
-                    <PreviousIcon />
-                </IconButton>
-                <IconButton
-                    color="default"
-                    onClick={goTo(false)}
-                >
-                    <NextIcon />
-                </IconButton>
-                <IconButton
-                    color="default"
-                    onClick={close}
-                >
-                    <ClearIcon />
-                </IconButton>
+        <Grid
+            container
+            alignItems='center'
+            className={classNames(classes.grid, result.matches === 0 && text.length > 0 ? classes.noMatch : classes.normal)}
+        >
+            <InputBase
+                placeholder='Search'
+                autoFocus
+                onKeyDown={onKeyDown}
+                onChange={handleChange}
+                className={classes.input}
+                inputProps={{ spellCheck: 'false' }}
+            />
+            <Divider orientation='vertical' flexItem />
+            <Grid className={classes.count}>
+                { result.matches > 0 &&
+                    result.activeMatchOrdinal + '/' + result.matches
+                }
             </Grid>
-        </MuiThemeProvider>
+            <Divider orientation='vertical' flexItem />
+            <Tooltip title='Match Case' placement='right' enterDelay={500}>
+                <IconButton
+                    color={options.matchCase ? 'primary' : 'default'}
+                    onClick={handleOption('matchCase')}
+                >
+                    <MatchCaseIcon />
+                </IconButton>
+            </Tooltip>
+            <Divider orientation='vertical' flexItem />
+            <IconButton
+                color="default"
+                onClick={goTo(true)}
+            >
+                <PreviousIcon />
+            </IconButton>
+            <IconButton
+                color="default"
+                onClick={goTo(false)}
+            >
+                <NextIcon />
+            </IconButton>
+            <IconButton
+                color="default"
+                onClick={close}
+            >
+                <ClearIcon />
+            </IconButton>
+        </Grid>
     );
 };
 
