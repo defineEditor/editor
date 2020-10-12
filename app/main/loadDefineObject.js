@@ -17,7 +17,6 @@ import Jszip from 'jszip';
 import path from 'path';
 import { app } from 'electron';
 import { promisify } from 'util';
-import recreateDefine from 'utils/recreateDefine.js';
 
 const readFile = promisify(fs.readFile);
 
@@ -42,7 +41,7 @@ async function loadDefineObject (mainWindow, defineId, id, pathToFile) {
     if (id === 'import' && files.includes('odm.json')) {
         // Load only the ODM
         let contents = await zip.file('odm.json').async('string');
-        result.odm = recreateDefine(JSON.parse(contents));
+        result.odm = JSON.parse(contents);
         mainWindow.webContents.send('loadDefineObjectForImport', result, id);
     } else if (id !== 'import') {
         await Promise.all(files.map(async (file) => {

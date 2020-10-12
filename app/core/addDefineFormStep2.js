@@ -21,6 +21,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import getSelectionList from 'utils/getSelectionList.js';
 import getEmptyDefineXml from 'utils/getEmptyDefineXml.js';
+import recreateDefine from 'utils/recreateDefine.js';
 
 const styles = theme => ({
     root: {
@@ -137,7 +138,9 @@ class AddDefineFormStep2 extends React.Component {
 
     loadDefineData = (event, data, id) => {
         if (id === 'import' && data.hasOwnProperty('odm')) {
-            this.props.onNext({ defineData: data.odm, name: this.props.defines.byId[this.state.defineId].name });
+            // Recreate the data as copied ODM can be created by an older version
+            let recreatedOdm = recreateDefine(data.odm);
+            this.props.onNext({ defineData: recreatedOdm, name: this.props.defines.byId[this.state.defineId].name });
         }
     }
 
