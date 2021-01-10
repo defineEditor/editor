@@ -66,6 +66,9 @@ const tabs = (() => {
         if (['Datasets', 'Variables', 'Codelists', 'Coded Values', 'Result Displays'].includes(tabNames[i])) {
             settings[i].rowSelect = {};
         }
+        if (['Datasets', 'Variables', 'Codelists', 'Result Displays'].includes(tabNames[i])) {
+            settings[i].addItemTab = ['Datasets', 'Variables'].includes(tabNames[i]) ? 1 : 0;
+        }
         if (['Variables', 'Codelists', 'Coded Values'].includes(tabNames[i])) {
             settings[i].pagination = {};
         }

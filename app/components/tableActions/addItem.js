@@ -32,7 +32,7 @@ import AddVariableFromDefine from 'components/tableActions/addVariableFromDefine
 import AddFromOtherStudy from 'components/tableActions/addFromOtherStudy.js';
 import AddDatasetSimple from 'components/tableActions/addDatasetSimple.js';
 import AddDatasetFromDefine from 'components/tableActions/addDatasetFromDefine.js';
-import { changeCdiscLibraryView } from 'actions/index.js';
+import { changeCdiscLibraryView, addItemChangeTab } from 'actions/index.js';
 
 const styles = theme => ({
     dialog: {
@@ -62,6 +62,7 @@ const styles = theme => ({
 const mapDispatchToProps = dispatch => {
     return {
         changeCdiscLibraryView: (updateObj, mountPoint) => dispatch(changeCdiscLibraryView(updateObj, mountPoint)),
+        addItemChangeTab: (updateObj) => dispatch(addItemChangeTab(updateObj)),
     };
 };
 const mapStateToProps = state => {
@@ -71,6 +72,7 @@ const mapStateToProps = state => {
         enableCdiscLibrary: state.present.settings.cdiscLibrary.enableCdiscLibrary,
         classTypes: state.present.stdConstants.classTypes,
         editorTab: state.present.ui.tabs.tabObjectNames[state.present.ui.tabs.currentTab],
+        currentTab: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].addItemTab,
     };
 };
 
@@ -85,7 +87,6 @@ class AddItemConnected extends React.Component {
             tabNames = ['New Dataset', 'This Define', 'Another Define', 'CDISC Library'];
         }
         this.state = {
-            currentTab: 1,
             tabNames,
         };
     }
@@ -175,20 +176,19 @@ class AddItemConnected extends React.Component {
     }
 
     handleTabChange = (event, currentTab) => {
-        this.setState({ currentTab });
+        this.props.addItemChangeTab({ currentTab });
     }
 
     onKeyDown = (event) => {
         if (event.key === 'Escape' || event.keyCode === 27) {
-            if (this.state.tabNames[this.state.currentTab] !== 'CDISC Library') {
+            if (this.state.tabNames[this.props.currentTab] !== 'CDISC Library') {
                 this.props.onClose();
             }
         }
     }
 
     render () {
-        const { classes, editorTab } = this.props;
-        const { currentTab } = this.state;
+        const { classes, editorTab, currentTab } = this.props;
 
         return (
             <React.Fragment>
@@ -300,8 +300,10 @@ AddItemConnected.propTypes = {
     itemGroupOid: PropTypes.string,
     defineVersion: PropTypes.string.isRequired,
     position: PropTypes.number,
+    currentTab: PropTypes.number.isRequired,
     onClose: PropTypes.func.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
+    addItemChangeTab: PropTypes.func.isRequired,
 };
 
 const AddItem = connect(mapStateToProps, mapDispatchToProps)(AddItemConnected);

@@ -119,23 +119,77 @@ Based on the selection, a number of VLM records will be added with the following
 `
 };
 
-export const CDISC_LIBRARY = {
-    title: 'CDISC Library',
+export const SETTINGS_OTHER = {
+    title: 'Other Settings',
     content: `
-#### About
+#### CDISC Library
+##### About
 CDISC Library is the single, trusted, authoritative source of CDISC standards metadata. It contains information about CDISC Standards as well as CDISC Terminology.
 Visual Define-XML Editor allows to browse CDISC Library and use it for the development of the Define-XML documents.
-#### Credentials
+##### Credentials
 CDISC Library requires credentials in order to access it. These are not the CDISC account credentials and you need to obtain separate credentials for the CDISC Library usage.
-See \`https://www.cdisc.org/cdisc-library\` to find more information about it.
-#### Storage of Credentials
+See https://www.cdisc.org/cdisc-library to find more information about it.
+##### Storage of Credentials
 The credentials are stored on your computer in an encrypted format. If you update your computer or change your user name and the CDISC Library functionality does not work anymore, you need to enter the credentials once again.
-#### Traffic Statistics
+##### Traffic Statistics
 CDISC Library does not provide information on the amounth of traffic used. This statistics is calculated by the application based on the size of the packages sent and received from the CDISC Library API and shall not be relied on. To get the exact traffic usage statistics, consult the CDISC Library support.
-#### CDISC Relay
-If you would like users to avoid the need to specify credentials, consider using CLA Relay \`https://github.com/defineEditor/cla-relay\`. In this case **baseURL** shall contain the URL of the server where CLA-Relay is installed (e.g., \`http://my.server.int:4600/api\`).
-#### Disclaimer
+##### CDISC Relay
+If you would like users to avoid the need to specify credentials, consider using CLA Relay https://github.com/defineEditor/cla-relay. In this case **baseURL** shall contain the URL of the server where CLA-Relay is installed (e.g., \`http://my.server.int:4600/api\`).
+##### Disclaimer
 Visual Define-XML Editor does not instruct how CDISC Library shall be used, nor represents CDISC in any way. Check your CDISC Library account EULA for the details on how CDISC Library can be used. If you have any questions regarding the contents of CDISC Library, please write to the CDISC Library support.
+#### Backup
+Allows to setup periodical backups for all your studies. It does not backup controlled terminilogy.
+Backups are performed once in the **Backup Interval** when the application is launched. In case you do not close VDE, there will be no backups. In the selected folder backup files are saved as backup.**X**.zip, where X is 1...**Number of Backups**. File backup.1.zip corresponds to the most recent backup.
+`
+};
+
+export const SETTINGS_NOTIFICATIONS = {
+    title: 'Notification settings',
+    content: `Controls whether a pop up notification is shown for different events.`
+};
+
+export const SETTINGS_EDITOR = {
+    title: 'Editor settings',
+    content: `
+#### General
+* **Real-time check for special characters in Comments and Methods** - When enabled special and non-standard characters are shown as you type.
+* **Remove trailing spaces from element values when importing Define-XML** - Comment, method description and other elements can have trailing blanks or extra new lines at the end. When the option is enabled all such cases are be fixed when importing a Define-XML file.
+* **Enable programming notes** - Programming note is not a Define-XML attribute. It can be used to provide additional information (such as checks or extra instructions), which should not appear in the final Define-XML file. When enabled, each Dataset and Variable description has an additional programming note attribute.
+* **Allow only ARM metadata editing** - When enabled, it is possible to edit only information related to ARM. Dataset and variable metadata cannot be changed in this case. This option can be used to avoid unintended changes to datasets and variables when working only on the ARM part.
+* **Enable table pagination** - When the option is enabled, tables will show a limited number of rows per page. Disabling this option can slow down the performance of the application in case of a large number of items.
+#### Variables
+* **Populate Name and Label values from Where Clause when Name is missing** - When adding VLM it is required to specify a name for each VLM record. When it is enabled, the name and label values are taken from a corresponding where clause corresponding if possible (simple where clauses like PARAMCD = 'TBILI').
+* **Allow to set length for all data types. In any case a Define-XML file will have Length set only for valid data types** - Allows to set length for datetime types, which formally should not have length per Define-XML specification. Saved Define-XML file must follow the standard, that is why length values are not saved in a Define-XML file in any case.
+* **Allow to set fraction digits for non-float data types** - Fraction digits (SignificantDigits) are expected to be populated only for the float data type. Enabling this option enables fraction digits for other data types, which formally is not prohibited by the Define-XML specification.
+* **When a variable is selected using search or filter, show all VLM records for it** - By default Search box filters only records which match a search criteria. If this option is enabled, when a variable level record matches a search criteria, all VLM records for this variable are shown regardless whether they matched or not the search criteria.
+#### Coded Values
+* **Enable item selection for the Coded Value column** - Controls whether a drop-down menu with suggestions is shown while typing a coded value for a codelist which is connected with a codelist from a controlled terminology.
+* **Remove leading and trailing whitespaces when entering coded values** - Usually (but not always) it is not expected that coded values have trailing and leading blanks. When the option is enabled, they are automatically removed.
+* **Allow to extend non-extensible codelists** - NCI/CDISC Controlled Terminology specify some codelists as non-extensible, meaning they must contain values only from the controlled terminology. If there is a need to violate this rule, this option can be enabled.
+#### Analysis Result
+* **Show line numbers in ARM programming code** - Controls whether line numbers are shown for the ARM code. Does not impact contents of the ARM code in the final Define-XML file.
+`
+};
+
+export const SETTINGS_GENERAL = {
+    title: 'General settings',
+    content: `
+#### General
+* **User Name** - User name used across the system, e.g., in comments.
+* **Controlled Terminology Folder** - This folder can be scanned from the Controlled Terminology window. Click on the question mark icon near the folder icon for more details.
+* **PDF Viewer** - A viewer which is used to open PDF files. PDFium is a recommended option.
+* **Disable UI animations** - Controls whether animations are shown in the user interface.
+* **Check for application updates** - When the application is launched checks whether a new version is available.
+#### Define-XML Save
+* **Create a stylesheet file when it does not exist** - When saving Define-XML file, it is required to have a stylesheet to view it in a browser. If this option is enabled, the application will check if a stylesheet exists and create it if not. See https://github.com/lexjansen/define-xml-2.0-stylesheets for details about the stylesheet.
+* **Write changes to Define-XML file when saving the current Define-XML document** - Controls whether the Define-XML file is updated when clicking on **Save** in the main menu. **Save** button saves the Define-XML in an internal representation and it is recommended to disable this option and explicitly save Define-XML using **Save As** button when you need it.
+* **Remove unused codelists when saving as Define-XML** - There can be codelists, which are not used by any variable. During the development it can be a normal situation, but in the final Define-XML it should be avoided. In case this option is enabled, all such codelists are removed when saving to a Define-XML file.
+#### Define-XML Attributes
+These settings correspond to attribute values from the Define-XML standard. In most situations it is recommended to keep default values. See Define-XML specification (https://wiki.cdisc.org/display/DEFXML2DOT1/ODM+Element) for more details about these attributes.
+* **Default Stylesheet Location** - Path to a stylesheet. This path is always relative to the location of the Define-XML file itself. Values "**define2-0-0.xsl**" or "**./define2-0-0.xsl**" corresponds to the same folder as Define-XML. Value "**../stylesheets/define2-0-0.xsl**" corresponds to a folder stylesheets located in a parent folder relative to the folder in which Define-XML is saved.
+* **Schema Location (v2.0/2.1)** - Location of the schema for a Define-XML file.
+* **Source System** - Name of the system used to generate Define-XML.
+* **Source System Version** - Version of the system used to generate Define-XML.
 `
 };
 

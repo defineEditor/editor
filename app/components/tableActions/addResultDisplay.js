@@ -28,6 +28,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ClearIcon from '@material-ui/icons/Clear';
 import AddResultDisplaySimple from 'components/tableActions/addResultDisplaySimple.js';
 import AddFromOtherStudy from 'components/tableActions/addFromOtherStudy.js';
+import { addItemChangeTab } from 'actions/index.js';
 
 const styles = theme => ({
     dialog: {
@@ -55,9 +56,16 @@ const styles = theme => ({
 });
 
 // Redux functions
+const mapDispatchToProps = dispatch => {
+    return {
+        addItemChangeTab: (updateObj) => dispatch(addItemChangeTab(updateObj)),
+    };
+};
+
 const mapStateToProps = state => {
     return {
         defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
+        currentTab: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].addItemTab,
     };
 };
 
@@ -72,15 +80,8 @@ function TabContainer (props) {
 }
 
 class AddResultDisplayConnected extends React.Component {
-    constructor (props) {
-        super(props);
-        this.state = {
-            currentTab: 0,
-        };
-    }
-
     handleTabChange = (event, currentTab) => {
-        this.setState({ currentTab });
+        this.props.addItemChangeTab({ currentTab });
     }
 
     onKeyDown = (event) => {
@@ -90,8 +91,7 @@ class AddResultDisplayConnected extends React.Component {
     }
 
     render () {
-        const { classes } = this.props;
-        const { currentTab } = this.state;
+        const { classes, currentTab } = this.props;
 
         return (
             <React.Fragment>
@@ -164,7 +164,9 @@ AddResultDisplayConnected.propTypes = {
     defineVersion: PropTypes.string.isRequired,
     position: PropTypes.number,
     onClose: PropTypes.func.isRequired,
+    currentTab: PropTypes.number.isRequired,
+    addItemChangeTab: PropTypes.func.isRequired,
 };
 
-const AddResultDisplay = connect(mapStateToProps)(AddResultDisplayConnected);
+const AddResultDisplay = connect(mapStateToProps, mapDispatchToProps)(AddResultDisplayConnected);
 export default withStyles(styles)(AddResultDisplay);

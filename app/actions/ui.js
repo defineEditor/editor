@@ -43,6 +43,7 @@ import {
     UI_CHANGECTVIEW,
     UI_CHANGECTSETTINGS,
     UI_TOGGLECTCDISCLIBRARY,
+    UI_ADDITEMCHANGETAB,
 } from 'constants/action-types';
 import changeAppTitle from 'utils/changeAppTitle.js';
 
@@ -203,4 +204,9 @@ export const changeCtSettings = (updateObj) => ({
 export const toggleCtCdiscLibrary = (updateObj) => ({
     type: UI_TOGGLECTCDISCLIBRARY,
     updateObj,
+});
+
+export const addItemChangeTab = updateObj => ({
+    type: UI_ADDITEMCHANGETAB,
+    updateObj
 });

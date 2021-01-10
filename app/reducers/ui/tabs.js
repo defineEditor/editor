@@ -26,6 +26,7 @@ import {
     UI_VARTOGGLECDISCLIBRARYITEMGROUPGRIDVIEW,
     UI_VARCHANGECDISCLIBRARYVIEW,
     UI_ITEMGROUPCHANGECDISCLIBRARYVIEW,
+    UI_ADDITEMCHANGETAB,
 } from 'constants/action-types';
 import { ui } from 'constants/initialValues.js';
 
@@ -317,6 +318,18 @@ const toggleCdiscLibraryItemGroupGridView = (state, action) => {
     };
 };
 
+const addItemChangeTab = (state, action) => {
+    let tabIndex = state.currentTab;
+    let newSettings = state.settings.slice();
+    let newSetting = { ...state.settings[tabIndex], addItemTab: action.updateObj.currentTab };
+    newSettings.splice(tabIndex, 1, newSetting);
+
+    return {
+        ...state,
+        settings: newSettings,
+    };
+};
+
 const tabs = (state = initialState, action) => {
     switch (action.type) {
         case UI_CHANGETAB:
@@ -345,6 +358,8 @@ const tabs = (state = initialState, action) => {
             return toggleCdiscLibraryItemGroupGridView(state, action);
         case UI_ITEMGROUPCHANGECDISCLIBRARYVIEW:
             return changeCdiscLibraryView(state, action);
+        case UI_ADDITEMCHANGETAB:
+            return addItemChangeTab(state, action);
         default:
             return state;
     }

@@ -265,7 +265,7 @@ ipcMain.on('openFindInPage', (event, data) => {
 ipcMain.on('closeFindInPage', (event, data) => {
     mainWindow.removeBrowserView(findInPageView);
     mainWindow.webContents.stopFindInPage('clearSelection');
-    findInPageView.destroy();
+    findInPageView.webContents.destroy();
     findInPageView = null;
     mainWindow.webContents.focus();
 });

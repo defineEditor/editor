@@ -29,6 +29,7 @@ import ClearIcon from '@material-ui/icons/Clear';
 import AddCodeListSimple from 'components/tableActions/addCodeListSimple.js';
 import AddCodeListFromCT from 'components/tableActions/addCodeListFromCT.js';
 import AddCodeListFromOtherStudy from 'components/tableActions/addCodeListFromOtherStudy.js';
+import { addItemChangeTab } from 'actions/index.js';
 
 const styles = theme => ({
     dialog: {
@@ -54,10 +55,17 @@ const styles = theme => ({
 });
 
 // Redux functions
+const mapDispatchToProps = dispatch => {
+    return {
+        addItemChangeTab: (updateObj) => dispatch(addItemChangeTab(updateObj)),
+    };
+};
+
 const mapStateToProps = state => {
     return {
         model: state.present.odm.study.metaDataVersion.model,
         ctExists: Object.keys(state.present.stdCodeLists).length > 0,
+        currentTab: state.present.ui.tabs.settings[state.present.ui.tabs.currentTab].addItemTab,
     };
 };
 
@@ -72,15 +80,8 @@ function TabContainer (props) {
 }
 
 class AddCodeListConnected extends React.Component {
-    constructor (props) {
-        super(props);
-        this.state = {
-            currentTab: 0,
-        };
-    }
-
     handleTabChange = (event, currentTab) => {
-        this.setState({ currentTab });
+        this.props.addItemChangeTab({ currentTab });
     }
 
     onKeyDown = (event) => {
@@ -90,8 +91,7 @@ class AddCodeListConnected extends React.Component {
     }
 
     render () {
-        const { classes } = this.props;
-        const { currentTab } = this.state;
+        const { classes, currentTab } = this.props;
 
         return (
             <React.Fragment>
@@ -174,7 +174,9 @@ AddCodeListConnected.propTypes = {
     position: PropTypes.number,
     ctExists: PropTypes.bool,
     onClose: PropTypes.func.isRequired,
+    currentTab: PropTypes.number.isRequired,
+    addItemChangeTab: PropTypes.func.isRequired,
 };
 
-const AddCodeList = connect(mapStateToProps)(AddCodeListConnected);
+const AddCodeList = connect(mapStateToProps, mapDispatchToProps)(AddCodeListConnected);
 export default withStyles(styles)(AddCodeList);
