@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
         width: 200,
         margin: theme.spacing(1)
     },
-    cdiscLibraryButton: {
+    actionButton: {
         marginRight: theme.spacing(3)
     },
 }));
@@ -183,7 +183,7 @@ const Editor = (props) => {
                         color='default'
                         disabled={!props.state.settings.cdiscLibrary.enableCdiscLibrary}
                         onClick={props.checkCdiscLibraryConnection}
-                        className={classes.cdiscLibraryButton}
+                        className={classes.actionButton}
                     >
                         Check Connection
                     </Button>
@@ -192,7 +192,7 @@ const Editor = (props) => {
                         color='default'
                         disabled={!props.state.settings.cdiscLibrary.enableCdiscLibrary}
                         onClick={props.cleanCdiscLibraryCache}
-                        className={classes.cdiscLibraryButton}
+                        className={classes.actionButton}
                     >
                         Clean Cache
                     </Button>
@@ -216,7 +216,7 @@ const Editor = (props) => {
                                         className={classes.switch}
                                     />
                                 }
-                                label='Enable Backups'
+                                label='Enable Automatic Backups'
                             />
                         </FormGroup>
                     </Grid>
@@ -263,6 +263,24 @@ const Editor = (props) => {
                             helperText='Number of backup copies stored'
                             className={classes.textFieldNumber}
                         />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button
+                            variant='contained'
+                            color='default'
+                            onClick={props.makeBackup}
+                            className={classes.actionButton}
+                        >
+                            Make Backup
+                        </Button>
+                        <Button
+                            variant='contained'
+                            color='default'
+                            onClick={props.loadBackup}
+                            className={classes.actionButton}
+                        >
+                            Load Backup
+                        </Button>
                     </Grid>
                 </Grid>
             </Grid>
