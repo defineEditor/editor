@@ -174,7 +174,7 @@ class ConnectedApp extends Component {
             compareDate = new Date(compareDate.setDate(lastBackupDate.getDate() + this.props.backup.backupInterval));
             // Perform backup once per time interval
             if ((new Date() > compareDate)) {
-                ipcRenderer.send('backup', this.props.backup);
+                ipcRenderer.send('autoBackup', this.props.backup);
             }
         }
     }

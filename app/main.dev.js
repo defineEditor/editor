@@ -285,16 +285,16 @@ ipcMain.on('printCurrentView', (event) => {
     mainWindow.webContents.print();
 });
 // Automatic backups
-ipcMain.on('backup', (event, backupOptions) => {
+ipcMain.on('autoBackup', (event, backupOptions) => {
     autoBackup(mainWindow, backupOptions);
 });
 // Make a backup manually
-ipcMain.on('makeBackup', (event) => {
-    makeBackup(mainWindow);
+ipcMain.on('makeBackup', (event, backupOptions) => {
+    makeBackup(mainWindow, backupOptions);
 });
 // Load a backup
-ipcMain.on('loadBackup', (event) => {
-    loadBackup(mainWindow);
+ipcMain.on('loadBackup', (event, backupOptions) => {
+    loadBackup(mainWindow, backupOptions);
 });
 // Quit the application
 ipcMain.on('appQuit', (event) => {

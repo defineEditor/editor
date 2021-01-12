@@ -28,9 +28,10 @@ const mkdir = promisify(fs.mkdir);
 const rmdir = promisify(fs.rmdir);
 
 export const autoBackup = async (mainWindow, backupOptions) => {
-    const { backupFolder, numBackups } = backupOptions;
+    const { backupFolder, numBackups, backupControlledTerminology } = backupOptions;
     const pathToUserData = app.getPath('userData');
     const pathToStudies = path.join(pathToUserData, 'defines');
+    const pathToCT = path.join(pathToUserData, 'controlledTerminology');
 
     if (backupFolder === '' || !fs.existsSync(backupFolder)) {
         throw Error('Backup folder ' + backupFolder + ' does not exist.');
@@ -96,12 +97,19 @@ export const autoBackup = async (mainWindow, backupOptions) => {
 
     archive.append(fs.createReadStream(path.join(pathToUserData, 'state.json')), { name: 'state.json' });
     archive.directory(pathToStudies, 'studies');
+    if (fs.existsSync(path.join(pathToUserData, 'stdConstantExtensions.json'))) {
+        archive.append(fs.createReadStream(path.join(pathToUserData, 'stdConstantExtensions.json')), { name: 'stdConstantExtensions.json' });
+    }
+    if (backupControlledTerminology && fs.existsSync(pathToCT)) {
+        archive.directory(pathToCT, 'controlledTerminology');
+    }
 
     archive.finalize();
 };
 
-export const makeBackup = async (mainWindow) => {
+export const makeBackup = async (mainWindow, backupOptions) => {
     // Request path to backup
+    const { backupControlledTerminology } = backupOptions;
     let filters = [
         { name: 'ZIP files', extensions: ['zip'] },
     ];
@@ -120,6 +128,7 @@ export const makeBackup = async (mainWindow) => {
         if (!canceled && filePath !== undefined) {
             const pathToUserData = app.getPath('userData');
             const pathToStudies = path.join(pathToUserData, 'defines');
+            const pathToCT = path.join(pathToUserData, 'controlledTerminology');
             // Create a new backup
             const archive = archiver('zip', {
                 zlib: { level: 0 }
@@ -139,6 +148,12 @@ export const makeBackup = async (mainWindow) => {
 
             archive.append(fs.createReadStream(path.join(pathToUserData, 'state.json')), { name: 'state.json' });
             archive.directory(pathToStudies, 'studies');
+            if (fs.existsSync(path.join(pathToUserData, 'stdConstantExtensions.json'))) {
+                archive.append(fs.createReadStream(path.join(pathToUserData, 'stdConstantExtensions.json')), { name: 'stdConstantExtensions.json' });
+            }
+            if (backupControlledTerminology && fs.existsSync(pathToCT)) {
+                archive.directory(pathToCT, 'controlledTerminology');
+            }
 
             archive.finalize();
         }
@@ -160,7 +175,7 @@ export const loadBackup = async (mainWindow, backupOptions) => {
         }
     );
 
-    if (confirmationResult && confirmationResult.reponse !== 0) {
+    if (confirmationResult && confirmationResult.response !== 0) {
         return;
     }
 
@@ -185,6 +200,7 @@ export const loadBackup = async (mainWindow, backupOptions) => {
         try {
             const pathToUserData = app.getPath('userData');
             const pathToStudies = path.join(pathToUserData, 'defines');
+            const pathToCT = path.join(pathToUserData, 'controlledTerminology');
             // const pathToStudies = path.join(pathToUserData, 'defines');
             let data = await readFile(filePaths[0]);
 
@@ -195,9 +211,16 @@ export const loadBackup = async (mainWindow, backupOptions) => {
             // Write state.json
             if (!files.includes('state.json')) {
                 throw Error('Invalid backup file');
+            } else {
+                const fileData = await zip.file('state.json').async('nodebuffer');
+                await writeFile(path.join(pathToUserData, 'state.json'), fileData);
             }
-            const stateData = await zip.file('state.json').async('nodebuffer');
-            await writeFile(path.join(pathToUserData, 'state.json'), stateData);
+
+            // Write stdConstantExtensions.json
+            if (files.includes('stdConstantExtensions.json')) {
+                const fileData = await zip.file('stdConstantExtensions.json').async('nodebuffer');
+                await writeFile(path.join(pathToUserData, 'stdConstantExtensions.json'), fileData);
+            }
 
             // Clean up the current studies folder
             if (fs.existsSync(pathToStudies)) {
@@ -214,6 +237,23 @@ export const loadBackup = async (mainWindow, backupOptions) => {
                     await writeFile(path.join(pathToStudies, file.replace('studies/', '')), contents);
                 }
             }));
+
+            // If CT folder exists, extract it
+            if (files.some(file => /controlledTerminology\//.test(file))) {
+                if (fs.existsSync(pathToCT)) {
+                    await rmdir(pathToCT, { recursive: true });
+                    await mkdir(pathToCT, { recursive: true });
+                } else {
+                    await mkdir(pathToCT, { recursive: true });
+                }
+                // Write CT
+                await Promise.all(files.map(async (file) => {
+                    if (/controlledTerminology\/.+/.test(file)) {
+                        let contents = await zip.file(file).async('nodebuffer');
+                        await writeFile(path.join(pathToCT, file.replace('controlledTerminology/', '')), contents);
+                    }
+                }));
+            }
 
             app.relaunch();
             app.exit();

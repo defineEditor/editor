@@ -210,6 +210,21 @@ const Editor = (props) => {
                             <FormControlLabel
                                 control={
                                     <Switch
+                                        checked={props.state.settings.backup.backupControlledTerminology}
+                                        onChange={props.handleChange('backup', 'backupControlledTerminology')}
+                                        color='primary'
+                                        className={classes.switch}
+                                    />
+                                }
+                                label='Backup Controlled Terminology'
+                            />
+                        </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormGroup>
+                            <FormControlLabel
+                                control={
+                                    <Switch
                                         checked={props.state.settings.backup.enableBackup}
                                         onChange={props.handleChange('backup', 'enableBackup')}
                                         color='primary'

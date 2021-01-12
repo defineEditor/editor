@@ -106,11 +106,11 @@ class ConnectedSettings extends React.Component {
     };
 
     makeBackup = () => {
-        ipcRenderer.send('makeBackup');
+        ipcRenderer.send('makeBackup', this.state.settings.backup);
     };
 
     loadBackup = () => {
-        ipcRenderer.send('loadBackup');
+        ipcRenderer.send('loadBackup', this.state.settings.backup);
     };
 
     handleChange = (category, name) => (event, checked) => {
@@ -163,6 +163,7 @@ class ConnectedSettings extends React.Component {
             'checkForCLUpdates',
             'oAuth2',
             'enableBackup',
+            'backupControlledTerminology',
         ].includes(name) || category === 'popUp') {
             this.setState({
                 settings: { ...this.state.settings,
