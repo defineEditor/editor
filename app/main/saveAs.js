@@ -210,6 +210,11 @@ const saveAs = async (mainWindow, data, originalData, options) => {
             defaultPath: options.pathToLastFile,
         }
     );
+    // In case there is no extension specified in the filename - use xml
+    if (result && result.filePath !== undefined && path.extname(result.filePath) === '') {
+        result.filePath = result.filePath + '.xml';
+    }
+
     saveFile(mainWindow, data, originalData, options, saveAsPlugins, result);
 };
 

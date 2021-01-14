@@ -18,6 +18,7 @@ import Jszip from 'jszip';
 import { dialog, app } from 'electron';
 import path from 'path';
 import { promisify } from 'util';
+import validateState from './validateState.js';
 
 const readdir = promisify(fs.readdir);
 const unlink = promisify(fs.unlink);
@@ -68,7 +69,7 @@ export const autoBackup = async (mainWindow, backupOptions) => {
 
     // Remove those exceeding the backup number
     await Promise.all(filesToRemove.map(async (file) => {
-        unlink(path.join(backupFolder, file));
+        await unlink(path.join(backupFolder, file));
     }));
 
     // Rename the rest
@@ -201,7 +202,7 @@ export const loadBackup = async (mainWindow, backupOptions) => {
             const pathToUserData = app.getPath('userData');
             const pathToStudies = path.join(pathToUserData, 'defines');
             const pathToCT = path.join(pathToUserData, 'controlledTerminology');
-            // const pathToStudies = path.join(pathToUserData, 'defines');
+            const pathToState = path.join(pathToUserData, 'state.json');
             let data = await readFile(filePaths[0]);
 
             let zip = new Jszip();
@@ -212,8 +213,12 @@ export const loadBackup = async (mainWindow, backupOptions) => {
             if (!files.includes('state.json')) {
                 throw Error('Invalid backup file');
             } else {
+                if (fs.existsSync(pathToState)) {
+                    // Keep the previous version in case validation fails
+                    await rename(pathToState, pathToState + '.toDelete');
+                }
                 const fileData = await zip.file('state.json').async('nodebuffer');
-                await writeFile(path.join(pathToUserData, 'state.json'), fileData);
+                await writeFile(pathToState, fileData);
             }
 
             // Write stdConstantExtensions.json
@@ -222,9 +227,9 @@ export const loadBackup = async (mainWindow, backupOptions) => {
                 await writeFile(path.join(pathToUserData, 'stdConstantExtensions.json'), fileData);
             }
 
-            // Clean up the current studies folder
+            // Rename the current studies folder
             if (fs.existsSync(pathToStudies)) {
-                await rmdir(pathToStudies, { recursive: true });
+                await rename(pathToStudies, pathToStudies + 'toDelete');
                 await mkdir(pathToStudies, { recursive: true });
             } else {
                 await mkdir(pathToStudies, { recursive: true });
@@ -241,7 +246,7 @@ export const loadBackup = async (mainWindow, backupOptions) => {
             // If CT folder exists, extract it
             if (files.some(file => /controlledTerminology\//.test(file))) {
                 if (fs.existsSync(pathToCT)) {
-                    await rmdir(pathToCT, { recursive: true });
+                    await rename(pathToCT, pathToCT + 'toDelete');
                     await mkdir(pathToCT, { recursive: true });
                 } else {
                     await mkdir(pathToCT, { recursive: true });
@@ -253,6 +258,37 @@ export const loadBackup = async (mainWindow, backupOptions) => {
                         await writeFile(path.join(pathToCT, file.replace('controlledTerminology/', '')), contents);
                     }
                 }));
+            }
+
+            // Validate the new state;
+            let validationResult = await validateState({ cleanDefines: true, cleanCodeLists: true });
+
+            if (validationResult.passed === false) {
+                // Restore files
+                if (fs.existsSync(pathToStudies + 'toDelete')) {
+                    await rmdir(pathToStudies, { recursive: true });
+                    await rename(pathToStudies + 'toDelete', pathToStudies);
+                }
+                if (fs.existsSync(pathToCT + 'toDelete')) {
+                    await rmdir(pathToCT, { recursive: true });
+                    await rename(pathToCT + 'toDelete', pathToCT);
+                }
+                if (fs.existsSync(pathToState + '.toDelete')) {
+                    await unlink(pathToState);
+                    await rename(pathToState + '.toDelete', pathToState);
+                }
+                throw Error(validationResult.issues.join(' '));
+            }
+
+            // Remove previous versions
+            if (fs.existsSync(pathToStudies + 'toDelete')) {
+                await rmdir(pathToStudies + 'toDelete', { recursive: true });
+            }
+            if (fs.existsSync(pathToCT + 'toDelete')) {
+                await rmdir(pathToCT + 'toDelete', { recursive: true });
+            }
+            if (fs.existsSync(pathToState + '.toDelete')) {
+                await unlink(pathToState + '.toDelete');
             }
 
             app.relaunch();
