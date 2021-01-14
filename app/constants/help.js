@@ -138,8 +138,8 @@ If you would like users to avoid the need to specify credentials, consider using
 ##### Disclaimer
 Visual Define-XML Editor does not instruct how CDISC Library shall be used, nor represents CDISC in any way. Check your CDISC Library account EULA for the details on how CDISC Library can be used. If you have any questions regarding the contents of CDISC Library, please write to the CDISC Library support.
 #### Backup
-Allows to setup periodical backups for all your studies. It does not backup controlled terminilogy.
-Backups are performed once in the **Backup Interval** when the application is launched. In case you do not close VDE, there will be no backups. In the selected folder backup files are saved as backup.**X**.zip, where X is 1...**Number of Backups**. File backup.1.zip corresponds to the most recent backup.
+* **Backup Controlled Terminology** - Controls whether Controlled Terminology is included in a backup. CT files are relatively large and will significantly increase backup size. As CT is freely available for download, it is recommended not to include it in backups.
+* **Enable Automatic Backups** - Allows to setup periodical backups for all your studies. Backups are performed once in the **Backup Interval** when the application is launched. In case you do not close VDE, there will be no backups. In the selected folder backup files are saved as backup.**X**.zip, where X is 1...**Number of Backups**. File **backup.1.zip** corresponds to the most recent backup.
 `
 };
 

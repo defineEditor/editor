@@ -34,7 +34,7 @@ const openWithStylesheet = async (mainWindow, odm) => {
     let defineXml = createDefine(odmUpdated, odmUpdated.study.metaDataVersion.defineVersion);
     await writeFile(tempDefine, defineXml);
     Menu.setApplicationMenu(null);
-    let pdfWindow = new BrowserWindow({
+    let newWindow = new BrowserWindow({
         webPreferences: { webSecurity: false },
         show: false,
     });
@@ -48,17 +48,17 @@ const openWithStylesheet = async (mainWindow, odm) => {
     });
     loadingWindow.loadFile('static/stylesheets/loadingCat.html');
 
-    pdfWindow.webContents.on('did-finish-load', () => {
-        pdfWindow.show();
-        pdfWindow.maximize();
+    newWindow.webContents.on('did-finish-load', () => {
+        newWindow.show();
+        newWindow.maximize();
         loadingWindow.close();
         loadingWindow = null;
     });
-    pdfWindow.setMenu(null);
-    pdfWindow.loadURL('file://' + tempDefine);
+    newWindow.setMenu(null);
+    newWindow.loadURL('file://' + tempDefine);
 
-    pdfWindow.on('closed', () => {
-        pdfWindow = null;
+    newWindow.on('closed', () => {
+        newWindow = null;
         fs.unlink(tempDefine, (err) => { if (err) { throw Error(err); } });
     });
 };

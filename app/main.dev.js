@@ -38,7 +38,7 @@ import openFileInExternalApp from './main/openFileInExternalApp.js';
 import checkPreinstalledPlugins from './main/checkPreinstalledPlugins.js';
 import createMenu from './menu/menu.js';
 import exportReviewComments from './main/exportReviewComments.js';
-import backup from './main/backup.js';
+import { makeBackup, loadBackup, autoBackup } from './main/backup.js';
 import { checkForUpdates, downloadUpdate } from './main/appUpdate.js';
 
 let mainWindow = null;
@@ -284,9 +284,17 @@ ipcMain.on('findInPageClear', (event, data) => {
 ipcMain.on('printCurrentView', (event) => {
     mainWindow.webContents.print();
 });
-// Make a backup
-ipcMain.on('backup', (event, backupOptions) => {
-    backup(mainWindow, backupOptions);
+// Automatic backups
+ipcMain.on('autoBackup', (event, backupOptions) => {
+    autoBackup(mainWindow, backupOptions);
+});
+// Make a backup manually
+ipcMain.on('makeBackup', (event, backupOptions) => {
+    makeBackup(mainWindow, backupOptions);
+});
+// Load a backup
+ipcMain.on('loadBackup', (event, backupOptions) => {
+    loadBackup(mainWindow, backupOptions);
 });
 // Quit the application
 ipcMain.on('appQuit', (event) => {

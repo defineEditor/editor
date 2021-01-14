@@ -105,6 +105,14 @@ class ConnectedSettings extends React.Component {
         }
     };
 
+    makeBackup = () => {
+        ipcRenderer.send('makeBackup', this.state.settings.backup);
+    };
+
+    loadBackup = () => {
+        ipcRenderer.send('loadBackup', this.state.settings.backup);
+    };
+
     handleChange = (category, name) => (event, checked) => {
         if (category === 'defaultSource') {
             if (this.state.defaultSource === false && this.state.settings.define && this.state.settings.define.sourceSystem !== appName) {
@@ -155,6 +163,7 @@ class ConnectedSettings extends React.Component {
             'checkForCLUpdates',
             'oAuth2',
             'enableBackup',
+            'backupControlledTerminology',
         ].includes(name) || category === 'popUp') {
             this.setState({
                 settings: { ...this.state.settings,
@@ -328,6 +337,8 @@ class ConnectedSettings extends React.Component {
                 checkCdiscLibraryConnection={this.checkCdiscLibraryConnection}
                 handleClickShowEncyptedValue={this.handleClickShowEncyptedValue}
                 cleanCdiscLibraryCache={this.cleanCdiscLibraryCache}
+                makeBackup={this.makeBackup}
+                loadBackup={this.loadBackup}
                 save={this.save}
                 cancel={this.cancel}
                 settingsNotChanged={settingsNotChanged}

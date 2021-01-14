@@ -231,6 +231,7 @@ const define = {
 
 const backup = {
     enableBackup: false,
+    backupControlledTerminology: false,
     backupFolder: '',
     backupInterval: 7,
     numBackups: 5,
