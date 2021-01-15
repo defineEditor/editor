@@ -226,8 +226,8 @@ ipcMain.on('downloadUpdate', (event) => {
     downloadUpdate(mainWindow);
 });
 // Load metadata from XPT files
-ipcMain.on('loadXptMetadata', (event) => {
-    loadXptMetadata(mainWindow);
+ipcMain.on('loadXptMetadata', (event, options) => {
+    loadXptMetadata(mainWindow, options);
 });
 // Derive metadata from XPT files
 ipcMain.on('deriveXptMetadata', (event, data) => {

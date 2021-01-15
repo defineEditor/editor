@@ -15,6 +15,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import { ipcRenderer } from 'electron';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import deepEqual from 'fast-deep-equal';
 import Dialog from '@material-ui/core/Dialog';
@@ -25,7 +26,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItem from '@material-ui/core/ListItem';
 import List from '@material-ui/core/List';
 import LowPriority from '@material-ui/icons/LowPriority';
-import { FaSortAlphaUp, FaSortAlphaDown, FaBook } from 'react-icons/fa';
+import { FaSortAlphaUp, FaSortAlphaDown, FaBook, FaTable } from 'react-icons/fa';
 import Fab from '@material-ui/core/Fab';
 import Grid from '@material-ui/core/Grid';
 import SaveCancel from 'editors/saveCancel.js';
@@ -116,6 +117,18 @@ class GeneralOrderEditor extends React.Component {
         };
     }
 
+    componentDidMount () {
+        if (this.props.xptOrder) {
+            ipcRenderer.on('xptMetadata', this.sortAsInXpt);
+        }
+    }
+
+    componentWillUnmount () {
+        if (this.props.xptOrder) {
+            ipcRenderer.removeListener('xptMetadata', this.sortAsInXpt);
+        }
+    }
+
     static getDerivedStateFromProps (nextProps, prevState) {
         // Store prevUserId in state so we can compare when props change.
         // Clear out any previously-loaded user data (so we don't render stale stuff).
@@ -172,6 +185,45 @@ class GeneralOrderEditor extends React.Component {
         sortedItems.sort((item1, item2) => {
             let item1Order = classOrder.indexOf(item1.class);
             let item2Order = classOrder.indexOf(item2.class);
+            if (item1Order === item2Order) {
+                if (item1.name < item2.name) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            } else {
+                return item1Order - item2Order;
+            }
+        });
+
+        this.setState({
+            items: sortedItems,
+        });
+    }
+
+    sortAsInXptInit = () => {
+        ipcRenderer.send('loadXptMetadata');
+    }
+
+    sortAsInXpt = (event, data) => {
+        let sortedItems = this.state.items.slice();
+        let dsMetadata = Object.values(data)[0];
+        // If XPT could not be loaded
+        if (dsMetadata && dsMetadata.loadFailed === true) {
+            return;
+        }
+
+        let itemOrder = dsMetadata.varMetadata.map(item => item.name);
+        sortedItems.sort((item1, item2) => {
+            let item1Order = itemOrder.indexOf(item1.name);
+            let item2Order = itemOrder.indexOf(item2.name);
+            // In case variable is not in the dataset, put it to the end
+            if (item1Order === -1) {
+                item1Order = 99999;
+            }
+            if (item2Order === -1) {
+                item2Order = 99999;
+            }
             if (item1Order === item2Order) {
                 if (item1.name < item2.name) {
                     return -1;
@@ -246,20 +298,31 @@ class GeneralOrderEditor extends React.Component {
                             </Grid>
                             <Grid item>
                                 <Grid container spacing={0} alignItems='center' justify='flex-end'>
-                                    <Grid item>
-                                        { this.props.classTypes !== undefined && (
+                                    { this.props.classTypes !== undefined && (
+                                        <Grid item>
                                             <Tooltip title='Sort per Define-XML Specification' placement='bottom' enterDelay={700}>
                                                 <Fab size='small' color='default' onClick={this.sortPerSpecification} className={classes.icon}>
                                                     <FaBook />
                                                 </Fab>
                                             </Tooltip>
-                                        )}
+                                        </Grid>
+                                    )}
+                                    { this.props.xptOrder === true && (
+                                        <Grid item>
+                                            <Tooltip title='Sort as in XPT' placement='bottom' enterDelay={700}>
+                                                <Fab size='small' color='default' onClick={this.sortAsInXptInit} className={classes.icon}>
+                                                    <FaTable />
+                                                </Fab>
+                                            </Tooltip>
+                                        </Grid>
+                                    )}
+                                    <Grid item>
+                                        <Tooltip title={ this.state.sortAscending ? 'Sort Ascending' : 'Sort Descending' } placement='bottom' enterDelay={700}>
+                                            <Fab size='small' color='default' onClick={this.sortAlphabetically} className={classes.icon}>
+                                                { this.state.sortAscending ? <FaSortAlphaDown /> : <FaSortAlphaUp /> }
+                                            </Fab>
+                                        </Tooltip>
                                     </Grid>
-                                    <Tooltip title={ this.state.sortAscending ? 'Sort Ascending' : 'Sort Descending' } placement='bottom' enterDelay={700}>
-                                        <Fab size='small' color='default' onClick={this.sortAlphabetically} className={classes.icon}>
-                                            { this.state.sortAscending ? <FaSortAlphaDown /> : <FaSortAlphaUp /> }
-                                        </Fab>
-                                    </Tooltip>
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -297,6 +360,7 @@ GeneralOrderEditor.propTypes = {
     noButton: PropTypes.bool,
     onCancel: PropTypes.func,
     disabled: PropTypes.bool,
+    xptOrder: PropTypes.bool,
 };
 
 export default withStyles(styles)(GeneralOrderEditor);

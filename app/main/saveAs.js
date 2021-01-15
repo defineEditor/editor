@@ -81,7 +81,7 @@ const saveUsingStylesheet = async (savePath, odm, callback) => {
         show: false,
         webPreferences: { webSecurity: false },
     });
-    hiddenWindow.loadURL('file://' + tempDefine).then(async () => {
+    hiddenWindow.webContents.on('did-finish-load', async () => {
         if (savePath.endsWith('html')) {
             await hiddenWindow.webContents.savePage(tempHtml, 'HTMLComplete');
             updateHtml(tempHtml, savePath, callback);
@@ -98,12 +98,16 @@ const saveUsingStylesheet = async (savePath, odm, callback) => {
             unlink(tempDefine);
             callback();
         }
-    }).catch(err => {
-        throw err;
     });
 
     hiddenWindow.on('closed', () => {
         hiddenWindow = null;
+    });
+
+    hiddenWindow.loadURL('file://' + tempDefine).then(async () => {
+        // Nothing
+    }).catch(err => {
+        throw err;
     });
 };
 
@@ -215,7 +219,11 @@ const saveAs = async (mainWindow, data, originalData, options) => {
         result.filePath = result.filePath + '.xml';
     }
 
-    saveFile(mainWindow, data, originalData, options, saveAsPlugins, result);
+    try {
+        saveFile(mainWindow, data, originalData, options, saveAsPlugins, result);
+    } catch (error) {
+        mainWindow.send('snackbar', { type: 'error', message: error.message });
+    }
 };
 
 module.exports = saveAs;

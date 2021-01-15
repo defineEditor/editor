@@ -82,7 +82,7 @@ const LoadFromXptStep1 = (props) => {
     };
 
     const handleSelect = () => {
-        ipcRenderer.send('loadXptMetadata');
+        ipcRenderer.send('loadXptMetadata', { multiSelections: true });
     };
 
     useEffect(() => {

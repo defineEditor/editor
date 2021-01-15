@@ -44,13 +44,17 @@ const readContents = async (mainWindow, openDialogResult) => {
     }
 };
 
-const loadXptMetadata = async (mainWindow) => {
+const loadXptMetadata = async (mainWindow, options = {}) => {
+    let properties = ['openFile'];
+    if (options.multiSelections) {
+        properties.push('multiSelections');
+    }
     let result = await dialog.showOpenDialog(
         mainWindow,
         {
             title: 'Load XPT Metadata',
             filters: [{ name: 'XPT', extensions: ['xpt'] }],
-            properties: ['openFile', 'multiSelections']
+            properties
         }
     );
     readContents(mainWindow, result);
