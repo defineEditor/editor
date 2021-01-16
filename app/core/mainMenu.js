@@ -17,7 +17,6 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
-import store from 'store/index.js';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -39,12 +38,11 @@ import Search from '@material-ui/icons/Search';
 import Review from '@material-ui/icons/RemoveRedEye';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import Description from '@material-ui/icons/Description';
-import OpenInBrowser from '@material-ui/icons/OpenInBrowser';
 import Close from '@material-ui/icons/Close';
 import Assignment from '@material-ui/icons/Assignment';
 import Edit from '@material-ui/icons/Edit';
 import Public from '@material-ui/icons/Public';
-import { getUpdatedDefineBeforeSave } from 'utils/getUpdatedDefineBeforeSave.js';
+import { FaTools } from 'react-icons/fa';
 import sendDefineObject from 'utils/sendDefineObject.js';
 import saveState from 'utils/saveState.js';
 import {
@@ -68,6 +66,10 @@ const styles = theme => ({
     },
     reviewModeSwitch: {
         margin: 'none',
+    },
+    faIcon: {
+        marginLeft: '3px',
+        fontSize: '18px',
     },
     update: {
         backgroundColor: '#42A5F5',
@@ -179,21 +181,19 @@ class ConnectedMainMenu extends React.Component {
         this.props.changePage({ page: 'settings' });
     }
 
+    openTools = () => {
+        this.props.openModal({
+            type: 'DEFINE_TOOLS'
+        });
+        this.props.toggleMainMenu();
+    }
+
     onUpdate = () => {
         this.props.openModal({
             type: 'UPDATE_APPLICATION',
             props: { releaseNotes: this.props.updateInfo.releaseNotes, version: this.props.updateInfo.version }
         });
     }
-
-    openWithStylesheet = (event) => {
-        let fullState = store.getState();
-        let state = fullState.present;
-        const { odm } = getUpdatedDefineBeforeSave(state.odm);
-        // Get number of datasets/codelists/variables
-        ipcRenderer.send('openWithStylesheet', odm);
-        this.props.toggleMainMenu();
-    };
 
     render () {
         const { classes } = this.props;
@@ -305,11 +305,11 @@ class ConnectedMainMenu extends React.Component {
                                         <ListItemText primary='Comments/Methods'/>
                                     </ListItem>
                                 ), (
-                                    <ListItem button key='stylesheetview' onClick={this.openWithStylesheet}>
+                                    <ListItem button key='tools' onClick={this.openTools}>
                                         <ListItemIcon>
-                                            <OpenInBrowser/>
+                                            <FaTools className={classes.faIcon}/>
                                         </ListItemIcon>
-                                        <ListItemText primary='View with stylesheet'/>
+                                        <ListItemText primary='Tools'/>
                                     </ListItem>
                                 ), (
                                     <ListItem button key='reviewModeToggle' onClick={() => { this.props.toggleReviewMode(); }}>

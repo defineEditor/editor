@@ -38,6 +38,7 @@ import Paper from '@material-ui/core/Paper';
     @property {array} pagination.rowsPerPage Number of rows per page
     @property {func} pagination.setRowsPerPage Function to set rowsPerPage
     @property {boolean} pagination Controls whether pagination is enabled
+    @property {boolean} disableToolbar Controls whether toolbar is show
     @property {object} header Array with header settings
     @property {string} header.id Property containing column value
     @property {string} header.label  Column label
@@ -345,7 +346,7 @@ export default function GeneralTable (props) {
                         {customToolbar({ header, data })}
                     </Grid>
                 )}
-                { (!disableToolbar || selected.length > 0) && !customToolbar && (
+                { !disableToolbar && selected.length > 0 && !customToolbar && (
                     <Grid item className={classes.toolbarGridItem}>
                         <GeneralTableToolbar numSelected={selected.length} title={title} />
                     </Grid>

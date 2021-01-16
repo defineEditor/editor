@@ -21,6 +21,7 @@ import {
     ADD_ITEMGROUPS,
     UPD_LEAFS,
     ADD_IMPORTMETADATA,
+    DEL_DUPLICATEMETHODS,
 } from 'constants/action-types';
 import { Method, TranslatedText } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
@@ -506,6 +507,28 @@ const addImportMetadata = (state, action) => {
     }
 };
 
+const deleteDuplicateMethods = (state, action) => {
+    const duplicates = action.updateObj.duplicates;
+    const unitedSources = action.updateObj.unitedSources;
+    if (Object.keys(duplicates).length > 0) {
+        let newState = { ...state };
+        // Remove duplicate methods
+        const allRemovedMethodIds = Object.values(duplicates).reduce((acc, curVal) => acc.concat(curVal), []);
+        allRemovedMethodIds.forEach(id => {
+            if (newState[id] !== undefined) {
+                delete newState[id];
+            }
+        });
+        // Update sources for remaining methods
+        Object.keys(unitedSources).forEach(id => {
+            newState[id] = { ...newState[id], sources: unitedSources[id] };
+        });
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const methods = (state = {}, action) => {
     switch (action.type) {
         case UPD_ITEMDESCRIPTION:
@@ -524,6 +547,8 @@ const methods = (state = {}, action) => {
             return handleUpdatedLeafs(state, action);
         case ADD_IMPORTMETADATA:
             return addImportMetadata(state, action);
+        case DEL_DUPLICATEMETHODS:
+            return deleteDuplicateMethods(state, action);
         default:
             return state;
     }

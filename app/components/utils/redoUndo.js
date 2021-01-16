@@ -42,7 +42,7 @@ const styles = theme => ({
     root: {
         top: 'calc(100vh - 65px)',
         position: 'fixed',
-        border: '1px solid #CCCCCC',
+        border: '2px solid #CCCCCC',
         width: 'calc(100% - 20px)',
         height: '56px',
         backgroundImage: 'radial-gradient(#FFFFFF,#DDDDDD)',
@@ -99,7 +99,7 @@ class RedoUndoConnected extends React.Component {
     }
 
     static getDerivedStateFromProps (nextProps, prevState) {
-        if (nextProps.historyLength > prevState.currentLength) {
+        if (nextProps.historyLength > prevState.currentLength || (nextProps.futureLength === 0 && nextProps.historyLength !== prevState.currentLength)) {
             return {
                 currentLength: nextProps.historyLength,
                 currentActionHistory: nextProps.actionHistory
@@ -129,6 +129,16 @@ class RedoUndoConnected extends React.Component {
     handleSliderChange = (event, value) => {
         let jumpDistance = value - this.props.pastLength - 1;
         this.jumpThrottled(jumpDistance);
+    }
+
+    handleActionListClick = (event) => {
+        if (this.state.actionHistoryAnchor !== null) {
+            // Close
+            this.setState({ actionHistoryAnchor: null });
+        } else {
+            // Open
+            this.setState({ actionHistoryAnchor: event.currentTarget });
+        }
     }
 
     goToStep = (value) => {
@@ -178,7 +188,7 @@ class RedoUndoConnected extends React.Component {
                             disabled={this.props.futureLength === 0 && this.props.pastLength === 0}
                             aria-label='ActionList'
                             className={classes.button}
-                            onClick={ (event) => { this.setState({ actionHistoryAnchor: event.currentTarget }); } }
+                            onClick={this.handleActionListClick}
                         >
                             <FormatListNumbered/>
                         </Fab>

@@ -16,7 +16,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import SimpleInputEditor from 'editors/simpleInputEditor.js';
-// import ReactSelectEditor from 'editors/reactSelectEditor.js';
 import AutocompleteSelectEditor from 'editors/autocompleteSelectEditor.js';
 import getCodeListData from 'utils/getCodeListData.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';

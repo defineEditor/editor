@@ -27,9 +27,11 @@ import {
     UPD_VLMITEMREFORDER,
     UPD_ITEMREFKEYORDER,
     ADD_IMPORTMETADATA,
+    DEL_DUPLICATEMETHODS,
 } from 'constants/action-types';
 import { ValueList, ItemRef } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
+import { deleteDuplicateMethods } from 'utils/deleteDuplicateUtils.js';
 
 const addValueList = (state, action) => {
     // Create a new ItemRef (valueList will contain 1 variable)
@@ -478,6 +480,8 @@ const valueLists = (state = {}, action) => {
             return updateItemRefKeyOrder(state, action);
         case ADD_IMPORTMETADATA:
             return addImportMetadata(state, action);
+        case DEL_DUPLICATEMETHODS:
+            return deleteDuplicateMethods(state, action);
         default:
             return state;
     }

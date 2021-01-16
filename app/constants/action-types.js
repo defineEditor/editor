@@ -82,6 +82,8 @@ export const DEL_REVIEWCOMMENT = 'DEL_REVIEWCOMMENT';
 export const ADD_REPLYCOMMENT = 'ADD_REPLYCOMMENT';
 export const UPD_RESOLVECOMMENT = 'UPD_RESOLVECOMMENT';
 export const ADD_IMPORTMETADATA = 'ADD_IMPORTMETADATA';
+export const DEL_DUPLICATECOMMENTS = 'DEL_DUPLICATECOMMENTS';
+export const DEL_DUPLICATEMETHODS = 'DEL_DUPLICATEMETHODS';
 export const UI_CHANGETAB = 'UI_CHANGETAB';
 export const UI_CHANGEPAGE = 'UI_CHANGEPAGE';
 export const UI_CHANGETABLEPAGEDETAILS = 'UI_CHANGETABLEPAGEDETAILS';
@@ -130,7 +132,7 @@ export const CT_RELOAD = 'CT_RELOAD';
 export const APP_SAVE = 'APP_SAVE';
 export const APP_QUIT = 'APP_QUIT';
 
-// Labels for Undo
+// Labels for Undo/Action History
 export const actionLabels = {
     'ADD_ODM': 'Load Define-XML',
     'ADD_STDCONST': 'Add standard constants',
@@ -202,4 +204,6 @@ export const actionLabels = {
     'UPD_RESOLVECOMMENT': 'Toggle comment resolution',
     'ADD_IMPORTMETADATA': 'Import Metadata',
     'DUMMY_ACTION': 'Technical action',
+    'DEL_DUPLICATECOMMENTS': 'Remove duplicate comments',
+    'DEL_DUPLICATEMETHODS': 'Remove duplicate methods',
 };
