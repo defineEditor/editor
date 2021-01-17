@@ -88,12 +88,19 @@ const createWindow = async () => {
         await installExtensions();
     }
 
+    let iconPath;
+    if (process.platform !== 'win32') {
+        iconPath = path.join(__dirname, '/static/images/misc/mainIcon64x64.png');
+    } else {
+        iconPath = path.join(__dirname, '/static/images/misc/mainIcon.ico');
+    }
+
     mainWindow = new BrowserWindow({
         width: 768,
         height: 1024,
         center: true,
         show: false,
-        icon: path.join(__dirname, '/static/images/misc/mainIcon64x64.png'),
+        icon: iconPath,
         webPreferences: {
             enableRemoteModule: true,
             nodeIntegration: true,
