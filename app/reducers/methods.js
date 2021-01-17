@@ -508,8 +508,7 @@ const addImportMetadata = (state, action) => {
 };
 
 const deleteDuplicateMethods = (state, action) => {
-    const duplicates = action.updateObj.duplicates;
-    const unitedSources = action.updateObj.unitedSources;
+    const { duplicates, unitedSources, changedNames } = action.updateObj;
     if (Object.keys(duplicates).length > 0) {
         let newState = { ...state };
         // Remove duplicate methods
@@ -522,6 +521,10 @@ const deleteDuplicateMethods = (state, action) => {
         // Update sources for remaining methods
         Object.keys(unitedSources).forEach(id => {
             newState[id] = { ...newState[id], sources: unitedSources[id] };
+        });
+        // Update names
+        Object.keys(changedNames).forEach(id => {
+            newState[id] = { ...newState[id], name: changedNames[id], autoMethodName: Boolean(!changedNames[id]) };
         });
         return newState;
     } else {

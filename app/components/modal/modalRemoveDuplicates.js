@@ -16,6 +16,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector, useDispatch } from 'react-redux';
+import AutocompleteSelectEditor from 'editors/autocompleteSelectEditor.js';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -141,6 +142,8 @@ const getTableData = (mdv, itemType, duplicates) => {
     let items;
     const data = [];
     let unitedSources = {};
+
+    // Get table header;
     const header = [
         { id: 'id', label: 'oid', hidden: true, key: true },
         { id: 'text', label: 'Description' },
@@ -151,8 +154,9 @@ const getTableData = (mdv, itemType, duplicates) => {
         items = mdv.comments;
     } else if (itemType === 'Method') {
         items = mdv.methods;
-        header.unshift({ id: 'name', label: 'Name' });
     }
+
+    // Get table data;
     Object.keys(duplicates).forEach(id => {
         let item = items[id];
         // Get all sources
@@ -172,6 +176,7 @@ const getTableData = (mdv, itemType, duplicates) => {
             data.push({ id, text: getDescription(item), sources, numDuplicates: duplicates[id].length });
         }
     });
+
     return { data, header, unitedSources };
 };
 
@@ -182,16 +187,31 @@ const ModalRemoveDuplicates = (props) => {
     const [data, setData] = useState({});
     const [selected, setSelected] = useState([]);
 
+    let dataLoaded = Boolean(data && data.mainData && data.mainData.data);
+
     useEffect(() => {
         let duplicates = {};
+        let methodNames = {};
         if (props.itemType === 'Comment') {
             duplicates = getDuplicateComments(mdv);
         } else if (props.itemType === 'Method') {
             duplicates = getDuplicateMethods(mdv);
+            // Get all method names for each unique method id
+            Object.keys(duplicates).forEach(methodOid => {
+                let allMethodIds = duplicates[methodOid].concat([methodOid]);
+                let names = allMethodIds.map(id => mdv.methods[id].name);
+                // Remove duplicate or blank rows
+                names = names.filter((name, index) => {
+                    return names.indexOf(name) === index && Boolean(name) !== false;
+                });
+                // Add a special value which will set method name automatically
+                names.push('Set Method Name Automatically');
+                methodNames[methodOid] = names;
+            });
         }
         let mainData = getTableData(mdv, props.itemType, duplicates);
         setSelected(Object.keys(duplicates));
-        setData({ duplicates, mainData });
+        setData({ duplicates, mainData, methodNames });
     }, [mdv, props.itemType]);
 
     const onClose = () => {
@@ -203,6 +223,42 @@ const ModalRemoveDuplicates = (props) => {
             onClose();
         }
     };
+
+    const handleNameUpdate = (id) => (event, value) => {
+        let newTableData = data.mainData.data.slice();
+        newTableData.forEach(row => {
+            if (row.id === id) {
+                row.name = value;
+            }
+        });
+        let newData = { ...data, mainData: { ...data.mainData, data: newTableData } };
+        setData(newData);
+    };
+
+    const methodNameEditor = (props) => {
+        return (
+            <AutocompleteSelectEditor
+                onChange={handleNameUpdate(props.row.id)}
+                value={props.row.name}
+                autoSelect
+                options={data.methodNames[props.row.id]}
+                disableClearable
+                margin='dense'
+                freeSolo
+                autoFocus
+            />
+        );
+    };
+
+    let updatedHeader;
+    if (dataLoaded) {
+        if (props.itemType === 'Method') {
+            updatedHeader = data.mainData.header.slice();
+            updatedHeader.unshift({ id: 'name', label: 'Name', style: { minWidth: '220px' }, formatter: methodNameEditor });
+        } else {
+            updatedHeader = data.mainData.header;
+        }
+    }
 
     const onUnite = () => {
         // Keep only selected ids
@@ -217,6 +273,24 @@ const ModalRemoveDuplicates = (props) => {
         if (props.itemType === 'Comment') {
             dispatch(removeDuplicateComments(updateObj));
         } else if (props.itemType === 'Method') {
+            // Collect name of methods that have changed
+            let changedNames = {};
+            Object.keys(updateObj.duplicates).forEach(methodOid => {
+                // Find name in table data
+                let tableName;
+                data.mainData.data.some(row => {
+                    if (row.id === methodOid) {
+                        tableName = row.name;
+                        return true;
+                    }
+                });
+                if (tableName === 'Set Method Name Automatically') {
+                    changedNames[methodOid] = '';
+                } else if (mdv.methods[methodOid].name !== tableName) {
+                    changedNames[methodOid] = tableName;
+                }
+            });
+            updateObj.changedNames = changedNames;
             dispatch(removeDuplicateMethods(updateObj));
         }
         onClose();
@@ -235,11 +309,12 @@ const ModalRemoveDuplicates = (props) => {
                 Remove Duplicate {props.itemType}s
             </DialogTitle>
             <DialogContent className={classes.content}>
-                { data && data.mainData && data.mainData.data && (
+                { dataLoaded && (
                     <GeneralTable
                         data={data.mainData.data}
-                        header={data.mainData.header}
+                        header={updatedHeader}
                         selection={{ selected, setSelected }}
+                        disableRowSelection
                         pagination
                         disableToolbar
                         initialRowsPerPage={50}
