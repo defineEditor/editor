@@ -24,7 +24,7 @@ import Fab from '@material-ui/core/Fab';
 import CloudDownload from '@material-ui/icons/CloudDownload';
 import Forward from '@material-ui/icons/Forward';
 import Add from '@material-ui/icons/Add';
-import YoutubeSearchedFor from '@material-ui/icons/YoutubeSearchedFor';
+import Cached from '@material-ui/icons/Cached';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import withWidth from '@material-ui/core/withWidth';
@@ -411,7 +411,7 @@ class ConnectedPackages extends React.Component {
                     size='medium'
                     className={classes.toolbarFab}
                 >
-                    <YoutubeSearchedFor className={classes.toolbarIcon}/>
+                    <Cached className={classes.toolbarIcon}/>
                 </Fab>
             </Tooltip>
         );

@@ -30,8 +30,10 @@ import {
     ADD_REVIEWCOMMENT,
     DEL_REVIEWCOMMENT,
     ADD_IMPORTMETADATA,
+    DEL_DUPLICATECOMMENTS,
 } from 'constants/action-types';
 import { AnalysisResultDisplays, ResultDisplay, AnalysisResult } from 'core/armStructure.js';
+import { deleteDuplicateAnalysisDatasetsComments } from 'utils/deleteDuplicateUtils.js';
 import getOid from 'utils/getOid.js';
 
 let initialState = new AnalysisResultDisplays();
@@ -419,6 +421,23 @@ const addImportMetadata = (state, action) => {
     return newState;
 };
 
+const handleDuplicateComments = (state, action) => {
+    const duplicates = action.updateObj.duplicates;
+    if (Object.keys(duplicates).length > 0) {
+        let newState = { ...state };
+        let newAnalysisResults = deleteDuplicateAnalysisDatasetsComments(newState.analysisResults, action);
+        // Intentionally using shallow compare, deleteDuplicateComments returns the same object if no changes
+        if (newAnalysisResults !== newState.analysisResults) {
+            newState.analysisResults = newAnalysisResults;
+            return newState;
+        } else {
+            return state;
+        }
+    } else {
+        return state;
+    }
+};
+
 const analysisResultDisplays = (state = {}, action) => {
     switch (action.type) {
         case UPD_ARMSTATUS:
@@ -455,6 +474,8 @@ const analysisResultDisplays = (state = {}, action) => {
             return deleteReviewComment(state, action);
         case ADD_IMPORTMETADATA:
             return addImportMetadata(state, action);
+        case DEL_DUPLICATECOMMENTS:
+            return handleDuplicateComments(state, action);
         default:
             return state;
     }

@@ -31,6 +31,7 @@ import {
     UPD_MODEL,
     ADD_REVIEWCOMMENT,
     DEL_REVIEWCOMMENT,
+    DEL_DUPLICATECOMMENTS,
 } from 'constants/action-types';
 
 const initialState = new MetaDataVersion();
@@ -80,6 +81,31 @@ const defaultAction = (state, action) => {
     };
 };
 
+const deleteDuplicateComments = (state, action) => {
+    const duplicates = action.updateObj.duplicates;
+    if (Object.keys(duplicates).length > 0) {
+        // Name an object for ID renaming: { oldId: newId }
+        let renamedIds = {};
+        Object.keys(duplicates).forEach(newId => {
+            let duplicateIds = duplicates[newId];
+            duplicateIds.forEach(oldId => {
+                renamedIds[oldId] = newId;
+            });
+        });
+        const allRemovedCommentIds = Object.keys(renamedIds);
+
+        if (state.commentOid !== undefined && allRemovedCommentIds.includes(state.commentOid)) {
+            let newState = { ...state };
+            newState.commentOid = renamedIds[state.commentOid];
+            return newState;
+        } else {
+            return state;
+        }
+    } else {
+        return state;
+    }
+};
+
 const metaDataVersion = (state = { ...initialState }, action) => {
     switch (action.type) {
         case UPD_MDV:
@@ -90,6 +116,8 @@ const metaDataVersion = (state = { ...initialState }, action) => {
             return addReviewComment(defaultAction(state, action), action);
         case DEL_REVIEWCOMMENT:
             return deleteReviewComment(defaultAction(state, action), action);
+        case DEL_DUPLICATECOMMENTS:
+            return deleteDuplicateComments(defaultAction(state, action), action);
         default: {
             return defaultAction(state, action);
         }

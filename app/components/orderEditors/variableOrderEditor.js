@@ -49,7 +49,7 @@ class VariableOrderEditorConnected extends React.Component {
         });
 
         return (
-            <GeneralOrderEditor title='Variable Order' items={items} onSave={this.onSave} disabled={this.props.reviewMode}/>
+            <GeneralOrderEditor title='Variable Order' items={items} onSave={this.onSave} disabled={this.props.reviewMode} xptOrder={true} />
         );
     }
 }

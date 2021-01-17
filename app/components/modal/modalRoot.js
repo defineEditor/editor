@@ -33,6 +33,8 @@ import ModalUpdateApplication from 'components/modal/modalUpdateApplication.js';
 import ModalCodeListTable from 'components/modal/modalCodeListTable.js';
 import ModalImportMetadata from 'components/modal/modalImportMetadata.js';
 import ModalHelp from 'components/modal/modalHelp.js';
+import ModalDefineTools from 'components/modal/modalDefineTools.js';
+import ModalRemoveDuplicates from 'components/modal/modalRemoveDuplicates.js';
 
 const MODAL_COMPONENTS = {
     'DELETE_STUDY': ModalDeleteStudy,
@@ -54,6 +56,8 @@ const MODAL_COMPONENTS = {
     'CODELIST_TABLE': ModalCodeListTable,
     'IMPORT_METADATA': ModalImportMetadata,
     'HELP': ModalHelp,
+    'DEFINE_TOOLS': ModalDefineTools,
+    'REMOVE_DUPLICATES': ModalRemoveDuplicates,
 };
 
 const ModalRoot = () => {

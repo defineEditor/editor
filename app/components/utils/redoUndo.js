@@ -22,6 +22,9 @@ import Slider from '@material-ui/core/Slider';
 import Grid from '@material-ui/core/Grid';
 import UndoIcon from '@material-ui/icons/Undo';
 import RedoIcon from '@material-ui/icons/Redo';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormatListNumbered from '@material-ui/icons/FormatListNumbered';
 import ClearIcon from '@material-ui/icons/Clear';
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
@@ -39,17 +42,21 @@ const styles = theme => ({
     root: {
         top: 'calc(100vh - 65px)',
         position: 'fixed',
-        border: '1px solid #CCCCCC',
+        border: '2px solid #CCCCCC',
         width: 'calc(100% - 20px)',
         height: '56px',
         backgroundImage: 'radial-gradient(#FFFFFF,#DDDDDD)',
         borderRadius: '25px',
         marginLeft: '10px',
         marginRight: '10px',
-        zIndex: 9999,
+        zIndex: 2000,
     },
     grid: {
         height: '56px',
+    },
+    actionList: {
+        zIndex: 3000,
+        transform: 'translate(0, -55px)',
     },
     details: {
         marginBottom: theme.spacing(8),
@@ -84,14 +91,19 @@ class RedoUndoConnected extends React.Component {
         super(props);
         this.state = {
             currentLength: this.props.historyLength,
+            currentActionHistory: this.props.actionHistory,
+            actionHistoryAnchor: null,
             actionLabel: null,
         };
         this.jumpThrottled = throttle(250, this.props.jump);
     }
 
     static getDerivedStateFromProps (nextProps, prevState) {
-        if (nextProps.historyLength !== prevState.currentLength) {
-            // nextProps.onToggleRedoUndo();
+        if (nextProps.historyLength > prevState.currentLength || (nextProps.futureLength === 0 && nextProps.historyLength !== prevState.currentLength)) {
+            return {
+                currentLength: nextProps.historyLength,
+                currentActionHistory: nextProps.actionHistory
+            };
         }
         return null;
     }
@@ -116,6 +128,21 @@ class RedoUndoConnected extends React.Component {
 
     handleSliderChange = (event, value) => {
         let jumpDistance = value - this.props.pastLength - 1;
+        this.jumpThrottled(jumpDistance);
+    }
+
+    handleActionListClick = (event) => {
+        if (this.state.actionHistoryAnchor !== null) {
+            // Close
+            this.setState({ actionHistoryAnchor: null });
+        } else {
+            // Open
+            this.setState({ actionHistoryAnchor: event.currentTarget });
+        }
+    }
+
+    goToStep = (value) => {
+        let jumpDistance = value - this.props.pastLength;
         this.jumpThrottled(jumpDistance);
     }
 
@@ -158,6 +185,18 @@ class RedoUndoConnected extends React.Component {
                         <Fab
                             size='small'
                             color='default'
+                            disabled={this.props.futureLength === 0 && this.props.pastLength === 0}
+                            aria-label='ActionList'
+                            className={classes.button}
+                            onClick={this.handleActionListClick}
+                        >
+                            <FormatListNumbered/>
+                        </Fab>
+                    </Grid>
+                    <Grid item>
+                        <Fab
+                            size='small'
+                            color='default'
                             disabled={this.props.pastLength === 0}
                             aria-label='Undo'
                             className={classes.button}
@@ -187,6 +226,23 @@ class RedoUndoConnected extends React.Component {
                         </IconButton>
                     </Grid>
                 </Grid>
+                <Menu
+                    anchorEl={this.state.actionHistoryAnchor}
+                    open={Boolean(this.state.actionHistoryAnchor)}
+                    key='menu items'
+                    className={classes.actionList}
+                    onClose={ (event) => { this.setState({ actionHistoryAnchor: null }); } }
+                >
+                    { this.state.currentActionHistory.map((step, index) => (
+                        <MenuItem
+                            key={index}
+                            onClick={() => { this.goToStep(index); }}
+                            selected={index === this.props.pastLength}
+                        >
+                            {actionLabels[step] || step}
+                        </MenuItem>
+                    ))}
+                </Menu>
                 <Snackbar
                     anchorOrigin={{
                         vertical: 'bottom',

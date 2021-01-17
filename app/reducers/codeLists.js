@@ -37,10 +37,12 @@ import {
     DEL_REVIEWCOMMENT,
     ADD_VALUELISTFROMCODELIST,
     ADD_IMPORTMETADATA,
+    DEL_DUPLICATECOMMENTS,
 } from 'constants/action-types';
 import { CodeList, CodeListItem, ExternalCodeList, EnumeratedItem, Alias } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 import { getItemsWithAliasExtendedValue } from 'utils/codeListUtils.js';
+import { deleteDuplicateComments } from 'utils/deleteDuplicateUtils.js';
 
 const handleItemDefUpdate = (state, action) => {
     let newState = { ...state };
@@ -939,6 +941,8 @@ const codeLists = (state = {}, action) => {
             return handleAddValueListFromCodeList(state, action);
         case ADD_IMPORTMETADATA:
             return addImportMetadata(state, action);
+        case DEL_DUPLICATECOMMENTS:
+            return deleteDuplicateComments(state, action);
         default:
             return state;
     }

@@ -34,9 +34,12 @@ import {
     ADD_REVIEWCOMMENT,
     DEL_REVIEWCOMMENT,
     ADD_IMPORTMETADATA,
+    DEL_DUPLICATECOMMENTS,
+    DEL_DUPLICATEMETHODS,
 } from 'constants/action-types';
 import { ItemGroup, TranslatedText, DatasetClass, Leaf, ItemRef } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
+import { deleteDuplicateComments, deleteDuplicateMethods } from 'utils/deleteDuplicateUtils.js';
 
 const addItemGroup = (state, action) => {
     return { ...state, [action.updateObj.itemGroup.oid]: action.updateObj.itemGroup };
@@ -518,6 +521,10 @@ const itemGroups = (state = {}, action) => {
             return deleteReviewComment(state, action);
         case ADD_IMPORTMETADATA:
             return addImportMetadata(state, action);
+        case DEL_DUPLICATECOMMENTS:
+            return deleteDuplicateComments(state, action);
+        case DEL_DUPLICATEMETHODS:
+            return deleteDuplicateMethods(state, action);
         default:
             return state;
     }

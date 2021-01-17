@@ -32,6 +32,7 @@ import {
     ADD_RESULTDISPLAYS,
     UPD_ARMSTATUS,
     ADD_IMPORTMETADATA,
+    DEL_DUPLICATECOMMENTS,
 } from 'constants/action-types';
 import { Comment, TranslatedText } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
@@ -576,6 +577,28 @@ const addImportMetadata = (state, action) => {
     }
 };
 
+const deleteDuplicateComments = (state, action) => {
+    const duplicates = action.updateObj.duplicates;
+    const unitedSources = action.updateObj.unitedSources;
+    if (Object.keys(duplicates).length > 0) {
+        let newState = { ...state };
+        // Remove duplicate comments
+        const allRemovedCommentIds = Object.values(duplicates).reduce((acc, curVal) => acc.concat(curVal), []);
+        allRemovedCommentIds.forEach(id => {
+            if (newState[id] !== undefined) {
+                delete newState[id];
+            }
+        });
+        // Update sources for remaining comments
+        Object.keys(unitedSources).forEach(id => {
+            newState[id] = { ...newState[id], sources: unitedSources[id] };
+        });
+        return newState;
+    } else {
+        return state;
+    }
+};
+
 const comments = (state = {}, action) => {
     switch (action.type) {
         case ADD_ITEMGROUPCOMMENT:
@@ -616,6 +639,8 @@ const comments = (state = {}, action) => {
             return handleUpdateArmStatus(state, action);
         case ADD_IMPORTMETADATA:
             return addImportMetadata(state, action);
+        case DEL_DUPLICATECOMMENTS:
+            return deleteDuplicateComments(state, action);
         default:
             return state;
     }

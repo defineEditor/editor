@@ -28,9 +28,11 @@ import {
     ADD_RESULTDISPLAYS,
     UPD_ARMSTATUS,
     ADD_IMPORTMETADATA,
+    DEL_DUPLICATECOMMENTS,
 } from 'constants/action-types';
-import { WhereClause } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
+import { WhereClause } from 'core/defineStructure.js';
+import { deleteDuplicateComments } from 'utils/deleteDuplicateUtils.js';
 
 const deleteWhereClause = (state, action) => {
     // Get number of sources for the whereClause;
@@ -393,6 +395,8 @@ const whereClauses = (state = {}, action) => {
             return handleUpdateArmStatus(state, action);
         case ADD_IMPORTMETADATA:
             return addImportMetadata(state, action);
+        case DEL_DUPLICATECOMMENTS:
+            return deleteDuplicateComments(state, action);
         default:
             return state;
     }

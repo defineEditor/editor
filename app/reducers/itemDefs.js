@@ -33,9 +33,11 @@ import {
     ADD_REVIEWCOMMENT,
     DEL_REVIEWCOMMENT,
     ADD_IMPORTMETADATA,
+    DEL_DUPLICATECOMMENTS,
 } from 'constants/action-types';
-import { ItemDef, TranslatedText, Origin } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
+import { ItemDef, TranslatedText, Origin } from 'core/defineStructure.js';
+import { deleteDuplicateComments } from 'utils/deleteDuplicateUtils.js';
 
 const updateItemDef = (state, action) => {
     let newItemDef;
@@ -563,6 +565,8 @@ const itemDefs = (state = {}, action) => {
             return deleteReviewComment(state, action);
         case ADD_IMPORTMETADATA:
             return addImportMetadata(state, action);
+        case DEL_DUPLICATECOMMENTS:
+            return deleteDuplicateComments(state, action);
         default:
             return state;
     }

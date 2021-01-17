@@ -14,9 +14,11 @@
 
 import deepEqual from 'fast-deep-equal';
 
-function compareMethods (method1, method2) {
+function compareMethods (method1, method2, options = {}) {
     let differenceInAttributes = Object.keys(method1).some(prop => {
-        return (typeof method1[prop] !== 'object' && method1[prop] !== method2[prop] && prop !== 'oid' && prop !== 'autoMethodName');
+        return (typeof method1[prop] !== 'object' && method1[prop] !== method2[prop] &&
+            prop !== 'oid' && prop !== 'autoMethodName' && !(options.ignoreName === true && prop === 'name')
+        );
     });
     if (differenceInAttributes) {
         return false;

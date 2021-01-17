@@ -55,7 +55,7 @@ const AutocompleteSelectEditor = (props) => {
                 <TextField
                     {...params}
                     label={props.label}
-                    margin="normal"
+                    margin={props.margin || 'normal'}
                     autoFocus={props.autoFocus}
                     onKeyDown={handleKeyDown}
                     multiline={props.multiline}

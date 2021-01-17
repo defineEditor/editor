@@ -38,6 +38,8 @@ import Paper from '@material-ui/core/Paper';
     @property {array} pagination.rowsPerPage Number of rows per page
     @property {func} pagination.setRowsPerPage Function to set rowsPerPage
     @property {boolean} pagination Controls whether pagination is enabled
+    @property {boolean} disableToolbar Controls whether toolbar is show
+    @property {boolean} disableRowSelection Controls whether a row can be selected by clicking on the whole row
     @property {object} header Array with header settings
     @property {string} header.id Property containing column value
     @property {string} header.label  Column label
@@ -229,7 +231,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function GeneralTable (props) {
     let { data, header, selection, sorting, pagination, title, customToolbar,
-        disableToolbar, initialRowsPerPage, rowsPerPageOptions,
+        disableToolbar, initialRowsPerPage, rowsPerPageOptions, disableRowSelection
     } = props;
     let keyVar;
     if (!initialRowsPerPage) {
@@ -345,7 +347,7 @@ export default function GeneralTable (props) {
                         {customToolbar({ header, data })}
                     </Grid>
                 )}
-                { (!disableToolbar || selected.length > 0) && !customToolbar && (
+                { !disableToolbar && selected.length > 0 && !customToolbar && (
                     <Grid item className={classes.toolbarGridItem}>
                         <GeneralTableToolbar numSelected={selected.length} title={title} />
                     </Grid>
@@ -379,7 +381,7 @@ export default function GeneralTable (props) {
                                             aria-checked={isItemSelected}
                                             tabIndex={-1}
                                             role={'checkbox'}
-                                            onClick={!row.__disableSelection && selection ? event => handleClick(event, row[keyVar]) : undefined}
+                                            onClick={!disableRowSelection && !row.__disableSelection && selection ? event => handleClick(event, row[keyVar]) : undefined}
                                             key={row[keyVar]}
                                             selected={isItemSelected}
                                             style={row.__styleClass}
@@ -390,6 +392,7 @@ export default function GeneralTable (props) {
                                                         checked={isItemSelected}
                                                         color='primary'
                                                         disabled={row.__disableSelection}
+                                                        onClick={disableRowSelection && !row.__disableSelection && selection ? event => handleClick(event, row[keyVar]) : undefined}
                                                     />
                                                 </StyledTableCell>
                                             )}
@@ -440,6 +443,7 @@ GeneralTable.propTypes = {
     title: PropTypes.string,
     customToolbar: PropTypes.func,
     disableToolbar: PropTypes.bool,
+    disableRowSelection: PropTypes.bool,
     sorting: PropTypes.bool,
     rowsPerPageOptions: PropTypes.array,
     initialRowsPerPage: PropTypes.number,

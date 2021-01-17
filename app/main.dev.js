@@ -88,12 +88,19 @@ const createWindow = async () => {
         await installExtensions();
     }
 
+    let iconPath;
+    if (process.platform !== 'win32') {
+        iconPath = path.join(__dirname, '/static/images/misc/mainIcon64x64.png');
+    } else {
+        iconPath = path.join(__dirname, '/static/images/misc/mainIcon.ico');
+    }
+
     mainWindow = new BrowserWindow({
         width: 768,
         height: 1024,
         center: true,
         show: false,
-        icon: path.join(__dirname, '/static/images/misc/mainIcon64x64.png'),
+        icon: iconPath,
         webPreferences: {
             enableRemoteModule: true,
             nodeIntegration: true,
@@ -226,8 +233,8 @@ ipcMain.on('downloadUpdate', (event) => {
     downloadUpdate(mainWindow);
 });
 // Load metadata from XPT files
-ipcMain.on('loadXptMetadata', (event) => {
-    loadXptMetadata(mainWindow);
+ipcMain.on('loadXptMetadata', (event, options) => {
+    loadXptMetadata(mainWindow, options);
 });
 // Derive metadata from XPT files
 ipcMain.on('deriveXptMetadata', (event, data) => {
