@@ -39,18 +39,24 @@ const validateState = async (options = {}) => {
         let fileData = await readFile(pathToState);
         let state = JSON.parse(fileData);
 
+        let ctPathUpdated = false;
         let missingFiles = { defines: [], ct: [] };
 
         // Check for missing CT
         if (state && state.controlledTerminology && state.controlledTerminology.byId) {
             await Promise.all(Object.values(state.controlledTerminology.byId).map(async (ct) => {
                 // Check if file exists;
-                if (!await isAccessible(path.join(pathToUserData, 'controlledTerminology', ct.id + '.nogz'))) {
+                let pathToCurrentCt = path.join(pathToUserData, 'controlledTerminology', path.basename(ct.pathToFile));
+                if (!await isAccessible(pathToCurrentCt)) {
                     missingFiles.ct.push(ct.id);
                     if (cleanCodeLists) {
                         delete state.controlledTerminology.byId[ct.id];
                         state.controlledTerminology.allIds.splice(state.controlledTerminology.allIds.indexOf(ct.id), 1);
                     }
+                } else if (ct.pathToFile !== pathToCurrentCt) {
+                    // Path can change if loading for a different user/computer
+                    ct.pathToFile = pathToCurrentCt;
+                    ctPathUpdated = true;
                 }
             }));
         } else {
@@ -88,8 +94,8 @@ const validateState = async (options = {}) => {
             }
         }
 
-        if ((cleanCodeLists && missingFiles.ct.length > 0) || (cleanDefines && missingFiles.defines.length > 0)) {
-            await writeFile(pathToState, JSON.stringify(state));
+        if ((cleanCodeLists && missingFiles.ct.length > 0) || (cleanDefines && missingFiles.defines.length > 0) || ctPathUpdated) {
+            await writeFile(pathToState, JSON.stringify(state, null, 4));
         }
         return { passed: true, issues: missingFiles.defines.concat(missingFiles.ct) };
     } catch (error) {

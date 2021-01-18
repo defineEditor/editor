@@ -20,6 +20,7 @@ import clone from 'clone';
 import SettingTabs from 'components/settings/tabs.js';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import { initCdiscLibrary, updateCdiscLibrarySettings, dummyRequest } from 'utils/cdiscLibraryUtils.js';
+import saveState from 'utils/saveState.js';
 import { updateSettings, openModal, openSnackbar } from 'actions/index.js';
 import { encrypt, decrypt } from 'utils/encryptDecrypt.js';
 
@@ -106,6 +107,8 @@ class ConnectedSettings extends React.Component {
     };
 
     makeBackup = () => {
+        // Save state without writing any current Define-XML changes
+        saveState('noWrite');
         ipcRenderer.send('makeBackup', this.state.settings.backup);
     };
 

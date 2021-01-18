@@ -206,4 +206,5 @@ export const actionLabels = {
     'DUMMY_ACTION': 'Technical action',
     'DEL_DUPLICATECOMMENTS': 'Remove duplicate comments',
     'DEL_DUPLICATEMETHODS': 'Remove duplicate methods',
+    'DEFINE_UPD': 'Update Define-XML properties',
 };
