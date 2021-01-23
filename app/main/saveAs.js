@@ -206,12 +206,19 @@ const saveAs = async (mainWindow, data, originalData, options) => {
             }
         });
     }
+
+    let defaultPath;
+    if (options.pathToLastFile !== undefined) {
+        defaultPath = path.join(options.pathToLastFile, 'define.xml');
+    } else {
+        defaultPath = 'define.xml';
+    }
     let result = await dialog.showSaveDialog(
         mainWindow,
         {
             title: 'Export Define-XML',
             filters,
-            defaultPath: options.pathToLastFile,
+            defaultPath,
         }
     );
     // In case there is no extension specified in the filename - use xml
