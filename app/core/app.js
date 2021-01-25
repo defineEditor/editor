@@ -260,6 +260,8 @@ class ConnectedApp extends Component {
     onKeyDown = (event) => {
         if (event.ctrlKey && event.keyCode === 72 && this.props.currentPage === 'editor') {
             this.toggleRedoUndo();
+        } else if (event.shiftKey && event.ctrlKey && event.keyCode === 70) {
+            this.findInPage();
         } else if (event.ctrlKey && event.keyCode === 70 && !this.props.disableFindToggle) {
             this.findInPage();
         } else if (event.ctrlKey && event.keyCode === 191) {

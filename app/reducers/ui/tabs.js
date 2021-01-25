@@ -124,15 +124,22 @@ const selectColumns = (state, action) => {
 };
 
 const updateFilter = (state, action) => {
-    let tabIndex = state.currentTab;
-    let newSettings = state.settings.slice();
-    let newSetting = { ...state.settings[tabIndex], filter: { ...state.settings[tabIndex].filter, ...action.updateObj } };
-    newSettings.splice(tabIndex, 1, newSetting);
+    // Update this part only if filter was called from editor
+    if (action.updateObj.source === 'editor') {
+        let updateObj = { ...action.updateObj };
+        delete updateObj.source;
+        let tabIndex = state.currentTab;
+        let newSettings = state.settings.slice();
+        let newSetting = { ...state.settings[tabIndex], filter: { ...state.settings[tabIndex].filter, ...updateObj } };
+        newSettings.splice(tabIndex, 1, newSetting);
 
-    return {
-        ...state,
-        settings: newSettings,
-    };
+        return {
+            ...state,
+            settings: newSettings,
+        };
+    } else {
+        return state;
+    }
 };
 
 const loadTabs = (state, action) => {

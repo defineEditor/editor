@@ -38,7 +38,6 @@ import renderColumns from 'utils/renderColumns.js';
 import getItemRefsRelatedOids from 'utils/getItemRefsRelatedOids.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import ItemMenu from 'components/menus/itemMenu.js';
-import ItemFilter from 'components/utils/itemFilter.js';
 import VariableTabUpdate from 'components/utils/variableTabUpdate.js';
 import getTableData from 'utils/getTableData.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
@@ -307,7 +306,6 @@ class ConnectedVariableTable extends React.Component {
             itemMenuParams: {},
             anchorEl: null,
             showSelectColumn: false,
-            showFilter: false,
             showAddVariable: false,
             insertPosition: null,
             selectedRows: [],
@@ -868,6 +866,17 @@ class ConnectedVariableTable extends React.Component {
             return false;
         });
 
+        const onFilter = () => {
+            this.props.openModal({
+                type: 'FILTER',
+                props: {
+                    source: 'editor',
+                    filterType: 'variable',
+                    itemGroupOid: this.props.itemGroupOid,
+                }
+            });
+        };
+
         return (
             <Grid container spacing={2} justify='space-between'>
                 <Grid item style={{ paddingLeft: '8px' }}>
@@ -905,7 +914,7 @@ class ConnectedVariableTable extends React.Component {
                             <Button
                                 variant="contained"
                                 color={this.props.filter.isEnabled ? 'primary' : 'default'}
-                                onClick={ () => { this.setState({ showFilter: true }); } }
+                                onClick={onFilter}
                             >
                                 Filter
                                 <FilterListIcon style={{ marginLeft: '7px' }}/>
@@ -1144,14 +1153,6 @@ class ConnectedVariableTable extends React.Component {
                             onAddVariable={ (orderNumber) => { this.setState({ showAddVariable: true, insertPosition: orderNumber }); } }
                             itemMenuParams={this.state.itemMenuParams}
                             anchorEl={this.state.anchorEl}
-                        />
-                }
-                { this.state.showFilter &&
-                        <ItemFilter
-                            type='variable'
-                            itemGroupOid={this.props.itemGroupOid}
-                            filter={this.props.filter}
-                            onClose={ () => { this.setState({ showFilter: false }); } }
                         />
                 }
                 { this.state.showUpdate &&

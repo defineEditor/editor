@@ -51,6 +51,14 @@ const main = (() => {
     };
 })();
 
+const defaultFilter = {
+    isEnabled: false,
+    applyToVlm: true,
+    conditions: [],
+    connectors: [],
+    type: '',
+};
+
 const tabs = (() => {
     let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents', 'Result Displays', 'Analysis Results', 'Review Comments'];
     let tabObjectNames = ['standards', 'datasets', 'variables', 'codeLists', 'codedValues', 'documents', 'resultDisplays', 'analysisResults', 'reviewComments'];
@@ -95,12 +103,7 @@ const tabs = (() => {
             settings[i].vlmState = {};
             settings[i].scrollPosition = {};
             settings[i].groupOid = undefined;
-            settings[i].filter = {
-                isEnabled: false,
-                applyToVlm: true,
-                conditions: [],
-                connectors: [],
-            };
+            settings[i].filter = defaultFilter;
         }
         // Column state
         if (['Datasets', 'Variables', 'Codelists', 'Coded Values', 'Result Displays'].includes(tabNames[i])) {
@@ -130,10 +133,14 @@ const snackbar = {
     props: {},
 };
 
+const filterTypes = ['dataset', 'variable', 'codeList', 'codedValue', 'resultDisplay', 'analysisResult'];
+const defaultFilters = filterTypes.reduce((acc, item) => { acc[item] = defaultFilter; return acc; }, {});
+
 const studiesUi = {
     orderType: 'alphabetical',
     defineForm: false,
     currentStudyId: '',
+    filters: defaultFilters,
 };
 
 const cdiscLibraryUi = {

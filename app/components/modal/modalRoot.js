@@ -35,6 +35,8 @@ import ModalImportMetadata from 'components/modal/modalImportMetadata.js';
 import ModalHelp from 'components/modal/modalHelp.js';
 import ModalDefineTools from 'components/modal/modalDefineTools.js';
 import ModalRemoveDuplicates from 'components/modal/modalRemoveDuplicates.js';
+import ModalFilter from 'components/modal/modalFilter.js';
+import ModalSearchStudies from 'components/modal/modalSearchStudies.js';
 
 const MODAL_COMPONENTS = {
     'DELETE_STUDY': ModalDeleteStudy,
@@ -58,6 +60,8 @@ const MODAL_COMPONENTS = {
     'HELP': ModalHelp,
     'DEFINE_TOOLS': ModalDefineTools,
     'REMOVE_DUPLICATES': ModalRemoveDuplicates,
+    'FILTER': ModalFilter,
+    'SEARCH_STUDIES': ModalSearchStudies,
 };
 
 const ModalRoot = () => {
