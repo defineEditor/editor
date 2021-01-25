@@ -21,25 +21,30 @@ const getItemsFromFilter = (filter, mdv, defineVersion) => {
     if (type === 'variable') {
         // Get itemGroupOids from name
         let itemGroupOids = [];
-        Object.keys(mdv.itemGroups).forEach(itemGroupOid => {
-            if (
-                (filter.conditions[0].comparator === 'IN' &&
-                    filter.conditions[0].selectedValues.includes(mdv.itemGroups[itemGroupOid].name)
-                ) ||
-                (filter.conditions[0].comparator === 'NOTIN' &&
-                    !filter.conditions[0].selectedValues.includes(mdv.itemGroups[itemGroupOid].name)
-                )
-            ) {
-                itemGroupOids.push(itemGroupOid);
-            }
-        });
-        // Delete the first condition, as it contains only the list of datasets and cannot be used for filtering
+        // If the first argument is dataset then use only specified datasets
         let updatedFilter = { ...filter };
-        updatedFilter.conditions = filter.conditions.slice();
-        updatedFilter.conditions.splice(0, 1);
-        if (updatedFilter.connectors.length > 0) {
-            updatedFilter.connectors = filter.connectors.slice();
-            updatedFilter.connectors.splice(0, 1);
+        if (filter.conditions[0].field === 'dataset') {
+            Object.keys(mdv.itemGroups).forEach(itemGroupOid => {
+                if (
+                    (filter.conditions[0].comparator === 'IN' &&
+                        filter.conditions[0].selectedValues.includes(mdv.itemGroups[itemGroupOid].name)
+                    ) ||
+                    (filter.conditions[0].comparator === 'NOTIN' &&
+                        !filter.conditions[0].selectedValues.includes(mdv.itemGroups[itemGroupOid].name)
+                    )
+                ) {
+                    itemGroupOids.push(itemGroupOid);
+                }
+            });
+            // Delete the first condition, as it contains only the list of datasets and cannot be used for filtering
+            updatedFilter.conditions = filter.conditions.slice();
+            updatedFilter.conditions.splice(0, 1);
+            if (updatedFilter.connectors.length > 0) {
+                updatedFilter.connectors = filter.connectors.slice();
+                updatedFilter.connectors.splice(0, 1);
+            }
+        } else {
+            itemGroupOids = mdv.order.itemGroupOrder;
         }
 
         itemGroupOids.forEach(itemGroupOid => {

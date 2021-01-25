@@ -163,7 +163,13 @@ class ConnectedItemFilter extends React.Component {
             conditions = clone(this.props.filter.conditions);
             connectors = clone(this.props.filter.connectors);
         } else {
-            conditions = [{ field: Object.keys(filterFields)[0], comparator: this.props.source === 'studies' ? 'EQ' : 'IN', selectedValues: [], level: 0 }];
+            conditions = [{
+                field: Object.keys(filterFields)[0],
+                comparator: this.props.source === 'studies' ? 'EQ' : 'IN',
+                selectedValues: [],
+                regexIsValid: true,
+                level: 0
+            }];
             connectors = [];
         }
         // Get the whole table
