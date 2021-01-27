@@ -15,7 +15,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { ipcRenderer } from 'electron';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles, lighten } from '@material-ui/core/styles';
 import { useSelector, useDispatch } from 'react-redux';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -24,6 +24,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import getItemsFromFilter from 'utils/getItemsFromFilter.js';
 import getItemNamesFromOid from 'utils/getItemNamesFromOid.js';
 import StudySearchResultsTable from 'components/utils/studySearchResultsTable.js';
@@ -61,7 +62,6 @@ const getStyles = makeStyles(theme => ({
         letterSpacing: '0.0075em',
     },
     content: {
-        padding: 0,
         display: 'flex',
     },
     list: {
@@ -86,8 +86,21 @@ const getFullStack = (studies) => {
             result.push(defineId);
         });
     });
-    return result.slice(1, 6);
+    return result;
+    // return result.slice(1, 4);
 };
+
+const UpdatedLinearProgress = withStyles({
+    root: {
+        height: 25,
+        backgroundColor: lighten('#3f51b5', 0.5),
+        borderRadius: 5,
+    },
+    bar: {
+        borderRadius: 5,
+        backgroundColor: '#3f51b5',
+    },
+})(LinearProgress);
 
 const ModalSearchStudies = (props) => {
     const dispatch = useDispatch();
@@ -97,7 +110,9 @@ const ModalSearchStudies = (props) => {
     let defines = useSelector(state => state.present.defines);
     let searchStack = useRef([]);
     let searchResults = useRef({});
+    let totalDefines = useRef(0);
     const [status, setStatus] = useState(false);
+    const [progressValue, setProgressValue] = useState(0);
     const [matchedStudies, setMatchedStudies] = useState([]);
 
     const handleSearch = (event, data) => {
@@ -111,7 +126,9 @@ const ModalSearchStudies = (props) => {
                         result[filter.type] = getItemNamesFromOid(filter.type, items, mdv);
                     }
                 });
-                searchResults.current[data.odm.defineId] = result;
+                if (Object.keys(result).length > 0) {
+                    searchResults.current[data.odm.defineId] = result;
+                }
             } catch (error) {
                 dispatch(openSnackbar({ type: 'error', message: 'Error when searching in ' + defines.byId[data.odm.defineId].name }));
             }
@@ -122,10 +139,12 @@ const ModalSearchStudies = (props) => {
     const searchNext = () => {
         if (searchStack.current.length === 0) {
             // Search has ended;
+            setProgressValue(0);
             setStatus(false);
             return;
         }
         let defineId = searchStack.current.shift();
+        setProgressValue((totalDefines.current - Object.keys(searchStack.current).length) / totalDefines.current * 100);
         ipcRenderer.once('loadDefineObjectForSearch', handleSearch);
         ipcRenderer.send('loadDefineObject', defineId, 'search');
     };
@@ -154,6 +173,7 @@ const ModalSearchStudies = (props) => {
         setStatus(true);
         searchResults.current = {};
         searchStack.current = getFullStack(studies);
+        totalDefines.current = Object.keys(searchStack.current).length;
         searchNext();
     };
 
@@ -217,9 +237,12 @@ const ModalSearchStudies = (props) => {
                     </Grid>
                     <Grid item xs={12}>
                         {status && (
-                            <Typography variant="h4" className={classes.centerTitle}>
-                                Searching
-                            </Typography>
+                            <React.Fragment>
+                                <Typography variant="h4" className={classes.centerTitle}>
+                                    Searching
+                                </Typography>
+                                <UpdatedLinearProgress key='progressBar' variant='determinate' value={progressValue} className={classes.progressBar}/>
+                            </React.Fragment>
                         )}
                         {!status && (
                             matchedStudies.length > 0 ? (

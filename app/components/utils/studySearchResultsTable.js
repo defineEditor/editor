@@ -45,16 +45,16 @@ const getStyles = makeStyles(theme => ({
         color: theme.palette.text.secondary,
     },
     study: {
-        backgroundColor: '#3f51b5',
+        backgroundColor: '#e0e0e0',
     },
     define: {
-        backgroundColor: '#5c6bc0',
+        backgroundColor: '#eeeeee',
     },
     type: {
-        backgroundColor: '#7986cb',
+        backgroundColor: '#f5f5f5',
     },
     list: {
-        backgroundColor: '#9fa8da',
+        backgroundColor: '#fafafa',
     },
 }));
 
@@ -95,6 +95,7 @@ const DefineDetails = (props) => {
                         expanded={expanded[type] === true}
                         onChange={handleChange(type)}
                         className={classes.type}
+                        TransitionProps={{ unmountOnExit: true }}
                     >
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
@@ -133,6 +134,7 @@ const StudySearchResultsTable = (props) => {
                     onChange={handleChange(study.id)}
                     key={study.id}
                     className={classes.study}
+                    TransitionProps={{ unmountOnExit: true }}
                 >
                     <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
@@ -148,6 +150,7 @@ const StudySearchResultsTable = (props) => {
                                         expanded={expanded[define.id] === true}
                                         onChange={handleChange(define.id)}
                                         className={classes.define}
+                                        TransitionProps={{ unmountOnExit: true }}
                                     >
                                         <AccordionSummary
                                             expandIcon={<ExpandMoreIcon />}
