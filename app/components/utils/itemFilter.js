@@ -356,7 +356,11 @@ class ConnectedItemFilter extends React.Component {
             } else if (type === 'resultDisplay' || type === 'analysisResult') {
                 result[newIndex].field = 'resultDisplay';
             }
-            result[newIndex].comparator = 'IN';
+            if (this.props.source === 'studies') {
+                result[newIndex].comparator = 'EQ';
+            } else {
+                result[newIndex].comparator = 'IN';
+            }
             result[newIndex].selectedValues = [];
             result[newIndex].regexIsValid = true;
             result[newIndex].level = 0;
@@ -556,10 +560,17 @@ class ConnectedItemFilter extends React.Component {
 
         let result = [];
         this.state.conditions.forEach((condition, index) => {
+            let options;
+            if ((this.props.source === 'studies' && filterFields[condition.field].type === 'flag') || condition.field === 'anyFlag') {
+                options = ['Yes', 'No'];
+            } else {
+                options = this.state.values[condition.field];
+            }
             const multipleValuesSelect = (['IN', 'NOTIN'].indexOf(condition.comparator) >= 0);
-            const valueSelect = this.props.source !== 'studies' && ['IN', 'NOTIN', 'EQ', 'NE'].indexOf(condition.comparator) >= 0 &&
-                this.state.values[condition.field].length > 0 &&
-                !['anyString', 'anyNumber', 'anyFlag'].includes(condition.field)
+            const valueSelect = (this.props.source !== 'studies' || filterFields[condition.field].type === 'flag') &&
+                ['IN', 'NOTIN', 'EQ', 'NE'].indexOf(condition.comparator) >= 0 &&
+                options.length > 0 &&
+                !['anyString', 'anyNumber'].includes(condition.field)
             ;
             const value = multipleValuesSelect && valueSelect ? condition.selectedValues : condition.selectedValues[0] || '';
             // In case itemGroupOid is provided, exclude dataset from the list of fields
@@ -586,7 +597,12 @@ class ConnectedItemFilter extends React.Component {
                                         color='default'
                                         size='small'
                                         variant='contained'
-                                        disabled={index === 1 && this.props.itemGroupOid === undefined && type === 'variable'}
+                                        disabled={
+                                            index === 1 &&
+                                            this.props.itemGroupOid === undefined &&
+                                            type === 'variable' &&
+                                            this.props.source !== 'studies'
+                                        }
                                         onClick={this.handleChange('switchConnector', index)}
                                         className={classes.button}
                                     >
@@ -652,7 +668,7 @@ class ConnectedItemFilter extends React.Component {
                                         key={condition.comparator}
                                         disableCloseOnSelect
                                         filterSelectedOptions
-                                        options={this.state.values[condition.field]}
+                                        options={options}
                                         renderInput={params => (
                                             <TextField
                                                 {...params}
@@ -698,7 +714,10 @@ class ConnectedItemFilter extends React.Component {
                         size='small'
                         variant='contained'
                         disabled={
-                            this.props.itemGroupOid === undefined && this.state.conditions.length === 1 && type === 'variable'
+                            this.props.itemGroupOid === undefined &&
+                            this.state.conditions.length === 1 &&
+                            type === 'variable' &&
+                            this.props.source !== 'studies'
                         }
                         onClick={this.handleChange('addRangeCheck', 0, 'OR')}
                         className={classes.button}

@@ -12,7 +12,7 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { ipcRenderer } from 'electron';
 import { makeStyles } from '@material-ui/core/styles';
@@ -25,8 +25,11 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import getItemsFromFilter from 'utils/getItemsFromFilter.js';
+import getItemNamesFromOid from 'utils/getItemNamesFromOid.js';
+import StudySearchResultsTable from 'components/utils/studySearchResultsTable.js';
 import {
     openModal,
+    openSnackbar,
     closeModal,
 } from 'actions/index.js';
 
@@ -36,7 +39,7 @@ const getStyles = makeStyles(theme => ({
         top: '5%',
         maxWidth: 1500,
         height: '90%',
-        width: '95%',
+        width: '55%',
         overflowX: 'auto',
         overflowY: 'auto',
         margin: '0 auto',
@@ -64,7 +67,7 @@ const getStyles = makeStyles(theme => ({
     list: {
         width: '100%',
     },
-    filterTitle: {
+    centerTitle: {
         textAlign: 'center',
         marginTop: theme.spacing(2),
         marginBottom: theme.spacing(2),
@@ -91,21 +94,27 @@ const ModalSearchStudies = (props) => {
     let classes = getStyles();
     let filters = useSelector(state => state.present.ui.studies.filters);
     let studies = useSelector(state => state.present.studies);
+    let defines = useSelector(state => state.present.defines);
     let searchStack = useRef([]);
     let searchResults = useRef({});
     const [status, setStatus] = useState(false);
+    const [matchedStudies, setMatchedStudies] = useState([]);
 
     const handleSearch = (event, data) => {
         let result = {};
         if (data.odm && data.odm.study && data.odm.study.metaDataVersion) {
-            Object.values(filters).filter(filter => filter.isEnabled).forEach(filter => {
-                let items = getItemsFromFilter(filter, data.odm.study.metaDataVersion, data.odm.study.metaDataVersion.defineVersion);
-                if (items.length > 0) {
-                    result[filter.type] = items;
-                    console.log(items);
-                }
-            });
-            searchResults.current[data.odm.defineId] = result;
+            try {
+                const mdv = data.odm.study.metaDataVersion;
+                Object.values(filters).filter(filter => filter.isEnabled).forEach(filter => {
+                    let items = getItemsFromFilter(filter, mdv, mdv.defineVersion);
+                    if (items.length > 0) {
+                        result[filter.type] = getItemNamesFromOid(filter.type, items, mdv);
+                    }
+                });
+                searchResults.current[data.odm.defineId] = result;
+            } catch (error) {
+                dispatch(openSnackbar({ type: 'error', message: 'Error when searching in ' + defines.byId[data.odm.defineId].name }));
+            }
         }
         searchNext();
     };
@@ -142,9 +151,34 @@ const ModalSearchStudies = (props) => {
     };
 
     const onSearch = () => {
+        setStatus(true);
+        searchResults.current = {};
         searchStack.current = getFullStack(studies);
         searchNext();
     };
+
+    useEffect(() => {
+        if (status === false) {
+            // Format data
+            const results = searchResults.current;
+            const matchedDefines = Object.keys(results);
+            const newMatchedStudies = [];
+            // Get study and define names
+            // Get connection between defines and studies
+            studies.allIds.forEach(studyId => {
+                let matchedStudyDefines = [];
+                studies.byId[studyId].defineIds.forEach(defineId => {
+                    if (matchedDefines.includes(defineId)) {
+                        matchedStudyDefines.push({ id: defineId, name: defines.byId[defineId].name });
+                    }
+                });
+                if (matchedStudyDefines.length > 0) {
+                    newMatchedStudies.push({ id: studyId, name: studies.byId[studyId].name, defines: matchedStudyDefines });
+                }
+            });
+            setMatchedStudies(newMatchedStudies);
+        }
+    }, [status, defines, studies]);
 
     return (
         <Dialog
@@ -161,7 +195,7 @@ const ModalSearchStudies = (props) => {
             <DialogContent className={classes.content}>
                 <Grid container alignItems='flex-start' className={classes.mainGrid}>
                     <Grid item xs={12}>
-                        <Typography variant="h4" className={classes.filterTitle}>
+                        <Typography variant="h4" className={classes.centerTitle}>
                             Filters
                         </Typography>
                     </Grid>
@@ -182,9 +216,25 @@ const ModalSearchStudies = (props) => {
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
-                        <Typography variant="h4" className={classes.filterTitle}>
-                            {status ? 'Searching' : 'Finished Search'}
-                        </Typography>
+                        {status && (
+                            <Typography variant="h4" className={classes.centerTitle}>
+                                Searching
+                            </Typography>
+                        )}
+                        {!status && (
+                            matchedStudies.length > 0 ? (
+                                <React.Fragment>
+                                    <Typography variant="h5" className={classes.centerTitle}>
+                                        Found matches in {matchedStudies.length} studies
+                                    </Typography>
+                                    <StudySearchResultsTable studies={matchedStudies} defines={searchResults.current} />
+                                </React.Fragment>
+                            ) : (
+                                <Typography variant="h5" className={classes.centerTitle}>
+                                    No results found
+                                </Typography>
+                            )
+                        )}
                     </Grid>
                 </Grid>
             </DialogContent>

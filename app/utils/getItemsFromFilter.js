@@ -127,7 +127,7 @@ const getItemsFromFilter = (filter, mdv, defineVersion) => {
             });
             selectedItems = applyFilter(codeListData, filter);
         });
-    } else if (type === 'resultDisplay') {
+    } else if (type === 'resultDisplay' && mdv.analysisResultDisplays && Object.keys(mdv.analysisResultDisplays).length > 0) {
         let resultDisplayData = [];
         Object.values(mdv.analysisResultDisplays.resultDisplays).forEach(resultDisplay => {
             resultDisplayData.push({
@@ -137,7 +137,7 @@ const getItemsFromFilter = (filter, mdv, defineVersion) => {
             });
             selectedItems = applyFilter(resultDisplayData, filter);
         });
-    } else if (type === 'analysisResult') {
+    } else if (type === 'analysisResult' && mdv.analysisResultDisplays && Object.keys(mdv.analysisResultDisplays).length > 0) {
         let analysisResultData = [];
         Object.values(mdv.analysisResultDisplays.analysisResults).forEach(analysisResult => {
             analysisResult.sources.resultDisplays.forEach(resultDisplayOid => {
