@@ -96,6 +96,7 @@ const shortcuts = {
         'S': 'Open Studies',
         'E': 'Open Editor',
         'C': 'Open Controlled Terminology',
+        'R': 'Open Study Search',
         'T': 'Open Settings',
         'L': 'Open CDISC Library',
         'F': 'Find in Page',

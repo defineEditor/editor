@@ -48,6 +48,7 @@ const main = (() => {
         appVersion: appVersion,
         lastBackupDate: '',
         updateInfo: {},
+        changePageOrigin: '',
     };
 })();
 
@@ -133,7 +134,7 @@ const snackbar = {
     props: {},
 };
 
-const filterTypes = ['dataset', 'variable', 'codeList', 'codedValue', 'resultDisplay', 'analysisResult'];
+const filterTypes = ['study', 'define', 'dataset', 'variable', 'codeList', 'codedValue', 'resultDisplay', 'analysisResult'];
 const defaultFilters = filterTypes.reduce((acc, item) => { acc[item] = defaultFilter; return acc; }, {});
 
 const studiesUi = {
@@ -283,11 +284,16 @@ const studies = {
     allIds: ['NG.SDY.SAMPLE']
 };
 
+const sessionData = {
+    searchInfo: {},
+};
+
 const initialValues = {
     ui,
     settings,
     defines,
     studies,
+    sessionData
 };
 
 export default initialValues;

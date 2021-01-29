@@ -15,7 +15,7 @@ import getTableDataAsText from 'utils/getTableDataAsText.js';
 import applyFilter from 'utils/applyFilter.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
-const getItemsFromFilter = (filter, mdv, defineVersion) => {
+const getItemsFromFilter = (filter, mdv, defineVersion, studies, defines) => {
     let selectedItems = [];
     let type = filter.type;
     if (type === 'variable') {
@@ -117,7 +117,7 @@ const getItemsFromFilter = (filter, mdv, defineVersion) => {
             });
             selectedItems = applyFilter(itemGroupData, filter);
         });
-    } else if (type === 'codeList' || type === 'codedValue') {
+    } else if (type === 'codeList') {
         let codeListData = [];
         Object.values(mdv.codeLists).forEach(codeList => {
             codeListData.push({
@@ -126,6 +126,19 @@ const getItemsFromFilter = (filter, mdv, defineVersion) => {
                 codeListType: codeList.codeListType,
             });
             selectedItems = applyFilter(codeListData, filter);
+        });
+    } else if (type === 'codedValue') {
+        let codeListData = [];
+        selectedItems = [];
+        Object.values(mdv.codeLists).forEach(codeList => {
+            codeListData.push({
+                oid: codeList.oid,
+                codeListOid: codeList.oid,
+                codeList: codeList.name,
+                codeListType: codeList.codeListType,
+            });
+            let codeListItems = applyFilter(codeListData, filter);
+            selectedItems = codeListItems.map(oid => ({ oid, codeListOid: oid }));
         });
     } else if (type === 'resultDisplay' && mdv.analysisResultDisplays && Object.keys(mdv.analysisResultDisplays).length > 0) {
         let resultDisplayData = [];
@@ -150,6 +163,26 @@ const getItemsFromFilter = (filter, mdv, defineVersion) => {
             });
             selectedItems = applyFilter(analysisResultData, filter);
         });
+    } else if (type === 'study' && studies !== undefined) {
+        let studyData = [];
+        studies.allIds.forEach(studyId => {
+            let study = studies.byId[studyId];
+            studyData.push({
+                oid: study.id,
+                name: study.name,
+            });
+        });
+        selectedItems = applyFilter(studyData, filter);
+    } else if (type === 'define' && defines !== undefined) {
+        let defineData = [];
+        defines.allIds.forEach(defineId => {
+            let define = defines.byId[defineId];
+            defineData.push({
+                oid: define.id,
+                name: define.name,
+            });
+        });
+        selectedItems = applyFilter(defineData, filter);
     }
 
     return selectedItems;

@@ -189,6 +189,7 @@ class ConnectedStudyTile extends React.Component {
                 page: 'editor',
                 defineId,
                 studyId: this.props.study.id,
+                origin: 'studies',
             });
         } else {
             this.props.openModal({
@@ -197,6 +198,7 @@ class ConnectedStudyTile extends React.Component {
                     currentDefineId: this.props.currentDefineId,
                     defineId,
                     studyId: this.props.study.id,
+                    origin: 'studies',
                 }
             });
             this.handleDefineMenuClose();

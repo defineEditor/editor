@@ -26,6 +26,7 @@ import saveState from 'utils/saveState.js';
 import {
     changePage,
     closeModal,
+    addOdm,
 } from 'actions/index.js';
 
 const styles = theme => ({
@@ -69,13 +70,25 @@ const mapDispatchToProps = dispatch => {
     return {
         changePage: updateObj => dispatch(changePage(updateObj)),
         closeModal: (updateObj) => dispatch(closeModal(updateObj)),
+        addOdm: (updateObj) => dispatch(addOdm(updateObj)),
     };
 };
 
 class ConnectedModalChangeDefine extends React.Component {
     onSave = () => {
         // Change must be called after the current Define-XML is saved
-        saveState(undefined, () => { this.props.changePage({ page: 'editor', defineId: this.props.defineId, studyId: this.props.studyId }); });
+        saveState(undefined, () => {
+            this.props.changePage({
+                page: 'editor',
+                defineId: this.props.defineId,
+                studyId: this.props.studyId,
+                origin: this.props.origin,
+            });
+        });
+        if (this.props.reset === true) {
+            // It is required to set ODM to blank in order to reload the ODM object
+            this.props.addOdm({});
+        }
         this.props.closeModal({ type: this.props.type });
     }
 
@@ -85,7 +98,16 @@ class ConnectedModalChangeDefine extends React.Component {
 
     onDiscard = () => {
         this.props.closeModal({ type: this.props.type });
-        this.props.changePage({ page: 'editor', defineId: this.props.defineId, studyId: this.props.studyId });
+        if (this.props.reset === true) {
+            // It is required to set ODM to blank in order to reload the ODM object
+            this.props.addOdm({});
+        }
+        this.props.changePage({
+            page: 'editor',
+            defineId: this.props.defineId,
+            studyId: this.props.studyId,
+            origin: this.props.origin,
+        });
     }
 
     onKeyDown = (event) => {
@@ -163,6 +185,7 @@ ConnectedModalChangeDefine.propTypes = {
     defines: PropTypes.object.isRequired,
     changePage: PropTypes.func.isRequired,
     closeModal: PropTypes.func.isRequired,
+    addOdm: PropTypes.func.isRequired,
     type: PropTypes.string.isRequired,
 };
 

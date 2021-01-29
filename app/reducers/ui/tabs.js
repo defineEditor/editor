@@ -90,12 +90,17 @@ const selectGroup = (state, action) => {
     // action.updateObj.scrollPosition - value of scrollPosition for the previous group
     let tabIndex = action.updateObj.tabIndex;
     let newSettings = state.settings.slice();
-    let newScrollPositions = { ...state.settings[tabIndex].scrollPosition, ...action.updateObj.scrollPosition };
+    let newScrollPosition;
+    if (action.updateObj.scrollPosition !== undefined) {
+        newScrollPosition = { ...state.settings[tabIndex].scrollPosition, ...action.updateObj.scrollPosition };
+    } else {
+        newScrollPosition = state.settings[tabIndex].scrollPosition;
+    }
     // Row select is disabled when group is changed. Otherwise old selection will be shown for the new group.
     let newSetting = {
         ...state.settings[tabIndex],
         groupOid: action.updateObj.groupOid,
-        scrollPosition: newScrollPositions,
+        scrollPosition: newScrollPosition,
         rowSelect: { overall: false },
     };
     newSettings.splice(tabIndex, 1, newSetting);

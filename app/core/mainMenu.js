@@ -35,6 +35,7 @@ import Info from '@material-ui/icons/Info';
 import Keyboard from '@material-ui/icons/Keyboard';
 import Print from '@material-ui/icons/Print';
 import Search from '@material-ui/icons/Search';
+import FindInPage from '@material-ui/icons/FindInPage';
 import Review from '@material-ui/icons/RemoveRedEye';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import Description from '@material-ui/icons/Description';
@@ -132,6 +133,8 @@ class ConnectedMainMenu extends React.Component {
                 this.openSettings();
             } else if (event.keyCode === 67) {
                 this.openControlledTerminology();
+            } else if (event.keyCode === 82 && this.props.currentPage === 'studies') {
+                this.openStudySearch();
             } else if (event.keyCode === 70) {
                 this.props.toggleMainMenu();
                 this.props.onToggleFindInPage();
@@ -179,6 +182,13 @@ class ConnectedMainMenu extends React.Component {
 
     openSettings = () => {
         this.props.changePage({ page: 'settings' });
+    }
+
+    openStudySearch = () => {
+        this.props.openModal({
+            type: 'SEARCH_STUDIES'
+        });
+        this.props.toggleMainMenu();
     }
 
     openTools = () => {
@@ -262,12 +272,20 @@ class ConnectedMainMenu extends React.Component {
                                 </ListItem>
                             }
                             <Divider/>
-                            <ListItem button key='search' onClick={() => { this.props.toggleMainMenu(); this.props.onToggleFindInPage(); }}>
+                            <ListItem button key='findInPage' onClick={() => { this.props.toggleMainMenu(); this.props.onToggleFindInPage(); }}>
                                 <ListItemIcon>
-                                    <Search/>
+                                    <FindInPage/>
                                 </ListItemIcon>
                                 <ListItemText primary={<span><u>F</u>ind in Page</span>}/>
                             </ListItem>
+                            { this.props.currentPage === 'studies' && (
+                                <ListItem button key='searchStudies' onClick={this.openStudySearch}>
+                                    <ListItemIcon>
+                                        <Search/>
+                                    </ListItemIcon>
+                                    <ListItemText primary={<span>Sea<u>r</u>ch Studies</span>}/>
+                                </ListItem>
+                            )}
                             { this.props.currentPage === 'editor' && ([
                                 (
                                     <ListItem button key='redoundo' onClick={() => { this.props.toggleMainMenu(); this.props.onToggleRedoUndo(); }}>

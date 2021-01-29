@@ -136,27 +136,27 @@ class ConnectedItemFilter extends React.Component {
         let connectors;
         let filterFields = { ...filterFieldsByType[props.type] };
         // Add Any item filters;
-        let hasString = false;
-        let hasNumber = false;
-        let hasFlag = false;
+        let countString = 0;
+        let countNumber = 0;
+        let countFlag = 0;
         Object.values(filterFields).forEach(field => {
             if (field.type === 'string') {
-                hasString = true;
+                countString += 1;
             }
             if (field.type === 'number') {
-                hasNumber = true;
+                countNumber += 1;
             }
             if (field.type === 'flag') {
-                hasFlag = true;
+                countFlag += 1;
             }
         });
-        if (hasString) {
+        if (countString > 1) {
             filterFields.anyString = { label: 'Any Text', type: 'string' };
         }
-        if (hasNumber) {
+        if (countNumber > 1) {
             filterFields.anyNumber = { label: 'Any Number', type: 'number' };
         }
-        if (hasFlag) {
+        if (countFlag > 1) {
             filterFields.anyFlag = { label: 'Any Flag', type: 'flag' };
         }
         if (this.props.filter.conditions.length !== 0) {
@@ -574,10 +574,10 @@ class ConnectedItemFilter extends React.Component {
             ;
             const value = multipleValuesSelect && valueSelect ? condition.selectedValues : condition.selectedValues[0] || '';
             // In case itemGroupOid is provided, exclude dataset from the list of fields
-            // Allow dataset only for the first field
+            // Allow dataset only for the first field for variable filter
             const fields = {};
             Object.keys(filterFields)
-                .filter(field => ((!this.props.itemGroupOid && index === 0) || field !== 'dataset'))
+                .filter(field => ((!this.props.itemGroupOid && index === 0) || field !== 'dataset' || type !== 'variable'))
                 .forEach(field => { fields[field] = filterFields[field].label; })
             ;
 

@@ -49,6 +49,7 @@ const changePage = (state, action) => {
             currentStudyId: action.updateObj.studyId,
             isCurrentDefineSaved: true,
             lastSaveHistoryIndex: 0,
+            changePageOrigin: action.updateObj.origin,
         };
     } else {
         return {

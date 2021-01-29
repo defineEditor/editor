@@ -123,6 +123,7 @@ function saveState (type, onSaveFinished) {
     delete stateToSave.stdConstants;
     delete stateToSave.stdCodeLists;
     delete stateToSave.ui.tabs;
+    delete stateToSave.sessionData;
 
     if (Object.keys(stateToSave).length > 0) {
         eStore.clear();

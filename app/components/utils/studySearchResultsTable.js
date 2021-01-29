@@ -13,10 +13,12 @@
 ***********************************************************************************/
 
 import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
+import Tooltip from '@material-ui/core/Tooltip';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
@@ -26,7 +28,13 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
-import DeleteIcon from '@material-ui/icons/Delete';
+import ForwardIcon from '@material-ui/icons/Forward';
+import FilterListIcon from '@material-ui/icons/FilterList';
+import {
+    changePage,
+    openModal,
+    addOdm,
+} from 'actions/index.js';
 
 const getStyles = makeStyles(theme => ({
     root: {
@@ -49,17 +57,24 @@ const getStyles = makeStyles(theme => ({
     },
     define: {
         backgroundColor: '#eeeeee',
+        marginBottom: theme.spacing(1),
     },
     type: {
         backgroundColor: '#f5f5f5',
+        marginBottom: theme.spacing(1),
     },
     list: {
         backgroundColor: '#fafafa',
+        width: '100%'
     },
 }));
 
 const TypeDetails = (props) => {
     let classes = getStyles();
+
+    const handleStudyOpen = (item, filter) => {
+        props.handleStudyOpen(item, filter);
+    };
 
     return (
         <List dense className={classes.list}>
@@ -69,9 +84,18 @@ const TypeDetails = (props) => {
                         primary={item.name}
                     />
                     <ListItemSecondaryAction>
-                        <IconButton edge="end">
-                            <DeleteIcon />
-                        </IconButton>
+                        <Tooltip title={'Open Study'} placement='bottom' enterDelay={700}>
+                            <IconButton edge="end" onClick={(event) => { handleStudyOpen(item, false); }}>
+                                <ForwardIcon />
+                            </IconButton>
+                        </Tooltip>
+                        {['variable'].includes(props.type) && (
+                            <Tooltip title={'Open Study with Filter Applied'} placement='bottom' enterDelay={700}>
+                                <IconButton edge="end" onClick={(event) => { handleStudyOpen(item, true); }}>
+                                    <FilterListIcon />
+                                </IconButton>
+                            </Tooltip>
+                        )}
                     </ListItemSecondaryAction>
                 </ListItem>
             ))}
@@ -104,7 +128,11 @@ const DefineDetails = (props) => {
                             <Typography className={classes.secondaryHeading}>{props.details[type].length} matches.</Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                            <TypeDetails details={props.details[type]} defineId={props.defineId} />
+                            <TypeDetails
+                                type={type}
+                                details={props.details[type]}
+                                handleStudyOpen={props.handleStudyOpen(type)}
+                            />
                         </AccordionDetails>
                     </Accordion>
                 </Grid>
@@ -115,12 +143,47 @@ const DefineDetails = (props) => {
 
 DefineDetails.propTypes = {
     details: PropTypes.object.isRequired,
-    defineId: PropTypes.string.isRequired,
 };
 
 const StudySearchResultsTable = (props) => {
     let classes = getStyles();
+    const dispatch = useDispatch();
+    const { studies, defines } = props.matchedStudies;
     const [expanded, setExpanded] = useState({});
+    const { currentDefineId, isCurrentDefineSaved } = useSelector(state => state.present.ui.main);
+
+    const onStudyOpen = (studyId, defineId) => (type) => (item, filter) => {
+        let selectedItem = {
+            type,
+            item,
+            filter,
+        };
+        props.handleClose(undefined, selectedItem);
+        if (isCurrentDefineSaved) {
+            // If no Define-XMLs are edited at the moment, specify the Define
+            if (currentDefineId === defineId) {
+                // It is required to set ODM to blank in order to reload the ODM object
+                dispatch(addOdm({}));
+            }
+            dispatch(changePage({
+                page: 'editor',
+                defineId,
+                studyId,
+                origin: 'searchStudies',
+            }));
+        } else {
+            dispatch(openModal({
+                type: 'CHANGE_DEFINE',
+                props: {
+                    currentDefineId: currentDefineId,
+                    defineId,
+                    studyId,
+                    origin: 'searchStudies',
+                    reset: currentDefineId === defineId,
+                }
+            }));
+        }
+    };
 
     const handleChange = (id) => (event, isExpanded) => {
         setExpanded({ ...expanded, [id]: isExpanded });
@@ -128,7 +191,7 @@ const StudySearchResultsTable = (props) => {
 
     return (
         <div className={classes.root}>
-            {props.studies.map(study => (
+            {studies.map(study => (
                 <Accordion
                     expanded={expanded[study.id] === true}
                     onChange={handleChange(study.id)}
@@ -157,11 +220,14 @@ const StudySearchResultsTable = (props) => {
                                         >
                                             <Typography className={classes.heading}>{define.name}</Typography>
                                             <Typography className={classes.secondaryHeading}>
-                                                {Object.values(props.defines[define.id]).reduce((count, item) => (count + item.length), 0)} matches.
+                                                {Object.values(defines[define.id]).reduce((count, item) => (count + item.length), 0)} matches.
                                             </Typography>
                                         </AccordionSummary>
                                         <AccordionDetails>
-                                            <DefineDetails details={props.defines[define.id]} defineId={define.id} />
+                                            <DefineDetails
+                                                details={defines[define.id]}
+                                                handleStudyOpen={onStudyOpen(study.id, define.id)}
+                                            />
                                         </AccordionDetails>
                                     </Accordion>
                                 </Grid>
@@ -175,8 +241,8 @@ const StudySearchResultsTable = (props) => {
 };
 
 StudySearchResultsTable.propTypes = {
-    studies: PropTypes.array.isRequired,
-    defines: PropTypes.object.isRequired,
+    matchedStudies: PropTypes.object.isRequired,
+    handleClose: PropTypes.func.isRequired,
 };
 
 export default StudySearchResultsTable;

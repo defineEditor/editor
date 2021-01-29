@@ -69,16 +69,20 @@ const mapStateToProps = state => {
         odmLoaded,
         loadedDefineId,
         currentDefineId,
-        codeLists: odmLoaded ? state.present.odm.study.metaDataVersion.codeLists : undefined,
         showCommentMethodTable: state.present.ui.main.showCommentMethodTable,
+        changePageOrigin: state.present.ui.main.changePageOrigin,
     };
 };
 
 class ConnectedEditor extends React.Component {
     componentDidMount () {
         if (this.props.currentDefineId !== this.props.loadedDefineId && this.props.currentDefineId) {
-            // If the currently loaded define is different, load the correct one
-            ipcRenderer.send('loadDefineObject', this.props.currentDefineId, 'initialLoad');
+            // If the currently loaded define is different, load the specified define
+            if (this.props.changePageOrigin === 'searchStudies') {
+                ipcRenderer.send('loadDefineObject', this.props.currentDefineId, 'searchStudies');
+            } else {
+                ipcRenderer.send('loadDefineObject', this.props.currentDefineId, 'initialLoad');
+            }
         }
     }
 
@@ -129,8 +133,8 @@ ConnectedEditor.propTypes = {
     classes: PropTypes.object.isRequired,
     odmLoaded: PropTypes.bool.isRequired,
     currentDefineId: PropTypes.string.isRequired,
+    changePageOrigin: PropTypes.string.isRequired,
     changePage: PropTypes.func.isRequired,
-    codeLists: PropTypes.object,
 };
 
 const Editor = connect(mapStateToProps, mapDispatchToProps)(ConnectedEditor);

@@ -33,8 +33,10 @@ const getItemNamesFromOid = (type, oids, mdv) => {
         });
     } else if (type === 'dataset') {
         result = oids.map(oid => ({ oid, name: mdv.itemGroups[oid].name }));
-    } else if (type === 'codeList' || type === 'codedValue') {
+    } else if (type === 'codeList') {
         result = oids.map(oid => ({ oid, name: mdv.codeLists[oid].name }));
+    } else if (type === 'codedValue') {
+        result = oids.map(oid => ({ ...oid, name: mdv.codeLists[oid.codeListOid].name }));
     } else if (type === 'resultDisplay') {
         result = oids.map(oid => ({ oid, name: getDescription(mdv.analysisResultDisplays.resultDisplays[oid]) }));
     } else if (type === 'analysisResult') {

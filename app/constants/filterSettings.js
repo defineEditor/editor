@@ -13,6 +13,12 @@
 ***********************************************************************************/
 
 const filterFieldsByType = {
+    study: {
+        'name': { label: 'Name', type: 'string' },
+    },
+    define: {
+        'name': { label: 'Name', type: 'string' },
+    },
     dataset: {
         'dataset': { label: 'Dataset', type: 'string' },
         'label': { label: 'Label', type: 'string' },

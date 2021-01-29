@@ -131,6 +131,7 @@ export const CT_DEL = 'CT_DEL';
 export const CT_RELOAD = 'CT_RELOAD';
 export const APP_SAVE = 'APP_SAVE';
 export const APP_QUIT = 'APP_QUIT';
+export const SD_UPDATESEACHINFO = 'SD_UPDATESEACHINFO';
 
 // Labels for Undo/Action History
 export const actionLabels = {
