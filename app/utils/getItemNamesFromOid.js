@@ -40,7 +40,7 @@ const getItemNamesFromOid = (type, oids, mdv) => {
     } else if (type === 'resultDisplay') {
         result = oids.map(oid => ({ oid, name: getDescription(mdv.analysisResultDisplays.resultDisplays[oid]) }));
     } else if (type === 'analysisResult') {
-        result = oids.map(oid => ({ oid, name: getDescription(mdv.analysisResultDisplays.analysisResults[oid]) }));
+        result = oids.map(oid => ({ ...oid, name: getDescription(mdv.analysisResultDisplays.analysisResults[oid.oid]) }));
     }
     return result;
 };

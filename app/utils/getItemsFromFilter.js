@@ -115,8 +115,8 @@ const getItemsFromFilter = (filter, mdv, defineVersion, studies, defines) => {
                 datasetClass,
 
             });
-            selectedItems = applyFilter(itemGroupData, filter);
         });
+        selectedItems = applyFilter(itemGroupData, filter);
     } else if (type === 'codeList') {
         let codeListData = [];
         Object.values(mdv.codeLists).forEach(codeList => {
@@ -125,8 +125,8 @@ const getItemsFromFilter = (filter, mdv, defineVersion, studies, defines) => {
                 codeList: codeList.name,
                 codeListType: codeList.codeListType,
             });
-            selectedItems = applyFilter(codeListData, filter);
         });
+        selectedItems = applyFilter(codeListData, filter);
     } else if (type === 'codedValue') {
         let codeListData = [];
         selectedItems = [];
@@ -137,9 +137,9 @@ const getItemsFromFilter = (filter, mdv, defineVersion, studies, defines) => {
                 codeList: codeList.name,
                 codeListType: codeList.codeListType,
             });
-            let codeListItems = applyFilter(codeListData, filter);
-            selectedItems = codeListItems.map(oid => ({ oid, codeListOid: oid }));
         });
+        let codeListItems = applyFilter(codeListData, filter);
+        selectedItems = codeListItems.map(oid => ({ oid, codeListOid: oid }));
     } else if (type === 'resultDisplay' && mdv.analysisResultDisplays && Object.keys(mdv.analysisResultDisplays).length > 0) {
         let resultDisplayData = [];
         Object.values(mdv.analysisResultDisplays.resultDisplays).forEach(resultDisplay => {
@@ -148,12 +148,14 @@ const getItemsFromFilter = (filter, mdv, defineVersion, studies, defines) => {
                 resultDisplay: resultDisplay.name,
                 description: getDescription(resultDisplay),
             });
-            selectedItems = applyFilter(resultDisplayData, filter);
         });
+        selectedItems = applyFilter(resultDisplayData, filter);
     } else if (type === 'analysisResult' && mdv.analysisResultDisplays && Object.keys(mdv.analysisResultDisplays).length > 0) {
         let analysisResultData = [];
+        let resultDisplayOids = {};
         Object.values(mdv.analysisResultDisplays.analysisResults).forEach(analysisResult => {
             analysisResult.sources.resultDisplays.forEach(resultDisplayOid => {
+                resultDisplayOids[analysisResult.oid] = resultDisplayOid;
                 let resultDisplay = mdv.analysisResultDisplays.resultDisplays[resultDisplayOid];
                 analysisResultData.push({
                     oid: analysisResult.oid,
@@ -161,8 +163,9 @@ const getItemsFromFilter = (filter, mdv, defineVersion, studies, defines) => {
                     description: getDescription(analysisResult),
                 });
             });
-            selectedItems = applyFilter(analysisResultData, filter);
         });
+        let analysisResultItems = applyFilter(analysisResultData, filter);
+        selectedItems = analysisResultItems.map(oid => ({ oid, resultDisplayOid: resultDisplayOids[oid] }));
     } else if (type === 'study' && studies !== undefined) {
         let studyData = [];
         studies.allIds.forEach(studyId => {

@@ -76,13 +76,13 @@ const mapStateToProps = state => {
 
 class ConnectedEditor extends React.Component {
     componentDidMount () {
-        if (this.props.currentDefineId !== this.props.loadedDefineId && this.props.currentDefineId) {
-            // If the currently loaded define is different, load the specified define
-            if (this.props.changePageOrigin === 'searchStudies') {
-                ipcRenderer.send('loadDefineObject', this.props.currentDefineId, 'searchStudies');
-            } else {
-                ipcRenderer.send('loadDefineObject', this.props.currentDefineId, 'initialLoad');
-            }
+        // If the currently loaded define is different, load the specified define
+        if (this.props.changePageOrigin === 'searchStudies') {
+            ipcRenderer.send('loadDefineObject', this.props.currentDefineId, 'searchStudies');
+        } else if (this.props.changePageOrigin === 'reviewInNewWindow') {
+            ipcRenderer.send('loadDefineObject', this.props.currentDefineId, this.props.changePageOrigin);
+        } else {
+            ipcRenderer.send('loadDefineObject', this.props.currentDefineId, 'initialLoad');
         }
     }
 

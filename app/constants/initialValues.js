@@ -49,6 +49,7 @@ const main = (() => {
         lastBackupDate: '',
         updateInfo: {},
         changePageOrigin: '',
+        windowType: 'main',
     };
 })();
 

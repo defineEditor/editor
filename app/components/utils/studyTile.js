@@ -236,6 +236,7 @@ class ConnectedStudyTile extends React.Component {
                             studyId={this.state.study.id}
                             defineId={defineId}
                             onClose={onClose}
+                            onOpenDefine={() => { this.selectDefine(defineId); }}
                         />
                     </ListItemSecondaryAction>
                 </MenuItem>

@@ -16,6 +16,7 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+import { ipcRenderer } from 'electron';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -30,6 +31,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 import ForwardIcon from '@material-ui/icons/Forward';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser';
 import {
     changePage,
     openModal,
@@ -72,8 +74,8 @@ const getStyles = makeStyles(theme => ({
 const TypeDetails = (props) => {
     let classes = getStyles();
 
-    const handleStudyOpen = (item, filter) => {
-        props.handleStudyOpen(item, filter);
+    const handleStudyOpen = (item, options) => {
+        props.handleStudyOpen(item, options);
     };
 
     return (
@@ -85,17 +87,22 @@ const TypeDetails = (props) => {
                     />
                     <ListItemSecondaryAction>
                         <Tooltip title={'Open Study'} placement='bottom' enterDelay={700}>
-                            <IconButton edge="end" onClick={(event) => { handleStudyOpen(item, false); }}>
+                            <IconButton edge="end" onClick={(event) => { handleStudyOpen(item); }}>
                                 <ForwardIcon />
                             </IconButton>
                         </Tooltip>
                         {['variable'].includes(props.type) && (
                             <Tooltip title={'Open Study with Filter Applied'} placement='bottom' enterDelay={700}>
-                                <IconButton edge="end" onClick={(event) => { handleStudyOpen(item, true); }}>
+                                <IconButton edge="end" onClick={(event) => { handleStudyOpen(item, { filter: true }); }}>
                                     <FilterListIcon />
                                 </IconButton>
                             </Tooltip>
                         )}
+                        <Tooltip title={'Open Study in a New Window'} placement='bottom' enterDelay={700}>
+                            <IconButton edge="end" onClick={(event) => { handleStudyOpen(item, { filter: true, external: true }); }}>
+                                <OpenInBrowserIcon />
+                            </IconButton>
+                        </Tooltip>
                     </ListItemSecondaryAction>
                 </ListItem>
             ))}
@@ -152,36 +159,47 @@ const StudySearchResultsTable = (props) => {
     const [expanded, setExpanded] = useState({});
     const { currentDefineId, isCurrentDefineSaved } = useSelector(state => state.present.ui.main);
 
-    const onStudyOpen = (studyId, defineId) => (type) => (item, filter) => {
+    const onStudyOpen = (studyId, defineId) => (type) => (item, options = {}) => {
+        let { filter, external } = options;
+        filter = Boolean(filter);
         let selectedItem = {
             type,
             item,
             filter,
         };
-        props.handleClose(undefined, selectedItem);
-        if (isCurrentDefineSaved) {
-            // If no Define-XMLs are edited at the moment, specify the Define
-            if (currentDefineId === defineId) {
-                // It is required to set ODM to blank in order to reload the ODM object
-                dispatch(addOdm({}));
-            }
-            dispatch(changePage({
-                page: 'editor',
+        if (external === true) {
+            ipcRenderer.send('openDefineInNewWindow', {
                 defineId,
                 studyId,
+                selectedItem,
                 origin: 'searchStudies',
-            }));
+            });
         } else {
-            dispatch(openModal({
-                type: 'CHANGE_DEFINE',
-                props: {
-                    currentDefineId: currentDefineId,
+            props.handleClose(undefined, selectedItem);
+            if (isCurrentDefineSaved) {
+                // If no Define-XMLs are edited at the moment, specify the Define
+                if (currentDefineId === defineId) {
+                    // It is required to set ODM to blank in order to reload the ODM object
+                    dispatch(addOdm({}));
+                }
+                dispatch(changePage({
+                    page: 'editor',
                     defineId,
                     studyId,
                     origin: 'searchStudies',
-                    reset: currentDefineId === defineId,
-                }
-            }));
+                }));
+            } else {
+                dispatch(openModal({
+                    type: 'CHANGE_DEFINE',
+                    props: {
+                        currentDefineId: currentDefineId,
+                        defineId,
+                        studyId,
+                        origin: 'searchStudies',
+                        reset: currentDefineId === defineId,
+                    }
+                }));
+            }
         }
     };
 

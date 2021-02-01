@@ -39,8 +39,10 @@ import {
     openModal,
     openSnackbar,
     updateMainUi,
+    changePage,
     saveCdiscLibraryInfo,
     changeCdiscLibraryView,
+    updateSearchInfo,
 } from 'actions/index.js';
 
 const baseThemeObj = {
@@ -122,8 +124,10 @@ const mapDispatchToProps = dispatch => {
         openModal: updateObj => dispatch(openModal(updateObj)),
         openSnackbar: (updateObj) => dispatch(openSnackbar(updateObj)),
         updateMainUi: (updateObj) => dispatch(updateMainUi(updateObj)),
+        changePage: (updateObj) => dispatch(changePage(updateObj)),
         saveCdiscLibraryInfo: (updateObj) => dispatch(saveCdiscLibraryInfo(updateObj)),
         changeCdiscLibraryView: (updateObj, mountPoint) => dispatch(changeCdiscLibraryView(updateObj, mountPoint)),
+        updateSearchInfo: (updateObj) => dispatch(updateSearchInfo(updateObj)),
     };
 };
 
@@ -138,43 +142,67 @@ class ConnectedApp extends Component {
     }
 
     componentDidMount () {
-        // Comparing to other event listeners which are defined in index.js, this one needs to be here, so that CDISC Library object can be used
-        ipcRenderer.on('quit', this.handleQuitApplication);
-        ipcRenderer.once('updateInformationStartup', this.handleUpdateInformation);
-        window.addEventListener('keydown', this.onKeyDown);
-        if (this.props.checkForUpdates) {
-            ipcRenderer.send('checkForUpdates', 'updateInformationStartup');
-        }
-        if (this.props.showInitialMessage) {
-            this.props.openModal({
-                type: 'INITIAL_MESSAGE',
-                props: {}
+        // Window type
+        const type = process.argv.filter(arg => arg.startsWith('--vdeType')).map(arg => arg.replace(/.*:\s*(.*)/, '$1').replace(/_/g, ' '))[0];
+        if (type === 'reviewWindow') {
+            this.props.updateMainUi({
+                currentDefineId: '',
+                currentStudyId: '',
+                reviewMode: true,
+                windowType: type,
             });
-        }
-        if (!this.props.sampleStudyCopied) {
-            ipcRenderer.once('sampleStudyCopied', (event) => {
-                this.props.updateMainUi({ sampleStudyCopied: true });
+            this.props.changePage({
+                page: 'studies',
             });
-            ipcRenderer.send('copySampleStudy');
-        }
-        if (this.props.cdiscLibrarySettings) {
-            const { enableCdiscLibrary, checkForCLUpdates } = this.props.cdiscLibrarySettings;
-            if (enableCdiscLibrary === true && checkForCLUpdates === true) {
-                this.checkCdiscLibraryForUpdates();
+            ipcRenderer.once('reviewWindowData', (event, data) => {
+                changeAppTitle({ studyId: data.studyId, defineId: data.defineId });
+                this.props.changePage({
+                    page: 'editor',
+                    defineId: data.defineId,
+                    studyId: data.studyId,
+                    origin: 'reviewInNewWindow',
+                });
+            });
+            ipcRenderer.send('reviewWindowGetData');
+        } else {
+            // Comparing to other event listeners which are defined in index.js, this one needs to be here, so that CDISC Library object can be used
+            ipcRenderer.on('quit', this.handleQuitApplication);
+            ipcRenderer.once('updateInformationStartup', this.handleUpdateInformation);
+            window.addEventListener('keydown', this.onKeyDown);
+            if (this.props.checkForUpdates) {
+                ipcRenderer.send('checkForUpdates', 'updateInformationStartup');
             }
-        }
-        // Set title of the application
-        if (this.props.currentStudyId && this.props.currentDefineId) {
-            changeAppTitle({ studyId: this.props.currentStudyId, defineId: this.props.currentDefineId });
-        }
-        if (this.props.backup.enableBackup) {
-            // Perform backup if needed
-            let lastBackupDate = new Date(this.props.lastBackupDate ? this.props.lastBackupDate : '2000-01-01');
-            let compareDate = new Date(lastBackupDate.toISOString());
-            compareDate = new Date(compareDate.setDate(lastBackupDate.getDate() + this.props.backup.backupInterval));
-            // Perform backup once per time interval
-            if ((new Date() > compareDate)) {
-                ipcRenderer.send('autoBackup', this.props.backup);
+            if (this.props.showInitialMessage) {
+                this.props.openModal({
+                    type: 'INITIAL_MESSAGE',
+                    props: {}
+                });
+            }
+            if (!this.props.sampleStudyCopied) {
+                ipcRenderer.once('sampleStudyCopied', (event) => {
+                    this.props.updateMainUi({ sampleStudyCopied: true });
+                });
+                ipcRenderer.send('copySampleStudy');
+            }
+            if (this.props.cdiscLibrarySettings) {
+                const { enableCdiscLibrary, checkForCLUpdates } = this.props.cdiscLibrarySettings;
+                if (enableCdiscLibrary === true && checkForCLUpdates === true) {
+                    this.checkCdiscLibraryForUpdates();
+                }
+            }
+            // Set title of the application
+            if (this.props.currentStudyId && this.props.currentDefineId) {
+                changeAppTitle({ studyId: this.props.currentStudyId, defineId: this.props.currentDefineId });
+            }
+            if (this.props.backup.enableBackup) {
+                // Perform backup if needed
+                let lastBackupDate = new Date(this.props.lastBackupDate ? this.props.lastBackupDate : '2000-01-01');
+                let compareDate = new Date(lastBackupDate.toISOString());
+                compareDate = new Date(compareDate.setDate(lastBackupDate.getDate() + this.props.backup.backupInterval));
+                // Perform backup once per time interval
+                if ((new Date() > compareDate)) {
+                    ipcRenderer.send('autoBackup', this.props.backup);
+                }
             }
         }
     }
