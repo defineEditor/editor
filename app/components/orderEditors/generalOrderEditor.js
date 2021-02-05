@@ -28,6 +28,7 @@ import List from '@material-ui/core/List';
 import LowPriority from '@material-ui/icons/LowPriority';
 import { FaSortAlphaUp, FaSortAlphaDown, FaBook, FaTable } from 'react-icons/fa';
 import Fab from '@material-ui/core/Fab';
+import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
 import SaveCancel from 'editors/saveCancel.js';
 import classNames from 'classnames';
@@ -270,8 +271,8 @@ class GeneralOrderEditor extends React.Component {
 
         return (
             <React.Fragment>
-                { !this.props.noButton &&
-                    <Tooltip title={`Change ${this.props.title.toLowerCase()}`} placement='bottom' enterDelay={1000}>
+                { !this.props.noButton && !this.props.iconButton &&
+                    <Tooltip title={`Change ${this.props.title.toLowerCase()}`} placement='bottom' enterDelay={700}>
                         <Fab
                             color='default'
                             size='small'
@@ -281,6 +282,19 @@ class GeneralOrderEditor extends React.Component {
                         >
                             <LowPriority/>
                         </Fab>
+                    </Tooltip>
+                }
+                { !this.props.noButton && this.props.iconButton &&
+                    <Tooltip title={`Change ${this.props.title.toLowerCase()}`} placement='bottom' enterDelay={700}>
+                        <IconButton
+                            color='default'
+                            edge={this.props.edge || 'end'}
+                            onClick={this.handleOpen}
+                            className={this.props.iconClass}
+                            disabled={this.props.disabled}
+                        >
+                            <LowPriority/>
+                        </IconButton>
                     </Tooltip>
                 }
                 <Dialog
@@ -358,6 +372,7 @@ GeneralOrderEditor.propTypes = {
     iconClass: PropTypes.string,
     width: PropTypes.string,
     noButton: PropTypes.bool,
+    iconButton: PropTypes.bool,
     onCancel: PropTypes.func,
     disabled: PropTypes.bool,
     xptOrder: PropTypes.bool,

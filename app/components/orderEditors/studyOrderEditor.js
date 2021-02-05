@@ -44,7 +44,7 @@ class StudyOrderEditorConnected extends React.Component {
         });
 
         return (
-            <GeneralOrderEditor title='Study Order' items={items} onSave={this.onSave} iconClass={this.props.iconClass}/>
+            <GeneralOrderEditor title='Study Order' items={items} onSave={this.onSave} iconClass={this.props.iconClass} iconButton/>
         );
     }
 }

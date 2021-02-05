@@ -111,6 +111,7 @@ const mapStateToProps = state => {
         author: state.present.settings.general.userName,
         panelStatus: settings.panelStatus,
         showResolved: settings.showResolved,
+        windowType: state.present.ui.main.windowType,
     };
 };
 
@@ -458,7 +459,7 @@ class ConnectedReviewCommentTab extends React.Component {
                                     </IconButton>
                                 </Tooltip>
                                 <Tooltip title={row.resolved ? 'Unresolve' : 'Resolve'} placement="bottom" enterDelay={700}>
-                                    <IconButton onClick={this.toggleResolve(row.id)} className={classes.icon}>
+                                    <IconButton onClick={this.toggleResolve(row.id)} className={classes.icon} disabled={this.props.windowType === 'reviewWindow'}>
                                         {row.resolved ? <FaTimes/> : <FaCheck/>}
                                     </IconButton>
                                 </Tooltip>
@@ -571,6 +572,7 @@ ConnectedReviewCommentTab.propTypes = {
     toggleResolveComment: PropTypes.func.isRequired,
     toggleReviewCommentPanels: PropTypes.func.isRequired,
     toggleReviewCommentShowResolved: PropTypes.func.isRequired,
+    windowType: PropTypes.string,
 };
 ConnectedReviewCommentTab.displayName = 'ReviewCommentTab';
 

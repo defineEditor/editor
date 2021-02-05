@@ -12,12 +12,14 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { ipcRenderer } from 'electron';
 import Grid from '@material-ui/core/Grid';
+import IconButton from '@material-ui/core/IconButton';
+import Fab from '@material-ui/core/Fab';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import Accordion from '@material-ui/core/Accordion';
@@ -28,9 +30,10 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
-import IconButton from '@material-ui/core/IconButton';
 import ForwardIcon from '@material-ui/icons/Forward';
+import ClearIcon from '@material-ui/icons/Clear';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import { FaAngleDoubleDown, FaAngleDoubleUp } from 'react-icons/fa';
 import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser';
 import {
     changePage,
@@ -68,6 +71,9 @@ const getStyles = makeStyles(theme => ({
     list: {
         backgroundColor: '#fafafa',
         width: '100%'
+    },
+    expandFab: {
+        marginBottom: theme.spacing(1),
     },
 }));
 
@@ -112,11 +118,8 @@ const TypeDetails = (props) => {
 
 const DefineDetails = (props) => {
     let classes = getStyles();
-    const [expanded, setExpanded] = useState({});
 
-    const handleChange = (id) => (event, isExpanded) => {
-        setExpanded({ ...expanded, [id]: isExpanded });
-    };
+    const { expanded, onChange } = props;
 
     return (
         <Grid container className={classes.defineGrid}>
@@ -124,7 +127,7 @@ const DefineDetails = (props) => {
                 <Grid item xs={12} key={type}>
                     <Accordion
                         expanded={expanded[type] === true}
-                        onChange={handleChange(type)}
+                        onChange={onChange(type, 'details')}
                         className={classes.type}
                         TransitionProps={{ unmountOnExit: true }}
                     >
@@ -152,12 +155,37 @@ DefineDetails.propTypes = {
     details: PropTypes.object.isRequired,
 };
 
+const fillExpanded = (studies, defines, value) => {
+    let result = { studies: {}, defines: {}, details: {} };
+    studies.forEach(study => {
+        result.studies[study.id] = value;
+        study.defines.forEach(define => {
+            result.defines[define.id] = value;
+            Object.keys(defines[define.id]).forEach(type => {
+                result.details[type] = value;
+            });
+        });
+    });
+    return result;
+};
+
+const checkAllExpanded = (expanded) => {
+    // Check whether all elements are expanded or not
+    return !Object.values(expanded).some(type => {
+        return Object.values(type).some(status => status === false);
+    });
+};
+
 const StudySearchResultsTable = (props) => {
     let classes = getStyles();
     const dispatch = useDispatch();
     const { studies, defines } = props.matchedStudies;
-    const [expanded, setExpanded] = useState({});
+    const [expanded, setExpanded] = useState({ studies: {}, defines: {}, details: {} });
     const { currentDefineId, isCurrentDefineSaved } = useSelector(state => state.present.ui.main);
+
+    useEffect(() => {
+        setExpanded(fillExpanded(studies, defines, false));
+    }, [studies, defines]);
 
     const onStudyOpen = (studyId, defineId) => (type) => (item, options = {}) => {
         let { filter, external } = options;
@@ -203,16 +231,48 @@ const StudySearchResultsTable = (props) => {
         }
     };
 
-    const handleChange = (id) => (event, isExpanded) => {
-        setExpanded({ ...expanded, [id]: isExpanded });
+    const isAllExpanded = checkAllExpanded(expanded);
+
+    const toggleExpand = () => {
+        setExpanded(fillExpanded(studies, defines, !isAllExpanded));
+    };
+
+    const handleChange = (id, type) => (event, isExpanded) => {
+        setExpanded({ ...expanded, [type]: { ...expanded[type], [id]: isExpanded } });
     };
 
     return (
         <div className={classes.root}>
+            <Grid container spacing={2} justify='flex-end'>
+                <Grid item>
+                    <Tooltip title={ isAllExpanded ? 'Collapse' : 'Expand' } placement="bottom" enterDelay={700}>
+                        <Fab
+                            size='small'
+                            color='default'
+                            onClick={toggleExpand}
+                            className={classes.expandFab}
+                        >
+                            { isAllExpanded ? (<FaAngleDoubleUp/>) : (<FaAngleDoubleDown/>) }
+                        </Fab>
+                    </Tooltip>
+                </Grid>
+                <Grid item>
+                    <Tooltip title="Clear search results" placement="bottom" enterDelay={700}>
+                        <Fab
+                            size='small'
+                            color='default'
+                            onClick={props.handleClear}
+                            className={classes.expandFab}
+                        >
+                            <ClearIcon />
+                        </Fab>
+                    </Tooltip>
+                </Grid>
+            </Grid>
             {studies.map(study => (
                 <Accordion
-                    expanded={expanded[study.id] === true}
-                    onChange={handleChange(study.id)}
+                    expanded={expanded.studies[study.id] === true}
+                    onChange={handleChange(study.id, 'studies')}
                     key={study.id}
                     className={classes.study}
                     TransitionProps={{ unmountOnExit: true }}
@@ -228,8 +288,8 @@ const StudySearchResultsTable = (props) => {
                             {study.defines.map(define => (
                                 <Grid item xs={12} key={define.id}>
                                     <Accordion
-                                        expanded={expanded[define.id] === true}
-                                        onChange={handleChange(define.id)}
+                                        expanded={expanded.defines[define.id] === true}
+                                        onChange={handleChange(define.id, 'defines')}
                                         className={classes.define}
                                         TransitionProps={{ unmountOnExit: true }}
                                     >
@@ -244,6 +304,8 @@ const StudySearchResultsTable = (props) => {
                                         <AccordionDetails>
                                             <DefineDetails
                                                 details={defines[define.id]}
+                                                expanded={expanded.details}
+                                                onChange={handleChange}
                                                 handleStudyOpen={onStudyOpen(study.id, define.id)}
                                             />
                                         </AccordionDetails>

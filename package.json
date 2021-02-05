@@ -258,7 +258,7 @@
     "devtron": "^1.4.0",
     "dompurify": "^2.0.0",
     "downshift": "^1.31.16",
-    "draft-js": "^0.10.5",
+    "draft-js": "^0.11.5",
     "draft-js-export-html": "^1.3.3",
     "electron-context-menu": "^1.0.0",
     "electron-debug": "^2.0.0",

@@ -115,6 +115,7 @@ const mapStateToProps = state => {
         currentDefineId: state.present.ui.main.currentDefineId,
         currentStudyId: state.present.ui.main.currentStudyId,
         cdiscLibraryInfo: state.present.ui.cdiscLibrary.info,
+        windowType: state.present.ui.main.windowType,
         bugModalOpened,
     };
 };
@@ -325,11 +326,13 @@ class ConnectedApp extends Component {
         return (
             <CdiscLibraryContext.Provider value={this.state.cdiscLibraryKit}>
                 <MuiThemeProvider theme={this.props.disableAnimations ? disabledAnimationTheme : baseTheme}>
-                    <MainMenu
-                        onToggleRedoUndo={this.toggleRedoUndo}
-                        onToggleFindInPage={this.findInPage}
-                        onToggleShortcuts={this.toggleShortcuts}
-                    />
+                    { this.props.windowType !== 'reviewWindow' && (
+                        <MainMenu
+                            onToggleRedoUndo={this.toggleRedoUndo}
+                            onToggleFindInPage={this.findInPage}
+                            onToggleShortcuts={this.toggleShortcuts}
+                        />
+                    )}
                     <KeyboardShortcuts open={this.state.showShortcuts} onToggleShortcuts={this.toggleShortcuts}/>
                     {this.props.currentPage === 'studies' && <Studies />}
                     {this.props.currentPage === 'editor' && <Editor onToggleRedoUndo={this.toggleRedoUndo}/>}
@@ -364,6 +367,7 @@ ConnectedApp.propTypes = {
     updateMainUi: PropTypes.func,
     saveCdiscLibraryInfo: PropTypes.func,
     cdiscLibraryInfo: PropTypes.object,
+    windowType: PropTypes.string,
 };
 
 const App = connect(mapStateToProps, mapDispatchToProps)(ConnectedApp);

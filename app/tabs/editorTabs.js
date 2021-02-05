@@ -78,6 +78,7 @@ const mapStateToProps = state => {
         historyIndex: state.index,
         lastSaveHistoryIndex: state.present.ui.main.lastSaveHistoryIndex,
         hasArm,
+        windowType: state.present.ui.main.windowType,
     };
 };
 
@@ -200,6 +201,7 @@ class ConnectedEditorTabs extends React.Component {
                         color={numberOfChanges > 0 ? 'primary' : 'default'}
                         onClick={this.props.toggleMainMenu}
                         className={classes.menuToggle}
+                        disabled={this.props.windowType === 'reviewWindow'}
                     >
                         <Badge color='primary' badgeContent={numberOfChanges}>
                             <MenuIcon/>
@@ -251,6 +253,7 @@ ConnectedEditorTabs.propTypes = {
     openModal: PropTypes.func.isRequired,
     historyIndex: PropTypes.number.isRequired,
     lastSaveHistoryIndex: PropTypes.number.isRequired,
+    windowType: PropTypes.string,
 };
 
 const EditorTabs = connect(mapStateToProps, mapDispatchToProps)(ConnectedEditorTabs);

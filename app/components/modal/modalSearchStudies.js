@@ -217,6 +217,13 @@ const ModalSearchStudies = (props) => {
         searchNext();
     };
 
+    const clearResult = () => {
+        searchResults.current = {};
+        searchStack = [];
+        totalDefines = 0;
+        setMatchedStudies({ studies: [], defines: {} });
+    };
+
     useEffect(() => {
         if (status === false) {
             // Format data
@@ -317,6 +324,7 @@ const ModalSearchStudies = (props) => {
                                     <StudySearchResultsTable
                                         matchedStudies={matchedStudies}
                                         handleClose={onClose}
+                                        handleClear={clearResult}
                                     />
                                 </React.Fragment>
                             ) : (

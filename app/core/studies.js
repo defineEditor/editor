@@ -19,10 +19,11 @@ import { useTheme, makeStyles } from '@material-ui/core/styles';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import ListSubheader from '@material-ui/core/ListSubheader';
-import Button from '@material-ui/core/Button';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import Fab from '@material-ui/core/Fab';
+import IconButton from '@material-ui/core/IconButton';
 import Grow from '@material-ui/core/Grow';
+import Tooltip from '@material-ui/core/Tooltip';
+import AddIcon from '@material-ui/icons/Add';
 import SearchIcon from '@material-ui/icons/Search';
 import NavigationBar from 'core/navigationBar.js';
 import StudyTile from 'components/utils/studyTile.js';
@@ -42,8 +43,8 @@ const getStyles = makeStyles(theme => ({
         minHeight: 'calc(100vh -  ' + (theme.spacing(7)).toString() + 'px)',
         marginTop: theme.spacing(7)
     },
-    orderButton: {
-        marginLeft: theme.spacing(2),
+    iconButton: {
+        marginLeft: theme.spacing(1),
     },
     gridList: {
         width: '100%',
@@ -151,18 +152,27 @@ const Studies = (props) => {
     return (
         <React.Fragment>
             <NavigationBar>
-                <Button size="small" variant="contained" onClick={onAddStudy}>
-                    New Study
-                </Button>
-                <Fab
-                    size='small'
-                    color={ 'default' }
-                    onClick={onSearch}
-                    className={classes.fabIcon}
-                >
-                    <SearchIcon/>
-                </Fab>
-                <StudyOrderEditor iconClass={classes.orderButton}/>
+                <Tooltip title='Add Study' placement='bottom' enterDelay={700}>
+                    <IconButton
+                        color='default'
+                        edge='end'
+                        onClick={onAddStudy}
+                        className={classes.iconButton}
+                    >
+                        <AddIcon/>
+                    </IconButton>
+                </Tooltip>
+                <Tooltip title='Search in Studies' placement='bottom' enterDelay={700}>
+                    <IconButton
+                        color='default'
+                        edge='end'
+                        onClick={onSearch}
+                        className={classes.iconButton}
+                    >
+                        <SearchIcon/>
+                    </IconButton>
+                </Tooltip>
+                <StudyOrderEditor iconClass={classes.iconButton}/>
             </NavigationBar>
             <div className={classes.root}>
                 <GridList

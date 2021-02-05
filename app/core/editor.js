@@ -81,7 +81,8 @@ class ConnectedEditor extends React.Component {
             ipcRenderer.send('loadDefineObject', this.props.currentDefineId, 'searchStudies');
         } else if (this.props.changePageOrigin === 'reviewInNewWindow') {
             ipcRenderer.send('loadDefineObject', this.props.currentDefineId, this.props.changePageOrigin);
-        } else {
+        } else if (this.props.currentDefineId !== this.props.loadedDefineId && this.props.currentDefineId) {
+            // If the currently loaded define is different, load the correct one
             ipcRenderer.send('loadDefineObject', this.props.currentDefineId, 'initialLoad');
         }
     }

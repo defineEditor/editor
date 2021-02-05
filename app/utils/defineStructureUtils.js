@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
 * and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018, 2019 Dmitry Kolosov                                          *
+* Copyright (C) 2018-2021 Dmitry Kolosov                                           *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -179,5 +179,11 @@ export const getMaxLength = (object) => {
             .reduce(maxLength, 1);
     } else {
         return 1;
+    }
+};
+
+export const getNote = (object) => {
+    if (object.note) {
+        return object.note.replace(/(<([^>]+)>)/gi, '');
     }
 };

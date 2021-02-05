@@ -256,6 +256,7 @@ ConnectedModalReviewComments.propTypes = {
     addReplyComment: PropTypes.func.isRequired,
     toggleResolveComment: PropTypes.func.isRequired,
     author: PropTypes.string.isRequired,
+    windowType: PropTypes.string,
     reviewComments: PropTypes.object.isRequired,
     mdv: PropTypes.object.isRequired,
     odm: PropTypes.object.isRequired,

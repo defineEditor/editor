@@ -82,6 +82,9 @@ const styles = theme => ({
         border: '2px solid',
         borderColor: theme.palette.grey['200'],
         margin: '1px',
+        '&:hover': {
+            borderColor: '#9FA8DA',
+        },
     },
     currentCard: {
         borderRadius: '10px',

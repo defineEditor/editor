@@ -34,6 +34,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { getDescription } from 'utils/defineStructureUtils.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
+import getItemGroupDataAsText from 'utils/getItemGroupDataAsText.js';
 import InternalHelp from 'components/utils/internalHelp.js';
 import { filterFieldsByType, comparators } from 'constants/filterSettings.js';
 import {
@@ -478,12 +479,7 @@ class ConnectedItemFilter extends React.Component {
                     });
                 });
         } else if (type === 'dataset') {
-            let itemGroups = this.props.mdv.itemGroups;
-            values.dataset = Object.values(itemGroups).map(itemGroup => (itemGroup.name));
-            values.label = Object.values(itemGroups).map(itemGroup => (getDescription(itemGroup))).filter(item => (item !== undefined));
-            let datasetClass = Object.values(itemGroups).map(itemGroup => (itemGroup.datasetClass && itemGroup.datasetClass.name));
-            // Remove duplicates and undefined
-            values.datasetClass = datasetClass.filter((dsClass, index) => (datasetClass.indexOf(dsClass) === index)).filter(item => (item !== undefined));
+            values = getItemGroupDataAsText(this.props.mdv, 'object');
         } else if (type === 'codeList' || type === 'codedValue') {
             let codeLists = this.props.mdv.codeLists;
             values.codeList = Object.values(codeLists).map(codeList => (codeList.name));

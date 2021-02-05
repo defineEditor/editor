@@ -12,6 +12,7 @@
  * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
  ***********************************************************************************/
 import getTableDataAsText from 'utils/getTableDataAsText.js';
+import getItemGroupDataAsText from 'utils/getItemGroupDataAsText.js';
 import applyFilter from 'utils/applyFilter.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
@@ -101,22 +102,7 @@ const getItemsFromFilter = (filter, mdv, defineVersion, studies, defines) => {
             }
         });
     } else if (type === 'dataset') {
-        // Get dataset information from name
-        let itemGroupData = [];
-        Object.values(mdv.itemGroups).forEach(itemGroup => {
-            let datasetClass = '';
-            if (itemGroup.datasetClass) {
-                datasetClass = itemGroup.datasetClass.name;
-            }
-            itemGroupData.push({
-                oid: itemGroup.oid,
-                dataset: itemGroup.name,
-                label: getDescription(itemGroup),
-                datasetClass,
-
-            });
-        });
-        selectedItems = applyFilter(itemGroupData, filter);
+        selectedItems = applyFilter(getItemGroupDataAsText(mdv), filter);
     } else if (type === 'codeList') {
         let codeListData = [];
         Object.values(mdv.codeLists).forEach(codeList => {
