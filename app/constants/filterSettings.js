@@ -42,6 +42,7 @@ const filterFieldsByType = {
         'length': { label: 'Length', type: 'number' },
         'method': { label: 'Method', type: 'string' },
         'comment': { label: 'Comment', type: 'string' },
+        'note': { label: 'Note', type: 'string' },
         'hasDocument': { label: 'Has Document', type: 'flag' },
         'mandatory': { label: 'Mandatory', type: 'flag' },
         'displayFormat': { label: 'Display Format', type: 'string' },
@@ -55,7 +56,12 @@ const filterFieldsByType = {
     },
     codeList: {
         'codeList': { label: 'Name', type: 'string' },
-        'codeListType': { label: 'Type', type: 'string' },
+        'codeListType': { label: 'Codelist Type', type: 'string' },
+        'dataType': { label: 'Data Type', type: 'string' },
+        'formatName': { label: 'Format', type: 'string' },
+        'comment': { label: 'Comment', type: 'string' },
+        'hasDocument': { label: 'Has Document', type: 'flag' },
+        'description': { label: 'Description', type: 'string' },
     },
     codedValue: {
         'codeList': { label: 'Name', type: 'string' },
@@ -68,6 +74,14 @@ const filterFieldsByType = {
     analysisResult: {
         'resultDisplay': { label: 'Name', type: 'string' },
         'description': { label: 'Description', type: 'string' },
+        'analysisReason': { label: 'Reason', type: 'string' },
+        'analysisPurpose': { label: 'Purpose', type: 'string' },
+        'analysisDatasetsComment': { label: 'Dataset Comment', type: 'string' },
+        'documentation': { label: 'Documentation', type: 'string' },
+        'hasDocument': { label: 'Has Document', type: 'flag' },
+        'code': { label: 'Programming Code', type: 'string' },
+        'context': { label: 'Programming Context', type: 'string' },
+        'hasProgram': { label: 'Has Program', type: 'flag' },
     },
 };
 

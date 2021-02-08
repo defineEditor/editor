@@ -13,6 +13,8 @@
  ***********************************************************************************/
 import getTableDataAsText from 'utils/getTableDataAsText.js';
 import getItemGroupDataAsText from 'utils/getItemGroupDataAsText.js';
+import getCodeListDataAsText from 'utils/getCodeListDataAsText.js';
+import getAnalysisResultDataAsText from 'utils/getAnalysisResultDataAsText.js';
 import applyFilter from 'utils/applyFilter.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
@@ -104,15 +106,7 @@ const getItemsFromFilter = (filter, mdv, defineVersion, studies, defines) => {
     } else if (type === 'dataset') {
         selectedItems = applyFilter(getItemGroupDataAsText(mdv), filter);
     } else if (type === 'codeList') {
-        let codeListData = [];
-        Object.values(mdv.codeLists).forEach(codeList => {
-            codeListData.push({
-                oid: codeList.oid,
-                codeList: codeList.name,
-                codeListType: codeList.codeListType,
-            });
-        });
-        selectedItems = applyFilter(codeListData, filter);
+        selectedItems = applyFilter(getCodeListDataAsText(mdv), filter);
     } else if (type === 'codedValue') {
         let codeListData = [];
         selectedItems = [];
@@ -137,20 +131,14 @@ const getItemsFromFilter = (filter, mdv, defineVersion, studies, defines) => {
         });
         selectedItems = applyFilter(resultDisplayData, filter);
     } else if (type === 'analysisResult' && mdv.analysisResultDisplays && Object.keys(mdv.analysisResultDisplays).length > 0) {
-        let analysisResultData = [];
+        let analysisResultItems = applyFilter(getAnalysisResultDataAsText(mdv), filter);
+        // Get result display for each analysis result
         let resultDisplayOids = {};
         Object.values(mdv.analysisResultDisplays.analysisResults).forEach(analysisResult => {
             analysisResult.sources.resultDisplays.forEach(resultDisplayOid => {
                 resultDisplayOids[analysisResult.oid] = resultDisplayOid;
-                let resultDisplay = mdv.analysisResultDisplays.resultDisplays[resultDisplayOid];
-                analysisResultData.push({
-                    oid: analysisResult.oid,
-                    resultDisplay: resultDisplay.name,
-                    description: getDescription(analysisResult),
-                });
             });
         });
-        let analysisResultItems = applyFilter(analysisResultData, filter);
         selectedItems = analysisResultItems.map(oid => ({ oid, resultDisplayOid: resultDisplayOids[oid] }));
     } else if (type === 'study' && studies !== undefined) {
         let studyData = [];

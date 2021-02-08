@@ -205,6 +205,12 @@ class ConnectedSettings extends React.Component {
                     });
                 }
             }
+        } else if (name === 'saveDefineXmlFormats') {
+            this.setState({
+                settings: { ...this.state.settings,
+                    [category]: { ...this.state.settings[category], [name]: checked }
+                },
+            });
         } else {
             this.setState({
                 settings: { ...this.state.settings,

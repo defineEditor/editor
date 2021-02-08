@@ -12,14 +12,14 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { getDescription, getWhereClauseAsText } from 'utils/defineStructureUtils.js';
+import { getDescription, getWhereClauseAsText, getNote } from 'utils/defineStructureUtils.js';
 import getAutomaticMethodName from 'utils/getAutomaticMethodName.js';
 // Extract data required for the table;
 function getTableDataAsText ({ source, datasetName, datasetOid, itemDefs, codeLists, mdv, defineVersion, vlmLevel, columns } = {}) {
     let result = [];
     Object.keys(source.itemRefs).forEach((itemRefOid, index) => {
-        const originVar = source.itemRefs[itemRefOid];
-        const originItemDef = itemDefs[originVar.itemOid];
+        const originItemRef = source.itemRefs[itemRefOid];
+        const originItemDef = itemDefs[originItemRef.itemOid];
         let currentVar = {
             itemGroupOid: source.oid,
             datasetOid: datasetOid,
@@ -30,12 +30,13 @@ function getTableDataAsText ({ source, datasetName, datasetOid, itemDefs, codeLi
             dataType: originItemDef.dataType,
             codeList: originItemDef.codeListOid !== undefined ? codeLists[originItemDef.codeListOid].name : undefined,
             displayFormat: originItemDef.displayFormat,
-            mandatory: originVar.mandatory,
+            mandatory: originItemRef.mandatory,
             keySequence: source.keyOrder.includes(itemRefOid) ? source.keyOrder.indexOf(itemRefOid) + 1 : undefined,
             length: originItemDef.length,
             fractionDigits: originItemDef.fractionDigits,
-            role: originVar.role,
-            whereClause: originVar.whereClauseOid !== undefined ? getWhereClauseAsText(mdv.whereClauses[originVar.whereClauseOid], mdv) : undefined,
+            role: originItemRef.role,
+            whereClause: originItemRef.whereClauseOid !== undefined ? getWhereClauseAsText(mdv.whereClauses[originItemRef.whereClauseOid], mdv) : undefined,
+            note: getNote(originItemDef),
         };
         // Add some properties only in case columns are not provided (as search should not be performed for them)
         if (columns === undefined) {
@@ -68,8 +69,8 @@ function getTableDataAsText ({ source, datasetName, datasetOid, itemDefs, codeLi
                 }
             });
         }
-        if (originVar.methodOid !== undefined) {
-            let method = mdv.methods[originVar.methodOid];
+        if (originItemRef.methodOid !== undefined) {
+            let method = mdv.methods[originItemRef.methodOid];
             currentVar.method = getDescription(method);
             if (method.autoMethodName === true) {
                 currentVar.method += ' ' + getAutomaticMethodName(method, mdv);

@@ -456,7 +456,7 @@ const LoadFromDefine = (props) => {
                 let rawValues = [];
                 let selectedAttrs = ['resultDisplay'].concat(selectedAttributes['analysisResult']);
                 Object.keys(mdv.analysisResultDisplays.analysisResults)
-                    .filter(analysisResultOid => selectedItems['analysisResult'].includes(analysisResultOid))
+                    .filter(analysisResultOid => selectedItems['analysisResult'].map(item => item.oid).includes(analysisResultOid))
                     .forEach(analysisResultOid => {
                         let analysisResult = mdv.analysisResultDisplays.analysisResults[analysisResultOid];
                         let resultDisplay = mdv.analysisResultDisplays.resultDisplays[analysisResult.sources.resultDisplays[0]];

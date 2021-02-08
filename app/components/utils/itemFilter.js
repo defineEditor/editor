@@ -35,6 +35,8 @@ import { getDescription } from 'utils/defineStructureUtils.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
 import getItemGroupDataAsText from 'utils/getItemGroupDataAsText.js';
+import getCodeListDataAsText from 'utils/getCodeListDataAsText.js';
+import getAnalysisResultDataAsText from 'utils/getAnalysisResultDataAsText.js';
 import InternalHelp from 'components/utils/internalHelp.js';
 import { filterFieldsByType, comparators } from 'constants/filterSettings.js';
 import {
@@ -480,7 +482,9 @@ class ConnectedItemFilter extends React.Component {
                 });
         } else if (type === 'dataset') {
             values = getItemGroupDataAsText(this.props.mdv, 'object');
-        } else if (type === 'codeList' || type === 'codedValue') {
+        } else if (type === 'codeList') {
+            values = getCodeListDataAsText(this.props.mdv, 'object');
+        } else if (type === 'codedValue') {
             let codeLists = this.props.mdv.codeLists;
             values.codeList = Object.values(codeLists).map(codeList => (codeList.name));
             let type = Object.values(codeLists).map(codeList => (codeList.codeListType));
@@ -499,14 +503,7 @@ class ConnectedItemFilter extends React.Component {
             // Remove duplicates and undefined
             values.description = description.filter((item, index) => (description.indexOf(item) === index)).filter(item => (item !== undefined));
         } else if (type === 'analysisResult') {
-            let resultDisplayOrder = this.props.mdv.analysisResultDisplays.resultDisplayOrder;
-            values.resultDisplay = resultDisplayOrder.map(resultDisplayOid => {
-                let resultDisplay = this.props.mdv.analysisResultDisplays.resultDisplays[resultDisplayOid];
-                return resultDisplay.name;
-            });
-            let description = Object.values(this.props.mdv.analysisResultDisplays.analysisResults).map(analysisResult => (getDescription(analysisResult))).sort();
-            // Remove duplicates and undefined
-            values.description = description.filter((item, index) => (description.indexOf(item) === index)).filter(item => (item !== undefined));
+            values = getAnalysisResultDataAsText(this.props.mdv, 'object');
         }
         return values;
     }

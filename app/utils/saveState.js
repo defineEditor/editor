@@ -70,6 +70,7 @@ function saveState (type, onSaveFinished) {
                 let pathToFile = stateToSave.defines.byId[defineId].pathToFile || '';
                 let odm = stateToSave.odm;
                 if (alwaysSaveDefineXml === true && pathToFile !== '') {
+                    let saveDefineXmlFormats = state.settings.general.saveDefineXmlFormats;
                     ipcRenderer.once('writeDefineObjectFinished', (event) => {
                         saveDefineXml(
                             {
@@ -78,7 +79,7 @@ function saveState (type, onSaveFinished) {
                                 userName: stateToSave.settings.general.userName,
                                 studyId: stateToSave.ui.main.currentStudyId,
                             },
-                            { pathToFile, addStylesheet },
+                            { pathToFile, addStylesheet, saveDefineXmlFormats },
                             state,
                             fullState.index,
                             onSaveFinished

@@ -18,6 +18,7 @@ import Switch from '@material-ui/core/Switch';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import IconButton from '@material-ui/core/IconButton';
 import FolderOpen from '@material-ui/icons/FolderOpen';
 import InputAdornment from '@material-ui/core/InputAdornment';
@@ -41,6 +42,9 @@ const useStyles = makeStyles((theme) => ({
     textField: {
         width: '90%',
         margin: theme.spacing(1)
+    },
+    saveFormats: {
+        width: '60%',
     },
     switch: {
     },
@@ -174,6 +178,23 @@ const General = (props) => {
                                 />
                             }
                             label='Write changes to Define-XML file when saving the current Define-XML document'
+                        />
+                        <Autocomplete
+                            clearOnEscape={false}
+                            multiple
+                            onChange={props.handleChange('general', 'saveDefineXmlFormats')}
+                            value={props.state.settings.general.saveDefineXmlFormats}
+                            disabled={!props.state.settings.general.alwaysSaveDefineXml}
+                            disableCloseOnSelect
+                            filterSelectedOptions
+                            options={['xml', 'nogz', 'pdf', 'html']}
+                            renderInput={params => (
+                                <TextField
+                                    {...params}
+                                    label='Save Formats'
+                                    className={classes.saveFormats}
+                                />
+                            )}
                         />
                         <FormControlLabel
                             control={

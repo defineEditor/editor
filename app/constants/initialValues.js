@@ -190,6 +190,7 @@ const general = {
     userName: process.env.USERNAME || process.env.USER || process.env.user || process.env.username || 'Winnie-the-Pooh',
     controlledTerminologyLocation: '',
     alwaysSaveDefineXml: true,
+    saveDefineXmlFormats: ['xml'],
     addStylesheet: true,
     disableAnimations: false,
     checkForUpdates: true,
