@@ -66,6 +66,10 @@ const filterFieldsByType = {
     codedValue: {
         'codeList': { label: 'Name', type: 'string' },
         'codeListType': { label: 'Type', type: 'string' },
+        'value': { label: 'Code', type: 'string' },
+        'decode': { label: 'Decode', type: 'string' },
+        'rank': { label: 'Rank', type: 'string' },
+        'ccode': { label: 'C-Code', type: 'string' },
     },
     resultDisplay: {
         'resultDisplay': { label: 'Name', type: 'string' },

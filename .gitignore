@@ -9,6 +9,7 @@ flow-typed/npm
 app/temp
 app/static/plugins
 app/main.prod*
+app/static/devExtensions
 *.swp
 *.swo
 *.log

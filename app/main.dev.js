@@ -12,8 +12,9 @@
  * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
  ***********************************************************************************/
 
-import { app, BrowserWindow, BrowserView, ipcMain, Menu } from 'electron';
+import { app, session, BrowserWindow, BrowserView, ipcMain, Menu } from 'electron';
 import path from 'path';
+import fs from 'fs';
 import contextMenu from 'electron-context-menu';
 import saveAs from './main/saveAs.js';
 import saveDefine from './main/saveDefine.js';
@@ -57,16 +58,6 @@ if (
     require('module').globalPaths.push(p);
 }
 
-const installExtensions = async () => {
-    const installer = require('electron-devtools-installer');
-    const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-    const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
-
-    return Promise.all(
-        extensions.map(name => installer.default(installer[name], forceDownload))
-    ).catch(console.log);
-};
-
 contextMenu({
     append: (defaultActions, params, browserWindow) => [],
     showLookUpSelection: false,
@@ -84,7 +75,16 @@ app.on('ready', async () => {
             process.env.NODE_ENV === 'development' ||
             process.env.DEBUG_PROD === 'true'
         ) {
-            await installExtensions();
+            // If Redux/React dev tools are needed, they must be manually downloaded and extracted in the folder below (folders redux/react)
+            const pathToExtensions = path.join(__dirname, 'static', 'devExtensions');
+            if (fs.existsSync(pathToExtensions)) {
+                await session.defaultSession.loadExtension(
+                    path.join(pathToExtensions, 'react'), { allowFileAccess: true }
+                );
+                await session.defaultSession.loadExtension(
+                    path.join(pathToExtensions, 'redux'), { allowFileAccess: true }
+                );
+            }
         }
 
         let iconPath;
@@ -142,31 +142,31 @@ app.on('ready', async () => {
         // Event listeners for all windows
         // Extract data from nogz
         ipcMain.on('loadDefineObject', (event, defineId, id) => {
-            if (windowObj !== null && event.sender.webContents.id === windowObj.webContents.id) {
+            if (windowObj !== null && event.sender.id === windowObj.webContents.id) {
                 loadDefineObject(windowObj, defineId, id);
             }
         });
         // Change Title
         ipcMain.on('setTitle', (event, title) => {
-            if (windowObj !== null && event.sender.webContents.id === windowObj.webContents.id) {
+            if (windowObj !== null && event.sender.id === windowObj.webContents.id) {
                 windowObj.setTitle(title);
             }
         });
         // Close the main window
         ipcMain.on('quitConfirmed', (event) => {
-            if (windowObj !== null && event.sender.webContents.id === windowObj.webContents.id) {
+            if (windowObj !== null && event.sender.id === windowObj.webContents.id) {
                 windowObj = null;
             }
         });
         // Load requested CT
         ipcMain.on('loadControlledTerminology', (event, ctToLoad) => {
-            if (windowObj !== null && event.sender.webContents.id === windowObj.webContents.id) {
+            if (windowObj !== null && event.sender.id === windowObj.webContents.id) {
                 loadControlledTerminology(windowObj, ctToLoad);
             }
         });
         // Find in page events
         ipcMain.on('openFindInPage', (event, data) => {
-            if (windowObj !== null && event.sender.webContents.id === windowObj.webContents.id) {
+            if (windowObj !== null && event.sender.id === windowObj.webContents.id) {
                 if (findInPageView === null) {
                     findInPageView = new BrowserView({
                         webPreferences: {
@@ -196,7 +196,7 @@ app.on('ready', async () => {
         });
 
         ipcMain.on('closeFindInPage', (event, data) => {
-            if (windowObj !== null && findInPageView !== null && event.sender.webContents.id === findInPageView.webContents.id) {
+            if (windowObj !== null && findInPageView !== null && event.sender.id === findInPageView.webContents.id) {
                 windowObj.removeBrowserView(findInPageView);
                 windowObj.webContents.stopFindInPage('clearSelection');
                 findInPageView.webContents.destroy();
@@ -206,7 +206,7 @@ app.on('ready', async () => {
         });
 
         ipcMain.on('findInPageNext', (event, data) => {
-            if (windowObj !== null && findInPageView !== null && event.sender.webContents.id === findInPageView.webContents.id) {
+            if (windowObj !== null && findInPageView !== null && event.sender.id === findInPageView.webContents.id) {
                 windowObj.webContents.once('found-in-page', (event, result) => {
                     findInPageView.webContents.send('foundInPage', result);
                 });
@@ -215,7 +215,7 @@ app.on('ready', async () => {
         });
 
         ipcMain.on('findInPageClear', (event, data) => {
-            if (windowObj !== null && findInPageView !== null && event.sender.webContents.id === findInPageView.webContents.id) {
+            if (windowObj !== null && findInPageView !== null && event.sender.id === findInPageView.webContents.id) {
                 windowObj.webContents.stopFindInPage('clearSelection');
             }
         });

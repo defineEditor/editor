@@ -15,6 +15,7 @@ import getTableDataAsText from 'utils/getTableDataAsText.js';
 import getItemGroupDataAsText from 'utils/getItemGroupDataAsText.js';
 import getCodeListDataAsText from 'utils/getCodeListDataAsText.js';
 import getAnalysisResultDataAsText from 'utils/getAnalysisResultDataAsText.js';
+import getCodedValuesAsText from 'utils/getCodedValuesAsText.js';
 import applyFilter from 'utils/applyFilter.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
@@ -110,16 +111,23 @@ const getItemsFromFilter = (filter, mdv, defineVersion, studies, defines) => {
     } else if (type === 'codedValue') {
         let codeListData = [];
         selectedItems = [];
-        Object.values(mdv.codeLists).forEach(codeList => {
-            codeListData.push({
-                oid: codeList.oid,
-                codeListOid: codeList.oid,
-                codeList: codeList.name,
-                codeListType: codeList.codeListType,
+        Object.values(mdv.codeLists)
+            .filter(codeList => ['decoded', 'enumerated'].includes(codeList.codeListType))
+            .forEach(codeList => {
+                let item = {
+                    oid: codeList.oid,
+                    codeListOid: codeList.oid,
+                    codeList: codeList.name,
+                    codeListType: codeList.codeListType,
+                };
+                let codedValueData = getCodedValuesAsText({ codeList, defineVersion: mdv.defineVersion });
+                codedValueData = codedValueData.map(row => {
+                    return { ...row, ...item };
+                });
+                codeListData = codeListData.concat(codedValueData);
             });
-        });
         let codeListItems = applyFilter(codeListData, filter);
-        selectedItems = codeListItems.map(oid => ({ oid, codeListOid: oid }));
+        selectedItems = codeListItems.filter((oid, index) => index === codeListItems.indexOf(oid)).map(oid => ({ oid, codeListOid: oid }));
     } else if (type === 'resultDisplay' && mdv.analysisResultDisplays && Object.keys(mdv.analysisResultDisplays).length > 0) {
         let resultDisplayData = [];
         Object.values(mdv.analysisResultDisplays.resultDisplays).forEach(resultDisplay => {

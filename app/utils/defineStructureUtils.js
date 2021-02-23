@@ -185,5 +185,7 @@ export const getMaxLength = (object) => {
 export const getNote = (object) => {
     if (object.note) {
         return object.note.replace(/(<([^>]+)>)/gi, '');
+    } else {
+        return '';
     }
 };

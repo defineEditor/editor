@@ -192,7 +192,7 @@ class ConnectedEditorTabs extends React.Component {
             }
         }
 
-        const numberOfChanges = this.props.historyIndex - this.props.lastSaveHistoryIndex;
+        const numberOfChanges = Math.max(this.props.historyIndex - this.props.lastSaveHistoryIndex, 0);
 
         return (
             <div className={classes.root}>

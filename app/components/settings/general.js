@@ -44,7 +44,8 @@ const useStyles = makeStyles((theme) => ({
         margin: theme.spacing(1)
     },
     saveFormats: {
-        width: '60%',
+        width: '400px',
+        marginBottom: theme.spacing(1)
     },
     switch: {
     },
