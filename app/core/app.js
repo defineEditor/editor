@@ -156,6 +156,12 @@ class ConnectedApp extends Component {
                 page: 'studies',
             });
             ipcRenderer.once('reviewWindowData', (event, data) => {
+                if (data.selectedItem !== undefined) {
+                    this.props.updateSearchInfo({
+                        matchedStudies: {},
+                        selectedItem: data.selectedItem
+                    });
+                }
                 changeAppTitle({ studyId: data.studyId, defineId: data.defineId });
                 this.props.changePage({
                     page: 'editor',
@@ -363,6 +369,7 @@ ConnectedApp.propTypes = {
     bugModalOpened: PropTypes.bool,
     openModal: PropTypes.func.isRequired,
     openSnackbar: PropTypes.func.isRequired,
+    updateSearchInfo: PropTypes.func.isRequired,
     changeCdiscLibraryView: PropTypes.func.isRequired,
     updateMainUi: PropTypes.func,
     saveCdiscLibraryInfo: PropTypes.func,

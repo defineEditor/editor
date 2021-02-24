@@ -79,7 +79,7 @@ function loadDefineObject (event, data, id) {
 
     if (data.hasOwnProperty('tabs')) {
         store.dispatch(loadTabs(data.tabs));
-        if (id === 'searchStudies') {
+        if (id === 'searchStudies' || id === 'reviewInNewWindow') {
             // Change tab, group and apply required filter
             let fullState = store.getState();
             if (fullState.present.sessionData.searchInfo &&
