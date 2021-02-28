@@ -20,7 +20,7 @@ import { promisify } from 'util';
 
 const readFile = promisify(fs.readFile);
 
-async function loadDefineObject (mainWindow, defineId, id, pathToFile) {
+async function loadDefineObject (windowObj, defineId, id, pathToFile) {
     let pathToDefines;
     let file;
     if (pathToFile !== undefined) {
@@ -38,20 +38,24 @@ async function loadDefineObject (mainWindow, defineId, id, pathToFile) {
     await zip.loadAsync(data);
     let files = Object.keys(zip.files);
 
-    if (id === 'import' && files.includes('odm.json')) {
+    if (['import', 'search'].includes(id) && files.includes('odm.json')) {
         // Load only the ODM
         let contents = await zip.file('odm.json').async('string');
         result.odm = JSON.parse(contents);
-        mainWindow.webContents.send('loadDefineObjectForImport', result, id);
+        if (id === 'import') {
+            windowObj.webContents.send('loadDefineObjectForImport', result, id);
+        } else {
+            windowObj.webContents.send('loadDefineObjectForSearch', result, id);
+        }
     } else if (id !== 'import') {
         await Promise.all(files.map(async (file) => {
             let contents = await zip.file(file).async('string');
             result[file.replace(/\.json$/, '')] = JSON.parse(contents);
         }));
         if (pathToFile !== undefined) {
-            mainWindow.webContents.send('define', result, pathToFile);
+            windowObj.webContents.send('define', result, pathToFile);
         } else {
-            mainWindow.webContents.send('loadDefineObjectToRender', result, id);
+            windowObj.webContents.send('loadDefineObjectToRender', result, id);
         }
     }
 

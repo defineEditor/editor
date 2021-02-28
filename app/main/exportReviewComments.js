@@ -32,8 +32,11 @@ const updateText = (text) => {
 };
 
 const saveReviewCommentsToFile = async (mainWindow, exportData, saveDialogResult) => {
-    const { filePath, canceled } = saveDialogResult;
+    let { filePath, canceled } = saveDialogResult;
     if (!canceled && filePath !== undefined) {
+        if (!filePath.toLowerCase().endsWith('.xlsx')) {
+            filePath = filePath + '.xlsx';
+        }
         let pathTotemplate = path.join(__dirname, '..', 'static', 'templates', 'reviewCommentsTemplate.xlsx');
         let workbook = await xlsx.fromFileAsync(pathTotemplate);
         let summary = [];

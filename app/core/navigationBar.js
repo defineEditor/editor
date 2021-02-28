@@ -28,9 +28,6 @@ const styles = theme => ({
     menuToggle: {
         marginLeft: theme.spacing(1),
     },
-    navBarItem: {
-        marginTop: theme.spacing(1),
-    },
     menu: {
         marginRight: theme.spacing(2),
     },
@@ -45,7 +42,7 @@ const mapDispatchToProps = dispatch => {
 class ConnectedNavigationBar extends React.Component {
     renderChildElements = () => {
         return React.Children.map(this.props.children, (child) => (
-            <Grid item className={this.props.classes.navBarItem}>
+            <Grid item>
                 {child}
             </Grid>
         ));
@@ -54,7 +51,7 @@ class ConnectedNavigationBar extends React.Component {
         const { classes } = this.props;
         return (
             <AppBar position="fixed" color='default'>
-                <Grid container justify='flex-start'>
+                <Grid container justify='flex-start' alignItems='center'>
                     <Grid item className={classes.menu}>
                         <IconButton
                             color='default'

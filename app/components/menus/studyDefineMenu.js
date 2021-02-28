@@ -14,15 +14,18 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { ipcRenderer } from 'electron';
 import { useDispatch } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser';
 import ReplaceIcon from '@material-ui/icons/Cached';
 import DeleteIcon from '@material-ui/icons/Delete';
 import MenuIcon from '@material-ui/icons/MoreVert';
+import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import {
     openModal,
     toggleAddDefineForm
@@ -58,6 +61,16 @@ const StudyDefineMenu = (props) => {
         props.onClose();
     };
 
+    const handleReview = () => {
+        ipcRenderer.send('openDefineInNewWindow', {
+            defineId: props.defineId,
+            studyId: props.studyId,
+            origin: 'studies',
+        });
+        handleClose();
+        props.onClose();
+    };
+
     return (
         <React.Fragment>
             <IconButton
@@ -73,6 +86,18 @@ const StudyDefineMenu = (props) => {
                 onClose={handleClose}
                 PaperProps={{ style: { width: 145, }, }}
             >
+                <MenuItem key='Open' onClick={props.onOpenDefine}>
+                    <ListItemIcon>
+                        <ArrowForwardIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Open" />
+                </MenuItem>
+                <MenuItem key='Review' onClick={handleReview}>
+                    <ListItemIcon>
+                        <OpenInBrowserIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Review" />
+                </MenuItem>
                 <MenuItem key='Replace' onClick={handleReplace}>
                     <ListItemIcon>
                         <ReplaceIcon />
@@ -93,6 +118,7 @@ const StudyDefineMenu = (props) => {
 StudyDefineMenu.propTypes = {
     studyId: PropTypes.string.isRequired,
     defineId: PropTypes.string.isRequired,
+    onOpenDefine: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
 };
 

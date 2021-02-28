@@ -55,3 +55,4 @@ export * from 'actions/controlledTerminology.js';
 export * from 'actions/stdCodeLists.js';
 export * from 'actions/analysisResultDisplays.js';
 export * from 'actions/reviewComments.js';
+export * from 'actions/sessionData.js';

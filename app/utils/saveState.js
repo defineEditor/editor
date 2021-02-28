@@ -24,23 +24,26 @@ import {
 } from 'actions/index.js';
 
 function saveDefineXml (data, options, state, lastSaveHistoryIndex, onSaveFinished) {
-    if (options.pathToFile.toLowerCase().endsWith('.xml')) {
-        // Perform updates (like handling of HasNoData/Unused codelist and etc.)
-        const { odm } = getUpdatedDefineBeforeSave(data.odm);
-        data.odm = odm;
-    } else if (options.pathToFile.toLowerCase().endsWith('.nogz')) {
+    // Perform updates (like handling of HasNoData/Unused codelist and etc.)
+    const { odm } = getUpdatedDefineBeforeSave(data.odm);
+    data.odm = odm;
+    if (options.saveDefineXmlFormats.includes('nogz')) {
         // If it is a nogz, only update the source system info
         let odm = { ...data.odm };
         updateSourceSystem(odm, state);
-        data.odm = odm;
+        data.originalOdm = odm;
     }
     // Get number of datasets/codelists/variables
-    let stats = getDefineStats(data.odm);
+    let stats = getDefineStats(data.odm || data.originalOdm);
     ipcRenderer.once('defineSaved', (event, defineId) => {
-        store.dispatch(appSave({ defineId, stats, lastSaveHistoryIndex }));
-        store.dispatch(openSnackbar({ type: 'success', message: 'File and state were saved' }));
-        if (typeof onSaveFinished === 'function') {
-            onSaveFinished();
+        if (defineId === undefined) {
+            store.dispatch(openSnackbar({ type: 'error', message: 'Failed saving the file' }));
+        } else {
+            store.dispatch(appSave({ defineId, stats, lastSaveHistoryIndex }));
+            store.dispatch(openSnackbar({ type: 'success', message: 'File and state were saved' }));
+            if (typeof onSaveFinished === 'function') {
+                onSaveFinished();
+            }
         }
     });
     ipcRenderer.send('saveDefine', data, options);
@@ -70,6 +73,7 @@ function saveState (type, onSaveFinished) {
                 let pathToFile = stateToSave.defines.byId[defineId].pathToFile || '';
                 let odm = stateToSave.odm;
                 if (alwaysSaveDefineXml === true && pathToFile !== '') {
+                    let saveDefineXmlFormats = state.settings.general.saveDefineXmlFormats;
                     ipcRenderer.once('writeDefineObjectFinished', (event) => {
                         saveDefineXml(
                             {
@@ -78,7 +82,7 @@ function saveState (type, onSaveFinished) {
                                 userName: stateToSave.settings.general.userName,
                                 studyId: stateToSave.ui.main.currentStudyId,
                             },
-                            { pathToFile, addStylesheet },
+                            { pathToFile, addStylesheet, saveDefineXmlFormats },
                             state,
                             fullState.index,
                             onSaveFinished
@@ -123,6 +127,7 @@ function saveState (type, onSaveFinished) {
     delete stateToSave.stdConstants;
     delete stateToSave.stdCodeLists;
     delete stateToSave.ui.tabs;
+    delete stateToSave.sessionData;
 
     if (Object.keys(stateToSave).length > 0) {
         eStore.clear();

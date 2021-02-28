@@ -76,6 +76,7 @@ const mapStateToProps = state => {
         mdv: state.present.odm.study.metaDataVersion,
         odm: state.present.odm,
         author: state.present.settings.general.userName,
+        windowType: state.present.ui.main.windowType,
     };
 };
 
@@ -171,6 +172,7 @@ class ConnectedModalReviewComments extends React.Component {
                     onDelete={this.deleteReviewComment}
                     onReply={this.props.addReplyComment}
                     onResolve={this.props.toggleResolveComment}
+                    noEdit={this.props.windowType === 'reviewWindow'}
                 />
             ));
     }
@@ -198,7 +200,7 @@ class ConnectedModalReviewComments extends React.Component {
                             <Grid item xs={12}>
                                 {this.getComments(sources, reviewComments)}
                             </Grid>
-                            { !this.props.sources.hasOwnProperty('reviewComments') && (
+                            { !this.props.sources.hasOwnProperty('reviewComments') && !(this.props.windowType === 'reviewWindow') && (
                                 <Grid item xs={12}>
                                     <ReviewComment
                                         initialComment
@@ -254,6 +256,7 @@ ConnectedModalReviewComments.propTypes = {
     addReplyComment: PropTypes.func.isRequired,
     toggleResolveComment: PropTypes.func.isRequired,
     author: PropTypes.string.isRequired,
+    windowType: PropTypes.string,
     reviewComments: PropTypes.object.isRequired,
     mdv: PropTypes.object.isRequired,
     odm: PropTypes.object.isRequired,

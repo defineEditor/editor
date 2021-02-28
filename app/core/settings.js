@@ -205,6 +205,17 @@ class ConnectedSettings extends React.Component {
                     });
                 }
             }
+        } else if (name === 'saveDefineXmlFormats') {
+            // It cannot be blank, so default to xml
+            let newValue = checked;
+            if (newValue.length === 0) {
+                newValue = ['xml'];
+            }
+            this.setState({
+                settings: { ...this.state.settings,
+                    [category]: { ...this.state.settings[category], [name]: newValue }
+                },
+            });
         } else {
             this.setState({
                 settings: { ...this.state.settings,
@@ -219,7 +230,16 @@ class ConnectedSettings extends React.Component {
         let newSettings = clone(this.state.settings);
         Object.keys(newSettings).forEach(category => {
             Object.keys(newSettings[category]).forEach(setting => {
-                if (
+                if (Array.isArray(this.props.settings[category][setting])) {
+                    const array = this.props.settings[category][setting];
+                    const newArray = newSettings[category][setting];
+                    if (array.length !== newArray.length || array.some((value, index) => value !== newArray[index])) {
+                        result[category] = {
+                            ...result[category],
+                            [setting]: newArray
+                        };
+                    }
+                } else if (
                     newSettings[category][setting] !==
                     this.props.settings[category][setting]
                 ) {

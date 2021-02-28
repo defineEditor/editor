@@ -21,9 +21,12 @@ import {
     loadTabs,
     deleteStdCodeLists,
     openSnackbar,
+    selectGroup,
+    changeTab,
+    updateFilter,
 } from 'actions/index.js';
 
-function loadDefineObject (event, data) {
+const loadDefineObject = (event, data, id) => {
     if (data.hasOwnProperty('odm')) {
         // Load the ODM
         // If review comments are not present, add default value
@@ -80,8 +83,57 @@ function loadDefineObject (event, data) {
         // Load default tabs
         store.dispatch(loadTabs());
     }
+    // If the define is opened from the search modal, show search results
+    if (id === 'searchStudies' || id === 'reviewInNewWindow') {
+        // Change tab, group and apply required filter
+        let fullState = store.getState();
+        let tabs = data.tabs;
+        if (tabs === undefined && fullState.present.ui && fullState.present.ui.tabs) {
+            tabs = fullState.present.ui.tabs;
+        }
+        if (fullState.present.sessionData.searchInfo &&
+            fullState.present.sessionData.searchInfo.selectedItem &&
+            Array.isArray(tabs.tabObjectNames) &&
+            tabs.tabObjectNames.includes(fullState.present.sessionData.searchInfo.selectedItem.type + 's')
+        ) {
+            // Change tab
+            const { type, item, filter } = fullState.present.sessionData.searchInfo.selectedItem;
+            // The +s is a crutch for poor choice of names (types in filter are in a singular form, tab names are in a plural form)
+            let tabIndex = tabs.tabObjectNames.indexOf(type + 's');
+            let updateObj = {
+                selectedTab: tabIndex,
+                currentScrollPosition: 0,
+            };
+            store.dispatch(changeTab(updateObj));
+            // Change group
+            if (['variable', 'codedValue', 'analysisResult'].includes(type)) {
+                // Check the required group is present
+                if (type === 'variable' && data.odm.study.metaDataVersion.order.itemGroupOrder.includes(item.itemGroupOid)) {
+                    store.dispatch(selectGroup({ groupOid: item.itemGroupOid, scrollPosition: undefined, tabIndex }));
+                } else if (type === 'codedValue' && data.odm.study.metaDataVersion.order.codeListOrder.includes(item.codeListOid)) {
+                    store.dispatch(selectGroup({ groupOid: item.codeListOid, scrollPosition: undefined, tabIndex }));
+                } else if (type === 'analysisResult' &&
+                    data.odm.study.metaDataVersion.analysisResultDisplays &&
+                    data.odm.study.metaDataVersion.analysisResultDisplays.resultDisplayOrder &&
+                    data.odm.study.metaDataVersion.analysisResultDisplays.resultDisplayOrder.includes(item.resultDisplayOid)
+                ) {
+                    store.dispatch(selectGroup({ groupOid: item.resultDisplayOid, scrollPosition: undefined, tabIndex }));
+                }
+            }
+            if (filter === true && fullState.present.ui && fullState.present.ui.studies) {
+                // Find filter used in search
+                let filter = fullState.present.ui.studies.filters[type];
+                if (filter !== undefined && filter.isEnabled) {
+                    store.dispatch(updateFilter({
+                        ...filter,
+                        source: 'editor',
+                    }));
+                }
+            }
+        }
+    }
     // Reset history when a new Define-XML file is loaded
     store.dispatch(ActionCreators.clearHistory());
-}
+};
 
 export default loadDefineObject;

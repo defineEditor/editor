@@ -23,6 +23,7 @@ const filterActions = (action, currentState, previousHistory) => {
     return (
         !action.type.startsWith('UI_') &&
         !action.type.startsWith('CT_') &&
+        !action.type.startsWith('SD_') &&
         !action.type.startsWith('@@') &&
         !(action.noHistory === true) &&
         !['STDCDL_LOAD', 'APP_SAVE', 'STG_UPDATESETTINGS'].includes(action.type)

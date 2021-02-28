@@ -125,7 +125,7 @@ const handleImportStudy = (state, action) => {
     };
 };
 
-const studies = (state = initialState, action) => {
+const defines = (state = initialState, action) => {
     switch (action.type) {
         case DEFINE_ADD:
             return addDefine(state, action);
@@ -144,4 +144,4 @@ const studies = (state = initialState, action) => {
     }
 };
 
-export default studies;
+export default defines;

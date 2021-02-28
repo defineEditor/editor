@@ -15,6 +15,7 @@
 import {
     UI_SETSTUDYORDERTYPE,
     UI_TOGGLEADDDEFINEFORM,
+    UI_UPDATEFILTER,
 } from 'constants/action-types';
 import { ui } from 'constants/initialValues.js';
 
@@ -36,12 +37,29 @@ const toggleAddDefineForm = (state, action) => {
     });
 };
 
+const updateFilter = (state, action) => {
+    // Update this part only if filter was called from studies
+    if (action.updateObj.source === 'studies') {
+        let updateObj = { ...action.updateObj };
+        delete updateObj.source;
+
+        return {
+            ...state,
+            filters: { ...state.filters, [updateObj.type]: updateObj },
+        };
+    } else {
+        return state;
+    }
+};
+
 const main = (state = initialState, action) => {
     switch (action.type) {
         case UI_SETSTUDYORDERTYPE:
             return setStudyOrderType(state, action);
         case UI_TOGGLEADDDEFINEFORM:
             return toggleAddDefineForm(state, action);
+        case UI_UPDATEFILTER:
+            return updateFilter(state, action);
         default:
             return state;
     }

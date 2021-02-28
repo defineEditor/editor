@@ -82,6 +82,9 @@ const styles = theme => ({
         border: '2px solid',
         borderColor: theme.palette.grey['200'],
         margin: '1px',
+        '&:hover': {
+            borderColor: '#9FA8DA',
+        },
     },
     currentCard: {
         borderRadius: '10px',
@@ -189,6 +192,7 @@ class ConnectedStudyTile extends React.Component {
                 page: 'editor',
                 defineId,
                 studyId: this.props.study.id,
+                origin: 'studies',
             });
         } else {
             this.props.openModal({
@@ -197,6 +201,7 @@ class ConnectedStudyTile extends React.Component {
                     currentDefineId: this.props.currentDefineId,
                     defineId,
                     studyId: this.props.study.id,
+                    origin: 'studies',
                 }
             });
             this.handleDefineMenuClose();
@@ -234,6 +239,7 @@ class ConnectedStudyTile extends React.Component {
                             studyId={this.state.study.id}
                             defineId={defineId}
                             onClose={onClose}
+                            onOpenDefine={() => { this.selectDefine(defineId); }}
                         />
                     </ListItemSecondaryAction>
                 </MenuItem>

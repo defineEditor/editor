@@ -12,34 +12,43 @@
  * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
  ***********************************************************************************/
 import getTableDataAsText from 'utils/getTableDataAsText.js';
+import getItemGroupDataAsText from 'utils/getItemGroupDataAsText.js';
+import getCodeListDataAsText from 'utils/getCodeListDataAsText.js';
+import getAnalysisResultDataAsText from 'utils/getAnalysisResultDataAsText.js';
+import getCodedValuesAsText from 'utils/getCodedValuesAsText.js';
 import applyFilter from 'utils/applyFilter.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
-const getItemsFromFilter = (filter, mdv, defineVersion) => {
+const getItemsFromFilter = (filter, mdv, defineVersion, studies, defines) => {
     let selectedItems = [];
     let type = filter.type;
     if (type === 'variable') {
         // Get itemGroupOids from name
         let itemGroupOids = [];
-        Object.keys(mdv.itemGroups).forEach(itemGroupOid => {
-            if (
-                (filter.conditions[0].comparator === 'IN' &&
-                    filter.conditions[0].selectedValues.includes(mdv.itemGroups[itemGroupOid].name)
-                ) ||
-                (filter.conditions[0].comparator === 'NOTIN' &&
-                    !filter.conditions[0].selectedValues.includes(mdv.itemGroups[itemGroupOid].name)
-                )
-            ) {
-                itemGroupOids.push(itemGroupOid);
-            }
-        });
-        // Delete the first condition, as it contains only the list of datasets and cannot be used for filtering
+        // If the first argument is dataset then use only specified datasets
         let updatedFilter = { ...filter };
-        updatedFilter.conditions = filter.conditions.slice();
-        updatedFilter.conditions.splice(0, 1);
-        if (updatedFilter.connectors.length > 0) {
-            updatedFilter.connectors = filter.connectors.slice();
-            updatedFilter.connectors.splice(0, 1);
+        if (filter.conditions[0].field === 'dataset') {
+            Object.keys(mdv.itemGroups).forEach(itemGroupOid => {
+                if (
+                    (filter.conditions[0].comparator === 'IN' &&
+                        filter.conditions[0].selectedValues.includes(mdv.itemGroups[itemGroupOid].name)
+                    ) ||
+                    (filter.conditions[0].comparator === 'NOTIN' &&
+                        !filter.conditions[0].selectedValues.includes(mdv.itemGroups[itemGroupOid].name)
+                    )
+                ) {
+                    itemGroupOids.push(itemGroupOid);
+                }
+            });
+            // Delete the first condition, as it contains only the list of datasets and cannot be used for filtering
+            updatedFilter.conditions = filter.conditions.slice();
+            updatedFilter.conditions.splice(0, 1);
+            if (updatedFilter.connectors.length > 0) {
+                updatedFilter.connectors = filter.connectors.slice();
+                updatedFilter.connectors.splice(0, 1);
+            }
+        } else {
+            itemGroupOids = mdv.order.itemGroupOrder;
         }
 
         itemGroupOids.forEach(itemGroupOid => {
@@ -96,33 +105,30 @@ const getItemsFromFilter = (filter, mdv, defineVersion) => {
             }
         });
     } else if (type === 'dataset') {
-        // Get dataset information from name
-        let itemGroupData = [];
-        Object.values(mdv.itemGroups).forEach(itemGroup => {
-            let datasetClass = '';
-            if (itemGroup.datasetClass) {
-                datasetClass = itemGroup.datasetClass.name;
-            }
-            itemGroupData.push({
-                oid: itemGroup.oid,
-                dataset: itemGroup.name,
-                label: getDescription(itemGroup),
-                datasetClass,
-
-            });
-            selectedItems = applyFilter(itemGroupData, filter);
-        });
-    } else if (type === 'codeList' || type === 'codedValue') {
+        selectedItems = applyFilter(getItemGroupDataAsText(mdv), filter);
+    } else if (type === 'codeList') {
+        selectedItems = applyFilter(getCodeListDataAsText(mdv), filter);
+    } else if (type === 'codedValue') {
         let codeListData = [];
-        Object.values(mdv.codeLists).forEach(codeList => {
-            codeListData.push({
-                oid: codeList.oid,
-                codeList: codeList.name,
-                codeListType: codeList.codeListType,
+        selectedItems = [];
+        Object.values(mdv.codeLists)
+            .filter(codeList => ['decoded', 'enumerated'].includes(codeList.codeListType))
+            .forEach(codeList => {
+                let item = {
+                    oid: codeList.oid,
+                    codeListOid: codeList.oid,
+                    codeList: codeList.name,
+                    codeListType: codeList.codeListType,
+                };
+                let codedValueData = getCodedValuesAsText({ codeList, defineVersion: mdv.defineVersion });
+                codedValueData = codedValueData.map(row => {
+                    return { ...row, ...item };
+                });
+                codeListData = codeListData.concat(codedValueData);
             });
-            selectedItems = applyFilter(codeListData, filter);
-        });
-    } else if (type === 'resultDisplay') {
+        let codeListItems = applyFilter(codeListData, filter);
+        selectedItems = codeListItems.filter((oid, index) => index === codeListItems.indexOf(oid)).map(oid => ({ oid, codeListOid: oid }));
+    } else if (type === 'resultDisplay' && mdv.analysisResultDisplays && Object.keys(mdv.analysisResultDisplays).length > 0) {
         let resultDisplayData = [];
         Object.values(mdv.analysisResultDisplays.resultDisplays).forEach(resultDisplay => {
             resultDisplayData.push({
@@ -130,21 +136,38 @@ const getItemsFromFilter = (filter, mdv, defineVersion) => {
                 resultDisplay: resultDisplay.name,
                 description: getDescription(resultDisplay),
             });
-            selectedItems = applyFilter(resultDisplayData, filter);
         });
-    } else if (type === 'analysisResult') {
-        let analysisResultData = [];
+        selectedItems = applyFilter(resultDisplayData, filter);
+    } else if (type === 'analysisResult' && mdv.analysisResultDisplays && Object.keys(mdv.analysisResultDisplays).length > 0) {
+        let analysisResultItems = applyFilter(getAnalysisResultDataAsText(mdv), filter);
+        // Get result display for each analysis result
+        let resultDisplayOids = {};
         Object.values(mdv.analysisResultDisplays.analysisResults).forEach(analysisResult => {
             analysisResult.sources.resultDisplays.forEach(resultDisplayOid => {
-                let resultDisplay = mdv.analysisResultDisplays.resultDisplays[resultDisplayOid];
-                analysisResultData.push({
-                    oid: analysisResult.oid,
-                    resultDisplay: resultDisplay.name,
-                    description: getDescription(analysisResult),
-                });
+                resultDisplayOids[analysisResult.oid] = resultDisplayOid;
             });
-            selectedItems = applyFilter(analysisResultData, filter);
         });
+        selectedItems = analysisResultItems.map(oid => ({ oid, resultDisplayOid: resultDisplayOids[oid] }));
+    } else if (type === 'study' && studies !== undefined) {
+        let studyData = [];
+        studies.allIds.forEach(studyId => {
+            let study = studies.byId[studyId];
+            studyData.push({
+                oid: study.id,
+                name: study.name,
+            });
+        });
+        selectedItems = applyFilter(studyData, filter);
+    } else if (type === 'define' && defines !== undefined) {
+        let defineData = [];
+        defines.allIds.forEach(defineId => {
+            let define = defines.byId[defineId];
+            defineData.push({
+                oid: define.id,
+                name: define.name,
+            });
+        });
+        selectedItems = applyFilter(defineData, filter);
     }
 
     return selectedItems;

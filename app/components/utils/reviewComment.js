@@ -223,7 +223,7 @@ class ReviewCommentRaw extends React.Component {
     }
 
     render () {
-        const { classes, oid, initialComment, isParentResolved, reviewComments } = this.props;
+        const { classes, oid, initialComment, isParentResolved, reviewComments, noEdit } = this.props;
 
         let author = this.props.author;
         let reviewCommentOids = [];
@@ -305,7 +305,7 @@ class ReviewCommentRaw extends React.Component {
                             </Typography>
                         )}
                     </CardContent>
-                    { initialComment ? (
+                    { initialComment && !noEdit ? (
                         <CardActions>
                             <Button
                                 size='small'
@@ -318,10 +318,10 @@ class ReviewCommentRaw extends React.Component {
                         </CardActions>
                     ) : (
                         <CardActions>
-                            <Button size='small' color='primary' onClick={this.handleReply} disabled={this.state.editMode || isResolved || isParentResolved}>
+                            <Button size='small' color='primary' onClick={this.handleReply} disabled={this.state.editMode || isResolved || isParentResolved || noEdit}>
                                 Reply
                             </Button>
-                            <Button size='small' color='primary' onClick={this.handleEditSave} disabled={isResolved || isParentResolved}>
+                            <Button size='small' color='primary' onClick={this.handleEditSave} disabled={isResolved || isParentResolved || noEdit}>
                                 {this.state.editMode ? 'Save' : 'Edit'}
                             </Button>
                             { this.state.editMode && !isResolved && !isParentResolved && (
@@ -330,7 +330,7 @@ class ReviewCommentRaw extends React.Component {
                                 </Button>
                             )}
                             { !this.props.isReply && (
-                                <Button size='small' color='primary' onClick={this.toggleResolve} disabled={this.state.editMode}>
+                                <Button size='small' color='primary' onClick={this.toggleResolve} disabled={this.state.editMode || noEdit}>
                                     { isResolved ? 'Unresolve' : 'Resolve' }
                                 </Button>
                             )}
@@ -345,7 +345,7 @@ class ReviewCommentRaw extends React.Component {
                                     </Button>
                                 )]
                             ) : (
-                                <Button size='small' color='primary' onClick={this.toggleConfirmDelete}>
+                                <Button size='small' color='primary' onClick={this.toggleConfirmDelete} disabled={noEdit}>
                                     Delete
                                 </Button>
                             )}
@@ -374,6 +374,7 @@ ReviewCommentRaw.propTypes = {
     sources: PropTypes.object.isRequired,
     oid: PropTypes.string,
     author: PropTypes.string.isRequired,
+    noEdit: PropTypes.bool.isRequired,
     onDelete: PropTypes.func,
     onUpdate: PropTypes.func,
     onReply: PropTypes.func,

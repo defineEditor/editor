@@ -48,8 +48,18 @@ const main = (() => {
         appVersion: appVersion,
         lastBackupDate: '',
         updateInfo: {},
+        changePageOrigin: '',
+        windowType: 'main',
     };
 })();
+
+const defaultFilter = {
+    isEnabled: false,
+    applyToVlm: true,
+    conditions: [],
+    connectors: [],
+    type: '',
+};
 
 const tabs = (() => {
     let tabNames = ['Standards', 'Datasets', 'Variables', 'Codelists', 'Coded Values', 'Documents', 'Result Displays', 'Analysis Results', 'Review Comments'];
@@ -95,12 +105,7 @@ const tabs = (() => {
             settings[i].vlmState = {};
             settings[i].scrollPosition = {};
             settings[i].groupOid = undefined;
-            settings[i].filter = {
-                isEnabled: false,
-                applyToVlm: true,
-                conditions: [],
-                connectors: [],
-            };
+            settings[i].filter = defaultFilter;
         }
         // Column state
         if (['Datasets', 'Variables', 'Codelists', 'Coded Values', 'Result Displays'].includes(tabNames[i])) {
@@ -130,10 +135,14 @@ const snackbar = {
     props: {},
 };
 
+const filterTypes = ['study', 'define', 'dataset', 'variable', 'codeList', 'codedValue', 'resultDisplay', 'analysisResult'];
+const defaultFilters = filterTypes.reduce((acc, item) => { acc[item] = defaultFilter; return acc; }, {});
+
 const studiesUi = {
     orderType: 'alphabetical',
     defineForm: false,
     currentStudyId: '',
+    filters: defaultFilters,
 };
 
 const cdiscLibraryUi = {
@@ -181,6 +190,7 @@ const general = {
     userName: process.env.USERNAME || process.env.USER || process.env.user || process.env.username || 'Winnie-the-Pooh',
     controlledTerminologyLocation: '',
     alwaysSaveDefineXml: true,
+    saveDefineXmlFormats: ['xml'],
     addStylesheet: true,
     disableAnimations: false,
     checkForUpdates: true,
@@ -276,11 +286,16 @@ const studies = {
     allIds: ['NG.SDY.SAMPLE']
 };
 
+const sessionData = {
+    searchInfo: {},
+};
+
 const initialValues = {
     ui,
     settings,
     defines,
     studies,
+    sessionData
 };
 
 export default initialValues;

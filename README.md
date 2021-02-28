@@ -53,6 +53,12 @@ To run the application in a development mode use the following command:
 yarn dev
 ```
 
+To enable [react](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) or [redux](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en) devtools, download and unpack corresponding extensions to the following folders
+```
+/app/static/devExtensions/react
+/app/static/devExtensions/redux
+```
+
 ## Authors
 
 * [**Dmitry Kolosov**](https://www.linkedin.com/in/dmitry-kolosov-91751413/)
