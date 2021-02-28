@@ -135,7 +135,11 @@ export const makeBackup = async (mainWindow, backupOptions) => {
                 zlib: { level: 0 }
             });
 
-            const output = fs.createWriteStream(filePath);
+            let updatedFilePath = filePath;
+            if (!filePath.toLowerCase().endsWith('.zip')) {
+                updatedFilePath = filePath + '.zip';
+            }
+            const output = fs.createWriteStream(updatedFilePath);
 
             output.on('close', () => {
                 mainWindow.send('snackbar', { type: 'success', message: 'Backup created' });

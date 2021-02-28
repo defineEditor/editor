@@ -601,6 +601,7 @@ const LoadFromDefine = (props) => {
         setFilters({ ...filters, [filter.type]: filter });
         let items = getItemsFromFilter(filter, mdv, defineVersion);
         if (filter.type === 'codedValue') {
+            items = items.map(item => item.codeListOid);
             let codedValueNum = Object.values(mdv.codeLists)
                 .filter(codeList => items.includes(codeList.oid) && codeList.itemOrder)
                 .map(codeList => codeList.itemOrder.length)

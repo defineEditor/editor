@@ -36,6 +36,7 @@ import getSelectionList from 'utils/getSelectionList.js';
 import getTableDataAsText from 'utils/getTableDataAsText.js';
 import getItemGroupDataAsText from 'utils/getItemGroupDataAsText.js';
 import getCodeListDataAsText from 'utils/getCodeListDataAsText.js';
+import getCodedValuesAsText from 'utils/getCodedValuesAsText.js';
 import getAnalysisResultDataAsText from 'utils/getAnalysisResultDataAsText.js';
 import InternalHelp from 'components/utils/internalHelp.js';
 import { filterFieldsByType, comparators } from 'constants/filterSettings.js';
@@ -485,11 +486,37 @@ class ConnectedItemFilter extends React.Component {
         } else if (type === 'codeList') {
             values = getCodeListDataAsText(this.props.mdv, 'object');
         } else if (type === 'codedValue') {
-            let codeLists = this.props.mdv.codeLists;
-            values.codeList = Object.values(codeLists).map(codeList => (codeList.name));
-            let type = Object.values(codeLists).map(codeList => (codeList.codeListType));
-            // Remove duplicates and undefined
-            values.codeListType = type.filter((item, index) => (type.indexOf(item) === index)).filter(item => (item !== undefined));
+            let codeListData = [];
+            Object.values(this.props.mdv.codeLists)
+                .filter(codeList => ['decoded', 'enumerated'].includes(codeList.codeListType))
+                .forEach(codeList => {
+                    let item = {
+                        oid: codeList.oid,
+                        codeList: codeList.name,
+                        codeListType: codeList.codeListType,
+                    };
+                    let codedValueData = getCodedValuesAsText({ codeList, defineVersion: this.props.mdv.defineVersion });
+                    codedValueData = codedValueData.map(row => {
+                        return { ...row, ...item };
+                    });
+                    codeListData = codeListData.concat(codedValueData);
+                });
+            let headers = [
+                'codeList',
+                'codeListType',
+                'value',
+                'decode',
+                'rank',
+                'ccode',
+            ];
+            values = headers.reduce((acc, item) => { acc[item] = []; return acc; }, {});
+            codeListData.forEach(item => {
+                Object.keys(item).filter(attr => attr !== 'oid').forEach(attr => {
+                    if (!values[attr].includes(item[attr]) && item[attr] !== undefined) {
+                        values[attr].push(item[attr]);
+                    }
+                });
+            });
         } else if (type === 'resultDisplay') {
             let resultDisplayOrder = this.props.mdv.analysisResultDisplays.resultDisplayOrder;
             values.resultDisplay = resultDisplayOrder.map(resultDisplayOid => {

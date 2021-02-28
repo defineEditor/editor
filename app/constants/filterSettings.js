@@ -31,6 +31,7 @@ const filterFieldsByType = {
         'isNonStandard': { label: 'Non-standard', type: 'flag' },
         'hasNoData': { label: 'Has No Data', type: 'flag' },
         'comment': { label: 'Comment', type: 'string' },
+        'hasDocument': { label: 'Has Document', type: 'flag' },
         'note': { label: 'Note', type: 'string' },
     },
     variable: {

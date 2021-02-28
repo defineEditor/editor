@@ -30,6 +30,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import getItemsFromFilter from 'utils/getItemsFromFilter.js';
 import getItemNamesFromOid from 'utils/getItemNamesFromOid.js';
 import StudySearchResultsTable from 'components/utils/studySearchResultsTable.js';
+import recreateDefine from 'utils/recreateDefine.js';
 import {
     openModal,
     openSnackbar,
@@ -145,6 +146,15 @@ const ModalSearchStudies = (props) => {
 
     const handleSearch = (event, data) => {
         let result = {};
+        // When Define-XML was generated using a previous version of VDE it needs to be created to avoid errors during the search
+        const appVersion = process.argv.filter(arg => arg.startsWith('--vdeVersion')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+        const appMode = process.argv.filter(arg => arg.startsWith('--vdeMode')).map(arg => arg.replace(/.*:\s*(.*)/, '$1'))[0];
+        if (
+            data.info === undefined ||
+            (data.info !== undefined && (data.info.appVersion !== appVersion || appMode === 'DEV'))
+        ) {
+            data.odm = recreateDefine(data.odm);
+        }
         if (data.odm && data.odm.study && data.odm.study.metaDataVersion) {
             try {
                 const mdv = data.odm.study.metaDataVersion;
