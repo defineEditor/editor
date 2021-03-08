@@ -168,6 +168,8 @@ export const SETTINGS_EDITOR = {
 * **Allow to extend non-extensible codelists** - NCI/CDISC Controlled Terminology specify some codelists as non-extensible, meaning they must contain values only from the controlled terminology. If there is a need to violate this rule, this option can be enabled.
 #### Analysis Result
 * **Show line numbers in ARM programming code** - Controls whether line numbers are shown for the ARM code. Does not impact contents of the ARM code in the final Define-XML file.
+#### Review Comments Result
+* **Remove HTML tags in comments export** - Review comments are using rich text format, which is stored as HTML. This option allows to remove all HTML tags when review comments are exported to an XLSX file.
 `
 };
 

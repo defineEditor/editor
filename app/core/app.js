@@ -34,6 +34,7 @@ import sendDefineObject from 'utils/sendDefineObject.js';
 import changeAppTitle from 'utils/changeAppTitle.js';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import { initCdiscLibrary, dummyRequest } from 'utils/cdiscLibraryUtils.js';
+import { getUpdatedDefineBeforeSave } from 'utils/getUpdatedDefineBeforeSave.js';
 import quitApplication from 'utils/quitApplication.js';
 import {
     openModal,
@@ -116,6 +117,7 @@ const mapStateToProps = state => {
         currentStudyId: state.present.ui.main.currentStudyId,
         cdiscLibraryInfo: state.present.ui.cdiscLibrary.info,
         windowType: state.present.ui.main.windowType,
+        odm: state.present.odm,
         bugModalOpened,
     };
 };
@@ -292,6 +294,11 @@ class ConnectedApp extends Component {
         }
     };
 
+    openWithStylesheet = (event) => {
+        const updatedOdm = getUpdatedDefineBeforeSave(this.props.odm);
+        ipcRenderer.send('openWithStylesheet', updatedOdm.odm);
+    };
+
     onKeyDown = (event) => {
         if (event.ctrlKey && event.keyCode === 72 && this.props.currentPage === 'editor') {
             this.toggleRedoUndo();
@@ -306,6 +313,8 @@ class ConnectedApp extends Component {
             saveState();
         } else if (event.keyCode === 123) {
             sendDefineObject();
+        } else if (event.keyCode === 122 && this.props.currentPage === 'editor') {
+            this.openWithStylesheet();
         }
     }
 
@@ -374,6 +383,7 @@ ConnectedApp.propTypes = {
     updateMainUi: PropTypes.func,
     saveCdiscLibraryInfo: PropTypes.func,
     cdiscLibraryInfo: PropTypes.object,
+    odm: PropTypes.object,
     windowType: PropTypes.string,
 };
 

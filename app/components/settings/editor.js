@@ -200,6 +200,22 @@ const Editor = (props) => {
                             label='Show line numbers in ARM programming code'
                         />
                     </FormGroup>
+                    <Typography variant="h6" gutterBottom align="left" color='textSecondary'>
+                        Review Comments
+                    </Typography>
+                    <FormGroup>
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={props.state.settings.editor.removeHtmlTagsInCommentsExport}
+                                    onChange={props.handleChange('editor', 'removeHtmlTagsInCommentsExport')}
+                                    color='primary'
+                                    className={classes.switch}
+                                />
+                            }
+                            label='Remove HTML tags in comments export'
+                        />
+                    </FormGroup>
                 </Grid>
             </Grid>
         </React.Fragment>

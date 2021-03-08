@@ -219,6 +219,7 @@ const editor = {
     allowSigDigitsForNonFloat: false,
     onlyArmEdit: false,
     showVlmWithParent: false,
+    removeHtmlTagsInCommentsExport: true,
 };
 
 const cdiscLibrary = {

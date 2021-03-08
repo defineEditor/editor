@@ -15,7 +15,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import SimpleSelectEditor from 'editors/simpleSelectEditor.js';
+import AutocompleteSelectEditor from 'editors/autocompleteSelectEditor.js';
 import {
     openModal,
     updateCodeList,
@@ -46,23 +46,26 @@ class ConnectedLinkedCodeListEditor extends React.Component {
             linkedCodeListType = 'decoded';
         }
         // Get list of codelists with decodes for enumeration codelist and vice versa for linked codelist selection;
-        return Object.keys(this.props.codeLists).filter(codeListOid => {
+        let result = Object.keys(this.props.codeLists).filter(codeListOid => {
             return this.props.codeLists[codeListOid].codeListType === linkedCodeListType;
         }).map(codeListOid => {
             if (this.props.codeLists[codeListOid].linkedCodeListOid !== undefined) {
-                return { [this.props.codeLists[codeListOid].oid]: this.props.codeLists[codeListOid].name + ' (Linked)' };
+                return { value: this.props.codeLists[codeListOid].oid, label: this.props.codeLists[codeListOid].name + ' (Linked)' };
             } else {
-                return { [this.props.codeLists[codeListOid].oid]: this.props.codeLists[codeListOid].name };
+                return { value: this.props.codeLists[codeListOid].oid, label: this.props.codeLists[codeListOid].name };
             }
         });
+        result.unshift({ value: '', label: 'No Codelist' });
+        return result;
     }
 
-    handleChange = (selectedCodeListOid) => {
+    handleChange = (event, option) => {
         // tell bootstrap table to exit editing cell
         this.props.onUpdate(this.props.defaultValue);
-        if (selectedCodeListOid === undefined) {
+        let selectedCodeListOid = option.value;
+        if (selectedCodeListOid === this.props.row.linkedCodeListOid) {
             // when Esc is pressed, do nothing and exit editor
-            // rule disabled to show what happens if undefined is returned
+            // rule disabled to show what happens if the value is not changed
             // eslint-disable-next-line no-useless-return
             return;
         } else if (selectedCodeListOid === '') {
@@ -115,16 +118,35 @@ class ConnectedLinkedCodeListEditor extends React.Component {
     }
 
     render () {
-        // If it is not a enumeration or decoded codelist, just exit editing.
+        // If it is not an enumeration or decoded codelist, just exit editing.
         if (this.props.row.codeListType !== 'decoded' && this.props.row.codeListType !== 'enumerated') {
             this.props.onUpdate(this.props.defaultValue);
         }
+        let options = this.getLinkableCodelists(this.props.row.codeListType);
+        let codeListOid = this.props.row.linkedCodeListOid;
+        let defaultOption;
+        if (codeListOid === undefined) {
+            codeListOid = '';
+            defaultOption = { value: '', label: 'No Codelist' };
+        } else {
+            let found = options.some(option => {
+                if (option.value === codeListOid) {
+                    defaultOption = option;
+                    return true;
+                }
+            });
+            if (!found) {
+                defaultOption = { value: '', label: 'No Codelist' };
+            }
+        }
         return (
-            <SimpleSelectEditor
-                options={this.getLinkableCodelists(this.props.row.codeListType)}
-                optional={true}
-                onUpdate={this.handleChange}
-                autoFocus={true}
+            <AutocompleteSelectEditor
+                label='Codelist'
+                onChange={this.handleChange}
+                defaultValue={defaultOption}
+                options={options}
+                disableClearable
+                autoFocus
             />
         );
     }
