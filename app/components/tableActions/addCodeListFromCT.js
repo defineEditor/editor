@@ -20,7 +20,7 @@ import Grid from '@material-ui/core/Grid';
 import clone from 'clone';
 import TextField from '@material-ui/core/TextField';
 import AutocompleteSelectEditor from 'editors/autocompleteSelectEditor.js';
-import { addCodeList } from 'actions/index.js';
+import { addCodeList, selectGroup } from 'actions/index.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import CodedValueSelectorTable from 'components/utils/codedValueSelectorTable.js';
 import getOid from 'utils/getOid.js';
@@ -47,7 +47,8 @@ const styles = theme => ({
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
-        addCodeList: (updateObj) => dispatch(addCodeList(updateObj))
+        addCodeList: (updateObj) => dispatch(addCodeList(updateObj)),
+        selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
     };
 };
 
@@ -57,6 +58,7 @@ const mapStateToProps = (state, props) => {
         stdCodeLists: state.present.stdCodeLists,
         standards: state.present.odm.study.metaDataVersion.standards,
         defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
+        codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
     };
 };
 
@@ -144,6 +146,16 @@ class ConnectedAddCodeListFromCT extends React.Component {
         this.props.onClose();
     };
 
+    handleAddAndOpen = (selectedCodes) => {
+        this.handleAddCodeList(selectedCodes);
+        let groupData = {
+            tabIndex: this.props.codedValuesTabIndex,
+            groupOid: this.state.codeListOid,
+            scrollPosition: {},
+        };
+        this.props.selectGroup(groupData);
+    }
+
     render () {
         const { defineVersion, classes } = this.props;
         let codeList;
@@ -186,7 +198,9 @@ class ConnectedAddCodeListFromCT extends React.Component {
                             <CodedValueSelectorTable
                                 key={this.state.codeListOid}
                                 onAdd={this.handleAddCodeList}
+                                onAddAndOpen={this.handleAddAndOpen}
                                 addLabel='Add Codelist'
+                                openLabel='Add and Open'
                                 sourceCodeList={codeList}
                                 defineVersion={defineVersion}
                             />
@@ -204,6 +218,8 @@ ConnectedAddCodeListFromCT.propTypes = {
     standards: PropTypes.object.isRequired,
     defineVersion: PropTypes.string.isRequired,
     addCodeList: PropTypes.func.isRequired,
+    selectGroup: PropTypes.func.isRequired,
+    codedValuesTabIndex: PropTypes.number.isRequired,
     onClose: PropTypes.func.isRequired,
 };
 

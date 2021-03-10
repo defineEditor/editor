@@ -103,6 +103,7 @@ app.on('ready', async () => {
             webPreferences: {
                 enableRemoteModule: true,
                 nodeIntegration: true,
+                contextIsolation: false,
                 spellcheck: true,
                 additionalArguments: [
                     `--vdeType:${type}`,
@@ -171,6 +172,7 @@ app.on('ready', async () => {
                     findInPageView = new BrowserView({
                         webPreferences: {
                             nodeIntegration: true,
+                            contextIsolation: false,
                         },
                         show: true,
                         frame: false,

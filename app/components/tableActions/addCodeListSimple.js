@@ -19,7 +19,7 @@ import { connect } from 'react-redux';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { addCodeList } from 'actions/index.js';
+import { addCodeList, selectGroup } from 'actions/index.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getOid from 'utils/getOid.js';
 
@@ -37,6 +37,7 @@ const styles = theme => ({
 const mapDispatchToProps = dispatch => {
     return {
         addCodeList: (updateObj) => dispatch(addCodeList(updateObj)),
+        selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
     };
 };
 
@@ -46,6 +47,7 @@ const mapStateToProps = state => {
         codeLists: state.present.odm.study.metaDataVersion.codeLists,
         codeListTypes: state.present.stdConstants.codeListTypes,
         dataTypes: state.present.stdConstants.dataTypes,
+        codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
     };
 };
 
@@ -81,6 +83,17 @@ class AddCodeListSimpleConnected extends React.Component {
         });
         this.resetState();
         this.props.onClose();
+        return codeListOid;
+    }
+
+    handleSaveAndGoToCodeList = (updateObj) => {
+        let codeListOid = this.handleSaveAndClose(updateObj);
+        let groupData = {
+            tabIndex: this.props.codedValuesTabIndex,
+            groupOid: codeListOid,
+            scrollPosition: {},
+        };
+        this.props.selectGroup(groupData);
     }
 
     onKeyDown = (event) => {
@@ -135,6 +148,16 @@ class AddCodeListSimpleConnected extends React.Component {
                         Add codelist
                     </Button>
                 </Grid>
+                <Grid item>
+                    <Button
+                        onClick={this.handleSaveAndGoToCodeList}
+                        color="default"
+                        variant="contained"
+                        className={classes.addButton}
+                    >
+                        Add and Open
+                    </Button>
+                </Grid>
             </Grid>
         );
     }
@@ -146,6 +169,9 @@ AddCodeListSimpleConnected.propTypes = {
     codeListTypes: PropTypes.array.isRequired,
     dataTypes: PropTypes.array.isRequired,
     defineVersion: PropTypes.string.isRequired,
+    codedValuesTabIndex: PropTypes.number.isRequired,
+    addCodeList: PropTypes.func.isRequired,
+    selectGroup: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
 };
 

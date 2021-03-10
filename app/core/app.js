@@ -90,6 +90,7 @@ const disabledAnimationThemeObj = {
 
 const baseTheme = createMuiTheme(baseThemeObj);
 const disabledAnimationTheme = createMuiTheme(disabledAnimationThemeObj);
+const type = process.argv.filter(arg => arg.startsWith('--vdeType')).map(arg => arg.replace(/.*:\s*(.*)/, '$1').replace(/_/g, ' '))[0];
 
 // Redux functions
 const mapStateToProps = state => {
@@ -145,8 +146,8 @@ class ConnectedApp extends Component {
     }
 
     componentDidMount () {
+        window.addEventListener('keydown', this.onKeyDown);
         // Window type
-        const type = process.argv.filter(arg => arg.startsWith('--vdeType')).map(arg => arg.replace(/.*:\s*(.*)/, '$1').replace(/_/g, ' '))[0];
         if (type === 'reviewWindow') {
             this.props.updateMainUi({
                 currentDefineId: '',
@@ -177,7 +178,6 @@ class ConnectedApp extends Component {
             // Comparing to other event listeners which are defined in index.js, this one needs to be here, so that CDISC Library object can be used
             ipcRenderer.on('quit', this.handleQuitApplication);
             ipcRenderer.once('updateInformationStartup', this.handleUpdateInformation);
-            window.addEventListener('keydown', this.onKeyDown);
             if (this.props.checkForUpdates) {
                 ipcRenderer.send('checkForUpdates', 'updateInformationStartup');
             }
@@ -300,7 +300,7 @@ class ConnectedApp extends Component {
     };
 
     onKeyDown = (event) => {
-        if (event.ctrlKey && event.keyCode === 72 && this.props.currentPage === 'editor') {
+        if (event.ctrlKey && event.keyCode === 72 && this.props.currentPage === 'editor' && type !== 'reviewWindow') {
             this.toggleRedoUndo();
         } else if (event.shiftKey && event.ctrlKey && event.keyCode === 70) {
             this.findInPage();
@@ -309,9 +309,9 @@ class ConnectedApp extends Component {
         } else if (event.ctrlKey && event.keyCode === 191) {
             event.preventDefault();
             this.toggleShortcuts();
-        } else if ((event.ctrlKey || event.shiftKey) && event.keyCode === 123) {
+        } else if ((event.ctrlKey || event.shiftKey) && event.keyCode === 123 && type !== 'reviewWindow') {
             saveState();
-        } else if (event.keyCode === 123) {
+        } else if (event.keyCode === 123 && type !== 'reviewWindow') {
             sendDefineObject();
         } else if (event.keyCode === 122 && this.props.currentPage === 'editor') {
             this.openWithStylesheet();

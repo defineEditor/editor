@@ -124,6 +124,10 @@ class CodedValueSelectorTable extends React.Component {
         this.props.onAdd(this.state.selected);
     };
 
+    handleAddAndOpen = () => {
+        this.props.onAddAndOpen(this.state.selected);
+    };
+
     handleChangePage = (event, page) => {
         this.setState({ page });
     };
@@ -169,13 +173,32 @@ class CodedValueSelectorTable extends React.Component {
                     >
                         {numSelected > 0 ? (
                             <Grid item>
-                                <Button
-                                    onClick={this.handleAddCodedValues}
-                                    color="default"
-                                    variant="contained"
+                                <Grid
+                                    container
+                                    spacing={2}
+                                    justify="flex-start"
                                 >
-                                    { this.props.addLabel || `Add ${numSelected} items`}
-                                </Button>
+                                    <Grid item>
+                                        <Button
+                                            onClick={this.handleAddCodedValues}
+                                            color="default"
+                                            variant="contained"
+                                        >
+                                            { this.props.addLabel || `Add ${numSelected} items`}
+                                        </Button>
+                                    </Grid>
+                                    { this.props.onAddAndOpen !== undefined && (
+                                        <Grid item>
+                                            <Button
+                                                onClick={this.handleAddAndOpen}
+                                                color="default"
+                                                variant="contained"
+                                            >
+                                                { this.props.openLabel || `Add and Open`}
+                                            </Button>
+                                        </Grid>
+                                    )}
+                                </Grid>
                             </Grid>
                         ) : (
                             <Typography variant="h6">{codeList.name}</Typography>
@@ -305,6 +328,7 @@ CodedValueSelectorTable.propTypes = {
     sourceCodeList: PropTypes.object.isRequired,
     defineVersion: PropTypes.string.isRequired,
     onAdd: PropTypes.func.isRequired,
+    onAddAndOpen: PropTypes.func.isRequired,
     addLabel: PropTypes.string,
     onClose: PropTypes.func,
     codeList: PropTypes.object,
