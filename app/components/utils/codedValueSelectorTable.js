@@ -17,9 +17,7 @@ import PropTypes from 'prop-types';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import GeneralTable from 'components/utils/generalTable.js';
 import Grid from '@material-ui/core/Grid';
-import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
-import ClearIcon from '@material-ui/icons/Clear';
 import SearchInTable from 'components/utils/searchInTable.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
 import { getGeneralTableDataFromCodeList } from 'utils/codeListUtils.js';
@@ -31,12 +29,11 @@ const styles = theme => ({
         overflowX: 'auto'
     },
     codeListTable: {
-        height: '95%',
-        marginTop: theme.spacing(1)
+        marginTop: theme.spacing(5)
     },
     tableBody: {
         width: '100%',
-        height: '100%',
+        height: '95%',
         display: 'flex',
     },
     table: {
@@ -138,6 +135,7 @@ class CodedValueSelectorTable extends React.Component {
                         header={this.state.header}
                         onDataUpdate={this.handleSetCurrentData}
                         classes={classes}
+                        margin='dense'
                     />
                 </Grid>
             </Grid>
@@ -161,26 +159,6 @@ class CodedValueSelectorTable extends React.Component {
         const { header, currentData } = this.state;
         return (
             <Grid container spacing={0} className={classes.codeListTable} direction='column' wrap='nowrap'>
-                { this.props.onClose !== undefined &&
-                    <Grid item>
-                        <Grid
-                            container
-                            spacing={0}
-                            justify="space-between"
-                            alignItems="flex-end"
-                        >
-                            <Grid item>
-                                <IconButton
-                                    color="secondary"
-                                    onClick={this.props.onClose}
-                                    className={classes.icon}
-                                >
-                                    <ClearIcon />
-                                </IconButton>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                }
                 <Grid item className={classes.tableBody}>
                     <GeneralTable
                         data={currentData}
@@ -196,8 +174,13 @@ class CodedValueSelectorTable extends React.Component {
                 <Grid item>
                     <Grid container spacing={0} justify='flex-end'>
                         <Grid item>
-                            <Button onClick={this.handleAddCodedValues} color="primary">
+                            <Button onClick={this.handleAddCodedValues} color="primary" disabled={this.state.selected.length === 0}>
                                 { this.props.addLabel || `Add items`}
+                            </Button>
+                        </Grid>
+                        <Grid item>
+                            <Button onClick={this.props.onClose} color="primary">
+                                Close
                             </Button>
                         </Grid>
                     </Grid>

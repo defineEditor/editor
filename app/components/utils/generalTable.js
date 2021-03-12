@@ -12,7 +12,7 @@
  * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
  ***********************************************************************************/
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import TableContainer from '@material-ui/core/TableContainer';
@@ -252,8 +252,8 @@ export default function GeneralTable (props) {
     });
 
     const classes = useStyles();
-    const [order, setOrder] = React.useState(defaultOrder);
-    const [orderBy, setOrderBy] = React.useState(defaultOrderBy);
+    const [order, setOrder] = useState(defaultOrder);
+    const [orderBy, setOrderBy] = useState(defaultOrderBy);
 
     let selected, setSelected;
     if (typeof selection === 'object') {
@@ -263,11 +263,11 @@ export default function GeneralTable (props) {
     } else if (selection === true) {
         // Selection handled internally
         // It does not violate the rule of hooks, because constant when mounted
-        [selected, setSelected] = React.useState([]); // eslint-disable-line react-hooks/rules-of-hooks
+        [selected, setSelected] = useState([]); // eslint-disable-line react-hooks/rules-of-hooks
     } else {
         selected = [];
     }
-    const [page, setPage] = React.useState(0);
+    const [page, setPage] = useState(0);
 
     let rowsPerPage, setRowsPerPage;
     if (typeof pagination === 'object') {
@@ -277,7 +277,7 @@ export default function GeneralTable (props) {
     } else if (pagination === true) {
         // Rows per page handled internally
         // It does not violate the rule of hooks, because constant when mounted
-        [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage); // eslint-disable-line react-hooks/rules-of-hooks
+        [rowsPerPage, setRowsPerPage] = useState(initialRowsPerPage); // eslint-disable-line react-hooks/rules-of-hooks
     } else {
         rowsPerPage = [];
     }
@@ -338,6 +338,13 @@ export default function GeneralTable (props) {
     if (pagination) {
         tableData = tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
     }
+
+    useEffect(() => {
+        // Reset the page to 0 when the data is updated;
+        if (pagination) {
+            setPage(0);
+        }
+    }, [props.data, pagination]);
 
     return (
         <Paper className={classes.paper}>

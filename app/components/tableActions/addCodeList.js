@@ -19,15 +19,10 @@ import { connect } from 'react-redux';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Grid from '@material-ui/core/Grid';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import IconButton from '@material-ui/core/IconButton';
-import ClearIcon from '@material-ui/icons/Clear';
 import AddCodeListSimple from 'components/tableActions/addCodeListSimple.js';
-import AddCodeListFromCT from 'components/tableActions/addCodeListFromCT.js';
-import AddCodeListFromOtherStudy from 'components/tableActions/addCodeListFromOtherStudy.js';
+import AddCodeListExternal from 'components/tableActions/addCodeListExternal.js';
 import { addItemChangeTab } from 'actions/index.js';
 
 const styles = theme => ({
@@ -46,10 +41,6 @@ const styles = theme => ({
     },
     appBar: {
         transform: 'translate(0%, calc(-20%+0.5px))',
-    },
-    title: {
-        marginTop: theme.spacing(5),
-        paddingBottom: 0,
     },
     content: {
         display: 'flex',
@@ -75,7 +66,7 @@ const mapStateToProps = state => {
     };
 };
 
-const tabNames = ['New Codelist', 'Controlled Terminology', 'Another Define'];
+const tabNames = ['New Codelist', 'Controlled Terminology', 'Other Define'];
 
 class AddCodeListConnected extends React.Component {
     handleTabChange = (event, currentTab) => {
@@ -103,21 +94,6 @@ class AddCodeListConnected extends React.Component {
                     onKeyDown={this.onKeyDown}
                     tabIndex='0'
                 >
-                    <DialogTitle className={classes.title}>
-                        <Grid container spacing={0} justify='space-between' alignItems='center'>
-                            <Grid item>
-                                Add Codelist
-                            </Grid>
-                            <Grid item>
-                                <IconButton
-                                    color="secondary"
-                                    onClick={this.props.onClose}
-                                >
-                                    <ClearIcon />
-                                </IconButton>
-                            </Grid>
-                        </Grid>
-                    </DialogTitle>
                     <DialogContent className={classes.content}>
                         <AppBar position='absolute' color='default'>
                             <Tabs
@@ -145,13 +121,15 @@ class AddCodeListConnected extends React.Component {
                             />
                         )}
                         {tabNames[currentTab] === 'Controlled Terminology' &&
-                                <AddCodeListFromCT
+                                <AddCodeListExternal
+                                    type='CT'
                                     position={this.props.position}
                                     onClose={this.props.onClose}
                                 />
                         }
-                        {tabNames[currentTab] === 'Another Define' &&
-                                <AddCodeListFromOtherStudy
+                        {tabNames[currentTab] === 'Other Define' &&
+                                <AddCodeListExternal
+                                    type='Define'
                                     position={this.props.position}
                                     onClose={this.props.onClose}
                                 />

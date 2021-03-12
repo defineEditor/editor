@@ -31,6 +31,10 @@ const styles = theme => ({
         marginLeft: theme.spacing(2),
         marginTop: theme.spacing(2),
     },
+    root: {
+        marginTop: theme.spacing(6),
+        display: 'block',
+    },
 });
 
 // Redux functions
@@ -104,7 +108,7 @@ class AddCodeListSimpleConnected extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={1} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
+            <Grid container spacing={1} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0' className={classes.root}>
                 <Grid item xs={12}>
                     <TextField
                         label='Name'
@@ -137,14 +141,18 @@ class AddCodeListSimpleConnected extends React.Component {
                     </TextField>
                 </Grid>
                 <Grid item>
-                    <Button
-                        onClick={this.handleSaveAndClose}
-                        color="default"
-                        variant="contained"
-                        className={classes.addButton}
-                    >
-                        Add codelist
-                    </Button>
+                    <Grid container spacing={0} justify='flex-start'>
+                        <Grid item>
+                            <Button onClick={this.handleSaveAndClose} color="primary">
+                                Add codelist
+                            </Button>
+                        </Grid>
+                        <Grid item>
+                            <Button onClick={this.props.onClose} color="primary">
+                                Close
+                            </Button>
+                        </Grid>
+                    </Grid>
                 </Grid>
             </Grid>
         );
