@@ -66,6 +66,7 @@ const mapStateToProps = (state, props) => {
         codeListOrder: state.present.odm.study.metaDataVersion.order.codeListOrder,
         defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
         codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
+        openCodeListAfterAdd: state.present.settings.editor.openCodeListAfterAdd,
     };
 };
 
@@ -200,18 +201,16 @@ class ConnectedAddCodeListFromOtherStudy extends React.Component {
         }
 
         this.props.addCodeList(codeList);
+        if (this.props.openCodeListAfterAdd) {
+            let groupData = {
+                tabIndex: this.props.codedValuesTabIndex,
+                groupOid: this.state.codeListOid,
+                scrollPosition: {},
+            };
+            this.props.selectGroup(groupData);
+        }
         this.props.onClose();
     };
-
-    handleAddAndOpen = (selectedCodes) => {
-        this.handleAddCodeList(selectedCodes);
-        let groupData = {
-            tabIndex: this.props.codedValuesTabIndex,
-            groupOid: this.state.codeListOid,
-            scrollPosition: {},
-        };
-        this.props.selectGroup(groupData);
-    }
 
     render () {
         const { defineVersion, classes } = this.props;
@@ -261,9 +260,7 @@ class ConnectedAddCodeListFromOtherStudy extends React.Component {
                             <CodedValueSelectorTable
                                 key={this.state.codeListOid}
                                 onAdd={this.handleAddCodeList}
-                                onAddAndOpen={this.handleAddAndOpen}
                                 addLabel='Add Codelist'
-                                openLabel='Add and Open'
                                 sourceCodeList={codeList}
                                 defineVersion={defineVersion}
                             />
@@ -285,6 +282,7 @@ ConnectedAddCodeListFromOtherStudy.propTypes = {
     selectGroup: PropTypes.func.isRequired,
     codedValuesTabIndex: PropTypes.number.isRequired,
     onClose: PropTypes.func.isRequired,
+    openCodeListAfterAdd: PropTypes.bool.isRequired,
 };
 
 const AddCodeListFromOtherStudy = connect(mapStateToProps, mapDispatchToProps)(

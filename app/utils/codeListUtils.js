@@ -14,6 +14,7 @@
 
 import { CodeListItem, EnumeratedItem, Alias } from 'core/defineStructure.js';
 import getCodedValuesAsArray from 'utils/getCodedValuesAsArray.js';
+import getCodeListData from 'utils/getCodeListData.js';
 import deepEqual from 'fast-deep-equal';
 
 export const getItemsWithAliasExtendedValue = (sourceItems, standardCodeList, codeListType, options = {}) => {
@@ -74,4 +75,51 @@ export const getItemsWithAliasExtendedValue = (sourceItems, standardCodeList, co
         }
     });
     return newItems;
+};
+
+export const getGeneralTableDataFromCodeList = (codeList, defineVersion) => {
+    let codeListType = codeList.codeListType;
+    let data = [];
+    let header = [];
+
+    let codeListTable, codeListTitle, isDecoded, isRanked, isCcoded;
+    if (codeList) {
+        if (codeList.codeListType === 'external') {
+            codeListTitle = codeList.name;
+            header = [
+                { id: 'dictionary', label: 'Dictionary', key: true },
+                { id: 'version', label: 'Version' },
+                { id: 'ref', label: 'Ref' },
+                { id: 'Href', label: 'Href' },
+            ];
+            data.push(codeList.externalCodeList);
+        } else {
+            ({ codeListTable, codeListTitle, isDecoded, isRanked, isCcoded } = getCodeListData(codeList, defineVersion));
+            data = codeListTable;
+
+            header = [
+                { id: 'oid', label: 'oid', hidden: true, key: true },
+                { id: 'value', label: 'Coded Value' },
+            ];
+
+            if (isDecoded === true) {
+                header.push({ id: 'decode', label: 'Decode' });
+            }
+
+            if (isCcoded === true) {
+                header.push({ id: 'ccode', label: 'C-Code' });
+            }
+
+            if (isRanked === true) {
+                header.push({ id: 'rank', label: 'Rank' });
+            }
+        }
+    }
+
+    return {
+        codeListTitle,
+        codeListType,
+        data,
+        header,
+    };
 };

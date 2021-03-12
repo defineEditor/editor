@@ -28,7 +28,7 @@ import getOid from 'utils/getOid.js';
 const styles = theme => ({
     root: {
         width: '100%',
-        overflowX: 'auto'
+        display: 'flex',
     },
     table: {
         minWidth: 100
@@ -36,6 +36,9 @@ const styles = theme => ({
     standardSelection: {
         minWidth: 100,
         marginRight: theme.spacing(6),
+    },
+    codeListSelectionItem: {
+        width: '100%',
     },
     codeListSelection: {
         marginTop: 0,
@@ -59,11 +62,12 @@ const mapStateToProps = (state, props) => {
         standards: state.present.odm.study.metaDataVersion.standards,
         defineVersion: state.present.odm.study.metaDataVersion.defineVersion,
         codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
+        openCodeListAfterAdd: state.present.settings.editor.openCodeListAfterAdd,
     };
 };
 
 const getCodeListList = (standard) => {
-    let result = [];
+    let result = [{ value: null, label: '' }];
     if (standard !== undefined) {
         Object.keys(standard.codeLists).forEach(codeListOid => {
             let item = {
@@ -143,31 +147,27 @@ class ConnectedAddCodeListFromCT extends React.Component {
         codeList.standardOid = this.state.standardOid;
 
         this.props.addCodeList(codeList);
+        if (this.props.openCodeListAfterAdd) {
+            let groupData = {
+                tabIndex: this.props.codedValuesTabIndex,
+                groupOid: this.state.codeListOid,
+                scrollPosition: {},
+            };
+            this.props.selectGroup(groupData);
+        }
         this.props.onClose();
     };
 
-    handleAddAndOpen = (selectedCodes) => {
-        this.handleAddCodeList(selectedCodes);
-        let groupData = {
-            tabIndex: this.props.codedValuesTabIndex,
-            groupOid: this.state.codeListOid,
-            scrollPosition: {},
-        };
-        this.props.selectGroup(groupData);
-    }
-
-    render () {
-        const { defineVersion, classes } = this.props;
-        let codeList;
+    CodeListSelector = () => {
+        const { classes } = this.props;
+        let value = { value: null, label: '' };
         if (this.state.codeListOid !== null) {
             let standard = this.props.stdCodeLists[this.state.standardOid];
-            codeList = standard.codeLists[this.state.codeListOid];
+            let codeList = standard.codeLists[this.state.codeListOid];
+            value = { value: this.state.codeListOid, label: codeList.name };
         }
-
-        let defaultCodeList = { name: '', label: '' };
-
         return (
-            <Grid container spacing={1} justify='flex-start' className={classes.root}>
+            <Grid container spacing={1} justify='flex-start' className={classes.root} wrap='nowrap'>
                 <Grid item>
                     <TextField
                         label='Standard'
@@ -179,34 +179,41 @@ class ConnectedAddCodeListFromCT extends React.Component {
                         {getSelectionList(this.state.standardList)}
                     </TextField>
                 </Grid>
-                <Grid item xs={6}>
-                    {(this.state.codeListList.length === 0) ? (
+                <Grid item className={classes.codeListSelectionItem} >
+                    {(this.state.codeListList.length === 1) ? (
                         <div>The standard does not have any codelits.</div>
                     ) : (
                         <AutocompleteSelectEditor
                             key={this.state.standardOid}
                             onChange={this.handleChange('codeList')}
-                            defaultValue={defaultCodeList}
+                            value={value}
                             label='Add Codelist'
                             options={this.state.codeListList}
                             textFieldClassName={classes.codeListSelection}
                         />
                     )}
                 </Grid>
-                <Grid item xs={12}>
-                    { codeList !== undefined &&
-                            <CodedValueSelectorTable
-                                key={this.state.codeListOid}
-                                onAdd={this.handleAddCodeList}
-                                onAddAndOpen={this.handleAddAndOpen}
-                                addLabel='Add Codelist'
-                                openLabel='Add and Open'
-                                sourceCodeList={codeList}
-                                defineVersion={defineVersion}
-                            />
-                    }
-                </Grid>
             </Grid>
+        );
+    }
+
+    render () {
+        const { defineVersion } = this.props;
+        let codeList;
+        if (this.state.codeListOid !== null) {
+            let standard = this.props.stdCodeLists[this.state.standardOid];
+            codeList = standard.codeLists[this.state.codeListOid];
+        }
+
+        return (
+            <CodedValueSelectorTable
+                key={this.state.codeListOid}
+                onAdd={this.handleAddCodeList}
+                addLabel='Add Codelist'
+                sourceCodeList={codeList}
+                defineVersion={defineVersion}
+                codeListSelector={this.CodeListSelector}
+            />
         );
     }
 }
@@ -221,6 +228,7 @@ ConnectedAddCodeListFromCT.propTypes = {
     selectGroup: PropTypes.func.isRequired,
     codedValuesTabIndex: PropTypes.number.isRequired,
     onClose: PropTypes.func.isRequired,
+    openCodeListAfterAdd: PropTypes.bool.isRequired,
 };
 
 const AddCodeListFromCT = connect(mapStateToProps, mapDispatchToProps)(

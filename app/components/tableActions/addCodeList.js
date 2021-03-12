@@ -20,7 +20,6 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -52,6 +51,13 @@ const styles = theme => ({
         marginTop: theme.spacing(5),
         paddingBottom: 0,
     },
+    content: {
+        display: 'flex',
+    },
+    container: {
+        display: 'flex',
+        width: '100%',
+    },
 });
 
 // Redux functions
@@ -70,14 +76,6 @@ const mapStateToProps = state => {
 };
 
 const tabNames = ['New Codelist', 'Controlled Terminology', 'Another Define'];
-
-function TabContainer (props) {
-    return (
-        <Typography component="div">
-            {props.children}
-        </Typography>
-    );
-}
 
 class AddCodeListConnected extends React.Component {
     handleTabChange = (event, currentTab) => {
@@ -120,7 +118,7 @@ class AddCodeListConnected extends React.Component {
                             </Grid>
                         </Grid>
                     </DialogTitle>
-                    <DialogContent>
+                    <DialogContent className={classes.content}>
                         <AppBar position='absolute' color='default'>
                             <Tabs
                                 value={currentTab}
@@ -140,27 +138,24 @@ class AddCodeListConnected extends React.Component {
                                 }
                             </Tabs>
                         </AppBar>
-                        <TabContainer>
-                            <br/>
-                            {tabNames[currentTab] === 'New Codelist' && (
-                                <AddCodeListSimple
+                        {tabNames[currentTab] === 'New Codelist' && (
+                            <AddCodeListSimple
+                                position={this.props.position}
+                                onClose={this.props.onClose}
+                            />
+                        )}
+                        {tabNames[currentTab] === 'Controlled Terminology' &&
+                                <AddCodeListFromCT
                                     position={this.props.position}
                                     onClose={this.props.onClose}
                                 />
-                            )}
-                            {tabNames[currentTab] === 'Controlled Terminology' &&
-                                    <AddCodeListFromCT
-                                        position={this.props.position}
-                                        onClose={this.props.onClose}
-                                    />
-                            }
-                            {tabNames[currentTab] === 'Another Define' &&
-                                    <AddCodeListFromOtherStudy
-                                        position={this.props.position}
-                                        onClose={this.props.onClose}
-                                    />
-                            }
-                        </TabContainer>
+                        }
+                        {tabNames[currentTab] === 'Another Define' &&
+                                <AddCodeListFromOtherStudy
+                                    position={this.props.position}
+                                    onClose={this.props.onClose}
+                                />
+                        }
                     </DialogContent>
                 </Dialog>
             </React.Fragment>

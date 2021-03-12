@@ -48,6 +48,7 @@ const mapStateToProps = state => {
         codeListTypes: state.present.stdConstants.codeListTypes,
         dataTypes: state.present.stdConstants.dataTypes,
         codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
+        openCodeListAfterAdd: state.present.settings.editor.openCodeListAfterAdd,
     };
 };
 
@@ -81,19 +82,16 @@ class AddCodeListSimpleConnected extends React.Component {
             oid: codeListOid,
             ...this.state,
         });
+        if (this.props.openCodeListAfterAdd) {
+            let groupData = {
+                tabIndex: this.props.codedValuesTabIndex,
+                groupOid: codeListOid,
+                scrollPosition: {},
+            };
+            this.props.selectGroup(groupData);
+        }
         this.resetState();
         this.props.onClose();
-        return codeListOid;
-    }
-
-    handleSaveAndGoToCodeList = (updateObj) => {
-        let codeListOid = this.handleSaveAndClose(updateObj);
-        let groupData = {
-            tabIndex: this.props.codedValuesTabIndex,
-            groupOid: codeListOid,
-            scrollPosition: {},
-        };
-        this.props.selectGroup(groupData);
     }
 
     onKeyDown = (event) => {
@@ -148,16 +146,6 @@ class AddCodeListSimpleConnected extends React.Component {
                         Add codelist
                     </Button>
                 </Grid>
-                <Grid item>
-                    <Button
-                        onClick={this.handleSaveAndGoToCodeList}
-                        color="default"
-                        variant="contained"
-                        className={classes.addButton}
-                    >
-                        Add and Open
-                    </Button>
-                </Grid>
             </Grid>
         );
     }
@@ -172,6 +160,7 @@ AddCodeListSimpleConnected.propTypes = {
     codedValuesTabIndex: PropTypes.number.isRequired,
     addCodeList: PropTypes.func.isRequired,
     selectGroup: PropTypes.func.isRequired,
+    openCodeListAfterAdd: PropTypes.bool.isRequired,
     disabled: PropTypes.bool,
 };
 

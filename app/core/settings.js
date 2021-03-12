@@ -168,6 +168,7 @@ class ConnectedSettings extends React.Component {
             'enableBackup',
             'backupControlledTerminology',
             'removeHtmlTagsInCommentsExport',
+            'openCodeListAfterAdd',
         ].includes(name) || category === 'popUp') {
             this.setState({
                 settings: { ...this.state.settings,

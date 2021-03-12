@@ -220,6 +220,7 @@ const editor = {
     onlyArmEdit: false,
     showVlmWithParent: false,
     removeHtmlTagsInCommentsExport: true,
+    openCodeListAfterAdd: false,
 };
 
 const cdiscLibrary = {
