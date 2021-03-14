@@ -43,6 +43,7 @@ const styles = theme => ({
     },
     variableField: {
         minWidth: 150,
+        marginLeft: theme.spacing(2),
         marginRight: theme.spacing(2),
         marginBottom: theme.spacing(2),
     },
@@ -53,9 +54,9 @@ const styles = theme => ({
     },
     dialog: {
         position: 'absolute',
-        top: '10%',
-        maxHeight: '80%',
-        width: '80%',
+        top: '5%',
+        height: '90%',
+        width: '95%',
         overflowX: 'auto',
         overflowY: 'auto',
         paddingBottom: theme.spacing(1),
@@ -65,7 +66,6 @@ const styles = theme => ({
         borderColor: 'primary',
     },
     title: {
-        marginBottom: theme.spacing(2),
         backgroundColor: theme.palette.primary.main,
         color: '#FFFFFF',
         fontWeight: 'bold',
@@ -73,6 +73,9 @@ const styles = theme => ({
         fontSize: '1.25rem',
         lineHeight: '1.6',
         letterSpacing: '0.0075em',
+    },
+    content: {
+        display: 'flex',
     },
 });
 
@@ -88,7 +91,7 @@ const attrList = {
     'role': 'Role',
 };
 
-function AddVlmFromCodeList (props) {
+const AddVlmFromCodeList = (props) => {
     const storeState = store.getState();
 
     const onAddVlm = (selectedCodes) => {
@@ -181,6 +184,77 @@ function AddVlmFromCodeList (props) {
             ['decoded', 'enumerated'].includes(codeLists[itemDefs[itemDef].codeListOid].codeListType))
         .reduce((object, value, key) => { object[value] = itemDefs[value].name + (itemDefs[value].descriptions[0].value && (' (' + itemDefs[value].descriptions[0].value + ')')); return object; }, {});
 
+    const CodeListSelector = () => {
+        return (
+            <Grid container spacing={1} className={classes.root}>
+                <Grid item>
+                    { Object.keys(itemDefList).length !== 0 && (
+                        <Grid container spacing={1} alignItems='flex-end' wrap='nowrap'>
+                            <Grid item>
+                                <TextField
+                                    label='Variable'
+                                    disabled={Object.keys(itemDefList).length === 0}
+                                    value={itemDefOid || ' '}
+                                    onChange={(updateObj) => { setItemDefOid(updateObj.target.value); setCodeListOid(itemDefs[updateObj.target.value].codeListOid); }}
+                                    className={classes.variableField}
+                                    select={Object.keys(itemDefList).length > 0}
+                                >
+                                    {Object.keys(itemDefList).length > 0 && getSelectionList(itemDefList)}
+                                </TextField>
+                            </Grid>
+                            <Grid item>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={copyAttributes}
+                                            onChange={() => { setCopyAttributes(!copyAttributes); }}
+                                            color='primary'
+                                            disabled={codeListOid === undefined}
+                                            value='copyAttributes'
+                                        />
+                                    }
+                                    label="Copy Attributes"
+                                />
+                            </Grid>
+                            <Grid item>
+                                <TextField
+                                    label='Attributes'
+                                    value={selectedAttributes}
+                                    multiline
+                                    select
+                                    SelectProps={{ multiple: true }}
+                                    disabled={!copyAttributes}
+                                    onChange={(event) => { setSelectedAttributes(event.target.value); }}
+                                    className={classes.attributeField}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <IconButton
+                                                    color={selectedAttributes.length > 0 ? 'primary' : 'default'}
+                                                    onClick={handleSelectAllClick}
+                                                    disabled={!copyAttributes}
+                                                >
+                                                    <DoneAll />
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }}
+                                >
+                                    {getSelectionList(attrList)}
+                                </TextField>
+                            </Grid>
+                        </Grid>
+                    )}
+                    { Object.keys(itemDefList).length === 0 && (
+                        <Typography variant="body2" gutterBottom align="left" color='error'>
+                            This dataset contains no variables with attached decoded or enumerated codelist.
+                        </Typography>
+                    )}
+                </Grid>
+            </Grid>
+        );
+    };
+
     return (
         <Dialog
             disableBackdropClick
@@ -207,87 +281,19 @@ function AddVlmFromCodeList (props) {
                     </Grid>
                 </Grid>
             </DialogTitle>
-            <DialogContent>
-                <Grid container spacing={1} className={classes.root}>
-                    <Grid item>
-                        { Object.keys(itemDefList).length !== 0 && (
-                            <Grid container spacing={1} alignItems='flex-end' wrap='nowrap'>
-                                <Grid item>
-                                    <TextField
-                                        label='Variable'
-                                        disabled={Object.keys(itemDefList).length === 0}
-                                        value={itemDefOid || ' '}
-                                        onChange={(updateObj) => { setItemDefOid(updateObj.target.value); setCodeListOid(itemDefs[updateObj.target.value].codeListOid); }}
-                                        className={classes.variableField}
-                                        select={Object.keys(itemDefList).length > 0}
-                                    >
-                                        {Object.keys(itemDefList).length > 0 && getSelectionList(itemDefList)}
-                                    </TextField>
-                                </Grid>
-                                <Grid item>
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={copyAttributes}
-                                                onChange={() => { setCopyAttributes(!copyAttributes); }}
-                                                color='primary'
-                                                disabled={codeListOid === undefined}
-                                                value='copyAttributes'
-                                            />
-                                        }
-                                        label="Copy Attributes"
-                                    />
-                                </Grid>
-                                <Grid item>
-                                    <TextField
-                                        label='Attributes'
-                                        value={selectedAttributes}
-                                        multiline
-                                        select
-                                        SelectProps={{ multiple: true }}
-                                        disabled={!copyAttributes}
-                                        onChange={(event) => { setSelectedAttributes(event.target.value); }}
-                                        className={classes.attributeField}
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <IconButton
-                                                        color={selectedAttributes.length > 0 ? 'primary' : 'default'}
-                                                        onClick={handleSelectAllClick}
-                                                        disabled={!copyAttributes}
-                                                    >
-                                                        <DoneAll />
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            )
-                                        }}
-                                    >
-                                        {getSelectionList(attrList)}
-                                    </TextField>
-                                </Grid>
-                            </Grid>
-                        )}
-                        { Object.keys(itemDefList).length === 0 && (
-                            <Typography variant="body2" gutterBottom align="left" color='error'>
-                                This dataset contains no variables with attached decoded or enumerated codelist.
-                            </Typography>
-                        )}
-                    </Grid>
-                    <Grid item xs={12}>
-                        { codeListOid !== undefined &&
-                                <CodedValueSelectorTable
-                                    key={codeListOid}
-                                    onAdd={onAddVlm}
-                                    addLabel='Create VLM'
-                                    sourceCodeList={codeLists[codeListOid]}
-                                    defineVersion={defineVersion}
-                                />
-                        }
-                    </Grid>
-                </Grid>
+            <DialogContent className={classes.content}>
+                <CodedValueSelectorTable
+                    key={codeListOid}
+                    onAdd={onAddVlm}
+                    addLabel='Create VLM'
+                    sourceCodeList={codeLists[codeListOid]}
+                    defineVersion={defineVersion}
+                    codeListSelector={CodeListSelector}
+                    onClose={props.onCancel}
+                />
             </DialogContent>
         </Dialog>
     );
-}
+};
 
 export default withStyles(styles)(AddVlmFromCodeList);

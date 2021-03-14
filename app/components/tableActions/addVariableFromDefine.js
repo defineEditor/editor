@@ -170,6 +170,7 @@ class AddVariableFromDefineConnected extends React.Component {
             detachMethods: true,
             detachComments: true,
             copyVlm: true,
+            addAsPredecessor: false,
         };
     }
 
@@ -203,6 +204,7 @@ class AddVariableFromDefineConnected extends React.Component {
             sameDefine,
             sourceItemGroupOid: this.state.sourceItemGroupOid,
             copyVlm: this.state.copyVlm,
+            addAsPredecessor: this.state.addAsPredecessor,
             detachMethods: this.state.detachMethods,
             detachComments: this.state.detachComments,
         });
@@ -250,7 +252,14 @@ class AddVariableFromDefineConnected extends React.Component {
     };
 
     handleCheckBoxChange = name => event => {
-        this.setState({ [name]: !this.state[name] });
+        if (name === 'addAsPredecessor' && this.state['copyVlm'] === true) {
+            this.setState({
+                copyVlm: false,
+                [name]: !this.state[name]
+            });
+        } else {
+            this.setState({ [name]: !this.state[name] });
+        }
     }
 
     Toolbar = props => {
@@ -331,6 +340,17 @@ class AddVariableFromDefineConnected extends React.Component {
                                             />
                                         }
                                         label='Detach Comments'
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={this.state.addAsPredecessor}
+                                                onChange={this.handleCheckBoxChange('addAsPredecessor')}
+                                                color='primary'
+                                                value='addAsPredecessor'
+                                            />
+                                        }
+                                        label='Add as Predecessor'
                                     />
                                 </FormGroup>
                             </Grid>

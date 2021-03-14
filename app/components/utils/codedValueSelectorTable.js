@@ -14,7 +14,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles, makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import GeneralTable from 'components/utils/generalTable.js';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -47,31 +47,14 @@ const styles = theme => ({
         marginLeft: '0px',
         marginRight: '0px',
         marginBottom: '8px'
-    }
-});
-
-const getClasses = makeStyles(theme => ({
+    },
     toolbar: {
         width: '100%',
     },
     selector: {
         width: '100%',
     },
-    searchField: {
-        marginTop: '0',
-        marginLeft: theme.spacing(3),
-        marginRight: theme.spacing(3),
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    },
-    searchInput: {
-        paddingTop: '9px',
-        paddingBottom: '9px',
-        color: '#FFFFFF',
-    },
-    searchLabel: {
-        transform: 'translate(10px, 10px)',
-    },
-}));
+});
 
 class CodedValueSelectorTable extends React.Component {
     constructor (props) {
@@ -122,7 +105,7 @@ class CodedValueSelectorTable extends React.Component {
     }
 
     CodeListToolbar = () => {
-        let classes = getClasses();
+        const classes = this.props.forcedClasses || this.props.classes;
 
         return (
             <Grid container justify='space-between' alignItems='center' wrap='nowrap' className={classes.toolbar}>
@@ -136,6 +119,7 @@ class CodedValueSelectorTable extends React.Component {
                         onDataUpdate={this.handleSetCurrentData}
                         classes={classes}
                         margin='dense'
+                        variant={this.props.searchVariant}
                     />
                 </Grid>
             </Grid>
@@ -155,7 +139,7 @@ class CodedValueSelectorTable extends React.Component {
     };
 
     render () {
-        const { classes } = this.props;
+        const classes = this.props.forcedClasses || this.props.classes;
         const { header, currentData } = this.state;
         return (
             <Grid container spacing={0} className={classes.codeListTable} direction='column' wrap='nowrap'>
@@ -168,14 +152,14 @@ class CodedValueSelectorTable extends React.Component {
                         disableToolbar
                         customToolbar={this.CodeListToolbar}
                         initialRowsPerPage={50}
-                        rowsPerPageOptions={[50, 100, 250]}
+                        rowsPerPageOptions={[25, 50, 100, 250]}
                     />
                 </Grid>
                 <Grid item>
                     <Grid container spacing={0} justify='flex-end'>
                         <Grid item>
                             <Button onClick={this.handleAddCodedValues} color="primary" disabled={this.state.selected.length === 0}>
-                                { this.props.addLabel || `Add items`}
+                                { this.props.addLabel || `Add ${this.state.selected.length} items`}
                             </Button>
                         </Grid>
                         <Grid item>
@@ -199,6 +183,8 @@ CodedValueSelectorTable.propTypes = {
     onClose: PropTypes.func,
     codeList: PropTypes.object,
     codeListSelector: PropTypes.func,
+    forcedClasses: PropTypes.object,
+    searchVariant: PropTypes.string,
 };
 
 export default withStyles(styles)(CodedValueSelectorTable);
