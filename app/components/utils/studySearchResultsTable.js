@@ -77,6 +77,17 @@ const getStyles = makeStyles(theme => ({
     },
 }));
 
+const typeLabels = {
+    'study': 'Studies',
+    'define': 'Defines',
+    'dataset': 'Datasets',
+    'variable': 'Variables',
+    'codeList': 'Codelists',
+    'codedValue': 'Coded Values',
+    'resultDisplay': 'Result Displays',
+    'analysisResult': 'Analysis Results'
+};
+
 const TypeDetails = (props) => {
     let classes = getStyles();
 
@@ -134,7 +145,7 @@ const DefineDetails = (props) => {
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                         >
-                            <Typography className={classes.heading}>{type}</Typography>
+                            <Typography className={classes.heading}>{typeLabels[type]}</Typography>
                             <Typography className={classes.secondaryHeading}>{props.details[type].length} matches.</Typography>
                         </AccordionSummary>
                         <AccordionDetails>

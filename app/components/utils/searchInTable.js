@@ -107,7 +107,6 @@ const SearchInTable = (props) => {
                         placeholder='Ctrl+F'
                         margin={props.margin}
                         variant={props.variant || 'outlined'}
-                        onBlur={handleSearchUpdate}
                         onKeyDown={handleSearchKeyDown}
                         inputRef={searchFieldRef}
                         InputLabelProps={{

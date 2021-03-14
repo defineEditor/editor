@@ -27,10 +27,6 @@ const panelLabels = {
 
 const panels = Object.keys(panelLabels);
 
-const updateText = (text) => {
-    return text.replace(/<\/p>/g, ' ').replace(/<p>/g, '').replace(/<br>/g, '\n').replace(/&nbsp;/g, ' ');
-};
-
 const saveReviewCommentsToFile = async (mainWindow, exportData, saveDialogResult) => {
     let { filePath, canceled } = saveDialogResult;
     if (!canceled && filePath !== undefined) {
@@ -47,7 +43,7 @@ const saveReviewCommentsToFile = async (mainWindow, exportData, saveDialogResult
             }
             // Individual panel data
             let comments = exportData[panelId].data.map(comment =>
-                (comment.sourceParts.concat([comment.author, updateText(comment.text), comment.resolvedFlag]))
+                (comment.sourceParts.concat([comment.author, comment.text, comment.resolvedFlag]))
             );
             if (comments.length > 0) {
                 workbook.sheet(panelLabels[panelId]).cell('A2').value(comments);

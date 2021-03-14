@@ -607,6 +607,7 @@ class ConnectedCodeListTable extends React.Component {
                     codeListType: originCL.codeListType,
                     formatName: originCL.formatName,
                     orderNumber: originCL.orderNumber,
+                    linkedCodeListOid: originCL.linkedCodeListOid,
                     linkedCodeList: originCL.linkedCodeListOid !== undefined ? codeLists[originCL.linkedCodeListOid].name : undefined,
                     defineVersion: this.props.defineVersion,
                     stdConstants: this.props.stdConstants,

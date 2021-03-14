@@ -68,6 +68,7 @@ const shortcuts = {
         'Ctrl + [': 'Go the to next page when pagination is enabled in the Variable tab',
         'Ctrl + ]': 'Go the to previous page when pagination is enabled in the Variable tab',
         'Arrow keys': 'Navigation in editable tables',
+        'F11': 'Show the current Define-XML using a stylesheet',
     },
     'Cell/Field Editors': {
         'Ctrl + S': 'Save a change where there is a save button or icon available',

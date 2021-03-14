@@ -51,7 +51,7 @@ const renameLeafIds = (documents, sourceLeafId, leafId) => {
     }
 };
 
-const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, parentItemDefOid, copyVlm, existingOids } = {}) => {
+const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, parentItemDefOid, copyVlm, addAsPredecessor, existingOids } = {}) => {
     let itemDefs = {};
     let itemRefs = { [currentGroup.oid]: {} };
     let valueLists = {};
@@ -64,6 +64,10 @@ const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, par
     let currentWhereClauses = Object.keys(mdv.whereClauses).concat(existingOids.whereClauses);
     itemRefList.forEach(itemRefOid => {
         let itemRef = clone(sourceGroup.itemRefs[itemRefOid]);
+        if (addAsPredecessor) {
+            // In case it is a predecessor, remove all methods
+            itemRef.methodOid = undefined;
+        }
         let newItemRefOid = getOid('ItemRef', currentItemRefs);
         let newItemDefOid = getOid('ItemDef', currentItemDefs);
         if (itemRef.whereClauseOid !== undefined) {
@@ -89,13 +93,30 @@ const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, par
         }
         processedItemDefs[itemRef.itemOid] = newItemDefOid;
         // Review Comments are always removed from the copied variable, as the reference in the comment is to the old variable
-        itemDefs[newItemDefOid] = { ...new ItemDef({
-            ...clone(sourceMdv.itemDefs[itemRef.itemOid]),
-            oid: newItemDefOid,
-            parentItemDefOid,
-            reviewCommentOids: [],
-            sources })
-        };
+        if (addAsPredecessor) {
+            // In case it is a predecessor, remove all comments and add origin
+            let itemDef = new ItemDef({
+                ...clone(sourceMdv.itemDefs[itemRef.itemOid]),
+                oid: newItemDefOid,
+                commentOid: undefined,
+                parentItemDefOid,
+                reviewCommentOids: [],
+                sources,
+            });
+            let origin = new Origin({ type: 'Predecessor' });
+            let originDescription = sourceGroup.name + '.' + itemDef.name;
+            origin.addDescription({ ...new TranslatedText({ value: originDescription }) });
+            itemDef.origins = [{ ...origin }];
+            itemDefs[newItemDefOid] = { ...itemDef };
+        } else {
+            itemDefs[newItemDefOid] = { ...new ItemDef({
+                ...clone(sourceMdv.itemDefs[itemRef.itemOid]),
+                oid: newItemDefOid,
+                parentItemDefOid,
+                reviewCommentOids: [],
+                sources })
+            };
+        }
         // Check if VLM is attached
         if (copyVlm === true && itemDefs[newItemDefOid].valueListOid !== undefined) {
             let valueList = clone(sourceMdv.valueLists[itemDefs[newItemDefOid].valueListOid]);
@@ -212,6 +233,7 @@ const copyVariables = ({
     parentItemDefOid,
     itemRefList,
     copyVlm,
+    addAsPredecessor,
     detachMethods,
     detachComments,
     isVlm = false,
@@ -227,6 +249,7 @@ const copyVariables = ({
         itemRefList,
         parentItemDefOid,
         copyVlm,
+        addAsPredecessor,
         existingOids,
     });
     // If it is the same define, then there is no need to rebuild codeLists, other than update sources, this is handled in codelist reducer

@@ -35,11 +35,17 @@ const openWithStylesheet = async (mainWindow, odm) => {
     await writeFile(tempDefine, defineXml);
     Menu.setApplicationMenu(null);
     let newWindow = new BrowserWindow({
-        webPreferences: { webSecurity: false },
+        webPreferences: {
+            contextIsolation: true,
+            webSecurity: false
+        },
         show: false,
     });
     let loadingWindow = new BrowserWindow({
-        webPreferences: { webSecurity: false },
+        webPreferences: {
+            contextIsolation: true,
+            webSecurity: false
+        },
         width: 300,
         height: 300,
         show: true,
@@ -47,12 +53,14 @@ const openWithStylesheet = async (mainWindow, odm) => {
         transparent: true,
     });
     loadingWindow.loadFile('static/stylesheets/loadingCat.html');
+    loadingWindow.on('close', () => {
+        loadingWindow = null;
+    });
 
     newWindow.webContents.on('did-finish-load', () => {
         newWindow.show();
         newWindow.maximize();
         loadingWindow.close();
-        loadingWindow = null;
     });
     newWindow.setMenu(null);
     newWindow.loadURL('file://' + tempDefine);

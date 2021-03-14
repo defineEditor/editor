@@ -23,10 +23,10 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
-import getCodeListData from 'utils/getCodeListData.js';
 import Loading from 'components/utils/loading.js';
 import SearchInTable from 'components/utils/searchInTable.js';
 import GeneralTable from 'components/utils/generalTable.js';
+import { getGeneralTableDataFromCodeList } from 'utils/codeListUtils.js';
 import { dummyRequest } from 'utils/cdiscLibraryUtils.js';
 import { getDecode } from 'utils/defineStructureUtils.js';
 import {
@@ -141,54 +141,6 @@ const loadFromStdCodeList = (codeLists, codeListOid) => {
     };
 };
 
-const loadFromCodeLists = (codeLists, codeListOid, defineVersion) => {
-    let codeList = codeLists[codeListOid];
-    let codeListType = codeList.codeListType;
-    let data = [];
-    let header = [];
-
-    let codeListTable, codeListTitle, isDecoded, isRanked, isCcoded;
-    if (codeList) {
-        if (codeList.codeListType === 'external') {
-            codeListTitle = codeList.name;
-            header = [
-                { id: 'dictionary', label: 'Dictionary', key: true },
-                { id: 'version', label: 'Version' },
-                { id: 'ref', label: 'Ref' },
-                { id: 'Href', label: 'Href' },
-            ];
-            data.push(codeList.externalCodeList);
-        } else {
-            ({ codeListTable, codeListTitle, isDecoded, isRanked, isCcoded } = getCodeListData(codeList, defineVersion));
-            data = codeListTable;
-
-            header = [
-                { id: 'oid', label: 'oid', hidden: true, key: true },
-                { id: 'value', label: 'Coded Value' },
-            ];
-
-            if (isDecoded === true) {
-                header.push({ id: 'decode', label: 'Decode' });
-            }
-
-            if (isCcoded === true) {
-                header.push({ id: 'ccode', label: 'C-Code' });
-            }
-
-            if (isRanked === true) {
-                header.push({ id: 'rank', label: 'Rank' });
-            }
-        }
-    }
-
-    return {
-        codeListTitle,
-        codeListType,
-        data,
-        header,
-    };
-};
-
 const ModalCodeListTable = (props) => {
     const dispatch = useDispatch();
     let classes = getStyles();
@@ -252,7 +204,7 @@ const ModalCodeListTable = (props) => {
             } else {
                 codeLists = odm.study.metaDataVersion.codeLists;
                 let defineVersion = odm.study.metaDataVersion.defineVersion;
-                setTableData(loadFromCodeLists(codeLists, props.codeListOid, defineVersion));
+                setTableData(getGeneralTableDataFromCodeList(codeLists[props.codeListOid], defineVersion));
             }
         }
     }, [props, odm, stdCodeLists, cl, retry]);

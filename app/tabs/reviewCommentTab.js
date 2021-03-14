@@ -112,7 +112,12 @@ const mapStateToProps = state => {
         panelStatus: settings.panelStatus,
         showResolved: settings.showResolved,
         windowType: state.present.ui.main.windowType,
+        removeHtmlTagsInCommentsExport: state.present.settings.editor.removeHtmlTagsInCommentsExport,
     };
+};
+
+const updateText = (text) => {
+    return text.replace(/<\/p>/g, ' ').replace(/<p>/g, '').replace(/<br>/g, '\n').replace(/&nbsp;/g, ' ');
 };
 
 const panelLabels = {
@@ -242,18 +247,18 @@ class ConnectedReviewCommentTab extends React.Component {
         const { reviewComments, mdv } = this.props;
         let exportData = {};
         panels.forEach(panelId => {
-            let data = this.getReviewCommentData(reviewComments, panelId, true, mdv, undefined, true);
+            let data = this.getReviewCommentData(reviewComments, panelId, true, mdv, undefined, true, this.props.removeHtmlTagsInCommentsExport);
             let panelStats = this.getPanelStats(data);
             exportData[panelId] = { data, panelStats };
         });
         // All comments
-        let data = this.getReviewCommentData(reviewComments, 'allComments', true, mdv, undefined, true);
+        let data = this.getReviewCommentData(reviewComments, 'allComments', true, mdv, undefined, true, this.props.removeHtmlTagsInCommentsExport);
         let panelStats = this.getPanelStats(data);
         exportData['allComments'] = { data, panelStats };
         ipcRenderer.send('exportReviewComments', exportData);
     }
 
-    getReviewCommentData = (reviewComments, panelId, showResolved, mdv, searchString, extendedFormat) => {
+    getReviewCommentData = (reviewComments, panelId, showResolved, mdv, searchString, extendedFormat, removeHtmlTagsInCommentsExport) => {
         // Filter required comments
         let results = [];
         let rcOids = Object.keys(reviewComments).filter(id => {
@@ -277,6 +282,9 @@ class ConnectedReviewCommentTab extends React.Component {
                 commentData = { ...reviewComment, id };
                 if (reviewComment.resolvedBy) {
                     commentData.resolvedFlag = 'Yes';
+                }
+                if (removeHtmlTagsInCommentsExport === true && typeof reviewComment.text === 'string') {
+                    commentData.text = updateText(reviewComment.text);
                 }
             } else {
                 commentData = {
@@ -573,6 +581,7 @@ ConnectedReviewCommentTab.propTypes = {
     toggleReviewCommentPanels: PropTypes.func.isRequired,
     toggleReviewCommentShowResolved: PropTypes.func.isRequired,
     windowType: PropTypes.string,
+    removeHtmlTagsInCommentsExport: PropTypes.bool,
 };
 ConnectedReviewCommentTab.displayName = 'ReviewCommentTab';
 

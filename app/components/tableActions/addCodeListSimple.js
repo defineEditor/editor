@@ -19,7 +19,7 @@ import { connect } from 'react-redux';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { addCodeList } from 'actions/index.js';
+import { addCodeList, selectGroup } from 'actions/index.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getOid from 'utils/getOid.js';
 
@@ -31,12 +31,17 @@ const styles = theme => ({
         marginLeft: theme.spacing(2),
         marginTop: theme.spacing(2),
     },
+    root: {
+        marginTop: theme.spacing(6),
+        display: 'block',
+    },
 });
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
     return {
         addCodeList: (updateObj) => dispatch(addCodeList(updateObj)),
+        selectGroup: (updateObj) => dispatch(selectGroup(updateObj)),
     };
 };
 
@@ -46,6 +51,8 @@ const mapStateToProps = state => {
         codeLists: state.present.odm.study.metaDataVersion.codeLists,
         codeListTypes: state.present.stdConstants.codeListTypes,
         dataTypes: state.present.stdConstants.dataTypes,
+        codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
+        openCodeListAfterAdd: state.present.settings.editor.openCodeListAfterAdd,
     };
 };
 
@@ -79,6 +86,14 @@ class AddCodeListSimpleConnected extends React.Component {
             oid: codeListOid,
             ...this.state,
         });
+        if (this.props.openCodeListAfterAdd) {
+            let groupData = {
+                tabIndex: this.props.codedValuesTabIndex,
+                groupOid: codeListOid,
+                scrollPosition: {},
+            };
+            this.props.selectGroup(groupData);
+        }
         this.resetState();
         this.props.onClose();
     }
@@ -93,7 +108,7 @@ class AddCodeListSimpleConnected extends React.Component {
         const { classes } = this.props;
 
         return (
-            <Grid container spacing={1} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0'>
+            <Grid container spacing={1} alignItems='flex-end' onKeyDown={this.onKeyDown} tabIndex='0' className={classes.root}>
                 <Grid item xs={12}>
                     <TextField
                         label='Name'
@@ -126,14 +141,18 @@ class AddCodeListSimpleConnected extends React.Component {
                     </TextField>
                 </Grid>
                 <Grid item>
-                    <Button
-                        onClick={this.handleSaveAndClose}
-                        color="default"
-                        variant="contained"
-                        className={classes.addButton}
-                    >
-                        Add codelist
-                    </Button>
+                    <Grid container spacing={0} justify='flex-start'>
+                        <Grid item>
+                            <Button onClick={this.handleSaveAndClose} color="primary">
+                                Add codelist
+                            </Button>
+                        </Grid>
+                        <Grid item>
+                            <Button onClick={this.props.onClose} color="primary">
+                                Close
+                            </Button>
+                        </Grid>
+                    </Grid>
                 </Grid>
             </Grid>
         );
@@ -146,6 +165,10 @@ AddCodeListSimpleConnected.propTypes = {
     codeListTypes: PropTypes.array.isRequired,
     dataTypes: PropTypes.array.isRequired,
     defineVersion: PropTypes.string.isRequired,
+    codedValuesTabIndex: PropTypes.number.isRequired,
+    addCodeList: PropTypes.func.isRequired,
+    selectGroup: PropTypes.func.isRequired,
+    openCodeListAfterAdd: PropTypes.bool.isRequired,
     disabled: PropTypes.bool,
 };
 

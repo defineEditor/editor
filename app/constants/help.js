@@ -162,12 +162,16 @@ export const SETTINGS_EDITOR = {
 * **Allow to set length for all data types. In any case a Define-XML file will have Length set only for valid data types** - Allows to set length for datetime types, which formally should not have length per Define-XML specification. Saved Define-XML file must follow the standard, that is why length values are not saved in a Define-XML file in any case.
 * **Allow to set fraction digits for non-float data types** - Fraction digits (SignificantDigits) are expected to be populated only for the float data type. Enabling this option enables fraction digits for other data types, which formally is not prohibited by the Define-XML specification.
 * **When a variable is selected using search or filter, show all VLM records for it** - By default Search box filters only records which match a search criteria. If this option is enabled, when a variable level record matches a search criteria, all VLM records for this variable are shown regardless whether they matched or not the search criteria.
+#### Codelists
+* **Navigate to the coded values tab after adding a new codelist** - By default after adding a new codelist the codelist tab with a new codelist is shown. When the option is enabled, you will be taken to the coded value tab with the new codelist selected.
 #### Coded Values
 * **Enable item selection for the Coded Value column** - Controls whether a drop-down menu with suggestions is shown while typing a coded value for a codelist which is connected with a codelist from a controlled terminology.
 * **Remove leading and trailing whitespaces when entering coded values** - Usually (but not always) it is not expected that coded values have trailing and leading blanks. When the option is enabled, they are automatically removed.
 * **Allow to extend non-extensible codelists** - NCI/CDISC Controlled Terminology specify some codelists as non-extensible, meaning they must contain values only from the controlled terminology. If there is a need to violate this rule, this option can be enabled.
 #### Analysis Result
 * **Show line numbers in ARM programming code** - Controls whether line numbers are shown for the ARM code. Does not impact contents of the ARM code in the final Define-XML file.
+#### Review Comments Result
+* **Remove HTML tags in comments export** - Review comments are using rich text format, which is stored as HTML. This option allows to remove all HTML tags when review comments are exported to an XLSX file.
 `
 };
 

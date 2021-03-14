@@ -147,6 +147,22 @@ const Editor = (props) => {
                         />
                     </FormGroup>
                     <Typography variant="h6" gutterBottom align="left" color='textSecondary'>
+                        Codelists
+                    </Typography>
+                    <FormGroup>
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={props.state.settings.editor.openCodeListAfterAdd}
+                                    onChange={props.handleChange('editor', 'openCodeListAfterAdd')}
+                                    color='primary'
+                                    className={classes.switch}
+                                />
+                            }
+                            label='Navigate to the coded values tab after adding a new codelist'
+                        />
+                    </FormGroup>
+                    <Typography variant="h6" gutterBottom align="left" color='textSecondary'>
                         Coded Values
                     </Typography>
                     <FormGroup>
@@ -198,6 +214,22 @@ const Editor = (props) => {
                                 />
                             }
                             label='Show line numbers in ARM programming code'
+                        />
+                    </FormGroup>
+                    <Typography variant="h6" gutterBottom align="left" color='textSecondary'>
+                        Review Comments
+                    </Typography>
+                    <FormGroup>
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={props.state.settings.editor.removeHtmlTagsInCommentsExport}
+                                    onChange={props.handleChange('editor', 'removeHtmlTagsInCommentsExport')}
+                                    color='primary'
+                                    className={classes.switch}
+                                />
+                            }
+                            label='Remove HTML tags in comments export'
                         />
                     </FormGroup>
                 </Grid>

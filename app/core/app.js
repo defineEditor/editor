@@ -34,6 +34,7 @@ import sendDefineObject from 'utils/sendDefineObject.js';
 import changeAppTitle from 'utils/changeAppTitle.js';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import { initCdiscLibrary, dummyRequest } from 'utils/cdiscLibraryUtils.js';
+import { getUpdatedDefineBeforeSave } from 'utils/getUpdatedDefineBeforeSave.js';
 import quitApplication from 'utils/quitApplication.js';
 import {
     openModal,
@@ -89,6 +90,7 @@ const disabledAnimationThemeObj = {
 
 const baseTheme = createMuiTheme(baseThemeObj);
 const disabledAnimationTheme = createMuiTheme(disabledAnimationThemeObj);
+const type = process.argv.filter(arg => arg.startsWith('--vdeType')).map(arg => arg.replace(/.*:\s*(.*)/, '$1').replace(/_/g, ' '))[0];
 
 // Redux functions
 const mapStateToProps = state => {
@@ -116,6 +118,7 @@ const mapStateToProps = state => {
         currentStudyId: state.present.ui.main.currentStudyId,
         cdiscLibraryInfo: state.present.ui.cdiscLibrary.info,
         windowType: state.present.ui.main.windowType,
+        odm: state.present.odm,
         bugModalOpened,
     };
 };
@@ -143,8 +146,8 @@ class ConnectedApp extends Component {
     }
 
     componentDidMount () {
+        window.addEventListener('keydown', this.onKeyDown);
         // Window type
-        const type = process.argv.filter(arg => arg.startsWith('--vdeType')).map(arg => arg.replace(/.*:\s*(.*)/, '$1').replace(/_/g, ' '))[0];
         if (type === 'reviewWindow') {
             this.props.updateMainUi({
                 currentDefineId: '',
@@ -175,7 +178,6 @@ class ConnectedApp extends Component {
             // Comparing to other event listeners which are defined in index.js, this one needs to be here, so that CDISC Library object can be used
             ipcRenderer.on('quit', this.handleQuitApplication);
             ipcRenderer.once('updateInformationStartup', this.handleUpdateInformation);
-            window.addEventListener('keydown', this.onKeyDown);
             if (this.props.checkForUpdates) {
                 ipcRenderer.send('checkForUpdates', 'updateInformationStartup');
             }
@@ -292,8 +294,13 @@ class ConnectedApp extends Component {
         }
     };
 
+    openWithStylesheet = (event) => {
+        const updatedOdm = getUpdatedDefineBeforeSave(this.props.odm);
+        ipcRenderer.send('openWithStylesheet', updatedOdm.odm);
+    };
+
     onKeyDown = (event) => {
-        if (event.ctrlKey && event.keyCode === 72 && this.props.currentPage === 'editor') {
+        if (event.ctrlKey && event.keyCode === 72 && this.props.currentPage === 'editor' && type !== 'reviewWindow') {
             this.toggleRedoUndo();
         } else if (event.shiftKey && event.ctrlKey && event.keyCode === 70) {
             this.findInPage();
@@ -302,10 +309,12 @@ class ConnectedApp extends Component {
         } else if (event.ctrlKey && event.keyCode === 191) {
             event.preventDefault();
             this.toggleShortcuts();
-        } else if ((event.ctrlKey || event.shiftKey) && event.keyCode === 123) {
+        } else if ((event.ctrlKey || event.shiftKey) && event.keyCode === 123 && type !== 'reviewWindow') {
             saveState();
-        } else if (event.keyCode === 123) {
+        } else if (event.keyCode === 123 && type !== 'reviewWindow') {
             sendDefineObject();
+        } else if (event.keyCode === 122 && this.props.currentPage === 'editor') {
+            this.openWithStylesheet();
         }
     }
 
@@ -374,6 +383,7 @@ ConnectedApp.propTypes = {
     updateMainUi: PropTypes.func,
     saveCdiscLibraryInfo: PropTypes.func,
     cdiscLibraryInfo: PropTypes.object,
+    odm: PropTypes.object,
     windowType: PropTypes.string,
 };
 

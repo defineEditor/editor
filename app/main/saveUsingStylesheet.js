@@ -71,7 +71,10 @@ const saveUsingStylesheet = async (savePath, odm, callback) => {
     await writeFile(tempDefine, defineXml);
     let hiddenWindow = new BrowserWindow({
         show: false,
-        webPreferences: { webSecurity: false },
+        webPreferences: {
+            contextIsolation: true,
+            webSecurity: false
+        },
     });
     hiddenWindow.webContents.on('did-finish-load', async () => {
         if (savePath.endsWith('html')) {
