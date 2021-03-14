@@ -36,6 +36,7 @@ const styles = theme => ({
     },
     standardSelection: {
         minWidth: 100,
+        marginLeft: theme.spacing(1),
         marginRight: theme.spacing(6),
     },
     codeListSelectionItem: {
@@ -48,6 +49,7 @@ const styles = theme => ({
     },
     studySelector: {
         minWidth: 120,
+        marginLeft: theme.spacing(2),
         marginRight: theme.spacing(2),
         marginBottom: theme.spacing(2),
     },

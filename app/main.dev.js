@@ -71,12 +71,19 @@ app.on('ready', async () => {
         let windowObj = null;
         let findInPageView = null;
 
+        let baseDir;
+        if (process.env.NODE_ENV === 'development') {
+            baseDir = __dirname;
+        } else {
+            baseDir = path.join(__dirname, '..');
+        }
+
         if (
             process.env.NODE_ENV === 'development' ||
             process.env.DEBUG_PROD === 'true'
         ) {
             // If Redux/React dev tools are needed, they must be manually downloaded and extracted in the folder below (folders redux/react)
-            const pathToExtensions = path.join(__dirname, '..', 'static', 'devExtensions');
+            const pathToExtensions = path.join(baseDir, 'static', 'devExtensions');
             if (fs.existsSync(pathToExtensions)) {
                 await session.defaultSession.loadExtension(
                     path.join(pathToExtensions, 'react'), { allowFileAccess: true }
@@ -89,9 +96,9 @@ app.on('ready', async () => {
 
         let iconPath;
         if (process.platform !== 'win32') {
-            iconPath = path.join(__dirname, '..', 'static', 'images', 'misc', 'mainIcon64x64.png');
+            iconPath = path.join(baseDir, 'static', 'images', 'misc', 'mainIcon64x64.png');
         } else {
-            iconPath = path.join(__dirname, '..', 'static', 'images', 'misc', 'mainIcon.ico');
+            iconPath = path.join(baseDir, 'static', 'images', 'misc', 'mainIcon.ico');
         }
 
         windowObj = new BrowserWindow({

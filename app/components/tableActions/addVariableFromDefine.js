@@ -313,6 +313,7 @@ class AddVariableFromDefineConnected extends React.Component {
                                                 onChange={this.handleCheckBoxChange('copyVlm')}
                                                 color='primary'
                                                 value='copyVlm'
+                                                disabled={this.state.addAsPredecessor}
                                             />
                                         }
                                         label='Copy VLM'
