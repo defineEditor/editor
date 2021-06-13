@@ -12,10 +12,11 @@
  * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
  ***********************************************************************************/
 
-import { app, session, BrowserWindow, BrowserView, ipcMain, Menu } from 'electron';
+import { app, session, BrowserWindow, ipcMain, Menu } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import contextMenu from 'electron-context-menu';
+import { initRenderer } from 'electron-store';
 import saveAs from './main/saveAs.js';
 import saveDefine from './main/saveDefine.js';
 import openDefineXml from './main/openDefineXml.js';
@@ -33,6 +34,7 @@ import loadXptMetadata from './main/loadXptMetadata.js';
 import deriveXptMetadata from './main/deriveXptMetadata.js';
 import saveCtFromCdiscLibrary from './main/saveCtFromCdiscLibrary.js';
 import openDocument from './main/openDocument.js';
+import FindInPage from './main/findInPage.js';
 import openWithStylesheet from './main/openWithStylesheet.js';
 import deleteFiles from './main/deleteFiles.js';
 import openFileInExternalApp from './main/openFileInExternalApp.js';
@@ -43,6 +45,9 @@ import { makeBackup, loadBackup, autoBackup } from './main/backup.js';
 import { checkForUpdates, downloadUpdate } from './main/appUpdate.js';
 
 app.disableHardwareAcceleration();
+
+// Initialized renderer for electron-store
+initRenderer();
 
 if (process.env.NODE_ENV === 'production') {
     const sourceMapSupport = require('source-map-support');
@@ -69,7 +74,6 @@ checkPreinstalledPlugins();
 app.on('ready', async () => {
     const createWindow = async (type, additionalData) => {
         let windowObj = null;
-        let findInPageView = null;
 
         let baseDir;
         if (process.env.NODE_ENV === 'development') {
@@ -85,9 +89,6 @@ app.on('ready', async () => {
             // If Redux/React dev tools are needed, they must be manually downloaded and extracted in the folder below (folders redux/react)
             const pathToExtensions = path.join(baseDir, 'static', 'devExtensions');
             if (fs.existsSync(pathToExtensions)) {
-                await session.defaultSession.loadExtension(
-                    path.join(pathToExtensions, 'react'), { allowFileAccess: true }
-                );
                 await session.defaultSession.loadExtension(
                     path.join(pathToExtensions, 'redux'), { allowFileAccess: true }
                 );
@@ -172,62 +173,14 @@ app.on('ready', async () => {
                 loadControlledTerminology(windowObj, ctToLoad);
             }
         });
-        // Find in page events
-        ipcMain.on('openFindInPage', (event, data) => {
+        // Open a dropped Define-XML using a stylesheet
+        ipcMain.on('openDroppedFile', (event, file) => {
             if (windowObj !== null && event.sender.id === windowObj.webContents.id) {
-                if (findInPageView === null) {
-                    findInPageView = new BrowserView({
-                        webPreferences: {
-                            nodeIntegration: true,
-                            contextIsolation: false,
-                        },
-                        show: true,
-                        frame: false,
-                        transparent: true,
-                    });
-                    windowObj.setBrowserView(findInPageView);
-                    let windowObjBounds = windowObj.getContentBounds();
-                    let findInPageViewBounds = {
-                        x: Math.max(0, windowObjBounds.width - 490),
-                        y: Math.max(0, windowObjBounds.height - 60),
-                        height: 60,
-                        width: 490,
-                    };
-                    findInPageView.setBounds(findInPageViewBounds);
-                    findInPageView.webContents.loadFile('findInPage.html');
-                    findInPageView.webContents.focus();
-                } else {
-                    if (!findInPageView.webContents.isFocused()) {
-                        findInPageView.webContents.focus();
-                    }
-                }
+                openWithStylesheet(file, 'filePath');
             }
         });
-
-        ipcMain.on('closeFindInPage', (event, data) => {
-            if (windowObj !== null && findInPageView !== null && event.sender.id === findInPageView.webContents.id) {
-                windowObj.removeBrowserView(findInPageView);
-                windowObj.webContents.stopFindInPage('clearSelection');
-                findInPageView.webContents.destroy();
-                findInPageView = null;
-                windowObj.webContents.focus();
-            }
-        });
-
-        ipcMain.on('findInPageNext', (event, data) => {
-            if (windowObj !== null && findInPageView !== null && event.sender.id === findInPageView.webContents.id) {
-                windowObj.webContents.once('found-in-page', (event, result) => {
-                    findInPageView.webContents.send('foundInPage', result);
-                });
-                windowObj.webContents.findInPage(data.text, data.options);
-            }
-        });
-
-        ipcMain.on('findInPageClear', (event, data) => {
-            if (windowObj !== null && findInPageView !== null && event.sender.id === findInPageView.webContents.id) {
-                windowObj.webContents.stopFindInPage('clearSelection');
-            }
-        });
+        // FindInPage
+        let findInPage = new FindInPage(windowObj);
 
         // Event listeners for main window
         if (type === 'main') {
@@ -281,7 +234,7 @@ app.on('ready', async () => {
             });
             // Open Define-XML using a stylesheet
             ipcMain.on('openWithStylesheet', (event, odm) => {
-                openWithStylesheet(windowObj, odm);
+                openWithStylesheet(odm, 'odm');
             });
             // Export Study
             ipcMain.on('exportStudy', (event, exportObject) => {
@@ -342,6 +295,10 @@ app.on('ready', async () => {
         }
 
         windowObj.on('close', function (e) {
+            if (findInPage !== null) {
+                findInPage.clean();
+                findInPage = null;
+            }
             if (windowObj !== null && type === 'main') {
                 e.preventDefault();
                 windowObj.webContents.send('quit');
@@ -361,5 +318,10 @@ app.on('ready', async () => {
         }
     });
 
-    await createWindow('main');
+    if (process.argv[process.argv.length - 1].endsWith('.xml')) {
+        // Open the XML file for view
+        openWithStylesheet(process.argv[process.argv.length - 1], 'filePath');
+    } else {
+        await createWindow('main');
+    }
 });

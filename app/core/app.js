@@ -147,6 +147,8 @@ class ConnectedApp extends Component {
 
     componentDidMount () {
         window.addEventListener('keydown', this.onKeyDown);
+        window.addEventListener('dragover', this.onDragOver);
+        window.addEventListener('drop', this.onDrop);
         // Window type
         if (type === 'reviewWindow') {
             this.props.updateMainUi({
@@ -218,6 +220,8 @@ class ConnectedApp extends Component {
 
     componentWillUnmount () {
         window.removeEventListener('keydown', this.onKeyDown);
+        window.removeEventListener('dragover', this.onDragOver);
+        window.removeEventListener('drop', this.onDrop);
         ipcRenderer.remove('updateInformationStartup', this.handleUpdateInformation);
         ipcRenderer.remove('quit', this.handleQuitApplication);
     }
@@ -315,6 +319,19 @@ class ConnectedApp extends Component {
             sendDefineObject();
         } else if (event.keyCode === 122 && this.props.currentPage === 'editor') {
             this.openWithStylesheet();
+        }
+    }
+
+    onDragOver = (event) => {
+        event.preventDefault();
+    }
+
+    onDrop = (event) => {
+        event.preventDefault();
+        if (event.dataTransfer && event.dataTransfer.files &&
+            event.dataTransfer.files.length > 0 && event.dataTransfer.files[0].type === 'text/xml'
+        ) {
+            ipcRenderer.send('openDroppedFile', event.dataTransfer.files[0].path);
         }
     }
 

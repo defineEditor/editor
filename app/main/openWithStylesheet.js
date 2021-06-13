@@ -14,28 +14,57 @@
 
 import fs from 'fs';
 import path from 'path';
-import { BrowserWindow, app, Menu } from 'electron';
+import { BrowserWindow, app, Menu, dialog } from 'electron';
 import { promisify } from 'util';
+import FindInPage from '../main/findInPage.js';
 import createDefine from '../core/createDefine.js';
 
 const writeFile = promisify(fs.writeFile);
+const readFile = promisify(fs.readFile);
 const unlink = promisify(fs.unlink);
 
-const openWithStylesheet = async (mainWindow, odm) => {
+const openWithStylesheet = async (sourceData, type) => {
     // Save temporary Define-XML file
     let tempDefine = path.join(app.getPath('userData'), 'temp.xml');
+    let missingStylesheet = false;
+    let usingOriginalFile = false;
     // If temporary file exist, remove it
     if (fs.existsSync(tempDefine)) {
         await unlink(tempDefine);
     }
-    let odmUpdated = { ...odm };
-    odmUpdated.stylesheetLocation = path.join(__dirname, '..', 'static', 'stylesheets', 'define2-0.xsl');
+    let stylesheetLocation = path.join(__dirname, '..', 'static', 'stylesheets', 'define2-0.xsl');
+    if (type === 'odm') {
+        // If the source is ODM, then create the file first
+        let odmUpdated = { ...sourceData };
+        odmUpdated.stylesheetLocation = stylesheetLocation;
 
-    let defineXml = createDefine(odmUpdated, odmUpdated.study.metaDataVersion.defineVersion);
-    await writeFile(tempDefine, defineXml);
+        let defineXml = createDefine(odmUpdated, odmUpdated.study.metaDataVersion.defineVersion);
+        await writeFile(tempDefine, defineXml);
+    } else if (type === 'filePath') {
+        // If the source is a file, update path to stylesheet
+        let defineXml = await readFile(sourceData, 'utf8');
+        // Check if the original stylesheet exists
+        let specifiedStylesheet = defineXml.replace(/.*<\?xml-stylesheet[^>]*?href=(['"])(.*?)\1.*/s, '$2');
+        let pathToSpecifiedStylesheet;
+        if (specifiedStylesheet) {
+            pathToSpecifiedStylesheet = path.join(path.dirname(sourceData), specifiedStylesheet);
+        }
+        if (pathToSpecifiedStylesheet !== undefined && fs.existsSync(pathToSpecifiedStylesheet)) {
+            // Open the original location
+            usingOriginalFile = true;
+            tempDefine = sourceData;
+        } else {
+            // Use standard stylesheet
+            missingStylesheet = true;
+            defineXml = defineXml.replace(/(<\?xml-stylesheet[^>]*?href=)(['"]).*?\2/, `$1$2${stylesheetLocation}$2`);
+            await writeFile(tempDefine, defineXml);
+        }
+    }
     Menu.setApplicationMenu(null);
+    let baseDir = path.join(__dirname, '..');
     let newWindow = new BrowserWindow({
         webPreferences: {
+            preload: path.join(baseDir, 'static', 'findInPage', 'findInPagePreload.js'),
             contextIsolation: true,
             webSecurity: false
         },
@@ -57,17 +86,33 @@ const openWithStylesheet = async (mainWindow, odm) => {
         loadingWindow = null;
     });
 
+    let findInPage = new FindInPage(newWindow);
     newWindow.webContents.on('did-finish-load', () => {
         newWindow.show();
         newWindow.maximize();
         loadingWindow.close();
+        if (missingStylesheet) {
+            dialog.showMessageBox(
+                newWindow,
+                {
+                    type: 'info',
+                    title: 'Stylesheet missing',
+                    buttons: ['OK'],
+                    message: 'Stylesheet file referenced in the Define-XML file could not be found. Using a standard stylesheet.'
+                }
+            );
+        }
     });
     newWindow.setMenu(null);
     newWindow.loadURL('file://' + tempDefine);
 
     newWindow.on('closed', () => {
+        findInPage.clean();
+        findInPage = null;
         newWindow = null;
-        fs.unlink(tempDefine, (err) => { if (err) { throw Error(err); } });
+        if (!usingOriginalFile) {
+            fs.unlink(tempDefine, (err) => { if (err) { throw Error(err); } });
+        }
     });
 };
 
