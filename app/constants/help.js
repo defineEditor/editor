@@ -93,6 +93,8 @@ export const CT_LOCATION = {
     content: `
 #### About
 Visual Define-XML Editor allows to browse and utilize CDISC/NCI Controlled Terminology when create a Define-XML document.
+#### Loading from NCI site
+VDE automatically connects to the NCI site, reads the list of available CTs from it, and downloads it, if requested by a user.
 #### Loading from a Local File
 To load a controlled terminology in studies you need to specify in Settings a folder containing files with the controlled terminology. Once specified this folder can be scanned from the Controlled Terminology page (this page can be selected in the Main Menu).
 
@@ -135,6 +137,8 @@ The credentials are stored on your computer in an encrypted format. If you updat
 CDISC Library does not provide information on the amounth of traffic used. This statistics is calculated by the application based on the size of the packages sent and received from the CDISC Library API and shall not be relied on. To get the exact traffic usage statistics, consult the CDISC Library support.
 ##### CDISC Relay
 If you would like users to avoid the need to specify credentials, consider using CLA Relay https://github.com/defineEditor/cla-relay. In this case **baseURL** shall contain the URL of the server where CLA-Relay is installed (e.g., \`http://my.server.int:4600/api\`).
+##### Controlled Terminology Relay
+By default VDE tries to download controlled terminology from the NCI site. If you want to download it from the CDISC Library instead, it can be enabled with a corresponding option.
 ##### Disclaimer
 Visual Define-XML Editor does not instruct how CDISC Library shall be used, nor represents CDISC in any way. Check your CDISC Library account EULA for the details on how CDISC Library can be used. If you have any questions regarding the contents of CDISC Library, please write to the CDISC Library support.
 #### Backup
