@@ -36,6 +36,7 @@ import Box from '@material-ui/core/Box';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import TextField from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import InternalHelp from 'components/utils/internalHelp.js';
 import GeneralTable from 'components/utils/generalTable.js';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
@@ -165,7 +166,7 @@ class ConnectedPackages extends React.Component {
         this.state = {
             externalCts: [],
             selected: [],
-            hideUnloadedCt: false,
+            reloadingCts: false,
             searchString: '',
             scanning: false,
             totalCount: 0,
@@ -241,12 +242,13 @@ class ConnectedPackages extends React.Component {
                     version: ct.version,
                 }),
                 notLoaded: true,
+                loading: false,
                 __styleClass: { backgroundColor: '#E0E0E0' },
                 __disableSelection: true
             });
         });
 
-        this.setState({ externalCts });
+        this.setState({ externalCts, reloadingCts: false });
     }
 
     updateCount = () => {
@@ -310,7 +312,7 @@ class ConnectedPackages extends React.Component {
 
     actions = (props) => {
         const { id, row } = props;
-        if (row.notLoaded === true) {
+        if (row.notLoaded && !row.loading) {
             return (
                 <Tooltip title='Download Controlled Terminology' placement='bottom' enterDelay={500}>
                     <Fab
@@ -321,6 +323,15 @@ class ConnectedPackages extends React.Component {
                         <CloudDownload className={this.props.classes.actionIcon}/>
                     </Fab>
                 </Tooltip>
+            );
+        } else if (row.loading === true) {
+            return (
+                <Fab
+                    color='default'
+                    size='medium'
+                >
+                    <CircularProgress size={35}/>
+                </Fab>
             );
         } else {
             return (
@@ -339,6 +350,10 @@ class ConnectedPackages extends React.Component {
 
     handleTypeChange = event => {
         this.props.changeCtSettings({ view: 'packages', settings: { packageType: event.target.value } });
+    };
+
+    handleNCISiteCtVisibility = event => {
+        this.props.changeCtSettings({ view: 'packages', settings: { showNCISiteCts: !this.props.ctUiSettings.showNCISiteCts } });
     };
 
     handleShowCdiscLibraryChange = (event, checked) => {
@@ -372,6 +387,15 @@ class ConnectedPackages extends React.Component {
                 this.dummyRequest();
             }
         }, 2000);
+        // Change CT to loading
+        const newExternalCts = this.state.externalCts.map(ct => {
+            if (ct.id === id) {
+                return { ...ct, loading: true };
+            } else {
+                return ct;
+            }
+        });
+        this.setState({ externalCts: newExternalCts });
         let ct = await this.context.cdiscLibrary.getFullProduct(id);
         // IPCRender requires serialized objects
         let ctSerialized = JSON.parse(JSON.stringify(ct));
@@ -410,7 +434,7 @@ class ConnectedPackages extends React.Component {
     reloadCtList = async () => {
         if (this.context) {
             // Remove cached objects
-            this.setState({ externalCts: {} });
+            this.setState({ externalCts: {}, reloadingCts: true });
             const db = await openDB('cdiscLibrary-store', 1, {
                 upgrade (db) {
                     // Create a store of objects
@@ -474,22 +498,26 @@ class ConnectedPackages extends React.Component {
                     size='medium'
                     className={classes.toolbarFab}
                 >
-                    <Cached className={classes.toolbarIcon}/>
+                    {this.state.reloadingCts ? (
+                        <CircularProgress size={35}/>
+                    ) : (
+                        <Cached className={classes.toolbarIcon}/>
+                    )}
                 </Fab>
             </Tooltip>
         );
         result.push(
-            <Tooltip title='Hide/show CT which is not loaded' placement='bottom' enterDelay={500}>
+            <Tooltip title='Toggle NCI site CT visibility' placement='bottom' enterDelay={500}>
                 <Fab
-                    onClick={() => { this.setState({ hideUnloadedCt: !this.state.hideUnloadedCt }); }}
+                    onClick={this.handleNCISiteCtVisibility}
                     color='default'
                     size='medium'
                     className={classes.toolbarFab}
                 >
-                    { this.state.hideUnloadedCt ? (
-                        <Visibility className={classes.toolbarIcon}/>
-                    ) : (
+                    { this.props.ctUiSettings.showNCISiteCts ? (
                         <VisibilityOff className={classes.toolbarIcon}/>
+                    ) : (
+                        <Visibility className={classes.toolbarIcon}/>
                     )}
                 </Fab>
             </Tooltip>
@@ -574,7 +602,7 @@ class ConnectedPackages extends React.Component {
         ];
 
         let data = Object.values(this.props.controlledTerminology.byId);
-        if (this.state.externalCts.length > 0 && !this.state.hideUnloadedCt) {
+        if (this.state.externalCts.length > 0 && this.props.ctUiSettings.showNCISiteCts) {
             // Remove CDISC CTs which are already loaded
             let loadedIds = data.filter(ct => (ct.isCdiscNci)).map(ct => (ct.type + ct.version));
             data = data.concat(this.state.externalCts.filter(ct => (!loadedIds.includes(ct.type + ct.version))));

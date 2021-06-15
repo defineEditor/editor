@@ -66,8 +66,12 @@ const saveCtFromCdiscLibrary = async (mainWindow, controlledTerminology) => {
         await writeFile(pathToCt, buffer);
 
         let terminologyType = controlledTerminology.label.replace(/^\s*(\S+).*/, '$1');
-        if (terminologyType === 'PROTOCOL') {
+        if (terminologyType.toLowerCase() === 'protocol') {
             terminologyType = 'Protocol';
+        } else if (terminologyType.toLowerCase() === 'define-xml') {
+            terminologyType = 'Def-XML';
+        } else if (terminologyType.toLowerCase() === 'glosarry') {
+            terminologyType = 'Glossary';
         }
         stdCodeLists[id] = {
             id,

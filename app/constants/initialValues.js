@@ -165,6 +165,7 @@ const controlledTerminology = {
     useCdiscLibrary: false,
     packages: {
         packageType: 'All',
+        showNCISiteCts: true,
         rowsPerPage: 25,
     },
     codeLists: {
