@@ -427,6 +427,7 @@ const updateCodedValue = (state, action, skipLinkedCodeListUpdate) => {
 
 const addCodedValue = (state, action, skipLinkedCodeListUpdate) => {
     // action.updateObj.codedValue - new value
+    // action.updateObj.decodedValue - optional decoded value
     // action.updateObj.orderNumber - position to insert, if undefined insert to the end
     // action.updateObj.oid - new oid for the value (used in case of a linked codelist update)
     // action.updateObj.extendedValue - whether the value is extended for extensible ST)
@@ -455,9 +456,10 @@ const addCodedValue = (state, action, skipLinkedCodeListUpdate) => {
     }
     // Update items
     if (codeList.codeListType === 'decoded') {
+        let decode = action.updateObj.decodedValue || '';
         let newCodeListItems = {
             ...codeList.codeListItems,
-            [newOid]: { ...new CodeListItem({ decodes: [{ value: '' }], ...action.updateObj }) },
+            [newOid]: { ...new CodeListItem({ decodes: [{ value: decode }], ...action.updateObj }) },
         };
         newCodeList = { ...new CodeList({ ...state[action.codeListOid], codeListItems: newCodeListItems, itemOrder: newItemOrder }) };
     } else if (codeList.codeListType === 'enumerated') {
@@ -475,7 +477,8 @@ const addCodedValue = (state, action, skipLinkedCodeListUpdate) => {
         let subAction = {};
         subAction.codeListOid = codeList.linkedCodeListOid;
         // Linked codelists have identical OIDs for items
-        subAction.updateObj = ({ codedValue: '', oid: newOid, orderNumber: action.updateObj.orderNumber });
+        let linkedCodedValue = action.updateObj.decodedValue || '';
+        subAction.updateObj = ({ codedValue: linkedCodedValue, decodedValue: action.updateObj.codedValue, oid: newOid, orderNumber: action.updateObj.orderNumber });
         let newState = addCodedValue(state, subAction, true);
         return { ...newState, [action.codeListOid]: newCodeList };
     } else {

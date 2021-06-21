@@ -30,7 +30,6 @@ import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
 import Switch from '@material-ui/core/Switch';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import withWidth from '@material-ui/core/withWidth';
 import Box from '@material-ui/core/Box';
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -42,6 +41,7 @@ import GeneralTable from 'components/utils/generalTable.js';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import ControlledTerminologyBreadcrumbs from 'components/controlledTerminology/breadcrumbs.js';
+import { dummyRequest } from 'utils/cdiscLibraryUtils.js';
 import {
     updateControlledTerminology,
     addControlledTerminology,
@@ -104,9 +104,7 @@ const mapStateToProps = state => {
     return {
         controlledTerminologyLocation: state.present.settings.general.controlledTerminologyLocation,
         controlledTerminology: state.present.controlledTerminology,
-        enableCdiscLibrary: state.present.settings.cdiscLibrary.enableCdiscLibrary,
-        useCdiscLibrary: state.present.ui.controlledTerminology.useCdiscLibrary,
-        useCdiscLibraryForCt: state.present.ui.controlledTerminology.useCdiscLibraryForCt,
+        useCdiscLibraryForCt: state.present.settings.cdiscLibrary.useCdiscLibraryForCt,
         ctUiSettings: state.present.ui.controlledTerminology.packages,
         currentView: state.present.ui.controlledTerminology.currentView,
         stdCodeLists: state.present.stdCodeLists,
@@ -151,10 +149,14 @@ const useToolbarStyles = makeStyles(theme => ({
     },
     toolbarFab: {
         marginRight: theme.spacing(1),
+        outline: 'none',
     },
     toolbarIcon: {
         height: 31,
         width: 31,
+        outline: 'none',
+    },
+    progressIcon: {
     },
 }));
 
@@ -195,21 +197,11 @@ class ConnectedPackages extends React.Component {
         ipcRenderer.removeListener('ctFolderError', this.showError);
     }
 
-    dummyRequest = async () => {
-        // There is a glitch, which causes the response not to come back in some cases
-        // It is currently fixed by sending a dummy request if the main response did not come back
-        try {
-            await this.context.cdiscLibrary.coreObject.apiRequest('/health', { noCache: true });
-        } catch (error) {
-            // It is expected to fail, so do nothing
-        }
-    }
-
     getCtFromCdiscLibrary = async () => {
         // As a temporary bugfix, send a dummy request if the object did not load
         setTimeout(() => {
             if (this.state.externalCts.length === 0) {
-                this.dummyRequest();
+                dummyRequest();
             }
         }, 1000);
 
@@ -384,7 +376,7 @@ class ConnectedPackages extends React.Component {
         const ctNum = this.state.externalCts.length;
         setTimeout(() => {
             if (this.state.externalCts.length === ctNum) {
-                this.dummyRequest();
+                dummyRequest();
             }
         }, 2000);
         // Change CT to loading
@@ -466,7 +458,7 @@ class ConnectedPackages extends React.Component {
     additionalActions = (classes) => {
         let result = [];
         result.push(
-            <Tooltip title='Add Controlled Terminology' placement='bottom' enterDelay={500}>
+            <Tooltip title='Add Controlled Terminology' placement='bottom' enterDelay={500} className={classes.toolbarFab}>
                 <Fab
                     onClick={this.addControlledTerminology}
                     color='default'
@@ -499,7 +491,7 @@ class ConnectedPackages extends React.Component {
                     className={classes.toolbarFab}
                 >
                     {this.state.reloadingCts ? (
-                        <CircularProgress size={35}/>
+                        <CircularProgress size={35} className={classes.progressIcon}/>
                     ) : (
                         <Cached className={classes.toolbarIcon}/>
                     )}
@@ -529,22 +521,6 @@ class ConnectedPackages extends React.Component {
                 buttonClass={classes.toolbarFab}
             />
         );
-        if (this.props.enableCdiscLibrary) {
-            result.push(
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={this.props.useCdiscLibrary}
-                            onChange={this.handleShowCdiscLibraryChange}
-                            color='primary'
-                            size='medium'
-                        />
-                    }
-                    label='CDISC Library'
-                    className={classes.switch}
-                />
-            );
-        }
         result.push(
             <TextField
                 select
@@ -672,8 +648,6 @@ ConnectedPackages.propTypes = {
     deleteStdCodeLists: PropTypes.func.isRequired,
     controlledTerminology: PropTypes.object.isRequired,
     ctUiSettings: PropTypes.object,
-    enableCdiscLibrary: PropTypes.bool.isRequired,
-    useCdiscLibrary: PropTypes.bool.isRequired,
     useCdiscLibraryForCt: PropTypes.bool.isRequired,
     stdCodeLists: PropTypes.object.isRequired,
 };

@@ -162,7 +162,6 @@ const cdiscLibraryUi = {
 
 const controlledTerminology = {
     currentView: 'packages',
-    useCdiscLibrary: false,
     packages: {
         packageType: 'All',
         showNCISiteCts: true,

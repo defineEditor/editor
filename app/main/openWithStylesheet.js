@@ -82,7 +82,7 @@ const openWithStylesheet = async (sourceData, type) => {
         transparent: true,
     });
     loadingWindow.loadFile('static/stylesheets/loadingCat.html');
-    loadingWindow.on('close', () => {
+    loadingWindow.on('closed', () => {
         loadingWindow = null;
     });
 

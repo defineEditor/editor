@@ -198,7 +198,9 @@ const dummyRequest = async (cl) => {
     // https://github.com/electron/electron/issues/10570
     // It is currently fixed by sending a dummy request in 1 second if the main response did not come back
     try {
-        await cl.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
+        if (process.platform === 'linux') {
+            await cl.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
+        }
     } catch (error) {
         // It is expected to fail, so do nothing
     }
