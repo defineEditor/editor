@@ -17,6 +17,7 @@ import PropTypes from 'prop-types';
 import { withStyles, lighten, makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
+import { openDB } from 'idb';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -25,18 +26,22 @@ import CloudDownload from '@material-ui/icons/CloudDownload';
 import Forward from '@material-ui/icons/Forward';
 import Add from '@material-ui/icons/Add';
 import Cached from '@material-ui/icons/Cached';
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
 import Switch from '@material-ui/core/Switch';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import withWidth from '@material-ui/core/withWidth';
 import Box from '@material-ui/core/Box';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import TextField from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import InternalHelp from 'components/utils/internalHelp.js';
 import GeneralTable from 'components/utils/generalTable.js';
 import CdiscLibraryContext from 'constants/cdiscLibraryContext.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import ControlledTerminologyBreadcrumbs from 'components/controlledTerminology/breadcrumbs.js';
+import { dummyRequest } from 'utils/cdiscLibraryUtils.js';
 import {
     updateControlledTerminology,
     addControlledTerminology,
@@ -99,8 +104,7 @@ const mapStateToProps = state => {
     return {
         controlledTerminologyLocation: state.present.settings.general.controlledTerminologyLocation,
         controlledTerminology: state.present.controlledTerminology,
-        enableCdiscLibrary: state.present.settings.cdiscLibrary.enableCdiscLibrary,
-        useCdiscLibrary: state.present.ui.controlledTerminology.useCdiscLibrary,
+        useCdiscLibraryForCt: state.present.settings.cdiscLibrary.useCdiscLibraryForCt,
         ctUiSettings: state.present.ui.controlledTerminology.packages,
         currentView: state.present.ui.controlledTerminology.currentView,
         stdCodeLists: state.present.stdCodeLists,
@@ -145,22 +149,26 @@ const useToolbarStyles = makeStyles(theme => ({
     },
     toolbarFab: {
         marginRight: theme.spacing(1),
+        outline: 'none',
     },
     toolbarIcon: {
         height: 31,
         width: 31,
+        outline: 'none',
+    },
+    progressIcon: {
     },
 }));
 
-const ctTypes = ['All', 'SDTM', 'ADaM', 'SEND', 'CDASH', 'COA', 'QS-FT', 'Protocol', 'Def-XML'];
+const ctTypes = ['All', 'SDTM', 'ADaM', 'SEND', 'CDASH', 'COA', 'QS-FT', 'Protocol', 'Def-XML', 'Glossary'];
 
 class ConnectedPackages extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            cdiscLibraryCts: [],
+            externalCts: [],
             selected: [],
-            showCdiscLibrary: false,
+            reloadingCts: false,
             searchString: '',
             scanning: false,
             totalCount: 0,
@@ -176,7 +184,7 @@ class ConnectedPackages extends React.Component {
         ipcRenderer.on('scanCtFolderStarted', this.initiateScanning);
         ipcRenderer.on('scanCtFolderError', this.showError);
         ipcRenderer.on('ctFolderError', this.showError);
-        if (this.props.enableCdiscLibrary && this.context) {
+        if (this.context) {
             this.getCtFromCdiscLibrary();
         }
     }
@@ -189,30 +197,34 @@ class ConnectedPackages extends React.Component {
         ipcRenderer.removeListener('ctFolderError', this.showError);
     }
 
-    dummyRequest = async () => {
-        // There is a glitch, which causes the response not to come back in some cases
-        // It is currently fixed by sending a dummy request if the main response did not come back
-        try {
-            await this.context.cdiscLibrary.coreObject.apiRequest('/health', { noCache: true });
-        } catch (error) {
-            // It is expected to fail, so do nothing
-        }
-    }
-
     getCtFromCdiscLibrary = async () => {
         // As a temporary bugfix, send a dummy request if the object did not load
         setTimeout(() => {
-            if (this.state.cdiscLibraryCts.length === 0) {
-                this.dummyRequest();
+            if (this.state.externalCts.length === 0) {
+                dummyRequest();
             }
         }, 1000);
+
+        // In case CDISC Library is not used, the data is obtained from NCI site
+        if (!this.props.useCdiscLibraryForCt) {
+            await this.context.cdiscLibrary.getCtFromNciSite();
+        }
         let productClasses = await this.context.cdiscLibrary.getProductClasses();
         let cts = productClasses.terminology.productGroups.packages.products;
 
-        let cdiscLibraryCts = Object.values(cts).map(ct => {
-            let terminologyType = ct.label.replace(/^\s*(\S+).*/, '$1');
+        let externalCts = Object.values(cts).map(ct => {
+            let terminologyType = '';
+            if (ct.label.toLowerCase().includes('glossary')) {
+                terminologyType = 'Glossary';
+            } else {
+                terminologyType = ct.label.replace(/^\s*(\S+).*/, '$1');
+            }
             if (terminologyType === 'PROTOCOL') {
                 terminologyType = 'Protocol';
+            } else if (terminologyType.toLowerCase() === 'define-xml' || terminologyType.toLowerCase() === 'def-xml') {
+                terminologyType = 'Def-XML';
+            } else if (terminologyType.toLowerCase() === 'glosarry') {
+                terminologyType = 'Glossary';
             }
             return ({
                 ...new ControlledTerminology({
@@ -222,12 +234,13 @@ class ConnectedPackages extends React.Component {
                     version: ct.version,
                 }),
                 notLoaded: true,
+                loading: false,
                 __styleClass: { backgroundColor: '#E0E0E0' },
                 __disableSelection: true
             });
         });
 
-        this.setState({ cdiscLibraryCts });
+        this.setState({ externalCts, reloadingCts: false });
     }
 
     updateCount = () => {
@@ -291,7 +304,7 @@ class ConnectedPackages extends React.Component {
 
     actions = (props) => {
         const { id, row } = props;
-        if (row.notLoaded === true) {
+        if (row.notLoaded && !row.loading) {
             return (
                 <Tooltip title='Download Controlled Terminology' placement='bottom' enterDelay={500}>
                     <Fab
@@ -302,6 +315,15 @@ class ConnectedPackages extends React.Component {
                         <CloudDownload className={this.props.classes.actionIcon}/>
                     </Fab>
                 </Tooltip>
+            );
+        } else if (row.loading === true) {
+            return (
+                <Fab
+                    color='default'
+                    size='medium'
+                >
+                    <CircularProgress size={35}/>
+                </Fab>
             );
         } else {
             return (
@@ -320,6 +342,10 @@ class ConnectedPackages extends React.Component {
 
     handleTypeChange = event => {
         this.props.changeCtSettings({ view: 'packages', settings: { packageType: event.target.value } });
+    };
+
+    handleNCISiteCtVisibility = event => {
+        this.props.changeCtSettings({ view: 'packages', settings: { showNCISiteCts: !this.props.ctUiSettings.showNCISiteCts } });
     };
 
     handleShowCdiscLibraryChange = (event, checked) => {
@@ -347,12 +373,21 @@ class ConnectedPackages extends React.Component {
 
     loadCtFromCdiscLibrary = async (id) => {
         // As a temporary bugfix, send a dummy request if the object did not load
-        const ctNum = this.state.cdiscLibraryCts.length;
+        const ctNum = this.state.externalCts.length;
         setTimeout(() => {
-            if (this.state.cdiscLibraryCts.length === ctNum) {
-                this.dummyRequest();
+            if (this.state.externalCts.length === ctNum) {
+                dummyRequest();
             }
         }, 2000);
+        // Change CT to loading
+        const newExternalCts = this.state.externalCts.map(ct => {
+            if (ct.id === id) {
+                return { ...ct, loading: true };
+            } else {
+                return ct;
+            }
+        });
+        this.setState({ externalCts: newExternalCts });
         let ct = await this.context.cdiscLibrary.getFullProduct(id);
         // IPCRender requires serialized objects
         let ctSerialized = JSON.parse(JSON.stringify(ct));
@@ -388,10 +423,42 @@ class ConnectedPackages extends React.Component {
         this.props.changeCtSettings({ view: 'packages', settings: { rowsPerPage } });
     }
 
+    reloadCtList = async () => {
+        if (this.context) {
+            // Remove cached objects
+            this.setState({ externalCts: {}, reloadingCts: true });
+            const db = await openDB('cdiscLibrary-store', 1, {
+                upgrade (db) {
+                    // Create a store of objects
+                    db.createObjectStore('cdiscLibrary', {});
+                },
+            });
+
+            if (this.props.useCdiscLibraryForCt) {
+                // Remove products in case CT is loaded from CDISC Library
+                await db.delete('cdiscLibrary', 'products');
+            } else {
+                // Remove all cached endpoints for NCI site
+                let allKeys = await db.getAllKeys('cdiscLibrary');
+                for (let i = 0; i < allKeys.length; i++) {
+                    let key = allKeys[i];
+                    if (key.startsWith('nci/')) {
+                        await db.delete('cdiscLibrary', key);
+                    }
+                }
+            }
+
+            // Reset the library contents
+            this.context.cdiscLibrary.reset();
+
+            this.getCtFromCdiscLibrary();
+        }
+    }
+
     additionalActions = (classes) => {
         let result = [];
         result.push(
-            <Tooltip title='Add Controlled Terminology' placement='bottom' enterDelay={500}>
+            <Tooltip title='Add Controlled Terminology' placement='bottom' enterDelay={500} className={classes.toolbarFab}>
                 <Fab
                     onClick={this.addControlledTerminology}
                     color='default'
@@ -411,7 +478,39 @@ class ConnectedPackages extends React.Component {
                     size='medium'
                     className={classes.toolbarFab}
                 >
-                    <Cached className={classes.toolbarIcon}/>
+                    <CreateNewFolderIcon className={classes.toolbarIcon}/>
+                </Fab>
+            </Tooltip>
+        );
+        result.push(
+            <Tooltip title='Reload CT list' placement='bottom' enterDelay={500}>
+                <Fab
+                    onClick={this.reloadCtList}
+                    color='default'
+                    size='medium'
+                    className={classes.toolbarFab}
+                >
+                    {this.state.reloadingCts ? (
+                        <CircularProgress size={35} className={classes.progressIcon}/>
+                    ) : (
+                        <Cached className={classes.toolbarIcon}/>
+                    )}
+                </Fab>
+            </Tooltip>
+        );
+        result.push(
+            <Tooltip title='Toggle external CT visibility' placement='bottom' enterDelay={500}>
+                <Fab
+                    onClick={this.handleNCISiteCtVisibility}
+                    color='default'
+                    size='medium'
+                    className={classes.toolbarFab}
+                >
+                    { this.props.ctUiSettings.showNCISiteCts !== false ? (
+                        <VisibilityOff className={classes.toolbarIcon}/>
+                    ) : (
+                        <Visibility className={classes.toolbarIcon}/>
+                    )}
                 </Fab>
             </Tooltip>
         );
@@ -422,22 +521,6 @@ class ConnectedPackages extends React.Component {
                 buttonClass={classes.toolbarFab}
             />
         );
-        if (this.props.enableCdiscLibrary) {
-            result.push(
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={this.props.useCdiscLibrary}
-                            onChange={this.handleShowCdiscLibraryChange}
-                            color='primary'
-                            size='medium'
-                        />
-                    }
-                    label='CDISC Library'
-                    className={classes.switch}
-                />
-            );
-        }
         result.push(
             <TextField
                 select
@@ -495,10 +578,10 @@ class ConnectedPackages extends React.Component {
         ];
 
         let data = Object.values(this.props.controlledTerminology.byId);
-        if (this.state.cdiscLibraryCts.length > 0 && this.props.useCdiscLibrary) {
+        if (this.state.externalCts.length > 0 && this.props.ctUiSettings.showNCISiteCts !== false) {
             // Remove CDISC CTs which are already loaded
             let loadedIds = data.filter(ct => (ct.isCdiscNci)).map(ct => (ct.type + ct.version));
-            data = data.concat(this.state.cdiscLibraryCts.filter(ct => (!loadedIds.includes(ct.type + ct.version))));
+            data = data.concat(this.state.externalCts.filter(ct => (!loadedIds.includes(ct.type + ct.version))));
         }
 
         let packageType = this.props.ctUiSettings.packageType;
@@ -565,8 +648,7 @@ ConnectedPackages.propTypes = {
     deleteStdCodeLists: PropTypes.func.isRequired,
     controlledTerminology: PropTypes.object.isRequired,
     ctUiSettings: PropTypes.object,
-    enableCdiscLibrary: PropTypes.bool.isRequired,
-    useCdiscLibrary: PropTypes.bool.isRequired,
+    useCdiscLibraryForCt: PropTypes.bool.isRequired,
     stdCodeLists: PropTypes.object.isRequired,
 };
 

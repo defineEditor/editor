@@ -162,9 +162,9 @@ const cdiscLibraryUi = {
 
 const controlledTerminology = {
     currentView: 'packages',
-    useCdiscLibrary: false,
     packages: {
         packageType: 'All',
+        showNCISiteCts: true,
         rowsPerPage: 25,
     },
     codeLists: {
@@ -226,9 +226,7 @@ const editor = {
 const cdiscLibrary = {
     enableCdiscLibrary: false,
     checkForCLUpdates: true,
-    oAuth2: false,
-    username: '',
-    password: '',
+    useCdiscLibraryForCt: false,
     apiKey: '',
     baseUrl: 'https://library.cdisc.org/api',
 };

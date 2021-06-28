@@ -82,7 +82,7 @@ const openWithStylesheet = async (sourceData, type) => {
         transparent: true,
     });
     loadingWindow.loadFile('static/stylesheets/loadingCat.html');
-    loadingWindow.on('close', () => {
+    loadingWindow.on('closed', () => {
         loadingWindow = null;
     });
 
@@ -106,12 +106,14 @@ const openWithStylesheet = async (sourceData, type) => {
     newWindow.setMenu(null);
     newWindow.loadURL('file://' + tempDefine);
 
-    newWindow.on('closed', () => {
+    newWindow.on('closed', async () => {
         findInPage.clean();
         findInPage = null;
         newWindow = null;
         if (!usingOriginalFile) {
-            fs.unlink(tempDefine, (err) => { if (err) { throw Error(err); } });
+            if (fs.existsSync(tempDefine)) {
+                await unlink(tempDefine);
+            }
         }
     });
 };

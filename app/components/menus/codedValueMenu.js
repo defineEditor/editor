@@ -104,7 +104,7 @@ class ConnectedCodedValueMenu extends React.Component {
     }
 
     render () {
-        let hasStandard = this.props.codedValueMenuParams.hasStandard;
+        const { hasStandard, enumAndHasLinked } = this.props.codedValueMenuParams;
 
         return (
             <React.Fragment>
@@ -119,24 +119,24 @@ class ConnectedCodedValueMenu extends React.Component {
                         }
                     }}
                 >
-                    <MenuItem key="InsertAbove" onClick={this.insertRecord(0)} disabled={this.props.reviewMode}>
+                    <MenuItem key="InsertAbove" onClick={this.insertRecord(0)} disabled={this.props.reviewMode || enumAndHasLinked}>
                         Insert Above
                     </MenuItem>
-                    <MenuItem key="InsertBelow" onClick={this.insertRecord(1)} disabled={this.props.reviewMode}>
+                    <MenuItem key="InsertBelow" onClick={this.insertRecord(1)} disabled={this.props.reviewMode || enumAndHasLinked}>
                         <u>I</u>nsert Below
                     </MenuItem>
                     {hasStandard && (
                         [
                             <Divider key='Divider'/>,
-                            <MenuItem key='InsertStdAbove' onClick={this.insertStdRecord(0)} disabled={this.props.reviewMode}>
+                            <MenuItem key='InsertStdAbove' onClick={this.insertStdRecord(0)} disabled={this.props.reviewMode || enumAndHasLinked}>
                                 Insert Std. Codes Above
                             </MenuItem>,
-                            <MenuItem key='InsertStdBelow' onClick={this.insertStdRecord(1)} disabled={this.props.reviewMode}>
+                            <MenuItem key='InsertStdBelow' onClick={this.insertStdRecord(1)} disabled={this.props.reviewMode || enumAndHasLinked}>
                                 Insert Std. Codes Below
                             </MenuItem>
                         ]
                     )}
-                    <MenuItem key='DuplicateValue' onClick={this.duplicate} disabled={this.props.reviewMode}>
+                    <MenuItem key='DuplicateValue' onClick={this.duplicate} disabled={this.props.reviewMode || enumAndHasLinked}>
                         D<u>u</u>plicate
                     </MenuItem>
                     <Divider/>

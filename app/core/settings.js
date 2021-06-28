@@ -164,7 +164,7 @@ class ConnectedSettings extends React.Component {
             'onlyArmEdit',
             'enableCdiscLibrary',
             'checkForCLUpdates',
-            'oAuth2',
+            'useCdiscLibraryForCt',
             'enableBackup',
             'backupControlledTerminology',
             'removeHtmlTagsInCommentsExport',

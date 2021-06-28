@@ -19,37 +19,45 @@ import { openDB } from 'idb';
 import Jszip from 'jszip';
 
 const getRequestId = async (request) => {
-    let shortenedUrl = request.url
-        .replace('/root/', '/r/')
-        .replace('/cdash/', '/cd/')
-        .replace('/cdashig/', '/cdi/')
-        .replace('/sdtm/', '/s/')
-        .replace('/sdtmig/', '/si/')
-        .replace('/send/', '/se/')
-        .replace('/sendig/', '/sei/')
-        .replace('/adam/', '/a/')
-        .replace('/datasets/', '/d/')
-        .replace('/domains/', '/dm/')
-        .replace('/datastructures/', '/ds/')
-        .replace('/classes/', '/c/')
-        .replace('/variables/', '/v/')
-        .replace('/fields/', '/f/')
-        .replace('/varsets/', '/vs/')
-        .replace('/packages/', '/p/')
-        .replace('/codelists/', '/cl/')
-        .replace('/terms/', '/t/')
-        .replace('/scenarios/', '/s/')
-        .replace(/.*?\/mdr\//, '')
-    ;
-    let requestOptions = JSON.stringify({ ...request.headers });
-    let hash = await window.crypto.subtle.digest('SHA-1', new TextEncoder().encode(requestOptions));
-    const hashArray = Array.from(new Uint8Array(hash));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    if (request && request.headers && request.headers.Accept === 'application/json') {
-        // These are standard request options, no need to add a hash code
-        return shortenedUrl;
+    // NCI site requests
+    if (request.url.includes('/ftp1/CDISC/')) {
+        let shortenedUrl = request.url
+            .replace(/.*\/ftp1\/CDISC\/(.*)/, '$1')
+        ;
+        return 'nci/' + shortenedUrl;
     } else {
-        return shortenedUrl + hashHex;
+        let shortenedUrl = request.url
+            .replace('/root/', '/r/')
+            .replace('/cdash/', '/cd/')
+            .replace('/cdashig/', '/cdi/')
+            .replace('/sdtm/', '/s/')
+            .replace('/sdtmig/', '/si/')
+            .replace('/send/', '/se/')
+            .replace('/sendig/', '/sei/')
+            .replace('/adam/', '/a/')
+            .replace('/datasets/', '/d/')
+            .replace('/domains/', '/dm/')
+            .replace('/datastructures/', '/ds/')
+            .replace('/classes/', '/c/')
+            .replace('/variables/', '/v/')
+            .replace('/fields/', '/f/')
+            .replace('/varsets/', '/vs/')
+            .replace('/packages/', '/p/')
+            .replace('/codelists/', '/cl/')
+            .replace('/terms/', '/t/')
+            .replace('/scenarios/', '/s/')
+            .replace(/.*?\/mdr\//, '')
+        ;
+        let requestOptions = JSON.stringify({ ...request.headers });
+        let hash = await window.crypto.subtle.digest('SHA-1', new TextEncoder().encode(requestOptions));
+        const hashArray = Array.from(new Uint8Array(hash));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        if (request && request.headers && request.headers.Accept === 'application/json') {
+            // These are standard request options, no need to add a hash code
+            return shortenedUrl;
+        } else {
+            return shortenedUrl + hashHex;
+        }
     }
 };
 
@@ -71,7 +79,13 @@ const claMatch = async (request) => {
         await zip.loadAsync(zippedData);
         if (Object.keys(zip.files).includes('response.json')) {
             let result = await zip.file('response.json').async('string');
-            return { statusCode: 200, body: result };
+            let headers = {};
+            if (!id.startsWith('nci')) {
+                headers = { 'content-type': 'application/json' };
+            } else {
+                headers = { 'content-type': '' };
+            }
+            return { statusCode: 200, body: result, headers };
         }
     }
 };
@@ -79,11 +93,19 @@ const claMatch = async (request) => {
 const claPut = async (request, response) => {
     // Get an id
     let id = await getRequestId(request);
-    // Minify the response
-    let data = JSON.parse(response.body);
+    // Do not put into cache XML files downloaded from NCI, as they are stored locally
+    if (id.startsWith('nci') && id.endsWith('.xml')) {
+        return;
+    }
     // Compress the data
     let zip = new Jszip();
-    zip.file('response.json', JSON.stringify(data));
+    if (id.startsWith('nci')) {
+        zip.file('response.json', response.body);
+    } else {
+        // Minify the JSON response
+        let data = JSON.parse(response.body);
+        zip.file('response.json', JSON.stringify(data));
+    }
     let zippedData = await zip.generateAsync({
         type: 'blob',
         compression: 'DEFLATE',
@@ -115,20 +137,21 @@ const initCdiscLibrary = (settings) => {
         info = state.ui.cdiscLibrary.info;
     }
 
+    let options = {
+        baseUrl: claSettings.baseUrl,
+        cache: { match: claMatch, put: claPut },
+        useNciSiteForCt: !claSettings.useCdiscLibraryForCt,
+    };
+    if (info) {
+        options.traffic = info.traffic;
+    }
     if (claSettings.enableCdiscLibrary === true) {
-        let options = {
-            baseUrl: claSettings.baseUrl,
-            cache: { match: claMatch, put: claPut },
-        };
-        if (claSettings.oAuth2 === true) {
+        if (claSettings.apiKey) {
             options.apiKey = decrypt(claSettings.apiKey);
-        } else {
-            options.username = claSettings.username;
-            options.password = decrypt(claSettings.password);
         }
-        if (info) {
-            options.traffic = info.traffic;
-        }
+        return new CdiscLibrary(options);
+    } else if (claSettings.useCdiscLibraryForCt !== true) {
+        // Initialize the library to download CT from NCI site, it does not require API key
         return new CdiscLibrary(options);
     } else {
         return {};
@@ -175,7 +198,9 @@ const dummyRequest = async (cl) => {
     // https://github.com/electron/electron/issues/10570
     // It is currently fixed by sending a dummy request in 1 second if the main response did not come back
     try {
-        await cl.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
+        if (process.platform === 'linux') {
+            await cl.coreObject.apiRequest('/dummyEndpoint', { noCache: true });
+        }
     } catch (error) {
         // It is expected to fail, so do nothing
     }

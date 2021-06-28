@@ -253,7 +253,7 @@
     "archiver": "^5.0.2",
     "babel-plugin-prismjs": "^1.0.2",
     "bootstrap": "^4.1.1",
-    "cla-wrapper": "^0.2.4",
+    "cla-wrapper": "^0.3.0",
     "clone": "^2.1.2",
     "csvtojson": "^2.0.8",
     "devtron": "^1.4.0",

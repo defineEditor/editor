@@ -94,79 +94,41 @@ const Editor = (props) => {
                         <FormControlLabel
                             control={
                                 <Switch
-                                    checked={props.state.settings.cdiscLibrary.oAuth2}
-                                    onChange={props.handleChange('cdiscLibrary', 'oAuth2')}
+                                    checked={props.state.settings.cdiscLibrary.useCdiscLibraryForCt}
+                                    onChange={props.handleChange('cdiscLibrary', 'useCdiscLibraryForCt')}
                                     color='primary'
                                     disabled={props.state.settings.cdiscLibrary.enableCdiscLibrary === false}
                                     className={classes.switch}
                                 />
                             }
-                            label='Use OAuth2 authentication'
+                            label='Use CDISC Library to download CT instead of NCI ftp site'
                         />
                     </FormGroup>
                 </Grid>
-                { props.state.settings.cdiscLibrary.oAuth2 !== true && [
-                    <Grid item xs={12} key='username'>
-                        <TextField
-                            label='Username'
-                            disabled={!props.state.settings.cdiscLibrary.enableCdiscLibrary}
-                            value={props.state.settings.cdiscLibrary.username}
-                            onChange={props.handleChange('cdiscLibrary', 'username')}
-                            helperText='CDISC Library API username (not CDISC account name)'
-                            className={classes.textFieldShort}
-                        />
-                    </Grid>,
-                    <Grid item xs={12} key='password'>
-                        <TextField
-                            label='Password'
-                            disabled={!props.state.settings.cdiscLibrary.enableCdiscLibrary}
-                            value={props.state.settings.cdiscLibrary.password}
-                            onChange={props.handleChange('cdiscLibrary', 'password')}
-                            type={props.state.showEncryptedValue ? 'text' : 'password'}
-                            helperText='CDISC Library API password'
-                            className={classes.textFieldShort}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <IconButton
-                                            aria-label="Toggle password visibility"
-                                            onClick={props.handleClickShowEncyptedValue}
-                                            className={classes.adorementIcon}
-                                        >
-                                            {props.state.showEncryptedValue ? <Visibility /> : <VisibilityOff />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                )
-                            }}
-                        />
-                    </Grid>
-                ]}
-                { props.state.settings.cdiscLibrary.oAuth2 === true &&
-                        <Grid item xs={12}>
-                            <TextField
-                                label='API Key'
-                                disabled={!props.state.settings.cdiscLibrary.enableCdiscLibrary}
-                                value={props.state.settings.cdiscLibrary.apiKey}
-                                onChange={props.handleChange('cdiscLibrary', 'apiKey')}
-                                type={props.state.showEncryptedValue ? 'text' : 'password'}
-                                helperText='CDISC Library Primary API Key'
-                                className={classes.textFieldShort}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <IconButton
-                                                aria-label="Toggle apiKey visibility"
-                                                onClick={props.handleClickShowEncyptedValue}
-                                                className={classes.adorementIcon}
-                                            >
-                                                {props.state.showEncryptedValue ? <Visibility /> : <VisibilityOff />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    )
-                                }}
-                            />
-                        </Grid>
-                }
+                <Grid item xs={12}>
+                    <TextField
+                        label='API Key'
+                        disabled={!props.state.settings.cdiscLibrary.enableCdiscLibrary}
+                        value={props.state.settings.cdiscLibrary.apiKey}
+                        onChange={props.handleChange('cdiscLibrary', 'apiKey')}
+                        type={props.state.showEncryptedValue ? 'text' : 'password'}
+                        helperText='CDISC Library Primary API Key'
+                        className={classes.textFieldShort}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <IconButton
+                                        aria-label="Toggle apiKey visibility"
+                                        onClick={props.handleClickShowEncyptedValue}
+                                        className={classes.adorementIcon}
+                                    >
+                                        {props.state.showEncryptedValue ? <Visibility /> : <VisibilityOff />}
+                                    </IconButton>
+                                </InputAdornment>
+                            )
+                        }}
+                    />
+                </Grid>
                 <Grid item xs={12}>
                     <TextField
                         label='Base URL'

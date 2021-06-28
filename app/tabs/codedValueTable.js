@@ -332,7 +332,6 @@ class ConnectedCodedValueTable extends React.Component {
         let codedValueMenuParams = {
             oid: row.oid,
             codeListOid: this.props.codeListOid,
-            hasStandard: this.props.codeLists[this.props.codeListOid].standardOid !== undefined,
         };
         return (
             <IconButton
@@ -345,7 +344,10 @@ class ConnectedCodedValueTable extends React.Component {
     }
 
     handleMenuOpen = (codedValueMenuParams) => (event) => {
-        this.setState({ codedValueMenuParams, anchorEl: event.currentTarget });
+        let codeList = this.props.codeLists[this.props.codeListOid];
+        let hasStandard = codeList.standardOid !== undefined;
+        let enumAndHasLinked = (codeList.codeListType === 'enumerated' && codeList.linkedCodeListOid !== undefined);
+        this.setState({ codedValueMenuParams: { ...codedValueMenuParams, hasStandard, enumAndHasLinked }, anchorEl: event.currentTarget });
     }
 
     handleMenuClose = () => {
