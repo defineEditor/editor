@@ -499,14 +499,14 @@ class ConnectedPackages extends React.Component {
             </Tooltip>
         );
         result.push(
-            <Tooltip title='Toggle NCI site CT visibility' placement='bottom' enterDelay={500}>
+            <Tooltip title='Toggle external CT visibility' placement='bottom' enterDelay={500}>
                 <Fab
                     onClick={this.handleNCISiteCtVisibility}
                     color='default'
                     size='medium'
                     className={classes.toolbarFab}
                 >
-                    { this.props.ctUiSettings.showNCISiteCts ? (
+                    { this.props.ctUiSettings.showNCISiteCts !== false ? (
                         <VisibilityOff className={classes.toolbarIcon}/>
                     ) : (
                         <Visibility className={classes.toolbarIcon}/>
@@ -578,7 +578,7 @@ class ConnectedPackages extends React.Component {
         ];
 
         let data = Object.values(this.props.controlledTerminology.byId);
-        if (this.state.externalCts.length > 0 && this.props.ctUiSettings.showNCISiteCts) {
+        if (this.state.externalCts.length > 0 && this.props.ctUiSettings.showNCISiteCts !== false) {
             // Remove CDISC CTs which are already loaded
             let loadedIds = data.filter(ct => (ct.isCdiscNci)).map(ct => (ct.type + ct.version));
             data = data.concat(this.state.externalCts.filter(ct => (!loadedIds.includes(ct.type + ct.version))));

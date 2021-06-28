@@ -428,6 +428,8 @@ const updateCodedValue = (state, action, skipLinkedCodeListUpdate) => {
 const addCodedValue = (state, action, skipLinkedCodeListUpdate) => {
     // action.updateObj.codedValue - new value
     // action.updateObj.decodedValue - optional decoded value
+    // action.updateObj.decodes - optional decodes
+    // action.updateObj.alias - optional alias
     // action.updateObj.orderNumber - position to insert, if undefined insert to the end
     // action.updateObj.oid - new oid for the value (used in case of a linked codelist update)
     // action.updateObj.extendedValue - whether the value is extended for extensible ST)
@@ -478,7 +480,15 @@ const addCodedValue = (state, action, skipLinkedCodeListUpdate) => {
         subAction.codeListOid = codeList.linkedCodeListOid;
         // Linked codelists have identical OIDs for items
         let linkedCodedValue = action.updateObj.decodedValue || '';
-        subAction.updateObj = ({ codedValue: linkedCodedValue, decodedValue: action.updateObj.codedValue, oid: newOid, orderNumber: action.updateObj.orderNumber });
+        let decodes = action.updateObj.decodes;
+        if (decodes !== undefined && Array.isArray(decodes) && decodes.length >= 1) {
+            linkedCodedValue = decodes[0].value;
+        }
+        subAction.updateObj = { codedValue: linkedCodedValue, decodedValue: action.updateObj.codedValue, oid: newOid, orderNumber: action.updateObj.orderNumber };
+        // If there is an alias, it is also shared
+        if (action.updateObj.alias !== undefined) {
+            subAction.updateObj.alias = { ...new Alias({ ...action.updateObj.alias }) };
+        }
         let newState = addCodedValue(state, subAction, true);
         return { ...newState, [action.codeListOid]: newCodeList };
     } else {
