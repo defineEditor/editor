@@ -61,11 +61,12 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state => {
-    let comment;
     let defineVersion = state.present.odm.study.metaDataVersion.defineVersion;
+    let oid = state.present.odm.study.metaDataVersion.oid;
     let mdvCommentOid = state.present.odm.study.metaDataVersion.commentOid;
     let comments = state.present.odm.study.metaDataVersion.comments;
 
+    let comment;
     if (defineVersion === '2.1.0' && mdvCommentOid !== undefined) {
         comment = comments[mdvCommentOid];
     }
@@ -112,6 +113,7 @@ const mapStateToProps = state => {
         defineVersion,
         defineId,
         otherAttrs,
+        oid,
     };
 };
 
@@ -164,9 +166,24 @@ class ConnectedStandardTable extends React.Component {
             if (this.props.mdvAttrs.lang !== returnValue.lang) {
                 updateObj.lang = returnValue.lang;
             }
+            if (!deepEqual(this.props.mdvAttrs.comment, returnValue.comment)) {
+                // Handle comment changes
+                const comment = returnValue.comment;
+                if (comment !== undefined && comment.oid !== undefined) {
+                    updateObj.commentOid = comment.oid;
+                } else {
+                    updateObj.commentOid = undefined;
+                }
+            }
 
             if (Object.keys(updateObj).length > 0) {
-                this.props.updateMetaDataVersion(updateObj);
+                // Comment comparison is done in a corresponding comment reducer, so it needs to be always provided
+                this.props.updateMetaDataVersion({
+                    updatedValues: updateObj,
+                    comment: returnValue.comment,
+                    source: { oid: this.props.oid },
+                    prevComment: this.props.mdvAttrs.comment,
+                });
             }
             this.setState({ metaDataEdit: false });
         } else if (name === 'globalVariablesAndStudyOid') {
@@ -276,14 +293,33 @@ class ConnectedStandardTable extends React.Component {
                 }
                 this.setState({ controlledTerminologyEdit: false });
             } else if (name === 'standard') {
+                const prevComments = {};
+                Object.keys(this.props.standards).forEach(standardOid => {
+                    const commentOid = this.props.standards[standardOid].commentOid;
+                    if (commentOid !== undefined) {
+                        prevComments[commentOid] = this.props.comments[commentOid];
+                    }
+                });
+                const newComments = {};
+                // Unite all comments - in case a comment was reused between different standards, it will update only one comment
+                // The probability of this scenario is low, so it is not taken into consideration
+                Object.keys(returnValue.comments).forEach(stdOid => {
+                    if (returnValue.comments[stdOid] !== undefined) {
+                        const comment = returnValue.comments[stdOid];
+                        newComments[comment.oid] = comment;
+                    }
+                });
                 if (Object.keys(updatedStandards).length > 0 ||
                     Object.keys(addedStandards).length > 0 ||
+                    !deepEqual(newComments, prevComments) ||
                     removedStandardOids.length > 0
                 ) {
                     this.props.updateStandards({
                         addedStandards,
                         removedStandardOids,
                         updatedStandards,
+                        prevComments,
+                        newComments,
                     });
                 }
                 this.setState({ standardEdit: false });
@@ -418,6 +454,7 @@ class ConnectedStandardTable extends React.Component {
                             stdConstants={this.props.stdConstants}
                             hasArm={this.props.hasArm}
                             defineVersion={this.props.defineVersion}
+                            comments={this.props.comments}
                             onSave={this.save('standard')}
                             onCancel={this.cancel('standard')}
                         />
@@ -425,6 +462,7 @@ class ConnectedStandardTable extends React.Component {
                         <StandardFormatter
                             standards={this.props.standards}
                             defineVersion={this.props.defineVersion}
+                            comments={this.props.comments}
                             hasArm={this.props.hasArm}
                             onEdit={this.handleChange('standardEdit')}
                         />
@@ -490,6 +528,7 @@ class ConnectedStandardTable extends React.Component {
 ConnectedStandardTable.propTypes = {
     globalVariables: PropTypes.object.isRequired,
     studyOid: PropTypes.string.isRequired,
+    oid: PropTypes.string.isRequired,
     standards: PropTypes.object.isRequired,
     comments: PropTypes.object.isRequired,
     model: PropTypes.string.isRequired,

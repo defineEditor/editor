@@ -300,6 +300,7 @@ export const STD_MDV_LANG_ATTRIBUTES = {
     content: `
 * **Name (Required)**. Name of the described metadata. For example, <code>Study XXX, updated ADaM and ARM submission.</code>
 * **Description (Optional)**. Additional metadata description. For Define-XML 2.0 can be used to describe information about Controlled Terminology used or additional standards.
+* **Comment (Optional) (Define-XML 2.1)** - Additional comment describing specifics of the metadata version.
 * **Language (Optional)** - Language used for Define-XML text elements (TranslatedText). If left as blank, values from the original Define-XML are sed used. In this case for all new elements 'en' value is used.
 `
 };
@@ -319,6 +320,8 @@ export const STD_STANDARD = {
     content: `
 * **Name (Required)**. Name of a standard implementation guide.
 * **Version (Required)**. Version of the implementation guide.
+* **Status (Optional) (Define-XML 2.1)**. Publishing status of the standard..
+* **Comment (Optional) (Define-XML 2.1)**. Comment clarifying why the standard is used.
 * **Analysis Results Metadata (Optional)**. When using ADaM-IG, it is possible to enable ARM support for Define-XML.
 `
 };

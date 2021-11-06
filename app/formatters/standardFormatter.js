@@ -24,7 +24,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormattingControlIcons from 'formatters/formattingControlIcons.js';
-import getModelFromStandard from 'utils/getModelFromStandard.js';
+import { getModelFromStandards, getDescription } from 'utils/defineStructureUtils.js';
 
 const styles = theme => ({
     mainPart: {
@@ -34,16 +34,32 @@ const styles = theme => ({
     checkBox: {
         marginLeft: theme.spacing(4),
     },
+    nameColumn: {
+        width: '180px',
+        verticalAlign: 'bottom',
+    },
+    versionColumn: {
+        width: '100px',
+        verticalAlign: 'bottom',
+    },
+    statusColumn: {
+        width: '160px',
+    },
 });
 
 class StandardFormatter extends React.Component {
     getStandards = (isAdam) => {
-        let standards = this.props.standards;
+        const { standards, defineVersion } = this.props;
         let ctList = Object.keys(standards)
             .filter(standardOid => {
                 return !(standards[standardOid].name === 'CDISC/NCI' && standards[standardOid].type === 'CT');
             })
             .map(standardOid => {
+                const standard = standards[standardOid];
+                let comment;
+                if (standard.commentOid !== undefined) {
+                    comment = this.props.comments[standard.commentOid];
+                }
                 return (
                     <TableRow key={standardOid}>
                         <TableCell>
@@ -52,6 +68,16 @@ class StandardFormatter extends React.Component {
                         <TableCell>
                             {standards[standardOid].version}
                         </TableCell>
+                        {defineVersion === '2.1.0' && (
+                            <React.Fragment>
+                                <TableCell>
+                                    {standards[standardOid].status}
+                                </TableCell>
+                                <TableCell>
+                                    {getDescription(comment)}
+                                </TableCell>
+                            </React.Fragment>
+                        )}
                         { isAdam &&
                                 <TableCell>
                                     <Checkbox
@@ -70,8 +96,7 @@ class StandardFormatter extends React.Component {
 
     render () {
         const { classes } = this.props;
-        const standard = Object.values(this.props.standards).filter(std => (std.isDefault === 'Yes'))[0].name;
-        const isAdam = (getModelFromStandard(standard) === 'ADaM');
+        const isAdam = (getModelFromStandards(this.props.standards) === 'ADaM');
 
         return (
             <Paper className={classes.mainPart} elevation={4}>
@@ -81,13 +106,26 @@ class StandardFormatter extends React.Component {
                 </Typography>
                 <Table>
                     <TableHead>
-                        <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Version</TableCell>
-                            { isAdam &&
+                        {this.props.defineVersion === '2.0.0' &&
+                            <TableRow>
+                                <TableCell>Name</TableCell>
+                                <TableCell>Version</TableCell>
+                                {isAdam &&
                                     <TableCell>Analysis Results Metadata</TableCell>
-                            }
-                        </TableRow>
+                                }
+                            </TableRow>
+                        }
+                        {this.props.defineVersion === '2.1.0' &&
+                            <TableRow>
+                                <TableCell className={classes.nameColumn}>Name</TableCell>
+                                <TableCell className={classes.versionColumn}>Version</TableCell>
+                                <TableCell className={classes.statusColumn}>Status</TableCell>
+                                <TableCell>Comment</TableCell>
+                                {isAdam &&
+                                    <TableCell>Analysis Results Metadata</TableCell>
+                                }
+                            </TableRow>
+                        }
                     </TableHead>
                     <TableBody>
                         {this.getStandards(isAdam)}
@@ -101,6 +139,7 @@ class StandardFormatter extends React.Component {
 StandardFormatter.propTypes = {
     standards: PropTypes.object.isRequired,
     classes: PropTypes.object.isRequired,
+    comments: PropTypes.object.isRequired,
     onEdit: PropTypes.func.isRequired,
     hasArm: PropTypes.bool.isRequired,
     onComment: PropTypes.func,

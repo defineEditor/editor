@@ -37,7 +37,7 @@ import {
 const initialState = new MetaDataVersion();
 
 const updateMetaDataVersion = (state, action) => {
-    return new MetaDataVersion({ ...state, ...action.updateObj });
+    return new MetaDataVersion({ ...state, ...action.updateObj.updatedValues });
 };
 
 const updateModel = (state, action) => {
@@ -109,7 +109,7 @@ const deleteDuplicateComments = (state, action) => {
 const metaDataVersion = (state = { ...initialState }, action) => {
     switch (action.type) {
         case UPD_MDV:
-            return updateMetaDataVersion(state, action);
+            return updateMetaDataVersion(defaultAction(state, action), action);
         case UPD_MODEL:
             return updateModel(state, action);
         case ADD_REVIEWCOMMENT:

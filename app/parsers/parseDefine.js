@@ -1,7 +1,7 @@
 /***********************************************************************************
 * This file is part of Visual Define-XML Editor. A program which allows to review  *
 * and edit XML files created using the CDISC Define-XML standard.                  *
-* Copyright (C) 2018 Dmitry Kolosov                                                *
+* Copyright (C) 2018, 2021 Dmitry Kolosov                                          *
 *                                                                                  *
 * Visual Define-XML Editor is free software: you can redistribute it and/or modify *
 * it under the terms of version 3 of the GNU Affero General Public License         *
@@ -98,7 +98,9 @@ function parseComments (commentsRaw, mdv) {
             itemGroups: getListOfSourceIds(mdv.itemGroups, 'commentOid', comment.oid),
             whereClauses: getListOfSourceIds(mdv.whereClauses, 'commentOid', comment.oid),
             codeLists: getListOfSourceIds(mdv.codeLists, 'commentOid', comment.oid),
+            metaDataVersion: getListOfSourceIds({ [mdv.oid]: mdv }, 'commentOid', comment.oid),
             analysisResults: mdv.hasOwnProperty('analysisResultDisplays') ? getListOfSourceIds(mdv.analysisResultDisplays.analysisResults, 'analysisDatasetsCommentOid', comment.oid) : [],
+            standards: getListOfSourceIds(mdv.standards, 'commentOid', comment.oid),
         };
         if (mdv.commentOid === comment.oid) {
             comment.sources['metaDataVersion'] = [mdv.oid];
@@ -111,12 +113,12 @@ function parseComments (commentsRaw, mdv) {
     return comments;
 }
 
-function parseStandards (standardsRaw, defineVersion) {
+function parseStandards (mdv, defineVersion) {
     let standards = {};
     if (defineVersion === '2.0.0') {
         let args = {
-            name: standardsRaw['$']['standardName'],
-            version: standardsRaw['$']['standardVersion'],
+            name: mdv['$']['standardName'],
+            version: mdv['$']['standardVersion'],
             isDefault: 'Yes'
         };
         // Try to parse type from the standard name (if ends with IG or -IG)
@@ -124,8 +126,13 @@ function parseStandards (standardsRaw, defineVersion) {
             args.type = 'IG';
         }
         let standard = new def.Standard(args);
-
         standards[standard.oid] = standard;
+    } else if (defineVersion === '2.1.0') {
+        const standardsRaw = mdv['standards'][0].standard;
+        standardsRaw.forEach(standardRaw => {
+            let standard = new def.Standard(standardRaw['$']);
+            standards[standard.oid] = standard;
+        });
     }
 
     return standards;
@@ -227,6 +234,13 @@ function parseCodelists (codeListsRaw, mdv) {
                 delete args['sASFormatName'];
             }
             var codeList = new def.CodeList(args);
+
+            // 2.1 codelist can have description
+            if (codeListRaw.hasOwnProperty('description')) {
+                codeListRaw['description'].forEach(function (item) {
+                    codeList.addDescription(parseTranslatedText(item));
+                });
+            }
 
             let itemOrderRaw = {};
 
@@ -586,6 +600,13 @@ function parseValueLists (valueListsRaw, mdv) {
 
         let valueList = new def.ValueList(args);
 
+        // 2.1 valuelists can have description
+        if (valueListRaw.hasOwnProperty('description')) {
+            valueListRaw['description'].forEach(function (item) {
+                valueList.addDescription(parseTranslatedText(item));
+            });
+        }
+
         if (valueListRaw.hasOwnProperty('description')) {
             valueListRaw['description'].forEach(function (item) {
                 valueList.addDescription(parseTranslatedText(item));
@@ -675,14 +696,18 @@ function parseMetaDataVersion (metadataRaw) {
     };
 
     // Obtain CDISC model of the study from the default standard
-    Object.keys(args.standards).forEach((standardOid) => {
-        if (args.standards[standardOid].isDefault === 'Yes') {
-            args.model = getModelFromStandard(args.standards[standardOid].name);
-            if (args.model === undefined) {
-                // TODO: Throw an exception if the model is not determined
+    const modelFound = Object.keys(args.standards).some((standardOid) => {
+        const name = args.standards[standardOid].name;
+        if (/^(ADAM|SDTM|SEND)/.test(name.toUpperCase())) {
+            args.model = getModelFromStandard(name);
+            if (args.model !== undefined) {
+                return true;
             }
         }
     });
+    if (!modelFound) {
+        throw new Error('Could not determine a model');
+    }
 
     let metaDataVersion = new def.MetaDataVersion(args);
 

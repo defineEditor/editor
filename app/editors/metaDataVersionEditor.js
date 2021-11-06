@@ -19,10 +19,9 @@ import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 import TextField from '@material-ui/core/TextField';
 import EditingControlIcons from 'editors/editingControlIcons.js';
-import { getDescription } from 'utils/defineStructureUtils.js';
+import CommentEditor from 'editors/commentEditor.js';
 
 const styles = theme => ({
     metaDataVersion: {
@@ -46,6 +45,8 @@ class MetaDataVersionEditor extends React.Component {
     handleChange = (name) => (event) => {
         if (name === 'description' && event.target.value === '') {
             this.setState({ [name]: undefined });
+        } else if (name === 'comment') {
+            this.setState({ [name]: event });
         } else {
             this.setState({ [name]: event.target.value });
         }
@@ -80,7 +81,7 @@ class MetaDataVersionEditor extends React.Component {
                     />
                 </Typography>
                 <List>
-                    <ListItem dense>
+                    <ListItem>
                         <TextField
                             label='Name'
                             value={this.state.name}
@@ -101,6 +102,14 @@ class MetaDataVersionEditor extends React.Component {
                             className={classes.inputField}
                         />
                     </ListItem>
+                    { defineVersion === '2.1.0' &&
+                    <ListItem>
+                        <CommentEditor
+                            onUpdate={this.handleChange('comment')}
+                            comment={this.state.comment}
+                        />
+                    </ListItem>
+                    }
                     <ListItem dense>
                         <TextField
                             label='Language'
@@ -111,11 +120,6 @@ class MetaDataVersionEditor extends React.Component {
                             className={classes.inputField}
                         />
                     </ListItem>
-                    { defineVersion === '2.1.0' &&
-                    <ListItem>
-                        <ListItemText primary='Comment' secondary={getDescription(this.state.comment)}/>
-                    </ListItem>
-                    }
                 </List>
             </Paper>
         );

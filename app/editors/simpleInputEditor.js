@@ -49,6 +49,7 @@ class SimpleInputEditor extends React.Component {
         }
 
         this.props.onUpdate(value);
+        this.setState({ value });
     }
 
     render () {
@@ -76,7 +77,7 @@ class SimpleInputEditor extends React.Component {
 
         if (lengthLimit !== undefined && this.state.value !== undefined) {
             if (this.state.value.length > lengthLimit.maxLength) {
-                let issueText = `Value length is ${this.state.value.length}, which exceeds ${lengthLimit.maxLength} characters.`;
+                let issueText = `Text length is ${this.state.value.length}, the maximum length is ${lengthLimit.maxLength}.`;
                 issues.push(issueText);
                 lengthLimitReached = true;
             }

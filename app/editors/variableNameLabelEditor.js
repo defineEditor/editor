@@ -14,89 +14,62 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-import checkForSpecialChars from 'utils/checkForSpecialChars.js';
+import SimpleInputEditor from 'editors/simpleInputEditor.js';
 
-const styles = theme => ({
-    formControl: {
-        whiteSpace: 'normal',
-        overflowWrap: 'break-word',
-    },
-    textField: {
-    },
-    nameTextField: {
-        width: '90px',
-        marginRight: theme.spacing(1),
+const getStyles = makeStyles(theme => ({
+    nameGrid: {
+        width: '110px',
         marginBottom: theme.spacing(1),
     },
-    helperText: {
-        whiteSpace: 'pre-wrap',
-    },
-});
+}));
 
-class VariableNameLabelEditor extends React.Component {
-    handleBlur = (event) => {
-        let value = event.target.value.toUpperCase();
-        this.props.handleChange('name')({ target: { value } });
-    }
+const VariableNameLabelEditor = (props) => {
+    let classes = getStyles();
+    const { label, name, vlm } = props;
 
-    render () {
-        const { classes, label, vlm } = this.props;
+    const handleChange = name => value => {
+        props.handleChange(name)({ target: { value } });
+    };
 
-        let issue = false;
-        let helperText = '';
-        if (label !== undefined) {
-            let issues = checkForSpecialChars(label);
-            // Check label length is withing 40 chars
-            if (label.length > 40 && vlm !== true) {
-                let issueText = `Label length is ${label.length}, which exceeds 40 characters.`;
-                issues.push(issueText);
-            }
-            if (issues.length > 0) {
-                issue = true;
-                helperText = issues.join('\n');
-            }
-        }
-
-        return (
-            <Grid container spacing={0} alignItems='flex-end'>
-                <Grid item>
-                    <TextField
-                        label='Name'
-                        autoFocus
-                        value={this.props.name}
-                        onChange={this.props.handleChange('name')}
-                        onBlur={this.handleBlur}
-                        className={classes.nameTextField}
-                    />
-                </Grid>
-                <Grid item xs={12}>
-                    <TextField
-                        label='Label'
-                        multiline
-                        fullWidth
-                        error={issue}
-                        helperText={issue && helperText}
-                        inputProps={{ spellCheck: 'true' }}
-                        FormHelperTextProps={{ className: classes.helperText }}
-                        value={this.props.label}
-                        onChange={this.props.handleChange('label')}
-                        className={classes.textField}
-                    />
-                </Grid>
+    return (
+        <Grid container spacing={1} alignItems='flex-end'>
+            <Grid item className={classes.nameGrid}>
+                <SimpleInputEditor
+                    label='Name'
+                    defaultValue={name}
+                    onUpdate={handleChange('name')}
+                    options={ vlm !== true && {
+                        checkForSpecialChars: { type: 'Error', regex: new RegExp(/[^A-Z_0-9]/, 'gi') },
+                        lengthLimit: { type: 'Error', maxLength: 8 },
+                        upcase: true,
+                    }}
+                    className={classes.nameTextField}
+                />
             </Grid>
-        );
-    }
-}
+            <Grid item xs={12}>
+                <SimpleInputEditor
+                    label='Label'
+                    autoFocus={false}
+                    defaultValue={label}
+                    onUpdate={handleChange('label')}
+                    options={ vlm !== true && {
+                        checkForSpecialChars: { type: 'Error' },
+                        lengthLimit: { type: 'Error', maxLength: 40 },
+                    }}
+                    className={classes.nameTextField}
+                />
+            </Grid>
+        </Grid>
+    );
+};
 
 VariableNameLabelEditor.propTypes = {
-    classes: PropTypes.object.isRequired,
     handleChange: PropTypes.func.isRequired,
     name: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
     vlm: PropTypes.bool,
 };
 
-export default withStyles(styles)(VariableNameLabelEditor);
+export default VariableNameLabelEditor;

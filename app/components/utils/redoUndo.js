@@ -233,7 +233,7 @@ class RedoUndoConnected extends React.Component {
                     className={classes.actionList}
                     onClose={ (event) => { this.setState({ actionHistoryAnchor: null }); } }
                 >
-                    { this.state.currentActionHistory.map((step, index) => (
+                    { this.state.currentActionHistory.slice(-1 * this.props.historyLength).map((step, index) => (
                         <MenuItem
                             key={index}
                             onClick={() => { this.goToStep(index); }}
@@ -254,9 +254,9 @@ class RedoUndoConnected extends React.Component {
                 >
                     <SnackbarContent
                         ContentProps={{
-                            'aria-describedby': 'message-id',
+                            'aria-describedby': 'history-id',
                         }}
-                        message={<span id="message-id" className={classes.message}>Undo: {this.state.actionLabel}</span>}
+                        message={<span id="history-id" className={classes.message}>Undo: {this.state.actionLabel}</span>}
                         className={classes.details}
                     />
                 </Snackbar>

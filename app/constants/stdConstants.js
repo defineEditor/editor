@@ -57,6 +57,12 @@ const standardNames = {
     ],
 };
 
+const standardStatuses = [
+    'DRAFT',
+    'FINAL',
+    'PROVISIONAL'
+];
+
 const originTypes = {
     'ADaM': [
         'Derived',
@@ -157,6 +163,7 @@ const stdConstants = {
     dataTypes,
     codeListTypes,
     standardNames,
+    standardStatuses,
     documentTypes,
     columns,
     originTypes,

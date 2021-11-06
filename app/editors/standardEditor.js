@@ -20,6 +20,7 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import EditingControlIcons from 'editors/editingControlIcons.js';
 import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
 import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
 import Tooltip from '@material-ui/core/Tooltip';
 import Table from '@material-ui/core/Table';
@@ -30,7 +31,8 @@ import TableRow from '@material-ui/core/TableRow';
 import Switch from '@material-ui/core/Switch';
 import { Standard } from 'core/defineStructure.js';
 import getSelectionList from 'utils/getSelectionList.js';
-import getModelFromStandard from 'utils/getModelFromStandard.js';
+import { getModelFromStandards } from 'utils/defineStructureUtils.js';
+import CommentEditor from 'editors/commentEditor.js';
 
 const styles = theme => ({
     Standard: {
@@ -39,10 +41,11 @@ const styles = theme => ({
         outline: 'none',
     },
     inputField: {
-        minWidth: '200',
+        marginBottom: theme.spacing(1),
     },
     button: {
         marginRight: theme.spacing(1),
+        verticalAlign: 'middle',
     },
     listItem: {
         marginRight: theme.spacing(1),
@@ -50,37 +53,102 @@ const styles = theme => ({
     switch: {
         marginLeft: theme.spacing(3),
     },
+    actionColumn: {
+        width: '50px',
+    },
+    nameColumn: {
+        width: '180px',
+        verticalAlign: 'bottom',
+    },
+    versionColumn: {
+        width: '100px',
+        verticalAlign: 'bottom',
+    },
+    statusColumn: {
+        width: '160px',
+    },
 });
+
+const StandardTableCell = withStyles(theme => ({
+    body: {
+        verticalAlign: 'bottom',
+    }
+}))(TableCell);
 
 class StandardEditor extends React.Component {
     constructor (props) {
         super(props);
 
         // Clone standards
-        let standardsCopy = {};
+        const standardsCopy = {};
+        const comments = {};
         Object.keys(this.props.standards).forEach(standardOid => {
             standardsCopy[standardOid] = new Standard(this.props.standards[standardOid]);
+            const commentOid = standardsCopy[standardOid].commentOid;
+            if (commentOid !== undefined) {
+                comments[standardOid] = this.props.comments[commentOid];
+            }
         });
-        this.state = { standards: standardsCopy, hasArm: this.props.hasArm };
+        this.state = { standards: standardsCopy, hasArm: this.props.hasArm, comments };
     }
 
     handleChange = (name, oid) => (event) => {
-        if (name === 'name' || name === 'version') {
-            let newStandards = this.state.standards;
+        if (['name', 'version', 'status'].includes(name)) {
+            const newStandards = this.state.standards;
             newStandards[oid] = new Standard({ ...this.state.standards[oid], [name]: event.target.value });
-            if (name === 'name' && getModelFromStandard(event.target.value) !== 'ADaM' && this.state.hasArm === true) {
+            if (name === 'name' &&
+                getModelFromStandards(newStandards) !== 'ADaM' &&
+                this.state.hasArm === true
+            ) {
                 this.setState({ standards: newStandards, hasArm: false });
             } else {
                 this.setState({ standards: newStandards });
             }
+        } else if (name === 'deleteStd') {
+            const newStandards = { ...this.state.standards };
+            const removedName = newStandards[oid].name;
+            delete newStandards[oid];
+            const newComments = { ...this.state.comments };
+            if (this.state.comments[oid] !== undefined) {
+                delete newComments[oid];
+            }
+            // In case ADaM is removed, set ARM to false
+            if (removedName === 'ADaMIG') {
+                this.setState({ standards: newStandards, comments: newComments, hasArm: false });
+            } else {
+                this.setState({ standards: newStandards, comments: newComments });
+            }
+        } else if (name === 'addStd') {
+            const newStandard = new Standard({ type: 'IG' });
+            const newStandards = { ...this.state.standards };
+            newStandards[newStandard.oid] = newStandard;
+            this.setState({ standards: newStandards });
         } else if (name === 'hasArm') {
             this.setState({ hasArm: !this.state.hasArm });
+        } else if (name === 'comment') {
+            // Add source ID
+            let updatedComment = event;
+            if (updatedComment !== undefined && !updatedComment.sources.standards.includes(oid)) {
+                updatedComment.sources.standards.push(oid);
+            }
+            const oldCommentOid = this.state.standards[oid].commentOid;
+            if (oldCommentOid !== updatedComment.oid) {
+                // Comment was added/removed/replaced
+                const newStandards = { ...this.state.standards };
+                newStandards[oid] = { ...newStandards[oid], commentOid: updatedComment.oid };
+                this.setState({ comments: { ...this.state.comments, [oid]: updatedComment }, standards: newStandards });
+            } else {
+                // Comment was updated
+                this.setState({ comments: { ...this.state.comments, [oid]: updatedComment } });
+            }
         }
     }
 
     getStandards = (isAdam) => {
+        const { defineVersion, stdConstants, classes } = this.props;
         let standards = this.state.standards;
-        let nameList = this.props.stdConstants.standardNames[this.props.defineVersion];
+        let nameList = stdConstants.standardNames[defineVersion];
+        let statusList = stdConstants.standardStatuses;
         let stdList = Object.keys(standards)
             .filter(standardOid => {
                 return !(standards[standardOid].name === 'CDISC/NCI' && standards[standardOid].type === 'CT');
@@ -88,45 +156,67 @@ class StandardEditor extends React.Component {
             .map(standardOid => {
                 return (
                     <TableRow key={standardOid}>
-                        { this.props.defineVersion === '2.1.0' &&
-                            <TableCell>
+                        { defineVersion === '2.1.0' &&
+                            <StandardTableCell className={classes.button}>
                                 <Tooltip title="Remove Standard" placement="bottom-end">
                                     <IconButton
                                         color='secondary'
-                                        onClick={this.handleChange('deleteCt', standardOid)}
-                                        className={this.props.classes.button}
+                                        onClick={this.handleChange('deleteStd', standardOid)}
                                     >
                                         <RemoveIcon />
                                     </IconButton>
                                 </Tooltip>
-                            </TableCell>
+                            </StandardTableCell>
                         }
-                        <TableCell>
+                        <StandardTableCell>
                             <TextField
                                 value={standards[standardOid].name}
                                 select
                                 onChange={this.handleChange('name', standardOid)}
-                                className={this.props.classes.inputField}
+                                fullWidth
+                                className={classes.inputField}
                             >
                                 {getSelectionList(nameList)}
                             </TextField>
-                        </TableCell>
-                        <TableCell>
+                        </StandardTableCell>
+                        <StandardTableCell>
                             <TextField
                                 value={standards[standardOid].version}
                                 onChange={this.handleChange('version', standardOid)}
-                                className={this.props.classes.inputField}
+                                fullWidth
+                                className={classes.inputField}
                             />
-                        </TableCell>
-                        { isAdam &&
-                                <TableCell>
+                        </StandardTableCell>
+                        {defineVersion === '2.1.0' && (
+                            <React.Fragment>
+                                <StandardTableCell>
+                                    <TextField
+                                        value={standards[standardOid].status}
+                                        onChange={this.handleChange('status', standardOid)}
+                                        fullWidth
+                                        select
+                                        className={classes.inputField}
+                                    >
+                                        {getSelectionList(statusList)}
+                                    </TextField>
+                                </StandardTableCell>
+                                <StandardTableCell>
+                                    <CommentEditor
+                                        comment={this.state.comments[standardOid]}
+                                        onUpdate={this.handleChange('comment', standardOid)}
+                                    />
+                                </StandardTableCell>
+                            </React.Fragment>
+                        )}
+                        { isAdam && standards[standardOid].name === 'ADaMIG' &&
+                                <StandardTableCell>
                                     <Switch
                                         checked={this.state.hasArm}
                                         onChange={this.handleChange('hasArm')}
                                         color='primary'
-                                        className={this.props.classes.switch}
+                                        className={classes.switch}
                                     />
-                                </TableCell>
+                                </StandardTableCell>
                         }
                     </TableRow>
                 );
@@ -151,28 +241,48 @@ class StandardEditor extends React.Component {
         // Find the default standard
         let isAdam = false;
         Object.values(this.state.standards).forEach(standard => {
-            if (standard.isDefault === 'Yes' && getModelFromStandard(standard.name) === 'ADaM') {
+            if (getModelFromStandards(this.state.standards) === 'ADaM') {
                 isAdam = true;
             }
         });
         return (
             <Paper className={classes.Standard} elevation={4} onKeyDown={this.onKeyDown} tabIndex='0'>
                 <Typography variant="h5">
-                    Standard
+                    Standards
                     <EditingControlIcons onSave={this.save} onCancel={this.props.onCancel} helpId='STD_STANDARD'/>
                 </Typography>
+                <Button
+                    color='default'
+                    size='small'
+                    variant='contained'
+                    onClick={this.handleChange('addStd')}
+                    className={classes.button}
+                >
+                    Add Standard
+                </Button>
                 <Table>
                     <TableHead>
-                        <TableRow>
-                            { this.props.defineVersion === '2.1.0' &&
-                                    <TableCell></TableCell>
-                            }
-                            <TableCell>Name</TableCell>
-                            <TableCell>Version</TableCell>
-                            { isAdam &&
-                                    <TableCell>Analysis Results Metadata</TableCell>
-                            }
-                        </TableRow>
+                        {this.props.defineVersion === '2.0.0' &&
+                            <TableRow>
+                                <StandardTableCell>Name</StandardTableCell>
+                                <StandardTableCell>Version</StandardTableCell>
+                                {isAdam &&
+                                    <StandardTableCell>Analysis Results Metadata</StandardTableCell>
+                                }
+                            </TableRow>
+                        }
+                        {this.props.defineVersion === '2.1.0' &&
+                            <TableRow>
+                                <StandardTableCell className={classes.actionColumn}></StandardTableCell>
+                                <StandardTableCell className={classes.nameColumn}>Name</StandardTableCell>
+                                <StandardTableCell className={classes.versionColumn}>Version</StandardTableCell>
+                                <StandardTableCell className={classes.statusColumn}>Status</StandardTableCell>
+                                <StandardTableCell>Comment</StandardTableCell>
+                                {isAdam &&
+                                    <StandardTableCell>Analysis Results Metadata</StandardTableCell>
+                                }
+                            </TableRow>
+                        }
                     </TableHead>
                     <TableBody>
                         {this.getStandards(isAdam)}
@@ -185,8 +295,10 @@ class StandardEditor extends React.Component {
 
 StandardEditor.propTypes = {
     standards: PropTypes.object.isRequired,
+    defineVersion: PropTypes.string.isRequired,
     stdConstants: PropTypes.object.isRequired,
     classes: PropTypes.object.isRequired,
+    comments: PropTypes.object.isRequired,
     hasArm: PropTypes.bool.isRequired,
     onSave: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,

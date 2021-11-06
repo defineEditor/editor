@@ -13,6 +13,7 @@
 ***********************************************************************************/
 
 import { Document, TranslatedText } from 'core/defineStructure.js';
+import getModelFromStandard from 'utils/getModelFromStandard.js';
 
 export const addDocument = (object, document) => {
     if (object.hasOwnProperty('documents')) {
@@ -188,4 +189,19 @@ export const getNote = (object) => {
     } else {
         return '';
     }
+};
+
+export const getModelFromStandards = (standards) => {
+    let result;
+    Object.keys(standards).some((standardOid) => {
+        const name = standards[standardOid].name;
+        if (/^(ADAM|SDTM|SEND)/.test(name.toUpperCase())) {
+            const model = getModelFromStandard(name);
+            if (model !== undefined) {
+                result = model;
+                return true;
+            }
+        }
+    });
+    return result;
 };

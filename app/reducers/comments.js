@@ -23,6 +23,7 @@ import {
     DEL_VARS,
     ADD_VARS,
     UPD_LEAFS,
+    UPD_MDV,
     DEL_ITEMGROUPS,
     ADD_ITEMGROUPS,
     DEL_RESULTDISPLAY,
@@ -33,6 +34,7 @@ import {
     UPD_ARMSTATUS,
     ADD_IMPORTMETADATA,
     DEL_DUPLICATECOMMENTS,
+    UPD_STD,
 } from 'constants/action-types';
 import { Comment, TranslatedText } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
@@ -319,6 +321,7 @@ const handleAddComments = (state, action) => {
                         codeLists: [],
                         metaDataVersion: [],
                         analysisResults: [],
+                        standards: [],
                     };
                 }
             }
@@ -342,6 +345,7 @@ const handleAddComments = (state, action) => {
                         codeLists: [],
                         metaDataVersion: [],
                         analysisResults: [],
+                        standards: [],
                     };
                 }
             }
@@ -365,6 +369,7 @@ const handleAddComments = (state, action) => {
                         codeLists: [],
                         metaDataVersion: [],
                         analysisResults: [analysisResultOid],
+                        standards: [],
                     };
                 }
             }
@@ -444,6 +449,7 @@ const handleAddItemGroups = (state, action) => {
                     codeLists: [],
                     metaDataVersion: [],
                     analysisResults: [],
+                    standards: [],
                 };
             }
         }
@@ -599,6 +605,64 @@ const deleteDuplicateComments = (state, action) => {
     }
 };
 
+const handleUpdateMetaDataVersion = (state, action) => {
+    const subAction = {
+        updateObj: { comment: action.updateObj.comment },
+        prevObj: { comment: action.updateObj.prevComment },
+        source: action.updateObj.source,
+    };
+    return handleCommentUpdate(state, subAction, 'metaDataVersion');
+};
+
+const handleUpdateStandards = (state, action) => {
+    let newState = { ...state };
+    // Remove deleted comments
+    const { prevComments, newComments } = action.updateObj;
+    Object.keys(prevComments).forEach(commentOid => {
+        if (!Object.keys(newComments).includes(commentOid)) {
+            const removedComment = prevComments[commentOid];
+            removedComment.sources.standards.forEach(stdOid => {
+                const subAction = {
+                    comment: removedComment,
+                    source: { type: 'standards', oid: stdOid }
+                };
+                newState = deleteComment(newState, subAction);
+            });
+        }
+    });
+    // Add new comments
+    Object.keys(newComments).forEach(commentOid => {
+        if (!Object.keys(prevComments).includes(commentOid)) {
+            const addedComment = newComments[commentOid];
+            addedComment.sources.standards.forEach(stdOid => {
+                const subAction = {
+                    comment: addedComment,
+                    source: { type: 'standards', oid: stdOid }
+                };
+                newState = addComment(newState, subAction);
+            });
+        }
+    });
+    // Update existing comments
+    Object.keys(newComments).forEach(commentOid => {
+        if (Object.keys(prevComments).includes(commentOid)) {
+            const oldComment = prevComments[commentOid];
+            const newComment = newComments[commentOid];
+            if (!deepEqual(oldComment, newComment)) {
+                newComment.sources.standards.forEach(stdOid => {
+                    const subAction = {
+                        updateObj: { comment: newComment },
+                        prevObj: { comment: oldComment },
+                        source: { oid: stdOid },
+                    };
+                    newState = handleCommentUpdate(newState, subAction, 'standards');
+                });
+            }
+        }
+    });
+    return newState;
+};
+
 const comments = (state = {}, action) => {
     switch (action.type) {
         case ADD_ITEMGROUPCOMMENT:
@@ -641,6 +705,10 @@ const comments = (state = {}, action) => {
             return addImportMetadata(state, action);
         case DEL_DUPLICATECOMMENTS:
             return deleteDuplicateComments(state, action);
+        case UPD_MDV:
+            return handleUpdateMetaDataVersion(state, action);
+        case UPD_STD:
+            return handleUpdateStandards(state, action);
         default:
             return state;
     }

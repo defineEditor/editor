@@ -153,7 +153,7 @@ class ConnectedDescriptionEditor extends React.Component {
                     <Grid item xs={12} className={classes.gridItem}>
                         <Divider/>
                     </Grid>
-                    { (this.props.enableProgrammingNote || this.state.noteState !== undefined) && [(
+                    { ((this.props.enableProgrammingNote || this.state.noteState !== undefined) && this.props.type !== 'metaDataVersion') && [(
                         <Grid item xs={12} className={classes.gridItem} key='note'>
                             <NoteEditor noteState={this.state.noteState} onUpdate={this.handleChange('noteState')}/>
                         </Grid>

@@ -176,7 +176,7 @@ class ConnectedVariableNameLabelWhereClauseEditor extends React.Component {
                             handleChange={this.handleChange}
                             label={label}
                             name={this.state.name}
-                            vlm={true}
+                            vlm={vlmLevel > 0}
                         />
                     </Grid>
                     {vlmLevel > 0 &&

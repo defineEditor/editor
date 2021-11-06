@@ -43,7 +43,7 @@ export const autoBackup = async (mainWindow, backupOptions) => {
         return;
     }
 
-    // Go throw each file in the backup folder and decide what to do with them
+    // Go through each file in the backup folder and decide what to do with them
     let files = await readdir(backupFolder);
 
     const filesToRemove = [];

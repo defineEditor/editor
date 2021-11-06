@@ -53,14 +53,14 @@ class MetaDataVersionFormatter extends React.Component {
                     <ListItem>
                         <ListItemText primary='Description' secondary={description}/>
                     </ListItem>
-                    <ListItem>
-                        <ListItemText primary='Language' secondary={lang}/>
-                    </ListItem>
                     { defineVersion === '2.1.0' &&
                     <ListItem>
                         <ListItemText primary='Comment' secondary={getDescription(comment)}/>
                     </ListItem>
                     }
+                    <ListItem>
+                        <ListItemText primary='Language' secondary={lang}/>
+                    </ListItem>
                 </List>
             </Paper>
         );

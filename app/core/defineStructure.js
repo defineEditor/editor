@@ -440,6 +440,7 @@ class Comment extends BasicFunctions {
                 codeLists: [],
                 metaDataVersion: [],
                 analysisResults: [],
+                standards: [],
             };
         }
     }
@@ -636,6 +637,7 @@ class Standard {
         this.publishingSet = publishingSet;
         this.version = version;
         this.isDefault = isDefault;
+        this.status = status;
         this.commentOid = commentOid;
     }
 }
@@ -754,8 +756,8 @@ class ItemGroup extends BasicFunctions {
         this.archiveLocationId = archiveLocationId;
         this.commentOid = commentOid;
         this.isNonStandard = isNonStandard;
-        this.hasNoData = hasNoData;
-        this.standardOid = standardOid;
+        this.hasNoData = hasNoData; // 2.1D
+        this.standardOid = standardOid; // 2.1D
         this.descriptions = descriptions;
         this.itemRefs = itemRefs;
         this.itemRefOrder = itemRefOrder;

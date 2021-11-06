@@ -51,7 +51,7 @@ class ConnectedNavigationBar extends React.Component {
         const { classes } = this.props;
         return (
             <AppBar position="fixed" color='default'>
-                <Grid container justify='flex-start' alignItems='center'>
+                <Grid container justifyContent='flex-start' alignItems='center'>
                     <Grid item className={classes.menu}>
                         <IconButton
                             color='default'
@@ -63,7 +63,7 @@ class ConnectedNavigationBar extends React.Component {
                     </Grid>
                     {this.props.children !== undefined && (
                         <Grid item xs={10}>
-                            <Grid container justify='flex-start' alignItems='center'>
+                            <Grid container justifyContent='flex-start' alignItems='center'>
                                 {this.renderChildElements()}
                             </Grid>
                         </Grid>

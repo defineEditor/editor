@@ -61,12 +61,15 @@ function checkDefineXml (odm) {
             }
         });
         if (itemGroup.commentOid !== undefined && !mdv.comments.hasOwnProperty(itemGroup.commentOid)) {
-            issues.push('Comment with OID ' + itemGroup.commentOid + ` does not exist, but is referenced in a dataset ${itemGroup.name}.`);
+            issues.push('Comment with OID ' + itemGroup.commentOid + ` does not exist, but is referenced in dataset ${itemGroup.name}.`);
         }
     });
     // Value lists
     Object.keys(mdv.valueLists).forEach(valueListOid => {
         let valueList = mdv.valueLists[valueListOid];
+        if (valueList.commentOid !== undefined && !mdv.comments.hasOwnProperty(valueList.commentOid)) {
+            issues.push('Comment with OID ' + valueList.commentOid + ` does not exist, but is referenced in value list ${valueList.oid}.`);
+        }
         let itemRefs = valueList.itemRefs;
         Object.keys(itemRefs).forEach(itemRef => {
             let itemDefOid = itemRefs[itemRef].itemOid;
@@ -123,6 +126,12 @@ function checkDefineXml (odm) {
             }
         });
     }
+    Object.keys(mdv.codeLists).forEach(codeListOid => {
+        const codeList = mdv.codeLists[codeListOid];
+        if (codeList.commentOid !== undefined && !mdv.comments.hasOwnProperty(codeList.commentOid)) {
+            issues.push('Comment with OID ' + codeList.commentOid + ` does not exist, but is referenced in codelist ${codeList.name}.`);
+        }
+    });
 
     return issues;
 }
