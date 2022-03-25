@@ -189,7 +189,7 @@
     "cross-spawn": "^6.0.5",
     "css-loader": "^0.28.11",
     "detect-port": "^1.2.3",
-    "electron": "^13.0.0",
+    "electron": "^13.6.6",
     "electron-builder": "^22.0.0",
     "electron-devtools-installer": "3.0.0",
     "electron-rebuild": "^2.0.0",
