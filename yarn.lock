@@ -9265,30 +9265,10 @@ jsx-ast-utils@^2.2.1:
     array-includes "^3.1.2"
     object.assign "^4.1.2"
 
-jszip@^3.1.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/jszip/-/jszip-3.4.0.tgz#1a69421fa5f0bb9bc222a46bca88182fba075350"
-  integrity sha512-gZAOYuPl4EhPTXT0GjhI3o+ZAz3su6EhLrKUoAivcKqyqC7laS5JEv4XWZND9BgcDcF83vI85yGbDmDR6UhrIg==
-  dependencies:
-    lie "~3.3.0"
-    pako "~1.0.2"
-    readable-stream "~2.3.6"
-    set-immediate-shim "~1.0.1"
-
-jszip@^3.1.5:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/jszip/-/jszip-3.6.0.tgz#839b72812e3f97819cc13ac4134ffced95dd6af9"
-  integrity sha512-jgnQoG9LKnWO3mnVNBnfhkh0QknICd1FGSrXcgrl67zioyJ4wgx25o9ZqwNtrROSflGBCGYnJfjrIyRIby1OoQ==
-  dependencies:
-    lie "~3.3.0"
-    pako "~1.0.2"
-    readable-stream "~2.3.6"
-    set-immediate-shim "~1.0.1"
-
-jszip@^3.2.2:
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/jszip/-/jszip-3.2.2.tgz#b143816df7e106a9597a94c77493385adca5bd1d"
-  integrity sha512-NmKajvAFQpbg3taXQXr/ccS2wcucR1AZ+NtyWp2Nq7HHVsXhcJFR8p0Baf32C2yVvBylFWVeKf+WI2AnvlPhpA==
+jszip@^3.1.0, jszip@^3.2.2, jszip@^3.7.0:
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/jszip/-/jszip-3.7.0.tgz#9b8b995a4e7c9024653ce743e902076a82fdf4e6"
+  integrity sha512-Y2OlFIzrDOPWUnpU0LORIcDn2xN7rC9yKffFM/7pGhQuhO+SUhfm2trkJ/S5amjFvem0Y+1EALz/MEPkvHXVNw==
   dependencies:
     lie "~3.3.0"
     pako "~1.0.2"
@@ -12611,7 +12591,7 @@ read-pkg@^4.0.1:
     parse-json "^4.0.0"
     pify "^3.0.0"
 
-"readable-stream@1 || 2", readable-stream@^2.0.0, readable-stream@^2.0.1, readable-stream@^2.0.2, readable-stream@^2.0.5, readable-stream@^2.0.6, readable-stream@^2.1.5, readable-stream@^2.2.2, readable-stream@^2.3.3, readable-stream@^2.3.5, readable-stream@^2.3.6, readable-stream@~2.3.6:
+"readable-stream@1 || 2", readable-stream@^2.0.0, readable-stream@^2.0.1, readable-stream@^2.0.2, readable-stream@^2.0.5, readable-stream@^2.0.6, readable-stream@^2.1.5, readable-stream@^2.2.2, readable-stream@^2.3.0, readable-stream@^2.3.3, readable-stream@^2.3.5, readable-stream@^2.3.6, readable-stream@~2.3.6:
   version "2.3.7"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-2.3.7.tgz#1eca1cf711aef814c04f62252a36a62f6cb23b57"
   integrity sha512-Ebho8K4jIbHAxnuxi7o42OrZgF/ZTNcsZj6nRKyUmkhLFq8CHItp/fy6hQZuZmP/n3yZ9VBUbp4zz/mX8hmYPw==
@@ -12643,19 +12623,6 @@ readable-stream@^1.0.33, readable-stream@~1.1.9:
     inherits "~2.0.1"
     isarray "0.0.1"
     string_decoder "~0.10.x"
-
-readable-stream@^2.3.0:
-  version "2.3.6"
-  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-2.3.6.tgz#b11c27d88b8ff1fbe070643cf94b0c79ae1b0aaf"
-  integrity sha512-tQtKA9WIAhBF3+VLAseyMqZeBjW0AHJoxOtYqSUZNJxauErmLbVm2FW1y+J/YA9dUrAC39ITejlZWhVIwawkKw==
-  dependencies:
-    core-util-is "~1.0.0"
-    inherits "~2.0.3"
-    isarray "~1.0.0"
-    process-nextick-args "~2.0.0"
-    safe-buffer "~5.1.1"
-    string_decoder "~1.1.1"
-    util-deprecate "~1.0.1"
 
 readable-stream@^3.0.6, readable-stream@^3.1.1, readable-stream@^3.4.0, readable-stream@^3.6.0:
   version "3.6.0"
