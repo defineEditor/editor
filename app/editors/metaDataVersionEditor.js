@@ -120,6 +120,17 @@ class MetaDataVersionEditor extends React.Component {
                             className={classes.inputField}
                         />
                     </ListItem>
+                    <ListItem dense>
+                        <TextField
+                            label='Define Version'
+                            value={defineVersion}
+                            autoFocus
+                            fullWidth
+                            disabled={true}
+                            onChange={this.handleChange('defineVersion')}
+                            className={classes.inputField}
+                        />
+                    </ListItem>
                 </List>
             </Paper>
         );

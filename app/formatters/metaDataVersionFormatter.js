@@ -61,6 +61,9 @@ class MetaDataVersionFormatter extends React.Component {
                     <ListItem>
                         <ListItemText primary='Language' secondary={lang}/>
                     </ListItem>
+                    <ListItem>
+                        <ListItemText primary='Define Version' secondary={defineVersion}/>
+                    </ListItem>
                 </List>
             </Paper>
         );

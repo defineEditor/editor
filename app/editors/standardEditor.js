@@ -29,6 +29,9 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Switch from '@material-ui/core/Switch';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import EditIcon from '@material-ui/icons/Edit';
+import ListIcon from '@material-ui/icons/List';
 import { Standard } from 'core/defineStructure.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import { getModelFromStandards } from 'utils/defineStructureUtils.js';
@@ -57,7 +60,7 @@ const styles = theme => ({
         width: '50px',
     },
     nameColumn: {
-        width: '180px',
+        width: '250px',
         verticalAlign: 'bottom',
     },
     versionColumn: {
@@ -81,6 +84,7 @@ class StandardEditor extends React.Component {
 
         // Clone standards
         const standardsCopy = {};
+        const standardNameManual = {};
         const comments = {};
         Object.keys(this.props.standards).forEach(standardOid => {
             standardsCopy[standardOid] = new Standard(this.props.standards[standardOid]);
@@ -88,8 +92,14 @@ class StandardEditor extends React.Component {
             if (commentOid !== undefined) {
                 comments[standardOid] = this.props.comments[commentOid];
             }
+            // Manual editing is required if the standard name is not in the list
+            if (props.stdConstants.standardNames[props.defineVersion].includes(standardsCopy[standardOid].name)) {
+                standardNameManual[standardOid] = false;
+            } else {
+                standardNameManual[standardOid] = true;
+            }
         });
-        this.state = { standards: standardsCopy, hasArm: this.props.hasArm, comments };
+        this.state = { standards: standardsCopy, hasArm: this.props.hasArm, comments, standardNameManual };
     }
 
     handleChange = (name, oid) => (event) => {
@@ -171,12 +181,29 @@ class StandardEditor extends React.Component {
                         <StandardTableCell>
                             <TextField
                                 value={standards[standardOid].name}
-                                select
+                                select={!this.state.standardNameManual[standardOid]}
                                 onChange={this.handleChange('name', standardOid)}
                                 fullWidth
                                 className={classes.inputField}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <Tooltip
+                                                title={ this.state.standardNameManual[standardOid] ? 'Switch to selection' : 'Switch to manual editing' }
+                                                placement='bottom' enterDelay={1000}
+                                            >
+                                                <IconButton
+                                                    onClick={ () => { this.setState({ standardNameManual: { ...this.state.standardNameManual, [standardOid]: !this.state.standardNameManual[standardOid] } }); } }
+                                                    color='primary'
+                                                    className={classes.button}
+                                                >
+                                                    { this.state.standardNameManual[standardOid] ? <ListIcon /> : <EditIcon /> }
+                                                </IconButton>
+                                            </Tooltip>
+                                        </InputAdornment>
+                                    ) }}
                             >
-                                {getSelectionList(nameList)}
+                                {!this.state.standardNameManual[standardOid] && getSelectionList(nameList)}
                             </TextField>
                         </StandardTableCell>
                         <StandardTableCell>
