@@ -33,6 +33,7 @@ import getOid from 'utils/getOid.js';
 import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 import CommentMethodTable from 'components/utils/commentMethodTable.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
+import getSources from 'utils/getSources.js';
 import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
 import {
     updateItemGroupComment,
@@ -83,7 +84,7 @@ const mapDispatchToProps = dispatch => {
 };
 
 class ConnectedCommentEditor extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
         // Bootstrap table changed undefined to '' when saving the value.
         // Catching this and resetting to undefined in case it is an empty string
@@ -98,7 +99,7 @@ class ConnectedCommentEditor extends React.Component {
         let comment = this.props.comment;
         if (name === 'addComment') {
             let commentOid = getOid('Comment', Object.keys(this.props.comments));
-            newComment = { ...new Comment({ oid: commentOid, descriptions: [ { ...new TranslatedText({ lang: this.props.lang, value: '' }) } ] }) };
+            newComment = { ...new Comment({ oid: commentOid, descriptions: [{ ...new TranslatedText({ lang: this.props.lang, value: '' }) }] }) };
         } else if (name === 'deleteComment') {
             newComment = undefined;
         } else if (name === 'textUpdate') {
@@ -138,7 +139,7 @@ class ConnectedCommentEditor extends React.Component {
         }
     }
 
-    render () {
+    render() {
         const { classes } = this.props;
         let comment = this.props.comment;
         let sourceLabels = { count: 0 };
@@ -148,7 +149,7 @@ class ConnectedCommentEditor extends React.Component {
         let commentText;
         if (comment !== undefined) {
             commentText = getDescription(comment);
-            sourceLabels = getSourceLabels(comment.sources, this.props.mdv);
+            sourceLabels = getSourceLabels(getSources(this.props.mdv, 'Comment', comment.oid), this.props.mdv);
             if (sourceLabels.count > 1) {
                 usedBy = sourceLabels.labelParts.join('. ');
             }
@@ -171,7 +172,7 @@ class ConnectedCommentEditor extends React.Component {
                 <Grid container>
                     <Grid item xs={12}>
                         <Typography variant="subtitle1">
-                            { this.props.title || 'Comment' }
+                            {this.props.title || 'Comment'}
                             <Tooltip title={comment === undefined ? 'Add Comment' : 'Remove Comment'} placement='bottom' enterDelay={500}>
                                 <span>
                                     <IconButton
@@ -179,7 +180,7 @@ class ConnectedCommentEditor extends React.Component {
                                         className={classes.iconButton}
                                         color={comment === undefined ? 'primary' : 'secondary'}
                                     >
-                                        {comment === undefined ? <AddIcon/> : <RemoveIcon/>}
+                                        {comment === undefined ? <AddIcon /> : <RemoveIcon />}
                                     </IconButton>
                                 </span>
                             </Tooltip>
@@ -187,11 +188,11 @@ class ConnectedCommentEditor extends React.Component {
                                 <span>
                                     <IconButton
                                         onClick={this.handleChange('addDocument')}
-                                        disabled={comment === undefined || Object.keys(this.props.leafs).length < 1 }
+                                        disabled={comment === undefined || Object.keys(this.props.leafs).length < 1}
                                         className={classes.iconButton}
                                         color={comment !== undefined ? 'primary' : 'default'}
                                     >
-                                        <InsertLink/>
+                                        <InsertLink />
                                     </IconButton>
                                 </span>
                             </Tooltip>
@@ -203,61 +204,61 @@ class ConnectedCommentEditor extends React.Component {
                                         className={classes.iconButton}
                                         color={comment !== undefined ? 'primary' : 'default'}
                                     >
-                                        <SelectCommentIcon/>
+                                        <SelectCommentIcon />
                                     </IconButton>
                                 </span>
                             </Tooltip>
                             {(sourceLabels.count > 1) &&
-                                    <Tooltip title='Detach Comment' placement='bottom' enterDelay={500}>
-                                        <IconButton
-                                            onClick={this.handleChange('detachComment')}
-                                            className={classes.iconButton}
-                                            color='primary'
-                                        >
-                                            <DetachCommentIcon/>
-                                        </IconButton>
-                                    </Tooltip>
+                                <Tooltip title='Detach Comment' placement='bottom' enterDelay={500}>
+                                    <IconButton
+                                        onClick={this.handleChange('detachComment')}
+                                        className={classes.iconButton}
+                                        color='primary'
+                                    >
+                                        <DetachCommentIcon />
+                                    </IconButton>
+                                </Tooltip>
                             }
                         </Typography>
                     </Grid>
                     {(sourceLabels.count > 1) &&
-                            <Grid item xs={12}>
-                                <div className={classes.multipleSourcesLine}>
-                                    This comment is used by multiple sources. {usedBy}
-                                </div>
-                            </Grid>
+                        <Grid item xs={12}>
+                            <div className={classes.multipleSourcesLine}>
+                                This comment is used by multiple sources. {usedBy}
+                            </div>
+                        </Grid>
                     }
-                    { this.state.selectCommentOpened &&
-                            <CommentMethodTable
-                                type='Comment'
-                                onSelect={this.handleChange('selectComment')}
-                                onCopy={this.handleChange('copyComment')}
-                                onClose={this.handleSelectDialog('closeSelectComment')}
-                            />
+                    {this.state.selectCommentOpened &&
+                        <CommentMethodTable
+                            type='Comment'
+                            onSelect={this.handleChange('selectComment')}
+                            onCopy={this.handleChange('copyComment')}
+                            onClose={this.handleSelectDialog('closeSelectComment')}
+                        />
                     }
                     {comment !== undefined &&
-                            <Grid item xs={12}>
-                                <TextField
-                                    label="Comment Text"
-                                    multiline
-                                    fullWidth
-                                    rowsMax="10"
-                                    autoFocus={this.props.autoFocus}
-                                    inputProps={{ spellCheck: 'true' }}
-                                    key={comment.oid}
-                                    helperText={issue && helperText}
-                                    FormHelperTextProps={{ className: classes.helperText }}
-                                    defaultValue={commentText}
-                                    className={classes.commentInput}
-                                    onBlur={!this.props.textInstantProcessing ? this.handleChange('textUpdate') : undefined}
-                                    onChange={this.props.textInstantProcessing ? this.handleChange('textUpdate') : undefined}
-                                />
-                                <DocumentEditor
-                                    parentObj={comment}
-                                    handleChange={this.handleChange('updateDocument')}
-                                    leafs={this.props.leafs}
-                                />
-                            </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Comment Text"
+                                multiline
+                                fullWidth
+                                rowsMax="10"
+                                autoFocus={this.props.autoFocus}
+                                inputProps={{ spellCheck: 'true' }}
+                                key={comment.oid}
+                                helperText={issue && helperText}
+                                FormHelperTextProps={{ className: classes.helperText }}
+                                defaultValue={commentText}
+                                className={classes.commentInput}
+                                onBlur={!this.props.textInstantProcessing ? this.handleChange('textUpdate') : undefined}
+                                onChange={this.props.textInstantProcessing ? this.handleChange('textUpdate') : undefined}
+                            />
+                            <DocumentEditor
+                                parentObj={comment}
+                                handleChange={this.handleChange('updateDocument')}
+                                leafs={this.props.leafs}
+                            />
+                        </Grid>
                     }
                 </Grid>
             </div>

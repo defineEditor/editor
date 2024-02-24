@@ -62,7 +62,7 @@ const mapStateToProps = state => {
 };
 
 class ConnectedAnalysisResultEditor extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
 
         this.rootRef = React.createRef();
@@ -366,7 +366,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
         }
     }
 
-    render () {
+    render() {
         const { classes } = this.props;
 
         // Extend standard codelist with values which were edited by user
@@ -415,19 +415,20 @@ class ConnectedAnalysisResultEditor extends React.Component {
                                         startAdornment: (
                                             <InputAdornment position="start">
                                                 <Tooltip
-                                                    title={ this.state.analysisReasonManual ? 'Switch to selection' : 'Switch to manual editing' }
+                                                    title={this.state.analysisReasonManual ? 'Switch to selection' : 'Switch to manual editing'}
                                                     placement='bottom' enterDelay={1000}
                                                 >
                                                     <IconButton
-                                                        onClick={ () => { this.setState({ analysisReasonManual: !this.state.analysisReasonManual }); } }
+                                                        onClick={() => { this.setState({ analysisReasonManual: !this.state.analysisReasonManual }); }}
                                                         color='primary'
                                                         className={classes.button}
                                                     >
-                                                        { this.state.analysisReasonManual ? <ListIcon /> : <EditIcon /> }
+                                                        {this.state.analysisReasonManual ? <ListIcon /> : <EditIcon />}
                                                     </IconButton>
                                                 </Tooltip>
                                             </InputAdornment>
-                                        ) }}
+                                        )
+                                    }}
                                 >
                                     {!this.state.analysisReasonManual && getSelectionList(armAnalysisReason)}
                                 </TextField>
@@ -443,19 +444,20 @@ class ConnectedAnalysisResultEditor extends React.Component {
                                         startAdornment: (
                                             <InputAdornment position="start">
                                                 <Tooltip
-                                                    title={ this.state.analysisPurposeManual ? 'Switch to selection' : 'Switch to manual editing' }
+                                                    title={this.state.analysisPurposeManual ? 'Switch to selection' : 'Switch to manual editing'}
                                                     placement='bottom' enterDelay={1000}
                                                 >
                                                     <IconButton
-                                                        onClick={ () => { this.setState({ analysisPurposeManual: !this.state.analysisPurposeManual }); } }
+                                                        onClick={() => { this.setState({ analysisPurposeManual: !this.state.analysisPurposeManual }); }}
                                                         color='primary'
                                                         className={classes.button}
                                                     >
-                                                        { this.state.analysisPurposeManual ? <ListIcon /> : <EditIcon /> }
+                                                        {this.state.analysisPurposeManual ? <ListIcon /> : <EditIcon />}
                                                     </IconButton>
                                                 </Tooltip>
                                             </InputAdornment>
-                                        ) }}
+                                        )
+                                    }}
                                 >
                                     {!this.state.analysisPurposeManual && getSelectionList(armAnalysisPurpose)}
                                 </TextField>
@@ -504,7 +506,7 @@ class ConnectedAnalysisResultEditor extends React.Component {
                         />
                     </Grid>
                     <Grid item xs={12} >
-                        <SaveCancel save={this.save} cancel={() => { this.props.onUpdateFinished(true); }}/>
+                        <SaveCancel save={this.save} cancel={() => { this.props.onUpdateFinished(true); }} />
                     </Grid>
                 </Grid>
             </div>

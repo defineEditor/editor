@@ -15,7 +15,7 @@
 import getOid from 'utils/getOid.js';
 
 class ExternalCodeList {
-    constructor ({ dictionary, version, ref, href } = {}) {
+    constructor({ dictionary, version, ref, href } = {}) {
         this.dictionary = dictionary;
         this.version = version;
         this.ref = ref;
@@ -24,27 +24,27 @@ class ExternalCodeList {
 }
 
 class Alias {
-    constructor ({ name, context } = {}) {
+    constructor({ name, context } = {}) {
         this.name = name;
         this.context = context;
     }
-    clone () {
+    clone() {
         return new Alias(this);
     }
 }
 
 class TranslatedText {
-    constructor ({ lang = 'en', value = '' } = {}) {
+    constructor({ lang = 'en', value = '' } = {}) {
         this.lang = lang;
         this.value = value;
     }
-    clone () {
+    clone() {
         return new TranslatedText(this);
     }
 }
 
 class Leaf {
-    constructor ({ id, href, title, isPdf, type } = {}) {
+    constructor({ id, href, title, isPdf, type } = {}) {
         this.id = id;
         this.href = href;
         this.title = title;
@@ -52,30 +52,30 @@ class Leaf {
         this.isPdf = isPdf;
         this.type = type;
     }
-    clone () {
+    clone() {
         return new Leaf(this);
     }
 }
 
 class PdfPageRef {
-    constructor ({ type, pageRefs, firstPage, lastPage, title } = {}) {
+    constructor({ type, pageRefs, firstPage, lastPage, title } = {}) {
         this.type = type;
         this.pageRefs = pageRefs;
         this.firstPage = firstPage;
         this.lastPage = lastPage;
         this.title = title; // 2.1D
     }
-    clone () {
+    clone() {
         return new PdfPageRef(this);
     }
 }
 
 class Document {
-    constructor ({ leafId, pdfPageRefs = [] } = {}) {
+    constructor({ leafId, pdfPageRefs = [] } = {}) {
         this.leafId = leafId;
         this.pdfPageRefs = pdfPageRefs;
     }
-    addPdfPageRef (pdfPageRef) {
+    addPdfPageRef(pdfPageRef) {
         if (pdfPageRef === undefined) {
             this.pdfPageRefs.push(new PdfPageRef());
         } else {
@@ -84,28 +84,28 @@ class Document {
         // Return index of the added element
         return this.pdfPageRefs.length - 1;
     }
-    clone () {
+    clone() {
         let pdfPageRefs = this.pdfPageRefs.map(pdfPageRef => pdfPageRef.clone());
         return new Document({ leafId: this.leafId, pdfPageRefs: pdfPageRefs });
     }
 }
 
 class BasicFunctions {
-    addDescription (description) {
+    addDescription(description) {
         if (description === undefined) {
             this.descriptions.push(new TranslatedText({ value: '' }));
         } else {
             this.descriptions.push(description);
         }
     }
-    getDescription (language) {
+    getDescription(language) {
         if (this.descriptions.length === 1) {
             return this.descriptions[0].value;
         } else {
             return '';
         }
     }
-    setDescription (value, language = 'en') {
+    setDescription(value, language = 'en') {
         let updatedFlag = false;
         // No description yet
         if (this.descriptions.length === 0) {
@@ -135,7 +135,7 @@ class BasicFunctions {
             this.descriptions[0] = new TranslatedText({ value: value });
         }
     }
-    addDocument (document) {
+    addDocument(document) {
         if (this.hasOwnProperty('documents')) {
             if (document === undefined) {
                 this.documents.push(new Document());
@@ -147,14 +147,14 @@ class BasicFunctions {
 }
 
 class Origin extends BasicFunctions {
-    constructor ({ type, source, descriptions = [], documents = [] } = {}) {
+    constructor({ type, source, descriptions = [], documents = [] } = {}) {
         super();
         this.type = type;
         this.source = source; // 2.1D
         this.descriptions = descriptions;
         this.documents = documents;
     }
-    clone () {
+    clone() {
         let descriptions = this.descriptions.map(description =>
             description.clone()
         );
@@ -169,7 +169,7 @@ class Origin extends BasicFunctions {
 }
 
 class WhereClause {
-    constructor ({ oid, commentOid, sources, rangeChecks = [] } = {}) {
+    constructor({ oid, commentOid, sources, rangeChecks = [] } = {}) {
         this.oid = oid || getOid('WhereClause');
         this.commentOid = commentOid;
         this.rangeChecks = rangeChecks;
@@ -183,17 +183,17 @@ class WhereClause {
             };
         }
     }
-    addRangeCheck (rangeCheck) {
+    addRangeCheck(rangeCheck) {
         this.rangeChecks.push(rangeCheck);
     }
-    clone () {
+    clone() {
         return new WhereClause({
             oid: this.oid,
             commentOid: this.commentOid,
             rangeChecks: this.rangeChecks
         });
     }
-    toString (mdv) {
+    toString(mdv) {
         return this.rangeChecks
             .map(rangeCheck => rangeCheck.toString(mdv))
             .join(' AND ');
@@ -201,7 +201,7 @@ class WhereClause {
 }
 
 class RangeCheck {
-    constructor ({
+    constructor({
         comparator,
         softHard = 'Soft',
         itemOid,
@@ -215,10 +215,10 @@ class RangeCheck {
         // Non-define XML properties
         this.itemGroupOid = itemGroupOid;
     }
-    addCheckValue (value) {
+    addCheckValue(value) {
         this.checkValues.push(value);
     }
-    clone () {
+    clone() {
         return new RangeCheck({
             comparator: this.comparator,
             softHard: this.softHard,
@@ -227,8 +227,8 @@ class RangeCheck {
             itemGroupOid: this.itemGroupOid
         });
     }
-    toString (mdv) {
-        function surroundWithQuotes (value) {
+    toString(mdv) {
+        function surroundWithQuotes(value) {
             if (/'/.test(value) && /"/.test(value) && /\s/.test(value)) {
                 // TODO Throw an error -> cannot handle such values at the moment
                 return value;
@@ -252,9 +252,9 @@ class RangeCheck {
         if (this.checkValues.length > 0) {
             if (['IN', 'NOTIN'].indexOf(this.comparator) >= 0) {
                 result +=
-          '(' +
-          this.checkValues.map(value => surroundWithQuotes(value)).join(', ') +
-          ')';
+                    '(' +
+                    this.checkValues.map(value => surroundWithQuotes(value)).join(', ') +
+                    ')';
             } else {
                 result += surroundWithQuotes(this.checkValues[0]);
             }
@@ -264,7 +264,7 @@ class RangeCheck {
 }
 
 class CodeList extends BasicFunctions {
-    constructor ({
+    constructor({
         oid,
         name,
         dataType,
@@ -325,7 +325,7 @@ class CodeList extends BasicFunctions {
         }
         this.reviewCommentOids = reviewCommentOids;
     }
-    addEnumeratedItem (item) {
+    addEnumeratedItem(item) {
         let oid;
         if (this.enumeratedItems !== undefined) {
             oid = getOid('CodeListItem', Object.keys(this.enumeratedItems));
@@ -338,7 +338,7 @@ class CodeList extends BasicFunctions {
         }
         return oid;
     }
-    addCodeListItem (item) {
+    addCodeListItem(item) {
         let oid;
         if (this.codeListItems !== undefined) {
             oid = getOid('CodeListItem', Object.keys(this.codeListItems));
@@ -351,14 +351,14 @@ class CodeList extends BasicFunctions {
         }
         return oid;
     }
-    setExternalCodeList (item) {
+    setExternalCodeList(item) {
         this.externalCodeList = item;
     }
-    getCodeListType () {
+    getCodeListType() {
         return this.codeListType;
     }
-    getMaxLength () {
-    // Returns the maximum length among all codedValues
+    getMaxLength() {
+        // Returns the maximum length among all codedValues
         let maxLength;
         if (this.dataType === 'float' || this.dataType === 'integer') {
             // For numeric data types count only digits
@@ -385,7 +385,7 @@ class CodeList extends BasicFunctions {
 }
 
 class EnumeratedItem {
-    constructor ({ codedValue, rank, extendedValue, alias } = {}) {
+    constructor({ codedValue, rank, extendedValue, alias } = {}) {
         this.codedValue = codedValue;
         this.rank = rank;
         this.extendedValue = extendedValue;
@@ -394,7 +394,7 @@ class EnumeratedItem {
 }
 
 class CodeListItem extends EnumeratedItem {
-    constructor ({
+    constructor({
         codedValue,
         rank,
         extendedValue,
@@ -409,13 +409,13 @@ class CodeListItem extends EnumeratedItem {
         });
         this.decodes = decodes;
     }
-    setDecode (decode) {
+    setDecode(decode) {
         this.decodes = [decode];
     }
-    addDecode (decode) {
+    addDecode(decode) {
         this.decodes.push(decode);
     }
-    getDecode (language) {
+    getDecode(language) {
         if (this.decodes.length === 1) {
             return this.decodes[0].value;
         } else {
@@ -425,7 +425,7 @@ class CodeListItem extends EnumeratedItem {
 }
 
 class Comment extends BasicFunctions {
-    constructor ({ oid, descriptions = [], documents = [], sources } = {}) {
+    constructor({ oid, descriptions = [], documents = [], sources } = {}) {
         super();
         this.oid = oid;
         this.descriptions = descriptions;
@@ -444,7 +444,7 @@ class Comment extends BasicFunctions {
             };
         }
     }
-    clone () {
+    clone() {
         let descriptions = this.descriptions.map(description =>
             description.clone()
         );
@@ -463,18 +463,18 @@ class Comment extends BasicFunctions {
 }
 
 class FormalExpression {
-    constructor ({ value, context } = {}) {
+    constructor({ value, context } = {}) {
         this.context = context;
         this.value = value;
     }
 
-    clone () {
+    clone() {
         return new FormalExpression(this);
     }
 }
 
 class Method extends Comment {
-    constructor ({
+    constructor({
         oid,
         name = '',
         type = 'Computation',
@@ -513,14 +513,14 @@ class Method extends Comment {
             }
         }
     }
-    addFormalExpression (expression) {
+    addFormalExpression(expression) {
         if (expression === undefined) {
             this.formalExpressions.push(new FormalExpression());
         } else {
             this.formalExpressions.push(expression);
         }
     }
-    clone () {
+    clone() {
         let descriptions = this.descriptions.map(description =>
             description.clone()
         );
@@ -551,7 +551,7 @@ class Method extends Comment {
 }
 
 class MetaDataVersion extends BasicFunctions {
-    constructor ({
+    constructor({
         oid,
         name,
         defineVersion,
@@ -612,16 +612,16 @@ class MetaDataVersion extends BasicFunctions {
         }
         this.reviewCommentOids = reviewCommentOids;
     }
-    addStandard (standard) {
+    addStandard(standard) {
         this.standards[standard.oid] = standard;
     }
-    addItemGroup (itemGroup) {
+    addItemGroup(itemGroup) {
         this.itemGroups[itemGroup.oid] = itemGroup;
     }
 }
 
 class Standard {
-    constructor ({
+    constructor({
         oid,
         name,
         type,
@@ -643,7 +643,7 @@ class Standard {
 }
 
 class GlobalVariables {
-    constructor ({ protocolName, studyName, studyDescription, reviewCommentOids = [] } = {}) {
+    constructor({ protocolName, studyName, studyDescription, reviewCommentOids = [] } = {}) {
         this.protocolName = protocolName;
         this.studyName = studyName;
         this.studyDescription = studyDescription;
@@ -653,7 +653,7 @@ class GlobalVariables {
 }
 
 class Study {
-    constructor ({ oid, metaDataVersion, globalVariables } = {}) {
+    constructor({ oid, metaDataVersion, globalVariables } = {}) {
         this.oid = oid;
         this.globalVariables = globalVariables;
         if (metaDataVersion === undefined) {
@@ -665,7 +665,7 @@ class Study {
 }
 
 class Odm {
-    constructor ({
+    constructor({
         schemaLocation,
         odmVersion,
         fileType,
@@ -719,7 +719,7 @@ class Odm {
 }
 
 class ItemGroup extends BasicFunctions {
-    constructor ({
+    constructor({
         oid,
         name = '',
         domain,
@@ -773,10 +773,10 @@ class ItemGroup extends BasicFunctions {
         // Programming note
         this.note = note;
     }
-    addItemRef (oid, itemRef) {
+    addItemRef(oid, itemRef) {
         this.itemRefs[oid] = itemRef;
     }
-    getOidByName (name, itemDefs) {
+    getOidByName(name, itemDefs) {
         let result;
         Object.keys(this.itemRefs).some(itemRefOid => {
             if (itemDefs[this.itemRefs[itemRefOid].itemOid].name.toLowerCase() === name.toLowerCase()) {
@@ -790,7 +790,7 @@ class ItemGroup extends BasicFunctions {
 }
 
 class DatasetClass {
-    constructor ({
+    constructor({
         name,
         subClasses = [],
     } = {}) {
@@ -800,7 +800,7 @@ class DatasetClass {
 }
 
 class DatasetSubClass {
-    constructor ({
+    constructor({
         name,
         parentClass,
     } = {}) {
@@ -810,7 +810,7 @@ class DatasetSubClass {
 }
 
 class ItemDef extends BasicFunctions {
-    constructor ({
+    constructor({
         oid,
         name,
         dataType,
@@ -864,13 +864,13 @@ class ItemDef extends BasicFunctions {
             };
         }
     }
-    addOrigin (origin) {
+    addOrigin(origin) {
         this.origins.push(origin);
     }
 }
 
 class ItemRef {
-    constructor ({
+    constructor({
         mandatory,
         methodOid,
         oid,
@@ -895,7 +895,7 @@ class ItemRef {
 }
 
 class ValueList extends BasicFunctions {
-    constructor ({
+    constructor({
         oid,
         itemRefs = {},
         itemRefOrder = [],
@@ -918,7 +918,7 @@ class ValueList extends BasicFunctions {
             };
         }
     }
-    addItemRef (oid, itemRef) {
+    addItemRef(oid, itemRef) {
         this.itemRefs[oid] = itemRef;
     }
 }
