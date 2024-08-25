@@ -13,7 +13,7 @@
 ***********************************************************************************/
 
 class Study {
-    constructor ({
+    constructor({
         id, name, image,
         defineIds = [],
     } = {}) {
@@ -25,7 +25,7 @@ class Study {
 }
 
 class Define {
-    constructor ({
+    constructor({
         id, name, image, lastChanged, stats, pathToFile,
     } = {}) {
         this.id = id;
@@ -49,7 +49,7 @@ class Define {
 }
 
 class ControlledTerminology {
-    constructor ({
+    constructor({
         id, name, version, codeListCount, pathToFile, isDefault, sources, isCdiscNci, publishingSet, type
     } = {}) {
         this.id = id;
@@ -72,7 +72,7 @@ class ControlledTerminology {
 }
 
 class ReviewComment {
-    constructor ({
+    constructor({
         text, author, createdAt, modifiedAt, resolvedAt, resolvedBy = '', reviewCommentOids = [], sources = {},
     } = {}) {
         this.text = text;

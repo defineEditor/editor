@@ -146,9 +146,12 @@ const updateItemRef = (state, action) => {
         return state;
     } else {
         let newItemRef = { ...new ItemRef({ ...state[action.source.itemGroupOid].itemRefs[action.source.itemRefOid], ...action.updateObj }) };
-        let newItemGroup = { ...new ItemGroup({ ...state[action.source.itemGroupOid],
-            itemRefs: { ...state[action.source.itemGroupOid].itemRefs, [action.source.itemRefOid]: newItemRef }
-        }) };
+        let newItemGroup = {
+            ...new ItemGroup({
+                ...state[action.source.itemGroupOid],
+                itemRefs: { ...state[action.source.itemGroupOid].itemRefs, [action.source.itemRefOid]: newItemRef }
+            })
+        };
         return { ...state, [action.source.itemGroupOid]: newItemGroup };
     }
 };
@@ -198,10 +201,13 @@ const updateItemRefKeyOrder = (state, action) => {
         } else {
             newKeyOrder = ds.keyOrder;
         }
-        let newItemGroup = { ...new ItemGroup({ ...state[action.source.itemGroupOid],
-            itemRefOrder: newItemRefOrder,
-            keyOrder: newKeyOrder,
-        }) };
+        let newItemGroup = {
+            ...new ItemGroup({
+                ...state[action.source.itemGroupOid],
+                itemRefOrder: newItemRefOrder,
+                keyOrder: newKeyOrder,
+            })
+        };
         return { ...state, [action.source.itemGroupOid]: newItemGroup };
     }
 };
@@ -240,10 +246,13 @@ const addVariable = (state, action) => {
     } else {
         newItemRefOrder = ds.itemRefOrder.concat([action.itemRef.oid]);
     }
-    let newItemGroup = { ...new ItemGroup({ ...state[action.source.itemGroupOid],
-        itemRefOrder: newItemRefOrder,
-        itemRefs: { ...state[action.source.itemGroupOid].itemRefs, [action.itemRef.oid]: action.itemRef },
-    }) };
+    let newItemGroup = {
+        ...new ItemGroup({
+            ...state[action.source.itemGroupOid],
+            itemRefOrder: newItemRefOrder,
+            itemRefs: { ...state[action.source.itemGroupOid].itemRefs, [action.itemRef.oid]: action.itemRef },
+        })
+    };
     return { ...state, [action.source.itemGroupOid]: newItemGroup };
 };
 
@@ -302,11 +311,14 @@ const deleteVariables = (state, action) => {
         } else {
             newKeyOrder = ds.keyOrder;
         }
-        let newItemGroup = { ...new ItemGroup({ ...state[action.source.itemGroupOid],
-            itemRefs: newItemRefs,
-            itemRefOrder: newItemRefOrder,
-            keyOrder: newKeyOrder,
-        }) };
+        let newItemGroup = {
+            ...new ItemGroup({
+                ...state[action.source.itemGroupOid],
+                itemRefs: newItemRefs,
+                itemRefOrder: newItemRefOrder,
+                keyOrder: newKeyOrder,
+            })
+        };
         return { ...state, [action.source.itemGroupOid]: newItemGroup };
     } else {
         return state;
@@ -330,12 +342,14 @@ const insertVariable = (state, action) => {
     } else {
         itemRefOrder.splice(action.orderNumber, 0, itemRefOid);
     }
-    let itemGroup = { ...new ItemGroup(
-        {
-            ...state[action.itemGroupOid],
-            itemRefs,
-            itemRefOrder,
-        }) };
+    let itemGroup = {
+        ...new ItemGroup(
+            {
+                ...state[action.itemGroupOid],
+                itemRefs,
+                itemRefOrder,
+            })
+    };
     return { ...state, [action.itemGroupOid]: itemGroup };
 };
 
@@ -398,10 +412,12 @@ const handleItemsBulkUpdate = (state, action) => {
                 }
 
                 if (Object.keys(updatedItemRefs).length > 0) {
-                    updatedItemGroups[itemGroupOid] = { ...new ItemGroup({
-                        ...state[itemGroupOid],
-                        itemRefs: { ...state[itemGroupOid].itemRefs, ...updatedItemRefs },
-                    }) };
+                    updatedItemGroups[itemGroupOid] = {
+                        ...new ItemGroup({
+                            ...state[itemGroupOid],
+                            itemRefs: { ...state[itemGroupOid].itemRefs, ...updatedItemRefs },
+                        })
+                    };
                 }
             });
         });
@@ -422,8 +438,8 @@ const addItemGroups = (state, action) => {
 };
 
 const addReviewComment = (state, action) => {
-    if (action.updateObj.sources.hasOwnProperty('itemGroups')) {
-        let itemGroupOid = action.updateObj.sources.itemGroups[0];
+    if (action.source.hasOwnProperty('itemGroups')) {
+        let itemGroupOid = action.source.itemGroups[0];
         return { ...state, [itemGroupOid]: { ...state[itemGroupOid], reviewCommentOids: state[itemGroupOid].reviewCommentOids.concat([action.updateObj.oid]) } };
     } else {
         return state;
@@ -431,9 +447,9 @@ const addReviewComment = (state, action) => {
 };
 
 const deleteReviewComment = (state, action) => {
-    if (action.deleteObj.sources.hasOwnProperty('itemGroups')) {
+    if (action.deleteObj.source.hasOwnProperty('itemGroups')) {
         let newState = { ...state };
-        action.deleteObj.sources.itemGroups.forEach(oid => {
+        action.source.itemGroups.forEach(oid => {
             let newReviewCommentOids = newState[oid].reviewCommentOids.slice();
             newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
             newState = { ...newState, [oid]: { ...newState[oid], reviewCommentOids: newReviewCommentOids } };

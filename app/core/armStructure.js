@@ -15,7 +15,7 @@
 import { BasicFunctions } from 'core/defineStructure.js';
 
 class AnalysisResultDisplays {
-    constructor ({
+    constructor({
         resultDisplays = {}, resultDisplayOrder = [], analysisResults = {},
     } = {}) {
         this.resultDisplays = resultDisplays;
@@ -27,7 +27,7 @@ class AnalysisResultDisplays {
 }
 
 class ResultDisplay extends BasicFunctions {
-    constructor ({
+    constructor({
         oid, name = '', analysisResultOrder = [], descriptions = [], documents = [], analysisResults, reviewCommentOids = [],
     } = {}) {
         super();
@@ -45,7 +45,7 @@ class ResultDisplay extends BasicFunctions {
 }
 
 class AnalysisResult extends BasicFunctions {
-    constructor ({
+    constructor({
         oid, parameterOid, analysisReason, analysisPurpose,
         descriptions = [], analysisDatasets = {}, analysisDatasetOrder = [], analysisDatasetsCommentOid, documentation, programmingCode,
         reviewCommentOids = [], sources,
@@ -74,7 +74,7 @@ class AnalysisResult extends BasicFunctions {
 }
 
 class AnalysisDataset {
-    constructor ({
+    constructor({
         itemGroupOid, whereClauseOid, analysisVariableOids = [],
     } = {}) {
         this.itemGroupOid = itemGroupOid;
@@ -84,7 +84,7 @@ class AnalysisDataset {
 }
 
 class Documentation extends BasicFunctions {
-    constructor ({
+    constructor({
         descriptions = [], documents = [],
     } = {}) {
         super();
@@ -94,7 +94,7 @@ class Documentation extends BasicFunctions {
 }
 
 class ProgrammingCode extends BasicFunctions {
-    constructor ({
+    constructor({
         context, code, documents = [],
     } = {}) {
         super();

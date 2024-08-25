@@ -23,6 +23,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import ReviewComment from 'components/utils/reviewComment.js';
+import getReviewCommentSources from 'utils/getReviewCommentSources';
 import {
     closeModal,
     addReviewComment,
@@ -92,7 +93,7 @@ const mapDispatchToProps = dispatch => {
 };
 
 class ConnectedModalReviewComments extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
 
         this.state = {
@@ -149,7 +150,7 @@ class ConnectedModalReviewComments extends React.Component {
             if (reviewComments.hasOwnProperty(reviewCommentOid)) {
                 this.props.deleteReviewComment({
                     oid: reviewCommentOid,
-                    sources: reviewComments[reviewCommentOid].sources,
+                    source: getReviewCommentSources(this.props.odm, reviewCommentOid)
                 });
             }
         }
@@ -177,7 +178,7 @@ class ConnectedModalReviewComments extends React.Component {
             ));
     }
 
-    render () {
+    render() {
         const { classes, reviewComments, sources, author } = this.props;
 
         return (
@@ -200,7 +201,7 @@ class ConnectedModalReviewComments extends React.Component {
                             <Grid item xs={12}>
                                 {this.getComments(sources, reviewComments)}
                             </Grid>
-                            { !this.props.sources.hasOwnProperty('reviewComments') && !(this.props.windowType === 'reviewWindow') && (
+                            {!this.props.sources.hasOwnProperty('reviewComments') && !(this.props.windowType === 'reviewWindow') && (
                                 <Grid item xs={12}>
                                     <ReviewComment
                                         initialComment
@@ -219,28 +220,28 @@ class ConnectedModalReviewComments extends React.Component {
                         </Button>
                     </DialogActions>
                 </Dialog>
-                { this.state.confirmClose &&
-                        <Dialog
-                            disableBackdropClick
-                            disableEscapeKeyDown
-                            open
-                            PaperProps={{ className: classes.dialogConfirm }}
-                        >
-                            <DialogTitle>
-                                Confirm Close
-                            </DialogTitle>
-                            <DialogContent>
-                                You have not saved changes to a comment. By continuing all of the unsaved changes will be lost.
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={this.onClose} color='primary'>
-                                    Continue
-                                </Button>
-                                <Button onClick={() => { this.setState({ confirmClose: false }); }} color='primary'>
-                                    Cancel
-                                </Button>
-                            </DialogActions>
-                        </Dialog>
+                {this.state.confirmClose &&
+                    <Dialog
+                        disableBackdropClick
+                        disableEscapeKeyDown
+                        open
+                        PaperProps={{ className: classes.dialogConfirm }}
+                    >
+                        <DialogTitle>
+                            Confirm Close
+                        </DialogTitle>
+                        <DialogContent>
+                            You have not saved changes to a comment. By continuing all of the unsaved changes will be lost.
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={this.onClose} color='primary'>
+                                Continue
+                            </Button>
+                            <Button onClick={() => { this.setState({ confirmClose: false }); }} color='primary'>
+                                Cancel
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
                 }
             </React.Fragment>
         );

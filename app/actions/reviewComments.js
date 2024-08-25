@@ -20,18 +20,21 @@ import {
     UPD_RESOLVECOMMENT,
 } from 'constants/action-types';
 
-export const addReviewComment = updateObj => ({
+export const addReviewComment = (updateObj, source) => ({
     type: ADD_REVIEWCOMMENT,
+    source,
     updateObj
 });
 
-export const updateReviewComment = updateObj => ({
+export const updateReviewComment = (updateObj, source) => ({
     type: UPD_REVIEWCOMMENT,
+    source,
     updateObj
 });
 
-export const deleteReviewComment = deleteObj => ({
+export const deleteReviewComment = (deleteObj, source) => ({
     type: DEL_REVIEWCOMMENT,
+    source,
     deleteObj
 });
 
