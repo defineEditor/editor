@@ -28,6 +28,7 @@ import {
     updateCopyBuffer,
     openModal,
 } from 'actions/index.js';
+import getSources from '../../utils/getSources';
 
 // Redux functions
 const mapDispatchToProps = dispatch => {
@@ -43,6 +44,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
     let reviewMode = state.present.ui.main.reviewMode || state.present.settings.editor.onlyArmEdit;
     return {
+        mdv: state.present.odm.study.metaDataVersion,
         codeLists: state.present.odm.study.metaDataVersion.codeLists,
         codedValuesTabIndex: state.present.ui.tabs.tabNames.indexOf('Coded Values'),
         reviewMode,
@@ -53,11 +55,11 @@ const mapStateToProps = state => {
 };
 
 class ConnectedCodeListMenu extends React.Component {
-    componentDidMount () {
+    componentDidMount() {
         window.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
@@ -116,7 +118,6 @@ class ConnectedCodeListMenu extends React.Component {
         codeList.oid = getOid('CodeList', this.props.codeListOrder);
         codeList.name = codeList.name + ' (Copy)';
         codeList.linkedCodeListOid = undefined;
-        codeList.sources = undefined;
         // determine the place to insert the codelist to
         let orderNumber = this.props.codeListOrder.indexOf(this.props.codeListMenuParams.codeListOid) + shift;
         // insert the codelist
@@ -131,9 +132,8 @@ class ConnectedCodeListMenu extends React.Component {
         let reviewCommentOids = { codeLists: {} };
         codeListOids.forEach(codeListOid => {
             // Get the list of ItemOIDs for which the codelists should be removed;
-            codeLists[codeListOid].sources.itemDefs.forEach(itemDefOid => {
-                itemDefOids.push(itemDefOid);
-            });
+            const sources = getSources(this.props.mdv, 'CodeList', codeListOid);
+            itemDefOids = sources.itemDefs;
             // Get review comments
             codeLists[codeListOid].reviewCommentOids.forEach(rcOid => {
                 if (reviewCommentOids.codeLists[rcOid] === undefined) {
@@ -177,12 +177,12 @@ class ConnectedCodeListMenu extends React.Component {
     openComments = () => {
         this.props.openModal({
             type: 'REVIEW_COMMENT',
-            props: { sources: { codeLists: [this.props.codeListMenuParams.codeListOid] } }
+            props: { commentSources: { codeLists: [this.props.codeListMenuParams.codeListOid] } }
         });
         this.props.onClose();
     }
 
-    render () {
+    render() {
         return (
             <React.Fragment>
                 <Menu

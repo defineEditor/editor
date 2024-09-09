@@ -17,9 +17,7 @@ import getOid from 'utils/getOid.js';
 import getModelFromStandard from 'utils/getModelFromStandard.js';
 import {
     removeNamespace,
-    populateValueListSources,
     convertAttrsToLCC,
-    getListOfSourceIds,
     populateItemGroupOidInWhereClause,
 } from 'parsers/parseUtils.js';
 import {
@@ -30,13 +28,13 @@ import {
 } from 'parsers/parseArm.js';
 
 // Parse functions
-function parseLeafs (leafsRaw, mdv) {
+function parseLeafs(leafsRaw, mdv) {
     let leafs = {};
     // No leafs in the data
     if (leafsRaw === undefined) {
         return leafs;
     }
-    leafsRaw.forEach(function (leafRaw) {
+    leafsRaw.forEach(function(leafRaw) {
         // If it is a blank leaf, skip it
         if (!leafRaw.hasOwnProperty('$')) {
             return;
@@ -69,39 +67,29 @@ function parseLeafs (leafsRaw, mdv) {
     return leafs;
 }
 
-function parseAlias (aliasRaw) {
+function parseAlias(aliasRaw) {
     return new def.Alias({
         name: aliasRaw[0]['$']['name'],
         context: aliasRaw[0]['$']['context']
     });
 }
 
-function parseComments (commentsRaw, mdv) {
+function parseComments(commentsRaw, mdv) {
     let comments = {};
     if (commentsRaw === undefined) {
         return comments;
     }
 
-    commentsRaw.forEach(function (commentRaw) {
+    commentsRaw.forEach(function(commentRaw) {
         let comment = new def.Comment({ oid: commentRaw['$'].oid });
-        commentRaw['description'].forEach(function (item) {
+        commentRaw['description'].forEach(function(item) {
             comment.addDescription(parseTranslatedText(item));
         });
         if (commentRaw.hasOwnProperty('documentRef')) {
-            commentRaw['documentRef'].forEach(function (item) {
+            commentRaw['documentRef'].forEach(function(item) {
                 comment.addDocument(parseDocument(item));
             });
         }
-        // Connect comment to its sources
-        comment.sources = {
-            itemDefs: getListOfSourceIds(mdv.itemDefs, 'commentOid', comment.oid),
-            itemGroups: getListOfSourceIds(mdv.itemGroups, 'commentOid', comment.oid),
-            whereClauses: getListOfSourceIds(mdv.whereClauses, 'commentOid', comment.oid),
-            codeLists: getListOfSourceIds(mdv.codeLists, 'commentOid', comment.oid),
-            metaDataVersion: getListOfSourceIds({ [mdv.oid]: mdv }, 'commentOid', comment.oid),
-            analysisResults: mdv.hasOwnProperty('analysisResultDisplays') ? getListOfSourceIds(mdv.analysisResultDisplays.analysisResults, 'analysisDatasetsCommentOid', comment.oid) : [],
-            standards: getListOfSourceIds(mdv.standards, 'commentOid', comment.oid),
-        };
         if (mdv.commentOid === comment.oid) {
             comment.sources['metaDataVersion'] = [mdv.oid];
         } else {
@@ -113,7 +101,7 @@ function parseComments (commentsRaw, mdv) {
     return comments;
 }
 
-function parseStandards (mdv, defineVersion) {
+function parseStandards(mdv, defineVersion) {
     let standards = {};
     if (defineVersion === '2.0.0') {
         let args = {
@@ -138,12 +126,12 @@ function parseStandards (mdv, defineVersion) {
     return standards;
 }
 
-function parseMethods (methodsRaw, mdv) {
+function parseMethods(methodsRaw, mdv) {
     let methods = {};
     if (methodsRaw === undefined) {
         return methods;
     }
-    methodsRaw.forEach(function (methodRaw) {
+    methodsRaw.forEach(function(methodRaw) {
         let method = new def.Method(
             {
                 oid: methodRaw['$'].oid,
@@ -151,16 +139,16 @@ function parseMethods (methodsRaw, mdv) {
                 type: methodRaw['$'].type
             }
         );
-        methodRaw['description'].forEach(function (item) {
+        methodRaw['description'].forEach(function(item) {
             method.addDescription(parseTranslatedText(item));
         });
         if (methodRaw.hasOwnProperty('documentRef')) {
-            methodRaw['documentRef'].forEach(function (item) {
+            methodRaw['documentRef'].forEach(function(item) {
                 method.addDocument(parseDocument(item));
             });
         }
         if (methodRaw.hasOwnProperty('formalExpression')) {
-            methodRaw['formalExpression'].forEach(function (item) {
+            methodRaw['formalExpression'].forEach(function(item) {
                 method.addFormalExpression(new def.FormalExpression(
                     {
                         context: item['$'].context,
@@ -206,13 +194,13 @@ function parseMethods (methodsRaw, mdv) {
     return methods;
 }
 
-function parseCodelists (codeListsRaw, mdv) {
+function parseCodelists(codeListsRaw, mdv) {
     let codeLists = {};
     if (codeListsRaw === undefined) {
         return codeLists;
     }
 
-    codeListsRaw.forEach(function (codeListRaw) {
+    codeListsRaw.forEach(function(codeListRaw) {
         if (codeListRaw.hasOwnProperty('$')) {
             let args = codeListRaw['$'];
             if (codeListRaw.hasOwnProperty('alias')) {
@@ -237,7 +225,7 @@ function parseCodelists (codeListsRaw, mdv) {
 
             // 2.1 codelist can have description
             if (codeListRaw.hasOwnProperty('description')) {
-                codeListRaw['description'].forEach(function (item) {
+                codeListRaw['description'].forEach(function(item) {
                     codeList.addDescription(parseTranslatedText(item));
                 });
             }
@@ -246,12 +234,12 @@ function parseCodelists (codeListsRaw, mdv) {
 
             if (codeListRaw.hasOwnProperty('codeListItem')) {
                 // Parse coded items
-                codeListRaw['codeListItem'].forEach(function (item, index) {
+                codeListRaw['codeListItem'].forEach(function(item, index) {
                     let codeListItem = new def.CodeListItem(item['$']);
                     if (item.hasOwnProperty('alias')) {
                         codeListItem.alias = parseAlias(item['alias']);
                     }
-                    item['decode'].forEach(function (item) {
+                    item['decode'].forEach(function(item) {
                         codeListItem.addDecode(parseTranslatedText(item));
                     });
                     let oid = codeList.addCodeListItem(codeListItem);
@@ -264,7 +252,7 @@ function parseCodelists (codeListsRaw, mdv) {
                 });
             } else if (codeListRaw.hasOwnProperty('enumeratedItem')) {
                 // Parse enumerated items
-                codeListRaw['enumeratedItem'].forEach(function (item, index) {
+                codeListRaw['enumeratedItem'].forEach(function(item, index) {
                     let enumeratedItem = new def.EnumeratedItem(item['$']);
                     if (item.hasOwnProperty('alias')) {
                         enumeratedItem.alias = parseAlias(item['alias']);
@@ -313,21 +301,21 @@ function parseCodelists (codeListsRaw, mdv) {
     return codeLists;
 }
 
-function parseWhereClauses (whereClausesRaw, mdv) {
+function parseWhereClauses(whereClausesRaw, mdv) {
     let whereClauses = {};
     if (whereClausesRaw === undefined) {
         return whereClauses;
     }
-    whereClausesRaw.forEach(function (whereClauseRaw) {
+    whereClausesRaw.forEach(function(whereClauseRaw) {
         if (whereClauseRaw.hasOwnProperty('$')) {
             let args = whereClauseRaw['$'];
             var whereClause = new def.WhereClause(args);
 
             if (whereClauseRaw.hasOwnProperty('rangeCheck')) {
-                whereClauseRaw['rangeCheck'].forEach(function (item) {
+                whereClauseRaw['rangeCheck'].forEach(function(item) {
                     let checkValues = [];
                     if (item.hasOwnProperty('checkValue')) {
-                        item['checkValue'].forEach(function (item) {
+                        item['checkValue'].forEach(function(item) {
                             checkValues.push(item);
                         });
                     }
@@ -342,47 +330,25 @@ function parseWhereClauses (whereClausesRaw, mdv) {
                 });
             }
         }
-        // Connect whereClause to its sources
-        let valueLists = [];
-        Object.keys(mdv.valueLists).forEach(valueListOid => {
-            if (getListOfSourceIds(mdv.valueLists[valueListOid].itemRefs, 'whereClauseOid', whereClause.oid).length > 0) {
-                valueLists.push(valueListOid);
-            }
-        });
-        let analysisResults = {};
-        if (mdv.analysisResultDisplays !== undefined) {
-            Object.values(mdv.analysisResultDisplays.analysisResults).forEach(analysisResult => {
-                Object.values(analysisResult.analysisDatasets).forEach(dataset => {
-                    if (dataset.whereClauseOid === whereClause.oid) {
-                        if (analysisResults.hasOwnProperty(analysisResult.oid)) {
-                            analysisResults[analysisResult.oid].push(dataset.itemGroupOid);
-                        } else {
-                            analysisResults[analysisResult.oid] = [dataset.itemGroupOid];
-                        }
-                    }
-                });
-            });
-        }
-        whereClause.sources = { valueLists, analysisResults };
         whereClauses[whereClause.oid] = whereClause;
     });
 
     return whereClauses;
 }
-function parseOrigins (originsRaw, mdv) {
+function parseOrigins(originsRaw, mdv) {
     let origins = [];
-    originsRaw.forEach(function (originRaw) {
+    originsRaw.forEach(function(originRaw) {
         let origin = new def.Origin({
             type: originRaw['$']['type'],
             source: originRaw['$']['source']
         });
         if (originRaw.hasOwnProperty('description')) {
-            originRaw['description'].forEach(function (item) {
+            originRaw['description'].forEach(function(item) {
                 origin.addDescription(parseTranslatedText(item));
             });
         }
         if (originRaw.hasOwnProperty('documentRef')) {
-            originRaw['documentRef'].forEach(function (item) {
+            originRaw['documentRef'].forEach(function(item) {
                 origin.addDocument(parseDocument(item));
             });
         }
@@ -392,12 +358,12 @@ function parseOrigins (originsRaw, mdv) {
     return origins;
 }
 
-function parseItemDefs (itemDefsRaw, mdv) {
+function parseItemDefs(itemDefsRaw, mdv) {
     let itemDefs = {};
     if (itemDefsRaw === undefined) {
         return itemDefs;
     }
-    itemDefsRaw.forEach(function (itemDefRaw) {
+    itemDefsRaw.forEach(function(itemDefRaw) {
         let args = itemDefRaw['$'];
         if (itemDefRaw.hasOwnProperty('codeListRef')) {
             args.codeListOid = itemDefRaw['codeListRef'][0]['$']['codeListOid'];
@@ -445,7 +411,7 @@ function parseItemDefs (itemDefsRaw, mdv) {
         };
 
         if (itemDefRaw['description'] !== undefined) {
-            itemDefRaw['description'].forEach(function (item) {
+            itemDefRaw['description'].forEach(function(item) {
                 itemDef.addDescription(parseTranslatedText(item));
             });
         }
@@ -456,7 +422,7 @@ function parseItemDefs (itemDefsRaw, mdv) {
     return itemDefs;
 }
 
-function parseItemRef (itemRefRaw, oid, mdv) {
+function parseItemRef(itemRefRaw, oid, mdv) {
     let args = itemRefRaw['$'];
     args.oid = oid;
     if (itemRefRaw.hasOwnProperty('whereClauseRef')) {
@@ -466,13 +432,13 @@ function parseItemRef (itemRefRaw, oid, mdv) {
     return new def.ItemRef(args);
 }
 
-function parseItemGroups (itemGroupsRaw, mdv) {
+function parseItemGroups(itemGroupsRaw, mdv) {
     let itemGroups = {};
     if (itemGroupsRaw === undefined) {
         return itemGroups;
     }
 
-    itemGroupsRaw.forEach(function (itemGroupRaw, index) {
+    itemGroupsRaw.forEach(function(itemGroupRaw, index) {
         let args = itemGroupRaw['$'];
 
         if (args.hasOwnProperty('sASDatasetName')) {
@@ -493,7 +459,7 @@ function parseItemGroups (itemGroupsRaw, mdv) {
         }
         // ItemRefs are stored as an object instead of an array
         let itemRefs = {};
-        itemGroupRaw['itemRef'].forEach(function (item) {
+        itemGroupRaw['itemRef'].forEach(function(item) {
             if (!item) {
                 return;
             }
@@ -538,7 +504,7 @@ function parseItemGroups (itemGroupsRaw, mdv) {
 
         let itemGroup = new def.ItemGroup(args);
 
-        itemGroupRaw['description'].forEach(function (item) {
+        itemGroupRaw['description'].forEach(function(item) {
             itemGroup.addDescription(parseTranslatedText(item));
         });
 
@@ -548,17 +514,17 @@ function parseItemGroups (itemGroupsRaw, mdv) {
     return itemGroups;
 }
 
-function parseValueLists (valueListsRaw, mdv) {
+function parseValueLists(valueListsRaw, mdv) {
     let valueLists = {};
     if (valueListsRaw === undefined) {
         return valueLists;
     }
 
-    valueListsRaw.forEach(function (valueListRaw) {
+    valueListsRaw.forEach(function(valueListRaw) {
         let args = valueListRaw['$'];
         // ItemRefs are stored as an object instead of an array
         let itemRefs = {};
-        valueListRaw['itemRef'].forEach(function (item, index) {
+        valueListRaw['itemRef'].forEach(function(item, index) {
             let oid = getOid('ItemRef', Object.keys(itemRefs));
             itemRefs[oid] = parseItemRef(item, oid, mdv);
             if (item['$']['orderNumber']) {
@@ -602,13 +568,13 @@ function parseValueLists (valueListsRaw, mdv) {
 
         // 2.1 valuelists can have description
         if (valueListRaw.hasOwnProperty('description')) {
-            valueListRaw['description'].forEach(function (item) {
+            valueListRaw['description'].forEach(function(item) {
                 valueList.addDescription(parseTranslatedText(item));
             });
         }
 
         if (valueListRaw.hasOwnProperty('description')) {
-            valueListRaw['description'].forEach(function (item) {
+            valueListRaw['description'].forEach(function(item) {
                 valueList.addDescription(parseTranslatedText(item));
             });
         }
@@ -619,7 +585,7 @@ function parseValueLists (valueListsRaw, mdv) {
     return valueLists;
 }
 
-function parseMetaDataVersion (metadataRaw) {
+function parseMetaDataVersion(metadataRaw) {
     // Parse the MetadataVersion element
     let defineVersion = metadataRaw['$']['defineVersion'];
 
@@ -645,7 +611,7 @@ function parseMetaDataVersion (metadataRaw) {
 
     mdv.itemDefs = parseItemDefs(metadataRaw['itemDef'], mdv);
     // Connect ItemDefs to VLM
-    Object.keys(mdv.itemDefs).forEach(function (parentItemDefOid) {
+    Object.keys(mdv.itemDefs).forEach(function(parentItemDefOid) {
         if (mdv.itemDefs[parentItemDefOid].valueListOid !== undefined) {
             let valueListOid = mdv.itemDefs[parentItemDefOid].valueListOid;
             if (mdv.valueLists.hasOwnProperty(valueListOid)) {
@@ -656,8 +622,6 @@ function parseMetaDataVersion (metadataRaw) {
             }
         }
     });
-    // Connect valueLists to ItemDefs
-    populateValueListSources(mdv.valueLists, mdv.itemDefs);
 
     mdv.codeLists = parseCodelists(metadataRaw['codeList'], mdv);
     mdv.methods = parseMethods(metadataRaw['methodDef'], mdv);
@@ -714,7 +678,7 @@ function parseMetaDataVersion (metadataRaw) {
     return metaDataVersion;
 }
 
-function parseGlobalVariables (globalVariablesRaw) {
+function parseGlobalVariables(globalVariablesRaw) {
     let args = {};
 
     for (let glVar in globalVariablesRaw) {
@@ -726,7 +690,7 @@ function parseGlobalVariables (globalVariablesRaw) {
     return new def.GlobalVariables(args);
 }
 
-function parseStudy (studyRaw) {
+function parseStudy(studyRaw) {
     let args = studyRaw['$'];
 
     args.metaDataVersion = parseMetaDataVersion(studyRaw.metaDataVersion[0]);
@@ -735,7 +699,7 @@ function parseStudy (studyRaw) {
     return new def.Study(args);
 }
 
-function parseOdm (odmRaw, stylesheetLocation) {
+function parseOdm(odmRaw, stylesheetLocation) {
     let args = odmRaw['$'];
     args.stylesheetLocation = stylesheetLocation;
 
@@ -744,7 +708,7 @@ function parseOdm (odmRaw, stylesheetLocation) {
     return new def.Odm(args);
 }
 
-function parseDefine (parsedXml) {
+function parseDefine(parsedXml) {
     removeNamespace(parsedXml.data);
     convertAttrsToLCC(parsedXml.data);
 

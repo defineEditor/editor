@@ -32,6 +32,7 @@ import InternalHelp from 'components/utils/internalHelp.js';
 import CodedValueSelectorTable from 'components/utils/codedValueSelectorTable.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getOid from 'utils/getOid.js';
+import getSources from 'utils/getSources.js';
 import {
     addValueListFromCodelist,
 } from 'actions/index.js';
@@ -180,8 +181,17 @@ const AddVlmFromCodeList = (props) => {
     // create object for dropdown list: its properties are itemOid name and label concatenated
     // dropdown list is restricted to variables with either decoded or enumerated codelist
     let itemDefList = Object.keys(itemDefs)
-        .filter(itemDef => itemDefs[itemDef].codeListOid !== undefined && itemDefs[itemDef].sources.itemGroups.includes(props.currentGroupOid) &&
-            ['decoded', 'enumerated'].includes(codeLists[itemDefs[itemDef].codeListOid].codeListType))
+        .filter(itemDefOid => {
+            const itemDef = itemDefs[itemDefOid];
+            const sources = getSources(storeState.present.odm.study.metaDataVersion, 'ItemDef', itemDefOid);
+            if (itemDef.codeListOid !== undefined && sources.itemGroups.includes(props.currentGroupOid) &&
+            ['decoded', 'enumerated'].includes(codeLists[itemDef.codeListOid].codeListType)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        )
         .reduce((object, value, key) => { object[value] = itemDefs[value].name + (itemDefs[value].descriptions[0].value && (' (' + itemDefs[value].descriptions[0].value + ')')); return object; }, {});
 
     const CodeListSelector = () => {

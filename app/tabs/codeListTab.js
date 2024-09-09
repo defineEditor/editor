@@ -53,6 +53,7 @@ import ToggleRowSelect from 'utils/toggleRowSelect.js';
 import getSourceLabels from 'utils/getSourceLabels.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import { getReviewCommentStats } from 'utils/reviewCommentUtils.js';
+import getSources from 'utils/getSources';
 import {
     updateCodeList,
     updateCodeListStandard,
@@ -122,7 +123,7 @@ const mapStateToProps = state => {
 };
 
 // Editor functions
-function codeListStandardEditor (onUpdate, props) {
+function codeListStandardEditor(onUpdate, props) {
     if (props.row.codeListType !== 'external') {
         return (<CodeListStandardEditor onUpdate={onUpdate} {...props}/>);
     } else {
@@ -130,33 +131,33 @@ function codeListStandardEditor (onUpdate, props) {
     }
 }
 
-function codeListFormatNameEditor (onUpdate, props) {
+function codeListFormatNameEditor(onUpdate, props) {
     return (<CodeListFormatNameEditor onUpdate={onUpdate} {...props}/>);
 }
 
-function simpleInputEditor (onUpdate, props) {
+function simpleInputEditor(onUpdate, props) {
     return (<SimpleInputEditor onUpdate={onUpdate} {...props}/>);
 }
 
-function simpleSelectEditor (onUpdate, props) {
+function simpleSelectEditor(onUpdate, props) {
     return (<SimpleSelectEditor onUpdate={onUpdate} {...props} autoFocus={true}/>);
 }
 
-function codeListTypeSelectEditor (onUpdate, props) {
+function codeListTypeSelectEditor(onUpdate, props) {
     return (<CodeListTypeSelectEditor onUpdate={onUpdate} {...props} autoFocus={true}/>);
 }
 
-function linkedCodeListEditor (onUpdate, props) {
+function linkedCodeListEditor(onUpdate, props) {
     return (<LinkedCodeListEditor onUpdate={onUpdate} {...props}/>);
 }
 
-function openLink (event) {
+function openLink(event) {
     event.preventDefault();
     shell.openExternal(event.target.href);
 }
 
 // Formatter functions
-function codeListStandardFormatter (cell, row) {
+function codeListStandardFormatter(cell, row) {
     if (row.codeListType === 'external') {
         let result = '';
         if (cell.href === undefined) {
@@ -190,7 +191,7 @@ function codeListStandardFormatter (cell, row) {
     }
 }
 
-function codeListTypeFormatter (cell, row) {
+function codeListTypeFormatter(cell, row) {
     if (cell !== undefined) {
         let typeDecode;
         row.stdConstants.codeListTypes.some(type => {
@@ -205,7 +206,7 @@ function codeListTypeFormatter (cell, row) {
 }
 
 class ConnectedCodeListTable extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
 
         this.searchFieldRef = React.createRef();
@@ -263,7 +264,7 @@ class ConnectedCodeListTable extends React.Component {
         };
     }
 
-    static getDerivedStateFromProps (nextProps, prevState) {
+    static getDerivedStateFromProps(nextProps, prevState) {
         let columns = getColumnHiddenStatus(prevState.columns, nextProps.tabSettings.columns, nextProps.showRowSelect);
 
         if (!deepEqual(columns, prevState.columns)) {
@@ -272,12 +273,12 @@ class ConnectedCodeListTable extends React.Component {
         return null;
     }
 
-    componentDidMount () {
+    componentDidMount() {
         setScrollPosition(this.props.tabs);
         window.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
@@ -502,8 +503,9 @@ class ConnectedCodeListTable extends React.Component {
         let itemDefOids = [];
         let reviewCommentOids = { codeLists: {} };
         codeListOids.forEach(codeListOid => {
+            const sources = getSources(this.props.mdv, 'CodeList', codeListOids);
             // Get the list of ItemOIDs for which the codelists should be removed;
-            codeLists[codeListOid].sources.itemDefs.forEach(itemDefOid => {
+            sources.itemDefs.forEach(itemDefOid => {
                 itemDefOids.push(itemDefOid);
             });
             // Get review comments
@@ -661,7 +663,7 @@ class ConnectedCodeListTable extends React.Component {
         this.props.updateMainUi({ rowsPerPage: { codeListTab: event.target.value } });
     };
 
-    render () {
+    render() {
         let codeLists = this.getData();
 
         const itemNum = codeLists.length;

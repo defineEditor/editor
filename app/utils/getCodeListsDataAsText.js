@@ -12,6 +12,7 @@
  * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
  ***********************************************************************************/
 import getSourceLabels from 'utils/getSourceLabels.js';
+import getSources from 'utils/getSources.js';
 
 // Extract data required for the table;
 const getCodeListsDataAsText = ({ codeLists, mdv, standards, defineVersion, columns } = {}) => {
@@ -27,7 +28,8 @@ const getCodeListsDataAsText = ({ codeLists, mdv, standards, defineVersion, colu
             linkedCodeList: originCL.linkedCodeListOid !== undefined ? codeLists[originCL.linkedCodeListOid].name : undefined,
         };
         // List of variables using the codelist
-        let sources = getSourceLabels(originCL.sources, mdv);
+        const originClSources = getSources(mdv, 'CodeList', originCL.oid);
+        let sources = getSourceLabels(originClSources, mdv);
         if (sources.hasOwnProperty('itemDefs')) {
             currentCL.usedBy = sources.itemDefs.join('\n');
         }

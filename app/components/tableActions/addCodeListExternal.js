@@ -96,7 +96,7 @@ const getCodeListList = (standard) => {
 };
 
 class ConnectedAddCodeListFromCT extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
 
         let codeListOid = null;
@@ -143,11 +143,11 @@ class ConnectedAddCodeListFromCT extends React.Component {
         };
     }
 
-    componentDidMount () {
+    componentDidMount() {
         ipcRenderer.on('loadDefineObjectForImport', this.loadOdm);
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         ipcRenderer.removeListener('loadDefineObjectForImport', this.loadOdm);
     }
 
@@ -240,8 +240,6 @@ class ConnectedAddCodeListFromCT extends React.Component {
         } else if (this.props.type === 'Define') {
             // Remove study-specific values;
             codeList.linkedCodeListOid = undefined;
-            // Sources are properly set by the CodeList class constructor
-            codeList.sources = undefined;
             // Connect to the standard;
             // CT Oids are taken from the Original CDISC file, so it is safe to rely on it
             if (codeList.standardOid !== undefined) {
@@ -351,7 +349,7 @@ class ConnectedAddCodeListFromCT extends React.Component {
         }
     }
 
-    render () {
+    render() {
         const { defineVersion, type } = this.props;
         let codeList;
         if (type === 'CT') {

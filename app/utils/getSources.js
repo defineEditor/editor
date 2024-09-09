@@ -1,12 +1,22 @@
 // Get sources elements for an item by OID
 
 /**
+ * @typedef {Object} Sources
+ * @property {Array<String>} itemDefs - The item definitions
+ * @property {Array<String>} itemGroups - The item groups
+ * @property {Array<String>} whereClauses - The where clauses
+ * @property {Array<String>} codeLists - The code lists
+ * @property {Array<String>} metaDataVersion - The metadata version
+ * @property {Array<String>} standards - The standards
+ * @property {Array<String>} resultDisplays - The result displays
+ * @property {Array<String>} analysisResults - The analysis results
+ * @property {Array<String>} valueLists - The value lists
  * Get sources elements for an item by OID
  * @param {MetaDataVersion} mdv - The metadata version object
  * @param {{'ItemDef' | 'WhereClause' | 'CodeList' | 'Comment' |
  * 'Method' | 'ValueList' | 'AnalysisResult' | 'ReviewComment '}} type - The type of the item
  * @param {String} oid - The OID of the item
- * @returns {Object} - The sources elements for the item
+ * @returns {Sources} - The sources elements for the item
  **/
 const getSources = (mdv, type, oid) => {
     let sources = {};
@@ -47,7 +57,7 @@ const getSources = (mdv, type, oid) => {
             });
         });
         // AnalysisResults
-        if (Object.keys(mdv.analysisResultDisplays).length !== 0) {
+        if (mdv.analysisResultDisplays && Object.keys(mdv.analysisResultDisplays).length !== 0) {
             Object.keys(mdv.analysisResultDisplays.analysisResults).forEach(analysisResultOid => {
                 Object.keys(mdv.analysisResultDisplays.analysisResults[analysisResultOid].analysisDatasets).forEach(analysisDatasetOid => {
                     if (mdv.analysisResultDisplays.analysisResults[analysisResultOid].analysisDatasets[analysisDatasetOid].whereClauseOid === oid) {
@@ -100,7 +110,7 @@ const getSources = (mdv, type, oid) => {
         if (mdv.commentOid === oid) {
             sources.metaDataVersion.push(mdv.oid);
         }
-        if (Object.keys(mdv.analysisResultDisplays).length !== 0) {
+        if (mdv.analysisResultDisplays && Object.keys(mdv.analysisResultDisplays).length !== 0) {
             Object.keys(mdv.analysisResultDisplays.analysisResults).forEach(analysisResultOid => {
                 if (mdv.analysisResultDisplays.analysisResults[analysisResultOid].commentOid === oid) {
                     sources.analysisResults.push(analysisResultOid);
@@ -147,7 +157,7 @@ const getSources = (mdv, type, oid) => {
         sources = {
             resultDisplays: []
         };
-        if (Object.keys(mdv.analysisResultDisplays).length !== 0) {
+        if (mdv.analysisResultDisplays && Object.keys(mdv.analysisResultDisplays).length !== 0) {
             Object.keys(mdv.analysisResultDisplays.resultsDisplays).forEach(resultsDisplayOid => {
                 Object.keys(mdv.analysisResultDisplays.resultsDisplays[resultsDisplayOid].analysisResults).forEach(analysisResultOid => {
                     if (analysisResultOid === oid) {

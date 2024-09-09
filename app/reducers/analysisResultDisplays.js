@@ -352,10 +352,10 @@ const handleUpdatedLeafs = (state, action) => {
 };
 
 const addReviewComment = (state, action) => {
-    if (action.updateObj.sources.hasOwnProperty('analysisResults') || action.updateObj.sources.hasOwnProperty('resultDisplays')) {
+    if (action.updateObj.commentSources.hasOwnProperty('analysisResults') || action.updateObj.commentSources.hasOwnProperty('resultDisplays')) {
         // It is expected that only one source is possible when adding a review comment, that is why the 1st element is taken
-        let type = Object.keys(action.updateObj.sources)[0];
-        let oid = action.updateObj.sources[type][0];
+        let type = Object.keys(action.updateObj.commentSources)[0];
+        let oid = action.updateObj.commentSources[type][0];
         let newType = {
             ...state[type],
             [oid]: {
@@ -370,13 +370,13 @@ const addReviewComment = (state, action) => {
 };
 
 const deleteReviewComment = (state, action) => {
-    if (action.deleteObj.sources.hasOwnProperty('analysisResults') || action.deleteObj.sources.hasOwnProperty('resultDisplays')) {
+    if (action.deleteObj.commentSources.hasOwnProperty('analysisResults') || action.deleteObj.commentSources.hasOwnProperty('resultDisplays')) {
         let newState = { ...state };
-        Object.keys(action.deleteObj.sources)
+        Object.keys(action.deleteObj.commentSources)
             .filter(sourceType => (['analysisResults', 'resultDisplays'].includes(sourceType)))
             .forEach(sourceType => {
                 let newType = { ...state[sourceType] };
-                action.deleteObj.sources[sourceType].forEach(oid => {
+                action.deleteObj.commentSources[sourceType].forEach(oid => {
                     let newReviewCommentOids = newType[oid].reviewCommentOids.slice();
                     newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
                     newType = { ...newType, [oid]: { ...newType[oid], reviewCommentOids: newReviewCommentOids } };

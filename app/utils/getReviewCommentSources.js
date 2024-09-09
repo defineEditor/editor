@@ -4,7 +4,16 @@
  * Get sources elements for an item by OID
  * @param {Odm} odm - The Odm object
  * @param {String} oid - The OID of the item
- * @returns {Object} - The sources elements for the item
+ * @returns {ReviewCommentSources} - The sources elements for the item
+ * @typedef {Object} ReviewCommentSources
+ * @property {String[]} itemDefs - The ItemDefs that contain the ReviewComment
+ * @property {String[]} codeLists - The CodeLists that contain the ReviewComment
+ * @property {String[]} metaDataVersion - The MetaDataVersions that contain the ReviewComment
+ * @property {String[]} odm - The ODM that contain the ReviewComment
+ * @property {String[]} itemGroups - The ItemGroups that contain the ReviewComment
+ * @property {String[]} resultDisplays - The ResultDisplays that contain the ReviewComment
+ * @property {String[]} analysisResults - The AnalysisResults that contain the ReviewComment
+ * @property {String[]} reviewComments - The ReviewComments that contain the ReviewComment
  **/
 const getReviewCommentSources = (odm, oid) => {
     // ReviewComments can be in multiple places

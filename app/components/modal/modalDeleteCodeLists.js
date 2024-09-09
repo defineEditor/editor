@@ -32,6 +32,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import getSourceLabels from 'utils/getSourceLabels.js';
+import getSources from 'utils/getSources.js';
 import {
     closeModal,
     updateSettings,
@@ -97,7 +98,7 @@ const styles = theme => ({
 });
 
 class ConnectedModalDeleteCodeLists extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
         this.state = {
             warningShowAgain: true,
@@ -140,7 +141,7 @@ class ConnectedModalDeleteCodeLists extends React.Component {
         this.props.closeModal({ type: this.props.type });
     }
 
-    render () {
+    render() {
         const { classes } = this.props;
         let codeListQuantity = this.props.deleteObj.codeListOids.length === 1 ? 'one' : 'many';
         let deleteTitle = codeListQuantity === 'one' ? 'Codelist' : 'Codelists';
@@ -170,14 +171,17 @@ class ConnectedModalDeleteCodeLists extends React.Component {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {this.props.deleteObj.codeListOids.map(item => (
-                                    <TableRow key={item}>
-                                        <TableCell component="th" scope="row">{this.props.codeLists[item].name}</TableCell>
-                                        <TableCell align="left">
-                                            {getSourceLabels(this.props.codeLists[item].sources, this.props.mdv, false, 2).labelParts.join(',')}
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                {this.props.deleteObj.codeListOids.map(item => {
+                                    const sources = getSources(this.props.mdv, 'CodeList', item);
+                                    return (
+                                        <TableRow key={item}>
+                                            <TableCell component="th" scope="row">{this.props.codeLists[item].name}</TableCell>
+                                            <TableCell align="left">
+                                                {getSourceLabels(sources, this.props.mdv, false, 2).labelParts.join(',')}
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
                             </TableBody>
                         </Table>
                     </Paper>

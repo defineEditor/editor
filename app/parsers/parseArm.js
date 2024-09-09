@@ -27,13 +27,13 @@ import {
 } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
 
-function parseDocument (doc) {
+function parseDocument(doc) {
     let args = {
         leafId: doc['$']['leafId'],
     };
     let document = new Document(args);
     if (doc.hasOwnProperty('pDFPageRef')) {
-        doc['pDFPageRef'].forEach(function (pdfPageRef) {
+        doc['pDFPageRef'].forEach(function(pdfPageRef) {
             document.addPdfPageRef(new PdfPageRef({
                 type: doc['pDFPageRef'][0]['$']['type'],
                 pageRefs: doc['pDFPageRef'][0]['$']['pageRefs'],
@@ -47,9 +47,9 @@ function parseDocument (doc) {
     return document;
 }
 
-function parseDocumentCollection (documentsRaw) {
+function parseDocumentCollection(documentsRaw) {
     let documents = {};
-    documentsRaw.forEach(function (documentRaw) {
+    documentsRaw.forEach(function(documentRaw) {
         documentRaw['documentRef'].forEach(documentStillRaw => {
             let document = parseDocument(documentStillRaw);
             documents[document.leafId] = document;
@@ -59,7 +59,7 @@ function parseDocumentCollection (documentsRaw) {
     return documents;
 }
 
-function parseTranslatedText (item) {
+function parseTranslatedText(item) {
     let args = {};
     if (typeof item['translatedText'][0] === 'string') {
         args = {
@@ -76,7 +76,7 @@ function parseTranslatedText (item) {
     return new TranslatedText(args);
 }
 
-function parseAnalysisDatasets (datasRaw) {
+function parseAnalysisDatasets(datasRaw) {
     let analysisDatasets = {};
     datasRaw.forEach(dataRaw => {
         let args = dataRaw['$'];
@@ -97,17 +97,17 @@ function parseAnalysisDatasets (datasRaw) {
     return analysisDatasets;
 }
 
-function parseDocumentation (dataRaw) {
+function parseDocumentation(dataRaw) {
     let documentation = new Documentation({});
 
     if (dataRaw.hasOwnProperty('documentRef')) {
-        dataRaw['documentRef'].forEach(function (item) {
+        dataRaw['documentRef'].forEach(function(item) {
             documentation.addDocument(parseDocument(item));
         });
     }
 
     if (dataRaw.hasOwnProperty('description')) {
-        dataRaw['description'].forEach(function (item) {
+        dataRaw['description'].forEach(function(item) {
             documentation.addDescription(parseTranslatedText(item));
         });
     }
@@ -115,7 +115,7 @@ function parseDocumentation (dataRaw) {
     return documentation;
 }
 
-function parseProgrammingCode (dataRaw) {
+function parseProgrammingCode(dataRaw) {
     let args = dataRaw['$'];
 
     if (dataRaw.hasOwnProperty('code')) {
@@ -125,7 +125,7 @@ function parseProgrammingCode (dataRaw) {
     let programmingCode = new ProgrammingCode(args);
 
     if (dataRaw.hasOwnProperty('documentRef')) {
-        dataRaw['documentRef'].forEach(function (item) {
+        dataRaw['documentRef'].forEach(function(item) {
             programmingCode.addDocument(parseDocument(item));
         });
     }
@@ -133,7 +133,7 @@ function parseProgrammingCode (dataRaw) {
     return programmingCode;
 }
 
-function parseAnalysisResults (datasRaw, resultDisplayOid) {
+function parseAnalysisResults(datasRaw, resultDisplayOid) {
     let analysisResults = {};
     datasRaw.forEach(dataRaw => {
         let args = dataRaw['$'];
@@ -154,12 +154,10 @@ function parseAnalysisResults (datasRaw, resultDisplayOid) {
             args.documentation = parseDocumentation(dataRaw['documentation'][0]);
         }
 
-        args.sources = { resultDisplays: [resultDisplayOid] };
-
         let analysisResult = new AnalysisResult(args);
 
         if (dataRaw.hasOwnProperty('description')) {
-            dataRaw['description'].forEach(function (item) {
+            dataRaw['description'].forEach(function(item) {
                 analysisResult.addDescription(parseTranslatedText(item));
             });
         }
@@ -169,7 +167,7 @@ function parseAnalysisResults (datasRaw, resultDisplayOid) {
     return analysisResults;
 }
 
-function parseResultDisplays (datasRaw) {
+function parseResultDisplays(datasRaw) {
     let resultDisplays = {};
     datasRaw.forEach(dataRaw => {
         let args = dataRaw['$'];
@@ -182,13 +180,13 @@ function parseResultDisplays (datasRaw) {
         let resultDisplay = new ResultDisplay(args);
 
         if (dataRaw.hasOwnProperty('documentRef')) {
-            dataRaw['documentRef'].forEach(function (item) {
+            dataRaw['documentRef'].forEach(function(item) {
                 resultDisplay.addDocument(parseDocument(item));
             });
         }
 
         if (dataRaw.hasOwnProperty('description')) {
-            dataRaw['description'].forEach(function (item) {
+            dataRaw['description'].forEach(function(item) {
                 resultDisplay.addDescription(parseTranslatedText(item));
             });
         }
@@ -199,7 +197,7 @@ function parseResultDisplays (datasRaw) {
     return resultDisplays;
 }
 
-function parseArm (dataRaw) {
+function parseArm(dataRaw) {
     let args = {};
     args.resultDisplays = parseResultDisplays(dataRaw[0]['resultDisplay']);
     args.resultDisplayOrder = Object.keys(args.resultDisplays);

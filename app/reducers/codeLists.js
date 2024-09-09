@@ -14,8 +14,6 @@
 
 import clone from 'clone';
 import {
-    UPD_ITEMCLDF,
-    UPD_ITEMSBULK,
     UPD_CODELIST,
     UPD_CODELISTSTD,
     UPD_CODELISTSSTD,
@@ -27,15 +25,10 @@ import {
     ADD_CODEDVALUES,
     DEL_CODEDVALUES,
     UPD_CODEDVALUEORDER,
-    DEL_VARS,
-    ADD_VARS,
-    ADD_ITEMGROUPS,
-    DEL_ITEMGROUPS,
     UPD_STDCT,
     UPD_LINKCODELISTS,
     ADD_REVIEWCOMMENT,
     DEL_REVIEWCOMMENT,
-    ADD_VALUELISTFROMCODELIST,
     ADD_IMPORTMETADATA,
     DEL_DUPLICATECOMMENTS,
 } from 'constants/action-types';
@@ -43,33 +36,6 @@ import { CodeList, CodeListItem, ExternalCodeList, EnumeratedItem, Alias } from 
 import getOid from 'utils/getOid.js';
 import { getItemsWithAliasExtendedValue } from 'utils/codeListUtils.js';
 import { deleteDuplicateComments } from 'utils/deleteDuplicateUtils.js';
-
-const handleItemDefUpdate = (state, action) => {
-    let newState = { ...state };
-    // Delete source if the previous ItemDef had a codelist associated with it.
-    let previousCodeListOid = action.prevObj.codeListOid;
-    if (previousCodeListOid !== undefined) {
-        let newSources = Object.assign({}, state[action.prevObj.codeListOid].sources);
-        if (newSources.itemDefs.includes(action.oid)) {
-            let newItemDefs = newSources.itemDefs.slice();
-            newItemDefs.splice(newItemDefs.indexOf(action.oid), 1);
-            newSources.itemDefs = newItemDefs;
-            newState = { ...newState, [previousCodeListOid]: { ...new CodeList({ ...state[previousCodeListOid], sources: newSources }) } };
-        }
-    }
-    // Add source to the new ItemDef.
-    let newCodeListOid = action.updateObj.codeListOid;
-    if (newCodeListOid !== undefined) {
-        let newSources = Object.assign({}, state[action.updateObj.codeListOid].sources);
-        if (!newSources.itemDefs.includes(action.oid)) {
-            newSources.itemDefs = newSources.itemDefs.slice();
-            newSources.itemDefs.push(action.oid);
-            newState = { ...newState, [newCodeListOid]: { ...new CodeList({ ...state[newCodeListOid], sources: newSources }) } };
-        }
-    }
-
-    return newState;
-};
 
 const updateLinkedCodeList = (state, action) => {
     let newState = { ...state };
@@ -616,32 +582,6 @@ const deleteCodedValues = (state, action, skipLinkedCodeListUpdate) => {
     }
 };
 
-const deleteCodeListReferences = (state, action) => {
-    // action.deleteObj.codeListOids contains:
-    // {codeListOid1: [itemOid1, itemOid2], codeListOid2: [itemOid3, itemOid1]}
-    let newState = { ...state };
-    Object.keys(action.deleteObj.codeListOids).forEach(codeListOid => {
-        action.deleteObj.codeListOids[codeListOid].forEach(itemOid => {
-            let codeList = newState[codeListOid];
-            let sourceNum = [].concat.apply([], Object.keys(codeList.sources).map(type => (codeList.sources[type]))).length;
-            if (sourceNum <= 1 && codeList.sources.itemDefs[0] === itemOid) {
-                // If the item to which codeList is attached is the only one, keep it
-                // As codelists can be  created and worked on without any variables
-                // delete newState[codeList.oid];
-                let newCodeList = { ...new CodeList({ ...codeList, sources: { ...codeList.sources, itemDefs: [] } }) };
-                newState = { ...newState, [codeList.oid]: newCodeList };
-            } else if (codeList.sources.itemDefs.includes(itemOid)) {
-                // Remove  referece to the source OID from the list of codeList sources
-                let newSources = codeList.sources.itemDefs.slice();
-                newSources.splice(newSources.indexOf(itemOid), 1);
-                let newCodeList = { ...new CodeList({ ...codeList, sources: { ...codeList.sources, itemDefs: newSources } }) };
-                newState = { ...newState, [codeList.oid]: newCodeList };
-            }
-        });
-    });
-    return newState;
-};
-
 const updateCodedValueOrder = (state, action, skipLinkedCodeListUpdate) => {
     // action.codeListOid - linked codelist to update
     // action.itemOrder - new item ord
@@ -656,103 +596,6 @@ const updateCodedValueOrder = (state, action, skipLinkedCodeListUpdate) => {
         return { ...newState, [action.codeListOid]: newCodeList };
     } else {
         return { ...state, [action.codeListOid]: newCodeList };
-    }
-};
-
-const deleteItemGroups = (state, action) => {
-    // action.deleteObj.itemGroupData contains:
-    // {[itemGroupOid] : codeListOids: { [oid1 : {itemOid1, ..}, oid2: { ... }, ...]}}
-    let newState = { ...state };
-    Object.keys(action.deleteObj.itemGroupData).forEach(itemGroupOid => {
-        let subAction = { deleteObj: {}, source: { itemGroupOid } };
-        subAction.deleteObj.codeListOids = action.deleteObj.itemGroupData[itemGroupOid].codeListOids;
-        newState = deleteCodeListReferences(newState, subAction);
-    });
-    return newState;
-};
-
-const handleItemsBulkUpdate = (state, action) => {
-    let field = action.updateObj.fields[0];
-    // Get all itemDefs for update.
-    if (field.attr === 'codeListOid') {
-        let itemDefOids = action.updateObj.selectedItems.map(item => (item.itemDefOid));
-        let updatedCodeLists = {};
-        Object.keys(state).forEach(codeListOid => {
-            if (
-                (field.updateType === 'set' && codeListOid !== field.updateValue.value) ||
-                (field.updateType === 'replace' && codeListOid === field.updateValue.source)
-            ) {
-                // Remove itemOids as source for all updated codeLists
-                // It would be better to use deleteCodeListReferences, but the code below works as well
-                let codeList = state[codeListOid];
-                let sources = codeList.sources.itemDefs;
-                let newSources = sources.slice();
-                sources.forEach(itemDefOid => {
-                    if (itemDefOids.includes(itemDefOid)) {
-                        newSources.splice(newSources.indexOf(itemDefOid), 1);
-                    }
-                });
-                if (newSources.length !== codeList.sources.itemDefs.length) {
-                    updatedCodeLists[codeListOid] = { ...new CodeList({ ...codeList, sources: { ...codeList.sources, itemDefs: newSources } }) };
-                }
-            } else if (
-                (field.updateType === 'set' && codeListOid === field.updateValue.value) ||
-                (field.updateType === 'replace' && codeListOid === field.updateValue.target)
-            ) {
-                // Add all of the itemDefs as sources
-                let codeList = state[codeListOid];
-                let newSources = codeList.sources.itemDefs.slice();
-                itemDefOids.forEach((itemDefOid) => {
-                    if (!newSources.includes(itemDefOid)) {
-                        newSources.push(itemDefOid);
-                    }
-                });
-                updatedCodeLists[codeListOid] = { ...new CodeList({ ...codeList, sources: { ...codeList.sources, itemDefs: newSources } }) };
-            }
-        });
-        return { ...state, ...updatedCodeLists };
-    } else {
-        return state;
-    }
-};
-
-const handleAddVariables = (state, action) => {
-    // Some of the codeLists can be just referenced and not copied
-    // Find all added ItemDefs with codeList links, which do not link to any of the new codeLists
-    let codeListSourceUpdated = {};
-    // For Item Defs
-    Object.keys(action.updateObj.itemDefs).forEach(itemDefOid => {
-        let itemDef = action.updateObj.itemDefs[itemDefOid];
-        if (itemDef.codeListOid !== undefined &&
-            !action.updateObj.codeLists.hasOwnProperty(itemDef.codeListOid) &&
-            state.hasOwnProperty(itemDef.codeListOid)
-        ) {
-            if (codeListSourceUpdated.hasOwnProperty(itemDef.codeListOid)) {
-                codeListSourceUpdated[itemDef.codeListOid].itemDefs.push(itemDefOid);
-            } else {
-                codeListSourceUpdated[itemDef.codeListOid] = { itemDefs: [itemDefOid] };
-            }
-        }
-    });
-    // Add sources
-    let updatedCodeLists = {};
-    Object.keys(codeListSourceUpdated).forEach(codeListOid => {
-        let codeList = state[codeListOid];
-        let newSources = clone(codeList.sources);
-        Object.keys(codeListSourceUpdated[codeListOid]).forEach(type => {
-            if (newSources.hasOwnProperty(type)) {
-                newSources[type] = newSources[type].concat(codeListSourceUpdated[codeListOid][type]);
-            } else {
-                newSources[type] = codeListSourceUpdated[codeListOid][type].slice();
-            }
-        });
-        updatedCodeLists[codeListOid] = { ...new CodeList({ ...state[codeListOid], sources: newSources }) };
-    });
-
-    if (Object.keys(action.updateObj.codeLists).length > 0 || Object.keys(updatedCodeLists).length > 0) {
-        return { ...state, ...action.updateObj.codeLists, ...updatedCodeLists };
-    } else {
-        return state;
     }
 };
 
@@ -821,18 +664,9 @@ const handleDeleteStdCodeLists = (state, action) => {
     }
 };
 
-const handleAddItemGroups = (state, action) => {
-    const { itemGroups } = action.updateObj;
-    let newState = { ...state };
-    Object.values(itemGroups).forEach(itemGroupData => {
-        newState = handleAddVariables(newState, { updateObj: itemGroupData });
-    });
-    return newState;
-};
-
 const addReviewComment = (state, action) => {
-    if (action.updateObj.sources.hasOwnProperty('codeLists')) {
-        let codeListOid = action.updateObj.sources.codeLists[0];
+    if (action.updateObj.commentSources.hasOwnProperty('codeLists')) {
+        let codeListOid = action.updateObj.commentSources.codeLists[0];
         return { ...state, [codeListOid]: { ...state[codeListOid], reviewCommentOids: state[codeListOid].reviewCommentOids.concat([action.updateObj.oid]) } };
     } else {
         return state;
@@ -840,28 +674,14 @@ const addReviewComment = (state, action) => {
 };
 
 const deleteReviewComment = (state, action) => {
-    if (action.deleteObj.sources.hasOwnProperty('codeLists')) {
+    if (action.deleteObj.commentSources.hasOwnProperty('codeLists')) {
         let newState = { ...state };
-        action.deleteObj.sources.codeLists.forEach(oid => {
+        action.deleteObj.commentSources.codeLists.forEach(oid => {
             let newReviewCommentOids = newState[oid].reviewCommentOids.slice();
             newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
             newState = { ...newState, [oid]: { ...newState[oid], reviewCommentOids: newReviewCommentOids } };
         });
         return newState;
-    } else {
-        return state;
-    }
-};
-
-const handleAddValueListFromCodeList = (state, action) => {
-    // Check if codelist is copied to all VLM records
-    const { itemDefAttrs, itemDefOids } = action.updateObj;
-    const codeListOid = itemDefAttrs.codeListOid;
-    if (codeListOid && itemDefOids.length > 0) {
-        let newSources = clone(state[codeListOid].sources);
-        newSources.itemDefs = (newSources.itemDefs || []).concat(itemDefOids);
-        let updatedCodeList = { ...new CodeList({ ...state[codeListOid], sources: newSources }) };
-        return { ...state, [codeListOid]: updatedCodeList };
     } else {
         return state;
     }
@@ -880,29 +700,6 @@ const addImportMetadata = (state, action) => {
         }
     }
 
-    let { removedSources, addedSources } = action.updateObj;
-    Object.keys(removedSources.codeLists).forEach(codeListOid => {
-        let removedItemDefs = removedSources.codeLists[codeListOid];
-        let codeList = newState[codeListOid];
-        let newItemDefSources = codeList.sources.itemDefs.slice();
-        removedItemDefs.forEach(itemDefOid => {
-            if (newItemDefSources.includes(itemDefOid)) {
-                newItemDefSources.splice(newItemDefSources.indexOf(itemDefOid), 1);
-            }
-        });
-        newState[codeListOid] = { ...codeList, sources: { ...codeList.sources, itemDefs: newItemDefSources } };
-    });
-    Object.keys(addedSources.codeLists).forEach(codeListOid => {
-        let addedItemDefs = addedSources.codeLists[codeListOid];
-        let codeList = newState[codeListOid];
-        let newItemDefSources = codeList.sources.itemDefs.slice();
-        addedItemDefs.forEach(itemDefOid => {
-            if (!newItemDefSources.includes(itemDefOid)) {
-                newItemDefSources.push(itemDefOid);
-            }
-        });
-        newState[codeListOid] = { ...codeList, sources: { ...codeList.sources, itemDefs: newItemDefSources } };
-    });
     return newState;
 };
 
@@ -922,10 +719,6 @@ const codeLists = (state = {}, action) => {
             return updateExternalCodeList(state, action);
         case UPD_LINKCODELISTS:
             return updateLinkCodeLists(state, action);
-        case UPD_ITEMCLDF:
-            return handleItemDefUpdate(state, action);
-        case UPD_ITEMSBULK:
-            return handleItemsBulkUpdate(state, action);
         case UPD_CODEDVALUE:
             return updateCodedValue(state, action);
         case ADD_CODEDVALUE:
@@ -936,22 +729,12 @@ const codeLists = (state = {}, action) => {
             return deleteCodedValues(state, action);
         case UPD_CODEDVALUEORDER:
             return updateCodedValueOrder(state, action);
-        case DEL_VARS:
-            return deleteCodeListReferences(state, action);
-        case ADD_VARS:
-            return handleAddVariables(state, action);
-        case DEL_ITEMGROUPS:
-            return deleteItemGroups(state, action);
         case UPD_STDCT:
             return handleDeleteStdCodeLists(state, action);
-        case ADD_ITEMGROUPS:
-            return handleAddItemGroups(state, action);
         case ADD_REVIEWCOMMENT:
             return addReviewComment(state, action);
         case DEL_REVIEWCOMMENT:
             return deleteReviewComment(state, action);
-        case ADD_VALUELISTFROMCODELIST:
-            return handleAddValueListFromCodeList(state, action);
         case ADD_IMPORTMETADATA:
             return addImportMetadata(state, action);
         case DEL_DUPLICATECOMMENTS:

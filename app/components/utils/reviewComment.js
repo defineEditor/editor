@@ -55,7 +55,7 @@ const styles = theme => ({
 });
 
 class ReviewCommentRaw extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
 
         let editorState;
@@ -132,8 +132,8 @@ class ReviewCommentRaw extends React.Component {
         this.setState({ editorState: EditorState.createEmpty() },
             () => this.props.onAdd({
                 oid,
-                sources: this.props.sources,
-                attrs: { text, author: this.props.author, sources: this.props.sources }
+                commentSources: this.props.commentSources,
+                attrs: { text, author: this.props.author, commentSources: this.props.commentSources }
             })
         );
     }
@@ -147,7 +147,7 @@ class ReviewCommentRaw extends React.Component {
                 text: '',
                 modifiedAt: 'Initial Reply',
                 author: this.props.author,
-                sources: { reviewComments: [this.props.oid] } }
+                commentSources: { reviewComments: [this.props.oid] } }
         });
     }
 
@@ -163,7 +163,7 @@ class ReviewCommentRaw extends React.Component {
             }
             this.props.onUpdate({
                 oid: this.props.oid,
-                sources: this.props.sources,
+                commentSources: this.props.commentSources,
                 attrs: {
                     text: stateToHTML(this.state.editorState.getCurrentContent()),
                     author: this.props.author,
@@ -180,7 +180,7 @@ class ReviewCommentRaw extends React.Component {
     handleDelete = () => {
         this.props.onDelete({
             oid: this.props.oid,
-            sources: this.props.sources,
+            commentSources: this.props.commentSources,
         });
     }
 
@@ -210,7 +210,7 @@ class ReviewCommentRaw extends React.Component {
                 <ReviewComment
                     oid={oid}
                     key={oid}
-                    sources={{ reviewComments: [this.props.oid] }}
+                    commentSources={{ reviewComments: [this.props.oid] }}
                     author={this.props.author}
                     isReply={true}
                     isParentResolved={isResolved}
@@ -222,7 +222,7 @@ class ReviewCommentRaw extends React.Component {
             ));
     }
 
-    render () {
+    render() {
         const { classes, oid, initialComment, isParentResolved, reviewComments, noEdit } = this.props;
 
         let author = this.props.author;
@@ -371,7 +371,7 @@ ReviewCommentRaw.propTypes = {
     initialComment: PropTypes.bool,
     isReply: PropTypes.bool,
     isParentResolved: PropTypes.bool,
-    sources: PropTypes.object.isRequired,
+    commentSources: PropTypes.object.isRequired,
     oid: PropTypes.string,
     author: PropTypes.string.isRequired,
     noEdit: PropTypes.bool.isRequired,

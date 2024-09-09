@@ -121,13 +121,13 @@ class ConnectedModalReviewComments extends React.Component {
         }
     }
 
-    getCommentOids = (sources) => {
+    getCommentOids = (commentSources) => {
         let reviewCommentOids = [];
-        Object.keys(sources).forEach(type => {
+        Object.keys(commentSources).forEach(type => {
             if (['itemDefs', 'itemGroups', 'codeLists'].includes(type)) {
-                reviewCommentOids = this.props.mdv[type][sources[type][0]].reviewCommentOids;
+                reviewCommentOids = this.props.mdv[type][commentSources[type][0]].reviewCommentOids;
             } else if (['analysisResults', 'resultDisplays'].includes(type)) {
-                reviewCommentOids = this.props.mdv.analysisResultDisplays[type][sources[type][0]].reviewCommentOids;
+                reviewCommentOids = this.props.mdv.analysisResultDisplays[type][commentSources[type][0]].reviewCommentOids;
             } else if (type === 'odm') {
                 reviewCommentOids = this.props.odm.reviewCommentOids;
             } else if (type === 'globalVariables') {
@@ -135,18 +135,18 @@ class ConnectedModalReviewComments extends React.Component {
             } else if (type === 'metaDataVersion') {
                 reviewCommentOids = this.props.mdv.reviewCommentOids;
             } else if (type === 'reviewComments') {
-                reviewCommentOids = sources[type];
+                reviewCommentOids = commentSources[type];
             }
         });
         return reviewCommentOids;
     }
 
     deleteReviewComment = (deleteObj) => {
-        const { reviewComments, sources } = this.props;
-        if (!sources.hasOwnProperty('reviewComments')) {
+        const { reviewComments, commentSources } = this.props;
+        if (!commentSources.hasOwnProperty('reviewComments')) {
             this.props.deleteReviewComment(deleteObj);
         } else {
-            let reviewCommentOid = sources.reviewComments[0];
+            let reviewCommentOid = commentSources.reviewComments[0];
             if (reviewComments.hasOwnProperty(reviewCommentOid)) {
                 this.props.deleteReviewComment({
                     oid: reviewCommentOid,
@@ -156,8 +156,8 @@ class ConnectedModalReviewComments extends React.Component {
         }
     }
 
-    getComments = (sources, reviewComments) => {
-        return this.getCommentOids(sources)
+    getComments = (commentSources, reviewComments) => {
+        return this.getCommentOids(commentSources)
             .filter(oid => (this.props.reviewComments.hasOwnProperty(oid)))
             .sort((oid1, oid2) => {
                 return (reviewComments[oid1].resolvedBy ? 1 : 0) - (reviewComments[oid2].resolvedBy ? 1 : 0);
@@ -166,7 +166,7 @@ class ConnectedModalReviewComments extends React.Component {
                 <ReviewComment
                     oid={oid}
                     key={oid}
-                    sources={sources}
+                    commentSources={commentSources}
                     author={this.props.author}
                     reviewComments={this.props.reviewComments}
                     onUpdate={this.props.updateReviewComment}
@@ -179,7 +179,7 @@ class ConnectedModalReviewComments extends React.Component {
     }
 
     render() {
-        const { classes, reviewComments, sources, author } = this.props;
+        const { classes, reviewComments, commentSources, author } = this.props;
 
         return (
             <React.Fragment>
@@ -199,13 +199,13 @@ class ConnectedModalReviewComments extends React.Component {
                     <DialogContent>
                         <Grid container spacing={2} justify='flex-start' className={classes.content}>
                             <Grid item xs={12}>
-                                {this.getComments(sources, reviewComments)}
+                                {this.getComments(commentSources, reviewComments)}
                             </Grid>
-                            {!this.props.sources.hasOwnProperty('reviewComments') && !(this.props.windowType === 'reviewWindow') && (
+                            {!this.props.commentSources.hasOwnProperty('reviewComments') && !(this.props.windowType === 'reviewWindow') && (
                                 <Grid item xs={12}>
                                     <ReviewComment
                                         initialComment
-                                        sources={sources}
+                                        commentSources={commentSources}
                                         author={author}
                                         reviewComments={reviewComments}
                                         onAdd={this.props.addReviewComment}
@@ -261,7 +261,7 @@ ConnectedModalReviewComments.propTypes = {
     reviewComments: PropTypes.object.isRequired,
     mdv: PropTypes.object.isRequired,
     odm: PropTypes.object.isRequired,
-    sources: PropTypes.object.isRequired,
+    commentSources: PropTypes.object.isRequired,
     type: PropTypes.string.isRequired,
 };
 
