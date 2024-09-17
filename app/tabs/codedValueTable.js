@@ -50,6 +50,7 @@ import getCodedValuesAsText from 'utils/getCodedValuesAsText.js';
 import getColumnHiddenStatus from 'utils/getColumnHiddenStatus.js';
 import { getDecode } from 'utils/defineStructureUtils.js';
 import CodedValueSelector from 'utils/codedValueSelector.js';
+import getSources from 'utils/getSources.js';
 import {
     updateCodedValue,
     addCodedValue,
@@ -118,6 +119,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
     let reviewMode = state.present.ui.main.reviewMode || state.present.settings.editor.onlyArmEdit;
     return {
+        mdv: state.present.odm.study.metaDataVersion,
         codeLists: state.present.odm.study.metaDataVersion.codeLists,
         itemDefs: state.present.odm.study.metaDataVersion.itemDefs,
         itemGroups: state.present.odm.study.metaDataVersion.itemGroups,
@@ -138,11 +140,11 @@ const mapStateToProps = state => {
 };
 
 // Editors
-function codedValueEditor (onUpdate, props) {
+function codedValueEditor(onUpdate, props) {
     return (<CodedValueEditor onUpdate={ onUpdate } {...props}/>);
 }
 
-function simpleInputEditor (onUpdate, props) {
+function simpleInputEditor(onUpdate, props) {
     return (<SimpleInputEditor onUpdate={ onUpdate } {...props}/>);
 }
 const setColumnWidth = (columns) => {
@@ -175,7 +177,7 @@ const setColumnWidth = (columns) => {
 };
 
 class ConnectedCodedValueTable extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
         const codeList = this.props.codeLists[this.props.codeListOid];
 
@@ -240,7 +242,7 @@ class ConnectedCodedValueTable extends React.Component {
         };
     }
 
-    static getDerivedStateFromProps (nextProps, prevState) {
+    static getDerivedStateFromProps(nextProps, prevState) {
         let stateUpdate = {};
         // Store previous groupOid in state so it can be compared with when props change
         if (nextProps.codeListOid !== prevState.codeListOid) {
@@ -269,7 +271,7 @@ class ConnectedCodedValueTable extends React.Component {
         }
     }
 
-    setScroll () {
+    setScroll() {
         // Restore previous tab scroll position for a specific codelist
         let tabSettings = this.props.tabSettings;
         if (tabSettings.scrollPosition[this.props.codeListOid] !== undefined) {
@@ -279,19 +281,19 @@ class ConnectedCodedValueTable extends React.Component {
         }
     }
 
-    componentDidUpdate () {
+    componentDidUpdate() {
         if (this.state.setScrollY) {
             this.setScroll();
             this.setState({ setScrollY: false });
         }
     }
 
-    componentDidMount () {
+    componentDidMount() {
         this.setScroll();
         window.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
@@ -647,9 +649,11 @@ class ConnectedCodedValueTable extends React.Component {
         let codeListVariables = {};
         let menuVariables = {};
 
-        codeList.sources.itemDefs.forEach(itemDefOid => {
+        const codeListSources = getSources(this.props.mdv, 'CodeList', codeList.oid);
+        codeListSources.itemDefs.forEach(itemDefOid => {
             let itemDef = this.props.itemDefs[itemDefOid];
-            itemDef.sources.itemGroups.forEach(itemGroupOid => {
+            const itemDefSources = getSources(this.props.mdv, 'ItemDef', itemDefOid);
+            itemDefSources.itemGroups.forEach(itemGroupOid => {
                 if (Object.keys(codeListVariables).length < limit) {
                     codeListVariables[itemGroups[itemGroupOid].name + '.' + itemDef.name] = itemGroupOid;
                 } else {
@@ -658,7 +662,8 @@ class ConnectedCodedValueTable extends React.Component {
             });
             if (itemDef.parentItemDefOid !== undefined && this.props.itemDefs.hasOwnProperty(itemDef.parentItemDefOid)) {
                 let parentItemDef = this.props.itemDefs[itemDef.parentItemDefOid];
-                parentItemDef.sources.itemGroups.forEach(itemGroupOid => {
+                const parentItemDefSources = getSources(this.props.mdv, 'ItemDef', itemDef.parentItemDefOid);
+                parentItemDefSources.itemGroups.forEach(itemGroupOid => {
                     if (Object.keys(codeListVariables).length < limit) {
                         codeListVariables[itemGroups[itemGroupOid].name + '.' + parentItemDef.name + '.' + itemDef.name] = itemGroupOid;
                     } else {
@@ -730,7 +735,7 @@ class ConnectedCodedValueTable extends React.Component {
         this.props.updateMainUi({ rowsPerPage: { codedValuesTab: event.target.value } });
     };
 
-    render () {
+    render() {
         const { classes } = this.props;
         // Extract data required for the variable table
         const codeList = this.props.codeLists[this.props.codeListOid];
@@ -819,7 +824,7 @@ class ConnectedCodedValueTable extends React.Component {
         };
 
         if (nonEditable) {
-            cellEditProp.nonEditableRows = function () { return codeList.itemOrder; };
+            cellEditProp.nonEditableRows = function() { return codeList.itemOrder; };
         }
 
         let selectRowProp;
@@ -933,6 +938,7 @@ class ConnectedCodedValueTable extends React.Component {
 }
 
 ConnectedCodedValueTable.propTypes = {
+    mdv: PropTypes.object.isRequired,
     codeLists: PropTypes.object.isRequired,
     itemGroups: PropTypes.object.isRequired,
     itemDefs: PropTypes.object.isRequired,

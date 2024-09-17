@@ -30,6 +30,7 @@ import {
     UPD_NAMELABELWHERECLAUSE,
     UPD_ITEMSBULK,
     UPD_LOADACTUALDATA,
+    CL_METHODS,
 } from 'constants/action-types';
 
 // Item Ref/Def actions
@@ -173,5 +174,12 @@ export const loadActualData = (updateObj) => (
     {
         type: UPD_LOADACTUALDATA,
         updateObj,
+    }
+);
+
+export const cleanMethods = (deleteObj) => (
+    {
+        type: CL_METHODS,
+        deleteObj,
     }
 );

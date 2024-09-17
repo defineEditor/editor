@@ -39,6 +39,7 @@ import getSourceLabels from 'utils/getSourceLabels.js';
 import getSelectionList from 'utils/getSelectionList.js';
 import getAutomaticMethodName from 'utils/getAutomaticMethodName.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
+import getSources from 'utils/getSources.js';
 
 const styles = theme => ({
     dialog: {
@@ -91,7 +92,7 @@ const mapStateToProps = state => {
 };
 
 class ConnectedCommentMethodTable extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
 
         let items;
@@ -151,9 +152,11 @@ class ConnectedCommentMethodTable extends React.Component {
             .map(itemOid => {
                 let usedBy;
                 if (type === 'Method') {
-                    usedBy = getMethodSourceLabels(items[itemOid].sources, this.props.mdv).labelParts.join('. ');
+                    const sources = getSources(this.props.mdv, 'Method', itemOid);
+                    usedBy = getMethodSourceLabels(sources, this.props.mdv).labelParts.join('. ');
                 } else if (type === 'Comment') {
-                    usedBy = getSourceLabels(items[itemOid].sources, this.props.mdv).labelParts.join('. ');
+                    const sources = getSources(this.props.mdv, 'Comment', itemOid);
+                    usedBy = getSourceLabels(sources, this.props.mdv).labelParts.join('. ');
                 }
                 return (
                     <TableRow key={itemOid}>
@@ -207,7 +210,7 @@ class ConnectedCommentMethodTable extends React.Component {
         }
     }
 
-    render () {
+    render() {
         const { classes, mdv } = this.props;
         const { items, type } = this.state;
 

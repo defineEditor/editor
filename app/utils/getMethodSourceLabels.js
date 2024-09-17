@@ -11,22 +11,24 @@
 * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
+import getSources from 'utils/getSources.js';
 
-const getMethodSourceLabels = (sources, mdv) => {
+const getMethodSourceLabels = (methodSources, mdv) => {
     let result = [];
-    for (let source in sources) {
-        if (mdv.hasOwnProperty(source) && Object.keys(sources[source]).length > 0) {
-            Object.keys(sources[source]).forEach(groupOid => {
+    for (let source in methodSources) {
+        if (mdv.hasOwnProperty(source) && Object.keys(methodSources[source]).length > 0) {
+            Object.keys(methodSources[source]).forEach(groupOid => {
                 if (source === 'itemGroups') {
-                    sources[source][groupOid].forEach(itemRefOid => {
+                    methodSources[source][groupOid].forEach(itemRefOid => {
                         let itemOid = mdv.itemGroups[groupOid].itemRefs[itemRefOid].itemOid;
                         result.push(mdv.itemGroups[groupOid].name + '.' + mdv.itemDefs[itemOid].name);
                     });
                 } else if (source === 'valueLists') {
-                    sources[source][groupOid].forEach(itemRefOid => {
+                    methodSources[source][groupOid].forEach(itemRefOid => {
                         let itemOid = mdv.valueLists[groupOid].itemRefs[itemRefOid].itemOid;
                         let parentItemDefOid = mdv.itemDefs[itemOid].parentItemDefOid;
-                        mdv.itemDefs[parentItemDefOid].sources.itemGroups.forEach(itemGroupOid => {
+                        const itemSources = getSources(mdv, 'ItemDef', parentItemDefOid);
+                        itemSources.itemGroups.forEach(itemGroupOid => {
                             result.push(mdv.itemGroups[itemGroupOid].name + '.' + mdv.itemDefs[parentItemDefOid].name + '.' + mdv.itemDefs[itemOid].name);
                         });
                     });

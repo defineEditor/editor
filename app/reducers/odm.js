@@ -92,7 +92,7 @@ const deleteReviewComment = (state, action) => {
 };
 
 const defaultAction = (state, action) => {
-    if (action.type !== undefined && /^(ADD|UPD|DEL|REP|INSERT)_.*/.test(action.type)) {
+    if (action.type !== undefined && /^(ADD|UPD|DEL|REP|INSERT|CL)_.*/.test(action.type)) {
         return { ...state,
             study: study(state.study, action),
             reviewComments: reviewComments(state.reviewComments, action),

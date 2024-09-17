@@ -1765,6 +1765,17 @@ const convertImportMetadata = (metadata) => {
         });
         analysisResultResult = { newAnalysisResults, updatedAnalysisResults };
     }
+    // Check if all sources of comments/methods/whereClauses/analysisResults are removed
+    const removedElements = { comments: [], methods: [], whereClauses: [], analysisResults: [] };
+    Object.keys(removedSources)
+        .filter(sourceType => ['comments', 'methods', 'whereClauses', 'analysisResults'].includes(sourceType))
+        .forEach(sourceType => {
+            Object.keys(removedSources[sourceType]).forEach(sourceOid => {
+                if (Object.keys(removedSources[sourceType][sourceOid]).length === 0) {
+                    removedElements[sourceType].push(sourceOid);
+                }
+            });
+        });
     if (errors.length > 0) {
         throw new Error(errors.map(error => error.message).join(' \n\n'));
     }

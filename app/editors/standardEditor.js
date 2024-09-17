@@ -79,7 +79,7 @@ const StandardTableCell = withStyles(theme => ({
 }))(TableCell);
 
 class StandardEditor extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
 
         // Clone standards
@@ -138,9 +138,6 @@ class StandardEditor extends React.Component {
         } else if (name === 'comment') {
             // Add source ID
             let updatedComment = event;
-            if (updatedComment !== undefined && !updatedComment.sources.standards.includes(oid)) {
-                updatedComment.sources.standards.push(oid);
-            }
             const oldCommentOid = this.state.standards[oid].commentOid;
             if (oldCommentOid !== updatedComment.oid) {
                 // Comment was added/removed/replaced
@@ -263,7 +260,7 @@ class StandardEditor extends React.Component {
         }
     }
 
-    render () {
+    render() {
         const { classes } = this.props;
         // Find the default standard
         let isAdam = false;

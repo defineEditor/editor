@@ -125,20 +125,28 @@ const getSources = (mdv, type, oid) => {
     } else if (type === 'Method') {
         // Methods can be in ValueLists and ItemGroups
         sources = {
-            itemGroups: [],
-            valueLists: []
+            itemGroups: {},
+            valueLists: {}
         };
         Object.keys(mdv.itemGroups).forEach(itemGroupOid => {
             Object.keys(mdv.itemGroups[itemGroupOid].itemRefs).forEach(itemRefOid => {
                 if (mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].methodOid === oid) {
-                    sources.itemGroups.push(itemGroupOid);
+                    if (sources.itemGroups[itemGroupOid] === undefined) {
+                        sources.itemGroups[itemGroupOid] = [itemRefOid];
+                    } else {
+                        sources.itemGroups[itemGroupOid].push(itemRefOid);
+                    }
                 }
             });
         });
         Object.keys(mdv.valueLists).forEach(valueListOid => {
             Object.keys(mdv.valueLists[valueListOid].itemRefs).forEach(itemRefOid => {
                 if (mdv.valueLists[valueListOid].itemRefs[itemRefOid].methodOid === oid) {
-                    sources.valueLists.push(valueListOid);
+                    if (sources.valueLists[valueListOid] === undefined) {
+                        sources.valueLists[valueListOid] = [itemRefOid];
+                    } else {
+                        sources.valueLists[valueListOid].push(itemRefOid);
+                    }
                 }
             });
         });

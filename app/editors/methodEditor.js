@@ -38,6 +38,7 @@ import checkForSpecialChars from 'utils/checkForSpecialChars.js';
 import CommentMethodTable from 'components/utils/commentMethodTable.js';
 import getMethodSourceLabels from 'utils/getMethodSourceLabels.js';
 import SelectMethodIcon from '@material-ui/icons/OpenInNew';
+import getSources from 'utils/getSources';
 import { Method, TranslatedText, FormalExpression, Document } from 'core/defineStructure.js';
 import { addDocument, getDescription, setDescription } from 'utils/defineStructureUtils.js';
 
@@ -83,7 +84,7 @@ const mapStateToProps = state => {
 };
 
 class ConnectedMethodEditor extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
         // Bootstrap table changed undefined to '' when saving the value.
         // Catching this and resetting to undefined in case it is an empty string
@@ -167,11 +168,11 @@ class ConnectedMethodEditor extends React.Component {
             this.setState({ selectMethodOpened: false });
         } else if (name === 'copyMethod') {
             let methodOid = getOid('Method', Object.keys(this.props.methods));
-            newMethod = { ...new Method({ ...clone(updateObj), oid: methodOid, sources: undefined }) };
+            newMethod = { ...new Method({ ...clone(updateObj), oid: methodOid }) };
             this.setState({ selectMethodOpened: false });
         } else if (name === 'detachMethod') {
             let methodOid = getOid('Method', Object.keys(this.props.methods));
-            newMethod = { ...new Method({ ...clone(this.props.stateless ? this.props.method : this.state.method), oid: methodOid, sources: undefined }) };
+            newMethod = { ...new Method({ ...clone(this.props.stateless ? this.props.method : this.state.method), oid: methodOid }) };
         }
 
         if (this.props.stateless === true) {
@@ -218,7 +219,7 @@ class ConnectedMethodEditor extends React.Component {
         this.props.onUpdate(this.props.method);
     }
 
-    render () {
+    render() {
         const { classes } = this.props;
         let method = this.props.stateless === true ? this.props.method : this.state.method;
         const methodTypeList = ['Imputation', 'Computation'];
@@ -255,7 +256,8 @@ class ConnectedMethodEditor extends React.Component {
         let usedBy;
         let sourceLabels = { count: 0 };
         if (method !== undefined) {
-            sourceLabels = getMethodSourceLabels(method.sources, this.props.mdv);
+            const sources = getSources(this.props.mdv, 'Method', method.oid);
+            sourceLabels = getMethodSourceLabels(sources, this.props.mdv);
             if (sourceLabels.count > 1) {
                 usedBy = sourceLabels.labelParts.join('. ');
             }

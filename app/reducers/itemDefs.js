@@ -321,7 +321,7 @@ const handleActualData = (state, action) => {
 
 const updateItemsBulk = (state, action) => {
     // Check if the Bulk update is performed for one of the ItemDef attributes
-    let field = action.updateObj.fields[0];
+    let field = action.updateObj.field;
     // Get all itemDefs for update.
     let itemDefOids = action.updateObj.selectedItems.map(item => (item.itemDefOid));
     if (['name', 'label', 'dataType', 'codeListOid', 'origins', 'length', 'displayFormat'].includes(field.attr)) {

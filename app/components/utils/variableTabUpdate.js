@@ -144,7 +144,7 @@ const updateAttrs = {
 };
 
 class ConnectedVariableTabUpdate extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
 
         let selectedItems;
@@ -364,7 +364,7 @@ class ConnectedVariableTabUpdate extends React.Component {
     }
 
     // This function copies items before state update, so that it can be later compared with to identify what has changed
-    copyItems = ({ mdv, selectedItems, itemDefItemRefMap } = {}) => {
+    copyItems = ({ mdv, selectedItems } = {}) => {
         let items = [];
 
         // Find all unique datasets;
@@ -449,46 +449,59 @@ class ConnectedVariableTabUpdate extends React.Component {
                 return { ...field, updateValue: { ...field.updateValue, replaceWholeString: false } };
             }
         });
-        let methodUpdate = fields.some(field => (field.attr === 'method'));
-        if (methodUpdate === true) {
-            // Get itemRefs from itemOids
-            let itemDefItemRefMap = {};
-            // For ItemGroups
-            let uniqueItemGroupOids = [];
-            this.state.selectedItems
-                .filter(item => (item.itemGroupOid !== undefined && item.valueListOid === undefined))
-                .forEach(item => {
-                    if (!uniqueItemGroupOids.includes(item.itemGroupOid)) {
-                        uniqueItemGroupOids.push(item.itemGroupOid);
-                    }
-                });
-            uniqueItemGroupOids.forEach(itemGroupOid => {
-                itemDefItemRefMap[itemGroupOid] = {};
-                Object.keys(this.props.mdv.itemGroups[itemGroupOid].itemRefs).forEach(itemRefOid => {
-                    itemDefItemRefMap[itemGroupOid][this.props.mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid] = itemRefOid;
-                });
-            });
-            // For ValueLists
-            let uniqueValueListOids = [];
-            this.state.selectedItems
-                .filter(item => (item.valueListOid !== undefined))
-                .forEach(item => {
-                    if (!uniqueValueListOids.includes(item.valueListOid)) {
-                        uniqueValueListOids.push(item.valueListOid);
-                    }
-                });
-            uniqueValueListOids.forEach(valueListOid => {
-                itemDefItemRefMap[valueListOid] = {};
-                Object.keys(this.props.mdv.valueLists[valueListOid].itemRefs).forEach(itemRefOid => {
-                    itemDefItemRefMap[valueListOid][this.props.mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid] = itemRefOid;
-                });
-            });
-            this.props.updateItemsBulk({ selectedItems: this.state.selectedItems, fields, lang: this.props.lang, itemDefItemRefMap });
-            this.setState({ changedAfterUpdated: false });
-        } else {
-            this.props.updateItemsBulk({ selectedItems: this.state.selectedItems, fields, lang: this.props.lang });
-            this.setState({ changedAfterUpdated: false });
-        }
+        fields.forEach(field => {
+            let methodUpdate = field.attr === 'method';
+            if (methodUpdate === true) {
+                // Get itemRefs from itemOids
+                let selectedItemSources = { itemGroups: {}, valueLists: {} };
+                let updatedMethodOids = [];
+                // For ItemGroups
+                this.state.selectedItems
+                    .filter(item => (item.itemGroupOid !== undefined && item.valueListOid === undefined))
+                    .forEach(item => {
+                        const itemGroupOid = item.itemGroupOid;
+                        Object.values(this.props.mdv.itemGroups[itemGroupOid].itemRefs)
+                            .filter(itemRef => (itemRef.itemOid === item.itemDefOid))
+                            .forEach(itemRef => {
+                                const itemRefOid = itemRef.oid;
+                                if (selectedItemSources.itemGroups[itemGroupOid] === undefined) {
+                                    selectedItemSources.itemGroups[itemGroupOid] = [itemRefOid];
+                                } else {
+                                    selectedItemSources.itemGroups[itemGroupOid].push(itemRefOid);
+                                }
+                                if (this.props.mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].methodOid !== undefined) {
+                                    updatedMethodOids.push(this.props.mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].methodOid);
+                                }
+                            });
+                    });
+
+                // For ValueLists
+                this.state.selectedItems
+                    .filter(item => (item.valueListOid !== undefined))
+                    .forEach(item => {
+                        const valueListOid = item.valueListOid;
+                        Object.values(this.props.mdv.valueLists[valueListOid].itemRefs)
+                            .filter(itemRef => (itemRef.itemOid === item.itemDefOid))
+                            .forEach(itemRef => {
+                                const itemRefOid = itemRef.oid;
+                                if (selectedItemSources.valueLists[valueListOid] === undefined) {
+                                    selectedItemSources.valueLists[valueListOid] = [itemRefOid];
+                                } else {
+                                    selectedItemSources.valueLists[valueListOid].push(itemRefOid);
+                                }
+                                if (this.props.mdv.valueLists[valueListOid].itemRefs[itemRefOid].methodOid !== undefined) {
+                                    updatedMethodOids.push(this.props.mdv.valueLists[valueListOid].itemRefs[itemRefOid].methodOid);
+                                }
+                            });
+                    });
+
+                this.props.updateItemsBulk({ selectedItems: this.state.selectedItems, field, lang: this.props.lang, updatedMethodOids });
+                this.setState({ changedAfterUpdated: false });
+            } else {
+                this.props.updateItemsBulk({ selectedItems: this.state.selectedItems, field, lang: this.props.lang });
+                this.setState({ changedAfterUpdated: false });
+            }
+        });
         // Find the number of variables which were modified as the result of the bulk update;
         let itemsBeforeUpdated = this.copyItems({ mdv: this.props.mdv, selectedItems: this.state.selectedItems });
         // Although it is discouraged to get store directly, it has to be done because it is needed right after the previous action
@@ -508,7 +521,7 @@ class ConnectedVariableTabUpdate extends React.Component {
         }
     }
 
-    render () {
+    render() {
         const { classes } = this.props;
         const itemNum = this.state.selectedItems.length;
         const { anchorEl } = this.state;

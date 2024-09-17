@@ -295,7 +295,7 @@ const insertValueLevel = (state, action) => {
 
 const handleItemsBulkUpdate = (state, action) => {
     // Check if the Bulk update is performed for one of the ItemRef attributes
-    let field = action.updateObj.fields[0];
+    let field = action.updateObj.field;
     if (['mandatory', 'role', 'method'].includes(field.attr)) {
         // Get itemRefs from itemOids
         let itemDefItemRefMap = {};

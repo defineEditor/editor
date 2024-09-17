@@ -21,6 +21,8 @@ import {
     ADD_CODELIST,
     DEL_CODELISTS,
     UPD_CODEDVALUE,
+    ADD_VARS,
+    ADD_ITEMGROUPS,
     ADD_CODEDVALUE,
     ADD_CODEDVALUES,
     DEL_CODEDVALUES,
@@ -599,6 +601,14 @@ const updateCodedValueOrder = (state, action, skipLinkedCodeListUpdate) => {
     }
 };
 
+const handleAddVariables = (state, action) => {
+    if (Object.keys(action.updateObj.codeLists).length > 0) {
+        return { ...state, ...action.updateObj.codeLists };
+    } else {
+        return state;
+    }
+};
+
 const handleDeleteStdCodeLists = (state, action) => {
     if (action.updateObj.removedStandardOids.length > 0) {
         // Find all codelists using the removed CT
@@ -662,6 +672,15 @@ const handleDeleteStdCodeLists = (state, action) => {
     } else {
         return state;
     }
+};
+
+const handleAddItemGroups = (state, action) => {
+    const { itemGroups } = action.updateObj;
+    let newState = { ...state };
+    Object.values(itemGroups).forEach(itemGroupData => {
+        newState = handleAddVariables(newState, { updateObj: itemGroupData });
+    });
+    return newState;
 };
 
 const addReviewComment = (state, action) => {
@@ -729,6 +748,10 @@ const codeLists = (state = {}, action) => {
             return deleteCodedValues(state, action);
         case UPD_CODEDVALUEORDER:
             return updateCodedValueOrder(state, action);
+        case ADD_VARS:
+            return handleAddVariables(state, action);
+        case ADD_ITEMGROUPS:
+            return handleAddItemGroups(state, action);
         case UPD_STDCT:
             return handleDeleteStdCodeLists(state, action);
         case ADD_REVIEWCOMMENT:

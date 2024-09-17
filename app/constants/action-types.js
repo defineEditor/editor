@@ -132,6 +132,7 @@ export const CT_RELOAD = 'CT_RELOAD';
 export const APP_SAVE = 'APP_SAVE';
 export const APP_QUIT = 'APP_QUIT';
 export const SD_UPDATESEACHINFO = 'SD_UPDATESEACHINFO';
+export const CL_METHODS = 'CL_METHODS';
 
 // Labels for Undo/Action History
 export const actionLabels = {
@@ -208,4 +209,5 @@ export const actionLabels = {
     'DEL_DUPLICATECOMMENTS': 'Remove duplicate comments',
     'DEL_DUPLICATEMETHODS': 'Remove duplicate methods',
     'DEFINE_UPD': 'Update Define-XML properties',
+    'CL_METHODS': 'Remove unused methods',
 };

@@ -31,6 +31,7 @@ import getSelectionList from 'utils/getSelectionList.js';
 import getCodeListData from 'utils/getCodeListData.js';
 import { getDescription, getWhereClauseAsText } from 'utils/defineStructureUtils.js';
 import { openSnackbar } from 'actions/index.js';
+import getSources from 'utils/getSources.js';
 
 const getStyles = makeStyles(theme => ({
     dialog: {
@@ -459,7 +460,8 @@ const LoadFromDefine = (props) => {
                     .filter(analysisResultOid => selectedItems['analysisResult'].map(item => item.oid).includes(analysisResultOid))
                     .forEach(analysisResultOid => {
                         let analysisResult = mdv.analysisResultDisplays.analysisResults[analysisResultOid];
-                        let resultDisplay = mdv.analysisResultDisplays.resultDisplays[analysisResult.sources.resultDisplays[0]];
+                        const analysisResultSources = getSources(mdv, 'AnalysisResult', analysisResultOid);
+                        let resultDisplay = mdv.analysisResultDisplays.resultDisplays[analysisResultSources.resultDisplays[0]];
                         let item = {};
                         item.resultDisplay = resultDisplay.name;
                         item.description = getDescription(analysisResult);
@@ -473,7 +475,8 @@ const LoadFromDefine = (props) => {
                             let itemDef = mdv.itemDefs[analysisResult.parameterOid];
                             if (itemDef !== undefined) {
                                 let name = itemDef.name;
-                                let itemGroupOid = itemDef.sources.itemGroups[0];
+                                const itemDefSources = getSources(mdv, 'ItemDef', itemDef.oid);
+                                let itemGroupOid = itemDefSources.itemGroups[0];
                                 let dsName = mdv.itemGroups[itemGroupOid].name;
                                 item.parameter = `${dsName}.${name}`;
                             } else {

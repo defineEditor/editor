@@ -71,8 +71,8 @@ contextMenu({
 
 checkPreinstalledPlugins();
 
-app.on('ready', async () => {
-    const createWindow = async (type, additionalData) => {
+app.on('ready', async() => {
+    const createWindow = async(type, additionalData) => {
         let windowObj = null;
 
         let baseDir;
@@ -285,7 +285,7 @@ app.on('ready', async () => {
                 loadBackup(windowObj, backupOptions);
             });
             // Open Define in a new Window for review
-            ipcMain.on('openDefineInNewWindow', async (event, data) => {
+            ipcMain.on('openDefineInNewWindow', async(event, data) => {
                 createWindow('reviewWindow', data);
             });
             // Quit the application
@@ -294,7 +294,7 @@ app.on('ready', async () => {
             });
         }
 
-        windowObj.on('close', function (e) {
+        windowObj.on('close', function(e) {
             if (findInPage !== null) {
                 findInPage.clean();
                 findInPage = null;

@@ -11,21 +11,24 @@
 * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
+import getSources from 'utils/getSources.js';
 
 const getAutomaticMethodName = (method, mdv) => {
     let result;
+
+    const sources = getSources(mdv, 'Method', method.oid);
     let names = [];
     try {
-        if (method.sources.itemGroups && Object.keys(method.sources.itemGroups).length > 0) {
-            Object.keys(method.sources.itemGroups).forEach(groupOid => {
-                method.sources.itemGroups[groupOid].forEach(itemRefOid => {
+        if (sources.itemGroups && Object.keys(sources.itemGroups).length > 0) {
+            Object.keys(sources.itemGroups).forEach(groupOid => {
+                sources.itemGroups[groupOid].forEach(itemRefOid => {
                     names.push(`${mdv.itemGroups[groupOid].name}.${mdv.itemDefs[mdv.itemGroups[groupOid].itemRefs[itemRefOid].itemOid].name}`);
                 });
             });
         }
-        if (method.sources.valueLists && Object.keys(method.sources.valueLists).length > 0) {
-            Object.keys(method.sources.valueLists).forEach(groupOid => {
-                method.sources.valueLists[groupOid].forEach(itemRefOid => {
+        if (sources.valueLists && Object.keys(sources.valueLists).length > 0) {
+            Object.keys(sources.valueLists).forEach(groupOid => {
+                sources.valueLists[groupOid].forEach(itemRefOid => {
                     let itemName = mdv.itemDefs[mdv.valueLists[groupOid].itemRefs[itemRefOid].itemOid].name;
                     let parentItemDef = mdv.itemDefs[mdv.valueLists[groupOid].sources.itemDefs[0]];
                     let parentItemGroup = mdv.itemGroups[parentItemDef.sources.itemGroups[0]];

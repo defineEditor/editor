@@ -12,10 +12,12 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 
-import { createStore } from 'redux';
+import { createStore, applyMiddleware, compose } from 'redux';
 import rootReducer from 'reducers/rootReducer';
 import loadState from 'utils/loadState.js';
+import cleanState from 'store/cleanState.js';
 import undoable from 'redux-undo';
+
 // import { throttle } from 'throttle-debounce';
 // import saveState from 'utils/saveState.js';
 
@@ -34,10 +36,12 @@ const actionSanitizer = (action) => (
     ['STDCDL_LOAD', 'ADD_ODM'].includes(action.type) && action.updateObj ? { ...action, updateObj: { ...action.updateObj, ctList: {} } } : action
 );
 
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ actionSanitizer }) : compose;
+
 const store = createStore(
     undoable(rootReducer, { filter: filterActions }),
     loadState(),
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__({ actionSanitizer }),
+    composeEnhancers(applyMiddleware(cleanState)),
 );
 
 // Save state every 5 minutes as a backup

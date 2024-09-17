@@ -28,6 +28,7 @@ import getSourceLabels from 'utils/getSourceLabels.js';
 import compareMethods from 'utils/compareMethods.js';
 import compareComments from 'utils/compareComments.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
+import getSources from 'utils/getSources.js';
 import {
     closeModal,
     removeDuplicateComments,
@@ -161,11 +162,10 @@ const getTableData = (mdv, itemType, duplicates) => {
         let item = items[id];
         // Get all sources
         let allIds = duplicates[id].concat([id]);
-        unitedSources[id] = item.sources;
+        unitedSources[id] = getSources(mdv, itemType, id);
 
         allIds.forEach(subId => {
-            let subItem = items[subId];
-            unitedSources[id] = uniteSources(unitedSources[id], subItem.sources);
+            unitedSources[id] = uniteSources(unitedSources[id], getSources(mdv, itemType, subId));
         });
         let sources;
         if (itemType === 'Method') {

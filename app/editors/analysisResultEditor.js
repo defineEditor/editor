@@ -283,20 +283,6 @@ class ConnectedAnalysisResultEditor extends React.Component {
             if (newWhereClauses[itemGroupOid] !== undefined && originalWhereClauses[itemGroupOid] === undefined) {
                 let wcOid = newWhereClauses[itemGroupOid].oid;
                 let newWhereClause = newWhereClauses[itemGroupOid];
-                // Update sources
-                if (newWhereClause.sources.analysisResults !== undefined &&
-                    newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid) &&
-                    !newWhereClause.sources.analysisResults[this.props.analysisResultOid].includes(itemGroupOid)
-                ) {
-                    newWhereClause.sources.analysisResults[this.props.analysisResultOid].push(itemGroupOid);
-                } else if (newWhereClause.sources.analysisResults !== undefined &&
-                    !newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid)
-                ) {
-                    newWhereClause.sources.analysisResults[this.props.analysisResultOid] = [itemGroupOid];
-                } else {
-                    newWhereClause.sources.analysisResults = {};
-                    newWhereClause.sources.analysisResults[this.props.analysisResultOid] = [itemGroupOid];
-                }
                 whereClauseData.added[wcOid] = newWhereClause;
             }
         });
@@ -309,20 +295,6 @@ class ConnectedAnalysisResultEditor extends React.Component {
             ) {
                 let wcOid = newWhereClauses[itemGroupOid].oid;
                 let newWhereClause = newWhereClauses[itemGroupOid];
-                // Update sources
-                if (newWhereClause.sources.analysisResults !== undefined &&
-                    newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid) &&
-                    !newWhereClause.sources.analysisResults[this.props.analysisResultOid].includes(itemGroupOid)
-                ) {
-                    newWhereClause.sources.analysisResults[this.props.analysisResultOid].push(itemGroupOid);
-                } else if (newWhereClause.sources.analysisResults !== undefined &&
-                    !newWhereClause.sources.analysisResults.hasOwnProperty(this.props.analysisResultOid)
-                ) {
-                    newWhereClause.sources.analysisResults[this.props.analysisResultOid] = [itemGroupOid];
-                } else {
-                    newWhereClause.sources.analysisResults = {};
-                    newWhereClause.sources.analysisResults[this.props.analysisResultOid] = [itemGroupOid];
-                }
                 whereClauseData.changed[wcOid] = newWhereClause;
             }
         });

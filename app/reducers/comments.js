@@ -199,7 +199,7 @@ const deleteItemGroupCommentReferences = (state, action) => {
 };
 
 const handleItemsBulkUpdate = (state, action) => {
-    let field = action.updateObj.fields[0];
+    let field = action.updateObj.field;
     if (field.attr === 'comment') {
         // Get all itemDefs for update.
         let itemDefOids = action.updateObj.selectedItems.map(item => (item.itemDefOid));

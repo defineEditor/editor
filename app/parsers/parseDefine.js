@@ -90,11 +90,6 @@ function parseComments(commentsRaw, mdv) {
                 comment.addDocument(parseDocument(item));
             });
         }
-        if (mdv.commentOid === comment.oid) {
-            comment.sources['metaDataVersion'] = [mdv.oid];
-        } else {
-            comment.sources['metaDataVersion'] = [];
-        }
         comments[comment.oid] = comment;
     });
 
@@ -158,36 +153,6 @@ function parseMethods(methodsRaw, mdv) {
                 );
             });
         }
-        // Connect method to its sources
-        let sources = {
-            itemGroups: {},
-            valueLists: {},
-        };
-        Object.keys(mdv.itemGroups).forEach(itemGroupOid => {
-            Object.keys(mdv.itemGroups[itemGroupOid].itemRefs).forEach(itemRefOid => {
-                if (mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].methodOid === method.oid) {
-                    if (sources.itemGroups[itemGroupOid] === undefined) {
-                        sources.itemGroups[itemGroupOid] = [itemRefOid];
-                    } else {
-                        sources.itemGroups[itemGroupOid].push(itemRefOid);
-                    }
-                }
-            });
-        });
-
-        Object.keys(mdv.valueLists).forEach(valueListOid => {
-            Object.keys(mdv.valueLists[valueListOid].itemRefs).forEach(itemRefOid => {
-                if (mdv.valueLists[valueListOid].itemRefs[itemRefOid].methodOid === method.oid) {
-                    if (sources.valueLists[valueListOid] === undefined) {
-                        sources.valueLists[valueListOid] = [itemRefOid];
-                    } else {
-                        sources.valueLists[valueListOid].push(itemRefOid);
-                    }
-                }
-            });
-        });
-
-        method.sources = sources;
         methods[method.oid] = method;
     });
 
@@ -282,18 +247,6 @@ function parseCodelists(codeListsRaw, mdv) {
             if (codeListRaw.hasOwnProperty('externalCodeList')) {
                 codeList.setExternalCodeList(new def.ExternalCodeList(codeListRaw['externalCodeList'][0]['$']));
             }
-
-            // Connect codeList to its sources
-            let sources = [];
-            Object.keys(mdv.itemDefs).forEach(itemDefOid => {
-                if (mdv.itemDefs[itemDefOid].codeListOid === codeList.oid) {
-                    sources.push(itemDefOid);
-                }
-            });
-
-            codeList.sources = {
-                itemDefs: sources,
-            };
         }
         codeLists[codeList.oid] = codeList;
     });
@@ -385,30 +338,6 @@ function parseItemDefs(itemDefsRaw, mdv) {
 
         // Create the itemDef
         let itemDef = new def.ItemDef(args);
-
-        // Connect itemDef to its sources
-        let itemGroupSources = [];
-        Object.keys(mdv.itemGroups).forEach(itemGroupOid => {
-            Object.keys(mdv.itemGroups[itemGroupOid].itemRefs).forEach(itemRefOid => {
-                if (mdv.itemGroups[itemGroupOid].itemRefs[itemRefOid].itemOid === itemDef.oid) {
-                    itemGroupSources.push(itemGroupOid);
-                }
-            });
-        });
-
-        let valueListSources = [];
-        Object.keys(mdv.valueLists).forEach(valueListOid => {
-            Object.keys(mdv.valueLists[valueListOid].itemRefs).forEach(itemRefOid => {
-                if (mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid === itemDef.oid) {
-                    valueListSources.push(valueListOid);
-                }
-            });
-        });
-
-        itemDef.sources = {
-            itemGroups: itemGroupSources,
-            valueLists: valueListSources,
-        };
 
         if (itemDefRaw['description'] !== undefined) {
             itemDefRaw['description'].forEach(function(item) {
