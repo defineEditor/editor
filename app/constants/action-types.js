@@ -133,6 +133,9 @@ export const APP_SAVE = 'APP_SAVE';
 export const APP_QUIT = 'APP_QUIT';
 export const SD_UPDATESEACHINFO = 'SD_UPDATESEACHINFO';
 export const CL_METHODS = 'CL_METHODS';
+export const CL_VALUELISTS = 'CL_VALUELISTS';
+export const CL_COMMENTS = 'CL_COMMENTS';
+export const CL_WHERECLAUSES = 'CL_WHERECLAUSES';
 
 // Labels for Undo/Action History
 export const actionLabels = {
@@ -210,4 +213,7 @@ export const actionLabels = {
     'DEL_DUPLICATEMETHODS': 'Remove duplicate methods',
     'DEFINE_UPD': 'Update Define-XML properties',
     'CL_METHODS': 'Remove unused methods',
+    'CL_VALUELISTS': 'Remove unused value lists',
+    'CL_COMMENTS': 'Remove unused comments',
+    'CL_WHERECLAUSES': 'Remove unused where clauses',
 };

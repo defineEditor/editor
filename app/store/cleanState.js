@@ -1,5 +1,5 @@
 import getSources from 'utils/getSources.js';
-import { cleanMethods } from 'actions/item.js';
+import { cleanMethods, cleanValueLists } from 'actions/item.js';
 import {
     UPD_ITEMDESCRIPTION,
     DEL_VARS,
@@ -19,10 +19,21 @@ const cleanState = store => next => action => {
 
     let result = next(action);
 
+    let checkMethods = false;
+    let checkValueLists = false;
+
     if (![UPD_ITEMDESCRIPTION, DEL_VARS, DEL_ITEMGROUPS, UPD_ITEMSBULK,
         ADD_VARS, ADD_ITEMGROUPS, UPD_LEAFS, ADD_IMPORTMETADATA, DEL_DUPLICATEMETHODS].includes(action.type)
     ) {
         return result;
+    } else {
+        // Different actions can impact different parts of the state
+        if ([UPD_ITEMDESCRIPTION, DEL_VARS, DEL_ITEMGROUPS, UPD_ITEMSBULK, ADD_VARS, ADD_ITEMGROUPS, UPD_LEAFS].includes(action.type)) {
+            checkMethods = true;
+        }
+        if ([DEL_VARS, DEL_ITEMGROUPS].includes(action.type)) {
+            checkValueLists = true;
+        }
     }
 
     const state = store.getState();
@@ -31,24 +42,43 @@ const cleanState = store => next => action => {
         return result;
     }
 
-    // Check if there are any methods, which do not have any references
     const mdv = state.present.odm.study.metaDataVersion;
-    const methods = mdv.methods;
 
-    const removedMethodOids = [];
-    Object.keys(methods).forEach(methodId => {
-        const sources = getSources(mdv, 'Method', methodId);
-        if (Object.keys(sources.itemGroups).length === 0 && Object.keys(sources.valueLists).length === 0) {
-            removedMethodOids.push(methodId);
+    /* Clean methods that are not referenced anymore  */
+    if (checkMethods) {
+        const methods = mdv.methods;
+
+        const removedMethodOids = [];
+        Object.keys(methods).forEach(methodId => {
+            const sources = getSources(mdv, 'Method', methodId);
+            if (Object.keys(sources.itemGroups).length === 0 && Object.keys(sources.valueLists).length === 0) {
+                removedMethodOids.push(methodId);
+            }
+        });
+
+        // Form an action to remove those methods
+
+        if (removedMethodOids.length > 0) {
+            store.dispatch(cleanMethods({ removedMethodOids }));
         }
-    });
-
-    // Form an action to remove those methods
-
-    if (removedMethodOids.length > 0) {
-        store.dispatch(cleanMethods({ removedMethodOids }));
     }
 
+    if (checkValueLists) {
+        const valueLists = mdv.valueLists;
+
+        const removedValueListOids = [];
+        Object.keys(valueLists).forEach(valueListId => {
+            const sources = getSources(mdv, 'ValueList', valueListId);
+            if (sources.itemDefs.length === 0) {
+                removedValueListOids.push(valueListId);
+            }
+        });
+
+        // Form an action to remove those valueLists
+        if (removedValueListOids.length > 0) {
+            store.dispatch(cleanValueLists({ removedValueListOids }));
+        }
+    }
     return result;
 };
 

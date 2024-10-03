@@ -66,7 +66,7 @@ const mapStateToProps = state => {
 };
 
 class ConnectedItemMenu extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
 
         this.state = {
@@ -75,11 +75,11 @@ class ConnectedItemMenu extends React.Component {
         };
     }
 
-    componentDidMount () {
+    componentDidMount() {
         window.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
@@ -271,7 +271,7 @@ class ConnectedItemMenu extends React.Component {
         }
     }
 
-    render () {
+    render() {
         const { hasVlm, vlmLevel } = this.props.itemMenuParams;
 
         let items = [];

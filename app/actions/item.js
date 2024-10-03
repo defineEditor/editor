@@ -31,6 +31,7 @@ import {
     UPD_ITEMSBULK,
     UPD_LOADACTUALDATA,
     CL_METHODS,
+    CL_VALUELISTS
 } from 'constants/action-types';
 
 // Item Ref/Def actions
@@ -180,6 +181,13 @@ export const loadActualData = (updateObj) => (
 export const cleanMethods = (deleteObj) => (
     {
         type: CL_METHODS,
+        deleteObj,
+    }
+);
+
+export const cleanValueLists = (deleteObj) => (
+    {
+        type: CL_VALUELISTS,
         deleteObj,
     }
 );

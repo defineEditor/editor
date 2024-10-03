@@ -28,6 +28,7 @@ import {
     UPD_ITEMREFKEYORDER,
     ADD_IMPORTMETADATA,
     DEL_DUPLICATEMETHODS,
+    CL_VALUELISTS,
 } from 'constants/action-types';
 import { ValueList, ItemRef } from 'core/defineStructure.js';
 import getOid from 'utils/getOid.js';
@@ -42,7 +43,6 @@ const addValueList = (state, action) => {
     let valueList = { ...new ValueList(
         {
             oid: action.valueListOid,
-            sources: { itemDefs: [action.source.oid] },
             itemRefs,
             itemRefOrder,
         }) };
@@ -166,22 +166,15 @@ const updateItemDescription = (state, action) => {
     }
 };
 
-const deleteValueList = (state, action) => {
-    let valueListOid = action.valueListOid;
-    let itemDefOid = action.source.oid;
-    if (state.hasOwnProperty(valueListOid)) {
-        let newState = { ...state };
-        let sourceItemDefs = newState[valueListOid].sources.itemDefs;
-        if (sourceItemDefs.length === 1 && sourceItemDefs[0] === itemDefOid) {
-            // Fully remove valueList
-            delete newState[valueListOid];
-        } else if (sourceItemDefs.includes(itemDefOid)) {
-            // Remove referece to the source OID from the list of valueList sources
-            let newSources = sourceItemDefs.slice();
-            newSources.splice(newSources.indexOf(itemDefOid), 1);
-            let newValueList = { ...new ValueList({ ...newState[valueListOid], sources: { itemDefs: newSources } }) };
-            newState = { ...newState, [newValueList.oid]: newValueList };
-        }
+const deleteValueLists = (state, action) => {
+    if (action.deleteObj.removedValueListOids.length > 0) {
+        const newState = { ...state };
+        const { removedValueListOids } = action.deleteObj;
+        removedValueListOids.forEach(vlOid => {
+            if (newState.hasOwnProperty(vlOid)) {
+                delete newState[vlOid];
+            }
+        });
         return newState;
     } else {
         return state;
@@ -190,16 +183,6 @@ const deleteValueList = (state, action) => {
 
 const deleteVariables = (state, action) => {
     let newState = { ...state };
-    // Delete valueLists which were completely removed
-    // Theoretically 2 ItemDefs can reference the same valueList
-    Object.keys(action.deleteObj.valueListOids).forEach(itemDefOid => {
-        action.deleteObj.valueListOids[itemDefOid].forEach(valueListOid => {
-            let subAction = { source: {} };
-            subAction.source.oid = itemDefOid;
-            subAction.valueListOid = valueListOid;
-            newState = deleteValueList(newState, subAction);
-        });
-    });
     // Delete individual itemRefs
     Object.keys(action.deleteObj.vlmItemRefOids).forEach(valueListOid => {
         if (newState.hasOwnProperty(valueListOid)) {
@@ -482,6 +465,8 @@ const valueLists = (state = {}, action) => {
             return addImportMetadata(state, action);
         case DEL_DUPLICATEMETHODS:
             return deleteDuplicateMethods(state, action);
+        case CL_VALUELISTS:
+            return deleteValueLists(state, action);
         default:
             return state;
     }

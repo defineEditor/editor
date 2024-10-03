@@ -11,7 +11,7 @@
 * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
-import getSources from 'utils/getSources.js';
+import getSources from './getSources.js';
 
 const getAutomaticMethodName = (method, mdv) => {
     let result;
