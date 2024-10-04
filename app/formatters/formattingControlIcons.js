@@ -41,7 +41,7 @@ const FormattingControlIcons = (props) => {
         dispatch(
             openModal({
                 type: 'REVIEW_COMMENT',
-                props: { sources: { [props.type]: ['thisElementIsUnique'] } }
+                props: { commentSources: { [props.type]: ['thisElementIsUnique'] } }
             })
         );
     };

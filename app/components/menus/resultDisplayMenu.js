@@ -50,11 +50,11 @@ const mapStateToProps = state => {
 };
 
 class ConnectedResultDisplayMenu extends React.Component {
-    componentDidMount () {
+    componentDidMount() {
         window.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
@@ -158,12 +158,12 @@ class ConnectedResultDisplayMenu extends React.Component {
     openComments = () => {
         this.props.openModal({
             type: 'REVIEW_COMMENT',
-            props: { sources: { resultDisplays: [this.props.resultDisplaysMenuParams.resultDisplayOid] } }
+            props: { commentSources: { resultDisplays: [this.props.resultDisplaysMenuParams.resultDisplayOid] } }
         });
         this.props.onClose();
     }
 
-    render () {
+    render() {
         return (
             <React.Fragment>
                 <Menu

@@ -108,12 +108,12 @@ class ConnectedAnalysisResultMenu extends React.Component {
         const params = this.props.analysisResultMenuParams;
         this.props.openModal({
             type: 'REVIEW_COMMENT',
-            props: { sources: { analysisResults: [params.analysisResultOid] } },
+            props: { commentSources: { analysisResults: [params.analysisResultOid] } },
         });
         this.props.onClose();
     }
 
-    render () {
+    render() {
         return (
             <React.Fragment>
                 <Menu

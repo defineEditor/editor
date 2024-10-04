@@ -140,31 +140,31 @@ const mapStateToProps = state => {
 };
 
 // Editors
-function itemDescriptionEditor (onUpdate, props) {
+function itemDescriptionEditor(onUpdate, props) {
     return (<ItemDescriptionEditor onUpdate={ onUpdate } {...props}/>);
 }
 
-function simpleSelectEditor (onUpdate, props) {
+function simpleSelectEditor(onUpdate, props) {
     return (<SimpleSelectEditor onUpdate={ onUpdate } {...props} autoFocus={true}/>);
 }
 
-function variableNameLabelWhereClauseEditor (onUpdate, props) {
+function variableNameLabelWhereClauseEditor(onUpdate, props) {
     return (<VariableNameLabelWhereClauseEditor onUpdate={ onUpdate } {...props}/>);
 }
 
-function variableLengthEditor (onUpdate, props) {
+function variableLengthEditor(onUpdate, props) {
     return (<VariableLengthEditor onUpdate={ onUpdate } {...props}/>);
 }
 
-function variableCodeListFormatEditor (onUpdate, props) {
+function variableCodeListFormatEditor(onUpdate, props) {
     return (<VariableCodeListFormatEditor onUpdate={ onUpdate } {...props}/>);
 }
 
-function keyOrderEditor (onUpdate, props) {
+function keyOrderEditor(onUpdate, props) {
     return (<KeyOrderEditor onUpdate={ onUpdate } {...props}/>);
 }
 
-function roleEditor (onUpdate, props) {
+function roleEditor(onUpdate, props) {
     let source = {
         itemGroupOid: props.row.itemGroupOid,
         itemRefOid: props.row.itemRefOid,
@@ -173,7 +173,7 @@ function roleEditor (onUpdate, props) {
     return (<RoleEditor onFinished={ onUpdate } roleAttrs={props.defaultValue} source={source}/>);
 }
 
-function mandatoryEditor (onUpdate, props) {
+function mandatoryEditor(onUpdate, props) {
     let source = {
         itemGroupOid: props.row.itemGroupOid,
         itemRefOid: props.row.itemRefOid,
@@ -183,21 +183,21 @@ function mandatoryEditor (onUpdate, props) {
 }
 
 // Formatters
-function descriptionFormatter (cell, row) {
+function descriptionFormatter(cell, row) {
     return (<DescriptionFormatter value={cell} model={row.model} mdv={row.mdv}/>);
 }
 
-function variableCodeListFormatFormatter (cell, row) {
+function variableCodeListFormatFormatter(cell, row) {
     return <VariableCodeListFormatFormatter value={cell} defineVersion={row.defineVersion}/>;
 }
 
-function variableLengthFormatter (cell, row) {
+function variableLengthFormatter(cell, row) {
     if (row.dataType !== undefined) {
         return (<VariableLengthFormatter value={cell} defineVersion={row.defineVersion} dataType={row.dataType} row={row}/>);
     }
 }
 
-function keyOrderFormatter (cell, row) {
+function keyOrderFormatter(cell, row) {
     return (
         <Grid container spacing={2}>
             <Grid item>
@@ -212,7 +212,7 @@ function keyOrderFormatter (cell, row) {
     );
 }
 
-function variableNameLabelWhereClauseFormatter (cell, row) {
+function variableNameLabelWhereClauseFormatter(cell, row) {
     const hasVlm = (row.valueList !== undefined);
     if (hasVlm) {
         let itemVlmState = 'collaps';
@@ -242,12 +242,12 @@ function variableNameLabelWhereClauseFormatter (cell, row) {
     }
 }
 
-function roleFormatter (cell, row) {
+function roleFormatter(cell, row) {
     return (<RoleFormatter roleAttrs={cell}/>);
 }
 
 class ConnectedVariableTable extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
         const mdv = this.props.mdv;
         let columns = clone(this.props.stdColumns);
@@ -316,7 +316,7 @@ class ConnectedVariableTable extends React.Component {
         };
     }
 
-    static getDerivedStateFromProps (nextProps, prevState) {
+    static getDerivedStateFromProps(nextProps, prevState) {
         let stateUpdate = {};
         // Store previous itemGroupOid in state so it can be compared with when props change
         if (nextProps.itemGroupOid !== prevState.itemGroupOid) {
@@ -338,7 +338,7 @@ class ConnectedVariableTable extends React.Component {
         }
     }
 
-    setScroll () {
+    setScroll() {
         // Restore previous tab scroll position for a specific dataset
         let tabSettings = this.props.tabSettings;
         if (tabSettings.scrollPosition[this.props.itemGroupOid] !== undefined) {
@@ -348,7 +348,7 @@ class ConnectedVariableTable extends React.Component {
         }
     }
 
-    componentDidUpdate () {
+    componentDidUpdate() {
         if (this.state.setScrollY) {
             // TODO as table is rerendered when changed, this code and state.setScrollY might be irrelevant.
             this.setScroll();
@@ -356,12 +356,12 @@ class ConnectedVariableTable extends React.Component {
         }
     }
 
-    componentDidMount () {
+    componentDidMount() {
         this.setScroll();
         window.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
@@ -770,7 +770,7 @@ class ConnectedVariableTable extends React.Component {
         const openComments = () => {
             this.props.openModal({
                 type: 'REVIEW_COMMENT',
-                props: { sources: { 'itemGroups': [this.props.itemGroupOid] } }
+                props: { commentSources: { 'itemGroups': [this.props.itemGroupOid] } }
             });
         };
 
@@ -1027,7 +1027,7 @@ class ConnectedVariableTable extends React.Component {
         this.props.updateMainUi({ rowsPerPage: { variableTab: event.target.value } });
     };
 
-    render () {
+    render() {
         // Extract data required for the variable table
         const mdv = this.props.mdv;
         const variables = this.getData();

@@ -52,11 +52,11 @@ const mapStateToProps = state => {
 };
 
 class ConnectedItemGroupMenu extends React.Component {
-    componentDidMount () {
+    componentDidMount() {
         window.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
@@ -156,12 +156,12 @@ class ConnectedItemGroupMenu extends React.Component {
     openComments = () => {
         this.props.openModal({
             type: 'REVIEW_COMMENT',
-            props: { sources: { itemGroups: [this.props.itemGroupMenuParams.itemGroupOid] } }
+            props: { commentSources: { itemGroups: [this.props.itemGroupMenuParams.itemGroupOid] } }
         });
         this.props.onClose();
     }
 
-    render () {
+    render() {
         return (
             <React.Fragment>
                 <Menu

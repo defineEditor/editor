@@ -38,6 +38,7 @@ import IconButton from '@material-ui/core/IconButton';
 import CommentIcon from '@material-ui/icons/Comment';
 import setScrollPosition from 'utils/setScrollPosition.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
+import getSources from 'utils/getSources.js';
 import {
     openModal,
     selectGroup,
@@ -141,7 +142,7 @@ const CustomTableCell = withStyles(theme => ({
 }))(TableCell);
 
 class ConnectedReviewCommentTab extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
 
         this.searchFieldRef = React.createRef();
@@ -154,12 +155,12 @@ class ConnectedReviewCommentTab extends React.Component {
         };
     }
 
-    componentDidMount () {
+    componentDidMount() {
         window.addEventListener('keydown', this.onKeyDown);
         setScrollPosition(this.props.tabs);
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
@@ -176,7 +177,7 @@ class ConnectedReviewCommentTab extends React.Component {
         }
     }
 
-    static getDerivedStateFromProps (nextProps, prevState) {
+    static getDerivedStateFromProps(nextProps, prevState) {
         // If all panels are got closed/opened change the expandedToggle status;
         let allAreClosed = !panels.reduce((accStatus, panelId) => (accStatus || Boolean(nextProps.panelStatus[panelId])), false);
         let allAreOpened = panels.reduce((accStatus, panelId) => (accStatus && Boolean(nextProps.panelStatus[panelId])), true);
@@ -205,7 +206,7 @@ class ConnectedReviewCommentTab extends React.Component {
     openComments = (reviewCommentId) => () => {
         this.props.openModal({
             type: 'REVIEW_COMMENT',
-            props: { sources: { reviewComments: [reviewCommentId] } },
+            props: { commentSources: { reviewComments: [reviewCommentId] } },
         });
     }
 
@@ -244,26 +245,27 @@ class ConnectedReviewCommentTab extends React.Component {
 
     exportReviewComments = () => {
         // Prepare data for the export
-        const { reviewComments, mdv } = this.props;
+        const { reviewComments, mdv, odm } = this.props;
         let exportData = {};
         panels.forEach(panelId => {
-            let data = this.getReviewCommentData(reviewComments, panelId, true, mdv, undefined, true, this.props.removeHtmlTagsInCommentsExport);
+            let data = this.getReviewCommentData(reviewComments, panelId, true, mdv, undefined, odm, true, this.props.removeHtmlTagsInCommentsExport);
             let panelStats = this.getPanelStats(data);
             exportData[panelId] = { data, panelStats };
         });
         // All comments
-        let data = this.getReviewCommentData(reviewComments, 'allComments', true, mdv, undefined, true, this.props.removeHtmlTagsInCommentsExport);
+        let data = this.getReviewCommentData(reviewComments, 'allComments', true, mdv, undefined, odm, true, this.props.removeHtmlTagsInCommentsExport);
         let panelStats = this.getPanelStats(data);
         exportData['allComments'] = { data, panelStats };
         ipcRenderer.send('exportReviewComments', exportData);
     }
 
-    getReviewCommentData = (reviewComments, panelId, showResolved, mdv, searchString, extendedFormat, removeHtmlTagsInCommentsExport) => {
+    getReviewCommentData = (reviewComments, panelId, showResolved, mdv, searchString, odm, extendedFormat, removeHtmlTagsInCommentsExport) => {
         // Filter required comments
         let results = [];
         let rcOids = Object.keys(reviewComments).filter(id => {
             if (panelId === 'standards') {
-                return Object.keys(reviewComments[id].sources).some(sourceId => {
+                const reviewCommentSources = getSources(mdv, 'ReviewComment', id, odm);
+                return Object.keys(reviewCommentSources).some(sourceId => {
                     if (['standards', 'metaDataVersion', 'globalVariables', 'odm'].includes(sourceId)) {
                         return true;
                     }
@@ -271,7 +273,8 @@ class ConnectedReviewCommentTab extends React.Component {
             } else if (panelId === 'allComments') {
                 return true;
             } else {
-                return Object.keys(reviewComments[id].sources).includes(panelId);
+                const reviewCommentSources = getSources(mdv, 'ReviewComment', id, odm);
+                return Object.keys(reviewCommentSources).includes(panelId);
             }
         });
 
@@ -305,9 +308,9 @@ class ConnectedReviewCommentTab extends React.Component {
             // Get names of the sources
             let sourceName = '';
             let sourceParts = [];
-            let sources = reviewComments[id].sources;
+            let reviewCommentSources = getSources(mdv, 'ReviewComment', id, odm);
             if (panelId === 'standards') {
-                let sourceId = Object.keys(sources)[0];
+                let sourceId = Object.keys(reviewCommentSources)[0];
                 switch (sourceId) {
                     case 'standards':
                         sourceName = 'Standards';
@@ -330,8 +333,8 @@ class ConnectedReviewCommentTab extends React.Component {
                 sourceName = 'Review Comment';
                 sourceParts.push(sourceName);
             } else {
-                let sourceId = Object.keys(sources)[0];
-                let sourceValue = sources[sourceId][0];
+                let sourceId = Object.keys(reviewCommentSources)[0];
+                let sourceValue = reviewCommentSources[sourceId][0];
                 if (['analysisResults', 'resultDisplays'].includes(panelId)) {
                     if (sourceId &&
                         mdv.analysisResultDisplays &&
@@ -344,12 +347,13 @@ class ConnectedReviewCommentTab extends React.Component {
                             // Get name of the result display
                             const analysisResult = mdv.analysisResultDisplays[sourceId][sourceValue];
                             const resultDisplays = mdv.analysisResultDisplays.resultDisplays;
-                            if (analysisResult.sources &&
-                                analysisResult.sources.resultDisplays &&
-                                analysisResult.sources.resultDisplays.length > 0 &&
-                                resultDisplays.hasOwnProperty(analysisResult.sources.resultDisplays[0])
+                            const analysisResultSources = getSources(mdv, 'AnalysisResult', analysisResult.oid);
+                            if (analysisResultSources &&
+                                analysisResultSources.resultDisplays &&
+                                analysisResultSources.resultDisplays.length > 0 &&
+                                resultDisplays.hasOwnProperty(analysisResultSources.resultDisplays[0])
                             ) {
-                                const resultDisplay = resultDisplays[analysisResult.sources.resultDisplays[0]];
+                                const resultDisplay = resultDisplays[analysisResultSources.resultDisplays[0]];
                                 commentData.parentItemOid = resultDisplay.oid;
                                 if (resultDisplay) {
                                     sourceParts = [resultDisplay.name, sourceName];
@@ -371,7 +375,8 @@ class ConnectedReviewCommentTab extends React.Component {
                             if (itemDef.parentItemDefOid && mdv.itemDefs.hasOwnProperty(itemDef.parentItemDefOid)) {
                                 // VLM
                                 const parentItemDef = mdv.itemDefs[itemDef.parentItemDefOid];
-                                const itemGroupOids = parentItemDef.sources && parentItemDef.sources.itemGroups && parentItemDef.sources.itemGroups;
+                                const parentItemDefSources = getSources(mdv, 'ItemDef', parentItemDef.oid);
+                                const itemGroupOids = parentItemDefSources && parentItemDefSources.itemGroups && parentItemDefSources.itemGroups;
                                 itemGroupOids.forEach(itemGroupOid => {
                                     commentData.parentItemOid = itemGroupOid;
                                     if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
@@ -380,7 +385,8 @@ class ConnectedReviewCommentTab extends React.Component {
                                     }
                                 });
                             } else {
-                                const itemGroupOids = itemDef.sources && itemDef.sources.itemGroups && itemDef.sources.itemGroups;
+                                const itemDefSources = getSources(mdv, 'ItemDef', itemDef.oid);
+                                const itemGroupOids = itemDefSources && itemDefSources.itemGroups && itemDefSources.itemGroups;
                                 itemGroupOids.forEach(itemGroupOid => {
                                     commentData.parentItemOid = itemGroupOid;
                                     if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
@@ -479,8 +485,8 @@ class ConnectedReviewCommentTab extends React.Component {
         );
     }
 
-    render () {
-        const { classes, reviewComments, mdv, showResolved } = this.props;
+    render() {
+        const { classes, reviewComments, mdv, showResolved, odm } = this.props;
         return (
             <div className={classes.root}>
                 <Grid container spacing={1} justify='space-between'>
@@ -539,7 +545,7 @@ class ConnectedReviewCommentTab extends React.Component {
                     </Grid>
                     <Grid item xs={12}>
                         { panels.map(panelId => {
-                            let data = this.getReviewCommentData(reviewComments, panelId, showResolved, mdv, this.state.searchString);
+                            let data = this.getReviewCommentData(reviewComments, panelId, showResolved, mdv, this.state.searchString, odm);
                             let panelStats = this.getPanelStats(data);
                             return (
                                 <Accordion

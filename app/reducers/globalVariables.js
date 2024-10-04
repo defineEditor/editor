@@ -36,7 +36,7 @@ const updateGlobalVariables = (state, action) => {
 };
 
 const addReviewComment = (state, action) => {
-    if (action.updateObj.sources.hasOwnProperty('globalVariables')) {
+    if (action.updateObj.commentSources.hasOwnProperty('globalVariables')) {
         return { ...state, reviewCommentOids: state.reviewCommentOids.concat([action.updateObj.oid]) };
     } else {
         return state;
@@ -44,7 +44,7 @@ const addReviewComment = (state, action) => {
 };
 
 const deleteReviewComment = (state, action) => {
-    if (action.deleteObj.sources.hasOwnProperty('globalVariables')) {
+    if (action.deleteObj.commentSources.hasOwnProperty('globalVariables')) {
         let newReviewCommentOids = state.reviewCommentOids.slice();
         newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
         return { ...state, reviewCommentOids: newReviewCommentOids };

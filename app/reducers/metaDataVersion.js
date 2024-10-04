@@ -45,7 +45,7 @@ const updateModel = (state, action) => {
 };
 
 const addReviewComment = (state, action) => {
-    if (action.updateObj.sources.hasOwnProperty('metaDataVersion')) {
+    if (action.updateObj.commentSources.hasOwnProperty('metaDataVersion')) {
         return { ...state, reviewCommentOids: state.reviewCommentOids.concat([action.updateObj.oid]) };
     } else {
         return state;
@@ -53,7 +53,7 @@ const addReviewComment = (state, action) => {
 };
 
 const deleteReviewComment = (state, action) => {
-    if (action.deleteObj.sources.hasOwnProperty('metaDataVersion')) {
+    if (action.deleteObj.commentSources.hasOwnProperty('metaDataVersion')) {
         let newReviewCommentOids = state.reviewCommentOids.slice();
         newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
         return { ...state, reviewCommentOids: newReviewCommentOids };

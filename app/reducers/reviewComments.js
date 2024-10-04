@@ -42,18 +42,25 @@ const deleteReviewComment = (state, action) => {
     if (state.hasOwnProperty(action.deleteObj.oid)) {
         let deletedComment = state[action.deleteObj.oid];
         // Remove all replies
+        const currentCommentSources = { reviewComments: [] };
         deletedComment.reviewCommentOids
             .filter(commentOid => (state.hasOwnProperty(commentOid)))
             .forEach(commentOid => {
+                // Find all comments that are replies to the comment being deleted
+                Object.keys(newState).forEach(reviewCommentOid => {
+                    if (newState[reviewCommentOid].reviewCommentOids.includes(commentOid)) {
+                        currentCommentSources.reviewComments.push(reviewCommentOid);
+                    }
+                });
                 let deleteObj = {
                     oid: commentOid,
-                    sources: state[commentOid].sources,
+                    commentSources: currentCommentSources,
                 };
                 newState = deleteReviewComment(newState, { deleteObj });
             });
         // In case the comment itself is a reply, remove it from the parent comment
-        if (action.deleteObj.sources.hasOwnProperty('reviewComments')) {
-            action.deleteObj.sources.reviewComments.forEach(oid => {
+        if (action.deleteObj.commentSources.hasOwnProperty('reviewComments')) {
+            action.deleteObj.commentSources.reviewComments.forEach(oid => {
                 let newReviewCommentOids = newState[oid].reviewCommentOids.slice();
                 newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
                 newState = { ...newState, [oid]: { ...newState[oid], reviewCommentOids: newReviewCommentOids } };
@@ -112,7 +119,7 @@ const handleDeleteItems = (state, action) => {
             Object.keys(action.deleteObj.reviewCommentOids[type]).forEach(commentOid => {
                 let deleteObj = {
                     oid: commentOid,
-                    sources: { [type]: action.deleteObj.reviewCommentOids[type][commentOid] },
+                    commentSources: { [type]: action.deleteObj.reviewCommentOids[type][commentOid] },
                 };
                 newState = deleteReviewComment(newState, { deleteObj });
             });
@@ -148,7 +155,7 @@ const handleDeleteItemGroups = (state, action) => {
             Object.keys(action.deleteObj.reviewCommentOids).forEach(commentOid => {
                 let deleteObj = {
                     oid: commentOid,
-                    sources: { itemGroups: action.deleteObj.reviewCommentOids[commentOid] },
+                    commentSources: { itemGroups: action.deleteObj.reviewCommentOids[commentOid] },
                 };
                 newState = deleteReviewComment(newState, { deleteObj });
             });
@@ -183,7 +190,7 @@ const handleDeleteResultDisplays = (state, action) => {
                 Object.keys(action.deleteObj.reviewCommentOids[type]).forEach(commentOid => {
                     let deleteObj = {
                         oid: commentOid,
-                        sources: { [type]: action.deleteObj.reviewCommentOids[type][commentOid] },
+                        commentSources: { [type]: action.deleteObj.reviewCommentOids[type][commentOid] },
                     };
                     newState = deleteReviewComment(newState, { deleteObj });
                 });
@@ -204,7 +211,7 @@ const addImportMetadata = (state, action) => {
             removedOids.forEach(removedOid => {
                 let deleteObj = {
                     oid: removedOid,
-                    sources: { analysisResults: [arOid] }
+                    commentSources: { analysisResults: [arOid] }
                 };
                 newState = deleteReviewComment(newState, { deleteObj });
             });

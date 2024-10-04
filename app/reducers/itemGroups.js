@@ -438,8 +438,8 @@ const addItemGroups = (state, action) => {
 };
 
 const addReviewComment = (state, action) => {
-    if (action.source.hasOwnProperty('itemGroups')) {
-        let itemGroupOid = action.source.itemGroups[0];
+    if (action.updateObj.commentSources.hasOwnProperty('itemGroups')) {
+        let itemGroupOid = action.updateObj.commentSources.itemGroups[0];
         return { ...state, [itemGroupOid]: { ...state[itemGroupOid], reviewCommentOids: state[itemGroupOid].reviewCommentOids.concat([action.updateObj.oid]) } };
     } else {
         return state;
@@ -447,9 +447,9 @@ const addReviewComment = (state, action) => {
 };
 
 const deleteReviewComment = (state, action) => {
-    if (action.deleteObj.source.hasOwnProperty('itemGroups')) {
+    if (action.deleteObj.commentSources.hasOwnProperty('itemGroups')) {
         let newState = { ...state };
-        action.source.itemGroups.forEach(oid => {
+        action.deleteObj.commentSources.itemGroups.forEach(oid => {
             let newReviewCommentOids = newState[oid].reviewCommentOids.slice();
             newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
             newState = { ...newState, [oid]: { ...newState[oid], reviewCommentOids: newReviewCommentOids } };

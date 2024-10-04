@@ -468,7 +468,7 @@ class ConnectedCodedValueTable extends React.Component {
         const openComments = () => {
             this.props.openModal({
                 type: 'REVIEW_COMMENT',
-                props: { sources: { 'codeLists': [this.props.codeListOid] } }
+                props: { commentSources: { 'codeLists': [this.props.codeListOid] } }
             });
         };
 

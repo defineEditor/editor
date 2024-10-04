@@ -483,8 +483,8 @@ const handleUpdatedLeafs = (state, action) => {
 };
 
 const addReviewComment = (state, action) => {
-    if (action.updateObj.sources.hasOwnProperty('itemDefs')) {
-        let itemOid = action.updateObj.sources.itemDefs[0];
+    if (action.updateObj.commentSources.hasOwnProperty('itemDefs')) {
+        let itemOid = action.updateObj.commentSources.itemDefs[0];
         return { ...state, [itemOid]: { ...state[itemOid], reviewCommentOids: state[itemOid].reviewCommentOids.concat([action.updateObj.oid]) } };
     } else {
         return state;
@@ -492,9 +492,9 @@ const addReviewComment = (state, action) => {
 };
 
 const deleteReviewComment = (state, action) => {
-    if (action.deleteObj.sources.hasOwnProperty('itemDefs')) {
+    if (action.deleteObj.commentSources.hasOwnProperty('itemDefs')) {
         let newState = { ...state };
-        action.deleteObj.sources.itemDefs.forEach(oid => {
+        action.deleteObj.commentSources.itemDefs.forEach(oid => {
             let newReviewCommentOids = newState[oid].reviewCommentOids.slice();
             newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
             newState = { ...newState, [oid]: { ...newState[oid], reviewCommentOids: newReviewCommentOids } };

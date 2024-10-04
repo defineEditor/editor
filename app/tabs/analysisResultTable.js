@@ -81,7 +81,7 @@ const openPdf = (event) => {
 };
 
 class ConnectedAnalysisResultTable extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
 
         this.state = {
@@ -90,7 +90,7 @@ class ConnectedAnalysisResultTable extends React.Component {
         };
     }
 
-    static getDerivedStateFromProps (nextProps, prevState) {
+    static getDerivedStateFromProps(nextProps, prevState) {
         let stateUpdate = {};
         // Store previous groupOid in state so it can be compared with when props change
         if (nextProps.resultDisplayOid !== prevState.resultDisplayOid) {
@@ -102,7 +102,7 @@ class ConnectedAnalysisResultTable extends React.Component {
         }
     }
 
-    setScroll () {
+    setScroll() {
         // Restore previous tab scroll position for a specific dataset
         let tabSettings = this.props.tabSettings;
         if (tabSettings.scrollPosition[this.props.resultDisplayOid] !== undefined) {
@@ -112,20 +112,20 @@ class ConnectedAnalysisResultTable extends React.Component {
         }
     }
 
-    componentDidUpdate () {
+    componentDidUpdate() {
         if (this.state.setScrollY) {
             this.setScroll();
             this.setState({ setScrollY: false });
         }
     }
 
-    componentDidMount () {
+    componentDidMount() {
         this.setScroll();
         window.addEventListener('keydown', this.onKeyDown);
         Prism.highlightAll();
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
@@ -142,7 +142,7 @@ class ConnectedAnalysisResultTable extends React.Component {
     openComments = () => {
         this.props.openModal({
             type: 'REVIEW_COMMENT',
-            props: { sources: { 'resultDisplays': [this.props.resultDisplayOid] } }
+            props: { commentSources: { 'resultDisplays': [this.props.resultDisplayOid] } }
         });
     };
 
@@ -153,7 +153,7 @@ class ConnectedAnalysisResultTable extends React.Component {
         });
     };
 
-    render () {
+    render() {
         const { classes } = this.props;
         const resultDisplay = this.props.resultDisplays[this.props.resultDisplayOid];
         let resultDisplayTitle;

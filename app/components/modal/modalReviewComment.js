@@ -150,7 +150,7 @@ class ConnectedModalReviewComments extends React.Component {
             if (reviewComments.hasOwnProperty(reviewCommentOid)) {
                 this.props.deleteReviewComment({
                     oid: reviewCommentOid,
-                    source: getReviewCommentSources(this.props.odm, reviewCommentOid)
+                    commentSources: getReviewCommentSources(this.props.odm, reviewCommentOid)
                 });
             }
         }

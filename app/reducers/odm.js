@@ -74,7 +74,7 @@ const loadActualData = (state, action) => {
 };
 
 const addReviewComment = (state, action) => {
-    if (action.updateObj.sources.hasOwnProperty('odm')) {
+    if (action.updateObj.commentSources.hasOwnProperty('odm')) {
         return { ...state, reviewCommentOids: state.reviewCommentOids.concat([action.updateObj.oid]) };
     } else {
         return state;
@@ -82,7 +82,7 @@ const addReviewComment = (state, action) => {
 };
 
 const deleteReviewComment = (state, action) => {
-    if (action.deleteObj.sources.hasOwnProperty('odm')) {
+    if (action.deleteObj.commentSources.hasOwnProperty('odm')) {
         let newReviewCommentOids = state.reviewCommentOids.slice();
         newReviewCommentOids.splice(newReviewCommentOids.indexOf(action.deleteObj.oid), 1);
         return { ...state, reviewCommentOids: newReviewCommentOids };

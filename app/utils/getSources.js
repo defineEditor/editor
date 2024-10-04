@@ -16,9 +16,10 @@
  * @param {{'ItemDef' | 'WhereClause' | 'CodeList' | 'Comment' |
  * 'Method' | 'ValueList' | 'AnalysisResult' | 'ReviewComment '}} type - The type of the item
  * @param {String} oid - The OID of the item
+ * @param {String} [odm] - The optional ODM parameter, needed for ReviewComment type
  * @returns {Sources} - The sources elements for the item
  **/
-const getSources = (mdv, type, oid) => {
+const getSources = (mdv, type, oid, odm = null) => {
     let sources = {};
     if (type === 'ItemDef') {
         // ItemDefs can be in ItemGroups or ValueLists
@@ -166,14 +167,81 @@ const getSources = (mdv, type, oid) => {
             resultDisplays: []
         };
         if (mdv.analysisResultDisplays && Object.keys(mdv.analysisResultDisplays).length !== 0) {
-            Object.keys(mdv.analysisResultDisplays.resultsDisplays).forEach(resultsDisplayOid => {
-                Object.keys(mdv.analysisResultDisplays.resultsDisplays[resultsDisplayOid].analysisResults).forEach(analysisResultOid => {
+            Object.keys(mdv.analysisResultDisplays.resultDisplays).forEach(resultDisplayOid => {
+                mdv.analysisResultDisplays.resultDisplays[resultDisplayOid].analysisResultOrder.forEach(analysisResultOid => {
                     if (analysisResultOid === oid) {
-                        sources.resultDisplays.push(resultsDisplayOid);
+                        sources.resultDisplays.push(resultDisplayOid);
                     }
                 });
             });
         }
+    } else if (type === 'ReviewComment') {
+        // Review comment can be attached only to 1 item, so it needs to be returned if found in any of the places
+        sources = {
+            itemDefs: [],
+            itemGroups: [],
+            codeLists: [],
+            analysisResults: [],
+            resultDisplays: [],
+            metaDataVersion: [],
+            globalVariables: [],
+            odm: [],
+        };
+        let isFound = false;
+        // Variables/datasets/codelists
+        ['itemDefs', 'itemGroups', 'codeLists'].some(key => {
+            return Object.keys(mdv[key]).some(keyOid => {
+                if (mdv[key][keyOid].reviewCommentOids.includes(oid)) {
+                    sources[key].push(keyOid);
+                    isFound = true;
+                    return true;
+                }
+            });
+        });
+
+        // ARM
+        if (!isFound && mdv.analysisResultDisplays && Object.keys(mdv.analysisResultDisplays).length !== 0) {
+            ['analysisResults', 'resultDisplays'].some(key => {
+                return Object.keys(mdv.analysisResultDisplays[key]).some(keyOid => {
+                    if (mdv.analysisResultDisplays[key][keyOid].reviewCommentOids.includes(oid)) {
+                        sources[key].push(keyOid);
+                        isFound = true;
+                        return true;
+                    }
+                });
+            });
+        }
+
+        // MetaDataVersion
+        if (!isFound) {
+            if (mdv.reviewCommentOids.includes(oid)) {
+                sources.metaDataVersion.push(mdv.oid);
+                isFound = true;
+            }
+        }
+
+        // GlobalVariables
+        if (!isFound && odm !== null) {
+            if (odm.study.globalVariables.reviewCommentOids.includes(oid)) {
+                sources.globalVariables.push('globalVariables');
+                isFound = true;
+            }
+        }
+
+        // ODM
+        if (!isFound && odm !== null) {
+            if (odm.reviewCommentOids.includes(oid)) {
+                sources.odm.push('odm');
+                isFound = true;
+            }
+        }
+
+        // Remove all empty sources
+        Object.keys(sources).forEach(key => {
+            if (sources[key].length === 0) {
+                delete sources[key];
+            }
+        });
     }
 
     return sources;
