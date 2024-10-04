@@ -27,7 +27,7 @@ const panelLabels = {
 
 const panels = Object.keys(panelLabels);
 
-const saveReviewCommentsToFile = async (mainWindow, exportData, saveDialogResult) => {
+const saveReviewCommentsToFile = async(mainWindow, exportData, saveDialogResult) => {
     let { filePath, canceled } = saveDialogResult;
     if (!canceled && filePath !== undefined) {
         if (!filePath.toLowerCase().endsWith('.xlsx')) {
@@ -52,7 +52,7 @@ const saveReviewCommentsToFile = async (mainWindow, exportData, saveDialogResult
         // Handle All Comments
         let comments = exportData['allComments'].data.map(comment =>
             ([comment.id, comment.author, comment.text, comment.createdAt, comment.modifiedAt, comment.resolvedAt, comment.resolvedBy,
-                JSON.stringify(comment.reviewCommentOids), JSON.stringify(comment.sources)
+                JSON.stringify(comment.reviewCommentOids), JSON.stringify(comment.commentSources)
             ])
         );
         workbook.sheet('All Comments').cell('A2').value(comments);
@@ -62,7 +62,7 @@ const saveReviewCommentsToFile = async (mainWindow, exportData, saveDialogResult
     }
 };
 
-const exportReviewComments = async (mainWindow, exportData) => {
+const exportReviewComments = async(mainWindow, exportData) => {
     let result = await dialog.showSaveDialog(
         mainWindow,
         {

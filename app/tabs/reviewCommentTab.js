@@ -282,7 +282,8 @@ class ConnectedReviewCommentTab extends React.Component {
             let reviewComment = reviewComments[id];
             let commentData = {};
             if (extendedFormat) {
-                commentData = { ...reviewComment, id };
+                const reviewCommentSources = getSources(mdv, 'ReviewComment', id, odm);
+                commentData = { ...reviewComment, id, commentSources: reviewCommentSources };
                 if (reviewComment.resolvedBy) {
                     commentData.resolvedFlag = 'Yes';
                 }
@@ -381,7 +382,15 @@ class ConnectedReviewCommentTab extends React.Component {
                                     commentData.parentItemOid = itemGroupOid;
                                     if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
                                         sourceName = `${sourceName} ${mdv.itemGroups[itemGroupOid].name}.${parentItemDef.name}.${variableName}`;
-                                        sourceParts = sourceParts.concat([mdv.itemGroups[itemGroupOid].name, parentItemDef.name, variableName]);
+                                        if (sourceParts.length === 0) {
+                                            sourceParts = [mdv.itemGroups[itemGroupOid].name, parentItemDef.name, variableName];
+                                        } else {
+                                            sourceParts = [
+                                                sourceParts[0] + ',' + mdv.itemGroups[itemGroupOid].name,
+                                                sourceParts[1] + ',' + parentItemDef.name,
+                                                sourceParts[2] + ',' + variableName,
+                                            ];
+                                        }
                                     }
                                 });
                             } else {
@@ -391,7 +400,16 @@ class ConnectedReviewCommentTab extends React.Component {
                                     commentData.parentItemOid = itemGroupOid;
                                     if (itemGroupOid && mdv.itemGroups.hasOwnProperty(itemGroupOid)) {
                                         sourceName = `${sourceName} ${mdv.itemGroups[itemGroupOid].name}.${variableName}`;
-                                        sourceParts = sourceParts.concat([mdv.itemGroups[itemGroupOid].name, variableName, '']);
+                                        // sourceParts = sourceParts.concat([mdv.itemGroups[itemGroupOid].name, variableName, '']);
+                                        if (sourceParts.length === 0) {
+                                            sourceParts = [mdv.itemGroups[itemGroupOid].name, variableName, ''];
+                                        } else {
+                                            sourceParts = [
+                                                sourceParts[0] + ',' + mdv.itemGroups[itemGroupOid].name,
+                                                sourceParts[1] + ',' + variableName,
+                                                '',
+                                            ];
+                                        }
                                     }
                                 });
                             }
