@@ -233,7 +233,7 @@ const deriveAdditionalAttributes = (items, codeLists, existingNames) => {
 };
 
 class ConnectedItemTable extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
 
         let { mdv, itemGroupOid } = props;
@@ -390,7 +390,7 @@ class ConnectedItemTable extends React.Component {
         this.setState({ items });
     };
 
-    openCodeList = async (props) => {
+    openCodeList = async(props) => {
         // Search for the codelist in the loaded standard codelists
         const stdCodeLists = this.props.stdCodeLists;
         let clFound = false;
@@ -529,7 +529,7 @@ class ConnectedItemTable extends React.Component {
         );
     };
 
-    render () {
+    render() {
         const { mountPoint, searchString, variableSet } = this.props;
 
         let data = this.state.items.slice();

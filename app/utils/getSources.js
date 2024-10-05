@@ -113,7 +113,7 @@ const getSources = (mdv, type, oid, odm = null) => {
         }
         if (mdv.analysisResultDisplays && Object.keys(mdv.analysisResultDisplays).length !== 0) {
             Object.keys(mdv.analysisResultDisplays.analysisResults).forEach(analysisResultOid => {
-                if (mdv.analysisResultDisplays.analysisResults[analysisResultOid].commentOid === oid) {
+                if (mdv.analysisResultDisplays.analysisResults[analysisResultOid].analysisDatasetsCommentOid === oid) {
                     sources.analysisResults.push(analysisResultOid);
                 }
             });

@@ -31,7 +31,9 @@ import {
     UPD_ITEMSBULK,
     UPD_LOADACTUALDATA,
     CL_METHODS,
-    CL_VALUELISTS
+    CL_VALUELISTS,
+    CL_COMMENTS,
+    CL_WHERECLAUSES,
 } from 'constants/action-types';
 
 // Item Ref/Def actions
@@ -188,6 +190,20 @@ export const cleanMethods = (deleteObj) => (
 export const cleanValueLists = (deleteObj) => (
     {
         type: CL_VALUELISTS,
+        deleteObj,
+    }
+);
+
+export const cleanComments = (deleteObj) => (
+    {
+        type: CL_COMMENTS,
+        deleteObj,
+    }
+);
+
+export const cleanWhereClauses = (deleteObj) => (
+    {
+        type: CL_WHERECLAUSES,
         deleteObj,
     }
 );

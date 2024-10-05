@@ -1077,10 +1077,10 @@ const convertImportMetadata = (metadata) => {
                         if (parentItemDef.valueListOid) {
                             let vlmName = item.variable.replace(/(\S+)\.(.*)/, '$2');
                             valueListOid = parentItemDef.valueListOid;
-                            itemDefOid = getOidByName({ ...mdv, valueLists: allValueLists }, 'ValueLists', vlmName, parentItemDef.valueListOid);
+                            itemDefOid = getOidByName({ ...mdv, valueLists: allValueLists }, 'valueLists', vlmName, parentItemDef.valueListOid);
                         }
                     } else {
-                        itemDefOid = getOidByName(mdv, 'ItemRefs', item.variable, itemGroupOid);
+                        itemDefOid = getOidByName(mdv, 'itemRefs', item.variable, itemGroupOid);
                     }
                     let itemDef;
                     let itemRef;
@@ -1546,7 +1546,7 @@ const convertImportMetadata = (metadata) => {
                         let dsName = parameter.replace(/^(\w+)\.\w+$/, '$1');
                         let varName = parameter.replace(/^(\w+)\.(\w+)$/, '$2');
                         let itemGroupOid = getOidByName(mdv, 'itemGroups', dsName);
-                        let itemOid = getOidByName(mdv, 'ItemRefs', varName, itemGroupOid);
+                        let itemOid = getOidByName(mdv, 'itemRefs', varName, itemGroupOid);
                         if (itemOid === undefined) {
                             errors.push({
                                 id: 'analysisResult',

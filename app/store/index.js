@@ -17,19 +17,13 @@ import rootReducer from 'reducers/rootReducer';
 import loadState from 'utils/loadState.js';
 import cleanState from 'store/cleanState.js';
 import undoable from 'redux-undo';
+import checkActionNeedsHistory from 'utils/checkActionNeedsHistory';
 
 // import { throttle } from 'throttle-debounce';
 // import saveState from 'utils/saveState.js';
 
 const filterActions = (action, currentState, previousHistory) => {
-    return (
-        !action.type.startsWith('UI_') &&
-        !action.type.startsWith('CT_') &&
-        !action.type.startsWith('SD_') &&
-        !action.type.startsWith('@@') &&
-        !(action.noHistory === true) &&
-        !['STDCDL_LOAD', 'APP_SAVE', 'STG_UPDATESETTINGS'].includes(action.type)
-    );
+    return checkActionNeedsHistory(action);
 };
 
 const actionSanitizer = (action) => (

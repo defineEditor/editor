@@ -28,7 +28,7 @@ import {
     updateCopyBuffer,
     openModal,
 } from 'actions/index.js';
-import getSources from '../../utils/getSources';
+import getSources from 'utils/getSources';
 
 // Redux functions
 const mapDispatchToProps = dispatch => {

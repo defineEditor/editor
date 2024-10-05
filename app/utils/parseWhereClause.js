@@ -95,13 +95,13 @@ const validateWhereClauseLine = (rawWhereClauseLine, mdv, datasetOid, fixedDatas
                     // If dataset needs to be fixed, fail the validation if any other dataset is used
                     return false;
                 }
-                itemOid = getOidByName(mdv, 'ItemRefs', rangeCheckElements[0].replace(wcRegex.datasetVariableParse, '$2'), itemGroupOid);
+                itemOid = getOidByName(mdv, 'itemRefs', rangeCheckElements[0].replace(wcRegex.datasetVariableParse, '$2'), itemGroupOid);
             }
         } else {
             // If variable part does not contain dataset name, use the current dataset;
             itemGroupOid = datasetOid;
             if (itemGroupOid !== undefined) {
-                itemOid = getOidByName(mdv, 'ItemRefs', rangeCheckElements[0], itemGroupOid);
+                itemOid = getOidByName(mdv, 'itemRefs', rangeCheckElements[0], itemGroupOid);
             }
         }
         if (itemOid !== undefined && itemGroupOid !== undefined) {
@@ -148,13 +148,13 @@ const convertWhereClauseLineToRangeChecks = (whereClauseLine, mdv, datasetOid) =
             // If variable part contains dataset name;
             itemGroupOid = getOidByName(mdv, 'itemGroups', rangeCheckElements[0].replace(wcRegex.datasetVariableParse, '$1'));
             if (itemGroupOid !== undefined) {
-                itemOid = getOidByName(mdv, 'ItemRefs', rangeCheckElements[0].replace(wcRegex.datasetVariableParse, '$2'), itemGroupOid);
+                itemOid = getOidByName(mdv, 'itemRefs', rangeCheckElements[0].replace(wcRegex.datasetVariableParse, '$2'), itemGroupOid);
             }
         } else {
             // If variable part does not contain dataset name, use the current dataset;
             itemGroupOid = datasetOid;
             if (itemGroupOid !== undefined) {
-                itemOid = getOidByName(mdv, 'ItemRefs', rangeCheckElements[0], itemGroupOid);
+                itemOid = getOidByName(mdv, 'itemRefs', rangeCheckElements[0], itemGroupOid);
             }
         }
         let comparator = rangeCheckElements[1].toUpperCase();

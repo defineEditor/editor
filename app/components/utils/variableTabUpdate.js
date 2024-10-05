@@ -450,8 +450,7 @@ class ConnectedVariableTabUpdate extends React.Component {
             }
         });
         fields.forEach(field => {
-            let methodUpdate = field.attr === 'method';
-            if (methodUpdate === true) {
+            if (field.attr === 'method') {
                 // Get itemRefs from itemOids
                 let selectedItemSources = { itemGroups: {}, valueLists: {} };
                 let updatedMethodOids = [];

@@ -11,13 +11,14 @@
 * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
+import getSources from './getSources.js';
 
 // itemGroupOid is required in case source = 'ItemRefs' or 'ValueLists'
 const getOidByName = (mdv, source, name, itemGroupOid) => {
     let result;
-    if (['ItemRefs', 'ValueLists'].includes(source)) {
+    if (['itemRefs', 'valueLists'].includes(source)) {
         let itemGroup;
-        if (source === 'ValueLists') {
+        if (source === 'valueLists') {
             itemGroup = mdv.valueLists[itemGroupOid];
         } else {
             itemGroup = mdv.itemGroups[itemGroupOid];
@@ -40,7 +41,25 @@ const getOidByName = (mdv, source, name, itemGroupOid) => {
             if (mdv[source][oid].name.toLowerCase() === name.toLowerCase()) {
                 // If itemGroupOid is provided, check the the item belongs to it
                 if (itemGroupOid) {
-                    if (mdv[source][oid].sources.itemGroups.includes(itemGroupOid)) {
+                    let sourceLabel;
+                    switch (source) {
+                        case 'itemDefs':
+                            sourceLabel = 'ItemDef';
+                            break;
+                        case 'reviewComments':
+                            sourceLabel = 'ReviewComment';
+                            break;
+                        case 'whereClauses':
+                            sourceLabel = 'WhereClause';
+                            break;
+                        case 'comments':
+                            sourceLabel = 'Comment';
+                            break;
+                        default:
+                            sourceLabel = source;
+                    }
+                    const itemSources = getSources(mdv, sourceLabel, oid);
+                    if (itemSources.itemGroups.includes(itemGroupOid)) {
                         result = oid;
                         return true;
                     }

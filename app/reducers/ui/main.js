@@ -28,6 +28,7 @@ import {
     DEL_CODELISTS,
 } from 'constants/action-types';
 import { ui } from 'constants/initialValues.js';
+import checkActionNeedsHistory from 'utils/checkActionNeedsHistory';
 
 const initialState = ui.main;
 
@@ -151,13 +152,7 @@ const handleOdmChange = (state, action) => {
 const main = (state = initialState, action) => {
     let newState;
     // Save action in the history
-    if (!action.type.startsWith('UI_') &&
-        !action.type.startsWith('@@') &&
-        !action.type.startsWith('CT_') &&
-        !action.type.startsWith('CL_') &&
-        !(action.noHistory === true) &&
-        !['STDCDL_LOAD', 'APP_SAVE', 'STG_UPDATESETTINGS', 'DUMMY_ACTION'].includes(action.type)
-    ) {
+    if (checkActionNeedsHistory(action)) {
         newState = { ...state, actionHistory: state.actionHistory.concat([action.type]) };
     } else {
         newState = state;

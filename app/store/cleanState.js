@@ -1,5 +1,7 @@
-import getSources from 'utils/getSources.js';
-import { cleanMethods, cleanValueLists } from 'actions/item.js';
+import getUnusedMethods from 'utils/getUnsedMethods.js';
+import getUnsedValueLists from 'utils/getUnsedValueLists.js';
+import getUnusedComments from '../utils/getUnsedComments';
+import { cleanMethods, cleanValueLists, cleanComments } from 'actions/item.js';
 import {
     UPD_ITEMDESCRIPTION,
     DEL_VARS,
@@ -7,9 +9,17 @@ import {
     UPD_ITEMSBULK,
     ADD_VARS,
     ADD_ITEMGROUPS,
-    UPD_LEAFS,
     ADD_IMPORTMETADATA,
-    DEL_DUPLICATEMETHODS,
+    UPD_ARMSTATUS,
+    DEL_RESULTDISPLAY,
+    DEL_ANALYSISRESULT,
+    UPD_ITEMGROUPCOMMENT,
+    UPD_NAMELABELWHERECLAUSE,
+    UPD_MDV,
+    UPD_STD,
+    UPD_ANALYSISRESULT,
+    DEL_ITEMGROUPCOMMENT,
+    REP_ITEMGROUPCOMMENT
 } from 'constants/action-types';
 
 // After execution of the specific actions, there can be certain elements like methods and comments, which are not linked anymore.
@@ -21,19 +31,23 @@ const cleanState = store => next => action => {
 
     let checkMethods = false;
     let checkValueLists = false;
+    let checkComments = false;
 
-    if (![UPD_ITEMDESCRIPTION, DEL_VARS, DEL_ITEMGROUPS, UPD_ITEMSBULK,
-        ADD_VARS, ADD_ITEMGROUPS, UPD_LEAFS, ADD_IMPORTMETADATA, DEL_DUPLICATEMETHODS].includes(action.type)
+    // Different actions can impact different parts of the state
+    if ([UPD_ITEMDESCRIPTION, DEL_VARS, DEL_ITEMGROUPS, UPD_ITEMSBULK, ADD_VARS, ADD_ITEMGROUPS, ADD_IMPORTMETADATA].includes(action.type)) {
+        checkMethods = true;
+    }
+    if ([DEL_VARS, DEL_ITEMGROUPS].includes(action.type)) {
+        checkValueLists = true;
+    }
+    if ([DEL_VARS, DEL_ITEMGROUPS, UPD_ITEMSBULK, ADD_VARS, UPD_ARMSTATUS, DEL_RESULTDISPLAY, DEL_ANALYSISRESULT, UPD_ITEMDESCRIPTION, UPD_ITEMGROUPCOMMENT,
+        UPD_NAMELABELWHERECLAUSE, UPD_MDV, UPD_STD, UPD_ANALYSISRESULT, DEL_ITEMGROUPCOMMENT, REP_ITEMGROUPCOMMENT].includes(action.type)
     ) {
+        checkComments = true;
+    }
+
+    if (!checkMethods && !checkValueLists && !checkComments) {
         return result;
-    } else {
-        // Different actions can impact different parts of the state
-        if ([UPD_ITEMDESCRIPTION, DEL_VARS, DEL_ITEMGROUPS, UPD_ITEMSBULK, ADD_VARS, ADD_ITEMGROUPS, UPD_LEAFS].includes(action.type)) {
-            checkMethods = true;
-        }
-        if ([DEL_VARS, DEL_ITEMGROUPS].includes(action.type)) {
-            checkValueLists = true;
-        }
     }
 
     const state = store.getState();
@@ -46,37 +60,27 @@ const cleanState = store => next => action => {
 
     /* Clean methods that are not referenced anymore  */
     if (checkMethods) {
-        const methods = mdv.methods;
-
-        const removedMethodOids = [];
-        Object.keys(methods).forEach(methodId => {
-            const sources = getSources(mdv, 'Method', methodId);
-            if (Object.keys(sources.itemGroups).length === 0 && Object.keys(sources.valueLists).length === 0) {
-                removedMethodOids.push(methodId);
-            }
-        });
+        const removedMethodOids = getUnusedMethods(mdv);
 
         // Form an action to remove those methods
-
         if (removedMethodOids.length > 0) {
             store.dispatch(cleanMethods({ removedMethodOids }));
         }
     }
 
     if (checkValueLists) {
-        const valueLists = mdv.valueLists;
-
-        const removedValueListOids = [];
-        Object.keys(valueLists).forEach(valueListId => {
-            const sources = getSources(mdv, 'ValueList', valueListId);
-            if (sources.itemDefs.length === 0) {
-                removedValueListOids.push(valueListId);
-            }
-        });
-
+        const removedValueListOids = getUnsedValueLists(mdv);
         // Form an action to remove those valueLists
         if (removedValueListOids.length > 0) {
             store.dispatch(cleanValueLists({ removedValueListOids }));
+        }
+    }
+
+    if (checkComments) {
+        const removedCommentOids = getUnusedComments(mdv);
+        // Form an action to remove those comments
+        if (removedCommentOids.length > 0) {
+            store.dispatch(cleanComments({ removedCommentOids }));
         }
     }
     return result;
