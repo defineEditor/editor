@@ -1,7 +1,8 @@
 import getUnusedMethods from 'utils/getUnsedMethods.js';
 import getUnsedValueLists from 'utils/getUnsedValueLists.js';
-import getUnusedComments from '../utils/getUnsedComments';
-import { cleanMethods, cleanValueLists, cleanComments } from 'actions/item.js';
+import getUnusedComments from 'utils/getUnsedComments';
+import getUnusedWhereClauses from 'utils/getUnsedWhereClauses';
+import { cleanMethods, cleanValueLists, cleanComments, cleanWhereClauses } from 'actions/item.js';
 import {
     UPD_ITEMDESCRIPTION,
     DEL_VARS,
@@ -32,8 +33,9 @@ const cleanState = store => next => action => {
     let checkMethods = false;
     let checkValueLists = false;
     let checkComments = false;
+    let checkWhereClauses = false;
 
-    // Different actions can impact different parts of the state
+    // Different actions can impact different parts of the state, select only those which can created orphaned elements
     if ([UPD_ITEMDESCRIPTION, DEL_VARS, DEL_ITEMGROUPS, UPD_ITEMSBULK, ADD_VARS, ADD_ITEMGROUPS, ADD_IMPORTMETADATA].includes(action.type)) {
         checkMethods = true;
     }
@@ -44,6 +46,9 @@ const cleanState = store => next => action => {
         UPD_NAMELABELWHERECLAUSE, UPD_MDV, UPD_STD, UPD_ANALYSISRESULT, DEL_ITEMGROUPCOMMENT, REP_ITEMGROUPCOMMENT].includes(action.type)
     ) {
         checkComments = true;
+    }
+    if ([UPD_NAMELABELWHERECLAUSE, DEL_ITEMGROUPS, DEL_RESULTDISPLAY, DEL_ANALYSISRESULT, UPD_ARMSTATUS, DEL_VARS].includes(action.type)) {
+        checkWhereClauses = true;
     }
 
     if (!checkMethods && !checkValueLists && !checkComments) {
@@ -83,6 +88,15 @@ const cleanState = store => next => action => {
             store.dispatch(cleanComments({ removedCommentOids }));
         }
     }
+
+    if (checkWhereClauses) {
+        const removedWhereClauseOids = getUnusedWhereClauses(mdv);
+        // Form an action to remove those whereClauses
+        if (removedWhereClauseOids.length > 0) {
+            store.dispatch(cleanWhereClauses({ removedWhereClauseOids }));
+        }
+    }
+
     return result;
 };
 
