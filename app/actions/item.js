@@ -34,6 +34,7 @@ import {
     CL_VALUELISTS,
     CL_COMMENTS,
     CL_WHERECLAUSES,
+    CL_ITEMDEFS,
 } from 'constants/action-types';
 
 // Item Ref/Def actions
@@ -204,6 +205,13 @@ export const cleanComments = (deleteObj) => (
 export const cleanWhereClauses = (deleteObj) => (
     {
         type: CL_WHERECLAUSES,
+        deleteObj,
+    }
+);
+
+export const cleanItemDefs = (deleteObj) => (
+    {
+        type: CL_ITEMDEFS,
         deleteObj,
     }
 );

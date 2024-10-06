@@ -22,7 +22,6 @@ import {
     ADD_VARS,
     DEL_VARS,
     DEL_CODELISTS,
-    DEL_ITEMGROUPS,
     ADD_VALUELIST,
     ADD_VALUELISTFROMCODELIST,
     INSERT_VAR,
@@ -34,6 +33,7 @@ import {
     DEL_REVIEWCOMMENT,
     ADD_IMPORTMETADATA,
     DEL_DUPLICATECOMMENTS,
+    CL_ITEMDEFS,
 } from 'constants/action-types';
 import deepEqual from 'fast-deep-equal';
 import { ItemDef, TranslatedText, Origin } from 'core/defineStructure.js';
@@ -123,86 +123,34 @@ const addVariables = (state, action) => {
 };
 
 const deleteVariables = (state, action) => {
-    // action.deleteObj.itemDefOids: [itemDefOid1, itemDefOid2, ...]
-    // action.deleteObj.vlmItemDefOids: { valueListOid1: [itemDefOid1, itemDefOid2, ...], valueListOid2: [itemDefOid3, ...]
-    let newState = Object.assign({}, state);
-    // First go through itemDefs which are coming from the variable level;
-    action.deleteObj.itemDefOids.forEach(itemDefOid => {
-        // If it is referened only in 1 dataset, remove it
-        let sourceNum = [].concat.apply([], Object.keys(state[itemDefOid].sources).map(type => (state[itemDefOid].sources[type]))).length;
-        if (sourceNum === 1 &&
-            state[itemDefOid].sources.itemGroups[0] === action.source.itemGroupOid) {
+    // action.deleteObj.removedItemDefOids: [itemDefOid1, itemDefOid2, ...]
+    const { removedItemDefOids } = action.deleteObj;
+    let newState = { ...state };
+    if (removedItemDefOids !== undefined) {
+        removedItemDefOids.forEach(itemDefOid => {
             delete newState[itemDefOid];
-        } else if (state[itemDefOid].sources.itemGroups.includes(action.source.itemGroupOid)) {
-            // Delete the dataset from the sources
-            // TODO: Currently review comments are always removed, as in case a variable is removed, review comment is removed as well
-            // TODO: Implement better review comment handling in the future
-            let newSourcesForType = state[itemDefOid].sources.itemGroups.slice();
-            newSourcesForType.splice(newSourcesForType.indexOf(action.source.itemGroupOid), 1);
-            newState = {
-                ...newState,
-                [itemDefOid]: {
-                    ...new ItemDef({
-                        ...state[itemDefOid],
-                        reviewCommentOids: [],
-                        sources: { ...state[itemDefOid].sources, itemGroups: newSourcesForType }
-                    })
-                }
-            };
-        }
-    });
-    // Remove value levels
-    Object.keys(action.deleteObj.vlmItemDefOids).forEach(valueListOid => {
-        action.deleteObj.vlmItemDefOids[valueListOid].forEach(itemDefOid => {
-            // It is possible that valueList was shared between different ItemDefs and already removed in this action
-            if (newState.hasOwnProperty(itemDefOid)) {
-                // If it is referened only in 1 dataset, remove it
-                let sourceNum = [].concat.apply([], Object.keys(state[itemDefOid].sources).map(type => (state[itemDefOid].sources[type]))).length;
-                if (sourceNum === 1 &&
-                    state[itemDefOid].sources.valueLists[0] === valueListOid) {
-                    delete newState[itemDefOid];
-                } else if (state[itemDefOid].sources.valueLists.includes(valueListOid)) {
-                    // Delete the dataset from the sources
-                    // TODO: Currently review comments are always removed, as in case a variable is removed, review comment is removed as well
-                    // TODO: Implement better review comment handling in the future
-                    let newSourcesForType = state[itemDefOid].sources.valueLists.slice();
-                    newSourcesForType.splice(newSourcesForType.indexOf(valueListOid), 1);
-                    newState = {
-                        ...newState,
-                        [itemDefOid]: { ...new ItemDef({ ...state[itemDefOid],
-                            reviewCommentOids: [],
-                            sources: { ...state[itemDefOid].sources, valueLists: newSourcesForType }
-                        }) }
-                    };
-                }
-            }
         });
-    });
-    // When only value level is removed, delete reference to it
-    Object.keys(action.deleteObj.valueListOids).forEach(itemDefOid => {
-        if (newState.hasOwnProperty(itemDefOid)) {
-            newState = {
-                ...newState,
-                [itemDefOid]: { ...new ItemDef({ ...newState[itemDefOid], valueListOid: undefined }) }
-            };
-        }
-    });
-    return newState;
+        return newState;
+    } else {
+        return state;
+    }
 };
 
-const deleteItemGroups = (state, action) => {
-    // action.deleteObj.itemGroupData contains:
-    // {[itemGroupOid] : itemDefOids: { [itemOid1, itemOid2, ...]}}
-    // {[itemGroupOid] : vlmItemDefOids: { [itemOid1, itemOid2, ...]}}
-    // {[itemGroupOid] : valueListOids: { [vlOid1, vlOid2, ...]}}
+const handleDeleteVariables = (state, action) => {
+    // action.deleteObj.vlmItemDefOids: { valueListOid1: [itemDefOid1, itemDefOid2, ...], valueListOid2: [itemDefOid3, ...]
+    const { valueListOids } = action.deleteObj;
     let newState = { ...state };
-    Object.keys(action.deleteObj.itemGroupData).forEach(itemGroupOid => {
-        let subAction = { deleteObj: {}, source: { itemGroupOid } };
-        subAction.deleteObj.itemDefOids = action.deleteObj.itemGroupData[itemGroupOid].itemDefOids;
-        subAction.deleteObj.vlmItemDefOids = action.deleteObj.itemGroupData[itemGroupOid].vlmItemDefOids;
-        subAction.deleteObj.valueListOids = action.deleteObj.itemGroupData[itemGroupOid].valueListOids;
-        newState = deleteVariables(newState, subAction);
-    });
+    // Delete references to removed vaueLists
+    if (valueListOids !== undefined) {
+        Object.keys(valueListOids).forEach(itemDefOid => {
+            if (newState.hasOwnProperty(itemDefOid)) {
+                newState = {
+                    ...newState,
+                    [itemDefOid]: { ...new ItemDef({ ...newState[itemDefOid], valueListOid: undefined }) }
+                };
+            }
+        });
+    }
     return newState;
 };
 
@@ -221,7 +169,6 @@ const handleAddValueList = (state, action) => {
     // Create a new itemDef for the valueList
     let newItemDef = { ...new ItemDef({
         oid: action.itemDefOid,
-        sources: { itemGroups: [], valueLists: [action.valueListOid] },
         parentItemDefOid: action.source.oid,
     }) };
     // Update existing itemDef to reference VLM
@@ -233,7 +180,7 @@ const handleAddValueList = (state, action) => {
 };
 
 const handleAddValueListFromCodeList = (state, action) => {
-    // create the first itemDef
+    // Create the first itemDef
     let firstVl = handleAddValueList(state, {
         source: {
             oid: action.updateObj.sourceOid,
@@ -243,7 +190,7 @@ const handleAddValueListFromCodeList = (state, action) => {
         whereClauseOid: action.updateObj.whereClauseOids[0],
     });
 
-    // add subsequent itemDefs
+    // Add subsequent itemDefs
     let subsequentVls = action.updateObj.itemDefOids.slice(1).reduce((object, value, key) => {
         return insertValueLevel(object, {
             type: INSERT_VALLVL,
@@ -257,7 +204,7 @@ const handleAddValueListFromCodeList = (state, action) => {
         });
     }, firstVl);
 
-    // add names, labels, and additional attributes to all itemDefs
+    // Add names, labels, and additional attributes to all itemDefs
     let namedAndLabelledVls = action.updateObj.itemDefOids.reduce((object, value, key) => {
         return updateItemDef(object, {
             type: UPD_ITEMDEF,
@@ -280,7 +227,6 @@ const insertVariable = (state, action) => {
     // Create a new itemDef
     let newItemDef = { ...new ItemDef({
         oid: action.itemDefOid,
-        sources: { itemGroups: [action.itemGroupOid], valueLists: [] },
     }) };
     return { ...state, [action.itemDefOid]: newItemDef };
 };
@@ -289,7 +235,6 @@ const insertValueLevel = (state, action) => {
     // Create a new itemDef
     let newItemDef = { ...new ItemDef({
         oid: action.itemDefOid,
-        sources: { itemGroups: [], valueLists: [action.valueListOid] },
         parentItemDefOid: action.parentItemDefOid,
     }) };
     return { ...state, [action.itemDefOid]: newItemDef };
@@ -540,11 +485,9 @@ const itemDefs = (state = {}, action) => {
         case ADD_VARS:
             return addVariables(state, action);
         case DEL_VARS:
-            return deleteVariables(state, action);
+            return handleDeleteVariables(state, action);
         case ADD_ITEMGROUPS:
             return handleAddItemGroups(state, action);
-        case DEL_ITEMGROUPS:
-            return deleteItemGroups(state, action);
         case DEL_CODELISTS:
             return deleteCodeLists(state, action);
         case ADD_VALUELIST:
@@ -567,6 +510,8 @@ const itemDefs = (state = {}, action) => {
             return addImportMetadata(state, action);
         case DEL_DUPLICATECOMMENTS:
             return deleteDuplicateComments(state, action);
+        case CL_ITEMDEFS:
+            return deleteVariables(state, action);
         default:
             return state;
     }

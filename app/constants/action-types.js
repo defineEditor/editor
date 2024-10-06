@@ -136,6 +136,7 @@ export const CL_METHODS = 'CL_METHODS';
 export const CL_VALUELISTS = 'CL_VALUELISTS';
 export const CL_COMMENTS = 'CL_COMMENTS';
 export const CL_WHERECLAUSES = 'CL_WHERECLAUSES';
+export const CL_ITEMDEFS = 'CL_ITEMDEFS';
 
 // Labels for Undo/Action History
 export const actionLabels = {
@@ -216,4 +217,5 @@ export const actionLabels = {
     'CL_VALUELISTS': 'Remove unused value lists',
     'CL_COMMENTS': 'Remove unused comments',
     'CL_WHERECLAUSES': 'Remove unused where clauses',
+    'CL_ITEMDEFS': 'Remove unused variables',
 };
