@@ -35,10 +35,6 @@ import { Comment, TranslatedText } from 'core/defineStructure.js';
 import deepEqual from 'fast-deep-equal';
 
 const addComment = (state, action) => {
-    // action.source.type
-    // action.source.oid
-    // action.comment
-
     return { ...state, [action.comment.oid]: action.comment };
 };
 
@@ -74,7 +70,6 @@ const handleCommentUpdate = (state, action, type) => {
             // Add a comment
             let subAction = {};
             subAction.comment = action.updateObj.comment;
-            subAction.source = { type, oid: action.source.oid };
             return addComment(state, subAction);
         } else if (newCommentOid === undefined) {
             // Deleted comment - no update as comment can be referenced by another item
@@ -83,13 +78,11 @@ const handleCommentUpdate = (state, action, type) => {
             // Comment was replaced;
             let subAction = {};
             subAction.comment = action.updateObj.comment;
-            subAction.source = { type, oid: action.source.oid };
             return addComment(state, subAction);
         } else {
             // Comment was just updated
             let subAction = {};
             subAction.comment = action.updateObj.comment;
-            subAction.oid = action.source.oid;
             return updateComment(state, subAction);
         }
     } else {
@@ -278,7 +271,6 @@ const addImportMetadata = (state, action) => {
 
 const deleteDuplicateComments = (state, action) => {
     const duplicates = action.updateObj.duplicates;
-    const unitedSources = action.updateObj.unitedSources;
     if (Object.keys(duplicates).length > 0) {
         let newState = { ...state };
         // Remove duplicate comments
@@ -287,10 +279,6 @@ const deleteDuplicateComments = (state, action) => {
             if (newState[id] !== undefined) {
                 delete newState[id];
             }
-        });
-        // Update sources for remaining comments
-        Object.keys(unitedSources).forEach(id => {
-            newState[id] = { ...newState[id], sources: unitedSources[id] };
         });
         return newState;
     } else {
@@ -314,13 +302,10 @@ const handleUpdateStandards = (state, action) => {
     Object.keys(newComments).forEach(commentOid => {
         if (!Object.keys(prevComments).includes(commentOid)) {
             const addedComment = newComments[commentOid];
-            addedComment.sources.standards.forEach(stdOid => {
-                const subAction = {
-                    comment: addedComment,
-                    source: { type: 'standards', oid: stdOid }
-                };
-                newState = addComment(newState, subAction);
-            });
+            const subAction = {
+                comment: addedComment,
+            };
+            newState = addComment(newState, subAction);
         }
     });
     // Update existing comments
@@ -329,14 +314,15 @@ const handleUpdateStandards = (state, action) => {
             const oldComment = prevComments[commentOid];
             const newComment = newComments[commentOid];
             if (!deepEqual(oldComment, newComment)) {
-                newComment.sources.standards.forEach(stdOid => {
-                    const subAction = {
-                        updateObj: { comment: newComment },
-                        prevObj: { comment: oldComment },
-                        source: { oid: stdOid },
-                    };
-                    newState = handleCommentUpdate(newState, subAction, 'standards');
-                });
+                const subAction = {
+                    updateObj: { comment: newComment },
+                    prevObj: { comment: oldComment },
+                };
+                newState = handleCommentUpdate(
+                    newState,
+                    subAction,
+                    'standards'
+                );
             }
         }
     });

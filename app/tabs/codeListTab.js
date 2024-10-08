@@ -614,7 +614,8 @@ class ConnectedCodeListTable extends React.Component {
                     defineVersion: this.props.defineVersion,
                     stdConstants: this.props.stdConstants,
                 };
-                let sources = getSourceLabels(originCL.sources, this.props.mdv);
+                const originCLSources = getSources(mdv, 'CodeList', originCL.oid);
+                let sources = getSourceLabels(originCLSources, mdv);
                 if (sources.hasOwnProperty('itemDefs')) {
                     currentCL.usedBy = sources.itemDefs.join('\n');
                 } else {

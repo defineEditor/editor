@@ -45,16 +45,7 @@ const deleteWhereClauses = (state, action) => {
 
 const updateWhereClause = (state, action) => {
     if (!deepEqual(action.whereClause, state[action.whereClause.oid])) {
-        // Update only if there are changes
-        if (action.whereClause.sources.valueLists.includes(action.source.valueListOid)) {
-            return { ...state, [action.whereClause.oid]: action.whereClause };
-        } else {
-            // Add sources
-            let newSources = { ...action.whereClause.sources };
-            newSources.valueLists = [ ...action.whereClause.sources.valueLists, action.source.valueListOid ];
-            let newWhereClause = new WhereClause({ ...action.whereClause, sources: newSources });
-            return { ...state, [action.whereClause.oid]: newWhereClause };
-        }
+        return { ...state, [action.whereClause.oid]: action.whereClause };
     } else {
         return state;
     }
@@ -77,11 +68,7 @@ const updateNameLabelWhereClause = (state, action) => {
 
 const createNewWhereClause = (state, action) => {
     let newWhereClause;
-    if (action.valueListOid !== undefined) {
-        newWhereClause = new WhereClause({ oid: action.whereClauseOid, sources: { valueLists: [action.valueListOid], analysisResults: {} } });
-    } else if (action.analysisResultSources !== undefined) {
-        newWhereClause = new WhereClause({ oid: action.whereClauseOid, sources: { valueLists: [], analysisResults: action.analysisResultSources } });
-    }
+    newWhereClause = new WhereClause({ oid: action.whereClauseOid });
     return { ...state, [action.whereClauseOid]: newWhereClause };
 };
 
@@ -109,10 +96,6 @@ const handleAddValueListFromCodeList = (state, action) => {
                     itemOid: action.updateObj.selectedOid,
                     softHard: 'Soft',
                 }],
-                sources: {
-                    analysisResults: {},
-                    valueLists: [action.updateObj.valueListOid],
-                },
             },
         });
     }, whereClausesBlank);
