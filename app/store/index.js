@@ -15,7 +15,7 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import rootReducer from 'reducers/rootReducer';
 import loadState from 'utils/loadState.js';
-import cleanState from 'store/cleanState.js';
+import { cleanStateMiddleware } from 'store/cleanState.js';
 import undoable from 'redux-undo';
 import checkActionNeedsHistory from 'utils/checkActionNeedsHistory';
 
@@ -35,7 +35,7 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ? window.__
 const store = createStore(
     undoable(rootReducer, { filter: filterActions }),
     loadState(),
-    composeEnhancers(applyMiddleware(cleanState)),
+    composeEnhancers(applyMiddleware(cleanStateMiddleware)),
 );
 
 // Save state every 5 minutes as a backup

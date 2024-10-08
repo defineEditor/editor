@@ -11,13 +11,16 @@
 * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
+import getSources from 'utils/getSources.js';
+
 const countVariables = (odm) => (varNum, itemDefOid) => {
     let item = odm.study.metaDataVersion.itemDefs[itemDefOid];
     let varCount = varNum;
+    const itemSources = getSources(odm.study.metaDataVersion, 'ItemDef', itemDefOid);
     // Do not count VLM records
     if (item.parentItemDefOid === undefined) {
-        Object.keys(item.sources).forEach(sourceType => {
-            varCount += item.sources[sourceType].length;
+        Object.keys(itemSources).forEach(sourceType => {
+            varCount += itemSources[sourceType].length;
         });
     }
     return varCount;

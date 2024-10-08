@@ -42,7 +42,7 @@ const mapStateToProps = state => {
 };
 
 class ConnectedSettings extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
         this.state = {};
         this.state.settings = clone(this.props.settings);
@@ -68,12 +68,12 @@ class ConnectedSettings extends React.Component {
 
     static contextType = CdiscLibraryContext;
 
-    componentDidMount () {
+    componentDidMount() {
         ipcRenderer.on('selectedFile', this.setFolder);
         window.addEventListener('keydown', this.onKeyDown);
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         ipcRenderer.removeListener('selectedFile', this.setFolder);
         window.removeEventListener('keydown', this.onKeyDown);
         // If settings are not saved, open a confirmation window
@@ -311,7 +311,7 @@ class ConnectedSettings extends React.Component {
         this.setState(state => ({ showEncryptedValue: !state.showEncryptedValue }));
     };
 
-    checkCdiscLibraryConnection = async () => {
+    checkCdiscLibraryConnection = async() => {
         // For the check, create a new instance of CDISC Library, because user may have not saved the changed settings
         let claSettings = clone(this.state.settings.cdiscLibrary);
         // Encrypt password/apiKey
@@ -349,7 +349,7 @@ class ConnectedSettings extends React.Component {
         });
     }
 
-    render () {
+    render() {
         let settingsNotChanged = Object.keys(this.getSettingsDiff()).length === 0;
 
         return (

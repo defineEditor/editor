@@ -34,7 +34,7 @@ const defaultExistingOids = {
 const extractLeafIds = (documents, leafIds) => {
     if (documents.length > 0) {
         documents.forEach(doc => {
-            if (!leafIds.includes(doc.leafId)) {
+            if (!leafIds.includes(doc.leafId) && doc.leafId !== undefined) {
                 leafIds.push(doc.leafId);
             }
         });
@@ -77,7 +77,6 @@ const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, par
             whereClauses[newWhereClauseOid] = { ...new WhereClause({
                 ...whereClause,
                 oid: newWhereClauseOid,
-                sources: { valueLists: [currentGroup.oid] }
             }) };
             itemRef.whereClauseOid = newWhereClauseOid;
         }
@@ -85,12 +84,6 @@ const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, par
         currentItemDefs.push(newItemDefOid);
         processedItemRefs[itemRef.oid] = newItemRefOid;
         itemRefs[currentGroup.oid][newItemRefOid] = { ...new ItemRef({ ...itemRef, oid: newItemRefOid, itemOid: newItemDefOid }) };
-        let sources;
-        if (parentItemDefOid !== undefined) {
-            sources = { itemGroups: [], valueLists: [currentGroup.oid] };
-        } else {
-            sources = { itemGroups: [currentGroup.oid], valueLists: [] };
-        }
         processedItemDefs[itemRef.itemOid] = newItemDefOid;
         // Review Comments are always removed from the copied variable, as the reference in the comment is to the old variable
         if (addAsPredecessor) {
@@ -101,7 +94,6 @@ const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, par
                 commentOid: undefined,
                 parentItemDefOid,
                 reviewCommentOids: [],
-                sources,
             });
             let origin = new Origin({ type: 'Predecessor' });
             let originDescription = sourceGroup.name + '.' + itemDef.name;
@@ -114,7 +106,7 @@ const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, par
                 oid: newItemDefOid,
                 parentItemDefOid,
                 reviewCommentOids: [],
-                sources })
+            })
             };
         }
         // Check if VLM is attached
@@ -124,7 +116,7 @@ const copyItems = ({ currentGroup, sourceGroup, mdv, sourceMdv, itemRefList, par
             itemDefs[newItemDefOid].valueListOid = newValueListOid;
             currentValueLists.push(newValueListOid);
             valueLists[newValueListOid] = { ...new ValueList({
-                ...valueList, itemRefs: {}, itemRefOrder: [], oid: newValueListOid, sources: { itemDefs: [newItemDefOid] }
+                ...valueList, itemRefs: {}, itemRefOrder: [], oid: newValueListOid
             }) };
             let vlCopy = copyItems({
                 currentGroup: valueLists[newValueListOid],
@@ -181,11 +173,6 @@ const copyMethod = ({ sourceMethodOid, mdv, sourceMdv, searchForDuplicate, group
         if (method.autoMethodName === true) {
             method.name = '';
         }
-        if (isVlm === true) {
-            method.sources = { itemGroups: {}, valueLists: { [groupOid]: [itemRefOid] } };
-        } else {
-            method.sources = { itemGroups: { [groupOid]: [itemRefOid] }, valueLists: {} };
-        }
         method.oid = newMethodOid;
     }
     return { newMethodOid, method, duplicateFound };
@@ -209,14 +196,6 @@ const copyComment = ({ sourceCommentOid, mdv, sourceMdv, searchForDuplicate, ite
     }
     if (!duplicateFound) {
         newCommentOid = getOid('Comment', commentOids);
-        comment.sources = {
-            itemDefs: itemDefOid !== undefined ? [itemDefOid] : [],
-            itemGroups: itemGroupOid !== undefined ? [itemGroupOid] : [],
-            whereClauses: whereClauseOid !== undefined ? [whereClauseOid] : [],
-            codeLists: [],
-            metaDataVersion: [],
-            analysisResults: analysisResultOid !== undefined ? [analysisResultOid] : [],
-        };
         comment.oid = newCommentOid;
     }
     return { newCommentOid, comment, duplicateFound };
@@ -252,10 +231,9 @@ const copyVariables = ({
         addAsPredecessor,
         existingOids,
     });
-    // If it is the same define, then there is no need to rebuild codeLists, other than update sources, this is handled in codelist reducer
+    // If it is the same define, then there is no need to rebuild codeLists
     let codeLists = {};
     let processedCodeLists = {};
-    let codeListSources = {};
     if (sameDefine === false) {
         let codeListOids = Object.keys(mdv.codeLists).concat(existingOids.codeLists);
         Object.keys(itemDefs).forEach(itemDefOid => {
@@ -263,7 +241,6 @@ const copyVariables = ({
             if (sourceCodeListOid !== undefined && !processedCodeLists.hasOwnProperty(sourceCodeListOid)) {
                 let codeList = { ...new CodeList({
                     ...sourceMdv.codeLists[sourceCodeListOid],
-                    sources: undefined,
                 }) };
                 let name = codeList.name;
                 // Search for the same name in the existing codelists
@@ -304,20 +281,13 @@ const copyVariables = ({
                     codeLists[newCodeListOid] = codeList;
                 }
 
-                codeListSources[newCodeListOid] = { itemDefs: [itemDefOid] };
                 processedCodeLists[sourceCodeListOid] = newCodeListOid;
                 itemDefs[itemDefOid].codeListOid = newCodeListOid;
             } else if (sourceCodeListOid !== undefined && processedCodeLists.hasOwnProperty(sourceCodeListOid)) {
                 // If the codelist was already processed in some other ItemDef
                 let newCodeListOid = processedCodeLists[sourceCodeListOid];
-                codeListSources[newCodeListOid].itemDefs.push(itemDefOid);
                 itemDefs[itemDefOid].codeListOid = newCodeListOid;
             }
-        });
-        // Add sources for all newly added codelists
-        Object.keys(codeLists).forEach(codeListOid => {
-            let codeList = codeLists[codeListOid];
-            codeList.sources.itemDefs = codeListSources[codeListOid].itemDefs;
         });
     }
     // Copy methods;
@@ -628,7 +598,6 @@ const copyVariablesFromCdiscLibrary = ({ items, itemGroupOid, mdv, sourceCodeLis
         let currentCodeLists = Object.keys(mdv.codeLists).concat(existingOids.codeLists);
         // Select all unique codelists, which are referenced in the copied items
         // In case codelist is linked from the same define (thisdefine value), no need to do anything
-        // as only sources need to be updated, which is done in the codelist reducer
         items
             .filter(item => item.codeListInfo.oid !== undefined)
             .filter(item => item.codeListInfo.categoryOid !== 'thisdefine')
@@ -680,10 +649,8 @@ const copyVariablesFromCdiscLibrary = ({ items, itemGroupOid, mdv, sourceCodeLis
         if (options.addRole) {
             itemRefs[itemGroupOid][newItemRefOid].role = item.role;
         }
-        let sources = { itemGroups: [itemGroupOid], valueLists: [] };
         let itemDef = new ItemDef({
             oid: newItemDefOid,
-            sources,
             name: item.name,
             fieldName: item.name.slice(0, 8),
             dataType: item.dataType,
@@ -711,8 +678,6 @@ const copyVariablesFromCdiscLibrary = ({ items, itemGroupOid, mdv, sourceCodeLis
             } else if (item.codeListInfo.categoryOid !== undefined) {
                 let id = item.codeListInfo.categoryOid + '#' + item.codeListInfo.oid;
                 itemDef.codeListOid = codeListsToCopy[id].oid;
-                // Add the itemDef to sources
-                codeListsToCopy[id].sources.itemDefs.push(newItemDefOid);
             }
         }
         itemDefs[newItemDefOid] = { ...itemDef };

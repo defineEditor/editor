@@ -48,7 +48,7 @@ class AnalysisResult extends BasicFunctions {
     constructor({
         oid, parameterOid, analysisReason, analysisPurpose,
         descriptions = [], analysisDatasets = {}, analysisDatasetOrder = [], analysisDatasetsCommentOid, documentation, programmingCode,
-        reviewCommentOids = [], sources,
+        reviewCommentOids = [],
     } = {}) {
         super();
         this.oid = oid;
@@ -63,13 +63,6 @@ class AnalysisResult extends BasicFunctions {
         this.programmingCode = programmingCode;
         // Non-Define-XML properties
         this.reviewCommentOids = reviewCommentOids;
-        if (sources !== undefined) {
-            this.sources = sources;
-        } else {
-            this.sources = {
-                resultDisplays: [],
-            };
-        }
     }
 }
 

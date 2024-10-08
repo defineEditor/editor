@@ -27,9 +27,77 @@ import {
     REP_ITEMGROUPCOMMENT
 } from 'constants/action-types';
 
-// After execution of the specific actions, there can be certain elements like methods and comments, which are not linked anymore.
-// Remove them from the state
-const cleanState = store => next => action => {
+/**
+ * @typedef {Object} CheckFlags
+ * @property {Boolean} checkComments
+ * @property {Boolean} checkMethods
+ * @property {Boolean} checkValueLists
+ * @property {Boolean} checkWhereClauses
+ * @property {Boolean} checkItemDefs
+ * @param {Object} store - Redux store
+ * @param {Object} action - Redux action
+ * @param {CheckFlags} [checkFlags] - The optional ODM parameter, needed for ReviewComment type
+**/
+
+const cleanState = (store, checkFlags) => {
+    if (checkFlags.checkItemDefs) {
+        const removedItemDefOids = getUnusedItems(store, 'ItemDef');
+        // Form an action to remove those itemDefs
+        if (removedItemDefOids.length > 0) {
+            store.dispatch(cleanItemDefs({ removedItemDefOids }));
+        }
+    }
+
+    if (checkFlags.checkValueLists) {
+        const removedValueListOids = getUnusedItems(store, 'ValueList');
+        // Form an action to remove those valueLists
+        if (removedValueListOids.length > 0) {
+            store.dispatch(cleanValueLists({ removedValueListOids }));
+        }
+    }
+
+    if (checkFlags.checkWhereClauses) {
+        const removedWhereClauseOids = getUnusedItems(store, 'WhereClause');
+        // Form an action to remove those whereClauses
+        if (removedWhereClauseOids.length > 0) {
+            store.dispatch(cleanWhereClauses({ removedWhereClauseOids }));
+        }
+    }
+
+    if (checkFlags.checkMethods) {
+        const removedMethodOids = getUnusedItems(store, 'Method');
+
+        // Form an action to remove those methods
+        if (removedMethodOids.length > 0) {
+            store.dispatch(cleanMethods({ removedMethodOids }));
+        }
+    }
+
+    if (checkFlags.checkComments) {
+        const removedCommentOids = getUnusedItems(store, 'Comment');
+        // Form an action to remove those comments
+        if (removedCommentOids.length > 0) {
+            store.dispatch(cleanComments({ removedCommentOids }));
+        }
+    }
+};
+
+/**
+ * After execution of the specific actions, there can be certain elements like methods and comments, which are not linked anymore.
+ * Remove them from the state
+ *
+ * @typedef {Object} CheckFlags
+ * @property {Boolean} checkComments
+ * @property {Boolean} checkMethods
+ * @property {Boolean} checkValueLists
+ * @property {Boolean} checkWhereClauses
+ * @property {Boolean} checkItemDefs
+ * @param {Object} store - Redux store
+ * @param {Object} action - Redux action
+ * @param {CheckFlags} [checkFlags] - The optional ODM parameter, needed for ReviewComment type
+**/
+
+const cleanStateMiddleware = store => next => action => {
     // Call the next dispatch method in the middleware chain.
 
     let result = next(action);
@@ -62,7 +130,7 @@ const cleanState = store => next => action => {
         checkItemDefs = true;
     }
 
-    if (!checkMethods && !checkValueLists && !checkComments) {
+    if (!checkMethods && !checkValueLists && !checkComments && !checkWhereClauses && !checkItemDefs) {
         return result;
     }
 
@@ -72,48 +140,9 @@ const cleanState = store => next => action => {
         return result;
     }
 
-    if (checkItemDefs) {
-        const removedItemDefOids = getUnusedItems(store, 'ItemDef');
-        // Form an action to remove those itemDefs
-        if (removedItemDefOids.length > 0) {
-            store.dispatch(cleanItemDefs({ removedItemDefOids }));
-        }
-    }
-
-    if (checkValueLists) {
-        const removedValueListOids = getUnusedItems(store, 'ValueList');
-        // Form an action to remove those valueLists
-        if (removedValueListOids.length > 0) {
-            store.dispatch(cleanValueLists({ removedValueListOids }));
-        }
-    }
-
-    if (checkWhereClauses) {
-        const removedWhereClauseOids = getUnusedItems(store, 'WhereClause');
-        // Form an action to remove those whereClauses
-        if (removedWhereClauseOids.length > 0) {
-            store.dispatch(cleanWhereClauses({ removedWhereClauseOids }));
-        }
-    }
-
-    if (checkMethods) {
-        const removedMethodOids = getUnusedItems(store, 'Method');
-
-        // Form an action to remove those methods
-        if (removedMethodOids.length > 0) {
-            store.dispatch(cleanMethods({ removedMethodOids }));
-        }
-    }
-
-    if (checkComments) {
-        const removedCommentOids = getUnusedItems(store, 'Comment');
-        // Form an action to remove those comments
-        if (removedCommentOids.length > 0) {
-            store.dispatch(cleanComments({ removedCommentOids }));
-        }
-    }
+    cleanState(store, { checkMethods, checkValueLists, checkComments, checkWhereClauses, checkItemDefs });
 
     return result;
 };
 
-export default cleanState;
+export default { cleanState, cleanStateMiddleware };

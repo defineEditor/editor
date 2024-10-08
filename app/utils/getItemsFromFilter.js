@@ -17,6 +17,7 @@ import getCodeListDataAsText from 'utils/getCodeListDataAsText.js';
 import getAnalysisResultDataAsText from 'utils/getAnalysisResultDataAsText.js';
 import getCodedValuesAsText from 'utils/getCodedValuesAsText.js';
 import applyFilter from 'utils/applyFilter.js';
+import getSources from 'utils/getSources.js';
 import { getDescription } from 'utils/defineStructureUtils.js';
 
 const getItemsFromFilter = (filter, mdv, defineVersion, studies, defines) => {
@@ -143,7 +144,8 @@ const getItemsFromFilter = (filter, mdv, defineVersion, studies, defines) => {
         // Get result display for each analysis result
         let resultDisplayOids = {};
         Object.values(mdv.analysisResultDisplays.analysisResults).forEach(analysisResult => {
-            analysisResult.sources.resultDisplays.forEach(resultDisplayOid => {
+            const analysisResultSources = getSources(mdv, 'AnalysisResult', analysisResult.oid);
+            analysisResultSources.resultDisplays.forEach(resultDisplayOid => {
                 resultDisplayOids[analysisResult.oid] = resultDisplayOid;
             });
         });

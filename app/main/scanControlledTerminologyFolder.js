@@ -28,7 +28,7 @@ const writeFile = promisify(fs.writeFile);
 const stat = promisify(fs.stat);
 const parseString = promisify(xml2js.parseString);
 
-const countXmlFiles = async (pathToDir) => {
+const countXmlFiles = async(pathToDir) => {
     let result = 0;
     let files;
     try {
@@ -37,7 +37,7 @@ const countXmlFiles = async (pathToDir) => {
         return;
     }
 
-    result = (await Promise.all(files.map(async (file) => {
+    result = (await Promise.all(files.map(async(file) => {
         let count = 0;
         if (/\.xml$/.test(file)) {
             count += 1;
@@ -53,7 +53,7 @@ const countXmlFiles = async (pathToDir) => {
     return result;
 };
 
-const readContents = async (pathToDir, mainWindow) => {
+const readContents = async(pathToDir, mainWindow) => {
     let files;
     try {
         files = await readdir(pathToDir);
@@ -78,7 +78,7 @@ const readContents = async (pathToDir, mainWindow) => {
         }
     }
 
-    await Promise.all(files.map(async (file) => {
+    await Promise.all(files.map(async(file) => {
         if (/\.xml$/.test(file)) {
             let stdCodeListOdm;
             try {
@@ -136,7 +136,7 @@ const readContents = async (pathToDir, mainWindow) => {
     return stdCodeLists;
 };
 
-const scanControlledTerminologyFolder = async (mainWindow, controlledTerminologyLocation) => {
+const scanControlledTerminologyFolder = async(mainWindow, controlledTerminologyLocation) => {
     let xmlCount = await countXmlFiles(controlledTerminologyLocation);
     mainWindow.webContents.send('scanCtFolderStarted', xmlCount);
     let result = await readContents(controlledTerminologyLocation, mainWindow);

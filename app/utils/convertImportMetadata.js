@@ -31,6 +31,7 @@ import validateCodeList from 'utils/importValidators/validateCodeList.js';
 import validateCodeListItem from 'utils/importValidators/validateCodeListItem.js';
 import { getDescription, setDescription } from 'utils/defineStructureUtils.js';
 import { convertWhereClauseLineToRangeChecks, validateWhereClauseLine } from 'utils/parseWhereClause.js';
+import getSources from 'utils/getSources.js';
 
 const handleBlankAttributes = (obj, ignoreBlanks, recursive) => {
     if (ignoreBlanks === true) {
@@ -189,10 +190,8 @@ const updateItem = ({ item, itemDef, itemRef, stdConstants, model, mdv, options,
 } = {}) => {
     let defineVersion = mdv.defineVersion;
     // If it is a VLM, update the name to use only the second part (first part is the parent variable)
-    let isVlm = false;
     if (/\S+\.\S+/.test(item.variable)) {
         itemDef.name = item.variable.replace(/(\S+)\.(.*)/, '$2');
-        isVlm = true;
     }
     // SAS Field name
     if (item.fieldName === undefined) {
@@ -291,7 +290,6 @@ const updateItem = ({ item, itemDef, itemRef, stdConstants, model, mdv, options,
             let commentOid = getOid('Comment', currentCommentOids);
             currentCommentOids.push(commentOid);
             let comment = new Comment({ oid: commentOid });
-            comment.sources.itemDefs = [itemDef.oid];
             comment.setDescription(item.comment);
             comment.descriptions = toSimpleObject(comment.descriptions);
             itemDef.commentOid = commentOid;
@@ -334,11 +332,6 @@ const updateItem = ({ item, itemDef, itemRef, stdConstants, model, mdv, options,
             let methodOid = getOid('Method', currentMethodOids);
             currentMethodOids.push(methodOid);
             let method = new Method({ oid: methodOid });
-            if (isVlm) {
-                method.sources.valueLists[valueListOid] = [itemRef.oid];
-            } else {
-                method.sources.itemGroups[itemGroupOid] = [itemRef.oid];
-            }
             if (item.method !== undefined) {
                 method.setDescription(item.method);
                 method.descriptions = toSimpleObject(method.descriptions);
@@ -454,29 +447,10 @@ const parseWhereClause = (whereClauseText, whereClauseOid, updatedWhereClauses, 
                 // Create a new WhereClause
                 let newWhereClauseOid = getOid('WhereClause', Object.keys({ ...mdv.whereClauses, ...newWhereClauses }));
                 whereClause = { ...new WhereClause({ oid: newWhereClauseOid, rangeChecks }) };
-                if (sourceType === 'valueLists') {
-                    whereClause.sources[sourceType].push(sourceOid);
-                } else if (sourceType === 'analysisResults') {
-                    whereClause.sources[sourceType][sourceOid] = [itemGroupOid];
-                }
                 newWhereClauses[newWhereClauseOid] = { ...whereClause };
             } else {
                 // Update existing WhereClause
                 whereClause = { ...new WhereClause({ ...mdv.whereClauses[whereClauseOid], rangeChecks }) };
-                if (sourceType === 'valueLists') {
-                    if (whereClause.sources[sourceType] && !whereClause.sources[sourceType].includes(sourceOid)) {
-                        whereClause.sources[sourceType].push(sourceOid);
-                    }
-                } else if (sourceType === 'analysisResults') {
-                    whereClause.sources[sourceType][sourceOid] = [itemGroupOid];
-                    if (whereClause.sources[sourceType] && whereClause.sources[sourceType][sourceOid] === undefined) {
-                        whereClause.sources[sourceType][sourceOid] = [itemGroupOid];
-                    } else if (whereClause.sources[sourceType] && whereClause.sources[sourceType][sourceOid] !== undefined &&
-                        !whereClause.sources[sourceType][sourceOid].includes(itemGroupOid)
-                    ) {
-                        whereClause.sources[sourceType][sourceOid].push(itemGroupOid);
-                    }
-                }
                 let original = handleBlankAttributes(mdv.whereClauses[whereClauseOid], false, true);
                 let updated = handleBlankAttributes(whereClause, false, true);
                 if (!deepEqual(original, updated)) {
@@ -514,15 +488,25 @@ const parseWhereClause = (whereClauseText, whereClauseOid, updatedWhereClauses, 
     }
 };
 
-const getParentItemDef = (item, allItemDefs, itemGroupOid, errors) => {
+const getParentItemDef = (mdv, item, allItemDefs, itemGroupOid, additionalSources, errors) => {
     // Find parent itemDef
     let parentItemDef;
     let parentName = item.variable.replace(/(\S+)\..*/, '$1');
     // Search for the name which has the required dataset in sources
     Object.values(allItemDefs).some(itemDef => {
-        if (itemDef.name === parentName && itemDef.sources.itemGroups.includes(itemGroupOid)) {
-            parentItemDef = itemDef;
-            return true;
+        // Some itemDefs can come from the import, their sources are stored in the additional sources
+        if (itemDef.name === parentName) {
+            const itemDefSources = getSources(mdv, 'ItemDef', itemDef.oid);
+            if (itemDefSources.itemGroups.includes(itemGroupOid) ||
+                (itemDefSources.valueLists.length === 0 &&
+                    itemDefSources.itemGroups.length === 0 &&
+                    additionalSources.hasOwnProperty(itemDef.oid) &&
+                    additionalSources[itemDef.oid].itemGroups.includes(itemGroupOid)
+                )
+            ) {
+                parentItemDef = itemDef;
+                return true;
+            }
         }
     });
 
@@ -606,6 +590,7 @@ const convertImportMetadata = (metadata) => {
     let newValueLists = {};
     let newWhereClauses = {};
     let updatedWhereClauses = {};
+    const additionalSources = {};
     // Datasets
     let dsResult = {};
     if (dsData && dsData.length > 0) {
@@ -668,7 +653,6 @@ const convertImportMetadata = (metadata) => {
                             let commentOid = getOid('Comment', currentCommentOids);
                             currentCommentOids.push(commentOid);
                             let comment = new Comment({ oid: commentOid });
-                            comment.sources.itemGroups = [newItemGroup.oid];
                             comment.setDescription(ds.comment);
                             comment.descriptions = toSimpleObject(comment.descriptions);
                             newItemGroup.commentOid = commentOid;
@@ -749,7 +733,6 @@ const convertImportMetadata = (metadata) => {
                     let commentOid = getOid('Comment', currentCommentOids);
                     currentCommentOids.push(commentOid);
                     let comment = new Comment({ oid: commentOid });
-                    comment.sources.itemGroups = [newItemGroup.oid];
                     comment.setDescription(ds.comment);
                     comment.descriptions = toSimpleObject(comment.descriptions);
                     newItemGroup.commentOid = commentOid;
@@ -1073,7 +1056,7 @@ const convertImportMetadata = (metadata) => {
                         allValueLists = { ...allValueLists, ...newValueLists };
                     }
                     if (isVlm) {
-                        parentItemDef = getParentItemDef(item, { ...mdv.itemDefs, ...newItemDefs, ...updatedItemDefs }, itemGroupOid, errors);
+                        parentItemDef = getParentItemDef(mdv, item, { ...mdv.itemDefs, ...newItemDefs, ...updatedItemDefs }, itemGroupOid, additionalSources, errors);
                         if (parentItemDef.valueListOid) {
                             let vlmName = item.variable.replace(/(\S+)\.(.*)/, '$2');
                             valueListOid = parentItemDef.valueListOid;
@@ -1116,14 +1099,14 @@ const convertImportMetadata = (metadata) => {
                             itemDef.parentItemDefOid = parentItemDef.oid;
                             if (parentItemDef.valueListOid !== undefined) {
                                 valueListOid = parentItemDef.valueListOid;
-                                itemDef.sources.valueLists = [parentItemDef.valueListOid];
+                                additionalSources[itemDef.oid] = { itemGroups: [], valueLists: [parentItemDef.valueListOid] };
                                 if (newVlmItemRefs[parentItemDef.valueListOid] === undefined) {
                                     newVlmItemRefs[parentItemDef.valueListOid] = {};
                                 }
                             } else {
                                 // Create a new value list
                                 valueListOid = getOid('ValueList', Object.keys({ ...mdv.valueLists, ...newValueLists }));
-                                itemDef.sources.valueLists = [valueListOid];
+                                additionalSources[itemDef.oid] = { itemGroups: [], valueLists: [valueListOid] };
                                 if (Object.keys({ ...newItemDefs, ...updatedItemDefs }).includes(parentItemDef.oid)) {
                                     parentItemDef.valueListOid = valueListOid;
                                 } else {
@@ -1131,12 +1114,11 @@ const convertImportMetadata = (metadata) => {
                                     updatedItemDefs[parentItemDef.oid] = { ...new ItemDef({ ...clone(mdv.itemDefs[parentItemDef.oid]), valueListOid }) };
                                 }
                                 let valueList = new ValueList({ oid: valueListOid });
-                                valueList.sources.itemDefs = [parentItemDef.oid];
                                 newValueLists[valueListOid] = { ...valueList };
                                 newVlmItemRefs[valueListOid] = {};
                             }
                         } else {
-                            itemDef.sources.itemGroups = [itemGroupOid];
+                            additionalSources[itemDef.oid] = { itemGroups: [itemGroupOid], valueLists: [] };
                         }
                         let itemRefOid = getOid('ItemRef', currentItemRefOids);
                         currentItemRefOids.push(itemRefOid);
@@ -1194,7 +1176,7 @@ const convertImportMetadata = (metadata) => {
                     let parentItemDef;
                     let valueListOid;
                     if (isVlm) {
-                        parentItemDef = getParentItemDef(item, { ...mdv.itemDefs, ...newItemDefs, ...updatedItemDefs }, itemGroupOid, errors);
+                        parentItemDef = getParentItemDef(mdv, item, { ...mdv.itemDefs, ...newItemDefs, ...updatedItemDefs }, itemGroupOid, additionalSources, errors);
                         if (parentItemDef.valueListOid) {
                             valueListOid = parentItemDef.valueListOid;
                         } else {
@@ -1207,7 +1189,6 @@ const convertImportMetadata = (metadata) => {
                                 updatedItemDefs[parentItemDef.oid] = { ...new ItemDef({ ...clone(mdv.itemDefs[parentItemDef.oid]), valueListOid }) };
                             }
                             let valueList = new ValueList({ oid: valueListOid });
-                            valueList.sources.itemDefs = [parentItemDef.oid];
                             newValueLists[valueListOid] = { ...valueList };
                         }
                     }
@@ -1226,10 +1207,10 @@ const convertImportMetadata = (metadata) => {
                         } else {
                             newVlmItemRefs[valueListOid] = { [itemRef.oid]: { ...itemRef } };
                         }
-                        itemDef.sources.valueLists = [valueListOid];
+                        additionalSources[itemDef.oid] = { itemGroups: [], valueLists: [valueListOid] };
                         newItemDefs[itemDefOid] = { ...itemDef };
                     } else {
-                        itemDef.sources.itemGroups = [itemGroupOid];
+                        additionalSources[itemDef.oid] = { itemGroups: [itemGroupOid], valueLists: [] };
                         newItemRefs[itemRef.oid] = { ...itemRef };
                         newItemDefs[itemDefOid] = { ...itemDef };
                     }
@@ -1372,7 +1353,8 @@ const convertImportMetadata = (metadata) => {
                 isNewAnalysisResult = !Object.values(mdv.analysisResultDisplays.analysisResults)
                     .filter(existingAnalysisResult => {
                         // Keep only analysis results which correspond to the current result display
-                        return existingAnalysisResult.sources.resultDisplays.includes(resultDisplayOid);
+                        const existingAnalysisResultSources = getSources(mdv, 'AnalysisResult', existingAnalysisResult.oid);
+                        return existingAnalysisResultSources.resultDisplays.includes(resultDisplayOid);
                     })
                     .some(existingAnalysisResult => {
                         if (getDescription(existingAnalysisResult) === currentAnalysisResult.description) {
@@ -1385,7 +1367,6 @@ const convertImportMetadata = (metadata) => {
                     analysisResultOid = getOid('AnalysisResult', currentAnalysisResultOids);
                     currentAnalysisResultOids.push(analysisResultOid);
                     analysisResult = new AnalysisResult({ ...currentAnalysisResult, oid: analysisResultOid, documentation: undefined });
-                    analysisResult.sources.resultDisplays.push(resultDisplayOid);
                 }
                 // Set attributes
                 // Description
@@ -1518,7 +1499,8 @@ const convertImportMetadata = (metadata) => {
                             let dsNameOids = {};
                             Object.values(allItemDefs).filter(itemDef => {
                                 // Select only variables in that dataset
-                                return itemDef.sources && itemDef.sources.itemGroups && itemDef.sources.itemGroups.includes(oid);
+                                const itemDefSources = getSources(mdv, 'ItemDef', itemDef.oid);
+                                return itemDefSources.itemGroups.includes(oid);
                             }).forEach(itemDef => {
                                 dsNameOids[itemDef.name.toUpperCase()] = itemDef.oid;
                             });
@@ -1652,7 +1634,6 @@ const convertImportMetadata = (metadata) => {
                         let commentOid = getOid('Comment', currentCommentOids);
                         currentCommentOids.push(commentOid);
                         let comment = new Comment({ oid: commentOid });
-                        comment.sources.analysisResults = [analysisResult.oid];
                         comment.setDescription(currentAnalysisResult.comment);
                         comment.descriptions = toSimpleObject(comment.descriptions);
                         analysisResult.analysisDatasetsCommentOid = commentOid;

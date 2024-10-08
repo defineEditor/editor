@@ -88,10 +88,9 @@ const getUnusedItemDefs = (mdv) => {
 
 /**
  * Get unsed elements
- * @param {MetaDataVersion} store - Redux store
- * @param {{'ItemDef' | 'WhereClause' | 'Comment' |
- * 'Method' | 'ValueList' }} type - The type of the item
- * @returns {Sources} - The sources elements for the item
+ * @param {Object} store - Redux store
+ * @param {{'ItemDef' | 'WhereClause' | 'Comment' | 'Method' | 'ValueList' }} type - The type of the item
+ * @returns {Array<Strings>} - The list of unsed OIDs
  **/
 const getUnusedItems = (store, type) => {
     const state = store.getState();

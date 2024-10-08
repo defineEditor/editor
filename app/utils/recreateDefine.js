@@ -162,20 +162,7 @@ const recreateResultDisplays = (data) => {
 const recreateAnalysisResults = (data, resultDisplays) => {
     let result = {};
     Object.keys(data).forEach(oid => {
-        if (!(data[oid].sources && data[oid].sources.resultDisplays && data[oid].sources.resultDisplays.length > 0)) {
-            // Find resultDisplay OID which uses that analysis result
-            let foundResultDisplay = Object.keys(resultDisplays).some(resultDisplayOid => {
-                if (resultDisplays[resultDisplayOid].analysisResultOrder.includes(oid)) {
-                    result[oid] = { ...new AnalysisResult({ ...data[oid], sources: { resultDisplays: [resultDisplayOid] } }) };
-                    return true;
-                }
-            });
-            if (!foundResultDisplay) {
-                result[oid] = { ...new AnalysisResult({ ...data[oid] }) };
-            }
-        } else {
-            result[oid] = { ...new AnalysisResult({ ...data[oid] }) };
-        }
+        result[oid] = { ...new AnalysisResult({ ...data[oid] }) };
     });
     return result;
 };

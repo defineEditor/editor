@@ -11,9 +11,10 @@
 * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License   *
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
+import getSources from './getSources.js';
 
 // Get OIDs of items which are linked from ItemRefs
-function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsRaw) {
+function getItemRefsRelatedOids(mdv, itemGroupOid, itemRefOids, vlmItemRefOidsRaw) {
     let vlmItemRefOids = vlmItemRefOidsRaw === undefined ? {} : { ...vlmItemRefOidsRaw };
     // For variables, return an array of ItemDef OIDs;
     let itemDefOids = [];
@@ -81,7 +82,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
 
     // Form an object of comments to remove {commentOid: [itemOid1, itemOid2, ...]}
     let commentOids = { itemDefs: {}, whereClauses: {} };
-    // Comments which are referenced by ItemDefs with multiple sources cannot be deleted at this stage
+    // Comments which are referenced by ItemDefs with multiple source ItemRefs cannot be deleted at this stage
     // Get this information, so that a decision to delete them can be taken upstream
     let commentCandidateOids = {};
     // Form an object of methods to remove {methodOid: [itemOid1, itemOid2, ...]}
@@ -101,7 +102,8 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
         let commentOid = mdv.itemDefs[itemOid].commentOid;
         if (commentOid !== undefined) {
             // Before deleting the comment verify that there is only one itemGroup for that itemDef
-            if (mdv.itemDefs[itemOid].sources.itemGroups.length + mdv.itemDefs[itemOid].sources.valueLists.length <= 1) {
+            const itemDefSources = getSources(mdv, 'ItemDef', itemOid);
+            if (itemDefSources.itemGroups.length + itemDefSources.valueLists.length <= 1) {
                 if (commentOids.itemDefs[commentOid] === undefined) {
                     commentOids.itemDefs[commentOid] = [];
                 }
@@ -113,7 +115,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
                     commentCandidateOids[commentOid] = {};
                 }
                 if (!Object.keys(commentCandidateOids[commentOid]).includes(itemOid)) {
-                    commentCandidateOids[commentOid][itemOid] = mdv.itemDefs[itemOid].sources;
+                    commentCandidateOids[commentOid][itemOid] = itemDefSources;
                 }
             }
         }
@@ -155,15 +157,18 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
     Object.keys(vlmItemRefOids).forEach(valueListOid => {
         vlmItemRefOids[valueListOid].forEach(itemRefOid => {
             let itemOid = mdv.valueLists[valueListOid].itemRefs[itemRefOid].itemOid;
-            let sourceItemOids = mdv.valueLists[valueListOid].sources.itemDefs;
+            const valueListSources = getSources(mdv, 'ValueList', valueListOid);
+            let sourceItemOids = valueListSources.itemDefs;
             // Comments
             let commentOid = mdv.itemDefs[itemOid].commentOid;
+            const itemDefSources = getSources(mdv, 'ItemDef', itemOid);
+            const sourceItemSources = getSources(mdv, 'ItemDef', sourceItemOids[0]);
             if (commentOid !== undefined) {
                 // Before deleting the comment verify that there is only one itemGroup for that itemDef
-                if ((mdv.itemDefs[itemOid].sources.itemGroups.length + mdv.itemDefs[itemOid].sources.valueLists.length <= 1) &&
+                if ((itemDefSources.itemGroups.length + itemDefSources.valueLists.length <= 1) &&
                     sourceItemOids.length <= 1 &&
                     mdv.itemDefs.hasOwnProperty(sourceItemOids[0]) &&
-                    mdv.itemDefs[sourceItemOids].sources.itemGroups.length <= 1
+                    sourceItemSources.itemGroups.length <= 1
                 ) {
                     if (commentOids.itemDefs[commentOid] === undefined) {
                         commentOids.itemDefs[commentOid] = [];
@@ -176,7 +181,7 @@ function getItemRefsRelatedOids (mdv, itemGroupOid, itemRefOids, vlmItemRefOidsR
                         commentCandidateOids[commentOid] = {};
                     }
                     if (!Object.keys(commentCandidateOids[commentOid]).includes(itemOid)) {
-                        commentCandidateOids[commentOid][itemOid] = mdv.itemDefs[itemOid].sources;
+                        commentCandidateOids[commentOid][itemOid] = itemDefSources;
                     }
                 }
             }

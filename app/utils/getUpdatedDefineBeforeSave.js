@@ -15,6 +15,7 @@ import store from 'store/index.js';
 import { getMaxLength } from 'utils/defineStructureUtils.js';
 import { ActionCreators } from 'redux-undo';
 import getItemGroupsRelatedOids from 'utils/getItemGroupsRelatedOids.js';
+import getSources from 'utils/getSources.js';
 import {
     deleteItemGroupsNoHistory,
     dummyAction,
@@ -63,14 +64,15 @@ export const getUpdatedDefineBeforeSave = (inputOdm) => {
         store.dispatch(ActionCreators.redo());
     }
     // Remove unused codelists if corresponding option is set
+    // TODO some of the removed codelists can be using comments, which are not removed at the moment
     if (state.settings.editor.hasOwnProperty('removeUnusedCodeListsInDefineXml') && state.settings.editor.removeUnusedCodeListsInDefineXml === true) {
         let newCodeLists = { ...mdv.codeLists };
         let newCodeListOrder = [ ...mdv.order.codeListOrder ];
         Object.keys(mdv.codeLists).forEach(codeListOid => {
-            let codeList = mdv.codeLists[codeListOid];
+            const codeListSources = getSources(mdv, 'CodeList', codeListOid);
             let unusedCodeList = true;
-            Object.keys(codeList.sources).some(type => {
-                if (Object.keys(codeList.sources[type]).length !== 0) {
+            Object.keys(codeListSources).some(type => {
+                if (Object.keys(codeListSources[type]).length !== 0) {
                     unusedCodeList = false;
                     return true;
                 }

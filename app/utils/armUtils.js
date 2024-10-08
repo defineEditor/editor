@@ -19,6 +19,7 @@ import { AnalysisResult, ResultDisplay, AnalysisDataset } from 'core/armStructur
 import { WhereClause, Leaf } from 'core/defineStructure.js';
 import getOidByName from 'utils/getOidByName.js';
 import compareLeafs from 'utils/compareLeafs.js';
+import getSources from 'utils/getSources.js';
 
 const copyAnalysisResults = ({
     mdv,
@@ -63,7 +64,8 @@ const copyAnalysisResults = ({
             } else {
                 // Parameter OID should come from one of the analysis Datasets
                 analysisResult.analysisDatasetOrder.some(itemGroupOid => {
-                    if (sourceMdv.itemDefs[analysisResult.parameterOid].sources.itemGroups.includes(itemGroupOid)) {
+                    const itemDefSources = getSources(sourceMdv, 'ItemDef', analysisResult.parameterOid);
+                    if (itemDefSources.itemGroups.includes(itemGroupOid)) {
                         parameterItemGroupOid = itemGroupOid;
                         return true;
                     }
@@ -88,7 +90,6 @@ const copyAnalysisResults = ({
                     whereClauses[newWhereClauseOid] = { ...new WhereClause({
                         ...whereClause,
                         oid: newWhereClauseOid,
-                        sources: { analysisResults: { [newAnalysisResultOid]: [analysisDataset.itemGroupOid] } }
                     }) };
                     analysisDataset.whereClauseOid = newWhereClauseOid;
                 }
@@ -241,7 +242,6 @@ const copyAnalysisResults = ({
                         whereClauses[newWhereClauseOid] = { ...new WhereClause({
                             ...whereClause,
                             oid: newWhereClauseOid,
-                            sources: { analysisResults: { [newAnalysisResultOid]: [destinationItemGroupOid] } }
                         }) };
                     }
                 }
@@ -288,7 +288,6 @@ const copyAnalysisResults = ({
             parameterOid: newParameterOid,
             analysisDatasets: newAnalysisDatasets,
             analysisDatasetOrder: newAnalysisDatasetOrder,
-            sources: { resultDisplays: [resultDisplayOid] },
             reviewCommentOids: undefined,
         }) };
         currentAnalysisResults.push(newAnalysisResultOid);

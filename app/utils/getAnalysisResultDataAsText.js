@@ -12,13 +12,15 @@
 * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
 ***********************************************************************************/
 import { getDescription } from 'utils/defineStructureUtils.js';
+import getSources from 'utils/getSources.js';
 
 // Get analysisResult data as text;
 const getAnalysisResultDataAsText = (mdv, format = 'array', excludeAttrs = []) => {
     let analysisResultData = [];
     let resultDisplayOids = {};
     Object.values(mdv.analysisResultDisplays.analysisResults).forEach(analysisResult => {
-        analysisResult.sources.resultDisplays.forEach(resultDisplayOid => {
+        const analysisResultSources = getSources(mdv, 'AnalysisResult', analysisResult.oid);
+        analysisResultSources.resultDisplays.forEach(resultDisplayOid => {
             resultDisplayOids[analysisResult.oid] = resultDisplayOid;
             let resultDisplay = mdv.analysisResultDisplays.resultDisplays[resultDisplayOid];
             let item = {

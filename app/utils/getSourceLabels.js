@@ -13,13 +13,14 @@
 ***********************************************************************************/
 
 import { getWhereClauseAsText, getDescription } from 'utils/defineStructureUtils.js';
+import getSources from 'utils/getSources.js';
 
-const getSourceLabels = (sources, mdv, displayGroupName = true, displayThisManySources = 0) => {
+const getSourceLabels = (itemSources, mdv, displayGroupName = true, displayThisManySources = 0) => {
     let result = {};
-    for (let source in sources) {
-        if ((mdv.hasOwnProperty(source) || source === 'analysisResults') && sources[source].length > 0) {
+    for (let source in itemSources) {
+        if ((mdv.hasOwnProperty(source) || source === 'analysisResults') && itemSources[source].length > 0) {
             result[source] = [];
-            sources[source].forEach(oid => {
+            itemSources[source].forEach(oid => {
                 // In case the Define-XML contains broken source link, do nothing
                 if ((source === 'analysisResults' && !mdv.analysisResultDisplays[source].hasOwnProperty(oid)) ||
                     (source !== 'analysisResults' && !mdv[source].hasOwnProperty(oid))
@@ -30,12 +31,14 @@ const getSourceLabels = (sources, mdv, displayGroupName = true, displayThisManyS
                 if (source === 'itemDefs' && mdv[source][oid].parentItemDefOid !== undefined) {
                     // Value level case;
                     let parentItemDefOid = mdv[source][oid].parentItemDefOid;
-                    mdv[source][parentItemDefOid].sources.itemGroups.forEach(itemGroupOid => {
+                    const parentItemDefSources = getSources(mdv, 'ItemDef', parentItemDefOid);
+                    parentItemDefSources.itemGroups.forEach(itemGroupOid => {
                         result[source].push(mdv.itemGroups[itemGroupOid].name + '.' + mdv[source][parentItemDefOid].name + '.' + mdv[source][oid].name);
                     });
                 } else if (source === 'itemDefs') {
                     // For itemDefs also get a dataset name
-                    mdv[source][oid].sources.itemGroups.forEach(itemGroupOid => {
+                    const itemDefSources = getSources(mdv, 'ItemDef', oid);
+                    itemDefSources.itemGroups.forEach(itemGroupOid => {
                         result[source].push(mdv.itemGroups[itemGroupOid].name + '.' + mdv[source][oid].name);
                     });
                 } else if (source === 'whereClauses') {
@@ -69,6 +72,12 @@ const getSourceLabels = (sources, mdv, displayGroupName = true, displayThisManyS
                     groupName = 'Where Clauses:\n';
                 } else if (group === 'analysisResults') {
                     groupName = 'Analysis Results: ';
+                } else if (group === 'codeLists') {
+                    groupName = 'Codelists: ';
+                } else if (group === 'metaDataVersion') {
+                    groupName = 'MetaDataVersion: ';
+                } else if (group === 'standards') {
+                    groupName = 'Standards: ';
                 }
             } else {
                 groupName = '';

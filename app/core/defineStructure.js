@@ -169,19 +169,11 @@ class Origin extends BasicFunctions {
 }
 
 class WhereClause {
-    constructor({ oid, commentOid, sources, rangeChecks = [] } = {}) {
+    constructor({ oid, commentOid, rangeChecks = [] } = {}) {
         this.oid = oid || getOid('WhereClause');
         this.commentOid = commentOid;
         this.rangeChecks = rangeChecks;
         // List of ItemGroups/itemRefs from which the whereClause is linked
-        if (sources !== undefined) {
-            this.sources = sources;
-        } else {
-            this.sources = {
-                valueLists: [],
-                analysisResults: {},
-            };
-        }
     }
     addRangeCheck(rangeCheck) {
         this.rangeChecks.push(rangeCheck);
@@ -281,7 +273,6 @@ class CodeList extends BasicFunctions {
         itemOrder = [],
         descriptions = [],
         reviewCommentOids = [],
-        sources
     } = {}) {
         super();
         this.oid = oid || getOid('CodeList');
@@ -316,13 +307,6 @@ class CodeList extends BasicFunctions {
         this.linkedCodeListOid = linkedCodeListOid;
         this.cdiscSubmissionValue = cdiscSubmissionValue;
         // List of items from which the codelist is linked
-        if (sources !== undefined) {
-            this.sources = sources;
-        } else {
-            this.sources = {
-                itemDefs: []
-            };
-        }
         this.reviewCommentOids = reviewCommentOids;
     }
     addEnumeratedItem(item) {
@@ -425,39 +409,21 @@ class CodeListItem extends EnumeratedItem {
 }
 
 class Comment extends BasicFunctions {
-    constructor({ oid, descriptions = [], documents = [], sources } = {}) {
+    constructor({ oid, descriptions = [], documents = [] } = {}) {
         super();
         this.oid = oid;
         this.descriptions = descriptions;
         this.documents = documents;
-        if (sources !== undefined) {
-            this.sources = sources;
-        } else {
-            this.sources = {
-                itemDefs: [],
-                itemGroups: [],
-                whereClauses: [],
-                codeLists: [],
-                metaDataVersion: [],
-                analysisResults: [],
-                standards: [],
-            };
-        }
     }
     clone() {
         let descriptions = this.descriptions.map(description =>
             description.clone()
         );
         let documents = this.documents.map(document => document.clone());
-        let sources = {};
-        Object.keys(this.sources).forEach(type => {
-            sources[type] = this.sources[type].slice();
-        });
         return new Comment({
             oid: this.oid,
             descriptions: descriptions,
             documents: documents,
-            sources: sources
         });
     }
 }
@@ -482,22 +448,11 @@ class Method extends Comment {
         descriptions = [],
         documents = [],
         formalExpressions = [],
-        sources
     } = {}) {
-        let initialSources;
-        if (sources !== undefined) {
-            initialSources = sources;
-        } else {
-            initialSources = {
-                itemGroups: {},
-                valueLists: {}
-            };
-        }
         super({
             oid: oid,
             descriptions: descriptions,
             documents: documents,
-            sources: initialSources
         });
         this.name = name;
         this.type = type;
@@ -528,15 +483,6 @@ class Method extends Comment {
             formalExpression.clone()
         );
         let documents = this.documents.map(document => document.clone());
-        let sources = {
-            itemGroups: {},
-            valueLists: {}
-        };
-        Object.keys(this.sources).forEach(type => {
-            Object.keys(this.sources[type]).forEach(typeOid => {
-                sources[type][typeOid] = this.sources[type][typeOid].slice();
-            });
-        });
         return new Method({
             oid: this.oid,
             name: this.name,
@@ -544,7 +490,6 @@ class Method extends Comment {
             autoMethodName: this.autoMethodName,
             descriptions: descriptions,
             documents: documents,
-            sources: sources,
             formalExpressions: formalExpressions
         });
     }
@@ -828,7 +773,6 @@ class ItemDef extends BasicFunctions {
         parentItemDefOid,
         origins = [],
         descriptions = [],
-        sources,
         reviewCommentOids = [],
     } = {}) {
         super();
@@ -855,14 +799,6 @@ class ItemDef extends BasicFunctions {
         this.lengthAsData = lengthAsData;
         this.lengthAsCodeList = lengthAsCodeList;
         // List of itemGroups from which the itemDef is linked
-        if (sources !== undefined) {
-            this.sources = sources;
-        } else {
-            this.sources = {
-                itemGroups: [],
-                valueLists: []
-            };
-        }
     }
     addOrigin(origin) {
         this.origins.push(origin);
@@ -901,7 +837,6 @@ class ValueList extends BasicFunctions {
         itemRefOrder = [],
         descriptions = [],
         keyOrder = [],
-        sources
     } = {}) {
         super();
         this.oid = oid || getOid('ValueList');
@@ -909,14 +844,6 @@ class ValueList extends BasicFunctions {
         this.itemRefOrder = itemRefOrder;
         this.descriptions = descriptions; // 2.1D
         this.keyOrder = keyOrder;
-        // Non-define XML properties
-        if (sources !== undefined) {
-            this.sources = sources;
-        } else {
-            this.sources = {
-                itemDefs: []
-            };
-        }
     }
     addItemRef(oid, itemRef) {
         this.itemRefs[oid] = itemRef;

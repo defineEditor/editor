@@ -26,7 +26,7 @@ const mkdir = promisify(fs.mkdir);
 const writeFile = promisify(fs.writeFile);
 const parseString = promisify(xml2js.parseString);
 
-const readContents = async (mainWindow, openDialogResult) => {
+const readContents = async(mainWindow, openDialogResult) => {
     const { filePaths, canceled } = openDialogResult;
     if (!canceled && filePaths !== undefined && filePaths.length > 0) {
         mainWindow.webContents.send('scanCtFolderStarted', filePaths.length);
@@ -45,7 +45,7 @@ const readContents = async (mainWindow, openDialogResult) => {
             }
         }
 
-        await Promise.all(filePaths.map(async (file) => {
+        await Promise.all(filePaths.map(async(file) => {
             let stdCodeListOdm;
             try {
                 let xmlData = await readFile(file);
@@ -97,7 +97,7 @@ const readContents = async (mainWindow, openDialogResult) => {
     }
 };
 
-const addControlledTerminology = async (mainWindow) => {
+const addControlledTerminology = async(mainWindow) => {
     let result = await dialog.showOpenDialog(
         mainWindow,
         {

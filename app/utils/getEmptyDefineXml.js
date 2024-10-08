@@ -23,7 +23,7 @@ import getOid from 'utils/getOid.js';
 import getCtPublishingSet from 'utils/getCtPublishingSet.js';
 import getModelFromStandard from 'utils/getModelFromStandard.js';
 
-function getEmptyDefineXml ({ standard, defineVersion, study, settings, controlledTerminology } = {}) {
+function getEmptyDefineXml({ standard, defineVersion, study, settings, controlledTerminology } = {}) {
     let defaultOdmAttrs = {
         xlink: 'http://www.w3.org/1999/xlink',
         def: 'http://www.cdisc.org/ns/def/v2.0',

@@ -50,7 +50,7 @@ class Define {
 
 class ControlledTerminology {
     constructor({
-        id, name, version, codeListCount, pathToFile, isDefault, sources, isCdiscNci, publishingSet, type
+        id, name, version, codeListCount, pathToFile, isDefault, isCdiscNci, publishingSet, type
     } = {}) {
         this.id = id;
         this.name = name;
@@ -61,23 +61,15 @@ class ControlledTerminology {
         this.isCdiscNci = isCdiscNci;
         this.publishingSet = publishingSet;
         this.type = type;
-        if (sources === undefined) {
-            this.sources = {
-                defineIds: [],
-            };
-        } else {
-            this.sources = sources;
-        }
     }
 }
 
 class ReviewComment {
     constructor({
-        text, author, createdAt, modifiedAt, resolvedAt, resolvedBy = '', reviewCommentOids = [], sources = {},
+        text, author, createdAt, modifiedAt, resolvedAt, resolvedBy = '', reviewCommentOids = [],
     } = {}) {
         this.text = text;
         this.author = author;
-        this.sources = sources;
         this.resolvedBy = resolvedBy;
         this.resolvedAt = resolvedAt;
         if (createdAt === undefined) {

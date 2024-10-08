@@ -12,6 +12,7 @@
  * version 3 (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.           *
  ***********************************************************************************/
 import { getDescription } from 'utils/defineStructureUtils.js';
+import getSources from 'utils/getSources.js';
 
 const getItemNamesFromOid = (type, oids, mdv) => {
     let result = [];
@@ -20,9 +21,10 @@ const getItemNamesFromOid = (type, oids, mdv) => {
             let updatedItem = { ...oid };
             if (updatedItem.valueListOid !== undefined) {
                 // VLM variable
+                const valueListSources = getSources(mdv, 'ValueList', updatedItem.valueListOid);
                 updatedItem.name =
                     `${mdv.itemGroups[oid.itemGroupOid].name}.` +
-                    `${mdv.itemDefs[mdv.valueLists[oid.valueListOid].sources.itemDefs[0]].name}.` +
+                    `${mdv.itemDefs[valueListSources.itemDefs[0]].name}.` +
                     `${mdv.itemDefs[oid.itemDefOid].name}`
                 ;
             } else {
